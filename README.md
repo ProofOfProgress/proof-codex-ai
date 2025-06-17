@@ -1,16 +1,22 @@
-# Proof Codex AI
+This repository provides resources for automating Proof of Progress content generation and AI advisor functionality.
 
-Utilities and reference material for automating Proof content generation.
+## codexadvisor.py Module
 
-## AutoTextGenerator
+The `codexadvisor.py` module analyzes channel metrics and comment trends to generate actionable recommendations backed by Codex laws.
 
-`src/autotextgenerator.py` builds draft hooks, codex updates, CTAs, pull-request summaries, README snippets, and metric reports. It consumes Codex laws, task logs, viewer metrics, and comment trends.
+### Usage
 
-### Running
+```bash
+python codexadvisor.py
 
+Reads metrics from data/metrics.json and comments from data/comments.json. Recommendations cite lines from Proof_AI_Advisor_Protocol.txt to justify each suggestion.
+
+AutoTextGenerator Utility
+src/autotextgenerator.py builds draft hooks, codex updates, CTAs, pull-request summaries, README snippets, and metric reports. It consumes Codex laws, task logs, viewer metrics, and comment trends.
+
+Running
 Prepare an input JSON file:
 
-```json
 {
   "laws": ["Law #1 Hook <3s"],
   "systems": ["Loop Trap"],
@@ -18,13 +24,7 @@ Prepare an input JSON file:
   "task_logs": "Update hooks\nRefactor CTA",
   "comment_trends": ["push harder"]
 }
-```
 
 Then execute:
 
-```bash
 python3 -m src.autotextgenerator data.json --out drafts
-```
-
-The script writes text drafts into the specified output directory for review.
-
