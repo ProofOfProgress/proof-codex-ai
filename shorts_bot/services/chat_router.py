@@ -32,3 +32,16 @@ def is_pending_command(message: str) -> bool:
 
 def is_help_command(message: str) -> bool:
     return message.strip().lower() in {"help", "/help", "commands", "?"}
+
+
+def is_apply_brand_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "apply brand",
+        "apply branding",
+        "channel brand",
+        "update channel",
+        "update channel name",
+        "update description",
+        "apply channel brand",
+    } or t.startswith("apply brand ")

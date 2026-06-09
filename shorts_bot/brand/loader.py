@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shorts_bot.brand.youtube_copy import YouTubeCopyFields, parse_youtube_copy
 from shorts_bot.config import settings
 
 
@@ -31,6 +32,17 @@ class ChannelBrand:
         if self.copy_path.exists():
             return self.copy_path.read_text(encoding="utf-8").strip()
         return ""
+
+    def youtube_fields(self) -> YouTubeCopyFields:
+        parsed = parse_youtube_copy(self.youtube_copy())
+        if parsed.channel_name:
+            return parsed
+        return YouTubeCopyFields(
+            channel_name=settings.youtube_channel_name,
+            description=parsed.description,
+            tagline=parsed.tagline or settings.channel_tagline,
+            pinned_comment=parsed.pinned_comment,
+        )
 
     def draft_instructions(self) -> str:
         parts = [self.identity_summary()]

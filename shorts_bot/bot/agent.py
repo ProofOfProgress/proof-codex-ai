@@ -145,6 +145,7 @@ class ShortsBotAgent:
                 "- course <question>  (Jenny course routing)\n"
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
+                "- apply brand  (updates channel name + description in Studio from youtube_copy.txt)\n"
                 "Set OPENAI_API_KEY for full Jenny strategist mode."
             )
         if text.startswith("setup channel "):
@@ -152,6 +153,9 @@ class ShortsBotAgent:
             data = json.loads(
                 self.tool_runner.run("setup_youtube_channel", {"channel_name": name})
             )
+            return data.get("message", str(data))
+        if text in {"apply brand", "apply branding", "channel brand", "update channel"}:
+            data = json.loads(self.tool_runner.run("apply_channel_branding", {}))
             return data.get("message", str(data))
         if text == "free tools":
             return self.kb.free_services or "No free services doc found."

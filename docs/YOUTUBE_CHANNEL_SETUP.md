@@ -2,6 +2,20 @@
 
 Use after `auth_cli` or manual Studio login. No images required yet — text + Canva later.
 
+## Automatic name + description (bot)
+
+Edit `channel/brand/youtube_copy.txt`, then run **one** of:
+
+```bash
+python3 -m shorts_bot.youtube.brand_cli
+```
+
+- Web UI → **Learning** → **Apply name & description to YouTube**
+- Discord: `!applybrand` or DM: `apply brand`
+- Chat/agent: `apply_channel_branding` tool
+
+Requires a saved YouTube login in `data/browser_profile` (same session as channel setup).
+
 ## Channel name
 
 **Soft Continuity** (or keep your existing name — brand voice still applies)

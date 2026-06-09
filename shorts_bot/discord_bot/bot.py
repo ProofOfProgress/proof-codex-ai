@@ -116,7 +116,7 @@ class ShortsCog(commands.Cog):
             "**Shorts Bot** — prefix `!` in servers. In **DMs**, just type normally.\n\n"
             "`!status` · `!chat <msg>` · `!draft <topic>` · `!pending`\n"
             "`!yes <id>` / `!no <id>` · `!draftyes` / `!draftno`\n"
-            "`!sync` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
+            "`!sync` · `!applybrand` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
             "`!briefing` · `!learned` · `!rewards` · `!ping` · `!myid`\n"
             "Slash: `/status` `/draft` `/pending` `/briefing`"
         )
@@ -208,6 +208,19 @@ class ShortsCog(commands.Cog):
         await ctx.reply(result.get("message", "Done"))
         if result.get("improvements_created", 0) > 0:
             await notify_pending_summary(self.bot, self.ops)
+
+    @commands.command(name="applybrand", aliases=["channelbrand"])
+    async def apply_brand_cmd(self, ctx: commands.Context) -> None:
+        """Apply channel name + description from youtube_copy.txt in YouTube Studio."""
+        await self._remember(ctx)
+        await ctx.reply("Opening browser to update channel name and description…")
+        result = await asyncio.to_thread(self.ops.apply_channel_branding)
+        msg = result.get("message", "Done")
+        if result.get("name_updated"):
+            msg += "\n✓ Name updated"
+        if result.get("description_updated"):
+            msg += "\n✓ Description updated"
+        await ctx.reply(msg)
 
     @commands.command(name="notify")
     async def notify_cmd(self, ctx: commands.Context) -> None:
