@@ -85,6 +85,30 @@ async function decideDev(id, yes) {
   document.querySelector(`.dev-card[data-id="${id}"]`)?.remove();
 }
 
+const applyBrandBtn = document.getElementById('apply-brand-btn');
+const brandMsg = document.getElementById('brand-msg');
+if (applyBrandBtn) {
+  applyBrandBtn.addEventListener('click', async () => {
+    applyBrandBtn.disabled = true;
+    brandMsg.className = 'sync-msg';
+    brandMsg.textContent = 'Opening browser — updating channel name and description…';
+    try {
+      const res = await fetch('/api/youtube/apply-brand', { method: 'POST' });
+      const data = await res.json();
+      brandMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      let text = data.message || 'Done';
+      if (data.name_updated) text += ' · Name updated';
+      if (data.description_updated) text += ' · Description updated';
+      brandMsg.textContent = text;
+    } catch {
+      brandMsg.className = 'sync-msg err';
+      brandMsg.textContent = 'Apply failed — sign into YouTube in the browser profile first.';
+    } finally {
+      applyBrandBtn.disabled = false;
+    }
+  });
+}
+
 const syncBtn = document.getElementById('sync-btn');
 const syncMsg = document.getElementById('sync-msg');
 if (syncBtn) {

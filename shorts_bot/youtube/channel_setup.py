@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+from shorts_bot.youtube.studio import goto_channel_customization, resolve_channel_id
+
 SetupStatus = Literal[
     "started",
     "needs_human",
@@ -273,12 +275,10 @@ class YouTubeChannelSetup:
 
     def _try_set_channel_name(self, page, channel_name: str) -> ChannelSetupResult | None:
         try:
-            page.goto(
-                "https://studio.youtube.com/channel/UC/editing/details",
-                wait_until="domcontentloaded",
-                timeout=30000,
-            )
-            time.sleep(2)
+            channel_id = goto_channel_customization(page) or resolve_channel_id(page)
+            if not channel_id:
+                return None
+            time.sleep(1)
             name_input = page.locator('input[aria-label*="name" i], input[name*="name" i]').first
             if name_input.count():
                 name_input.fill(channel_name)

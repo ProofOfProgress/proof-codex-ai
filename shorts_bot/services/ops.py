@@ -5,7 +5,13 @@ from typing import Any
 
 from shorts_bot.config import settings
 from shorts_bot.learning.learned_file import LearnedFile
-from shorts_bot.services.chat_router import is_help_command, is_pending_command, is_sync_command, parse_dev_request
+from shorts_bot.services.chat_router import (
+    is_apply_brand_command,
+    is_help_command,
+    is_pending_command,
+    is_sync_command,
+    parse_dev_request,
+)
 from shorts_bot.web.deps import (
     get_agent,
     get_analytics_sync,
@@ -30,6 +36,9 @@ class BotOperations:
         if is_sync_command(text):
             r = self.youtube_sync()
             return r.get("message", "Sync done.")
+        if is_apply_brand_command(text):
+            r = self.apply_channel_branding()
+            return r.get("message", "Brand apply done.")
         if is_pending_command(text):
             return self._format_pending()
         dev = parse_dev_request(text)
@@ -72,6 +81,7 @@ class BotOperations:
             "• pending — what needs Yes/No\n"
             "• yes <id> / no <id> — approve improvements\n"
             "• sync — YouTube Analytics (after Google login)\n"
+            "• apply brand — update channel name + description in Studio\n"
             "• Or just chat normally (needs OpenAI key for full mode)"
         )
 
@@ -190,6 +200,34 @@ class BotOperations:
             "message": r.message,
             "videos_scored": r.videos_scored,
             "improvements_created": r.improvements_created,
+        }
+
+    def apply_channel_branding(
+        self,
+        *,
+        channel_name: str | None = None,
+        description: str | None = None,
+        use_brand_file: bool = True,
+    ) -> dict[str, Any]:
+        from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+
+        operator = YouTubeChannelBranding(
+            profile_dir=settings.browser_profile_dir,
+            headless=False,
+        )
+        if use_brand_file and not channel_name and not description:
+            result = operator.apply_from_brand_file()
+        else:
+            result = operator.apply(channel_name=channel_name, description=description)
+        return {
+            "ok": result.status in {"applied", "partial"},
+            "status": result.status,
+            "message": result.message,
+            "name_updated": result.name_updated,
+            "description_updated": result.description_updated,
+            "channel_name": result.channel_name,
+            "screenshot": result.screenshot_path,
+            "url": result.current_url,
         }
 
     def recent_rewards(self, limit: int = 8) -> list[dict[str, Any]]:

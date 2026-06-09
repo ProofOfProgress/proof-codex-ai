@@ -299,6 +299,14 @@ async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
     return {"status": task.status, "title": task.title}
 
 
+@app.post("/api/youtube/apply-brand")
+async def youtube_apply_brand() -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    result = BotOperations().apply_channel_branding()
+    return result
+
+
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
     result = get_analytics_sync().run()

@@ -51,6 +51,45 @@ def open_studio(page) -> StudioStatus:
     )
 
 
+def resolve_channel_id(page) -> str | None:
+    """Extract YouTube channel ID from the current Studio URL or page links."""
+    match = re.search(r"/channel/(UC[\w-]+)", page.url)
+    if match:
+        return match.group(1)
+    try:
+        for href in page.eval_on_selector_all("a[href*='/channel/UC']", "els => els.map(e => e.href)"):
+            m = re.search(r"/channel/(UC[\w-]+)", href)
+            if m:
+                return m.group(1)
+    except Exception:
+        pass
+    return None
+
+
+def goto_channel_customization(page, channel_id: str | None = None) -> str | None:
+    """Open Studio channel Basic info / customization. Returns channel ID used."""
+    page.set_extra_http_headers({"User-Agent": CHROME_UA})
+    page.goto("https://studio.youtube.com", wait_until="domcontentloaded", timeout=90000)
+    time.sleep(2)
+    _skip_unsupported_warning(page)
+    time.sleep(1)
+
+    cid = channel_id or resolve_channel_id(page)
+    if not cid:
+        return None
+
+    for path in ("editing/profile", "editing/details", "editing"):
+        url = f"https://studio.youtube.com/channel/{cid}/{path}"
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=45000)
+            time.sleep(2)
+            if "accounts.google.com" not in page.url:
+                return cid
+        except Exception:
+            continue
+    return cid
+
+
 def _skip_unsupported_warning(page) -> None:
     try:
         skip = page.get_by_text(re.compile(r"skip to youtube studio", re.I))

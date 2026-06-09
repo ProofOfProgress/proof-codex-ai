@@ -11,6 +11,7 @@ from shorts_bot.memory.store import MemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.rewards.engine import RewardEngine
 from shorts_bot.training.proposer import ImprovementProposer
+from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
 from shorts_bot.youtube.channel_setup import YouTubeChannelSetup
 from shorts_bot.youtube.studio import check_studio
 
@@ -207,6 +208,34 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "apply_channel_branding",
+            "description": (
+                "Update YouTube channel display name and description in Studio "
+                "from channel/brand/youtube_copy.txt (or explicit overrides). "
+                "Requires saved browser login."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel_name": {
+                        "type": "string",
+                        "description": "Optional override for display name.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional override for channel description.",
+                    },
+                    "use_brand_file": {
+                        "type": "boolean",
+                        "description": "Use youtube_copy.txt when true (default).",
+                    },
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "setup_youtube_channel",
             "description": (
                 "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
@@ -251,6 +280,7 @@ class ToolRunner:
             "get_stats": self._get_stats,
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
+            "apply_channel_branding": self._apply_channel_branding,
             "setup_youtube_channel": self._setup_youtube_channel,
             "get_channel_brand": self._get_channel_brand,
             "queue_dev_task": self._queue_dev_task,
@@ -461,6 +491,30 @@ class ToolRunner:
         note = args.get("note", "Human finished channel setup.")
         self.store.mark_channel_ready(channel_name=name, note=note)
         return json.dumps({"message": "Channel marked ready.", "channel_name": name, "note": note})
+
+    def _apply_channel_branding(self, args: dict[str, Any]) -> str:
+        operator = YouTubeChannelBranding(
+            profile_dir=settings.browser_profile_dir,
+            headless=False,
+        )
+        use_brand = args.get("use_brand_file", True)
+        name = args.get("channel_name")
+        desc = args.get("description")
+        if use_brand and not name and not desc:
+            result = operator.apply_from_brand_file()
+        else:
+            result = operator.apply(channel_name=name, description=desc)
+        return json.dumps(
+            {
+                "status": result.status,
+                "message": result.message,
+                "name_updated": result.name_updated,
+                "description_updated": result.description_updated,
+                "channel_name": result.channel_name,
+                "screenshot": result.screenshot_path,
+                "url": result.current_url,
+            }
+        )
 
     def _setup_youtube_channel(self, args: dict[str, Any]) -> str:
         channel_name = args.get("channel_name") or settings.youtube_channel_name
