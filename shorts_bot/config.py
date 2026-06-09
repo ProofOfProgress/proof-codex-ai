@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     learned_path: Path = Path("data/LEARNED.md")
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
-    youtube_channel_name: str = ""
+    youtube_channel_name: str = "Soft Continuity"
+    channel_tagline: str = "you're still here. good."
     web_host: str = "0.0.0.0"
     web_port: int = 8080
     google_client_id: str | None = None

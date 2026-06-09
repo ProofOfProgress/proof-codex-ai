@@ -21,7 +21,14 @@ bash scripts/run-all.sh
 | Web dashboard | http://localhost:8080 |
 | Discord | DM the bot or `!help` in server |
 
-## 3. What works immediately (no login)
+## 3. Channel brand: Soft Continuity
+
+- **Vibe:** self-help Shorts, friendly, subtly uncanny (oracle tone — never explicit horror)
+- **Paste into YouTube:** `docs/YOUTUBE_CHANNEL_SETUP.md`
+- **Banner:** open `channel/brand/assets/banner.svg` → Canva or screenshot
+- **Starter scripts:** `python3 scripts/seed_starter_drafts.py` → approve in web UI
+
+## 4. What works immediately (no login)
 
 - Discord chat in DM (type normally, no `!`)
 - `!draft sleep tips` — script drafts
@@ -30,7 +37,7 @@ bash scripts/run-all.sh
 - Reward learning loop (after you have video data)
 - Jenny course routing offline
 
-## 4. What needs you once (login only)
+## 5. What needs you once (login only)
 
 | Step | Time | Doc |
 |------|------|-----|
@@ -58,7 +65,7 @@ DISCORD_BRIEFING_MINUTE=30
 
 Manual ping: `!notify` in Discord.
 
-## 6. Self-learning flow
+## 7. Self-learning flow
 
 1. Upload Shorts on YouTube
 2. After Google login: tap **Sync YouTube Analytics** (web) or `!sync` (Discord)
@@ -74,7 +81,7 @@ Manual ping: `!notify` in Discord.
 
 **Future:** approved dev tasks are picked up by the cloud agent.
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 ```bash
 bash scripts/doctor.sh    # what's missing
@@ -83,7 +90,7 @@ bash scripts/backup.sh    # backup database
 make test                 # 37+ tests
 ```
 
-## 9. Local hosting (Docker, optional)
+## 10. Local hosting (Docker, optional)
 
 ```bash
 docker compose up --build

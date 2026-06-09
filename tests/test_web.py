@@ -14,7 +14,7 @@ def test_status_endpoint():
 def test_home_page():
     r = client.get("/")
     assert r.status_code == 200
-    assert "Shorts Bot" in r.text
+    assert "Soft Continuity" in r.text
     assert "Sync YouTube Analytics" in r.text
 
 

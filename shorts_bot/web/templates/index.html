@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shorts Bot — Strategist Dashboard</title>
+  <title>Soft Continuity — Operator</title>
   <meta name="description" content="Faceless YouTube Shorts strategist — chat, approve, learn." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,8 +13,9 @@
 <body>
   <div class="shell">
     <nav class="nav">
-      <div class="brand">Shorts <span>Bot</span></div>
-      <div class="sub">Faceless Shorts strategist · v{{ version }}</div>
+      <div class="brand">Soft <span>Continuity</span></div>
+      <div class="brand-tagline">you're still here. good.</div>
+      <div class="sub">Operator v{{ version }}</div>
       <button class="nav-btn active" data-panel="chat" type="button">Chat</button>
       <button class="nav-btn" data-panel="rewards" type="button">Rewards</button>
       <button class="nav-btn" data-panel="learning" type="button">Learning</button>
@@ -54,7 +55,7 @@
         </div>
         {% endif %}
         <div class="chat-messages" id="messages">
-          <div class="msg bot">{% if has_openai %}Ask for Short ideas, drafts, niche direction, or say "sync my analytics" after YouTube setup.{% else %}Offline mode — try Discord <code>!help</code> or type draft topics via <code>!draft &lt;topic&gt;</code>.{% endif %}</div>
+          <div class="msg bot">{% if has_openai %}I'm here to help — sleep, focus, boundaries. Ask for drafts or say sync after YouTube login.{% else %}Offline. Try: <code>draft can't sleep</code> · <code>dev: polish banner</code> · Discord DM works too.{% endif %}</div>
         </div>
         <form class="composer" id="chat-form">
           <input id="chat-input" type="text" placeholder="Talk to your Shorts strategist..." autocomplete="off" />
@@ -87,6 +88,11 @@
 
       <section id="panel-learning" class="panel">
         <div style="padding:20px 24px;overflow-y:auto;">
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Channel brand</h3>
+            <p style="font-size:.85rem;color:var(--muted);">Self-help + subtle oracle tone. Banner: <code>channel/brand/assets/banner.svg</code></p>
+            <p style="font-size:.82rem;">Setup: <code>docs/YOUTUBE_CHANNEL_SETUP.md</code> · Niches: <code>docs/CHANNEL_NICHES.md</code></p>
+          </div>
           <h3>Learned rules file</h3>
           <button class="btn secondary" type="button" id="copy-learned" style="margin-bottom:8px;">Copy learned rules</button>
           <div class="learned-box" id="learned-box">{{ learned_preview }}</div>

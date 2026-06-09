@@ -3,10 +3,11 @@
   --surface: #11161f;
   --surface2: #171e2a;
   --border: #243044;
-  --text: #eef2f7;
-  --muted: #8b9cb3;
-  --accent: #5b8def;
-  --accent2: #7c5cff;
+  --text: #f2f5fa;
+  --muted: #9aa8bc;
+  --accent: #8eb8ff;
+  --accent2: #c4a1ff;
+  --oracle: #8eb8ff;
   --yes: #22c55e;
   --no: #f87171;
   --warn: #fbbf24;
@@ -21,6 +22,7 @@ body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   background: radial-gradient(1200px 600px at 10% -10%, #1a2744 0%, transparent 55%),
               radial-gradient(900px 500px at 90% 0%, #2a1844 0%, transparent 50%),
+              radial-gradient(600px 400px at 50% 100%, rgba(142, 184, 255, 0.06) 0%, transparent 60%),
               var(--bg);
   color: var(--text);
 }
@@ -34,7 +36,8 @@ body {
   backdrop-filter: blur(10px);
 }
 .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; margin-bottom: 4px; }
-.brand span { color: var(--accent); }
+.brand span { color: var(--oracle); }
+.brand-tagline { font-size: 0.68rem; color: var(--muted); font-style: italic; opacity: 0.85; margin-top: 2px; }
 .sub { color: var(--muted); font-size: 0.78rem; margin-bottom: 20px; line-height: 1.4; }
 
 .nav button {

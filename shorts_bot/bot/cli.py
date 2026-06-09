@@ -8,6 +8,7 @@ from rich.panel import Panel
 
 from shorts_bot.approval.queue import ApprovalQueue
 from shorts_bot.bot.agent import ShortsBotAgent
+from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.bot.tools import ToolRunner
 from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
@@ -23,10 +24,11 @@ def build_agent() -> ShortsBotAgent:
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)
     client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
-    generator = DraftGenerator(store, client=client, router=router)
+    brand = ChannelBrand()
+    generator = DraftGenerator(store, client=client, router=router, brand=brand)
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
-    return ShortsBotAgent(store, tools, client, router, kb)
+    return ShortsBotAgent(store, tools, client, router, kb, brand)
 
 
 def main() -> None:
@@ -34,7 +36,7 @@ def main() -> None:
     mode = "Jenny strategist + OpenAI" if settings.has_openai else "offline + course routing"
     console.print(
         Panel(
-            "[bold]Shorts Bot[/bold] — Jenny Hoyos strategist for faceless Shorts\n"
+            "[bold]Soft Continuity[/bold] — self-help Shorts strategist (Jenny course + brand voice)\n"
             f"Mode: [cyan]{mode}[/cyan] | Model: {settings.openai_model}\n"
             "Course files 01–09 loaded. Free-first stack: CapCut, YouTube Audio Library, Canva.\n"
             "Talk about ideas, drafts, hooks, retention — or approve/reject scripts.\n"

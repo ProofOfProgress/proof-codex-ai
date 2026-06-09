@@ -9,7 +9,8 @@ def build_morning_briefing() -> str:
     s = ops.status()
     yt = s["youtube"]
     lines = [
-        "**Good morning — Shorts Bot briefing**",
+        "**Good morning — Soft Continuity**",
+        "_you're still here. good._",
         "",
         f"• Web UI: http://localhost:{settings.web_port}",
         f"• Chat: {'full (OpenAI)' if s['openai'] else 'offline — API key optional'}",

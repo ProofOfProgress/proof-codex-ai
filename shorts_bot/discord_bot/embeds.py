@@ -5,7 +5,7 @@ import discord
 
 def status_embed(data: dict, *, web_port: int) -> discord.Embed:
     yt = data.get("youtube", {})
-    embed = discord.Embed(title="Shorts Bot Status", color=0x5B8DEF)
+    embed = discord.Embed(title="Soft Continuity", description="you're still here. good.", color=0x8EB8FF)
     embed.add_field(name="Chat", value="full" if data.get("openai") else "offline", inline=True)
     embed.add_field(name="YouTube", value="ready" if yt.get("ready") else "setup needed", inline=True)
     embed.add_field(name="Discord", value="on", inline=True)

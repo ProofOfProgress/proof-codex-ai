@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.1 — Soft Continuity brand pass
+
+- Channel identity: self-help + subtle oracle aesthetic
+- Brand voice in agent, drafts, tools (`get_channel_brand`)
+- Banner SVG, YouTube copy, CapCut guide, niche research
+- 3 seedable starter drafts; web UI re-themed
+- docs/WHEN_YOU_WAKE.md
+
 ## 0.6.0 — full stack (login is only bottleneck)
 
 - UI: setup checklist, hero Yes/No card, reward detail cards

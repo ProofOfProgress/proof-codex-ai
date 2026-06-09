@@ -4,6 +4,7 @@ from openai import OpenAI
 
 from shorts_bot.approval.queue import ApprovalQueue
 from shorts_bot.bot.agent import ShortsBotAgent
+from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.bot.tools import ToolRunner
 from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
@@ -48,10 +49,10 @@ def get_agent() -> ShortsBotAgent:
     router = CourseRouter(kb)
     client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
     memory = get_memory()
-    generator = DraftGenerator(store, client=client, router=router, memory=memory)
+    generator = DraftGenerator(store, client=client, router=router, memory=memory, brand=ChannelBrand())
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
-    _agent = ShortsBotAgent(store, tools, client, router, kb)
+    _agent = ShortsBotAgent(store, tools, client, router, kb, ChannelBrand())
     return _agent
 
 

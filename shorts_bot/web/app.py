@@ -23,7 +23,7 @@ from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Shorts Bot", version="0.6.0")
+app = FastAPI(title="Soft Continuity Operator", version="0.6.1")
 
 
 @app.exception_handler(Exception)

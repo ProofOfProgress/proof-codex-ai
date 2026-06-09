@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from openai import OpenAI
 
+from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
@@ -39,11 +40,13 @@ class DraftGenerator:
         client: OpenAI | None = None,
         router: CourseRouter | None = None,
         memory: MemoryExtensions | None = None,
+        brand: ChannelBrand | None = None,
     ) -> None:
         self.store = store
         self.client = client
         self.router = router
         self.memory = memory
+        self.brand = brand or ChannelBrand()
 
     def _feedback_context(self) -> str:
         rejections = self.store.rejection_summary()[:8]
@@ -71,6 +74,9 @@ class DraftGenerator:
 Optional angle: {angle or "none"}
 
 {self._feedback_context()}
+
+CHANNEL BRAND (Soft Continuity — warm help, one subtle oracle line in script):
+{self.brand.draft_instructions()[:1800]}
 
 JENNY COURSE RULES FOR THIS DRAFT:
 {course_ctx}
@@ -104,7 +110,8 @@ Return JSON with keys:
             f"If you're dealing with {topic}, here's the part most Shorts skip. "
             f"{(angle or 'Focus on one small action you can do today')}. "
             f"Do it once, notice what changes, then repeat tomorrow. "
-            f"That's how you build real progress without hype."
+            f"This works on the days you don't believe it. "
+            f"You're still here. Good."
         )
         help_angle = f"Helps people struggling with {topic} take one concrete step today."
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)

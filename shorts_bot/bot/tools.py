@@ -143,6 +143,14 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "get_channel_brand",
+            "description": "Get Soft Continuity channel brand voice, YouTube copy, and niche guidance.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "queue_dev_task",
             "description": "Queue a coding/development task for human Yes/No approval before work runs.",
             "parameters": {
@@ -244,6 +252,7 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "setup_youtube_channel": self._setup_youtube_channel,
+            "get_channel_brand": self._get_channel_brand,
             "queue_dev_task": self._queue_dev_task,
             "list_pending_improvements": self._list_pending_improvements,
             "sync_youtube_analytics": self._sync_youtube_analytics,
@@ -363,6 +372,25 @@ class ToolRunner:
         if imp:
             payload["improvement"] = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
         return json.dumps(payload)
+
+    def _get_channel_brand(self, _args: dict[str, Any]) -> str:
+        from pathlib import Path
+
+        from shorts_bot.brand.loader import ChannelBrand
+
+        brand = ChannelBrand()
+        niches = ""
+        niche_path = Path("docs/CHANNEL_NICHES.md")
+        if niche_path.exists():
+            niches = niche_path.read_text(encoding="utf-8")[:2000]
+        return json.dumps(
+            {
+                "identity": brand.identity_summary()[:1500],
+                "voice": brand.voice()[:1000],
+                "youtube_copy": brand.youtube_copy(),
+                "niches": niches,
+            }
+        )
 
     def _queue_dev_task(self, args: dict[str, Any]) -> str:
         task = self._memory.create_dev_task(

@@ -9,6 +9,7 @@ from shorts_bot.bot.tools import TOOL_SCHEMAS, ToolRunner
 from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
+from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.memory.store import MemoryStore
 
 RESPONSE_FORMAT = """
@@ -18,28 +19,32 @@ Every substantive answer must follow this structure:
 3. Jenny-approved constraint check — confirm non-negotiables are respected
 4. Uniqueness space — what can be customized without breaking hook → momentum → payoff
 
+Channel: **Soft Continuity** — self-help Shorts, warm + subtly oracle (see brand voice). Genuinely help; one uncanny beat max per answer, never explicit horror/AI.
 Channel constraints:
 - Faceless Shorts only (9:16). No slop. Must genuinely help people.
-- Niche TBD — infer the most useful version and proceed.
+- Niche: sleep, focus, boundaries, calm (see docs/CHANNEL_NICHES.md).
 - Approve before posting. Production uses free-first stack: CapCut, YouTube Audio Library, Canva free, Google Drive.
 - YouTube channel exists — human configured name/handle. Use get_youtube_status to confirm.
 - Do not ask clarifying questions unless truly impossible to proceed.
 """
 
 
-def build_system_prompt(kb: CourseKnowledgeBase) -> str:
+def build_system_prompt(kb: CourseKnowledgeBase, brand: ChannelBrand | None = None) -> str:
     router = kb.router_prompt.strip()
     free = kb.free_services.strip()
+    brand_block = brand.draft_instructions() if brand else ""
     return f"""{router}
 
 {RESPONSE_FORMAT}
 
+CHANNEL BRAND (voice + positioning):
+{brand_block[:2200]}
+
 FREE-FIRST TOOL STACK (from course):
 {free[:2000]}
 
-You are also the Shorts Bot operator. Use tools to create drafts, manage approvals, and learn from feedback.
-When the human wants a draft, use create_draft. When they approve or reject, use the matching tools.
-Sound like a smart strategist, not a rigid router. Do not mention file numbers unless asked."""
+You are the Soft Continuity operator — helpful first, uncanny second (barely). Use tools for drafts and approvals.
+Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked."""
 
 
 class ShortsBotAgent:
@@ -50,14 +55,16 @@ class ShortsBotAgent:
         client: OpenAI | None,
         router: CourseRouter,
         kb: CourseKnowledgeBase,
+        brand: ChannelBrand | None = None,
     ) -> None:
         self.store = store
         self.tool_runner = tool_runner
         self.client = client
         self.router = router
         self.kb = kb
+        self.brand = brand or ChannelBrand()
         self.messages: list[dict[str, Any]] = [
-            {"role": "system", "content": build_system_prompt(kb)}
+            {"role": "system", "content": build_system_prompt(kb, self.brand)}
         ]
 
     def chat(self, user_message: str) -> str:
