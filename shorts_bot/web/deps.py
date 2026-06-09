@@ -47,7 +47,8 @@ def get_agent() -> ShortsBotAgent:
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)
     client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
-    generator = DraftGenerator(store, client=client, router=router)
+    memory = get_memory()
+    generator = DraftGenerator(store, client=client, router=router, memory=memory)
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
     _agent = ShortsBotAgent(store, tools, client, router, kb)

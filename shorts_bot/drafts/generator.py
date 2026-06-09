@@ -8,6 +8,7 @@ from openai import OpenAI
 from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
+from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 
 
@@ -37,15 +38,21 @@ class DraftGenerator:
         store: MemoryStore,
         client: OpenAI | None = None,
         router: CourseRouter | None = None,
+        memory: MemoryExtensions | None = None,
     ) -> None:
         self.store = store
         self.client = client
         self.router = router
+        self.memory = memory
 
     def _feedback_context(self) -> str:
         rejections = self.store.rejection_summary()[:8]
         approvals = self.store.approval_summary()[:5]
         parts = []
+        if self.memory:
+            training = self.memory.applied_training_context()
+            if training:
+                parts.append(training)
         if rejections:
             parts.append("Recent rejections to avoid repeating:\n" + "\n".join(f"- {r}" for r in rejections))
         if approvals:

@@ -57,7 +57,19 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 4. Web UI: **Sync YouTube Analytics** or POST `/api/youtube/sync`
 5. User approves improvements via **Yes/No** in sidebar
 
-Home setup guide: `docs/TOMORROW.md`. Health check: `bash scripts/doctor.sh`.
+Home setup guide: `docs/TOMORROW.md`. Morning checklist: `docs/MORNING.md`. Health check: `bash scripts/doctor.sh`.
+
+### Discord
+
+- `DISCORD_PUBLIC_KEY` — application public key (interactions verify)
+- `DISCORD_BOT_TOKEN` — required to connect bot
+- `DISCORD_OWNER_ID` — user ID for briefing DMs
+- Run: `python3 -m shorts_bot.discord_bot` or `bash scripts/run-all.sh`
+- Commands: `!help`, `!chat`, `!draft`, `!yes`/`!no`, `!dev`, `!sync`
+
+### Dev queue
+
+Web **Dev queue** panel or `!dev title | description` — user Yes/No before coding tasks run. Approved items append to `data/LEARNED.md`.
 
 ### Next phases
 

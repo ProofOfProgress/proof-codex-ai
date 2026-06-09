@@ -37,3 +37,18 @@ def test_youtube_sync_graceful():
     data = r.json()
     assert "ok" in data
     assert "message" in data
+
+
+def test_dev_api_create_and_list():
+    r = client.post("/api/dev", json={"title": "Test task", "description": "Do something"})
+    assert r.status_code == 200
+    assert "id" in r.json()
+    r2 = client.get("/api/dev")
+    assert r2.status_code == 200
+    assert "pending" in r2.json()
+
+
+def test_learned_endpoint():
+    r = client.get("/api/learned")
+    assert r.status_code == 200
+    assert "content" in r.json()

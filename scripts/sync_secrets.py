@@ -16,12 +16,18 @@ SYNC_VARS = (
     "OPENAI_MODEL",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
+    "DISCORD_BOT_TOKEN",
+    "DISCORD_PUBLIC_KEY",
+    "DISCORD_OWNER_ID",
+    "DISCORD_NOTIFY_IDS",
 )
 
 PLACEHOLDER_FRAGMENTS = (
     "your-key",
     "your-client-id",
     "your-client-secret",
+    "your-bot-token",
+    "your-discord",
     "paste-your",
     "here",
 )

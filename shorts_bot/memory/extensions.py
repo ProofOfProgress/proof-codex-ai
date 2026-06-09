@@ -31,6 +31,21 @@ class RewardEvent:
     reason: str
     metrics: dict[str, Any]
     created_at: str
+    breakdown: list[dict[str, Any]] | None = None
+
+
+@dataclass
+class DevTask:
+    id: int
+    title: str
+    description: str
+    pros: list[str]
+    cons: list[str]
+    status: str
+    source: str
+    created_at: str
+    reviewed_at: str | None
+    review_note: str | None
 
 
 class MemoryExtensions:
@@ -83,8 +98,25 @@ class MemoryExtensions:
                     value TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS dev_tasks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    pros_json TEXT NOT NULL,
+                    cons_json TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    source TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL,
+                    reviewed_at TEXT,
+                    review_note TEXT
+                );
                 """
             )
+            try:
+                conn.execute("ALTER TABLE reward_events ADD COLUMN breakdown_json TEXT")
+            except Exception:
+                pass
 
     def save_analytics(self, video_label: str, metrics: dict[str, Any]) -> None:
         with self._conn() as conn:
@@ -105,13 +137,22 @@ class MemoryExtensions:
         ]
 
     def save_reward(self, event: RewardEvent) -> None:
+        breakdown = json.dumps(event.breakdown or [])
         with self._conn() as conn:
             conn.execute(
                 """
-                INSERT INTO reward_events (video_label, score, verdict, reason, metrics_json, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO reward_events (video_label, score, verdict, reason, metrics_json, created_at, breakdown_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (event.video_label, event.score, event.verdict, event.reason, json.dumps(event.metrics), event.created_at),
+                (
+                    event.video_label,
+                    event.score,
+                    event.verdict,
+                    event.reason,
+                    json.dumps(event.metrics),
+                    event.created_at,
+                    breakdown,
+                ),
             )
 
     def recent_rewards(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -120,18 +161,22 @@ class MemoryExtensions:
                 "SELECT * FROM reward_events ORDER BY id DESC LIMIT ?",
                 (limit,),
             ).fetchall()
-        return [
-            {
-                "id": r["id"],
-                "video_label": r["video_label"],
-                "score": r["score"],
-                "verdict": r["verdict"],
-                "reason": r["reason"],
-                "metrics": json.loads(r["metrics_json"]),
-                "created_at": r["created_at"],
-            }
-            for r in rows
-        ]
+        out = []
+        for r in rows:
+            raw_bd = r["breakdown_json"] if "breakdown_json" in r.keys() else None
+            out.append(
+                {
+                    "id": r["id"],
+                    "video_label": r["video_label"],
+                    "score": r["score"],
+                    "verdict": r["verdict"],
+                    "reason": r["reason"],
+                    "metrics": json.loads(r["metrics_json"]),
+                    "breakdown": json.loads(raw_bd) if raw_bd else [],
+                    "created_at": r["created_at"],
+                }
+            )
+        return out
 
     def create_improvement(
         self,
@@ -207,12 +252,110 @@ class MemoryExtensions:
             ).fetchall()
         return [r["value"] for r in rows]
 
+    def applied_training_context(self) -> str:
+        rules = self.applied_improvements()
+        if not rules:
+            return ""
+        return "Approved training rules (follow these):\n" + "\n".join(f"- {r}" for r in rules[:12])
+
+    def create_dev_task(
+        self,
+        *,
+        title: str,
+        description: str,
+        pros: list[str] | None = None,
+        cons: list[str] | None = None,
+        source: str = "user",
+    ) -> DevTask:
+        pros = pros or ["Ships capability you asked for", "Queued for approval before any auto-work"]
+        cons = cons or ["May need your login later for external services", "Complex tasks split into smaller steps"]
+        with self._conn() as conn:
+            cur = conn.execute(
+                """
+                INSERT INTO dev_tasks (title, description, pros_json, cons_json, source, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (title, description, json.dumps(pros), json.dumps(cons), source, _utc_now()),
+            )
+            tid = int(cur.lastrowid)
+        return self.get_dev_task(tid)
+
+    def get_dev_task(self, task_id: int) -> DevTask:
+        with self._conn() as conn:
+            row = conn.execute("SELECT * FROM dev_tasks WHERE id = ?", (task_id,)).fetchone()
+        if row is None:
+            raise KeyError(task_id)
+        return self._row_dev_task(row)
+
+    def list_dev_tasks(self, status: str | None = "pending", limit: int = 20) -> list[DevTask]:
+        q = "SELECT * FROM dev_tasks"
+        params: list[Any] = []
+        if status:
+            q += " WHERE status = ?"
+            params.append(status)
+        q += " ORDER BY id DESC LIMIT ?"
+        params.append(limit)
+        with self._conn() as conn:
+            rows = conn.execute(q, params).fetchall()
+        return [self._row_dev_task(r) for r in rows]
+
+    def review_dev_task(self, task_id: int, approved: bool, note: str = "") -> DevTask:
+        decision = "approved" if approved else "rejected"
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE dev_tasks SET status = ?, reviewed_at = ?, review_note = ? WHERE id = ?",
+                (decision, _utc_now(), note, task_id),
+            )
+        task = self.get_dev_task(task_id)
+        if approved:
+            self.set_training_config(f"dev:{task_id}", task.description)
+        return task
+
+    def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
+        entries: list[dict[str, Any]] = []
+        with self._conn() as conn:
+            imp_rows = conn.execute(
+                """
+                SELECT 'improvement' AS kind, id, title, status, review_note, reviewed_at
+                FROM improvements WHERE status != 'pending' ORDER BY reviewed_at DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+            dev_rows = conn.execute(
+                """
+                SELECT 'dev' AS kind, id, title, status, review_note, reviewed_at
+                FROM dev_tasks WHERE status != 'pending' ORDER BY reviewed_at DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        for r in imp_rows:
+            entries.append(dict(r))
+        for r in dev_rows:
+            entries.append(dict(r))
+        entries.sort(key=lambda e: e.get("reviewed_at") or "", reverse=True)
+        return entries[:limit]
+
     @staticmethod
     def _row_improvement(row) -> Improvement:
         return Improvement(
             id=row["id"],
             title=row["title"],
             category=row["category"],
+            description=row["description"],
+            pros=json.loads(row["pros_json"]),
+            cons=json.loads(row["cons_json"]),
+            status=row["status"],
+            source=row["source"],
+            created_at=row["created_at"],
+            reviewed_at=row["reviewed_at"],
+            review_note=row["review_note"],
+        )
+
+    @staticmethod
+    def _row_dev_task(row) -> DevTask:
+        return DevTask(
+            id=row["id"],
+            title=row["title"],
             description=row["description"],
             pros=json.loads(row["pros_json"]),
             cons=json.loads(row["cons_json"]),

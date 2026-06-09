@@ -23,7 +23,9 @@ Open **http://localhost:8080** — chat on the left, **Yes/No** approvals on the
 ## CLI chat
 
 ```bash
-cp .env.example .env   # add OPENAI_API_KEY optional
+cp .env.example .env   # add keys as needed (see docs/)
+bash scripts/run-all.sh   # web + Discord
+docs/MORNING.md        # wake-up checklist
 python3 -m shorts_bot
 ```
 

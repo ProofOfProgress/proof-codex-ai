@@ -9,6 +9,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
 from shorts_bot.config import settings
+from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.web.deps import (
     get_agent,
     get_analytics_sync,
@@ -21,7 +22,7 @@ from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Shorts Bot", version="0.3.0")
+app = FastAPI(title="Shorts Bot", version="0.4.0")
 
 
 @app.exception_handler(Exception)
@@ -56,21 +57,33 @@ class ScoreRequest(BaseModel):
     comments: int = 0
 
 
+class DevRequest(BaseModel):
+    title: str
+    description: str
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
     memory = get_memory()
     store = get_store()
+    learned = LearnedFile(settings.learned_path)
     return TEMPLATES.TemplateResponse(
         request,
         "index.html",
         {
             "has_openai": settings.has_openai,
+            "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
             "improvements": memory.list_improvements(status="pending"),
             "drafts": store.list_drafts(status="pending"),
-            "rewards": memory.recent_rewards(limit=5),
+            "dev_tasks": memory.list_dev_tasks(status="pending"),
+            "rewards": memory.recent_rewards(limit=8),
+            "journal": memory.learning_journal(limit=10),
+            "learned_preview": learned.read_tail(3500),
             "youtube": auth_status(),
             "pending_count": len(memory.list_improvements(status="pending")),
+            "pending_drafts": len(store.list_drafts(status="pending")),
+            "pending_dev": len(memory.list_dev_tasks(status="pending")),
         },
     )
 
@@ -119,6 +132,7 @@ async def approve_improvement(improvement_id: int, body: ImprovementDecision) ->
         imp = memory.review_improvement(improvement_id, approved=True, note=body.note or "Approved.")
     except KeyError:
         raise HTTPException(404, "Not found") from None
+    LearnedFile(settings.learned_path).record_improvement(imp, approved=True)
     return {"status": imp.status, "title": imp.title}
 
 
@@ -175,6 +189,7 @@ async def score_video(body: ScoreRequest) -> dict:
         "verdict": result.verdict,
         "reason": result.reason,
         "diagnosis": result.diagnosis,
+        "breakdown": result.breakdown,
         "improvement": improvement,
     }
 
@@ -188,6 +203,8 @@ async def status() -> dict:
         "channel": store.channel_summary(),
         "stats": store.stats(),
         "pending_improvements": len(memory.list_improvements(status="pending")),
+        "pending_dev": len(memory.list_dev_tasks(status="pending")),
+        "discord": settings.has_discord,
         "applied_training": memory.applied_improvements(),
         "youtube": auth_status(),
     }
@@ -196,6 +213,62 @@ async def status() -> dict:
 @app.get("/api/youtube/status")
 async def youtube_status() -> dict:
     return auth_status()
+
+
+@app.get("/api/learned")
+async def learned_file() -> dict:
+    return {"content": LearnedFile(settings.learned_path).read_tail()}
+
+
+@app.get("/api/journal")
+async def journal() -> dict:
+    return {"entries": get_memory().learning_journal(limit=20)}
+
+
+@app.get("/api/dev")
+async def list_dev() -> dict:
+    memory = get_memory()
+    return {
+        "pending": [
+            {
+                "id": t.id,
+                "title": t.title,
+                "description": t.description,
+                "pros": t.pros,
+                "cons": t.cons,
+            }
+            for t in memory.list_dev_tasks(status="pending")
+        ]
+    }
+
+
+@app.post("/api/dev")
+async def create_dev(body: DevRequest) -> dict:
+    if not body.title.strip() or not body.description.strip():
+        raise HTTPException(400, "Title and description required")
+    task = get_memory().create_dev_task(title=body.title.strip(), description=body.description.strip())
+    return {"id": task.id, "message": f"Dev task #{task.id} queued for approval"}
+
+
+@app.post("/api/dev/{task_id}/yes")
+async def approve_dev(task_id: int, body: ImprovementDecision) -> dict:
+    memory = get_memory()
+    try:
+        task = memory.review_dev_task(task_id, approved=True, note=body.note or "Approved.")
+    except KeyError:
+        raise HTTPException(404, "Not found") from None
+    LearnedFile(settings.learned_path).record_dev_task(task, approved=True)
+    return {"status": task.status, "title": task.title}
+
+
+@app.post("/api/dev/{task_id}/no")
+async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
+    memory = get_memory()
+    try:
+        task = memory.review_dev_task(task_id, approved=False, note=body.note or "Rejected.")
+    except KeyError:
+        raise HTTPException(404, "Not found") from None
+    return {"status": task.status, "title": task.title}
 
 
 @app.post("/api/youtube/sync")

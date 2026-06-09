@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from shorts_bot.memory.extensions import MemoryExtensions, RewardEvent
@@ -15,6 +15,7 @@ class RewardResult:
     reason: str
     metrics: dict[str, Any]
     diagnosis: str
+    breakdown: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def is_reward(self) -> bool:
@@ -45,53 +46,52 @@ class RewardEngine:
         retention = float(metrics.get("retention_rate", metrics.get("average_view_percentage", 0)))
         views = int(metrics.get("views", 0))
         likes = int(metrics.get("likes", 0))
-        comments = int(metrics.get("comments", 0))
 
         history = self.memory.list_analytics(limit=10)
         baseline = self._baseline(history, exclude_label=video_label)
 
         score = 0.0
         reasons: list[str] = []
+        breakdown: list[dict[str, Any]] = []
+
+        def bump(delta: float, factor: str, note: str) -> None:
+            nonlocal score
+            score += delta
+            breakdown.append({"factor": factor, "delta": round(delta, 3), "note": note})
+            reasons.append(note)
 
         if swipe > 0:
             if swipe >= 70:
-                score += 0.35
-                reasons.append(f"Strong swipe-away survival ({swipe:.0f}% viewed)")
+                bump(0.35, "swipe_away", f"Strong swipe-away survival ({swipe:.0f}% viewed)")
             elif swipe < 50:
-                score -= 0.4
-                reasons.append(f"Weak hook/idea — only {swipe:.0f}% viewed vs swiped")
+                bump(-0.4, "swipe_away", f"Weak hook/idea — only {swipe:.0f}% viewed vs swiped")
             else:
+                breakdown.append({"factor": "swipe_away", "delta": 0, "note": f"Mid swipe-away ({swipe:.0f}%)"})
                 reasons.append(f"Mid swipe-away ({swipe:.0f}%)")
 
         if retention > 0:
             if retention >= 60:
-                score += 0.35
-                reasons.append(f"Good retention ({retention:.0f}%)")
+                bump(0.35, "retention", f"Good retention ({retention:.0f}%)")
             elif retention < 40:
-                score -= 0.35
-                reasons.append(f"Retention drop ({retention:.0f}%) — pacing/payoff issue")
+                bump(-0.35, "retention", f"Retention drop ({retention:.0f}%) — pacing/payoff issue")
             else:
+                breakdown.append({"factor": "retention", "delta": 0, "note": f"Mid retention ({retention:.0f}%)"})
                 reasons.append(f"Mid retention ({retention:.0f}%)")
 
         if baseline:
             b_swipe = baseline.get("viewed_vs_swiped_away", 0)
             b_ret = baseline.get("retention_rate", 0)
             if swipe and b_swipe and swipe > b_swipe + 5:
-                score += 0.15
-                reasons.append("Beat your channel average on swipe-away")
+                bump(0.15, "channel_avg", "Beat your channel average on swipe-away")
             elif swipe and b_swipe and swipe < b_swipe - 5:
-                score -= 0.15
-                reasons.append("Worse than your channel average on swipe-away")
+                bump(-0.15, "channel_avg", "Worse than your channel average on swipe-away")
             if retention and b_ret and retention > b_ret + 5:
-                score += 0.15
-                reasons.append("Beat your channel average on retention")
+                bump(0.15, "channel_avg", "Beat your channel average on retention")
             elif retention and b_ret and retention < b_ret - 5:
-                score -= 0.15
-                reasons.append("Worse than your channel average on retention")
+                bump(-0.15, "channel_avg", "Worse than your channel average on retention")
 
         if views > 0 and likes / max(views, 1) > 0.05:
-            score += 0.1
-            reasons.append("Solid like ratio")
+            bump(0.1, "engagement", "Solid like ratio")
 
         score = max(-1.0, min(1.0, score))
 
@@ -112,6 +112,7 @@ class RewardEngine:
             reason=reason,
             metrics=metrics,
             diagnosis=diagnosis,
+            breakdown=breakdown,
         )
 
         self.memory.save_reward(
@@ -123,6 +124,7 @@ class RewardEngine:
                 reason=reason,
                 metrics=metrics,
                 created_at=_utc_now(),
+                breakdown=breakdown,
             )
         )
         return result

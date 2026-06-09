@@ -8,5 +8,6 @@ data/*.sqlite
 data/browser_profile/
 data/screenshots/
 data/youtube_token.json
+data/LEARNED.md
 *.log
 .DS_Store

@@ -64,6 +64,25 @@ else
   note "OPENAI_API_KEY not set — offline mode still works"
 fi
 
+# Discord
+if [ -f .env ] && grep -qE '^DISCORD_PUBLIC_KEY=[a-f0-9]{32,}' .env 2>/dev/null; then
+  pass "DISCORD_PUBLIC_KEY set"
+else
+  note "DISCORD_PUBLIC_KEY not set"
+fi
+
+if [ -f .env ] && grep -qE '^DISCORD_BOT_TOKEN=.+' .env 2>/dev/null && ! grep -qi 'your-bot-token' .env 2>/dev/null; then
+  pass "DISCORD_BOT_TOKEN set"
+else
+  note "DISCORD_BOT_TOKEN not set — see docs/MORNING.md"
+fi
+
+if [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=[0-9]+' .env 2>/dev/null; then
+  pass "DISCORD_OWNER_ID set (for DMs)"
+else
+  note "DISCORD_OWNER_ID not set — briefing DMs need your user ID"
+fi
+
 # Tests
 echo ""
 echo "==> Running quick tests..."

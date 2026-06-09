@@ -1,0 +1,123 @@
+const messages = document.getElementById('messages');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+
+function addMsg(text, who) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + who;
+  el.textContent = text;
+  messages.appendChild(el);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+if (chatForm) {
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    addMsg(text, 'user');
+    addMsg('Thinking...', 'bot');
+    const pending = messages.lastChild;
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+      pending.textContent = res.ok ? (data.reply || 'No reply') : (data.detail || data.message || 'Error');
+    } catch {
+      pending.textContent = 'Connection error.';
+    }
+  });
+}
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach((b) => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + name);
+  const btn = document.querySelector(`[data-panel="${name}"]`);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+document.querySelectorAll('.nav-btn').forEach((btn) => {
+  btn.addEventListener('click', () => showPanel(btn.dataset.panel));
+});
+
+async function decideImprovement(id, yes) {
+  const path = yes ? 'yes' : 'no';
+  await fetch(`/api/improvements/${id}/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note: yes ? 'Approved.' : 'Skipped.' }),
+  });
+  document.querySelector(`.imp-card[data-id="${id}"]`)?.remove();
+}
+
+async function decideDraft(id, yes) {
+  const note = yes ? 'Approved.' : (prompt('Why reject? (optional)') || 'Rejected.');
+  const path = yes ? 'yes' : 'no';
+  await fetch(`/api/drafts/${id}/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note }),
+  });
+  document.querySelector(`.draft-card[data-draft="${id}"]`)?.remove();
+}
+
+async function decideDev(id, yes) {
+  const path = yes ? 'yes' : 'no';
+  await fetch(`/api/dev/${id}/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note: yes ? 'Approved.' : 'Skipped.' }),
+  });
+  document.querySelector(`.dev-card[data-id="${id}"]`)?.remove();
+}
+
+const syncBtn = document.getElementById('sync-btn');
+const syncMsg = document.getElementById('sync-msg');
+if (syncBtn) {
+  syncBtn.addEventListener('click', async () => {
+    syncBtn.disabled = true;
+    syncMsg.className = 'sync-msg';
+    syncMsg.textContent = 'Syncing...';
+    try {
+      const res = await fetch('/api/youtube/sync', { method: 'POST' });
+      const data = await res.json();
+      syncMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      syncMsg.textContent = data.message || 'Done';
+      if (data.ok) location.reload();
+    } catch {
+      syncMsg.className = 'sync-msg err';
+      syncMsg.textContent = 'Sync failed';
+    } finally {
+      syncBtn.disabled = false;
+    }
+  });
+}
+
+const devForm = document.getElementById('dev-form');
+if (devForm) {
+  devForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('dev-title').value.trim();
+    const desc = document.getElementById('dev-desc').value.trim();
+    if (!title || !desc) return;
+    const res = await fetch('/api/dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description: desc }),
+    });
+    const data = await res.json();
+    alert(data.message || 'Queued');
+    location.reload();
+  });
+}
+
+window.decideImprovement = decideImprovement;
+window.decideDraft = decideDraft;
+window.decideDev = decideDev;
+window.showPanel = showPanel;

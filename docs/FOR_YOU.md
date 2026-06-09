@@ -93,3 +93,11 @@ The bot uses Google's **official** YouTube Analytics API — not screen scraping
 4. Tap **Yes — do this** or **No** on each suggestion (pros & cons listed)
 
 The bot pulls real stats, scores your Shorts, and proposes up to 3 improvements per sync so sign-off stays easy.
+
+## Discord (talk from your phone)
+
+Your **public key** is saved. You still need the **bot token** once — see **docs/MORNING.md**.
+
+Then run `bash scripts/run-all.sh` and message the bot `!help`.
+
+It can DM you a morning briefing, take Yes/No decisions, and queue dev/coding work for approval.
