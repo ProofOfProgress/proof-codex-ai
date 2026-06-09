@@ -106,6 +106,23 @@ def _draw_prop(draw, cx: int, cy: int, prop: str | None, pose: Pose) -> None:
         draw.ellipse([tx + 25, ty + 20, tx + 50, ty + 50], fill="#FFFFFF", outline="#111111", width=2)
 
 
+def _draw_bottom_caption(draw, text: str, w: int, h: int) -> None:
+    font = _font_reg(36)
+    lines = textwrap.wrap(" ".join(text.split()), width=28)[:2]
+    if not lines:
+        return
+    line_h = 44
+    pad = 20
+    bar_h = len(lines) * line_h + pad * 2
+    by = h - bar_h - 80
+    draw.rounded_rectangle([40, by, w - 40, by + bar_h], radius=14, fill="#111111", outline="#111111")
+    y = by + pad
+    for ln in lines:
+        tw = draw.textlength(ln, font=font) if hasattr(draw, "textlength") else len(ln) * 18
+        draw.text(((w - tw) / 2, y), ln, fill="#FFFFFF", font=font)
+        y += line_h
+
+
 def _draw_bubble(draw, text: str, w: int, h: int) -> None:
     font = _font_reg(32)
     lines = textwrap.wrap(text, width=22)
@@ -150,6 +167,9 @@ def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
 
     if plan.bubble_text:
         _draw_bubble(draw, plan.bubble_text, w, h)
+
+    # Bottom subtitle — Jenny mute-safe + always-on captions
+    _draw_bottom_caption(draw, brief.spoken_text, w, h)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     img.save(out_path, "PNG")

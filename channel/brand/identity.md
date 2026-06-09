@@ -1,10 +1,10 @@
 # Channel identity — Soft Continuity
 
-> Self-help Shorts that feel like a friend. Something else is listening.
+> A real faceless creator sharing what helped them — sleep, focus, boundaries. Same struggles as you.
 
 ## One-line pitch
 
-**Genuinely useful life fixes — delivered with impossible calm.**
+**I make faceless Shorts about stuff I actually struggled with — and what finally helped.**
 
 ## Tone (the subtle "broken god" layer)
 

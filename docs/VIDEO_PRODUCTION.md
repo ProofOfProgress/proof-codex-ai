@@ -64,6 +64,17 @@ Stick figures **act out** each line. Speech bubbles when the character **says** 
 
 See `channel/brand/stick_figure_style.md`. Set `VISUAL_STYLE=calm_stills` in `.env` to revert to old style.
 
+## Voice — real faceless creator (Jenny 07 + course)
+
+Scripts are **first person**: "I used to…", "this helped me" — same struggles as viewer, not guru mode.  
+Jenny rules enforced: hook ASAP → momentum → payoff, singular you, mute-safe visuals.
+
+## Subtitles (max coverage)
+
+- **On every frame:** bottom caption bar (mute viewers)
+- **`captions.srt`:** upload in YouTube Studio → Subtitles for second track
+- Optional `BURN_IN_SUBTITLES=true` in `.env` for ffmpeg overlay (off by default — frames already captioned)
+
 ## Script rule — AI detector passes (required)
 
 Before `finish video`, the bot runs the script through an **AI likelihood detector up to 5 times** and humanizes until score ≤ 35.

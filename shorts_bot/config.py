@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     visual_style: str = "stickfigure"  # stickfigure | calm_stills
     ai_detect_max_passes: int = 5
     ai_detect_threshold: int = 35
+    burn_in_subtitles: bool = False  # stick frames already have captions; use captions.srt for YT
 
     @property
     def has_openai(self) -> bool:

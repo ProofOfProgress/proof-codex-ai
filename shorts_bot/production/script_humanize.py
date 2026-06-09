@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 
 from shorts_bot.config import settings
+from shorts_bot.production.jenny_checks import check_jenny_voice
 from shorts_bot.production.scene_plan import ai_likelihood_score
 
 
@@ -21,14 +22,22 @@ class ScriptFinalizeResult:
     message: str
 
 
-_HUMANIZE_PROMPT = """Rewrite this YouTube Short voiceover to sound like a real person talking — ChainsFR / casual storyteller energy, still calm and helpful.
+_HUMANIZE_PROMPT = """Rewrite this faceless YouTube Short using Jenny Hoyos course rules + personal creator voice.
+
+VOICE: Real person making faceless videos — SAME struggles as viewer, sharing what helped THEM.
+- First person: I, my, I used to, this helped me
+- Singular "you" — never "hey guys"
+- Contractions, mixed sentence lengths
+
+JENNY STRUCTURE:
+- Hook ASAP — curiosity + reason to watch to end
+- Every line moves toward payoff; but/so momentum
+- Payoff = best beat, then stop
+- 3-5 mute-safe visual beats implied in script
 
 Rules:
-- Use contractions (I'm, don't, it's)
-- Short punchy sentences mixed with longer ones
-- No AI words: delve, tapestry, furthermore, unlock, navigate, game-changer
-- Keep the same advice and facts — don't add new steps
-- One subtle oracle line max at the end ("you're still here. good.")
+- No AI words: delve, tapestry, furthermore, unlock, navigate
+- Keep same advice — don't add steps
 - Return JSON only: {"hook": "...", "script": "...", "help_angle": "..."}
 """
 
@@ -103,8 +112,9 @@ def finalize_script(
 
     for n in range(1, max_passes + 1):
         score = ai_likelihood_score(s)
+        jenny_issues = check_jenny_voice(s, h)
         scores_log.append(score)
-        if score <= threshold:
+        if score <= threshold and not jenny_issues:
             break
         llm = _llm_humanize(topic, h, s, ha)
         if llm:

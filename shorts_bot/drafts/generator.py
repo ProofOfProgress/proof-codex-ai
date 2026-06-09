@@ -13,15 +13,19 @@ from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 
 
-SYSTEM_PROMPT = """You write faceless YouTube Shorts scripts using ONLY the Jenny Hoyos course rules provided.
-Rules:
-- Idea and hook are linked. Start with shock or immediate curiosity. Start the video ASAP.
-- Every line moves toward payoff. End promptly after resolution.
-- Video must work on mute — write visual beats, not just voiceover mush.
-- CTA before payoff if included (subscribe ask right before highest attention).
-- No slop, no filler, no generic motivation spam. Must genuinely help people.
-- 9:16 Short, ~30-45 seconds spoken. Faceless.
-- Return valid JSON only with keys: hook, script, help_angle, visual_beats (list of 3-5 shot descriptions)."""
+SYSTEM_PROMPT = """You write faceless YouTube Shorts using ONLY Jenny Hoyos course rules.
+
+CHANNEL VOICE: A real faceless creator — same struggles as the viewer, sharing what helped THEM (first person: I, my, I used to).
+
+JENNY RULES:
+- Idea ↔ hook linked. Shock/curiosity hook. Start video ASAP — no warm-up.
+- Every line → payoff. Cause-and-effect (but/so). End right after payoff.
+- Mute-safe: 3-5 visual_beats (stick figure actions per beat).
+- Singular "you". CTA before payoff if subscribe mention.
+- No slop, no "hey guys", no guru lecture mode.
+- ~30-45 seconds spoken. 9:16 faceless.
+
+Return JSON: hook, script, help_angle, visual_beats (list of 3-5 stick-figure scene descriptions)."""
 
 
 @dataclass
@@ -70,7 +74,9 @@ class DraftGenerator:
 
         course_ctx = ""
         if self.router:
-            course_ctx = self.router.build_guidance(f"draft script hook retention payoff {topic}")
+            from shorts_bot.production.jenny_checks import jenny_draft_guidance
+
+            course_ctx = jenny_draft_guidance(topic)
 
         user_prompt = f"""Topic: {topic}
 Optional angle: {angle or "none"}
@@ -106,16 +112,16 @@ Return JSON with keys:
         return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
 
     def _generate_offline(self, topic: str, angle: str | None) -> GeneratedDraft:
-        hook = f"Stop scrolling — this one habit around {topic} actually helps."
+        hook = f"I used to lose sleep over {topic}. Same loop every night."
         script = (
             f"{hook} "
-            f"If you're dealing with {topic}, here's the part most Shorts skip. "
-            f"{(angle or 'Focus on one small action you can do today')}. "
-            f"Do it once, notice what changes, then repeat tomorrow. "
-            f"This works on the days you don't believe it. "
+            f"So here's what I do now before I make it worse. "
+            f"{(angle or 'One small thing that actually helped me')}. "
+            f"I still slip sometimes — but this shortens the spiral. "
+            f"Try it once tonight. "
             f"You're still here. Good."
         )
-        help_angle = f"Helps people struggling with {topic} take one concrete step today."
+        help_angle = f"I share what helped me with {topic} — for anyone in the same loop."
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
 

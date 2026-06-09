@@ -79,4 +79,12 @@ def run_quality_checks(
     if topic.strip().lower() in {"", "tbd", "test"}:
         warnings.append("Topic looks placeholder-ish.")
 
+    try:
+        from shorts_bot.production.jenny_checks import check_jenny_voice
+
+        for msg in check_jenny_voice(script, hook):
+            warnings.append(f"Jenny: {msg}")
+    except ImportError:
+        pass
+
     return QualityReport(passed=len(issues) == 0, issues=issues, warnings=warnings)

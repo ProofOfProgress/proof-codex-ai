@@ -92,6 +92,17 @@ def render_short_video(
     out_path = pack_dir / output_name
     _write_concat(images_dir, segments, durations, concat_path)
 
+    from shorts_bot.config import settings
+    from shorts_bot.production.subtitles import write_subtitle_files
+
+    write_subtitle_files(pack_dir, segments, audio_duration)
+
+    vf = "format=yuv420p"
+    if settings.burn_in_subtitles:
+        ass_path = pack_dir / "subtitles.ass"
+        ass_escaped = str(ass_path.resolve()).replace(":", r"\:").replace("'", r"\'")
+        vf = f"format=yuv420p,subtitles='{ass_escaped}'"
+
     cmd = [
         "ffmpeg",
         "-y",
@@ -104,7 +115,7 @@ def render_short_video(
         "-i",
         str(audio_path),
         "-vf",
-        "format=yuv420p",
+        vf,
         "-c:v",
         "libx264",
         "-preset",
@@ -127,5 +138,8 @@ def render_short_video(
         draft_id=draft_id,
         output_path=out_path,
         duration_seconds=audio_duration,
-        message=f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920).",
+        message=(
+            f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920). "
+            f"Captions on frames + captions.srt for YouTube."
+        ),
     )
