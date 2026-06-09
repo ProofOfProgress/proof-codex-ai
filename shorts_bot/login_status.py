@@ -191,6 +191,36 @@ def _check_browser_site(
         )
 
 
+def _check_image_api() -> ServiceStatus:
+    provider = (settings.image_provider or "replicate").strip().lower()
+    if provider == "fal" and settings.has_fal_images:
+        from shorts_bot.production.images.fal import probe_fal
+
+        ok, detail = probe_fal(settings.fal_api_key or "")
+        return ServiceStatus("fal_images", "Fal.ai image API", ok, detail, "https://fal.ai/dashboard/keys")
+    if settings.has_replicate_images:
+        from shorts_bot.production.images.replicate import probe_replicate
+
+        ok, detail = probe_replicate(
+            settings.replicate_api_token or "",
+            settings.replicate_image_model,
+        )
+        return ServiceStatus(
+            "replicate_images",
+            "Replicate image API",
+            ok,
+            detail,
+            "https://replicate.com/account/api-tokens",
+        )
+    return ServiceStatus(
+        "image_api",
+        "Paid image API",
+        False,
+        "REPLICATE_API_TOKEN or FAL_API_KEY missing",
+        "https://replicate.com/account/api-tokens",
+    )
+
+
 def _check_resemble() -> ServiceStatus:
     if not settings.has_resemble:
         return ServiceStatus(
@@ -218,6 +248,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_discord(),
         _check_chat(),
         _check_resemble(),
+        _check_image_api(),
         _check_youtube_oauth(),
     ]
     if include_studio:

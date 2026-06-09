@@ -1,6 +1,6 @@
 # Paid stack setup — buy today, wire today
 
-Fully AI daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → stick figures → ffmpeg → YouTube upload**.
+Fully AI daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → paid AI images → ffmpeg → YouTube upload**.
 
 ## 1. Buy & subscribe (today)
 
@@ -9,6 +9,8 @@ Fully AI daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe W
 | **Google AI Studio** | Pay-as-you-go billing on | ~$1–3/mo | Gemini scripts + humanize |
 | **Resemble AI** | Flex + Pro voice clone | ~$5/mo clone + ~$3–10 API | Your cloned voice |
 | **TurboScribe** | Unlimited (annual) | **$10/mo** | Whale mode, unlimited A/B tests |
+| **Replicate** (recommended) | Pay-per-image | **~$0.003–0.015/image** | FLUX schnell / FLUX 2 — `VISUAL_STYLE=ai` |
+| **Fal.ai** (alternative) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` |
 
 You do **not** need ElevenLabs, CapCut Pro, Runway, or Epidemic for the automated pipeline.
 
@@ -34,7 +36,20 @@ python3 -m shorts_bot.production.voice_clone_cli test
 python3 -m shorts_bot.login_handoff --only turboscribe
 ```
 
-## 4. Cursor Secrets (add these)
+## 4. Replicate image API (recommended)
+
+1. Sign up: https://replicate.com
+2. Create API token: https://replicate.com/account/api-tokens
+3. Default model: `black-forest-labs/flux-schnell` (~$0.003/image at 9:16)
+4. Test one frame:
+
+```bash
+python3 -m shorts_bot.production.image_cli
+```
+
+**Fal.ai alternative:** get key at https://fal.ai/dashboard/keys → set `IMAGE_PROVIDER=fal` and `FAL_API_KEY`.
+
+## 5. Cursor Secrets (add these)
 
 ```
 GEMINI_API_KEY=...
@@ -47,6 +62,10 @@ TURBOSCRIBE_MODE=whale
 AUTO_APPROVE_DRAFTS=true
 AUTO_UPLOAD_YOUTUBE=true
 YOUTUBE_UPLOAD_VISIBILITY=unlisted
+VISUAL_STYLE=ai
+IMAGE_PROVIDER=replicate
+REPLICATE_API_TOKEN=...
+REPLICATE_IMAGE_MODEL=black-forest-labs/flux-schnell
 ```
 
 Then sync:
@@ -55,7 +74,7 @@ Then sync:
 python3 scripts/sync_secrets.py
 ```
 
-## 5. YouTube upload OAuth (one-time re-auth)
+## 6. YouTube upload OAuth (one-time re-auth)
 
 Upload needs the `youtube.upload` scope:
 
@@ -63,7 +82,7 @@ Upload needs the `youtube.upload` scope:
 YOUTUBE_OAUTH_UPLOAD=1 python3 -m shorts_bot.youtube.auth_cli
 ```
 
-## 6. Run one Short (full pipeline)
+## 7. Run one Short (full pipeline)
 
 ```bash
 python3 -m shorts_bot.production.daily_cli
@@ -75,7 +94,7 @@ Or finish an existing draft:
 python3 -m shorts_bot.production.finish_cli --draft-id 6 --upload
 ```
 
-## 7. Daily cron (optional)
+## 8. Daily cron (optional)
 
 ```cron
 0 7 * * * cd /path/to/repo && python3 -m shorts_bot.production.daily_cli
@@ -86,7 +105,7 @@ python3 -m shorts_bot.production.finish_cli --draft-id 6 --upload
 1. Humanize script (Gemini + local AI detect)
 2. **Resemble** → `voiceover.mp3` (your clone)
 3. **TurboScribe Whale** → `turboscribe_transcript.txt`
-4. Rebuild stick-figure frames synced to real audio timing
+4. Rebuild **AI image** frames (Replicate/Fal) synced to real audio timing + bottom captions
 5. ffmpeg → `final_short.mp4`
 6. YouTube API upload (if `AUTO_UPLOAD_YOUTUBE=true`)
 

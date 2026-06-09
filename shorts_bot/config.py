@@ -44,7 +44,15 @@ class Settings(BaseSettings):
     tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
     tts_rate: str = "-5%"
     tts_pitch: str = "+2Hz"
-    visual_style: str = "stickfigure"  # stickfigure | calm_stills
+    visual_style: str = "ai"  # ai | stickfigure | calm_stills
+
+    # Paid image generation (Replicate FLUX or Fal.ai)
+    image_provider: str = "replicate"  # replicate | fal
+    replicate_api_token: str | None = None
+    replicate_image_model: str = "black-forest-labs/flux-schnell"
+    fal_api_key: str | None = None
+    fal_image_model: str = "fal-ai/flux/schnell"
+    image_aspect_ratio: str = "9:16"
     ai_detect_max_passes: int = 5
     ai_detect_threshold: int = 35
     burn_in_subtitles: bool = False  # stick frames already have captions; use captions.srt for YT
@@ -89,6 +97,20 @@ class Settings(BaseSettings):
         if self.has_openai:
             return "openai"
         return "offline"
+
+    @property
+    def has_replicate_images(self) -> bool:
+        token = (self.replicate_api_token or "").strip()
+        return bool(token) and len(token) >= 8 and "your" not in token.lower()
+
+    @property
+    def has_fal_images(self) -> bool:
+        key = (self.fal_api_key or "").strip()
+        return bool(key) and len(key) >= 8 and "your" not in key.lower()
+
+    @property
+    def has_paid_images(self) -> bool:
+        return self.has_replicate_images or self.has_fal_images
 
     @property
     def has_resemble(self) -> bool:

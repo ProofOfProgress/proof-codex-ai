@@ -7,6 +7,7 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
+from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.production.render_stills import render_all_stills
 from shorts_bot.production.render_stickfigures import render_all_stickfigures
 from shorts_bot.production.script_segments import segments_from_script
@@ -87,9 +88,21 @@ def build_production_pack(
         encoding="utf-8",
     )
 
+    image_note = ""
     if render_images:
-        if settings.visual_style == "stickfigure":
+        if settings.visual_style == "ai" and settings.has_paid_images:
+            rendered = render_all_ai_images(briefs, images_dir)
+            image_note = f" via {settings.image_provider}"
+            if rendered < len(briefs):
+                image_note += f" ({rendered}/{len(briefs)} ok)"
+            if rendered == 0:
+                rendered = render_all_stickfigures(briefs, images_dir)
+                image_note = " (AI failed — stick figure fallback)"
+        elif settings.visual_style == "stickfigure":
             rendered = render_all_stickfigures(briefs, images_dir)
+        elif settings.visual_style == "ai":
+            rendered = render_all_stickfigures(briefs, images_dir)
+            image_note = " (no image API key — stick figure fallback)"
         else:
             rendered = render_all_stills(briefs, images_dir)
     else:
@@ -141,7 +154,7 @@ def build_production_pack(
         f"Folder: {root}."
     )
     if rendered:
-        msg += f" Rendered {rendered} still PNGs in images/."
+        msg += f" Rendered {rendered} still PNGs in images/{image_note}."
     else:
         msg += " Open prompts/ or run with render_images=True."
 

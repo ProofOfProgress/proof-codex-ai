@@ -52,6 +52,22 @@ def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     )
 
 
+def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+    """Paid image generator prompt — Soft Continuity calm stills."""
+    style = _load_style_guide()
+    scene = seg.text.strip() or topic
+    return (
+        f"Calm faceless self-help still frame: {scene}. "
+        f"Channel topic: {topic}. "
+        "Mood: quiet room, soft window light, minimal composition, generous negative space. "
+        "One symbolic element max (thin ring, faint glow, silhouette). "
+        "Palette: deep navy #0B1020, mist blue #8EB8FF, warm white accents. "
+        "No human faces, no celebrity likeness, no horror, no robots. "
+        "vertical 9:16 still image, no text, no watermark, faceless, soft continuity aesthetic. "
+        f"Style notes: {style[:400]}"
+    )
+
+
 def build_image_briefs(
     segments: list[TranscriptSegment],
     *,
@@ -73,13 +89,16 @@ def build_image_briefs(
         from shorts_bot.production.turboscribe_parser import label_from_seconds
 
         stem = label_from_seconds(seg.start_seconds)
+        from shorts_bot.config import settings
+
+        prompt_fn = ai_segment_to_prompt if settings.visual_style == "ai" else segment_to_prompt
         briefs.append(
             ImageBrief(
                 start_seconds=seg.start_seconds,
                 end_seconds=end,
                 filename_stem=stem,
                 spoken_text=seg.text,
-                prompt=segment_to_prompt(seg, topic=topic),
+                prompt=prompt_fn(seg, topic=topic),
             )
         )
     return briefs
