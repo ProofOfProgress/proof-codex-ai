@@ -12,6 +12,7 @@ from shorts_bot.services.chat_router import (
     is_sync_command,
     parse_dev_request,
     parse_auto_video_request,
+    parse_voice_request,
     parse_produce_request,
 )
 from shorts_bot.web.deps import (
@@ -46,6 +47,11 @@ class BotOperations:
             if auto_id < 0:
                 return "Usage: make video <draft_id>  (e.g. make video 6)"
             r = self.auto_make_video(auto_id)
+            return r.get("message", "Done.")
+
+        voice_id = parse_voice_request(text)
+        if voice_id is not None:
+            r = self.generate_voiceover(voice_id)
             return r.get("message", "Done.")
 
         produce = parse_produce_request(text)
@@ -102,6 +108,7 @@ class BotOperations:
             "• sync — YouTube Analytics (after Google login)\n"
             "• apply brand — update channel name + description in Studio\n"
             "• make video <draft_id> — auto script + still images (no TurboScribe paste)\n"
+            "• make voice <draft_id> — free TTS MP3 (optional; your voice is safer for monetization)\n"
             "• produce <draft_id> | <turboscribe paste> — image pack for CapCut\n"
             "• Or just chat normally (needs OpenAI key for full mode)"
         )
@@ -225,7 +232,7 @@ class BotOperations:
             "improvements_created": r.improvements_created,
         }
 
-    def auto_make_video(self, draft_id: int) -> dict[str, Any]:
+    def auto_make_video(self, draft_id: int, *, generate_voice: bool = False) -> dict[str, Any]:
         from shorts_bot.production.pack import auto_produce_draft
 
         store = get_store()
@@ -233,16 +240,43 @@ class BotOperations:
             pack = auto_produce_draft(store, draft_id, render_images=True)
         except (ValueError, KeyError) as exc:
             return {"ok": False, "message": str(exc)}
+        voice_note = "record VOICEOVER_SCRIPT.txt"
+        if generate_voice:
+            voice = self.generate_voiceover(draft_id)
+            if voice.get("ok"):
+                voice_note = f"use {voice.get('output_path')} (TTS) or re-record your own voice"
+            else:
+                voice_note = f"TTS failed ({voice.get('message')}) — record VOICEOVER_SCRIPT.txt"
         return {
             "ok": True,
             "message": (
                 f"{pack.message}\n"
-                f"Your step: record VOICEOVER_SCRIPT.txt → CapCut import images/ + audio → upload."
+                f"Next: {voice_note} → CapCut import images/ + audio → upload."
             ),
             "draft_id": pack.draft_id,
             "image_count": pack.image_count,
             "images_rendered": pack.images_rendered,
             "output_dir": str(pack.output_dir),
+        }
+
+    def generate_voiceover(self, draft_id: int) -> dict[str, Any]:
+        from shorts_bot.production.voiceover import generate_voiceover as gen_vo
+
+        store = get_store()
+        pack_dir = settings.data_dir / "production" / f"draft_{draft_id}"
+        try:
+            draft = store.get_draft(draft_id)
+            script_path = pack_dir / "VOICEOVER_SCRIPT.txt"
+            script = script_path.read_text(encoding="utf-8") if script_path.exists() else draft.script
+            result = gen_vo(pack_dir, draft_id=draft_id, script_text=script)
+        except (ValueError, KeyError, OSError) as exc:
+            return {"ok": False, "message": str(exc)}
+        return {
+            "ok": True,
+            "message": result.message,
+            "output_path": str(result.output_path),
+            "voice": result.voice,
+            "duration_hint": result.duration_hint,
         }
 
     def prepare_video_production(self, draft_id: int, turboscribe_text: str) -> dict[str, Any]:

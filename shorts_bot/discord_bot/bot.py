@@ -233,6 +233,13 @@ class ShortsCog(commands.Cog):
         result = await asyncio.to_thread(self.ops.auto_make_video, draft_id)
         await ctx.reply(result.get("message", "Done"))
 
+    @commands.command(name="voice")
+    async def voice_cmd(self, ctx: commands.Context, draft_id: int) -> None:
+        """Generate TTS voiceover MP3: !voice 6"""
+        await self._remember(ctx)
+        result = await asyncio.to_thread(self.ops.generate_voiceover, draft_id)
+        await ctx.reply(result.get("message", "Done"))
+
     @commands.command(name="produce")
     async def produce_cmd(self, ctx: commands.Context, *, payload: str) -> None:
         """Build image production pack: !produce 5 | 0:00 line\\n0:07 line"""
