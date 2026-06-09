@@ -108,7 +108,7 @@ class BotOperations:
             "• sync — YouTube Analytics (after Google login)\n"
             "• apply brand — update channel name + description in Studio\n"
             "• make video <draft_id> — auto script + still images (no TurboScribe paste)\n"
-            "• make voice <draft_id> — free TTS MP3 (optional; your voice is safer for monetization)\n"
+            "• make voice <draft_id> — regenerate TTS MP3 (auto-runs on make video)\n"
             "• produce <draft_id> | <turboscribe paste> — image pack for CapCut\n"
             "• Or just chat normally (needs OpenAI key for full mode)"
         )
@@ -232,7 +232,12 @@ class BotOperations:
             "improvements_created": r.improvements_created,
         }
 
-    def auto_make_video(self, draft_id: int, *, generate_voice: bool = False) -> dict[str, Any]:
+    def auto_make_video(
+        self,
+        draft_id: int,
+        *,
+        generate_voice: bool | None = None,
+    ) -> dict[str, Any]:
         from shorts_bot.production.pack import auto_produce_draft
 
         store = get_store()
@@ -240,6 +245,9 @@ class BotOperations:
             pack = auto_produce_draft(store, draft_id, render_images=True)
         except (ValueError, KeyError) as exc:
             return {"ok": False, "message": str(exc)}
+        if generate_voice is None:
+            generate_voice = settings.auto_generate_voice
+
         voice_note = "record VOICEOVER_SCRIPT.txt"
         if generate_voice:
             voice = self.generate_voiceover(draft_id)

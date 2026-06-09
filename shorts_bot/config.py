@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     discord_briefing_hour: int = 8
     discord_briefing_minute: int = 30
 
+    # Production — TTS voiceover (no mic needed; YPP-safe when scripts are original)
+    auto_generate_voice: bool = True
+    tts_voice: str = "en-US-AriaNeural"
+    tts_rate: str = "-8%"  # slightly slower = calmer, more natural for Shorts
+
     @property
     def has_openai(self) -> bool:
         key = (self.openai_api_key or "").strip()

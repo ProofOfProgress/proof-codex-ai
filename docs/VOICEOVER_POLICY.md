@@ -1,36 +1,58 @@
-# Voiceover — human vs generated audio
+# Voiceover for monetized Shorts (no mic required)
 
-## Will YouTube ban the channel?
+## Yes — you can monetize without recording your voice
 
-**No** — using text-to-speech alone does not get channels banned. Bans are for spam, scams, copyright abuse, or repeated policy violations.
+YouTube **does not ban** channels for using TTS. YPP cares whether content is **original and valuable**, not whether a human recorded the audio.
 
-What people worry about is **monetization** and **reach**, not instant bans.
+What gets **demonetized** (not banned):
 
-## Risk ladder (lowest → highest)
+- Mass-produced slideshows with the same template every upload
+- Generic AI scripts with no unique angle
+- Repetitive “spam farm” channels at scale
 
-| Method | Ban risk | Monetization / reach |
-|--------|----------|----------------------|
-| **Your own voice** | Lowest | Best — authentic, highest trust |
-| **Free neural TTS** (`edge-tts`, bot command below) | Very low | Fine for new channels; sounds human-ish |
-| **Paid AI voice clones / mass AI slop** | Low ban, higher demonetization | Repetitive faceless AI farms get limited |
+**Soft Continuity is fine** if each Short has a distinct, helpful script (sleep, focus, boundaries) and you are not blasting 10 identical uploads per day.
 
-Soft Continuity is **one helpful script at a time**, not a spam farm — that matters more than TTS vs human for policy.
+Official policy name: **inauthentic content** (formerly repetitious).  
+Source: [YouTube channel monetization policies](https://support.google.com/youtube/answer/1311392)
 
-## Bot: generate voiceover (optional)
+## How the bot handles voice (default: automatic)
 
-Free, local, no API key — Microsoft Edge neural voices:
+`make video 6` now also creates **`voiceover.mp3`** (free neural TTS via edge-tts).
 
 ```bash
 python3 -m shorts_bot.production.voice_cli --draft-id 6
+# or: make voice 6  /  !voice 6
 ```
 
 Output: `data/production/draft_6/voiceover.mp3`
 
-Then CapCut: import `voiceover.mp3` + `images/` per `CAPCUT_TIMELINE.md`.
+CapCut: import `voiceover.mp3` + `images/` → follow `CAPCUT_TIMELINE.md` → upload.
 
-**Tip:** If you use TTS, re-run `produce` with TurboScribe timestamps after upload for tighter image sync.
+Turn off auto-TTS in `.env`:
 
-## Recommendation
+```
+AUTO_GENERATE_VOICE=false
+```
 
-- **First Short:** your voice if you can (2 minutes, phone mic)
-- **Backup:** bot-generated `voiceover.mp3` when you're tired or testing the pipeline
+## Monetization checklist (TTS channel)
+
+1. **Unique scripts** — bot drafts + your approvals (not copy-paste templates)
+2. **Real help** — each Short solves one concrete problem
+3. **Varied topics** — don’t upload the same hook 20 times
+4. **Human editorial layer** — you approve/reject drafts (counts as creative input)
+5. **Quality bar** — calm pacing, clean edit, not robotic spam cadence
+6. **After upload** — run `sync` so the bot learns from analytics
+
+## Voice quality settings (`.env`)
+
+```
+TTS_VOICE=en-US-AriaNeural
+TTS_RATE=-8%
+```
+
+Slower rate sounds calmer and more “human” on Shorts.
+
+## If YPP flags a video
+
+Appeal with: original script, educational self-help value, non-repetitive format.  
+Switching to your own voice is **not required** for reinstatement if the issue was “inauthentic” — fixing script originality usually is.

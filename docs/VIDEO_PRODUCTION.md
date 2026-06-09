@@ -7,7 +7,7 @@ This is the **Soft Continuity** version of the faceless Shorts pipeline from the
 | Step | Who | Tool |
 |------|-----|------|
 | 1. Script | Bot | `draft <topic>` → approve |
-| 2. Voiceover | You or bot | Your voice (best) **or** `make voice 6` → `voiceover.mp3` (see `docs/VOICEOVER_POLICY.md`) |
+| 2. Voiceover | Bot (default) | Auto `voiceover.mp3` on `make video` — no mic needed (see `docs/VOICEOVER_POLICY.md`) |
 | 3. Timestamps | TurboScribe | Upload audio → **Whale** mode → copy text **with timestamps** |
 | 4. Image pack | Bot | `produce <draft_id> \| <paste>` or web **Learning → Build production pack** |
 | 5. Still images | You / Cursor | One PNG per `prompts/00.07.txt` etc. (Higgsfield optional) |
@@ -25,7 +25,7 @@ Bot estimates timestamps from the approved script and **renders still PNGs** loc
 
 Output: `data/production/draft_6/images/*.png` + `VOICEOVER_SCRIPT.txt` + `CAPCUT_TIMELINE.md`
 
-**You only:** record voiceover (read the script file) → CapCut → upload to YouTube.
+**You only:** CapCut (import `voiceover.mp3` + `images/`) → upload to YouTube. Mic optional.
 
 ---
 
