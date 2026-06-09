@@ -38,3 +38,23 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 ### Next phases
 
 YouTube analytics reward loop, CapCut Playwright operator — not implemented yet.
+
+### Git / PR policy (user does minimal work)
+
+Cloud agents **merge their own PRs** when ready. Do not wait for the user to click merge.
+
+**Before merging:**
+1. `git fetch origin main`
+2. Resolve merge conflicts on the feature branch if needed
+3. `python3 -m pytest tests/ -q` must pass
+4. `gh pr view <N> --json mergeable,mergeStateStatus` → must be `MERGEABLE` and `CLEAN`
+
+**Merge (no user action required):**
+```bash
+gh pr merge <PR_NUMBER> --repo ProofOfProgress/proof-codex-ai --merge --delete-branch
+git checkout main && git pull origin main
+```
+
+**After merging:** confirm with `gh pr view <N> --json state` → `MERGED`.
+
+The environment has `gh` authenticated. Merge permission works; closing stale PRs may require the user (optional cleanup only).
