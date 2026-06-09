@@ -4,6 +4,8 @@ Jenny Hoyos–trained strategist for a faceless, human-approved YouTube Shorts c
 
 The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and approve or reject content before anything gets posted. **Free-first production stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
 
+**Don't code?** Read [docs/FOR_YOU.md](docs/FOR_YOU.md) — plain English on what the bot does and what you do once.
+
 ## Quick start
 
 ```bash

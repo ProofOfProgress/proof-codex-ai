@@ -5,5 +5,7 @@ __pycache__/
 venv/
 data/*.db
 data/*.sqlite
+data/browser_profile/
+data/screenshots/
 *.log
 .DS_Store

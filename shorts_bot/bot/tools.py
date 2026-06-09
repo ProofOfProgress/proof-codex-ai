@@ -4,9 +4,11 @@ import json
 from typing import Any, Callable
 
 from shorts_bot.approval.queue import ApprovalQueue
+from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
+from shorts_bot.youtube.channel_setup import YouTubeChannelSetup
 
 TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
@@ -115,6 +117,27 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "setup_youtube_channel",
+            "description": (
+                "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
+                "requires a one-time human step — cannot be fully automated."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel_name": {"type": "string", "description": "YouTube channel display name."},
+                    "use_existing_google_account": {
+                        "type": "boolean",
+                        "description": "True if Google account already exists; sign in manually once.",
+                    },
+                },
+                "required": ["channel_name"],
+            },
+        },
+    },
 ]
 
 
@@ -140,6 +163,7 @@ class ToolRunner:
             "get_stats": self._get_stats,
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
+            "setup_youtube_channel": self._setup_youtube_channel,
         }
 
     def run(self, name: str, arguments: dict[str, Any]) -> str:
@@ -238,3 +262,22 @@ class ToolRunner:
         if self.router is None:
             return json.dumps({"error": "Course not loaded"})
         return json.dumps({"free_services": self.router.kb.free_services})
+
+    def _setup_youtube_channel(self, args: dict[str, Any]) -> str:
+        channel_name = args.get("channel_name") or settings.youtube_channel_name
+        operator = YouTubeChannelSetup(
+            profile_dir=settings.browser_profile_dir,
+            headless=False,
+        )
+        result = operator.run(
+            channel_name=channel_name,
+            use_existing_google_account=bool(args.get("use_existing_google_account", False)),
+        )
+        return json.dumps(
+            {
+                "status": result.status,
+                "message": result.message,
+                "screenshot": result.screenshot_path,
+                "url": result.current_url,
+            }
+        )
