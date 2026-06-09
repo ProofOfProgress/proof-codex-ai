@@ -71,6 +71,50 @@ class YouTubeChannelSetup:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
 
+    TAKEN_KEYWORDS = (
+        "already taken",
+        "not available",
+        "isn't available",
+        "is not available",
+        "already in use",
+        "choose another",
+        "try another",
+    )
+
+    @staticmethod
+    def name_variants(base_name: str, max_attempts: int = 12) -> list[str]:
+        """ALPHABETA001 → ALPHABETA0010 → ALPHABETA00100 → ..."""
+        names = [base_name]
+        for i in range(1, max_attempts):
+            names.append(f"{base_name}{'0' * i}")
+        return names
+
+    def run_with_unique_name(
+        self,
+        *,
+        base_name: str,
+        use_existing_google_account: bool = False,
+        wait_for_human_seconds: int = 0,
+    ) -> ChannelSetupResult:
+        last = ChannelSetupResult(status="failed", message="No name attempts made.")
+        for candidate in self.name_variants(base_name):
+            last = self.run(
+                channel_name=candidate,
+                use_existing_google_account=use_existing_google_account,
+                wait_for_human_seconds=wait_for_human_seconds,
+            )
+            if last.status in {"channel_ready", "needs_human", "logged_in"}:
+                if last.status == "channel_ready":
+                    last.message = f"Channel name used: {candidate}. {last.message}"
+                return last
+            if "taken" in last.message.lower():
+                continue
+            return last
+        return ChannelSetupResult(
+            status="failed",
+            message=f"Could not find available name starting from {base_name} after all variants.",
+        )
+
     def run(
         self,
         *,
@@ -99,6 +143,7 @@ class YouTubeChannelSetup:
             )
             page = context.pages[0] if context.pages else context.new_page()
 
+            result = ChannelSetupResult(status="failed", message="Setup did not run.")
             try:
                 if use_existing_google_account:
                     result = self._ensure_logged_in(page)
@@ -121,8 +166,11 @@ class YouTubeChannelSetup:
                     if login_check.status != "logged_in":
                         return login_check
 
-                return self._ensure_youtube_channel(page, channel_name)
+                result = self._ensure_youtube_channel(page, channel_name)
+                return result
             finally:
+                if result.status == "needs_human" and wait_for_human_seconds > 0:
+                    time.sleep(2)
                 context.close()
 
     def _start_google_signup(self, page) -> ChannelSetupResult:
@@ -192,6 +240,14 @@ class YouTubeChannelSetup:
         self._try_click_text(page, ["Create a channel", "Get started", "Create channel"])
         time.sleep(2)
         self._try_fill_channel_name(page, channel_name)
+        time.sleep(1)
+        if self._name_is_taken(page):
+            return ChannelSetupResult(
+                status="failed",
+                message=f"Name '{channel_name}' is taken. Try another.",
+                screenshot_path=self._screenshot(page, "name_taken"),
+                current_url=page.url,
+            )
         self._try_click_text(page, ["Create channel", "Done", "OK"])
 
         page.goto(self.YOUTUBE_STUDIO, wait_until="domcontentloaded", timeout=60000)
@@ -226,6 +282,9 @@ class YouTubeChannelSetup:
             name_input = page.locator('input[aria-label*="name" i], input[name*="name" i]').first
             if name_input.count():
                 name_input.fill(channel_name)
+                time.sleep(1)
+                if self._name_is_taken(page):
+                    return None
                 self._try_click_text(page, ["Publish", "Save"])
                 return ChannelSetupResult(
                     status="channel_ready",
@@ -236,6 +295,13 @@ class YouTubeChannelSetup:
         except Exception:
             return None
         return None
+
+    def _name_is_taken(self, page) -> bool:
+        try:
+            blob = page.content().lower()
+        except Exception:
+            return False
+        return any(k in blob for k in self.TAKEN_KEYWORDS)
 
     def _try_fill_channel_name(self, page, channel_name: str) -> None:
         selectors = [
@@ -281,7 +347,7 @@ class YouTubeChannelSetup:
             pass
         url = page.url.lower()
         blob = f"{content} {url}"
-        if any(k in blob for k in self.HUMAN_KEYWORDS):
+        if any(k in blob for k in self.HUMAN_KEYWORDS) and "signin/identifier" not in url:
             return ChannelSetupResult(
                 status="needs_human",
                 message=(

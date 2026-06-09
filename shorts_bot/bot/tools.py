@@ -269,8 +269,8 @@ class ToolRunner:
             profile_dir=settings.browser_profile_dir,
             headless=False,
         )
-        result = operator.run(
-            channel_name=channel_name,
+        result = operator.run_with_unique_name(
+            base_name=channel_name,
             use_existing_google_account=bool(args.get("use_existing_google_account", False)),
         )
         return json.dumps(

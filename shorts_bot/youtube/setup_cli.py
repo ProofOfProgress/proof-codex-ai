@@ -28,13 +28,26 @@ def main() -> None:
     parser.add_argument(
         "--wait",
         type=int,
-        default=0,
-        help="Seconds to wait for human to finish phone/CAPTCHA verification.",
+        default=600,
+        help="Seconds to wait for human to finish phone/CAPTCHA verification (default 600).",
     )
     parser.add_argument(
         "--headless",
         action="store_true",
         help="Run browser headless (not recommended for sign-up).",
+    )
+    parser.add_argument(
+        "--unique",
+        dest="unique",
+        action="store_true",
+        default=True,
+        help="Append zeros if channel name is taken (default: on).",
+    )
+    parser.add_argument(
+        "--no-unique",
+        dest="unique",
+        action="store_false",
+        help="Do not try alternate names with extra zeros.",
     )
     args = parser.parse_args()
 
@@ -56,11 +69,18 @@ def main() -> None:
         profile_dir=settings.browser_profile_dir,
         headless=args.headless,
     )
-    result = operator.run(
-        channel_name=args.channel_name,
-        use_existing_google_account=args.existing_account,
-        wait_for_human_seconds=args.wait,
-    )
+    if args.unique:
+        result = operator.run_with_unique_name(
+            base_name=args.channel_name,
+            use_existing_google_account=args.existing_account,
+            wait_for_human_seconds=args.wait,
+        )
+    else:
+        result = operator.run(
+            channel_name=args.channel_name,
+            use_existing_google_account=args.existing_account,
+            wait_for_human_seconds=args.wait,
+        )
     console.print(Panel(result.for_human(), title=result.status, border_style="green"))
 
 
