@@ -9,6 +9,7 @@ from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.youtube.channel_setup import YouTubeChannelSetup
+from shorts_bot.youtube.studio import check_studio
 
 TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
@@ -120,6 +121,28 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "get_youtube_status",
+            "description": "Check if YouTube channel is set up and Studio is accessible.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "mark_channel_ready",
+            "description": "Record that the human finished channel setup (name, handle, etc.).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel_name": {"type": "string"},
+                    "note": {"type": "string"},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "setup_youtube_channel",
             "description": (
                 "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
@@ -164,6 +187,8 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "setup_youtube_channel": self._setup_youtube_channel,
+            "get_youtube_status": self._get_youtube_status,
+            "mark_channel_ready": self._mark_channel_ready,
         }
 
     def run(self, name: str, arguments: dict[str, Any]) -> str:
@@ -262,6 +287,31 @@ class ToolRunner:
         if self.router is None:
             return json.dumps({"error": "Course not loaded"})
         return json.dumps({"free_services": self.router.kb.free_services})
+
+    def _get_youtube_status(self, _args: dict[str, Any]) -> str:
+        saved = self.store.channel_summary()
+        try:
+            live = check_studio(settings.browser_profile_dir, headless=True)
+            return json.dumps(
+                {
+                    "saved": saved,
+                    "live": {
+                        "logged_in": live.logged_in,
+                        "in_studio": live.in_studio,
+                        "channel_name": live.channel_name,
+                        "message": live.message,
+                        "url": live.url,
+                    },
+                }
+            )
+        except Exception as exc:  # noqa: BLE001
+            return json.dumps({"saved": saved, "live_error": str(exc)})
+
+    def _mark_channel_ready(self, args: dict[str, Any]) -> str:
+        name = args.get("channel_name")
+        note = args.get("note", "Human finished channel setup.")
+        self.store.mark_channel_ready(channel_name=name, note=note)
+        return json.dumps({"message": "Channel marked ready.", "channel_name": name, "note": note})
 
     def _setup_youtube_channel(self, args: dict[str, Any]) -> str:
         channel_name = args.get("channel_name") or settings.youtube_channel_name

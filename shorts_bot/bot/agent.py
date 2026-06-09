@@ -22,6 +22,7 @@ Channel constraints:
 - Faceless Shorts only (9:16). No slop. Must genuinely help people.
 - Niche TBD — infer the most useful version and proceed.
 - Approve before posting. Production uses free-first stack: CapCut, YouTube Audio Library, Canva free, Google Drive.
+- YouTube channel exists — human configured name/handle. Use get_youtube_status to confirm.
 - Do not ask clarifying questions unless truly impossible to proceed.
 """
 

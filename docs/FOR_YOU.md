@@ -45,3 +45,9 @@ Or ask me (the cloud agent) to run it for you in the Desktop pane.
 | OpenAI API key | Smarter bot (optional at first) | Copy from OpenAI website into Cursor secrets |
 
 That's the whole list for now.
+
+## Channel status
+
+Your YouTube channel is **live** and logged in. You set the name yourself — the bot saved the session and won't fight you for browser control unless you ask.
+
+**Next:** the bot drafts Short scripts → you approve → later CapCut + upload.

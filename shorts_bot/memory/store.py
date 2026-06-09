@@ -72,8 +72,47 @@ class MemoryStore:
                     content TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS channel_state (
+                    key TEXT PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
+
+    def set_channel_state(self, key: str, value: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO channel_state (key, value, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+                """,
+                (key, value, _utc_now()),
+            )
+
+    def get_channel_state(self, key: str) -> str | None:
+        with self._connect() as conn:
+            row = conn.execute("SELECT value FROM channel_state WHERE key = ?", (key,)).fetchone()
+        return row["value"] if row else None
+
+    def channel_summary(self) -> dict[str, str | None]:
+        return {
+            "ready": self.get_channel_state("ready"),
+            "channel_name": self.get_channel_state("channel_name"),
+            "note": self.get_channel_state("note"),
+            "updated_at": self.get_channel_state("updated_at"),
+        }
+
+    def mark_channel_ready(self, channel_name: str | None = None, note: str = "") -> None:
+        now = _utc_now()
+        self.set_channel_state("ready", "true")
+        self.set_channel_state("updated_at", now)
+        if channel_name:
+            self.set_channel_state("channel_name", channel_name)
+        if note:
+            self.set_channel_state("note", note)
 
     def save_draft(
         self,

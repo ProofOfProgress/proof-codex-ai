@@ -297,11 +297,12 @@ class YouTubeChannelSetup:
         return None
 
     def _name_is_taken(self, page) -> bool:
-        try:
-            blob = page.content().lower()
-        except Exception:
-            return False
-        return any(k in blob for k in self.TAKEN_KEYWORDS)
+        patterns = [re.compile(k, re.I) for k in self.TAKEN_KEYWORDS]
+        for pat in patterns:
+            loc = page.get_by_text(pat)
+            if loc.count() and loc.first.is_visible():
+                return True
+        return False
 
     def _try_fill_channel_name(self, page, channel_name: str) -> None:
         selectors = [
