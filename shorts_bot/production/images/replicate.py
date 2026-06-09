@@ -12,7 +12,11 @@ API_BASE = "https://api.replicate.com/v1"
 
 
 def _request(method: str, url: str, *, token: str, payload: dict | None = None) -> dict:
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json",
+        "User-Agent": "shorts-bot/1.0",
+    }
     data = None
     if payload is not None:
         headers["Content-Type"] = "application/json"
