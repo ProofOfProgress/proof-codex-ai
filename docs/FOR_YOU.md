@@ -42,7 +42,7 @@ Or ask me (the cloud agent) to run it for you in the Desktop pane.
 |------|-----|----------|
 | Phone number | Google account (one time) | 2 minutes |
 | Channel name | What to call it | Tell us in plain English |
-| OpenAI API key | Smarter bot (optional at first) | Copy from OpenAI website into Cursor secrets |
+| OpenAI API key | Full chat tonight (separate from ChatGPT Pro) | **docs/CHAT_TONIGHT.md** — 2 minutes |
 
 That's the whole list for now.
 
@@ -51,6 +51,16 @@ That's the whole list for now.
 Your YouTube channel is **live** and logged in. You set the name yourself — the bot saved the session and won't fight you for browser control unless you ask.
 
 **Next:** the bot drafts Short scripts → you approve → later CapCut + upload.
+
+## Chat tonight (before YouTube setup)
+
+Follow **docs/CHAT_TONIGHT.md**:
+
+1. Get API key from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Run `bash scripts/set-openai-key.sh` (paste key once)
+3. Run `bash scripts/start.sh` → **http://localhost:8080**
+
+Header should say **Chat: full**. Then talk normally — ask for Short ideas, drafts, niche help.
 
 ## Installed — how to use (no coding)
 

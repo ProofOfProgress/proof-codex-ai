@@ -12,6 +12,9 @@ bad()  { echo "  FAIL $1"; fail=$((fail + 1)); }
 
 echo "==> Shorts Bot doctor"
 echo ""
+echo "==> Syncing secrets from environment..."
+python3 scripts/sync_secrets.py 2>/dev/null || true
+echo ""
 
 # Python
 if command -v python3 >/dev/null 2>&1; then

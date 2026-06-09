@@ -47,6 +47,9 @@
     .sync-msg.ok { color:#86efac; }
     .sync-msg.err { color:#fca5a5; }
     .hint { font-size:.75rem; color:var(--muted); margin-top:8px; }
+    .offline-banner { background:#422006; border:1px solid #f59e0b55; border-radius:8px; padding:10px 14px; margin:0 20px 12px; font-size:.85rem; line-height:1.45; }
+    .offline-banner a { color:#fcd34d; }
+    .header-badges { display:flex; gap:8px; flex-wrap:wrap; }
     @media (max-width:900px) { .layout { grid-template-columns:1fr; } .sidebar { border-left:none; border-top:1px solid #2a2f3a; } }
   </style>
 </head>
@@ -59,14 +62,25 @@
           {% if not has_openai %} · <strong>offline mode</strong>{% endif %}
         </p>
       </div>
-      <span id="yt-badge" class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
-        {% if youtube.ready %}YouTube connected{% elif youtube.credentials_configured %}Needs sign-in{% else %}YouTube not set up{% endif %}
-      </span>
+      <div class="header-badges">
+        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">
+          {% if has_openai %}Chat: full{% else %}Chat: offline{% endif %}
+        </span>
+        <span id="yt-badge" class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
+          {% if youtube.ready %}YouTube connected{% elif youtube.credentials_configured %}Needs sign-in{% else %}YouTube not set up{% endif %}
+        </span>
+      </div>
     </header>
 
     <section class="chat">
+      {% if not has_openai %}
+      <div class="offline-banner">
+        <strong>Want to talk tonight?</strong> Add your OpenAI API key — see <strong>docs/CHAT_TONIGHT.md</strong>.
+        Run <code>bash scripts/set-openai-key.sh</code> or add <code>OPENAI_API_KEY</code> to Cursor secrets, then restart.
+      </div>
+      {% endif %}
       <div class="messages" id="messages">
-        <div class="msg bot">Hey — I'm your Shorts strategist. Tap <strong>Sync YouTube Analytics</strong> on the right after you connect (see docs/TOMORROW.md). Then approve improvements with one tap.</div>
+        <div class="msg bot">{% if has_openai %}Hey — I'm your Shorts strategist. Ask for ideas, drafts, or niche help. I'll use Jenny's course + tools.{% else %}Hey — I'm in offline mode. Add your OpenAI key (docs/CHAT_TONIGHT.md) for full chat. You can still try: draft &lt;topic&gt;, course &lt;question&gt;, or free tools.{% endif %}</div>
       </div>
       <form class="composer" id="chat-form">
         <input id="chat-input" type="text" placeholder="Talk to the bot..." autocomplete="off" />

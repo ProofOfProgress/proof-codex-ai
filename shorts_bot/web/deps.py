@@ -37,7 +37,12 @@ def get_memory() -> MemoryExtensions:
 def get_agent() -> ShortsBotAgent:
     global _agent
     if _agent is not None:
-        return _agent
+        wants_openai = settings.has_openai
+        has_openai = _agent.client is not None
+        if wants_openai != has_openai:
+            _agent = None
+        else:
+            return _agent
     store = get_store()
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)

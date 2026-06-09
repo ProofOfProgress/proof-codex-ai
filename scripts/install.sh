@@ -11,8 +11,11 @@ python3 -m playwright install chromium
 if [ ! -f .env ]; then
   echo "==> Creating .env from .env.example"
   cp .env.example .env
-  echo "    Add OPENAI_API_KEY to .env for full chat (optional for offline mode)."
 fi
+
+echo "==> Syncing API keys from environment (Cursor secrets)..."
+python3 scripts/sync_secrets.py 2>/dev/null || true
+echo "    Full chat: bash scripts/set-openai-key.sh  (or add OPENAI_API_KEY to Cursor secrets)"
 
 mkdir -p data
 
