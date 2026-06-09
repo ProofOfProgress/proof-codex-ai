@@ -35,8 +35,12 @@ class Settings(BaseSettings):
 
     # Production — TTS voiceover (no mic needed; YPP-safe when scripts are original)
     auto_generate_voice: bool = True
-    tts_voice: str = "en-US-AriaNeural"
-    tts_rate: str = "-8%"  # slightly slower = calmer, more natural for Shorts
+    tts_voice: str = "en-US-BrianNeural"  # conversational male — ChainsFR-adjacent
+    tts_rate: str = "-5%"
+    tts_pitch: str = "+2Hz"
+    visual_style: str = "stickfigure"  # stickfigure | calm_stills
+    ai_detect_max_passes: int = 5
+    ai_detect_threshold: int = 35
 
     @property
     def has_openai(self) -> bool:

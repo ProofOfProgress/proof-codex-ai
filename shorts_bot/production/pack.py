@@ -8,6 +8,7 @@ from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
 from shorts_bot.production.render_stills import render_all_stills
+from shorts_bot.production.render_stickfigures import render_all_stickfigures
 from shorts_bot.production.script_segments import segments_from_script
 from shorts_bot.production.turboscribe_parser import parse_turboscribe
 
@@ -86,7 +87,13 @@ def build_production_pack(
         encoding="utf-8",
     )
 
-    rendered = render_all_stills(briefs, images_dir) if render_images else 0
+    if render_images:
+        if settings.visual_style == "stickfigure":
+            rendered = render_all_stickfigures(briefs, images_dir)
+        else:
+            rendered = render_all_stills(briefs, images_dir)
+    else:
+        rendered = 0
 
     manifest = {
         "draft_id": draft_id,
@@ -94,6 +101,7 @@ def build_production_pack(
         "hook": draft.hook,
         "script": draft.script,
         "workflow": "auto_script" if auto_from_script and not turboscribe_text.strip() else "turboscribe",
+        "visual_style": settings.visual_style,
         "image_count": len(briefs),
         "images_rendered": rendered,
         "segments": [

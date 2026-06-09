@@ -45,11 +45,10 @@ TIMESTAMPED SCRIPT:
 def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     scene = seg.text.strip() or topic
     return (
-        f"Vertical 9:16 still image illustrating: {scene}. "
-        f"Topic context: {topic}. "
-        "Soft Continuity aesthetic — calm faceless self-help, deep navy and soft blue mist, "
-        "minimal composition, one subtle symbolic element, gentle light, no faces, no horror. "
-        "No text, no watermark, no 3D cinematic render."
+        f"ChainsFR-style stick figure scene: {scene}. Topic: {topic}. "
+        "Off-white background, black stick figure ACTING OUT the line, expressive pose. "
+        "Speech bubble ONLY if character speaks quoted dialogue. "
+        "Simple props (phone, bed, clock). No photorealism, no blue circles."
     )
 
 

@@ -44,10 +44,17 @@ def _voiceover_path(pack_dir: Path) -> Path:
     return pack_dir / "voiceover.mp3"
 
 
-async def _synthesize(text: str, out_path: Path, voice: str, *, rate: str = "-8%") -> None:
+async def _synthesize(
+    text: str,
+    out_path: Path,
+    voice: str,
+    *,
+    rate: str = "-5%",
+    pitch: str = "+0Hz",
+) -> None:
     import edge_tts
 
-    communicate = edge_tts.Communicate(text, voice, rate=rate)
+    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
     await communicate.save(str(out_path))
 
 
@@ -58,6 +65,7 @@ def generate_voiceover(
     script_text: str,
     voice: str | None = None,
     rate: str | None = None,
+    pitch: str | None = None,
 ) -> VoiceoverResult:
     """
     Generate MP3 voiceover into production pack folder.
@@ -68,6 +76,7 @@ def generate_voiceover(
 
     voice = voice or settings.tts_voice or DEFAULT_VOICE
     rate = rate if rate is not None else settings.tts_rate
+    pitch = pitch if pitch is not None else settings.tts_pitch
 
     pack_dir.mkdir(parents=True, exist_ok=True)
     spoken = _clean_script_for_tts(script_text)
@@ -75,7 +84,7 @@ def generate_voiceover(
         raise ValueError("Script too short for voiceover generation.")
 
     out_path = _voiceover_path(pack_dir)
-    asyncio.run(_synthesize(spoken, out_path, voice, rate=rate))
+    asyncio.run(_synthesize(spoken, out_path, voice, rate=rate, pitch=pitch))
 
     word_count = len(spoken.split())
     secs = max(25, int(word_count / 2.4))  # ~145 wpm calm pace

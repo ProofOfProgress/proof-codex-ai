@@ -58,9 +58,17 @@ data/production/draft_5/
   README.txt
 ```
 
-## Image style
+## Image style — ChainsFR stick figures (default)
 
-Soft Continuity = calm minimal stills (not MS Paint scribbles). See `channel/brand/still_image_style.md`.
+Stick figures **act out** each line. Speech bubbles when the character **says** something (quoted dialogue).
+
+See `channel/brand/stick_figure_style.md`. Set `VISUAL_STYLE=calm_stills` in `.env` to revert to old style.
+
+## Script rule — AI detector passes (required)
+
+Before `finish video`, the bot runs the script through an **AI likelihood detector up to 5 times** and humanizes until score ≤ 35.
+
+Log: `data/production/draft_<id>/ai_detect_log.txt`
 
 ## Optional: Higgsfield
 
