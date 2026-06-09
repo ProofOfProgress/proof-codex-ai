@@ -191,11 +191,33 @@ def _check_browser_site(
         )
 
 
+def _check_resemble() -> ServiceStatus:
+    if not settings.has_resemble:
+        return ServiceStatus(
+            "resemble",
+            "Resemble voice clone",
+            False,
+            "RESEMBLE_API_KEY or RESEMBLE_VOICE_UUID missing",
+            "https://app.resemble.ai/account/api",
+        )
+    from shorts_bot.production.tts.resemble import probe_resemble
+
+    ok, detail = probe_resemble(settings.resemble_api_key or "", settings.resemble_voice_uuid or "")
+    return ServiceStatus(
+        "resemble",
+        "Resemble voice clone",
+        ok,
+        detail,
+        None if ok else "python3 -m shorts_bot.production.voice_clone_cli test",
+    )
+
+
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
         _check_discord(),
         _check_chat(),
+        _check_resemble(),
         _check_youtube_oauth(),
     ]
     if include_studio:
@@ -204,17 +226,10 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         [
             _check_browser_site(
                 "turboscribe",
-                "TurboScribe (optional)",
-                "https://turboscribe.ai/dashboard",
+                "TurboScribe Unlimited (Whale sync)",
+                "https://turboscribe.ai/u",
                 logged_in_hint="transcription",
-                fallback_note="Optional — use make video to skip TurboScribe",
-            ),
-            _check_browser_site(
-                "capcut",
-                "CapCut (your edit step)",
-                "https://www.capcut.com/my-edit",
-                logged_in_hint="create",
-                fallback_note="Import production pack images + your voiceover",
+                fallback_note="Paid Unlimited + login required for frame sync",
             ),
         ]
     )

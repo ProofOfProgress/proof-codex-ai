@@ -17,7 +17,9 @@ class UploadPackage:
 
 
 def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPackage:
-    """Conservative metadata: helpful title, no clickbait, unlisted first."""
+    """Conservative metadata: helpful title, no clickbait."""
+    from shorts_bot.config import settings
+
     title = _safe_title(topic, hook)
     description = _safe_description(topic)
     tags = [
@@ -28,8 +30,12 @@ def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPacka
         "self help shorts",
         "soft continuity",
     ]
+    visibility = settings.youtube_upload_visibility
+    if visibility not in ("public", "unlisted", "private"):
+        visibility = "unlisted"
+
     checklist = [
-        "Upload as UNLISTED first — watch retention 24h before going public",
+        f"Visibility: {visibility}",
         "One Short today only — no batch spam (shadowban / inauthentic signal)",
         "Title is helpful, not rage-bait or ALL CAPS shock",
         "No misleading thumbnail text (images are calm stills — good)",
@@ -41,7 +47,7 @@ def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPacka
         title=title,
         description=description,
         tags=tags,
-        visibility="unlisted",
+        visibility=visibility,
         checklist=checklist,
     )
 

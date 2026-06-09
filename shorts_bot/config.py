@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-2.5-flash-lite"
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
     learned_path: Path = Path("data/LEARNED.md")
@@ -33,15 +33,31 @@ class Settings(BaseSettings):
     discord_briefing_hour: int = 8
     discord_briefing_minute: int = 30
 
-    # Production — TTS voiceover (no mic needed; YPP-safe when scripts are original)
+    # Production — TTS voiceover (Resemble clone preferred; edge-tts fallback)
     auto_generate_voice: bool = True
-    tts_voice: str = "en-US-BrianNeural"  # conversational male — ChainsFR-adjacent
+    tts_provider: str = "resemble"  # resemble | edge
+    resemble_api_key: str | None = None
+    resemble_voice_uuid: str | None = None
+    resemble_project_uuid: str | None = None
+    resemble_sample_rate: int = 44100
+    resemble_use_hd: bool = True
+    tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
     tts_rate: str = "-5%"
     tts_pitch: str = "+2Hz"
     visual_style: str = "stickfigure"  # stickfigure | calm_stills
     ai_detect_max_passes: int = 5
     ai_detect_threshold: int = 35
     burn_in_subtitles: bool = False  # stick frames already have captions; use captions.srt for YT
+
+    # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
+    use_turboscribe_sync: bool = True
+    turboscribe_mode: str = "whale"
+    turboscribe_always_fresh: bool = True  # re-transcribe every finish (good for testing variants)
+
+    # Autopilot — fully AI pipeline, no human approval
+    auto_approve_drafts: bool = True
+    auto_upload_youtube: bool = True
+    youtube_upload_visibility: str = "unlisted"
 
     @property
     def has_openai(self) -> bool:
@@ -73,6 +89,16 @@ class Settings(BaseSettings):
         if self.has_openai:
             return "openai"
         return "offline"
+
+    @property
+    def has_resemble(self) -> bool:
+        key = (self.resemble_api_key or "").strip()
+        voice = (self.resemble_voice_uuid or "").strip()
+        if not key or not voice:
+            return False
+        if "your" in key.lower() and "key" in key.lower():
+            return False
+        return len(key) >= 16 and len(voice) >= 8
 
     @property
     def has_discord(self) -> bool:

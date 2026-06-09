@@ -11,6 +11,10 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
 ]
 
+UPLOAD_SCOPES = SCOPES + [
+    "https://www.googleapis.com/auth/youtube.upload",
+]
+
 
 def token_path() -> Path:
     return settings.youtube_token_path
@@ -24,21 +28,36 @@ def token_exists() -> bool:
     return token_path().exists()
 
 
-def load_credentials():
+def _load_credentials(scopes: list[str]):
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
 
     path = token_path()
     if not path.exists():
         return None
-    creds = Credentials.from_authorized_user_file(str(path), SCOPES)
+    creds = Credentials.from_authorized_user_file(str(path), scopes)
     if creds and creds.expired and creds.refresh_token:
         creds.refresh(Request())
-        save_credentials(creds)
+        save_credentials(creds, scopes=scopes)
     return creds
 
 
-def save_credentials(creds) -> None:
+def load_credentials():
+    return _load_credentials(SCOPES)
+
+
+def load_credentials_for_upload():
+    """Load creds with upload scope; re-auth if token lacks youtube.upload."""
+    creds = _load_credentials(UPLOAD_SCOPES)
+    if not creds:
+        return None
+    granted = set(creds.scopes or [])
+    if "https://www.googleapis.com/auth/youtube.upload" not in granted:
+        return None
+    return creds
+
+
+def save_credentials(creds, *, scopes: list[str] | None = None) -> None:
     path = token_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(creds.to_json(), encoding="utf-8")
@@ -62,7 +81,9 @@ def run_oauth_flow() -> dict:
             "redirect_uris": ["http://localhost:8090/"],
         }
     }
-    flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
+    use_upload = os.environ.get("YOUTUBE_OAUTH_UPLOAD", "").lower() in ("1", "true", "yes")
+    oauth_scopes = UPLOAD_SCOPES if use_upload else SCOPES
+    flow = InstalledAppFlow.from_client_config(client_config, oauth_scopes)
     open_browser = os.environ.get("OAUTH_NO_BROWSER", "").lower() not in ("1", "true", "yes")
     last_err: Exception | None = None
     creds = None

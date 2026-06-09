@@ -1,18 +1,17 @@
-"""Optional voiceover generation — free local neural TTS (edge-tts)."""
+"""Voiceover generation — Resemble voice clone (paid) or edge-tts fallback."""
 
 from __future__ import annotations
 
-import asyncio
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
-# Calm, warm voices suited to Soft Continuity (Microsoft Edge neural, free).
 DEFAULT_VOICE = "en-US-AriaNeural"
 ALT_VOICES = (
     "en-US-AriaNeural",
     "en-US-JennyNeural",
     "en-GB-SoniaNeural",
+    "en-US-BrianNeural",
 )
 
 
@@ -44,20 +43,6 @@ def _voiceover_path(pack_dir: Path) -> Path:
     return pack_dir / "voiceover.mp3"
 
 
-async def _synthesize(
-    text: str,
-    out_path: Path,
-    voice: str,
-    *,
-    rate: str = "-5%",
-    pitch: str = "+0Hz",
-) -> None:
-    import edge_tts
-
-    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
-    await communicate.save(str(out_path))
-
-
 def generate_voiceover(
     pack_dir: Path,
     *,
@@ -70,13 +55,11 @@ def generate_voiceover(
     """
     Generate MP3 voiceover into production pack folder.
 
-    Uses edge-tts (free, no login). Not uploaded anywhere — local file only.
+    Default: Resemble voice clone when RESEMBLE_API_KEY + RESEMBLE_VOICE_UUID are set.
+    Fallback: edge-tts (free).
     """
     from shorts_bot.config import settings
-
-    voice = voice or settings.tts_voice or DEFAULT_VOICE
-    rate = rate if rate is not None else settings.tts_rate
-    pitch = pitch if pitch is not None else settings.tts_pitch
+    from shorts_bot.production.tts import synthesize_speech
 
     pack_dir.mkdir(parents=True, exist_ok=True)
     spoken = _clean_script_for_tts(script_text)
@@ -84,21 +67,21 @@ def generate_voiceover(
         raise ValueError("Script too short for voiceover generation.")
 
     out_path = _voiceover_path(pack_dir)
-    asyncio.run(_synthesize(spoken, out_path, voice, rate=rate, pitch=pitch))
+    provider, detail = synthesize_speech(spoken, out_path)
+
+    voice_label = voice or settings.tts_voice or DEFAULT_VOICE
+    if provider == "resemble-clone":
+        voice_label = f"resemble:{settings.resemble_voice_uuid[:8]}…"
 
     word_count = len(spoken.split())
-    secs = max(25, int(word_count / 2.4))  # ~145 wpm calm pace
+    secs = max(25, int(word_count / 2.4))
 
     return VoiceoverResult(
         draft_id=draft_id,
         output_path=out_path,
-        voice=voice,
+        voice=voice_label,
         duration_hint=f"~{secs}s at calm pace",
-        message=(
-            f"Voiceover saved: {out_path} ({voice}). "
-            f"Import into CapCut with images/. "
-            f"See VOICEOVER_POLICY.md for YouTube risk notes."
-        ),
+        message=detail,
     )
 
 
