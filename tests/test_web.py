@@ -31,6 +31,14 @@ def test_youtube_status():
     assert "ready" in data
 
 
+def test_login_status():
+    r = client.get("/api/login-status")
+    assert r.status_code == 200
+    data = r.json()
+    assert "services" in data
+    assert data["total"] >= 4
+
+
 def test_youtube_sync_graceful():
     r = client.post("/api/youtube/sync")
     assert r.status_code == 200

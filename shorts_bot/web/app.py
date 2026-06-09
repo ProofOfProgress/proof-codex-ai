@@ -249,6 +249,17 @@ async def youtube_status() -> dict:
     return auth_status()
 
 
+@app.get("/api/login-status")
+async def login_status() -> dict:
+    import asyncio
+
+    from shorts_bot.login_status import full_status
+
+    rows = await asyncio.to_thread(full_status)
+    ready = sum(1 for r in rows if r["ready"])
+    return {"ready": ready, "total": len(rows), "services": rows}
+
+
 @app.get("/api/learned")
 async def learned_file() -> dict:
     return {"content": LearnedFile(settings.learned_path).read_tail()}
