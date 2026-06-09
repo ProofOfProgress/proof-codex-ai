@@ -78,7 +78,18 @@ class ShortsCog(commands.Cog):
             "`!dev <title> | <description>` — queue a dev/coding task\n"
             "`!devpending` — list dev tasks\n"
             "`!devyes <id>` / `!devno <id>` — dev task decisions\n"
-            "`!briefing` — morning checklist again"
+            "`!briefing` — morning checklist again\n"
+            "`!myid` — your numeric user ID (for morning auto-DMs)"
+        )
+
+    @commands.command(name="myid")
+    async def myid_cmd(self, ctx: commands.Context) -> None:
+        uid = ctx.author.id
+        await ctx.reply(
+            f"Your Discord user ID: `{uid}`\n\n"
+            f"Paste into `.env`:\n"
+            f"`DISCORD_OWNER_ID={uid}`\n\n"
+            f"Then restart the bot — it can auto-DM you the morning briefing on startup."
         )
 
     @commands.command(name="status")
