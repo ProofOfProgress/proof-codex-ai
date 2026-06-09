@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Seed 3 on-brand starter drafts for Soft Continuity (idempotent-ish)."""
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
 
