@@ -4,10 +4,15 @@ import asyncio
 import logging
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
+from shorts_bot.__version__ import __version__
 from shorts_bot.briefing.builder import build_morning_briefing
 from shorts_bot.config import settings
+from shorts_bot.discord_bot.embeds import pending_embed, status_embed
+from shorts_bot.discord_bot.prefs import briefing_user_ids, remember_dm_user
+from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.services.ops import BotOperations
 
 log = logging.getLogger(__name__)
@@ -34,22 +39,38 @@ class ShortsDiscordBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         await self.add_cog(ShortsCog(self))
+        try:
+            await self.tree.sync()
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Slash command sync failed: %s", exc)
 
     async def on_ready(self) -> None:
-        log.info("Discord bot ready as %s", self.user)
+        log.info("Discord bot ready as %s (v%s)", self.user, __version__)
         if settings.discord_send_briefing_on_start and not self._briefing_sent:
             self._briefing_sent = True
             await self._send_briefing()
 
+    async def on_message(self, message: discord.Message) -> None:
+        if message.author.bot:
+            return
+        if isinstance(message.channel, discord.DMChannel):
+            remember_dm_user(message.author.id)
+        if (
+            isinstance(message.channel, discord.DMChannel)
+            and message.content
+            and not message.content.strip().startswith(settings.discord_command_prefix)
+        ):
+            async with message.channel.typing():
+                reply = await asyncio.to_thread(self.ops.chat, message.content.strip())
+            for part in _chunk(reply):
+                await message.channel.send(part)
+            return
+        await self.process_commands(message)
+
     async def _send_briefing(self) -> None:
         text = build_morning_briefing()
-        for user_id in settings.discord_notify_list:
-            if not user_id.isdigit():
-                log.warning(
-                    "DISCORD_OWNER_ID must be a numeric user ID, not a username (%s). "
-                    "See docs/MORNING.md — Developer Mode → Copy User ID.",
-                    user_id[:20],
-                )
+        for user_id in briefing_user_ids():
+            if not str(user_id).isdigit():
                 continue
             try:
                 user = await self.fetch_user(int(user_id))
@@ -64,51 +85,66 @@ class ShortsCog(commands.Cog):
         self.bot = bot
         self.ops = bot.ops
 
+    async def _remember(self, ctx: commands.Context) -> None:
+        if isinstance(ctx.channel, discord.DMChannel):
+            remember_dm_user(ctx.author.id)
+
     @commands.command(name="help")
     async def help_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
         await ctx.reply(
-            "**Shorts Bot commands**\n"
-            "`!status` — system status\n"
-            "`!chat <message>` — talk to the strategist\n"
-            "`!draft <topic>` — create a script draft\n"
-            "`!pending` — list improvements & drafts\n"
-            "`!yes <id>` / `!no <id>` — approve/skip improvement\n"
-            "`!draftyes <id>` / `!draftno <id> [reason]` — draft decisions\n"
-            "`!sync` — YouTube Analytics sync\n"
-            "`!dev <title> | <description>` — queue a dev/coding task\n"
-            "`!devpending` — list dev tasks\n"
-            "`!devyes <id>` / `!devno <id>` — dev task decisions\n"
-            "`!briefing` — morning checklist again\n"
-            "`!myid` — your numeric user ID (for morning auto-DMs)"
+            "**Shorts Bot** — prefix `!` in servers. In **DMs**, just type normally.\n\n"
+            "`!status` · `!chat <msg>` · `!draft <topic>` · `!pending`\n"
+            "`!yes <id>` / `!no <id>` · `!draftyes` / `!draftno`\n"
+            "`!sync` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
+            "`!briefing` · `!learned` · `!rewards` · `!ping` · `!myid`\n"
+            "Slash: `/status` `/draft` `/pending` `/briefing`"
         )
+
+    @commands.command(name="ping")
+    async def ping_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        lat = round(self.bot.latency * 1000)
+        await ctx.reply(f"Pong — {lat}ms · v{__version__}")
 
     @commands.command(name="myid")
     async def myid_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
         uid = ctx.author.id
         await ctx.reply(
-            f"Your Discord user ID: `{uid}`\n\n"
-            f"Paste into `.env`:\n"
-            f"`DISCORD_OWNER_ID={uid}`\n\n"
-            f"Then restart the bot — it can auto-DM you the morning briefing on startup."
+            f"Your user ID: `{uid}`\n"
+            f"Optional `.env`: `DISCORD_OWNER_ID={uid}`\n"
+            f"(Bot already remembers your DM for briefings.)"
         )
+
+    @commands.command(name="learned")
+    async def learned_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        text = LearnedFile(settings.learned_path).read_tail(1500)
+        for part in _chunk(text):
+            await ctx.reply(part)
+
+    @commands.command(name="rewards")
+    async def rewards_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        rows = self.ops.recent_rewards(limit=6)
+        if not rows:
+            await ctx.reply("No reward scores yet — upload a Short and `!sync` after YouTube setup.")
+            return
+        lines = [f"**Recent scores**"]
+        for r in rows:
+            lines.append(f"• {r['video_label']}: **{r['verdict']}** ({r['score']})")
+        await ctx.reply("\n".join(lines))
 
     @commands.command(name="status")
     async def status_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
         s = self.ops.status()
-        yt = s["youtube"]
-        msg = (
-            f"**Status**\n"
-            f"Chat: {'full' if s['openai'] else 'offline'}\n"
-            f"YouTube: {'ready' if yt.get('ready') else 'needs setup'}\n"
-            f"Pending improvements: {s['pending_improvements']}\n"
-            f"Pending drafts: {s['pending_drafts']}\n"
-            f"Pending dev tasks: {s['pending_dev']}\n"
-            f"Web: http://localhost:{settings.web_port}"
-        )
-        await ctx.reply(msg)
+        await ctx.reply(embed=status_embed(s, web_port=settings.web_port))
 
     @commands.command(name="chat")
     async def chat_cmd(self, ctx: commands.Context, *, message: str) -> None:
+        await self._remember(ctx)
         async with ctx.typing():
             reply = await asyncio.to_thread(self.ops.chat, message)
         for part in _chunk(reply):
@@ -116,95 +152,105 @@ class ShortsCog(commands.Cog):
 
     @commands.command(name="draft")
     async def draft_cmd(self, ctx: commands.Context, *, topic: str) -> None:
+        await self._remember(ctx)
         msg = await asyncio.to_thread(self.ops.create_draft, topic)
         await ctx.reply(msg)
 
     @commands.command(name="pending")
     async def pending_cmd(self, ctx: commands.Context) -> None:
-        imps = self.ops.list_improvements()
-        drafts = self.ops.list_drafts()
-        lines = ["**Pending improvements**"]
-        if imps:
-            for i in imps[:8]:
-                lines.append(f"#{i['id']} [{i['category']}] {i['title']}")
-        else:
-            lines.append("(none)")
-        lines.append("\n**Pending drafts**")
-        if drafts:
-            for d in drafts[:8]:
-                lines.append(f"#{d['id']} {d['topic']}")
-        else:
-            lines.append("(none)")
-        await ctx.reply("\n".join(lines))
+        await self._remember(ctx)
+        await ctx.reply(embed=pending_embed(self.ops.list_improvements(), self.ops.list_drafts()))
 
     @commands.command(name="yes")
     async def yes_cmd(self, ctx: commands.Context, imp_id: int) -> None:
-        msg = await asyncio.to_thread(self.ops.approve_improvement, imp_id)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.approve_improvement, imp_id))
 
     @commands.command(name="no")
     async def no_cmd(self, ctx: commands.Context, imp_id: int) -> None:
-        msg = await asyncio.to_thread(self.ops.reject_improvement, imp_id)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.reject_improvement, imp_id))
 
     @commands.command(name="draftyes")
     async def draft_yes(self, ctx: commands.Context, draft_id: int) -> None:
-        msg = await asyncio.to_thread(self.ops.approve_draft, draft_id)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.approve_draft, draft_id))
 
     @commands.command(name="draftno")
     async def draft_no(self, ctx: commands.Context, draft_id: int, *, reason: str = "Rejected.") -> None:
-        msg = await asyncio.to_thread(self.ops.reject_draft, draft_id, reason)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.reject_draft, draft_id, reason))
 
     @commands.command(name="sync")
     async def sync_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
         result = await asyncio.to_thread(self.ops.youtube_sync)
         await ctx.reply(result.get("message", "Done"))
 
     @commands.command(name="dev")
     async def dev_cmd(self, ctx: commands.Context, *, payload: str) -> None:
+        await self._remember(ctx)
         if "|" in payload:
             title, desc = payload.split("|", 1)
         else:
             title, desc = payload[:80], payload
-        msg = await asyncio.to_thread(self.ops.create_dev_task, title.strip(), desc.strip())
-        await ctx.reply(msg)
+        await ctx.reply(await asyncio.to_thread(self.ops.create_dev_task, title.strip(), desc.strip()))
 
     @commands.command(name="devpending")
     async def dev_pending(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
         tasks = self.ops.list_dev_tasks()
         if not tasks:
             await ctx.reply("No pending dev tasks.")
             return
-        lines = ["**Dev tasks (Yes/No in web UI too)**"]
+        lines = ["**Dev tasks**"]
         for t in tasks[:8]:
             lines.append(f"#{t['id']} {t['title']}")
         await ctx.reply("\n".join(lines))
 
     @commands.command(name="devyes")
     async def dev_yes(self, ctx: commands.Context, task_id: int) -> None:
-        msg = await asyncio.to_thread(self.ops.approve_dev_task, task_id)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.approve_dev_task, task_id))
 
     @commands.command(name="devno")
     async def dev_no(self, ctx: commands.Context, task_id: int) -> None:
-        msg = await asyncio.to_thread(self.ops.reject_dev_task, task_id)
-        await ctx.reply(msg)
+        await self._remember(ctx)
+        await ctx.reply(await asyncio.to_thread(self.ops.reject_dev_task, task_id))
 
     @commands.command(name="briefing")
     async def briefing_cmd(self, ctx: commands.Context) -> None:
-        text = build_morning_briefing()
-        for part in _chunk(text):
+        await self._remember(ctx)
+        for part in _chunk(build_morning_briefing()):
             await ctx.reply(part)
+
+    @app_commands.command(name="status", description="Shorts Bot system status")
+    async def slash_status(self, interaction: discord.Interaction) -> None:
+        s = self.ops.status()
+        await interaction.response.send_message(embed=status_embed(s, web_port=settings.web_port))
+
+    @app_commands.command(name="draft", description="Create a Short script draft")
+    @app_commands.describe(topic="What the Short is about")
+    async def slash_draft(self, interaction: discord.Interaction, topic: str) -> None:
+        await interaction.response.defer(thinking=True)
+        msg = await asyncio.to_thread(self.ops.create_draft, topic)
+        await interaction.followup.send(msg)
+
+    @app_commands.command(name="pending", description="List pending approvals")
+    async def slash_pending(self, interaction: discord.Interaction) -> None:
+        embed = pending_embed(self.ops.list_improvements(), self.ops.list_drafts())
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="briefing", description="Morning checklist")
+    async def slash_briefing(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_message(build_morning_briefing()[:1900])
 
 
 def run_bot() -> None:
     if not settings.has_discord:
         raise SystemExit(
             "DISCORD_BOT_TOKEN missing in .env\n"
-            "Discord Developer Portal → Bot → Reset Token → paste in .env\n"
-            "(Public key is already saved — you need the bot token to connect.)"
+            "Discord Developer Portal → Bot → Reset Token → paste in .env"
         )
     bot = ShortsDiscordBot()
     bot.run(settings.discord_bot_token)

@@ -1,3 +1,11 @@
+function toast(msg, ok = true) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.style.cssText = `position:fixed;bottom:20px;right:20px;padding:12px 18px;border-radius:10px;font-size:.9rem;z-index:9999;color:#fff;background:${ok ? '#166534' : '#991b1b'};box-shadow:0 8px 24px rgba(0,0,0,.4);`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
 const messages = document.getElementById('messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
@@ -112,8 +120,21 @@ if (devForm) {
       body: JSON.stringify({ title, description: desc }),
     });
     const data = await res.json();
-    alert(data.message || 'Queued');
-    location.reload();
+    toast(data.message || 'Queued');
+    setTimeout(() => location.reload(), 800);
+  });
+}
+
+const copyLearned = document.getElementById('copy-learned');
+const learnedBox = document.getElementById('learned-box');
+if (copyLearned && learnedBox) {
+  copyLearned.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(learnedBox.textContent || '');
+      toast('Copied learned rules');
+    } catch {
+      toast('Copy failed — select text manually', false);
+    }
   });
 }
 

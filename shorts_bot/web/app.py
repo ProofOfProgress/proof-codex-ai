@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
+from shorts_bot.__version__ import __version__
 from shorts_bot.config import settings
 from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.web.deps import (
@@ -84,19 +85,33 @@ async def home(request: Request) -> HTMLResponse:
             "pending_count": len(memory.list_improvements(status="pending")),
             "pending_drafts": len(store.list_drafts(status="pending")),
             "pending_dev": len(memory.list_dev_tasks(status="pending")),
+            "version": __version__,
         },
     )
 
 
 @app.get("/health")
 async def health() -> dict:
-    return {"ok": True}
+    store = get_store()
+    memory = get_memory()
+    return {
+        "ok": True,
+        "version": __version__,
+        "openai": settings.has_openai,
+        "discord": settings.has_discord,
+        "pending_improvements": len(memory.list_improvements(status="pending")),
+        "pending_drafts": len(store.list_drafts(status="pending")),
+        "pending_dev": len(memory.list_dev_tasks(status="pending")),
+        "youtube": auth_status(),
+    }
 
 
 @app.post("/api/chat")
 async def chat(body: ChatRequest) -> dict:
     if not body.message.strip():
         raise HTTPException(400, "Empty message")
+    if len(body.message) > 8000:
+        raise HTTPException(400, "Message too long (max 8000 chars)")
     try:
         agent = get_agent()
         reply = agent.chat(body.message.strip())

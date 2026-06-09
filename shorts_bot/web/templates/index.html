@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shorts Bot</title>
+  <title>Shorts Bot — Strategist Dashboard</title>
+  <meta name="description" content="Faceless YouTube Shorts strategist — chat, approve, learn." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
@@ -12,7 +14,7 @@
   <div class="shell">
     <nav class="nav">
       <div class="brand">Shorts <span>Bot</span></div>
-      <div class="sub">Faceless Shorts strategist · approve before post</div>
+      <div class="sub">Faceless Shorts strategist · v{{ version }}</div>
       <button class="nav-btn active" data-panel="chat" type="button">Chat</button>
       <button class="nav-btn" data-panel="rewards" type="button">Rewards</button>
       <button class="nav-btn" data-panel="learning" type="button">Learning</button>
@@ -74,7 +76,8 @@
       <section id="panel-learning" class="panel">
         <div style="padding:20px 24px;overflow-y:auto;">
           <h3>Learned rules file</h3>
-          <div class="learned-box">{{ learned_preview }}</div>
+          <button class="btn secondary" type="button" id="copy-learned" style="margin-bottom:8px;">Copy learned rules</button>
+          <div class="learned-box" id="learned-box">{{ learned_preview }}</div>
           <h3 style="margin-top:18px;">Journal</h3>
           {% for j in journal %}
           <div class="card">

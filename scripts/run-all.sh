@@ -3,6 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 python3 scripts/sync_secrets.py 2>/dev/null || true
+bash scripts/backup.sh 2>/dev/null || true
 
 echo "==> Starting Shorts Bot (web + Discord)"
 echo "    Web:     http://localhost:8080"

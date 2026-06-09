@@ -40,7 +40,7 @@ def build_morning_briefing() -> str:
             "`bash scripts/start.sh`  — web",
             "`python3 -m shorts_bot.discord_bot`  — Discord",
             "",
-            "Reply `!help` on Discord for commands.",
+            "Discord: type normally in DM (no ! prefix) or `!help` in servers.",
         ]
     )
     return "\n".join(lines)

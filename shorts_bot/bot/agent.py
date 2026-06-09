@@ -212,6 +212,14 @@ class ShortsBotAgent:
                 return "No feedback yet."
             lines = [f"[{f['decision']}] {f['topic']}: {f['reason']}" for f in data["feedback"]]
             return "Recent feedback:\n" + "\n".join(lines)
+        if text in {"improvements", "pending improvements"}:
+            result = json.loads(self.tool_runner.run("list_pending_improvements", {}))
+            pending = result.get("pending", [])
+            if not pending:
+                return "No pending improvements."
+            return "Pending improvements:\n" + "\n".join(
+                f"#{p['id']} [{p['category']}] {p['title']}" for p in pending
+            )
 
         route = self.router.route(user_message)
         return (

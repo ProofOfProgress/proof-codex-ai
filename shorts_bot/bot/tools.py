@@ -143,6 +143,14 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "list_pending_improvements",
+            "description": "List self-improvement proposals waiting for human Yes/No.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "sync_youtube_analytics",
             "description": (
                 "Pull official YouTube Analytics for recent videos, score performance, "
@@ -221,6 +229,7 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "setup_youtube_channel": self._setup_youtube_channel,
+            "list_pending_improvements": self._list_pending_improvements,
             "sync_youtube_analytics": self._sync_youtube_analytics,
             "get_youtube_status": self._get_youtube_status,
             "mark_channel_ready": self._mark_channel_ready,
@@ -338,6 +347,21 @@ class ToolRunner:
         if imp:
             payload["improvement"] = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
         return json.dumps(payload)
+
+    def _list_pending_improvements(self, _args: dict[str, Any]) -> str:
+        pending = self._memory.list_improvements(status="pending")
+        payload = [
+            {
+                "id": i.id,
+                "title": i.title,
+                "category": i.category,
+                "description": i.description,
+                "pros": i.pros,
+                "cons": i.cons,
+            }
+            for i in pending
+        ]
+        return json.dumps({"pending": payload, "count": len(payload)})
 
     def _sync_youtube_analytics(self, _args: dict[str, Any]) -> str:
         from shorts_bot.training.proposer import ImprovementProposer

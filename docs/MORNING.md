@@ -48,7 +48,9 @@ DISCORD_OWNER_ID=123456789012345678
 
 (No quotes. Numbers only.)
 
-On connect, the bot DMs you a **morning briefing** (and anyone in `DISCORD_NOTIFY_IDS`).
+On connect, the bot DMs you a **morning briefing**. No `DISCORD_OWNER_ID`? Just DM the bot once — it remembers you automatically (`data/discord_prefs.json`).
+
+**DM tip:** type normally in private DM — no `!` prefix needed.
 
 ---
 

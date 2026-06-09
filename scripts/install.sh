@@ -19,6 +19,8 @@ echo "    Full chat: bash scripts/set-openai-key.sh  (or add OPENAI_API_KEY to C
 
 mkdir -p data
 
+chmod +x scripts/*.sh 2>/dev/null || true
+
 echo "==> Running tests..."
 python3 -m pytest tests/ -q
 

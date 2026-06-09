@@ -9,5 +9,7 @@ data/browser_profile/
 data/screenshots/
 data/youtube_token.json
 data/LEARNED.md
+data/discord_prefs.json
+data/backups/
 *.log
 .DS_Store

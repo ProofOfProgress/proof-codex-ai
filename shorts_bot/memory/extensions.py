@@ -178,6 +178,14 @@ class MemoryExtensions:
             )
         return out
 
+    def find_pending_by_title(self, title: str) -> Improvement | None:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM improvements WHERE status = 'pending' AND lower(title) = lower(?) LIMIT 1",
+                (title.strip(),),
+            ).fetchone()
+        return self._row_improvement(row) if row else None
+
     def create_improvement(
         self,
         *,
@@ -188,6 +196,9 @@ class MemoryExtensions:
         cons: list[str],
         source: str = "",
     ) -> Improvement:
+        existing = self.find_pending_by_title(title)
+        if existing:
+            return existing
         with self._conn() as conn:
             cur = conn.execute(
                 """

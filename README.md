@@ -25,7 +25,9 @@ Open **http://localhost:8080** — chat on the left, **Yes/No** approvals on the
 ```bash
 cp .env.example .env   # add keys as needed (see docs/)
 bash scripts/run-all.sh   # web + Discord
+docs/QUICKSTART.md     # one-page start
 docs/MORNING.md        # wake-up checklist
+make test              # run tests
 python3 -m shorts_bot
 ```
 
