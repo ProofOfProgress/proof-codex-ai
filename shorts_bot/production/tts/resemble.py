@@ -147,7 +147,7 @@ def synthesize_resemble(text: str, out_path: Path) -> tuple[str, str]:
 def list_voices(api_key: str) -> list[dict]:
     """List voices on Resemble account (for setup CLI)."""
     try:
-        data = _get_json(VOICES_URL, api_key=api_key)
+        data = _get_json(f"{VOICES_URL}?page=1&page_size=100", api_key=api_key)
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"Resemble voices API {exc.code}: {body[:300]}") from exc
