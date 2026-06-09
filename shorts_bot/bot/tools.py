@@ -143,6 +143,17 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "sync_youtube_analytics",
+            "description": (
+                "Pull official YouTube Analytics for recent videos, score performance, "
+                "and create improvement proposals for human Yes/No approval."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_youtube_status",
             "description": "Check if YouTube channel is set up and Studio is accessible.",
             "parameters": {"type": "object", "properties": {}},
@@ -210,6 +221,7 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "setup_youtube_channel": self._setup_youtube_channel,
+            "sync_youtube_analytics": self._sync_youtube_analytics,
             "get_youtube_status": self._get_youtube_status,
             "mark_channel_ready": self._mark_channel_ready,
             "score_video_performance": self._score_video_performance,
@@ -326,6 +338,22 @@ class ToolRunner:
         if imp:
             payload["improvement"] = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
         return json.dumps(payload)
+
+    def _sync_youtube_analytics(self, _args: dict[str, Any]) -> str:
+        from shorts_bot.training.proposer import ImprovementProposer
+        from shorts_bot.youtube.sync import AnalyticsSync
+
+        sync = AnalyticsSync(self._memory, ImprovementProposer(self._memory, client=None))
+        result = sync.run()
+        return json.dumps(
+            {
+                "ok": result.ok,
+                "message": result.message,
+                "videos_scored": result.videos_scored,
+                "improvements_created": result.improvements_created,
+                "rewards": result.rewards or [],
+            }
+        )
 
     def _get_youtube_status(self, _args: dict[str, Any]) -> str:
         saved = self.store.channel_summary()

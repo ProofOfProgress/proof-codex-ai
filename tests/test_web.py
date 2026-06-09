@@ -15,3 +15,25 @@ def test_home_page():
     r = client.get("/")
     assert r.status_code == 200
     assert "Shorts Bot" in r.text
+    assert "Sync YouTube Analytics" in r.text
+
+
+def test_health():
+    r = client.get("/health")
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+
+
+def test_youtube_status():
+    r = client.get("/api/youtube/status")
+    assert r.status_code == 200
+    data = r.json()
+    assert "ready" in data
+
+
+def test_youtube_sync_graceful():
+    r = client.post("/api/youtube/sync")
+    assert r.status_code == 200
+    data = r.json()
+    assert "ok" in data
+    assert "message" in data

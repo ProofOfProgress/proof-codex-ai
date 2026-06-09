@@ -5,13 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Shorts Bot</title>
   <style>
-    :root { --bg:#0f1115; --panel:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#3b82f6; --yes:#22c55e; --no:#ef4444; }
+    :root { --bg:#0f1115; --panel:#1a1d24; --text:#e8eaed; --muted:#9aa0a6; --accent:#3b82f6; --yes:#22c55e; --no:#ef4444; --warn:#f59e0b; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--text); }
     .layout { display:grid; grid-template-columns:1fr 380px; min-height:100vh; }
-    header { grid-column:1/-1; padding:12px 20px; background:var(--panel); border-bottom:1px solid #2a2f3a; }
+    header { grid-column:1/-1; padding:12px 20px; background:var(--panel); border-bottom:1px solid #2a2f3a; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
     header h1 { margin:0; font-size:1.1rem; }
     header p { margin:4px 0 0; color:var(--muted); font-size:.85rem; }
+    .badge { font-size:.75rem; padding:4px 10px; border-radius:999px; font-weight:600; }
+    .badge.ok { background:#14532d; color:#86efac; }
+    .badge.warn { background:#422006; color:#fcd34d; }
+    .badge.off { background:#1f2937; color:var(--muted); }
     .chat { display:flex; flex-direction:column; height:calc(100vh - 56px); }
     .messages { flex:1; overflow-y:auto; padding:20px; }
     .msg { margin-bottom:12px; max-width:85%; padding:10px 14px; border-radius:12px; line-height:1.45; white-space:pre-wrap; }
@@ -34,21 +38,35 @@
     .yes { background:var(--yes); color:#052e16; }
     .no { background:var(--no); color:#450a0a; }
     .empty { color:var(--muted); font-size:.9rem; }
+    .yt-panel { background:#0d1520; border:1px solid #2563eb55; border-radius:10px; padding:14px; margin-bottom:16px; }
+    .yt-panel h2 { margin:0 0 8px; font-size:1rem; }
+    .yt-panel p { margin:0 0 10px; font-size:.82rem; color:var(--muted); line-height:1.4; }
+    .sync-btn { width:100%; padding:12px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; font-size:.95rem; }
+    .sync-btn:disabled { opacity:.5; cursor:wait; }
+    .sync-msg { margin-top:8px; font-size:.8rem; min-height:1.2em; }
+    .sync-msg.ok { color:#86efac; }
+    .sync-msg.err { color:#fca5a5; }
+    .hint { font-size:.75rem; color:var(--muted); margin-top:8px; }
     @media (max-width:900px) { .layout { grid-template-columns:1fr; } .sidebar { border-left:none; border-top:1px solid #2a2f3a; } }
   </style>
 </head>
 <body>
   <div class="layout">
     <header>
-      <h1>Shorts Bot</h1>
-      <p>Chat · approve improvements · reward/punish learning
-        {% if not has_openai %} · <strong>offline mode</strong> (add OPENAI_API_KEY for smarter chat){% endif %}
-      </p>
+      <div>
+        <h1>Shorts Bot</h1>
+        <p>Chat · sync YouTube Analytics · tap Yes/No to train
+          {% if not has_openai %} · <strong>offline mode</strong>{% endif %}
+        </p>
+      </div>
+      <span id="yt-badge" class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
+        {% if youtube.ready %}YouTube connected{% elif youtube.credentials_configured %}Needs sign-in{% else %}YouTube not set up{% endif %}
+      </span>
     </header>
 
     <section class="chat">
       <div class="messages" id="messages">
-        <div class="msg bot">Hey — I'm your Shorts strategist. Ask for ideas, drafts, or say "score my last video". Pending approvals are on the right.</div>
+        <div class="msg bot">Hey — I'm your Shorts strategist. Tap <strong>Sync YouTube Analytics</strong> on the right after you connect (see docs/TOMORROW.md). Then approve improvements with one tap.</div>
       </div>
       <form class="composer" id="chat-form">
         <input id="chat-input" type="text" placeholder="Talk to the bot..." autocomplete="off" />
@@ -57,6 +75,20 @@
     </section>
 
     <aside class="sidebar">
+      <div class="yt-panel">
+        <h2>YouTube Analytics</h2>
+        {% if youtube.ready %}
+        <p>Official API connected. Sync pulls real views, retention, and likes — then suggests improvements.</p>
+        {% elif youtube.credentials_configured %}
+        <p>API keys found. Run once at home: <code>python3 -m shorts_bot.youtube.auth_cli</code></p>
+        {% else %}
+        <p>Add Google API keys to <code>.env</code> — step-by-step in <strong>docs/TOMORROW.md</strong>.</p>
+        {% endif %}
+        <button class="sync-btn" id="sync-btn" type="button">Sync YouTube Analytics</button>
+        <div class="sync-msg" id="sync-msg"></div>
+        <p class="hint">{{ pending_count }} improvement(s) waiting · Yes = apply · No = skip</p>
+      </div>
+
       <h2 style="margin:0 0 12px;font-size:1rem;">Self-improvements</h2>
       <div id="improvements">
         {% for imp in improvements %}
@@ -67,12 +99,12 @@
           <div class="pros-cons pros"><strong>Pros</strong><ul>{% for p in imp.pros %}<li>{{ p }}</li>{% endfor %}</ul></div>
           <div class="pros-cons cons"><strong>Cons</strong><ul>{% for c in imp.cons %}<li>{{ c }}</li>{% endfor %}</ul></div>
           <div class="actions">
-            <button class="yes" onclick="decideImprovement({{ imp.id }}, true)">Yes</button>
+            <button class="yes" onclick="decideImprovement({{ imp.id }}, true)">Yes — do this</button>
             <button class="no" onclick="decideImprovement({{ imp.id }}, false)">No</button>
           </div>
         </div>
         {% else %}
-        <p class="empty">No pending improvements yet. Score a video or reject a draft to generate some.</p>
+        <p class="empty" id="no-improvements">No pending improvements. Sync YouTube or score a video to get suggestions.</p>
         {% endfor %}
       </div>
 
@@ -98,6 +130,8 @@
     const messages = document.getElementById('messages');
     const form = document.getElementById('chat-form');
     const input = document.getElementById('chat-input');
+    const syncBtn = document.getElementById('sync-btn');
+    const syncMsg = document.getElementById('sync-msg');
 
     function addMsg(text, who) {
       const el = document.createElement('div');
@@ -118,26 +152,89 @@
       try {
         const res = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({message:text}) });
         const data = await res.json();
+        if (!res.ok) {
+          pending.textContent = data.detail || data.message || 'Chat error.';
+          return;
+        }
         pending.textContent = data.reply || 'No reply';
       } catch (err) {
         pending.textContent = 'Error talking to bot.';
       }
     });
 
+    function renderImprovement(imp) {
+      const pros = (imp.pros || []).map(p => `<li>${escapeHtml(p)}</li>`).join('');
+      const cons = (imp.cons || []).map(c => `<li>${escapeHtml(c)}</li>`).join('');
+      return `<div class="card" data-id="${imp.id}">
+        <div class="cat">${escapeHtml(imp.category)}</div>
+        <h3>${escapeHtml(imp.title)}</h3>
+        <p>${escapeHtml(imp.description)}</p>
+        <div class="pros-cons pros"><strong>Pros</strong><ul>${pros}</ul></div>
+        <div class="pros-cons cons"><strong>Cons</strong><ul>${cons}</ul></div>
+        <div class="actions">
+          <button class="yes" onclick="decideImprovement(${imp.id}, true)">Yes — do this</button>
+          <button class="no" onclick="decideImprovement(${imp.id}, false)">No</button>
+        </div>
+      </div>`;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function refreshImprovements() {
+      const res = await fetch('/api/improvements');
+      const data = await res.json();
+      const box = document.getElementById('improvements');
+      const items = data.pending || [];
+      if (!items.length) {
+        box.innerHTML = '<p class="empty" id="no-improvements">No pending improvements. Sync YouTube or score a video to get suggestions.</p>';
+        return;
+      }
+      box.innerHTML = items.map(renderImprovement).join('');
+    }
+
+    syncBtn.addEventListener('click', async () => {
+      syncBtn.disabled = true;
+      syncMsg.className = 'sync-msg';
+      syncMsg.textContent = 'Syncing from YouTube…';
+      try {
+        const res = await fetch('/api/youtube/sync', { method: 'POST' });
+        const data = await res.json();
+        syncMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+        syncMsg.textContent = data.message || (data.ok ? 'Done' : 'Sync failed');
+        if (data.ok && data.rewards && data.rewards.length) {
+          const top = data.rewards.slice(0, 3).map(r => `${r.video}: ${r.verdict} (${r.score})`).join('\n');
+          addMsg('YouTube sync complete:\n' + top, 'bot');
+        }
+        if (data.pending_improvements > 0) {
+          await refreshImprovements();
+        }
+      } catch (err) {
+        syncMsg.className = 'sync-msg err';
+        syncMsg.textContent = 'Sync failed — check connection.';
+      } finally {
+        syncBtn.disabled = false;
+      }
+    });
+
     async function decideImprovement(id, yes) {
-      const note = yes ? '' : prompt('Why no? (optional)') || 'Rejected.';
       const path = yes ? 'yes' : 'no';
+      const note = yes ? 'Approved.' : 'Skipped.';
       await fetch(`/api/improvements/${id}/${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({note}) });
       document.querySelector(`.card[data-id="${id}"]`)?.remove();
+      if (!document.querySelector('#improvements .card')) {
+        const box = document.getElementById('improvements');
+        box.innerHTML = '<p class="empty">All caught up. Sync again after your next Short.</p>';
+      }
     }
 
     async function decideDraft(id, yes) {
-      let note = '';
-      if (!yes) { note = prompt('Why reject?') || ''; if (!note) return alert('Need a reason'); }
+      let note = yes ? 'Approved.' : '';
+      if (!yes) { note = prompt('Why reject? (optional)') || 'Rejected.'; }
       const path = yes ? 'yes' : 'no';
       await fetch(`/api/drafts/${id}/${path}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({note}) });
       document.querySelector(`.card[data-draft="${id}"]`)?.remove();
-      if (!yes) location.reload();
     }
   </script>
 </body>

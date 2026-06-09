@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     youtube_channel_name: str = ""
     web_host: str = "0.0.0.0"
     web_port: int = 8080
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    youtube_token_path: Path = Path("data/youtube_token.json")
 
     @property
     def has_openai(self) -> bool:

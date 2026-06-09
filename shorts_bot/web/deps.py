@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
 from openai import OpenAI
 
 from shorts_bot.approval.queue import ApprovalQueue
@@ -17,18 +15,29 @@ from shorts_bot.rewards.engine import RewardEngine
 from shorts_bot.training.proposer import ImprovementProposer
 
 
-@lru_cache
+_store: MemoryStore | None = None
+_memory: MemoryExtensions | None = None
+_agent: ShortsBotAgent | None = None
+
+
 def get_store() -> MemoryStore:
-    return MemoryStore(settings.database_path)
+    global _store
+    if _store is None:
+        _store = MemoryStore(settings.database_path)
+    return _store
 
 
-@lru_cache
 def get_memory() -> MemoryExtensions:
-    return MemoryExtensions(get_store())
+    global _memory
+    if _memory is None:
+        _memory = MemoryExtensions(get_store())
+    return _memory
 
 
-@lru_cache
 def get_agent() -> ShortsBotAgent:
+    global _agent
+    if _agent is not None:
+        return _agent
     store = get_store()
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)
@@ -36,7 +45,8 @@ def get_agent() -> ShortsBotAgent:
     generator = DraftGenerator(store, client=client, router=router)
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
-    return ShortsBotAgent(store, tools, client, router, kb)
+    _agent = ShortsBotAgent(store, tools, client, router, kb)
+    return _agent
 
 
 def get_reward_engine() -> RewardEngine:
@@ -46,3 +56,9 @@ def get_reward_engine() -> RewardEngine:
 def get_proposer() -> ImprovementProposer:
     client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
     return ImprovementProposer(get_memory(), client=client)
+
+
+def get_analytics_sync():
+    from shorts_bot.youtube.sync import AnalyticsSync
+
+    return AnalyticsSync(get_memory(), get_proposer())

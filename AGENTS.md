@@ -49,9 +49,19 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 - `shorts_bot/training/` — improvement proposals with pros/cons; user Yes/No in web UI
 - POST `/api/score` to record metrics and auto-propose improvements
 
+### YouTube Analytics (official API)
+
+1. Enable YouTube Analytics API + YouTube Data API v3 in Google Cloud
+2. Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in `.env`
+3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`)
+4. Web UI: **Sync YouTube Analytics** or POST `/api/youtube/sync`
+5. User approves improvements via **Yes/No** in sidebar
+
+Home setup guide: `docs/TOMORROW.md`. Health check: `bash scripts/doctor.sh`.
+
 ### Next phases
 
-YouTube API auto-pull analytics, CapCut Playwright operator.
+CapCut Playwright operator.
 
 ### Git / PR policy (user does minimal work)
 

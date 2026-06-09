@@ -3,17 +3,37 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
 from shorts_bot.config import settings
-from shorts_bot.web.deps import get_agent, get_memory, get_proposer, get_reward_engine, get_store
+from shorts_bot.web.deps import (
+    get_agent,
+    get_analytics_sync,
+    get_memory,
+    get_proposer,
+    get_reward_engine,
+    get_store,
+)
+from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Shorts Bot", version="0.2.0")
+app = FastAPI(title="Shorts Bot", version="0.3.0")
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception(_request: Request, exc: Exception) -> JSONResponse:
+    if isinstance(exc, HTTPException):
+        raise exc
+    return JSONResponse(
+        status_code=500,
+        content={"error": str(exc), "message": "Something went wrong — try again."},
+    )
+
+
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -49,17 +69,27 @@ async def home(request: Request) -> HTMLResponse:
             "improvements": memory.list_improvements(status="pending"),
             "drafts": store.list_drafts(status="pending"),
             "rewards": memory.recent_rewards(limit=5),
+            "youtube": auth_status(),
+            "pending_count": len(memory.list_improvements(status="pending")),
         },
     )
+
+
+@app.get("/health")
+async def health() -> dict:
+    return {"ok": True}
 
 
 @app.post("/api/chat")
 async def chat(body: ChatRequest) -> dict:
     if not body.message.strip():
         raise HTTPException(400, "Empty message")
-    agent = get_agent()
-    reply = agent.chat(body.message.strip())
-    return {"reply": reply}
+    try:
+        agent = get_agent()
+        reply = agent.chat(body.message.strip())
+        return {"reply": reply}
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(500, f"Chat error: {exc}") from exc
 
 
 @app.get("/api/improvements")
@@ -159,4 +189,23 @@ async def status() -> dict:
         "stats": store.stats(),
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "applied_training": memory.applied_improvements(),
+        "youtube": auth_status(),
+    }
+
+
+@app.get("/api/youtube/status")
+async def youtube_status() -> dict:
+    return auth_status()
+
+
+@app.post("/api/youtube/sync")
+async def youtube_sync() -> dict:
+    result = get_analytics_sync().run()
+    return {
+        "ok": result.ok,
+        "message": result.message,
+        "videos_scored": result.videos_scored,
+        "improvements_created": result.improvements_created,
+        "rewards": result.rewards or [],
+        "pending_improvements": len(get_memory().list_improvements(status="pending")),
     }

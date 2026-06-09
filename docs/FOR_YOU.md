@@ -68,3 +68,18 @@ Someone already ran install for you. To open the bot:
   - **Script drafts** (approve before posting)
 
 No paste. No terminal after setup — just the web page.
+
+## YouTube Analytics (learns on its own)
+
+The bot uses Google's **official** YouTube Analytics API — not screen scraping.
+
+**First time at home:** follow **docs/TOMORROW.md** (3 steps: Google keys → paste in `.env` → one browser sign-in).
+
+**Every day after that:**
+
+1. `bash scripts/start.sh`
+2. Open **http://localhost:8080**
+3. Tap **Sync YouTube Analytics**
+4. Tap **Yes — do this** or **No** on each suggestion (pros & cons listed)
+
+The bot pulls real stats, scores your Shorts, and proposes up to 3 improvements per sync so sign-off stays easy.
