@@ -19,36 +19,53 @@ class ServiceStatus:
     action: str | None = None
 
 
-def _check_openai() -> ServiceStatus:
-    if not settings.has_openai:
-        return ServiceStatus(
-            "openai",
-            "OpenAI chat",
-            False,
-            "No API key",
-            "docs/CHAT_TONIGHT.md or add GEMINI_API_KEY (free)",
-        )
+def _probe_llm(provider: str, api_key: str, model: str, base_url: str | None = None) -> ServiceStatus:
+    label = "Gemini chat (free)" if provider == "gemini" else "OpenAI chat"
     try:
         from openai import OpenAI
 
-        client = OpenAI(api_key=settings.openai_api_key)
+        kwargs: dict = {"api_key": api_key}
+        if base_url:
+            kwargs["base_url"] = base_url
+        client = OpenAI(**kwargs)
         client.chat.completions.create(
-            model=settings.openai_model,
+            model=model,
             messages=[{"role": "user", "content": "ping"}],
             max_tokens=3,
         )
-        return ServiceStatus("openai", "OpenAI chat", True, "API key works")
+        return ServiceStatus(provider, label, True, f"{model} works")
     except Exception as exc:
         msg = str(exc)
         if "429" in msg or "quota" in msg.lower():
             return ServiceStatus(
-                "openai",
-                "OpenAI chat",
+                provider,
+                label,
                 False,
-                "Key saved but quota exceeded — add billing or use free Gemini",
-                "https://aistudio.google.com/apikey",
+                "Key saved but quota exceeded",
+                "https://aistudio.google.com/apikey" if provider == "gemini" else "docs/CHAT_TONIGHT.md",
             )
-        return ServiceStatus("openai", "OpenAI chat", False, msg[:120], "docs/CHAT_TONIGHT.md")
+        return ServiceStatus(provider, label, False, msg[:120], "docs/CHAT_TONIGHT.md")
+
+
+def _check_chat() -> ServiceStatus:
+    from shorts_bot.llm.provider import GEMINI_OPENAI_BASE
+
+    if settings.has_gemini:
+        return _probe_llm(
+            "gemini",
+            settings.gemini_api_key or "",
+            settings.gemini_model,
+            GEMINI_OPENAI_BASE,
+        )
+    if settings.has_openai:
+        return _probe_llm("openai", settings.openai_api_key or "", settings.openai_model)
+    return ServiceStatus(
+        "chat",
+        "AI chat",
+        False,
+        "No GEMINI_API_KEY or OPENAI_API_KEY",
+        "https://aistudio.google.com/apikey",
+    )
 
 
 def _check_youtube_oauth() -> ServiceStatus:
@@ -178,7 +195,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
         _check_discord(),
-        _check_openai(),
+        _check_chat(),
         _check_youtube_oauth(),
     ]
     if include_studio:

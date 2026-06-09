@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.0-flash"
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
     learned_path: Path = Path("data/LEARNED.md")
@@ -39,6 +41,28 @@ class Settings(BaseSettings):
         if "your-key" in key.lower() or key.endswith("here"):
             return False
         return True
+
+    @property
+    def has_gemini(self) -> bool:
+        key = (self.gemini_api_key or "").strip()
+        if not key:
+            return False
+        lower = key.lower()
+        if "your_api_key" in lower or "your-key" in lower or key.endswith("here"):
+            return False
+        return len(key) >= 20
+
+    @property
+    def has_full_chat(self) -> bool:
+        return self.has_gemini or self.has_openai
+
+    @property
+    def chat_provider(self) -> str:
+        if self.has_gemini:
+            return "gemini"
+        if self.has_openai:
+            return "openai"
+        return "offline"
 
     @property
     def has_discord(self) -> bool:

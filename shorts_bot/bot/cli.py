@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 
-from openai import OpenAI
 from rich.console import Console
 from rich.panel import Panel
 
@@ -14,6 +13,7 @@ from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
+from shorts_bot.llm.provider import get_llm_backend
 from shorts_bot.memory.store import MemoryStore
 
 console = Console()
@@ -23,21 +23,42 @@ def build_agent() -> ShortsBotAgent:
     store = MemoryStore(settings.database_path)
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)
-    client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
+    backend = get_llm_backend()
     brand = ChannelBrand()
-    generator = DraftGenerator(store, client=client, router=router, brand=brand)
+    generator = DraftGenerator(
+        store,
+        client=backend.client if backend else None,
+        model=backend.model if backend else None,
+        router=router,
+        brand=brand,
+    )
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
-    return ShortsBotAgent(store, tools, client, router, kb, brand)
+    return ShortsBotAgent(
+        store,
+        tools,
+        backend.client if backend else None,
+        router,
+        kb,
+        brand,
+        llm_model=backend.model if backend else None,
+        llm_provider=backend.provider if backend else "offline",
+    )
 
 
 def main() -> None:
     agent = build_agent()
-    mode = "Jenny strategist + OpenAI" if settings.has_openai else "offline + course routing"
+    backend = get_llm_backend()
+    if backend:
+        mode = f"Jenny strategist + {backend.provider}"
+        model = backend.model
+    else:
+        mode = "offline + course routing"
+        model = "none"
     console.print(
         Panel(
             "[bold]Soft Continuity[/bold] — self-help Shorts strategist (Jenny course + brand voice)\n"
-            f"Mode: [cyan]{mode}[/cyan] | Model: {settings.openai_model}\n"
+            f"Mode: [cyan]{mode}[/cyan] | Model: {model}\n"
             "Course files 01–09 loaded. Free-first stack: CapCut, YouTube Audio Library, Canva.\n"
             "Talk about ideas, drafts, hooks, retention — or approve/reject scripts.\n"
             "Type [bold]exit[/bold] or [bold]quit[/bold] to leave.",

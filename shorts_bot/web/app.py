@@ -80,7 +80,8 @@ async def home(request: Request) -> HTMLResponse:
         request,
         "index.html",
         {
-            "has_openai": settings.has_openai,
+            "has_openai": settings.has_full_chat,
+            "chat_provider": settings.chat_provider,
             "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
             "checklist": BotOperations().setup_checklist(),
@@ -107,7 +108,9 @@ async def health() -> dict:
     return {
         "ok": True,
         "version": __version__,
-        "openai": settings.has_openai,
+        "openai": settings.has_full_chat,
+        "chat_provider": settings.chat_provider,
+        "gemini": settings.has_gemini,
         "discord": settings.has_discord,
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
@@ -232,7 +235,9 @@ async def status() -> dict:
     store = get_store()
     memory = get_memory()
     return {
-        "openai": settings.has_openai,
+        "openai": settings.has_full_chat,
+        "chat_provider": settings.chat_provider,
+        "gemini": settings.has_gemini,
         "channel": store.channel_summary(),
         "stats": store.stats(),
         "pending_improvements": len(memory.list_improvements(status="pending")),

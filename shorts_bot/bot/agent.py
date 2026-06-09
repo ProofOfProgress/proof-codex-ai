@@ -56,10 +56,15 @@ class ShortsBotAgent:
         router: CourseRouter,
         kb: CourseKnowledgeBase,
         brand: ChannelBrand | None = None,
+        *,
+        llm_model: str | None = None,
+        llm_provider: str = "offline",
     ) -> None:
         self.store = store
         self.tool_runner = tool_runner
         self.client = client
+        self.llm_model = llm_model or settings.openai_model
+        self.llm_provider = llm_provider
         self.router = router
         self.kb = kb
         self.brand = brand or ChannelBrand()
@@ -86,7 +91,7 @@ class ShortsBotAgent:
         for _ in range(6):
             try:
                 response = self.client.chat.completions.create(
-                model=settings.openai_model,
+                model=self.llm_model,
                 messages=self.messages,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
@@ -137,7 +142,7 @@ class ShortsBotAgent:
         text = user_message.strip().lower()
         if text in {"help", "/help"}:
             return (
-                "Offline mode (no OPENAI_API_KEY).\n"
+                "Offline mode (no GEMINI_API_KEY or OPENAI_API_KEY).\n"
                 "Commands:\n"
                 "- draft <topic>\n"
                 "- pending / show <id> / approve / reject\n"
@@ -147,7 +152,7 @@ class ShortsBotAgent:
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
                 "- apply brand  (updates channel name + description in Studio from youtube_copy.txt)\n"
                 "- produce <id> | <turboscribe paste>  (still-image video pack for CapCut)\n"
-                "Set OPENAI_API_KEY for full Jenny strategist mode."
+                "Set GEMINI_API_KEY (free) or OPENAI_API_KEY for full Jenny strategist mode."
             )
         if text.startswith("setup channel "):
             name = user_message[14:].strip()
@@ -236,5 +241,5 @@ class ShortsBotAgent:
         route = self.router.route(user_message)
         return (
             f"Offline mode. Routed lever: {route.main_lever} (files {', '.join(route.files)}).\n"
-            "Type 'course <your question>' for course guidance, or set OPENAI_API_KEY for full chat."
+            "Type 'course <your question>' for course guidance, or set GEMINI_API_KEY for full chat."
         )

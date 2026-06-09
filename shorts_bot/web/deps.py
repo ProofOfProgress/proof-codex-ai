@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from openai import OpenAI
-
 from shorts_bot.approval.queue import ApprovalQueue
 from shorts_bot.bot.agent import ShortsBotAgent
 from shorts_bot.brand.loader import ChannelBrand
@@ -14,6 +12,7 @@ from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.rewards.engine import RewardEngine
 from shorts_bot.training.proposer import ImprovementProposer
+from shorts_bot.llm.provider import get_llm_backend
 
 
 _store: MemoryStore | None = None
@@ -37,22 +36,45 @@ def get_memory() -> MemoryExtensions:
 
 def get_agent() -> ShortsBotAgent:
     global _agent
+    backend = get_llm_backend()
     if _agent is not None:
-        wants_openai = settings.has_openai
-        has_openai = _agent.client is not None
-        if wants_openai != has_openai:
+        has_client = _agent.client is not None
+        wants_client = backend is not None
+        if wants_client != has_client:
+            _agent = None
+        elif backend and (
+            _agent.llm_model != backend.model or _agent.llm_provider != backend.provider
+        ):
             _agent = None
         else:
             return _agent
     store = get_store()
     kb = CourseKnowledgeBase(settings.course_dir)
     router = CourseRouter(kb)
-    client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
+    client = backend.client if backend else None
+    llm_model = backend.model if backend else settings.openai_model
+    llm_provider = backend.provider if backend else "offline"
     memory = get_memory()
-    generator = DraftGenerator(store, client=client, router=router, memory=memory, brand=ChannelBrand())
+    generator = DraftGenerator(
+        store,
+        client=client,
+        model=llm_model,
+        router=router,
+        memory=memory,
+        brand=ChannelBrand(),
+    )
     queue = ApprovalQueue(store)
     tools = ToolRunner(store, generator, queue, router=router)
-    _agent = ShortsBotAgent(store, tools, client, router, kb, ChannelBrand())
+    _agent = ShortsBotAgent(
+        store,
+        tools,
+        client,
+        router,
+        kb,
+        ChannelBrand(),
+        llm_model=llm_model,
+        llm_provider=llm_provider,
+    )
     return _agent
 
 
@@ -61,8 +83,12 @@ def get_reward_engine() -> RewardEngine:
 
 
 def get_proposer() -> ImprovementProposer:
-    client = OpenAI(api_key=settings.openai_api_key) if settings.has_openai else None
-    return ImprovementProposer(get_memory(), client=client)
+    backend = get_llm_backend()
+    return ImprovementProposer(
+        get_memory(),
+        client=backend.client if backend else None,
+        model=backend.model if backend else settings.openai_model,
+    )
 
 
 def get_analytics_sync():

@@ -38,12 +38,14 @@ class DraftGenerator:
         self,
         store: MemoryStore,
         client: OpenAI | None = None,
+        model: str | None = None,
         router: CourseRouter | None = None,
         memory: MemoryExtensions | None = None,
         brand: ChannelBrand | None = None,
     ) -> None:
         self.store = store
         self.client = client
+        self.model = model or settings.openai_model
         self.router = router
         self.memory = memory
         self.brand = brand or ChannelBrand()
@@ -88,7 +90,7 @@ Return JSON with keys:
 - visual_beats: list of 3-5 visual shot descriptions (mute-friendly)
 """
         response = self.client.chat.completions.create(
-            model=settings.openai_model,
+            model=self.model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt},

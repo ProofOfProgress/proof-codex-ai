@@ -23,7 +23,7 @@ CLI:
 python3 -m shorts_bot
 ```
 
-Set `OPENAI_API_KEY` for full conversational mode. Quick setup: `bash scripts/set-openai-key.sh` or add `OPENAI_API_KEY` to Cursor secrets (auto-synced via `scripts/sync_secrets.py` on start). See `docs/CHAT_TONIGHT.md`. Without it, offline command mode still works (`help`, `draft`, `pending`, etc.).
+Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversational mode. Keys sync via `scripts/sync_secrets.py` on start. See `docs/CHAT_TONIGHT.md`. Without either, offline command mode still works (`help`, `draft`, `pending`, etc.).
 
 ### Lint / test
 

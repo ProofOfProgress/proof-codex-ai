@@ -6,7 +6,11 @@ import discord
 def status_embed(data: dict, *, web_port: int) -> discord.Embed:
     yt = data.get("youtube", {})
     embed = discord.Embed(title="Soft Continuity", description="you're still here. good.", color=0x8EB8FF)
-    embed.add_field(name="Chat", value="full" if data.get("openai") else "offline", inline=True)
+    chat = "offline"
+    if data.get("openai"):
+        provider = data.get("chat_provider", "")
+        chat = f"full ({provider})" if provider else "full"
+    embed.add_field(name="Chat", value=chat, inline=True)
     embed.add_field(name="YouTube", value="ready" if yt.get("ready") else "setup needed", inline=True)
     embed.add_field(name="Discord", value="on", inline=True)
     embed.add_field(name="Improvements", value=str(data.get("pending_improvements", 0)), inline=True)

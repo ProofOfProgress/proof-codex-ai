@@ -132,9 +132,9 @@ class BotOperations:
                 "action": "DISCORD_BOT_TOKEN in .env",
             },
             {
-                "id": "openai",
-                "label": "Full AI chat (optional)",
-                "done": settings.has_openai,
+                "id": "chat",
+                "label": "Full AI chat (Gemini free or OpenAI)",
+                "done": settings.has_full_chat,
                 "action": "docs/CHAT_TONIGHT.md",
             },
             {
@@ -157,7 +157,9 @@ class BotOperations:
         memory = get_memory()
         yt = auth_status()
         return {
-            "openai": settings.has_openai,
+            "openai": settings.has_full_chat,
+            "chat_provider": settings.chat_provider,
+            "gemini": settings.has_gemini,
             "discord": settings.has_discord,
             "channel": store.channel_summary(),
             "stats": store.stats(),

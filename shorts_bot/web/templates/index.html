@@ -21,7 +21,7 @@
       <button class="nav-btn" data-panel="learning" type="button">Learning</button>
       <button class="nav-btn" data-panel="dev" type="button">Dev queue</button>
       <div class="badges">
-        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% else %}Chat offline{% endif %}</span>
+        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% if chat_provider == 'gemini' %} (Gemini){% elif chat_provider == 'openai' %} (OpenAI){% endif %}{% else %}Chat offline{% endif %}</span>
         <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
           {% if youtube.ready %}YT ready{% elif youtube.credentials_configured %}YT sign-in{% else %}YT setup{% endif %}
         </span>
@@ -51,7 +51,7 @@
       <section id="panel-chat" class="panel active">
         {% if not has_openai %}
         <div style="margin:12px 24px 0;padding:12px 14px;border-radius:12px;background:#422006;border:1px solid #854d0e;font-size:.86rem;">
-          <strong>Offline chat.</strong> Add OpenAI API key later — see <code>docs/CHAT_TONIGHT.md</code>. Offline commands still work in Discord: <code>!draft topic</code>
+          <strong>Offline chat.</strong> Add free <code>GEMINI_API_KEY</code> from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">AI Studio</a> — see <code>docs/CHAT_TONIGHT.md</code>. Offline commands still work: <code>draft topic</code>
         </div>
         {% endif %}
         <div class="chat-messages" id="messages">
