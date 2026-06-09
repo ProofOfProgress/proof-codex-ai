@@ -95,6 +95,15 @@
             <button class="btn" id="apply-brand-btn" type="button" style="width:100%;">Apply name &amp; description to YouTube</button>
             <div class="sync-msg" id="brand-msg"></div>
           </div>
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Video production (TurboScribe → still images)</h3>
+            <p style="font-size:.85rem;color:var(--muted);">Record voiceover → TurboScribe → paste timestamps below. Bot builds image prompts + CapCut timeline.</p>
+            <input id="produce-draft-id" type="number" min="1" placeholder="Draft ID" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
+            <textarea id="produce-transcript" rows="6" placeholder="0:00 First line&#10;0:07 Second line&#10;0:15 Third line" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.82rem;"></textarea>
+            <button class="btn" id="produce-btn" type="button" style="width:100%;">Build production pack</button>
+            <div class="sync-msg" id="produce-msg"></div>
+            <p style="font-size:.78rem;color:var(--muted);margin-top:8px;">Output: <code>data/production/draft_&lt;id&gt;/</code> · <code>docs/VIDEO_PRODUCTION.md</code></p>
+          </div>
           <h3>Learned rules file</h3>
           <button class="btn secondary" type="button" id="copy-learned" style="margin-bottom:8px;">Copy learned rules</button>
           <div class="learned-box" id="learned-box">{{ learned_preview }}</div>

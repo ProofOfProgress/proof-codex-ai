@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 from shorts_bot.config import settings
@@ -62,7 +63,24 @@ def run_oauth_flow() -> dict:
         }
     }
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-    creds = flow.run_local_server(port=8090, open_browser=True, prompt="consent")
+    open_browser = os.environ.get("OAUTH_NO_BROWSER", "").lower() not in ("1", "true", "yes")
+    last_err: Exception | None = None
+    creds = None
+    for port in (8090, 8091, 8092, 8093):
+        try:
+            creds = flow.run_local_server(
+                port=port,
+                open_browser=open_browser,
+                prompt="consent",
+            )
+            break
+        except OSError as exc:
+            if getattr(exc, "errno", None) == 98:
+                last_err = exc
+                continue
+            raise
+    if creds is None:
+        raise last_err or RuntimeError("Could not bind OAuth callback port.")
     save_credentials(creds)
     return {"ok": True, "message": "YouTube Analytics connected. Token saved."}
 

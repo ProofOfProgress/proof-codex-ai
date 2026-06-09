@@ -109,6 +109,38 @@ if (applyBrandBtn) {
   });
 }
 
+const produceBtn = document.getElementById('produce-btn');
+const produceMsg = document.getElementById('produce-msg');
+if (produceBtn) {
+  produceBtn.addEventListener('click', async () => {
+    const draftId = parseInt(document.getElementById('produce-draft-id')?.value, 10);
+    const text = document.getElementById('produce-transcript')?.value?.trim();
+    if (!draftId || !text) {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Enter draft ID and TurboScribe transcript.';
+      return;
+    }
+    produceBtn.disabled = true;
+    produceMsg.className = 'sync-msg';
+    produceMsg.textContent = 'Building image prompts and CapCut timeline…';
+    try {
+      const res = await fetch('/api/production', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draft_id: draftId, turboscribe_text: text }),
+      });
+      const data = await res.json();
+      produceMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      produceMsg.textContent = data.message || (data.detail || 'Done');
+    } catch {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Production pack failed.';
+    } finally {
+      produceBtn.disabled = false;
+    }
+  });
+}
+
 const syncBtn = document.getElementById('sync-btn');
 const syncMsg = document.getElementById('sync-msg');
 if (syncBtn) {

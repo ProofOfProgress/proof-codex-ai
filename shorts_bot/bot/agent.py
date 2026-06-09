@@ -146,6 +146,7 @@ class ShortsBotAgent:
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
                 "- apply brand  (updates channel name + description in Studio from youtube_copy.txt)\n"
+                "- produce <id> | <turboscribe paste>  (still-image video pack for CapCut)\n"
                 "Set OPENAI_API_KEY for full Jenny strategist mode."
             )
         if text.startswith("setup channel "):

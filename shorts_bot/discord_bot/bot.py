@@ -40,7 +40,11 @@ class ShortsDiscordBot(commands.Bot):
         intents = discord.Intents.default()
         intents.message_content = True
         intents.dm_messages = True
-        super().__init__(command_prefix=settings.discord_command_prefix, intents=intents)
+        super().__init__(
+            command_prefix=settings.discord_command_prefix,
+            intents=intents,
+            help_command=None,
+        )
         self.ops = BotOperations()
         self._briefing_sent = False
 
@@ -116,7 +120,7 @@ class ShortsCog(commands.Cog):
             "**Shorts Bot** — prefix `!` in servers. In **DMs**, just type normally.\n\n"
             "`!status` · `!chat <msg>` · `!draft <topic>` · `!pending`\n"
             "`!yes <id>` / `!no <id>` · `!draftyes` / `!draftno`\n"
-            "`!sync` · `!applybrand` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
+            "`!sync` · `!applybrand` · `!produce` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
             "`!briefing` · `!learned` · `!rewards` · `!ping` · `!myid`\n"
             "Slash: `/status` `/draft` `/pending` `/briefing`"
         )
@@ -221,6 +225,22 @@ class ShortsCog(commands.Cog):
         if result.get("description_updated"):
             msg += "\n✓ Description updated"
         await ctx.reply(msg)
+
+    @commands.command(name="produce")
+    async def produce_cmd(self, ctx: commands.Context, *, payload: str) -> None:
+        """Build image production pack: !produce 5 | 0:00 line\\n0:07 line"""
+        await self._remember(ctx)
+        if "|" not in payload:
+            await ctx.reply("Usage: `!produce <draft_id> | <paste TurboScribe timestamps>`")
+            return
+        head, transcript = payload.split("|", 1)
+        try:
+            draft_id = int(head.strip().split()[-1])
+        except ValueError:
+            await ctx.reply("First part must include draft id, e.g. `!produce 5 | 0:00 ...`")
+            return
+        result = await asyncio.to_thread(self.ops.prepare_video_production, draft_id, transcript.strip())
+        await ctx.reply(result.get("message", "Done"))
 
     @commands.command(name="notify")
     async def notify_cmd(self, ctx: commands.Context) -> None:

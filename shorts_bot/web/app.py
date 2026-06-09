@@ -23,7 +23,7 @@ from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Soft Continuity Operator", version="0.6.1")
+app = FastAPI(title="Soft Continuity Operator", version="0.7.0")
 
 
 @app.exception_handler(Exception)
@@ -61,6 +61,11 @@ class ScoreRequest(BaseModel):
 class DevRequest(BaseModel):
     title: str
     description: str
+
+
+class ProductionRequest(BaseModel):
+    draft_id: int
+    turboscribe_text: str = Field(min_length=10)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -118,8 +123,9 @@ async def chat(body: ChatRequest) -> dict:
     if len(body.message) > 8000:
         raise HTTPException(400, "Message too long (max 8000 chars)")
     try:
-        agent = get_agent()
-        reply = agent.chat(body.message.strip())
+        from shorts_bot.services.ops import BotOperations
+
+        reply = BotOperations().chat(body.message.strip())
         return {"reply": reply}
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(500, f"Chat error: {exc}") from exc
@@ -297,6 +303,13 @@ async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
     except KeyError:
         raise HTTPException(404, "Not found") from None
     return {"status": task.status, "title": task.title}
+
+
+@app.post("/api/production")
+async def create_production_pack(body: ProductionRequest) -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    return BotOperations().prepare_video_production(body.draft_id, body.turboscribe_text)
 
 
 @app.post("/api/youtube/apply-brand")

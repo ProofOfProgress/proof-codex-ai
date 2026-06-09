@@ -11,6 +11,7 @@ from shorts_bot.services.chat_router import (
     is_pending_command,
     is_sync_command,
     parse_dev_request,
+    parse_produce_request,
 )
 from shorts_bot.web.deps import (
     get_agent,
@@ -39,6 +40,16 @@ class BotOperations:
         if is_apply_brand_command(text):
             r = self.apply_channel_branding()
             return r.get("message", "Brand apply done.")
+        produce = parse_produce_request(text)
+        if produce:
+            draft_id, transcript = produce
+            if not transcript:
+                return (
+                    f"Paste TurboScribe transcript after draft id.\n"
+                    f"Example: produce {draft_id} | 0:00 line one\\n0:07 line two"
+                )
+            r = self.prepare_video_production(draft_id, transcript)
+            return r.get("message", "Done.")
         if is_pending_command(text):
             return self._format_pending()
         dev = parse_dev_request(text)
@@ -82,6 +93,7 @@ class BotOperations:
             "• yes <id> / no <id> — approve improvements\n"
             "• sync — YouTube Analytics (after Google login)\n"
             "• apply brand — update channel name + description in Studio\n"
+            "• produce <draft_id> | <turboscribe paste> — image pack for CapCut\n"
             "• Or just chat normally (needs OpenAI key for full mode)"
         )
 
@@ -200,6 +212,26 @@ class BotOperations:
             "message": r.message,
             "videos_scored": r.videos_scored,
             "improvements_created": r.improvements_created,
+        }
+
+    def prepare_video_production(self, draft_id: int, turboscribe_text: str) -> dict[str, Any]:
+        from shorts_bot.production.pack import build_production_pack
+
+        store = get_store()
+        try:
+            pack = build_production_pack(
+                store,
+                draft_id=draft_id,
+                turboscribe_text=turboscribe_text,
+            )
+        except (ValueError, KeyError) as exc:
+            return {"ok": False, "message": str(exc)}
+        return {
+            "ok": True,
+            "message": pack.message,
+            "draft_id": pack.draft_id,
+            "image_count": pack.image_count,
+            "output_dir": str(pack.output_dir),
         }
 
     def apply_channel_branding(

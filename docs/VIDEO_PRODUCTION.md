@@ -1,0 +1,57 @@
+# Video production — TurboScribe + still images (replaces Claude Code workflow)
+
+This is the **Soft Continuity** version of the faceless Shorts pipeline from the tutorial you shared — same steps, but the **Shorts Bot** does the script + timestamp + image-prompt work.
+
+## Pipeline (≈20 min per Short)
+
+| Step | Who | Tool |
+|------|-----|------|
+| 1. Script | Bot | `draft <topic>` → approve |
+| 2. Voiceover | You | Record on phone/mic (own voice — avoids AI-voice demonetization risk) |
+| 3. Timestamps | TurboScribe | Upload audio → **Whale** mode → copy text **with timestamps** |
+| 4. Image pack | Bot | `produce <draft_id> \| <paste>` or web **Learning → Build production pack** |
+| 5. Still images | You / Cursor | One PNG per `prompts/00.07.txt` etc. (Higgsfield optional) |
+| 6. Edit | CapCut | Drop images on timeline by filename seconds → see `CAPCUT_TIMELINE.md` |
+| 7. Upload | You | YouTube Studio Short |
+| 8. Learn | Bot | `sync` → Yes/No improvements |
+
+## Bot commands
+
+**Discord**
+```
+!produce 5 | 0:00 Imagine waking up at 2 a.m.
+0:07 and not reaching for your phone.
+0:15 Just absolute darkness.
+```
+
+**Web** — Learning tab → draft ID + paste transcript → **Build production pack**
+
+**CLI**
+```bash
+python3 -m shorts_bot.production.cli --draft-id 5 --transcript turboscribe.txt
+```
+
+## Output folder
+
+```
+data/production/draft_5/
+  manifest.json          # full metadata
+  prompts/00.00.txt      # one image prompt per timestamp
+  prompts/00.07.txt
+  images/                # put generated PNGs here (00.07.png)
+  CAPCUT_TIMELINE.md     # where to cut each still
+  MASTER_IMAGE_PROMPT.md # batch prompt for image tools
+  README.txt
+```
+
+## Image style
+
+Soft Continuity = calm minimal stills (not MS Paint scribbles). See `channel/brand/still_image_style.md`.
+
+## Optional: Higgsfield
+
+Tutorial used Higgsfield + Claude Code for batch image gen. You can paste `MASTER_IMAGE_PROMPT.md` + prompts into Higgsfield or ask Cursor to generate images from each `prompts/*.txt` file.
+
+## Filename rule (important)
+
+`00.07.png` = starts at **7 seconds** on the CapCut timeline. Drag until the next file’s second mark — same as the tutorial.

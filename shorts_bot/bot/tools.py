@@ -236,6 +236,27 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "prepare_video_production",
+            "description": (
+                "Build timestamped still-image production pack from TurboScribe transcript: "
+                "one image prompt per timestamp, CapCut timeline, manifest for Soft Continuity Shorts."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "draft_id": {"type": "integer", "description": "Draft ID with approved script."},
+                    "turboscribe_text": {
+                        "type": "string",
+                        "description": "Pasted TurboScribe export with timestamps.",
+                    },
+                },
+                "required": ["draft_id", "turboscribe_text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "setup_youtube_channel",
             "description": (
                 "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
@@ -281,6 +302,7 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "apply_channel_branding": self._apply_channel_branding,
+            "prepare_video_production": self._prepare_video_production,
             "setup_youtube_channel": self._setup_youtube_channel,
             "get_channel_brand": self._get_channel_brand,
             "queue_dev_task": self._queue_dev_task,
@@ -491,6 +513,29 @@ class ToolRunner:
         note = args.get("note", "Human finished channel setup.")
         self.store.mark_channel_ready(channel_name=name, note=note)
         return json.dumps({"message": "Channel marked ready.", "channel_name": name, "note": note})
+
+    def _prepare_video_production(self, args: dict[str, Any]) -> str:
+        from shorts_bot.production.pack import build_production_pack
+
+        try:
+            pack = build_production_pack(
+                self.store,
+                draft_id=int(args["draft_id"]),
+                turboscribe_text=args["turboscribe_text"],
+            )
+        except (ValueError, KeyError) as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
+        return json.dumps(
+            {
+                "ok": True,
+                "message": pack.message,
+                "draft_id": pack.draft_id,
+                "topic": pack.topic,
+                "image_count": pack.image_count,
+                "output_dir": str(pack.output_dir),
+                "manifest": str(pack.manifest_path),
+            }
+        )
 
     def _apply_channel_branding(self, args: dict[str, Any]) -> str:
         operator = YouTubeChannelBranding(
