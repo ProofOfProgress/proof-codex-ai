@@ -7,6 +7,8 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
+from shorts_bot.production.render_stills import render_all_stills
+from shorts_bot.production.script_segments import segments_from_script
 from shorts_bot.production.turboscribe_parser import parse_turboscribe
 
 
@@ -16,6 +18,7 @@ class ProductionPack:
     topic: str
     output_dir: Path
     image_count: int
+    images_rendered: int
     manifest_path: Path
     message: str
 
@@ -52,14 +55,19 @@ def build_production_pack(
     store: MemoryStore,
     *,
     draft_id: int,
-    turboscribe_text: str,
+    turboscribe_text: str = "",
     output_root: Path | None = None,
+    auto_from_script: bool = False,
+    render_images: bool = False,
 ) -> ProductionPack:
     draft = store.get_draft(draft_id)
-    segments = parse_turboscribe(turboscribe_text)
+    segments = parse_turboscribe(turboscribe_text) if turboscribe_text.strip() else []
+    if not segments and auto_from_script:
+        segments = segments_from_script(draft.script)
     if not segments:
         raise ValueError(
-            "No timestamps found. Paste TurboScribe export with lines like '0:07 your words...'"
+            "No timestamps found. Use auto_from_script=True or paste TurboScribe export "
+            "with lines like '0:07 your words...'"
         )
 
     briefs = build_image_briefs(segments, topic=draft.topic)
@@ -73,13 +81,21 @@ def build_production_pack(
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 
+    (root / "VOICEOVER_SCRIPT.txt").write_text(
+        f"HOOK: {draft.hook}\n\n{draft.script}\n\n---\nRecord this, then optional TurboScribe re-sync.\n",
+        encoding="utf-8",
+    )
+
+    rendered = render_all_stills(briefs, images_dir) if render_images else 0
+
     manifest = {
         "draft_id": draft_id,
         "topic": draft.topic,
         "hook": draft.hook,
         "script": draft.script,
-        "workflow": "turboscribe_timestamps_to_still_images",
+        "workflow": "auto_script" if auto_from_script and not turboscribe_text.strip() else "turboscribe",
         "image_count": len(briefs),
+        "images_rendered": rendered,
         "segments": [
             {
                 "start_seconds": b.start_seconds,
@@ -110,14 +126,36 @@ def build_production_pack(
         encoding="utf-8",
     )
 
+    msg = (
+        f"Production pack ready: {len(briefs)} segments for '{draft.topic}'. "
+        f"Folder: {root}."
+    )
+    if rendered:
+        msg += f" Rendered {rendered} still PNGs in images/."
+    else:
+        msg += " Open prompts/ or run with render_images=True."
+
     return ProductionPack(
         draft_id=draft_id,
         topic=draft.topic,
         output_dir=root,
         image_count=len(briefs),
+        images_rendered=rendered,
         manifest_path=manifest_path,
-        message=(
-            f"Production pack ready: {len(briefs)} images for '{draft.topic}'. "
-            f"Folder: {root}. Generate PNGs from prompts/, then edit in CapCut."
-        ),
+        message=msg,
+    )
+
+
+def auto_produce_draft(
+    store: MemoryStore,
+    draft_id: int,
+    *,
+    render_images: bool = True,
+) -> ProductionPack:
+    """Full automated pack from script — no TurboScribe paste required."""
+    return build_production_pack(
+        store,
+        draft_id=draft_id,
+        auto_from_script=True,
+        render_images=render_images,
     )

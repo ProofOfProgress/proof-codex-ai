@@ -109,9 +109,35 @@ if (applyBrandBtn) {
   });
 }
 
-const produceBtn = document.getElementById('produce-btn');
 const produceMsg = document.getElementById('produce-msg');
-if (produceBtn) {
+const produceAutoBtn = document.getElementById('produce-auto-btn');
+if (produceAutoBtn && produceMsg) {
+  produceAutoBtn.addEventListener('click', async () => {
+    const draftId = parseInt(document.getElementById('produce-draft-id')?.value, 10);
+    if (!draftId) {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Enter draft ID first.';
+      return;
+    }
+    produceAutoBtn.disabled = true;
+    produceMsg.className = 'sync-msg';
+    produceMsg.textContent = 'Auto-building still images from script…';
+    try {
+      const res = await fetch(`/api/production/auto/${draftId}`, { method: 'POST' });
+      const data = await res.json();
+      produceMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      produceMsg.textContent = data.message || 'Done';
+    } catch {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Auto production failed.';
+    } finally {
+      produceAutoBtn.disabled = false;
+    }
+  });
+}
+
+const produceBtn = document.getElementById('produce-btn');
+if (produceBtn && produceMsg) {
   produceBtn.addEventListener('click', async () => {
     const draftId = parseInt(document.getElementById('produce-draft-id')?.value, 10);
     const text = document.getElementById('produce-transcript')?.value?.trim();

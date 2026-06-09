@@ -34,6 +34,18 @@ def is_help_command(message: str) -> bool:
     return message.strip().lower() in {"help", "/help", "commands", "?"}
 
 
+def parse_auto_video_request(message: str) -> int | None:
+    lower = message.strip().lower()
+    for prefix in ("make video ", "makevideo ", "auto produce ", "autoproduce ", "build video "):
+        if lower.startswith(prefix):
+            tail = message.strip()[len(prefix) :].strip()
+            if tail.split()[0].isdigit():
+                return int(tail.split()[0])
+    if lower in {"make video", "auto produce"}:
+        return -1
+    return None
+
+
 def parse_produce_request(message: str) -> tuple[int, str] | None:
     """produce 5 | <turboscribe paste> or produce draft 5 then transcript on next lines."""
     text = message.strip()

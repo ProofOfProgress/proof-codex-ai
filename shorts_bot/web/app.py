@@ -312,6 +312,13 @@ async def create_production_pack(body: ProductionRequest) -> dict:
     return BotOperations().prepare_video_production(body.draft_id, body.turboscribe_text)
 
 
+@app.post("/api/production/auto/{draft_id}")
+async def auto_production(draft_id: int) -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    return BotOperations().auto_make_video(draft_id)
+
+
 @app.post("/api/youtube/apply-brand")
 async def youtube_apply_brand() -> dict:
     from shorts_bot.services.ops import BotOperations

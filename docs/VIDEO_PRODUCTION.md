@@ -15,7 +15,21 @@ This is the **Soft Continuity** version of the faceless Shorts pipeline from the
 | 7. Upload | You | YouTube Studio Short |
 | 8. Learn | Bot | `sync` → Yes/No improvements |
 
-## Bot commands
+## Fully automated (no TurboScribe paste)
+
+Bot estimates timestamps from the approved script and **renders still PNGs** locally.
+
+**Discord:** `!makevideo 6`  
+**Web:** Learning → draft ID → **Auto-make video**  
+**Chat:** `make video 6`
+
+Output: `data/production/draft_6/images/*.png` + `VOICEOVER_SCRIPT.txt` + `CAPCUT_TIMELINE.md`
+
+**You only:** record voiceover (read the script file) → CapCut → upload to YouTube.
+
+---
+
+## Bot commands (TurboScribe path — tighter sync)
 
 **Discord**
 ```

@@ -11,6 +11,7 @@ from shorts_bot.services.chat_router import (
     is_pending_command,
     is_sync_command,
     parse_dev_request,
+    parse_auto_video_request,
     parse_produce_request,
 )
 from shorts_bot.web.deps import (
@@ -40,6 +41,13 @@ class BotOperations:
         if is_apply_brand_command(text):
             r = self.apply_channel_branding()
             return r.get("message", "Brand apply done.")
+        auto_id = parse_auto_video_request(text)
+        if auto_id is not None:
+            if auto_id < 0:
+                return "Usage: make video <draft_id>  (e.g. make video 6)"
+            r = self.auto_make_video(auto_id)
+            return r.get("message", "Done.")
+
         produce = parse_produce_request(text)
         if produce:
             draft_id, transcript = produce
@@ -93,6 +101,7 @@ class BotOperations:
             "• yes <id> / no <id> — approve improvements\n"
             "• sync — YouTube Analytics (after Google login)\n"
             "• apply brand — update channel name + description in Studio\n"
+            "• make video <draft_id> — auto script + still images (no TurboScribe paste)\n"
             "• produce <draft_id> | <turboscribe paste> — image pack for CapCut\n"
             "• Or just chat normally (needs OpenAI key for full mode)"
         )
@@ -212,6 +221,26 @@ class BotOperations:
             "message": r.message,
             "videos_scored": r.videos_scored,
             "improvements_created": r.improvements_created,
+        }
+
+    def auto_make_video(self, draft_id: int) -> dict[str, Any]:
+        from shorts_bot.production.pack import auto_produce_draft
+
+        store = get_store()
+        try:
+            pack = auto_produce_draft(store, draft_id, render_images=True)
+        except (ValueError, KeyError) as exc:
+            return {"ok": False, "message": str(exc)}
+        return {
+            "ok": True,
+            "message": (
+                f"{pack.message}\n"
+                f"Your step: record VOICEOVER_SCRIPT.txt → CapCut import images/ + audio → upload."
+            ),
+            "draft_id": pack.draft_id,
+            "image_count": pack.image_count,
+            "images_rendered": pack.images_rendered,
+            "output_dir": str(pack.output_dir),
         }
 
     def prepare_video_production(self, draft_id: int, turboscribe_text: str) -> dict[str, Any]:
