@@ -8,6 +8,9 @@ from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
+from shorts_bot.memory.extensions import MemoryExtensions
+from shorts_bot.rewards.engine import RewardEngine
+from shorts_bot.training.proposer import ImprovementProposer
 from shorts_bot.youtube.channel_setup import YouTubeChannelSetup
 from shorts_bot.youtube.studio import check_studio
 
@@ -121,6 +124,25 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "score_video_performance",
+            "description": "Score a published Short vs benchmarks; may create improvement proposal.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "video_label": {"type": "string"},
+                    "viewed_vs_swiped_away": {"type": "number"},
+                    "retention_rate": {"type": "number"},
+                    "views": {"type": "integer"},
+                    "likes": {"type": "integer"},
+                    "comments": {"type": "integer"},
+                },
+                "required": ["video_label"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_youtube_status",
             "description": "Check if YouTube channel is set up and Studio is accessible.",
             "parameters": {"type": "object", "properties": {}},
@@ -176,6 +198,7 @@ class ToolRunner:
         self.generator = generator
         self.queue = queue
         self.router = router
+        self._memory = MemoryExtensions(store)
         self._handlers: dict[str, Callable[[dict[str, Any]], str]] = {
             "create_draft": self._create_draft,
             "list_pending_drafts": self._list_pending_drafts,
@@ -189,6 +212,7 @@ class ToolRunner:
             "setup_youtube_channel": self._setup_youtube_channel,
             "get_youtube_status": self._get_youtube_status,
             "mark_channel_ready": self._mark_channel_ready,
+            "score_video_performance": self._score_video_performance,
         }
 
     def run(self, name: str, arguments: dict[str, Any]) -> str:
@@ -287,6 +311,21 @@ class ToolRunner:
         if self.router is None:
             return json.dumps({"error": "Course not loaded"})
         return json.dumps({"free_services": self.router.kb.free_services})
+
+    def _score_video_performance(self, args: dict[str, Any]) -> str:
+        metrics = {k: v for k, v in args.items() if k != "video_label" and v is not None}
+        engine = RewardEngine(self._memory)
+        result = engine.score(args["video_label"], metrics)
+        imp = ImprovementProposer(self._memory, client=None).propose_from_reward(result)
+        payload: dict[str, Any] = {
+            "score": result.score,
+            "verdict": result.verdict,
+            "reason": result.reason,
+            "diagnosis": result.diagnosis,
+        }
+        if imp:
+            payload["improvement"] = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
+        return json.dumps(payload)
 
     def _get_youtube_status(self, _args: dict[str, Any]) -> str:
         saved = self.store.channel_summary()

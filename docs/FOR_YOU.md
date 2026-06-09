@@ -51,3 +51,20 @@ That's the whole list for now.
 Your YouTube channel is **live** and logged in. You set the name yourself — the bot saved the session and won't fight you for browser control unless you ask.
 
 **Next:** the bot drafts Short scripts → you approve → later CapCut + upload.
+
+## Installed — how to use (no coding)
+
+Someone already ran install for you. To open the bot:
+
+1. Run: `bash scripts/install.sh` (only once; already done in cloud)
+2. Start chat page: `python3 -m shorts_bot.web`
+3. Open **http://localhost:8080** in your browser
+
+### What you'll see
+
+- **Left:** chat with the bot (type normally)
+- **Right:** **Yes / No** buttons for:
+  - **Self-improvements** (pros & cons listed — bot learning)
+  - **Script drafts** (approve before posting)
+
+No paste. No terminal after setup — just the web page.

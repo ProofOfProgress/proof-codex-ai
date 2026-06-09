@@ -8,11 +8,19 @@
 
 ### Services
 
-No long-running server. Run the bot interactively:
+Install: `bash scripts/install.sh`
+
+Web UI (recommended):
 
 ```bash
-pip install -r requirements.txt
-python -m shorts_bot
+python3 -m shorts_bot.web
+# http://localhost:8080
+```
+
+CLI:
+
+```bash
+python3 -m shorts_bot
 ```
 
 Set `OPENAI_API_KEY` in `.env` for full conversational mode. Without it, offline command mode still works (`help`, `draft`, `pending`, etc.).
@@ -35,9 +43,15 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.
 
+### Reward & self-training
+
+- `shorts_bot/rewards/` — score videos (swipe-away, retention) → reward/punish
+- `shorts_bot/training/` — improvement proposals with pros/cons; user Yes/No in web UI
+- POST `/api/score` to record metrics and auto-propose improvements
+
 ### Next phases
 
-YouTube analytics reward loop, CapCut Playwright operator — not implemented yet.
+YouTube API auto-pull analytics, CapCut Playwright operator.
 
 ### Git / PR policy (user does minimal work)
 

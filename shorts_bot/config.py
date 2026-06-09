@@ -13,10 +13,17 @@ class Settings(BaseSettings):
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     youtube_channel_name: str = ""
+    web_host: str = "0.0.0.0"
+    web_port: int = 8080
 
     @property
     def has_openai(self) -> bool:
-        return bool(self.openai_api_key and self.openai_api_key.strip())
+        key = (self.openai_api_key or "").strip()
+        if not key:
+            return False
+        if "your-key" in key.lower() or key.endswith("here"):
+            return False
+        return True
 
 
 settings = Settings()

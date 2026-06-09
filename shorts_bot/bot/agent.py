@@ -77,13 +77,19 @@ class ShortsBotAgent:
             return reply
 
         for _ in range(6):
-            response = self.client.chat.completions.create(
+            try:
+                response = self.client.chat.completions.create(
                 model=settings.openai_model,
                 messages=self.messages,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
                 temperature=0.7,
-            )
+                )
+            except Exception:
+                reply = self._offline_reply(user_message)
+                self.messages.append({"role": "assistant", "content": reply})
+                self.store.save_chat("assistant", reply)
+                return reply
             message = response.choices[0].message
             assistant_payload: dict[str, Any] = {"role": "assistant", "content": message.content or ""}
             if message.tool_calls:

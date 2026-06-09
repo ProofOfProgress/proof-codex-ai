@@ -6,12 +6,25 @@ The bot uses course files 01–09 (idea, hook, retention, visuals, editing, anal
 
 **Don't code?** Read [docs/FOR_YOU.md](docs/FOR_YOU.md) — plain English on what the bot does and what you do once.
 
-## Quick start
+## Install
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env   # add your OpenAI API key
-python -m shorts_bot
+bash scripts/install.sh
+```
+
+## Quick start — web chat (recommended)
+
+```bash
+python3 -m shorts_bot.web
+```
+
+Open **http://localhost:8080** — chat on the left, **Yes/No** approvals on the right.
+
+## CLI chat
+
+```bash
+cp .env.example .env   # add OPENAI_API_KEY optional
+python3 -m shorts_bot
 ```
 
 ## Modes
