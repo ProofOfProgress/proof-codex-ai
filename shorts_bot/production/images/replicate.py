@@ -11,7 +11,24 @@ from pathlib import Path
 API_BASE = "https://api.replicate.com/v1"
 
 
-def _request(method: str, url: str, *, token: str, payload: dict | None = None) -> dict:
+def _parse_retry_after(body: str, code: int) -> float:
+    try:
+        data = json.loads(body)
+        if isinstance(data.get("retry_after"), (int, float)):
+            return max(1.0, float(data["retry_after"]))
+    except json.JSONDecodeError:
+        pass
+    return 12.0 if code == 429 else 5.0
+
+
+def _request(
+    method: str,
+    url: str,
+    *,
+    token: str,
+    payload: dict | None = None,
+    max_retries: int = 8,
+) -> dict:
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/json",
@@ -21,13 +38,23 @@ def _request(method: str, url: str, *, token: str, payload: dict | None = None) 
     if payload is not None:
         headers["Content-Type"] = "application/json"
         data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Replicate API {exc.code}: {body[:400]}") from exc
+
+    last_error: Exception | None = None
+    for attempt in range(max_retries):
+        req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            if exc.code in {429, 502, 503, 504} and attempt < max_retries - 1:
+                time.sleep(_parse_retry_after(body, exc.code))
+                last_error = RuntimeError(f"Replicate API {exc.code}: {body[:400]}")
+                continue
+            raise RuntimeError(f"Replicate API {exc.code}: {body[:400]}") from exc
+    if last_error:
+        raise last_error
+    raise RuntimeError("Replicate request failed after retries")
 
 
 def _poll_prediction(prediction_id: str, *, token: str, timeout_sec: int = 300) -> dict:

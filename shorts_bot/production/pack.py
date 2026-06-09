@@ -95,6 +95,15 @@ def build_production_pack(
             image_note = f" via {settings.image_provider}"
             if rendered < len(briefs):
                 image_note += f" ({rendered}/{len(briefs)} ok)"
+                missing = [
+                    b
+                    for b in briefs
+                    if not (images_dir / f"{b.filename_stem}.png").exists()
+                ]
+                if missing:
+                    filled = render_all_stickfigures(missing, images_dir)
+                    rendered += filled
+                    image_note += f"; stick-figure fallback for {filled} gaps"
             if rendered == 0:
                 rendered = render_all_stickfigures(briefs, images_dir)
                 image_note = " (AI failed — stick figure fallback)"
