@@ -1,0 +1,5 @@
+openai>=1.40.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+rich>=13.7.0
+pytest>=8.0.0
