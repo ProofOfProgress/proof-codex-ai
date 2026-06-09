@@ -77,10 +77,12 @@ else
   note "DISCORD_BOT_TOKEN not set — see docs/MORNING.md"
 fi
 
-if [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=[0-9]+' .env 2>/dev/null; then
+if [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=[0-9]{15,}' .env 2>/dev/null; then
   pass "DISCORD_OWNER_ID set (for DMs)"
+elif [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=.+' .env 2>/dev/null; then
+  bad "DISCORD_OWNER_ID looks like a username — must be numeric (Developer Mode → Copy User ID)"
 else
-  note "DISCORD_OWNER_ID not set — briefing DMs need your user ID"
+  note "DISCORD_OWNER_ID not set — briefing DMs need your numeric user ID"
 fi
 
 # Tests

@@ -44,6 +44,13 @@ class ShortsDiscordBot(commands.Bot):
     async def _send_briefing(self) -> None:
         text = build_morning_briefing()
         for user_id in settings.discord_notify_list:
+            if not user_id.isdigit():
+                log.warning(
+                    "DISCORD_OWNER_ID must be a numeric user ID, not a username (%s). "
+                    "See docs/MORNING.md — Developer Mode → Copy User ID.",
+                    user_id[:20],
+                )
+                continue
             try:
                 user = await self.fetch_user(int(user_id))
                 for part in _chunk(text):

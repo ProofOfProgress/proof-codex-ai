@@ -24,9 +24,29 @@ You still need **`DISCORD_BOT_TOKEN`** (secret) from Discord Developer Portal:
 3. Paste in `.env` as `DISCORD_BOT_TOKEN=...`
 4. Enable **Message Content Intent** under Bot settings
 5. **OAuth2 → URL Generator** → scopes: `bot`, `applications.commands` → invite bot to your server
-6. Set `DISCORD_OWNER_ID` to your user ID (right-click your name → Copy User ID)
+6. Set `DISCORD_OWNER_ID` to your **numeric** user ID (see below)
 
 Then: `python3 -m shorts_bot.discord_bot`
+
+### Username ≠ user ID
+
+`isaac_proofofprogress_50448` is your **username** — the bot cannot use that for DMs.
+
+Your user ID is a long **number only**, like `123456789012345678`.
+
+**How to copy it (30 seconds):**
+
+1. Discord app → **User Settings** (gear) → **Advanced**
+2. Turn on **Developer Mode**
+3. Close settings. **Right-click your avatar/name** (top-left or in a server member list)
+4. Click **Copy User ID**
+5. Paste into `.env`:
+
+```
+DISCORD_OWNER_ID=123456789012345678
+```
+
+(No quotes. Numbers only.)
 
 On connect, the bot DMs you a **morning briefing** (and anyone in `DISCORD_NOTIFY_IDS`).
 
