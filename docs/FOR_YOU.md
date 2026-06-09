@@ -52,6 +52,10 @@ Your YouTube channel is **live** and logged in. You set the name yourself — th
 
 **Next:** the bot drafts Short scripts → you approve → later CapCut + upload.
 
+## Run at home (start here)
+
+**docs/RUN_AT_HOME.md** — pull, `bash scripts/run-all.sh`, done. Only login steps need you.
+
 ## Chat tonight (before YouTube setup)
 
 Follow **docs/CHAT_TONIGHT.md**:

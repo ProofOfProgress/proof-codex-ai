@@ -143,6 +143,21 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "queue_dev_task",
+            "description": "Queue a coding/development task for human Yes/No approval before work runs.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+                "required": ["title", "description"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "list_pending_improvements",
             "description": "List self-improvement proposals waiting for human Yes/No.",
             "parameters": {"type": "object", "properties": {}},
@@ -229,6 +244,7 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "setup_youtube_channel": self._setup_youtube_channel,
+            "queue_dev_task": self._queue_dev_task,
             "list_pending_improvements": self._list_pending_improvements,
             "sync_youtube_analytics": self._sync_youtube_analytics,
             "get_youtube_status": self._get_youtube_status,
@@ -347,6 +363,20 @@ class ToolRunner:
         if imp:
             payload["improvement"] = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
         return json.dumps(payload)
+
+    def _queue_dev_task(self, args: dict[str, Any]) -> str:
+        task = self._memory.create_dev_task(
+            title=args["title"],
+            description=args["description"],
+            source="agent",
+        )
+        return json.dumps(
+            {
+                "id": task.id,
+                "title": task.title,
+                "message": "Dev task queued — human must approve in web UI or Discord.",
+            }
+        )
 
     def _list_pending_improvements(self, _args: dict[str, Any]) -> str:
         pending = self._memory.list_improvements(status="pending")

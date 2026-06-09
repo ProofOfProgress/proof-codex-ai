@@ -269,6 +269,14 @@ class MemoryExtensions:
             return ""
         return "Approved training rules (follow these):\n" + "\n".join(f"- {r}" for r in rules[:12])
 
+    def find_pending_dev_by_title(self, title: str) -> DevTask | None:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM dev_tasks WHERE status = 'pending' AND lower(title) = lower(?) LIMIT 1",
+                (title.strip(),),
+            ).fetchone()
+        return self._row_dev_task(row) if row else None
+
     def create_dev_task(
         self,
         *,
@@ -278,6 +286,9 @@ class MemoryExtensions:
         cons: list[str] | None = None,
         source: str = "user",
     ) -> DevTask:
+        existing = self.find_pending_dev_by_title(title)
+        if existing:
+            return existing
         pros = pros or ["Ships capability you asked for", "Queued for approval before any auto-work"]
         cons = cons or ["May need your login later for external services", "Complex tasks split into smaller steps"]
         with self._conn() as conn:

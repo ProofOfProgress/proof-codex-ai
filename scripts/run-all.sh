@@ -29,4 +29,4 @@ else
   echo "    Discord skipped — add DISCORD_BOT_TOKEN to .env (see docs/MORNING.md)"
 fi
 
-wait $WEB_PID
+wait $WEB_PID || true

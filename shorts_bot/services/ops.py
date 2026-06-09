@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from shorts_bot.config import settings
 from shorts_bot.learning.learned_file import LearnedFile
+from shorts_bot.services.chat_router import is_help_command, is_pending_command, is_sync_command, parse_dev_request
 from shorts_bot.web.deps import (
     get_agent,
     get_analytics_sync,
@@ -19,7 +21,105 @@ class BotOperations:
     """Shared operations for web UI and Discord."""
 
     def chat(self, message: str) -> str:
-        return get_agent().chat(message.strip())
+        text = message.strip()
+        if not text:
+            return "Say something — draft ideas, dev: build X, or sync (after YouTube login)."
+
+        if is_help_command(text):
+            return self._help_text()
+        if is_sync_command(text):
+            r = self.youtube_sync()
+            return r.get("message", "Sync done.")
+        if is_pending_command(text):
+            return self._format_pending()
+        dev = parse_dev_request(text)
+        if dev:
+            title, desc = dev
+            return self.create_dev_task(title, desc)
+
+        lower = text.lower()
+        if lower.startswith("draft "):
+            return self.create_draft(text[6:].strip())
+        if lower.startswith("yes ") and lower.split()[1:2]:
+            try:
+                return self.approve_improvement(int(text.split()[1]))
+            except (ValueError, IndexError):
+                pass
+        if lower.startswith("no ") and lower.split()[1:2]:
+            try:
+                return self.reject_improvement(int(text.split()[1]))
+            except (ValueError, IndexError):
+                pass
+        if lower.startswith("yes dev "):
+            try:
+                return self.approve_dev_task(int(text.split()[2]))
+            except (ValueError, IndexError):
+                pass
+        if lower.startswith("no dev "):
+            try:
+                return self.reject_dev_task(int(text.split()[2]))
+            except (ValueError, IndexError):
+                pass
+
+        return get_agent().chat(text)
+
+    def _help_text(self) -> str:
+        return (
+            "Shorts Bot commands (work in Discord DM without ! prefix too):\n"
+            "• draft <topic> — script draft\n"
+            "• dev: <title> | <what to build> — coding task queue\n"
+            "• build: polish the web UI — same as dev:\n"
+            "• pending — what needs Yes/No\n"
+            "• yes <id> / no <id> — approve improvements\n"
+            "• sync — YouTube Analytics (after Google login)\n"
+            "• Or just chat normally (needs OpenAI key for full mode)"
+        )
+
+    def _format_pending(self) -> str:
+        imps = self.list_improvements()
+        drafts = self.list_drafts()
+        dev = self.list_dev_tasks()
+        lines = ["**Needs your Yes/No:**"]
+        for i in imps[:6]:
+            lines.append(f"Improvement #{i['id']}: {i['title']} — yes {i['id']} / no {i['id']}")
+        for d in drafts[:4]:
+            lines.append(f"Draft #{d['id']}: {d['topic']}")
+        for t in dev[:4]:
+            lines.append(f"Dev #{t['id']}: {t['title']}")
+        if len(lines) == 1:
+            return "All caught up — nothing pending."
+        lines.append("\nWeb: http://localhost:8080 (one-tap buttons)")
+        return "\n".join(lines)
+
+    def setup_checklist(self) -> list[dict[str, Any]]:
+        yt = auth_status()
+        items = [
+            {
+                "id": "discord",
+                "label": "Discord bot",
+                "done": settings.has_discord,
+                "action": "DISCORD_BOT_TOKEN in .env",
+            },
+            {
+                "id": "openai",
+                "label": "Full AI chat (optional)",
+                "done": settings.has_openai,
+                "action": "docs/CHAT_TONIGHT.md",
+            },
+            {
+                "id": "google_keys",
+                "label": "Google API keys",
+                "done": bool(yt.get("credentials_configured")),
+                "action": "docs/TOMORROW.md step 1",
+            },
+            {
+                "id": "youtube_oauth",
+                "label": "YouTube sign-in (once)",
+                "done": bool(yt.get("token_saved")),
+                "action": "python3 -m shorts_bot.youtube.auth_cli",
+            },
+        ]
+        return items
 
     def status(self) -> dict[str, Any]:
         store = get_store()
@@ -35,6 +135,7 @@ class BotOperations:
             "pending_dev": len(memory.list_dev_tasks(status="pending")),
             "applied_training": memory.applied_improvements(),
             "youtube": yt,
+            "checklist": self.setup_checklist(),
         }
 
     def list_improvements(self) -> list[dict[str, Any]]:
@@ -54,7 +155,7 @@ class BotOperations:
     def approve_improvement(self, improvement_id: int, note: str = "Approved.") -> str:
         imp = get_memory().review_improvement(improvement_id, approved=True, note=note)
         LearnedFile(settings.learned_path).record_improvement(imp, approved=True)
-        return f"Approved: {imp.title}"
+        return f"✅ Approved: {imp.title}"
 
     def reject_improvement(self, improvement_id: int, note: str = "Skipped.") -> str:
         imp = get_memory().review_improvement(improvement_id, approved=False, note=note)
@@ -63,14 +164,14 @@ class BotOperations:
     def list_drafts(self) -> list[dict[str, Any]]:
         store = get_store()
         return [
-            {"id": d.id, "topic": d.topic, "hook": d.hook}
+            {"id": d.id, "topic": d.topic, "hook": d.hook, "script": d.script}
             for d in store.list_drafts(status="pending")
         ]
 
     def approve_draft(self, draft_id: int, note: str = "Approved.") -> str:
         d = get_store().review_draft(draft_id, "approved", note)
         get_proposer().propose_from_feedback(d.topic, note, "approved")
-        return f"Draft #{d.id} approved: {d.topic}"
+        return f"✅ Draft #{d.id} approved: {d.topic}"
 
     def reject_draft(self, draft_id: int, note: str) -> str:
         d = get_store().review_draft(draft_id, "rejected", note)
@@ -78,11 +179,9 @@ class BotOperations:
         return f"Draft #{d.id} rejected."
 
     def create_draft(self, topic: str, angle: str | None = None) -> str:
-        import json
-
         result = get_agent().tool_runner.run("create_draft", {"topic": topic, "angle": angle})
         data = json.loads(result)
-        return f"Draft #{data.get('draft_id')} created: {data.get('topic')}"
+        return f"📝 Draft #{data.get('draft_id')} created: {data.get('topic')}\nHook: {data.get('hook')}"
 
     def youtube_sync(self) -> dict[str, Any]:
         r = get_analytics_sync().run()
@@ -93,7 +192,7 @@ class BotOperations:
             "improvements_created": r.improvements_created,
         }
 
-    def recent_rewards(self, limit: int = 5) -> list[dict[str, Any]]:
+    def recent_rewards(self, limit: int = 8) -> list[dict[str, Any]]:
         return get_memory().recent_rewards(limit=limit)
 
     def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
@@ -113,16 +212,16 @@ class BotOperations:
 
     def create_dev_task(self, title: str, description: str) -> str:
         task = get_memory().create_dev_task(title=title, description=description)
-        return f"Dev task #{task.id} queued: {task.title}"
+        return f"🔧 Dev task #{task.id} queued: {task.title}\nApprove: yes dev {task.id} or web UI"
 
     def approve_dev_task(self, task_id: int, note: str = "Approved.") -> str:
         task = get_memory().review_dev_task(task_id, approved=True, note=note)
         LearnedFile(settings.learned_path).record_dev_task(task, approved=True)
-        return f"Dev task approved: {task.title}"
+        return f"✅ Dev approved: {task.title}"
 
     def reject_dev_task(self, task_id: int, note: str = "Rejected.") -> str:
         task = get_memory().review_dev_task(task_id, approved=False, note=note)
-        return f"Dev task skipped: {task.title}"
+        return f"Dev skipped: {task.title}"
 
     def score_preview(self, video_label: str, metrics: dict[str, Any]) -> dict[str, Any]:
         result = get_reward_engine().score(video_label, metrics)

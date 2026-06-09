@@ -3,15 +3,22 @@ from __future__ import annotations
 import asyncio
 import logging
 
+import datetime
+
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from shorts_bot.__version__ import __version__
 from shorts_bot.briefing.builder import build_morning_briefing
 from shorts_bot.config import settings
 from shorts_bot.discord_bot.embeds import pending_embed, status_embed
-from shorts_bot.discord_bot.prefs import briefing_user_ids, remember_dm_user
+from shorts_bot.discord_bot.notify import dm_all, notify_pending_summary
+from shorts_bot.discord_bot.prefs import (
+    briefing_already_sent_today,
+    mark_briefing_sent_today,
+    remember_dm_user,
+)
 from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.services.ops import BotOperations
 
@@ -38,7 +45,9 @@ class ShortsDiscordBot(commands.Bot):
         self._briefing_sent = False
 
     async def setup_hook(self) -> None:
-        await self.add_cog(ShortsCog(self))
+        cog = ShortsCog(self)
+        await self.add_cog(cog)
+        cog.morning_briefing.start()
         try:
             await self.tree.sync()
         except Exception as exc:  # noqa: BLE001
@@ -49,6 +58,7 @@ class ShortsDiscordBot(commands.Bot):
         if settings.discord_send_briefing_on_start and not self._briefing_sent:
             self._briefing_sent = True
             await self._send_briefing()
+            await notify_pending_summary(self, self.ops)
 
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot:
@@ -69,21 +79,31 @@ class ShortsDiscordBot(commands.Bot):
 
     async def _send_briefing(self) -> None:
         text = build_morning_briefing()
-        for user_id in briefing_user_ids():
-            if not str(user_id).isdigit():
-                continue
-            try:
-                user = await self.fetch_user(int(user_id))
-                for part in _chunk(text):
-                    await user.send(part)
-            except Exception as exc:  # noqa: BLE001
-                log.warning("Could not DM %s: %s", user_id, exc)
+        n = await dm_all(self, text)
+        if n:
+            mark_briefing_sent_today()
+            log.info("Briefing sent to %s user(s)", n)
 
 
 class ShortsCog(commands.Cog):
     def __init__(self, bot: ShortsDiscordBot) -> None:
         self.bot = bot
         self.ops = bot.ops
+
+    def cog_unload(self) -> None:
+        self.morning_briefing.cancel()
+
+    @tasks.loop(time=datetime.time(hour=settings.discord_briefing_hour, minute=settings.discord_briefing_minute))
+    async def morning_briefing(self) -> None:
+        await self.bot.wait_until_ready()
+        if briefing_already_sent_today():
+            return
+        await self.bot._send_briefing()
+        await notify_pending_summary(self.bot, self.ops)
+
+    @morning_briefing.before_loop
+    async def before_morning(self) -> None:
+        await self.bot.wait_until_ready()
 
     async def _remember(self, ctx: commands.Context) -> None:
         if isinstance(ctx.channel, discord.DMChannel):
@@ -186,6 +206,15 @@ class ShortsCog(commands.Cog):
         await self._remember(ctx)
         result = await asyncio.to_thread(self.ops.youtube_sync)
         await ctx.reply(result.get("message", "Done"))
+        if result.get("improvements_created", 0) > 0:
+            await notify_pending_summary(self.bot, self.ops)
+
+    @commands.command(name="notify")
+    async def notify_cmd(self, ctx: commands.Context) -> None:
+        """DM everyone on the notify list + anyone who has DMed the bot."""
+        await self._remember(ctx)
+        n = await dm_all(self.bot, build_morning_briefing())
+        await ctx.reply(f"Sent briefing to {n} user(s).")
 
     @commands.command(name="dev")
     async def dev_cmd(self, ctx: commands.Context, *, payload: str) -> None:

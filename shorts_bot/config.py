@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     discord_notify_ids: str = ""
     discord_command_prefix: str = "!"
     discord_send_briefing_on_start: bool = True
+    discord_briefing_hour: int = 8
+    discord_briefing_minute: int = 30
 
     @property
     def has_openai(self) -> bool:

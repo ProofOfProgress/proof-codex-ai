@@ -57,7 +57,9 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 4. Web UI: **Sync YouTube Analytics** or POST `/api/youtube/sync`
 5. User approves improvements via **Yes/No** in sidebar
 
-Home setup guide: `docs/TOMORROW.md`. Morning checklist: `docs/MORNING.md`. Health check: `bash scripts/doctor.sh`.
+Home setup: `docs/RUN_AT_HOME.md` (master). YouTube: `docs/TOMORROW.md`. OpenAI: `docs/CHAT_TONIGHT.md`. Health: `bash scripts/doctor.sh`.
+
+Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `BotOperations.chat`.
 
 ### Discord
 

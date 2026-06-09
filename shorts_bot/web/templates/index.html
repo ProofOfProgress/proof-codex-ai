@@ -24,7 +24,16 @@
         <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
           {% if youtube.ready %}YT ready{% elif youtube.credentials_configured %}YT sign-in{% else %}YT setup{% endif %}
         </span>
-        <span class="badge {% if has_discord %}ok{% else %}warn{% endif %}">{% if has_discord %}Discord{% else %}Discord token{% endif %}</span>
+        <span class="badge {% if has_discord %}ok{% else %}warn{% endif %}">{% if has_discord %}Discord on{% else %}Discord off{% endif %}</span>
+      </div>
+      <div class="setup-checklist">
+        <div class="setup-title">Setup (login only)</div>
+        {% for item in checklist %}
+        <div class="setup-row {% if item.done %}done{% endif %}">
+          <span class="setup-dot">{% if item.done %}✓{% else %}○{% endif %}</span>
+          <span>{{ item.label }}</span>
+        </div>
+        {% endfor %}
       </div>
     </nav>
 
@@ -63,9 +72,12 @@
           </div>
           <h3>Recent scores</h3>
           {% for r in rewards %}
-          <div class="reward-row">
-            <span>{{ r.video_label }}</span>
-            <span class="verdict-{{ r.verdict }}">{{ r.verdict }} ({{ r.score }})</span>
+          <div class="card reward-card">
+            <div class="reward-row">
+              <strong>{{ r.video_label }}</strong>
+              <span class="verdict-{{ r.verdict }}">{{ r.verdict }} · {{ r.score }}</span>
+            </div>
+            <p class="reward-reason">{{ r.reason }}</p>
           </div>
           {% else %}
           <p class="empty">No scores yet — sync YouTube or upload a Short first.</p>
@@ -119,7 +131,18 @@
     </main>
 
     <aside class="sidebar">
-      <h2 style="margin:0 0 10px;font-size:1rem;">Approve training</h2>
+      {% if first_improvement %}
+      <div class="hero-approval">
+        <div class="hero-label">Tap once to train the bot</div>
+        <h2>{{ first_improvement.title }}</h2>
+        <p>{{ first_improvement.description }}</p>
+        <div class="hero-actions">
+          <button class="btn hero-yes" onclick="decideImprovement({{ first_improvement.id }}, true)">✓ Yes — do this</button>
+          <button class="btn hero-no" onclick="decideImprovement({{ first_improvement.id }}, false)">✗ No</button>
+        </div>
+      </div>
+      {% endif %}
+      <h2 style="margin:0 0 10px;font-size:1rem;">{% if pending_count %}All approvals ({{ pending_count }}){% else %}Approve training{% endif %}</h2>
       <div id="improvements">
         {% for imp in improvements %}
         <div class="card imp-card" data-id="{{ imp.id }}">

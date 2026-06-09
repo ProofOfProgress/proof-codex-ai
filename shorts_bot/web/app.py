@@ -23,7 +23,7 @@ from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Shorts Bot", version="0.4.0")
+app = FastAPI(title="Shorts Bot", version="0.6.0")
 
 
 @app.exception_handler(Exception)
@@ -68,6 +68,9 @@ async def home(request: Request) -> HTMLResponse:
     memory = get_memory()
     store = get_store()
     learned = LearnedFile(settings.learned_path)
+    from shorts_bot.services.ops import BotOperations
+
+    pending_imps = memory.list_improvements(status="pending")
     return TEMPLATES.TemplateResponse(
         request,
         "index.html",
@@ -75,7 +78,9 @@ async def home(request: Request) -> HTMLResponse:
             "has_openai": settings.has_openai,
             "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
-            "improvements": memory.list_improvements(status="pending"),
+            "checklist": BotOperations().setup_checklist(),
+            "first_improvement": pending_imps[0] if pending_imps else None,
+            "improvements": pending_imps,
             "drafts": store.list_drafts(status="pending"),
             "dev_tasks": memory.list_dev_tasks(status="pending"),
             "rewards": memory.recent_rewards(limit=8),
@@ -209,6 +214,13 @@ async def score_video(body: ScoreRequest) -> dict:
     }
 
 
+@app.get("/api/checklist")
+async def setup_checklist() -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    return {"items": BotOperations().setup_checklist()}
+
+
 @app.get("/api/status")
 async def status() -> dict:
     store = get_store()
@@ -218,6 +230,7 @@ async def status() -> dict:
         "channel": store.channel_summary(),
         "stats": store.stats(),
         "pending_improvements": len(memory.list_improvements(status="pending")),
+        "pending_drafts": len(store.list_drafts(status="pending")),
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
         "discord": settings.has_discord,
         "applied_training": memory.applied_improvements(),
@@ -289,11 +302,13 @@ async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
     result = get_analytics_sync().run()
+    pending = len(get_memory().list_improvements(status="pending"))
     return {
         "ok": result.ok,
         "message": result.message,
         "videos_scored": result.videos_scored,
         "improvements_created": result.improvements_created,
         "rewards": result.rewards or [],
-        "pending_improvements": len(get_memory().list_improvements(status="pending")),
+        "pending_improvements": pending,
+        "sign_off_hint": "Tap Yes on the right — one tap each." if pending else None,
     }

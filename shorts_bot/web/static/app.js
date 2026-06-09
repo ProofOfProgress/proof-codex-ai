@@ -138,6 +138,26 @@ if (copyLearned && learnedBox) {
   });
 }
 
+async function refreshStats() {
+  try {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    document.querySelectorAll('.stat .value').forEach((el, i) => {
+      const vals = [data.pending_improvements, data.pending_drafts ?? 0, data.pending_dev];
+      if (vals[i] !== undefined) el.textContent = vals[i];
+    });
+  } catch { /* ignore */ }
+}
+setInterval(refreshStats, 45000);
+
+const titles = { chat: 'Strategist chat', rewards: 'Rewards & analytics', learning: 'Learning journal', dev: 'Dev queue' };
+document.querySelectorAll('.nav-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const t = document.getElementById('panel-title');
+    if (t) t.textContent = titles[btn.dataset.panel] || 'Shorts Bot';
+  });
+});
+
 window.decideImprovement = decideImprovement;
 window.decideDraft = decideDraft;
 window.decideDev = decideDev;

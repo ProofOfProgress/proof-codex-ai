@@ -196,6 +196,41 @@ body {
   color: #c9d4e3;
 }
 
+.setup-checklist {
+  margin-top: 18px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+.setup-title { color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; font-weight: 700; }
+.setup-row { display: flex; gap: 8px; align-items: center; padding: 4px 0; color: var(--muted); }
+.setup-row.done { color: #86efac; }
+.setup-dot { width: 14px; text-align: center; }
+
+.hero-approval {
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(91, 141, 239, 0.12));
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.hero-label { font-size: 0.72rem; text-transform: uppercase; color: #86efac; font-weight: 800; letter-spacing: 0.05em; }
+.hero-approval h2 { margin: 8px 0; font-size: 1.05rem; }
+.hero-approval p { font-size: 0.86rem; color: #d5deea; margin: 0 0 12px; }
+.hero-actions { display: flex; gap: 10px; }
+.hero-yes { flex: 2; font-size: 1rem; padding: 14px; background: linear-gradient(135deg, #22c55e, #16a34a); }
+.hero-no { flex: 1; padding: 14px; }
+
+.reward-card { margin-bottom: 10px; }
+.reward-reason { font-size: 0.8rem; color: var(--muted); margin: 6px 0 0; }
+
+.btn:active { transform: scale(0.98); }
+.card { transition: border-color 0.2s; }
+.card:hover { border-color: rgba(91, 141, 239, 0.4); }
+
 @media (max-width: 1100px) {
   .shell { grid-template-columns: 1fr; }
   .nav { display: none; }
