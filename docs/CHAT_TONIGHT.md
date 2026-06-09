@@ -2,6 +2,23 @@
 
 ChatGPT Pro and the **OpenAI API** are separate. The bot needs an API key for natural conversation.
 
+## I have ChatGPT Pro — why can't we use that?
+
+**Short answer:** Pro is for *you* chatting in the ChatGPT app. The Shorts Bot is a *program* on your computer that must call OpenAI in the background — that only works through the **API**, which Pro does not include.
+
+| | ChatGPT Pro | OpenAI API |
+|---|-------------|------------|
+| What it is | Subscription to chatgpt.com / the app | Developer access for apps and scripts |
+| Who uses it | You, in a browser | Our bot, automatically |
+| Works with Shorts Bot? | No (no official hook-in) | Yes |
+| Billing | Monthly Pro fee | Pay per use (often pennies per chat with our small model) |
+
+**What you can do with Pro today:** brainstorm in the ChatGPT app, then paste ideas into the bot — or use **offline mode** (`draft <topic>`, `course <question>`) without any API key.
+
+**What the API unlocks:** natural back-and-forth in **http://localhost:8080**, auto-drafting scripts, and smarter improvement suggestions — all without you copying between apps.
+
+There is no official way to "log the bot into" your Pro account. Screen-scraping ChatGPT would be fragile and is not something we build.
+
 ## Easiest way (Cursor / cloud)
 
 1. In Cursor, add a secret named **`OPENAI_API_KEY`**
