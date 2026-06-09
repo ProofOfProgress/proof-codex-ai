@@ -12,6 +12,7 @@ from shorts_bot.services.chat_router import (
     is_sync_command,
     parse_dev_request,
     parse_auto_video_request,
+    parse_finish_request,
     parse_voice_request,
     parse_produce_request,
 )
@@ -53,6 +54,10 @@ class BotOperations:
         if voice_id is not None:
             r = self.generate_voiceover(voice_id)
             return r.get("message", "Done.")
+
+        finish_id = parse_finish_request(text)
+        if finish_id is not None:
+            return self.finish_video(finish_id).get("message", "Done.")
 
         produce = parse_produce_request(text)
         if produce:
@@ -266,6 +271,15 @@ class BotOperations:
             "images_rendered": pack.images_rendered,
             "output_dir": str(pack.output_dir),
         }
+
+    def finish_video(self, draft_id: int) -> dict[str, Any]:
+        from shorts_bot.production.finish_cli import finish_draft
+
+        try:
+            msg = finish_draft(draft_id)
+        except (ValueError, KeyError, FileNotFoundError, OSError) as exc:
+            return {"ok": False, "message": str(exc)}
+        return {"ok": True, "message": msg}
 
     def generate_voiceover(self, draft_id: int) -> dict[str, Any]:
         from shorts_bot.production.voiceover import generate_voiceover as gen_vo

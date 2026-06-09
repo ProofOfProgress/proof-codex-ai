@@ -34,6 +34,16 @@ def is_help_command(message: str) -> bool:
     return message.strip().lower() in {"help", "/help", "commands", "?"}
 
 
+def parse_finish_request(message: str) -> int | None:
+    lower = message.strip().lower()
+    for prefix in ("finish video ", "finish short ", "render video ", "export video "):
+        if lower.startswith(prefix):
+            tail = message.strip()[len(prefix) :].strip()
+            if tail.split()[0].isdigit():
+                return int(tail.split()[0])
+    return None
+
+
 def parse_voice_request(message: str) -> int | None:
     lower = message.strip().lower()
     for prefix in ("generate voice ", "make voice ", "voiceover ", "tts ", "make audio "):
