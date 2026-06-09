@@ -4,6 +4,7 @@ import json
 from typing import Any, Callable
 
 from shorts_bot.approval.queue import ApprovalQueue
+from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
 
@@ -92,6 +93,28 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_course_guidance",
+            "description": "Route to Jenny Hoyos course files and return relevant guidance for a question or problem.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The creator's question or problem."},
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_free_tools",
+            "description": "List free and free-tier services for editing, music, design, and storage.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
 ]
 
 
@@ -101,10 +124,12 @@ class ToolRunner:
         store: MemoryStore,
         generator: DraftGenerator,
         queue: ApprovalQueue,
+        router: CourseRouter | None = None,
     ) -> None:
         self.store = store
         self.generator = generator
         self.queue = queue
+        self.router = router
         self._handlers: dict[str, Callable[[dict[str, Any]], str]] = {
             "create_draft": self._create_draft,
             "list_pending_drafts": self._list_pending_drafts,
@@ -113,6 +138,8 @@ class ToolRunner:
             "reject_draft": self._reject_draft,
             "get_learned_feedback": self._get_learned_feedback,
             "get_stats": self._get_stats,
+            "get_course_guidance": self._get_course_guidance,
+            "list_free_tools": self._list_free_tools,
         }
 
     def run(self, name: str, arguments: dict[str, Any]) -> str:
@@ -192,3 +219,22 @@ class ToolRunner:
 
     def _get_stats(self, _args: dict[str, Any]) -> str:
         return json.dumps(self.store.stats())
+
+    def _get_course_guidance(self, args: dict[str, Any]) -> str:
+        if self.router is None:
+            return json.dumps({"error": "Course router not loaded"})
+        query = args.get("query", "")
+        route = self.router.route(query)
+        return json.dumps(
+            {
+                "main_lever": route.main_lever,
+                "files": route.files,
+                "combination": route.combination_note,
+                "guidance": self.router.build_guidance(query),
+            }
+        )
+
+    def _list_free_tools(self, _args: dict[str, Any]) -> str:
+        if self.router is None:
+            return json.dumps({"error": "Course not loaded"})
+        return json.dumps({"free_services": self.router.kb.free_services})

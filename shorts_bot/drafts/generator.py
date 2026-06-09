@@ -6,18 +6,20 @@ from dataclasses import dataclass
 from openai import OpenAI
 
 from shorts_bot.config import settings
+from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
 from shorts_bot.memory.store import Draft, MemoryStore
 
 
-SYSTEM_PROMPT = """You write faceless YouTube Shorts scripts for a channel that must genuinely help people.
+SYSTEM_PROMPT = """You write faceless YouTube Shorts scripts using ONLY the Jenny Hoyos course rules provided.
 Rules:
-- No slop, no filler, no generic motivation spam.
-- Concrete, specific, useful.
-- 9:16 Short format, ~30-45 seconds when spoken.
-- Strong hook in the first line.
-- Faceless (voiceover + visuals, no creator personality required).
-- Return valid JSON only."""
+- Idea and hook are linked. Start with shock or immediate curiosity. Start the video ASAP.
+- Every line moves toward payoff. End promptly after resolution.
+- Video must work on mute — write visual beats, not just voiceover mush.
+- CTA before payoff if included (subscribe ask right before highest attention).
+- No slop, no filler, no generic motivation spam. Must genuinely help people.
+- 9:16 Short, ~30-45 seconds spoken. Faceless.
+- Return valid JSON only with keys: hook, script, help_angle, visual_beats (list of 3-5 shot descriptions)."""
 
 
 @dataclass
@@ -30,9 +32,15 @@ class GeneratedDraft:
 
 
 class DraftGenerator:
-    def __init__(self, store: MemoryStore, client: OpenAI | None = None) -> None:
+    def __init__(
+        self,
+        store: MemoryStore,
+        client: OpenAI | None = None,
+        router: CourseRouter | None = None,
+    ) -> None:
         self.store = store
         self.client = client
+        self.router = router
 
     def _feedback_context(self) -> str:
         rejections = self.store.rejection_summary()[:8]
@@ -48,15 +56,23 @@ class DraftGenerator:
         if self.client is None:
             return self._generate_offline(topic, angle)
 
+        course_ctx = ""
+        if self.router:
+            course_ctx = self.router.build_guidance(f"draft script hook retention payoff {topic}")
+
         user_prompt = f"""Topic: {topic}
 Optional angle: {angle or "none"}
 
 {self._feedback_context()}
 
+JENNY COURSE RULES FOR THIS DRAFT:
+{course_ctx}
+
 Return JSON with keys:
 - hook: first spoken line
 - script: full voiceover script
 - help_angle: one sentence on who this helps and how
+- visual_beats: list of 3-5 visual shot descriptions (mute-friendly)
 """
         response = self.client.chat.completions.create(
             model=settings.openai_model,
@@ -90,6 +106,9 @@ Return JSON with keys:
     def create_and_store(self, topic: str, angle: str | None = None) -> Draft:
         generated = self.generate(topic, angle)
         notes = generated.quality.summary()
+        if self.router:
+            route = self.router.route(topic)
+            notes = f"{notes} | Lever: {route.main_lever}"
         return self.store.save_draft(
             topic=generated.topic,
             script=generated.script,

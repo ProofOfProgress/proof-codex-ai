@@ -1,8 +1,8 @@
 # Shorts Bot
 
-Conversational operator for a faceless, human-approved YouTube Shorts channel.
+Jenny Hoyos–trained strategist for a faceless, human-approved YouTube Shorts channel.
 
-The bot helps you ideate, draft scripts, and approve or reject content before anything gets posted. It learns from your feedback over time. Video production (CapCut, AI video sites, YouTube upload) comes in later phases.
+The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and approve or reject content before anything gets posted. **Free-first production stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
 
 ## Quick start
 
@@ -59,13 +59,24 @@ shorts_bot/
 data/           # Local database (gitignored)
 ```
 
+## Course knowledge base
+
+```
+course/
+  files/01-09_*.md     # Structured retrieval (ChatGPT-organized)
+  verbatim/            # Word-for-word transcript rules
+  router_prompt.md     # Jenny strategist instructions
+  free_services.md     # Free / free-tier tool stack
+```
+
 ## Roadmap
 
 - [x] Talk to a bot
+- [x] Jenny Hoyos course integrated (files 01–09)
 - [x] Draft Short scripts with quality checks
 - [x] Approve / reject before posting
 - [x] Learn from feedback memory
-- [ ] Ingest course material
+- [x] Free services reference (CapCut, YouTube Audio Library, etc.)
 - [ ] YouTube analytics reward loop
-- [ ] CapCut + video site operators (Playwright)
+- [ ] CapCut operator (Playwright)
 - [ ] Upload pipeline

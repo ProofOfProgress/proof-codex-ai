@@ -7,37 +7,67 @@ from openai import OpenAI
 
 from shorts_bot.bot.tools import TOOL_SCHEMAS, ToolRunner
 from shorts_bot.config import settings
+from shorts_bot.course.loader import CourseKnowledgeBase
+from shorts_bot.course.router import CourseRouter
 from shorts_bot.memory.store import MemoryStore
 
-AGENT_SYSTEM = """You are the Shorts Bot for a faceless YouTube Shorts channel.
+RESPONSE_FORMAT = """
+Every substantive answer must follow this structure:
+1. Main decision — which lever (idea, hook, visuals, retention, payoff, etc.)
+2. Action plan — practical steps from the course checklists
+3. Jenny-approved constraint check — confirm non-negotiables are respected
+4. Uniqueness space — what can be customized without breaking hook → momentum → payoff
 
-Goals:
-- Help the human operator ideate, draft, and review Shorts before anything gets posted.
-- Content must genuinely help people. No slop, no filler, no empty engagement bait.
-- Niche is still TBD. Propose useful ideas and ask clarifying questions when needed.
-- Learn from approval/rejection feedback over time. There is no pre-built codex yet.
-- Course material will be added later. For now, use conversation + feedback memory.
+Channel constraints:
+- Faceless Shorts only (9:16). No slop. Must genuinely help people.
+- Niche TBD — infer the most useful version and proceed.
+- Approve before posting. Production uses free-first stack: CapCut, YouTube Audio Library, Canva free, Google Drive.
+- Do not ask clarifying questions unless truly impossible to proceed.
+"""
 
-Workflow:
-1. Discuss ideas with the human.
-2. Create drafts when asked.
-3. Show pending drafts and help approve/reject with clear reasons.
-4. Approved drafts are not posted automatically yet — production (CapCut, video sites) comes later.
 
-Be direct, practical, and concise. When creating drafts, use the create_draft tool.
-When the human wants to approve or reject, use the appropriate tools."""
+def build_system_prompt(kb: CourseKnowledgeBase) -> str:
+    router = kb.router_prompt.strip()
+    free = kb.free_services.strip()
+    return f"""{router}
+
+{RESPONSE_FORMAT}
+
+FREE-FIRST TOOL STACK (from course):
+{free[:2000]}
+
+You are also the Shorts Bot operator. Use tools to create drafts, manage approvals, and learn from feedback.
+When the human wants a draft, use create_draft. When they approve or reject, use the matching tools.
+Sound like a smart strategist, not a rigid router. Do not mention file numbers unless asked."""
 
 
 class ShortsBotAgent:
-    def __init__(self, store: MemoryStore, tool_runner: ToolRunner, client: OpenAI | None) -> None:
+    def __init__(
+        self,
+        store: MemoryStore,
+        tool_runner: ToolRunner,
+        client: OpenAI | None,
+        router: CourseRouter,
+        kb: CourseKnowledgeBase,
+    ) -> None:
         self.store = store
         self.tool_runner = tool_runner
         self.client = client
-        self.messages: list[dict[str, Any]] = [{"role": "system", "content": AGENT_SYSTEM}]
+        self.router = router
+        self.kb = kb
+        self.messages: list[dict[str, Any]] = [
+            {"role": "system", "content": build_system_prompt(kb)}
+        ]
 
     def chat(self, user_message: str) -> str:
         self.store.save_chat("user", user_message)
-        self.messages.append({"role": "user", "content": user_message})
+        guidance = self.router.build_guidance(user_message)
+        augmented = (
+            f"{user_message}\n\n"
+            f"[JENNY COURSE CONTEXT — use ONLY this + tools, no outside advice]\n"
+            f"{guidance}"
+        )
+        self.messages.append({"role": "user", "content": augmented})
 
         if self.client is None:
             reply = self._offline_reply(user_message)
@@ -96,20 +126,30 @@ class ShortsBotAgent:
                 "Offline mode (no OPENAI_API_KEY).\n"
                 "Commands:\n"
                 "- draft <topic>\n"
-                "- pending\n"
-                "- show <id>\n"
-                "- approve <id> [note]\n"
-                "- reject <id> <reason>\n"
-                "- stats\n"
-                "- feedback\n"
-                "Set OPENAI_API_KEY in .env for full conversational mode."
+                "- pending / show <id> / approve / reject\n"
+                "- stats / feedback\n"
+                "- course <question>  (Jenny course routing)\n"
+                "- free tools\n"
+                "Set OPENAI_API_KEY for full Jenny strategist mode."
+            )
+        if text == "free tools":
+            return self.kb.free_services or "No free services doc found."
+        if text.startswith("course "):
+            query = user_message[7:].strip()
+            route = self.router.route(query)
+            return (
+                f"Main lever: {route.main_lever}\n"
+                f"Files: {', '.join(route.files)}\n\n"
+                f"{self.router.build_guidance(query)[:3000]}"
             )
         if text.startswith("draft "):
             topic = user_message[6:].strip()
             result = self.tool_runner.run("create_draft", {"topic": topic})
             data = json.loads(result)
+            route = self.router.route(topic)
             return (
                 f"Created draft #{data['draft_id']} about '{data['topic']}'.\n"
+                f"Lever: {route.main_lever}\n"
                 f"Hook: {data['hook']}\n"
                 f"Help angle: {data['help_angle']}\n"
                 f"Quality: {data['quality_notes']}\n"
@@ -159,7 +199,8 @@ class ShortsBotAgent:
             lines = [f"[{f['decision']}] {f['topic']}: {f['reason']}" for f in data["feedback"]]
             return "Recent feedback:\n" + "\n".join(lines)
 
+        route = self.router.route(user_message)
         return (
-            "Offline mode. I understand basic commands (type 'help').\n"
-            "Set OPENAI_API_KEY for natural conversation and smarter drafts."
+            f"Offline mode. Routed lever: {route.main_lever} (files {', '.join(route.files)}).\n"
+            "Type 'course <your question>' for course guidance, or set OPENAI_API_KEY for full chat."
         )

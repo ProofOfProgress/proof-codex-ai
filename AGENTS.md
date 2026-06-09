@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — conversational CLI for a faceless, human-approved YouTube Shorts channel. No local video generation. API LLMs + future Playwright operators for CapCut / video sites.
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free. API LLMs + future Playwright for CapCut.
 
 ### Services
 
@@ -31,6 +31,10 @@ python -m pytest tests/ -q
 
 SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejections, chat history.
 
+### Course
+
+Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.
+
 ### Next phases
 
-Course ingest, YouTube analytics, Playwright site operators — not implemented yet.
+YouTube analytics reward loop, CapCut Playwright operator — not implemented yet.

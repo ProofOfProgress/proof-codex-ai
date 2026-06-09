@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
+    course_dir: Path = Path("course")
 
     @property
     def has_openai(self) -> bool:
