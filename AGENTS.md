@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** Gemini + **Resemble** voice clone + **TurboScribe Whale** + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md` (methods, variety, sync, QC).
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** Gemini + **Resemble** voice clone + **TurboScribe Whale** + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md` (10 high-RPM health/mental health niches). (methods, variety, sync, QC).
 
 **Channel mission:** loyal subscribers who come back because content **actually helps** — not viral one-offs. **TikTok account planned later** — no TikTok automation until user says go (`data/operating_rules_seed.md`).
 
