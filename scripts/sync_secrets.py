@@ -13,6 +13,7 @@ EXAMPLE_PATH = ROOT / ".env.example"
 
 # Keys synced from Cursor secrets — user never hand-edits these if secrets are set.
 SYNC_VARS = (
+    "CURSOR_API_KEY",
     "OPENAI_API_KEY",
     "OPENAI_MODEL",
     "GEMINI_API_KEY",

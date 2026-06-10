@@ -12,6 +12,8 @@
 
 Install: `bash scripts/install.sh`
 
+**Cursor Cloud Agent secrets:** add keys in Cursor → your cloud agent → Secrets (same names as below). Run `bash scripts/install.sh` on the VM to sync into `.env`. See secret checklist in `docs/CURSOR_SECRETS.md`.
+
 Web UI (recommended):
 
 ```bash
