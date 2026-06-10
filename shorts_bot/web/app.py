@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -18,12 +20,24 @@ from shorts_bot.web.deps import (
     get_proposer,
     get_reward_engine,
     get_store,
+    run_full_automation,
 )
 from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Soft Continuity Operator", version="0.7.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from shorts_bot.automation.background import start_background_automation
+
+    stop = await start_background_automation()
+    yield
+    stop.set()
+    await asyncio.sleep(0.1)
+
+
+app = FastAPI(title="Soft Continuity Operator", version="0.7.0", lifespan=lifespan)
 
 
 @app.exception_handler(Exception)
@@ -351,14 +365,20 @@ async def youtube_apply_brand() -> dict:
 
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
-    result = get_analytics_sync().run()
+    automation = await asyncio.to_thread(run_full_automation)
+    result = automation.sync
     pending = len(get_memory().list_improvements(status="pending"))
+    msg = result.message
+    if automation.improvements_auto_approved:
+        msg += f" (auto-approved {automation.improvements_auto_approved})"
     return {
         "ok": result.ok,
-        "message": result.message,
+        "message": msg,
         "videos_scored": result.videos_scored,
         "improvements_created": result.improvements_created,
+        "improvements_auto_approved": automation.improvements_auto_approved,
+        "videos_published": automation.videos_published,
         "rewards": result.rewards or [],
         "pending_improvements": pending,
-        "sign_off_hint": "Tap Yes on the right — one tap each." if pending else None,
+        "sign_off_hint": "Tap Yes on risky proposals only." if pending else None,
     }

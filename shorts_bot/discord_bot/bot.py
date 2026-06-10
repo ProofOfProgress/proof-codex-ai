@@ -66,6 +66,10 @@ class ShortsDiscordBot(commands.Bot):
         cog = ShortsCog(self)
         await self.add_cog(cog)
         cog.morning_briefing.start()
+        cog.auto_analytics_sync.start()
+        cog.publish_queue_check.start()
+        if settings.auto_daily_enabled:
+            cog.auto_daily_short.start()
         try:
             synced = await self.tree.sync()
             log.info("Synced %s slash command(s)", len(synced))
@@ -136,6 +140,48 @@ class ShortsCog(commands.Cog):
 
     def cog_unload(self) -> None:
         self.morning_briefing.cancel()
+        self.auto_analytics_sync.cancel()
+        self.publish_queue_check.cancel()
+        self.auto_daily_short.cancel()
+
+    @tasks.loop(hours=1)
+    async def publish_queue_check(self) -> None:
+        if settings.auto_publish_hours <= 0:
+            return
+        await self.bot.wait_until_ready()
+        from shorts_bot.automation.coordinator import process_publish_queue
+        from shorts_bot.web.deps import get_memory
+
+        n = await asyncio.to_thread(process_publish_queue, get_memory())
+        if n:
+            await dm_all(self.bot, f"Auto-published {n} Short(s) to public.")
+
+    @publish_queue_check.before_loop
+    async def before_publish(self) -> None:
+        await self.bot.wait_until_ready()
+
+    @tasks.loop(hours=max(1, settings.auto_analytics_sync_interval_hours))
+    async def auto_analytics_sync(self) -> None:
+        if not settings.auto_analytics_sync:
+            return
+        await self.bot.wait_until_ready()
+        result = await asyncio.to_thread(self.ops.youtube_sync)
+        if result.get("ok") and result.get("improvements_created", 0) > 0:
+            await notify_pending_summary(self.bot, self.ops)
+
+    @auto_analytics_sync.before_loop
+    async def before_auto_sync(self) -> None:
+        await self.bot.wait_until_ready()
+
+    @tasks.loop(time=datetime.time(hour=settings.auto_daily_hour, minute=settings.auto_daily_minute))
+    async def auto_daily_short(self) -> None:
+        await self.bot.wait_until_ready()
+        msg = await asyncio.to_thread(self.ops.run_daily_short)
+        await dm_all(self.bot, f"**Auto daily Short**\n{msg[:1800]}")
+
+    @auto_daily_short.before_loop
+    async def before_auto_daily(self) -> None:
+        await self.bot.wait_until_ready()
 
     @tasks.loop(time=datetime.time(hour=settings.discord_briefing_hour, minute=settings.discord_briefing_minute))
     async def morning_briefing(self) -> None:

@@ -102,7 +102,21 @@ class ShortsBotAgent:
             if msg["role"] in ("user", "assistant") and msg.get("content"):
                 self.messages.append({"role": msg["role"], "content": msg["content"]})
 
+    def _refresh_system_prompt(self) -> None:
+        memory_block = self.agent_memory.context_block() if self.agent_memory else ""
+        learning_block = self.training_memory.applied_training_context() if self.training_memory else ""
+        self.messages[0] = {
+            "role": "system",
+            "content": build_system_prompt(
+                self.kb,
+                self.brand,
+                memory_block=memory_block,
+                learning_block=learning_block,
+            ),
+        }
+
     def chat(self, user_message: str) -> str:
+        self._refresh_system_prompt()
         self.store.save_chat("user", user_message)
         guidance = self.router.build_guidance(user_message)
         augmented = (

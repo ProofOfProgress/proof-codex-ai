@@ -111,6 +111,16 @@ class MemoryExtensions:
                     reviewed_at TEXT,
                     review_note TEXT
                 );
+
+                CREATE TABLE IF NOT EXISTS scheduled_publishes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    draft_id INTEGER,
+                    video_id TEXT NOT NULL UNIQUE,
+                    visibility TEXT NOT NULL DEFAULT 'unlisted',
+                    uploaded_at TEXT NOT NULL,
+                    publish_at TEXT NOT NULL,
+                    published_at TEXT
+                );
                 """
             )
             try:
@@ -378,7 +388,69 @@ class MemoryExtensions:
         task = self.get_dev_task(task_id)
         if approved:
             self.set_training_config(f"dev:{task_id}", task.description)
+            from shorts_bot.automation.dev_queue import export_dev_queue
+
+            export_dev_queue(self)
         return task
+
+    def schedule_publish(
+        self,
+        *,
+        video_id: str,
+        draft_id: int | None = None,
+        visibility: str = "unlisted",
+        publish_after_hours: int,
+    ) -> None:
+        if publish_after_hours <= 0:
+            return
+        from datetime import datetime, timedelta, timezone
+
+        now = datetime.now(timezone.utc)
+        publish_at = now + timedelta(hours=publish_after_hours)
+        uploaded_at = _utc_now()
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO scheduled_publishes
+                    (draft_id, video_id, visibility, uploaded_at, publish_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(video_id) DO UPDATE SET
+                    draft_id = excluded.draft_id,
+                    visibility = excluded.visibility,
+                    uploaded_at = excluded.uploaded_at,
+                    publish_at = excluded.publish_at,
+                    published_at = NULL
+                """,
+                (
+                    draft_id,
+                    video_id,
+                    visibility,
+                    uploaded_at,
+                    publish_at.isoformat(),
+                ),
+            )
+
+    def list_due_scheduled_publishes(self, *, limit: int = 10) -> list[dict[str, Any]]:
+        now = _utc_now()
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT video_id, draft_id, visibility, publish_at
+                FROM scheduled_publishes
+                WHERE published_at IS NULL AND publish_at <= ?
+                ORDER BY publish_at ASC
+                LIMIT ?
+                """,
+                (now, limit),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def mark_scheduled_published(self, video_id: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE scheduled_publishes SET published_at = ? WHERE video_id = ?",
+                (_utc_now(), video_id),
+            )
 
     def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
         entries: list[dict[str, Any]] = []

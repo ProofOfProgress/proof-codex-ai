@@ -43,7 +43,9 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Deep research:** `research <topic>` / `deep research <topic>` — web browse, Google Trends, YouTube competitors, browser fallback. vidIQ off by default. See `docs/DEEP_RESEARCH.md`, `docs/BROWSER.md`.
 
-**Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3); approved improvements → draft + agent prompts. See `docs/SELF_LEARNING.md`.
+**Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3); safe improvements auto-approved; agent training context refreshes each chat. See `docs/SELF_LEARNING.md`.
+
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, unlisted→public after 24h, quality gate before upload. Login/payments still manual. Config: `AUTO_ANALYTICS_SYNC`, `AUTO_APPROVE_IMPROVEMENTS`, `AUTO_DAILY_ENABLED`, `AUTO_PUBLISH_HOURS` in `.env`.
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 
@@ -81,7 +83,7 @@ Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `Bot
 
 ### Dev queue
 
-Web **Dev queue** panel or `!dev title | description` — user Yes/No before coding tasks run. Approved items append to `data/LEARNED.md`.
+Web **Dev queue** panel or `!dev title | description` — safe tasks auto-approve to `data/DEV_QUEUE.md`; login/payment tasks need `devyes`. Approved items also append to `data/LEARNED.md`.
 
 ### Next phases
 

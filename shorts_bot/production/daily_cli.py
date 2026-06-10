@@ -47,8 +47,12 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
     ]
 
     if settings.auto_approve_drafts:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         store.review_draft(draft.id, "approved", "Auto-approved (AI pipeline)")
+        learned = learn_from_draft(memory, draft.topic, "Auto-approved (AI pipeline)", "approved")
         messages.append(f"Auto-approved draft #{draft.id}")
+        messages.append(learned)
 
     result = finish_draft_pipeline(store, draft.id, upload_youtube=upload)
     messages.extend(result.messages)

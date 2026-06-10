@@ -5,21 +5,30 @@ Soft Continuity learns from **your decisions** and **YouTube performance** — t
 ## Loop
 
 ```
-YouTube sync / manual score → RewardEngine → improvement proposal (max 3/sync)
-Draft Yes/No → immediate avoid/repeat rules (no second approval)
-Improvement Yes/No → applied training rules
-All rules → DraftGenerator + ShortsBotAgent system prompt
+YouTube sync (auto every 12h) → RewardEngine → improvement proposal (max 3/sync)
+Safe hook/retention proposals → auto-Yes (no tap)
+Draft Yes/No / auto-approve → immediate avoid/repeat rules
+Applied rules → DraftGenerator + ShortsBotAgent (refreshed each message)
 ```
 
-## What you approve
+## What runs without you
 
-| Input | What happens immediately | What needs Yes/No |
-|-------|--------------------------|-------------------|
-| **Reject draft** | `avoid:*` rule in training_config | Nothing extra |
-| **Approve draft** | `repeat:*` pattern saved | Nothing extra |
-| **YouTube sync** | Scores saved (upsert per video) | Up to 3 improvement proposals |
-| **Improvement Yes** | `applied:*` rule | — |
-| **Improvement No** | `rejected:*` hint (won't re-propose similar) | — |
+| Step | Automation |
+|------|------------|
+| **Analytics sync** | Every `AUTO_ANALYTICS_SYNC_INTERVAL_HOURS` (Discord + web background) |
+| **Hook/retention improvements** | Auto-approved when category is safe (no login/payment/niche pivot) |
+| **Daily Short** | `AUTO_DAILY_ENABLED` at `AUTO_DAILY_HOUR` UTC |
+| **Unlisted upload** | Flips to public after `AUTO_PUBLISH_HOURS` |
+| **Auto-approved draft** | `learn_from_draft` → `repeat:*` immediately |
+| **Dev tasks (no login)** | Auto-approved → `data/DEV_QUEUE.md` |
+
+## What you still approve (if any)
+
+| Input | What happens | Manual when |
+|-------|--------------|-------------|
+| **Reject draft** | `avoid:*` rule | You reject manually |
+| **Risky improvement** | Stays pending | strategy / login / payment wording |
+| **Login/payment dev task** | Stays pending | `devyes` or web UI |
 
 ## What drafts see
 

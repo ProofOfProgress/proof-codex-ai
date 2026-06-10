@@ -105,6 +105,26 @@ def get_proposer() -> ImprovementProposer:
 
 
 def get_analytics_sync():
-    from shorts_bot.youtube.sync import AnalyticsSync
+    from shorts_bot.automation.coordinator import run_analytics_sync_with_automation
 
-    return AnalyticsSync(get_memory(), get_proposer())
+    class _AutomationSync:
+        def run(self, *, days: int = 28, max_videos: int = 15):
+            return run_analytics_sync_with_automation(
+                get_memory(),
+                get_proposer(),
+                days=days,
+                max_videos=max_videos,
+            ).sync
+
+    return _AutomationSync()
+
+
+def run_full_automation(*, days: int = 28, max_videos: int = 15):
+    from shorts_bot.automation.coordinator import run_analytics_sync_with_automation
+
+    return run_analytics_sync_with_automation(
+        get_memory(),
+        get_proposer(),
+        days=days,
+        max_videos=max_videos,
+    )

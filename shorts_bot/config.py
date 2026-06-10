@@ -90,6 +90,17 @@ class Settings(BaseSettings):
     auto_upload_youtube: bool = True
     youtube_upload_visibility: str = "unlisted"
 
+    # Automation — reduce manual sync / Yes-No / publish steps (login & payments still manual)
+    auto_analytics_sync: bool = True
+    auto_analytics_sync_interval_hours: int = 12
+    auto_approve_improvements: bool = True
+    auto_approve_dev_tasks: bool = True
+    auto_daily_enabled: bool = True
+    auto_daily_hour: int = 11
+    auto_daily_minute: int = 0
+    auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
+    quality_gate_blocks_upload: bool = True
+
     @property
     def has_openai(self) -> bool:
         key = (self.openai_api_key or "").strip()

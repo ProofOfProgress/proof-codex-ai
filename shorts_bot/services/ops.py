@@ -327,12 +327,27 @@ class BotOperations:
         return f"📝 Draft #{data.get('draft_id')} created: {data.get('topic')}\nHook: {data.get('hook')}"
 
     def youtube_sync(self) -> dict[str, Any]:
-        r = get_analytics_sync().run()
+        from shorts_bot.web.deps import run_full_automation
+
+        result = run_full_automation()
+        r = result.sync
+        msg = r.message
+        extras: list[str] = []
+        if result.improvements_auto_approved:
+            extras.append(f"auto-approved {result.improvements_auto_approved} improvement(s)")
+        if result.dev_tasks_auto_approved:
+            extras.append(f"auto-approved {result.dev_tasks_auto_approved} dev task(s)")
+        if result.videos_published:
+            extras.append(f"published {result.videos_published} video(s)")
+        if extras:
+            msg = f"{msg} ({'; '.join(extras)})"
         return {
             "ok": r.ok,
-            "message": r.message,
+            "message": msg,
             "videos_scored": r.videos_scored,
             "improvements_created": r.improvements_created,
+            "improvements_auto_approved": result.improvements_auto_approved,
+            "videos_published": result.videos_published,
         }
 
     def auto_make_video(
@@ -543,7 +558,14 @@ class BotOperations:
         ]
 
     def create_dev_task(self, title: str, description: str) -> str:
-        task = get_memory().create_dev_task(title=title, description=description)
+        from shorts_bot.automation.auto_approve import dev_task_is_auto_approvable
+        from shorts_bot.automation.coordinator import auto_approve_pending_dev_tasks
+
+        memory = get_memory()
+        task = memory.create_dev_task(title=title, description=description)
+        if dev_task_is_auto_approvable(task):
+            auto_approve_pending_dev_tasks(memory)
+            return f"🔧 Dev task #{task.id} auto-approved: {task.title} (see data/DEV_QUEUE.md)"
         return f"🔧 Dev task #{task.id} queued: {task.title}\nApprove: yes dev {task.id} or web UI"
 
     def approve_dev_task(self, task_id: int, note: str = "Approved.") -> str:
