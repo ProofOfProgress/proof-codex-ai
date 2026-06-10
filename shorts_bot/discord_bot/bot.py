@@ -78,6 +78,13 @@ class ShortsDiscordBot(commands.Bot):
 
     async def on_ready(self) -> None:
         log.info("Discord bot ready as %s (v%s)", self.user, __version__)
+        if settings.discord_set_avatar_on_start:
+            try:
+                from shorts_bot.discord_bot.avatar import set_bot_avatar
+
+                await set_bot_avatar(self)
+            except Exception as exc:  # noqa: BLE001
+                log.warning("Discord avatar update skipped: %s", exc)
         if settings.discord_send_briefing_on_start and not self._briefing_sent:
             self._briefing_sent = True
             await self._send_briefing()

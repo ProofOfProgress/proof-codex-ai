@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     discord_send_briefing_on_start: bool = True
     discord_briefing_hour: int = 8
     discord_briefing_minute: int = 30
+    discord_avatar_path: Path = Path("channel/brand/assets/discord_bot_avatar.png")
+    discord_set_avatar_on_start: bool = False  # run avatar_cli once; avoid rate limits on every restart
 
     # Paid production stack — Resemble + TurboScribe for ALL video generation (see paid_stack.py)
     require_paid_stack: bool = True
