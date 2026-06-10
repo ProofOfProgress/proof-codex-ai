@@ -363,6 +363,23 @@ async def youtube_apply_brand() -> dict:
     return result
 
 
+@app.post("/api/youtube/comments")
+async def youtube_comments() -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    result = await asyncio.to_thread(BotOperations().run_comment_replies)
+    return result
+
+
+@app.get("/api/youtube/comments/pending")
+async def youtube_comments_pending() -> dict:
+    memory = get_memory()
+    return {
+        "pending": memory.count_comments_needing_human(),
+        "items": memory.list_comments_needing_human(limit=20),
+    }
+
+
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
     automation = await asyncio.to_thread(run_full_automation)

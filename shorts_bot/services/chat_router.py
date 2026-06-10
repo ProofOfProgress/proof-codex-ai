@@ -25,6 +25,27 @@ def is_sync_command(message: str) -> bool:
     return t in {"sync", "sync youtube", "sync analytics", "youtube sync"} or t.startswith("sync ")
 
 
+def is_comments_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "comments",
+        "reply comments",
+        "comment sync",
+        "sync comments",
+        "auto comments",
+    }
+
+
+def is_comments_pending_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "comments pending",
+        "serious comments",
+        "comment queue",
+        "pending comments",
+    }
+
+
 def is_pending_command(message: str) -> bool:
     t = message.strip().lower()
     return t in {"pending", "approvals", "what needs approval", "improvements"}

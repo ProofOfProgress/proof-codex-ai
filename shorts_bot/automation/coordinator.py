@@ -19,6 +19,9 @@ class AutomationResult:
     improvements_auto_approved: int = 0
     dev_tasks_auto_approved: int = 0
     videos_published: int = 0
+    comments_auto_replied: int = 0
+    comments_queued_human: int = 0
+    comment_message: str = ""
 
     @property
     def ok(self) -> bool:
@@ -64,6 +67,14 @@ def process_publish_queue(memory: MemoryExtensions) -> int:
     return len(published)
 
 
+def process_comment_replies(memory: MemoryExtensions):
+    from shorts_bot.comments.runner import run_comment_automation
+
+    if not settings.auto_comment_sync:
+        return None
+    return run_comment_automation(memory)
+
+
 def run_analytics_sync_with_automation(
     memory: MemoryExtensions,
     proposer: ImprovementProposer,
@@ -75,9 +86,13 @@ def run_analytics_sync_with_automation(
     imp_n = auto_approve_pending_improvements(memory) if sync.ok else 0
     dev_n = auto_approve_pending_dev_tasks(memory) if sync.ok else 0
     pub_n = process_publish_queue(memory)
+    comment_result = process_comment_replies(memory)
     return AutomationResult(
         sync=sync,
         improvements_auto_approved=imp_n,
         dev_tasks_auto_approved=dev_n,
         videos_published=pub_n,
+        comments_auto_replied=comment_result.auto_replied if comment_result else 0,
+        comments_queued_human=comment_result.queued_human if comment_result else 0,
+        comment_message=comment_result.message if comment_result else "",
     )

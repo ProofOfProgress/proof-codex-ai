@@ -404,8 +404,22 @@ class ShortsCog(commands.Cog):
         await self._remember(ctx)
         result = await asyncio.to_thread(self.ops.youtube_sync)
         await ctx.reply(result.get("message", "Done"))
-        if result.get("improvements_created", 0) > 0:
+        if result.get("improvements_created", 0) > 0 or result.get("comments_queued_human", 0) > 0:
             await notify_pending_summary(self.bot, self.ops)
+
+    @commands.command(name="comments")
+    async def comments_cmd(self, ctx: commands.Context, action: str | None = None) -> None:
+        """Auto-reply light comments; use `!comments pending` for serious queue."""
+        await self._remember(ctx)
+        if action and action.lower() == "pending":
+            msg = await asyncio.to_thread(self.ops.format_comments_pending)
+        else:
+            result = await asyncio.to_thread(self.ops.run_comment_replies)
+            msg = result.get("message", "Done")
+            if result.get("queued_human", 0) > 0:
+                await notify_pending_summary(self.bot, self.ops)
+        for part in _chunk(msg):
+            await ctx.reply(part)
 
     @commands.command(name="applybrand", aliases=["channelbrand", "brand"])
     async def apply_brand_cmd(self, ctx: commands.Context) -> None:

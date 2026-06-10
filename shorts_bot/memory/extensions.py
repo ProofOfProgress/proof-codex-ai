@@ -121,6 +121,18 @@ class MemoryExtensions:
                     publish_at TEXT NOT NULL,
                     published_at TEXT
                 );
+
+                CREATE TABLE IF NOT EXISTS comment_actions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    youtube_comment_id TEXT NOT NULL UNIQUE,
+                    video_id TEXT NOT NULL,
+                    author TEXT NOT NULL DEFAULT '',
+                    original_text TEXT NOT NULL,
+                    decision TEXT NOT NULL,
+                    reason TEXT NOT NULL DEFAULT '',
+                    reply_text TEXT,
+                    created_at TEXT NOT NULL
+                );
                 """
             )
             try:
@@ -451,6 +463,70 @@ class MemoryExtensions:
                 "UPDATE scheduled_publishes SET published_at = ? WHERE video_id = ?",
                 (_utc_now(), video_id),
             )
+
+    def comment_already_handled(self, youtube_comment_id: str) -> bool:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM comment_actions WHERE youtube_comment_id = ? LIMIT 1",
+                (youtube_comment_id,),
+            ).fetchone()
+        return row is not None
+
+    def record_comment_action(
+        self,
+        *,
+        comment_id: str,
+        video_id: str,
+        author: str,
+        original_text: str,
+        decision: str,
+        reason: str = "",
+        reply_text: str | None = None,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO comment_actions
+                    (youtube_comment_id, video_id, author, original_text, decision, reason, reply_text, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(youtube_comment_id) DO UPDATE SET
+                    decision = excluded.decision,
+                    reason = excluded.reason,
+                    reply_text = excluded.reply_text,
+                    created_at = excluded.created_at
+                """,
+                (
+                    comment_id,
+                    video_id,
+                    author[:120],
+                    original_text[:2000],
+                    decision,
+                    reason[:500],
+                    reply_text[:2000] if reply_text else None,
+                    _utc_now(),
+                ),
+            )
+
+    def list_comments_needing_human(self, *, limit: int = 20) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT youtube_comment_id, video_id, author, original_text, reason, created_at
+                FROM comment_actions
+                WHERE decision = 'needs_human'
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def count_comments_needing_human(self) -> int:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n FROM comment_actions WHERE decision = 'needs_human'"
+            ).fetchone()
+        return int(row["n"]) if row else 0
 
     def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
         entries: list[dict[str, Any]] = []

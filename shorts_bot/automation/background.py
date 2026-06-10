@@ -89,6 +89,27 @@ async def daily_autopilot_loop(stop_event: asyncio.Event) -> None:
             log.warning("Auto daily failed: %s", exc)
 
 
+async def comment_reply_loop(stop_event: asyncio.Event) -> None:
+    if not settings.auto_reply_comments or not settings.auto_comment_sync:
+        return
+    interval = max(2, settings.auto_analytics_sync_interval_hours) * 3600
+    while not stop_event.is_set():
+        try:
+            from shorts_bot.comments.runner import run_comment_automation
+            from shorts_bot.web.deps import get_memory
+
+            r = await asyncio.to_thread(run_comment_automation, get_memory())
+            if r.auto_replied or r.queued_human:
+                log.info("Comments: %s", r.message)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Comment automation failed: %s", exc)
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=interval)
+            break
+        except asyncio.TimeoutError:
+            pass
+
+
 async def start_background_automation() -> asyncio.Event:
     """Start automation tasks; returns stop event for shutdown."""
     stop = asyncio.Event()
@@ -96,6 +117,7 @@ async def start_background_automation() -> asyncio.Event:
         asyncio.create_task(analytics_sync_loop(stop), name="analytics_sync"),
         asyncio.create_task(publish_queue_loop(stop), name="publish_queue"),
         asyncio.create_task(daily_autopilot_loop(stop), name="daily_autopilot"),
+        asyncio.create_task(comment_reply_loop(stop), name="comment_replies"),
     ]
     for t in tasks:
         t.add_done_callback(lambda fut: log.debug("Automation task done: %s", fut.get_name()))

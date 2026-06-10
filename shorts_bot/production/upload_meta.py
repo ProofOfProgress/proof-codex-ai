@@ -50,7 +50,7 @@ def build_upload_package(
         "Captions in Jenny 05 safe zone — above Shorts title overlay",
         "After publish: run sync in bot for analytics learning",
         "If retention is weak, tweak hook — do not re-upload duplicate same day",
-        "Reply to first comments manually (engagement signal)",
+        "Light comments auto-reply via bot; serious ones queued for you (`comments pending`)",
     ]
     return UploadPackage(
         title=title,

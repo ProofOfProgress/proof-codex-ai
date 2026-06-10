@@ -12,6 +12,8 @@ from shorts_bot.services.chat_router import (
     is_help_command,
     is_login_status_command,
     is_pending_command,
+    is_comments_command,
+    is_comments_pending_command,
     is_sync_command,
     parse_browse_request,
     parse_daily_topic,
@@ -69,6 +71,10 @@ class BotOperations:
         if is_sync_command(text):
             r = self.youtube_sync()
             return r.get("message", "Sync done.")
+        if is_comments_pending_command(text):
+            return self.format_comments_pending()
+        if is_comments_command(text):
+            return self.run_comment_replies().get("message", "Done.")
         if is_apply_brand_command(text):
             r = self.apply_channel_branding()
             return r.get("message", "Brand apply done.")
@@ -152,6 +158,8 @@ class BotOperations:
             "• pending — what needs Yes/No\n"
             "• yes <id> / no <id> — approve improvements\n"
             "• sync — YouTube Analytics (after Google login)\n"
+            "• comments — auto-reply light comments; serious ones queued for you\n"
+            "• comments pending — serious comments that need your reply\n"
             "• daily — full autopilot Short (research → draft → voice → render → upload)\n"
             "• daily <topic> — same with topic override\n"
             "• research <topic> — deep research (web + vidIQ + competitors + Jenny)\n"
@@ -272,6 +280,7 @@ class BotOperations:
             "pending_improvements": len(memory.list_improvements(status="pending")),
             "pending_drafts": len(store.list_drafts(status="pending")),
             "pending_dev": len(memory.list_dev_tasks(status="pending")),
+            "pending_comments": memory.count_comments_needing_human(),
             "applied_training": memory.applied_improvements(),
             "youtube": yt,
             "checklist": self.setup_checklist(),
@@ -339,8 +348,14 @@ class BotOperations:
             extras.append(f"auto-approved {result.dev_tasks_auto_approved} dev task(s)")
         if result.videos_published:
             extras.append(f"published {result.videos_published} video(s)")
+        if result.comments_auto_replied:
+            extras.append(f"auto-replied {result.comments_auto_replied} comment(s)")
+        if result.comments_queued_human:
+            extras.append(f"{result.comments_queued_human} serious comment(s) for you")
         if extras:
             msg = f"{msg} ({'; '.join(extras)})"
+        if result.comment_message and result.comments_auto_replied + result.comments_queued_human:
+            msg += f"\n{result.comment_message}"
         return {
             "ok": r.ok,
             "message": msg,
@@ -348,7 +363,34 @@ class BotOperations:
             "improvements_created": r.improvements_created,
             "improvements_auto_approved": result.improvements_auto_approved,
             "videos_published": result.videos_published,
+            "comments_auto_replied": result.comments_auto_replied,
+            "comments_queued_human": result.comments_queued_human,
         }
+
+    def run_comment_replies(self) -> dict[str, Any]:
+        from shorts_bot.comments.runner import run_comment_automation
+
+        r = run_comment_automation(get_memory())
+        return {
+            "ok": r.ok,
+            "message": r.message,
+            "auto_replied": r.auto_replied,
+            "queued_human": r.queued_human,
+            "human_queue": r.human_queue,
+        }
+
+    def format_comments_pending(self) -> str:
+        rows = get_memory().list_comments_needing_human(limit=12)
+        if not rows:
+            return "No serious comments waiting — auto-reply handled the light ones."
+        lines = ["**Comments that need you** (serious / personal / medical / crisis):"]
+        for row in rows:
+            lines.append(
+                f"• **{row['author']}** on `{row['video_id']}`: {row['original_text'][:160]}…"
+                f"\n  _{row['reason']}_"
+            )
+        lines.append("\nReply in YouTube Studio — bot will not auto-post on these.")
+        return "\n".join(lines)
 
     def auto_make_video(
         self,

@@ -102,6 +102,12 @@ class Settings(BaseSettings):
     auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
     quality_gate_blocks_upload: bool = True
 
+    # Comment automation — auto-reply light comments; serious → human queue
+    auto_reply_comments: bool = True
+    auto_comment_sync: bool = True
+    comment_fetch_max: int = 40
+    comment_max_auto_per_run: int = 8
+
     @property
     def has_openai(self) -> bool:
         key = (self.openai_api_key or "").strip()

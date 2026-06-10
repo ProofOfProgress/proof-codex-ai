@@ -45,7 +45,7 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3); safe improvements auto-approved; agent training context refreshes each chat. See `docs/SELF_LEARNING.md`.
 
-**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, unlisted→public after 24h, quality gate before upload. Login/payments still manual. Config: `AUTO_ANALYTICS_SYNC`, `AUTO_APPROVE_IMPROVEMENTS`, `AUTO_DAILY_ENABLED`, `AUTO_PUBLISH_HOURS` in `.env`.
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, unlisted→public after 24h, quality gate before upload, **light comment auto-reply** (serious → `comments pending`). Login/payments still manual. See `docs/COMMENTS.md`. Config: `AUTO_ANALYTICS_SYNC`, `AUTO_REPLY_COMMENTS`, `AUTO_DAILY_ENABLED`, `AUTO_PUBLISH_HOURS` in `.env`.
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 
