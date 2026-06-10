@@ -10,6 +10,16 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
+
+    # Chief Manager + specialist workers (Gemini) — primary chat path when duration/prefix set
+    manager_enabled: bool = True
+    manager_work_floor_seconds: int = 30
+    manager_max_work_seconds: int = 7200  # cap 2h work budgets
+    manager_async_threshold_seconds: int = 120  # web: background job if budget exceeds this
+    manager_work_priority: str = "research"  # research | balanced | production
+    manager_auto_delegate: bool = True  # route research/plan messages to manager (not underlings)
+    manager_default_research_seconds: int = 180  # auto burst when priority=research, no duration given
+    manager_research_force_refresh: bool = False  # underlings re-fetch web on deep research
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
     learned_path: Path = Path("data/LEARNED.md")
