@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
     youtube_channel_name: str = "Soft Continuity"
+    channel_series_name: str = "The Minute Before"
     channel_tagline: str = "you're still here. good."
     web_host: str = "0.0.0.0"
     web_port: int = 8080

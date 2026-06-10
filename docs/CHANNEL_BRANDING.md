@@ -1,31 +1,39 @@
-# Channel branding — Jenny-informed setup
+# Channel branding — The Minute Before
 
-**Jenny Hoyos course alignment:**
-- **File 03 (Blue Ocean):** niche positioning — we use *The Minute Before* (specific moments, not generic sleep tips)
-- **File 09 (Growth/CTA):** brand integration — name + description match what viewers see in the first 3 seconds
-- **File 05 (Visuals):** safe-zone framing for captions; banner/profile should stay calm, not cluttered
+**Channel:** Soft Continuity  
+**Series hook:** *The Minute Before* — one specific moment → one concrete fix.
 
-## Automated (API — no browser)
+## One command (API + assets)
 
 ```bash
-python3 -m shorts_bot.brand.assets   # or Discord: generate assets
-python3 -m shorts_bot.youtube.brand_cli   # API name + description + banner
+python3 -m shorts_bot.brand.assets      # profile.png + banner.png
+python3 -m shorts_bot.youtube.brand_cli # name + description + banner via API
 ```
 
-Discord: `apply brand` or `!applybrand`
+Discord / chat: `apply brand` or `!applybrand`
 
-Assets:
-- `channel/brand/assets/profile.png` — 800×800
-- `channel/brand/assets/banner.png` — 2560×1440
-- Copy: `channel/brand/youtube_copy.txt`
+## Assets (auto-generated)
 
-## Manual (one-time)
+| File | Size | Role |
+|------|------|------|
+| `channel/brand/assets/profile.png` | 800×800 | Clock-at-11:59 avatar (Studio upload if API path can't set it) |
+| `channel/brand/assets/banner.png` | 2560×1440 | Hero: *The Minute Before* + tagline |
+| `channel/brand/youtube_copy.txt` | — | Name, description, pinned comment |
 
-**Profile picture:** Studio → Customization → Branding → upload `profile.png`  
-(YouTube Data API v3 does not set channel avatar reliably.)
+Visual system matches `channel/brand/identity.md` — void gradient `#0B0D10`, calm blue `#8EB8FF`, oracle purple `#C4A1FF`.
 
-## Strong name + description (v2)
+## What the API sets automatically
 
-**Name:** Soft Continuity  
-**Series hook:** The Minute Before  
-**Description:** see `youtube_copy.txt` — specific moments, faceless calm Shorts, no hustle noise.
+- Display name **Soft Continuity**
+- Channel description (Minute Before positioning + pillars)
+- Banner image
+
+## Profile picture
+
+YouTube Data API v3 does not set the channel avatar. `apply brand` tries Playwright Studio upload when `browser_enabled=true` and the browser profile is logged in; otherwise upload `profile.png` once in Studio → Customization → Branding.
+
+## Jenny alignment
+
+- **File 03:** specific niche (*minute before* moments, not generic sleep tips)
+- **File 09:** name + description match what viewers see in the first 3 seconds
+- **File 05:** banner stays calm — text in YouTube safe zone, no clutter

@@ -9,6 +9,7 @@ class YouTubeCopyFields:
     channel_name: str
     description: str
     tagline: str = ""
+    series: str = ""
     pinned_comment: str = ""
 
     def summary(self) -> str:
@@ -18,7 +19,7 @@ class YouTubeCopyFields:
         return " · ".join(parts)
 
 
-_SECTION_KEYS = ("CHANNEL NAME", "DESCRIPTION", "TAGLINE", "PINNED COMMENT")
+_SECTION_KEYS = ("CHANNEL NAME", "DESCRIPTION", "TAGLINE", "SERIES", "PINNED COMMENT")
 
 
 def parse_youtube_copy(text: str) -> YouTubeCopyFields:
@@ -58,5 +59,6 @@ def parse_youtube_copy(text: str) -> YouTubeCopyFields:
         channel_name=name,
         description=description,
         tagline=sections.get("TAGLINE", "").strip(),
+        series=sections.get("SERIES", "").strip(),
         pinned_comment=sections.get("PINNED COMMENT", "").strip(),
     )

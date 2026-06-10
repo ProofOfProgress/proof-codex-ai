@@ -480,35 +480,84 @@ class BotOperations:
         use_browser_fallback: bool = False,
     ) -> dict[str, Any]:
         from shorts_bot.brand.loader import ChannelBrand
-        from shorts_bot.brand.assets import BANNER_PATH, ensure_brand_assets
+        from shorts_bot.brand.assets import BANNER_PATH, PROFILE_PATH, ensure_brand_assets
         from shorts_bot.youtube.channel_api import apply_brand_from_files
 
         brand = ChannelBrand()
         fields = brand.youtube_fields()
         name = channel_name or (fields.channel_name if use_brand_file else None)
         desc = description or (fields.description if use_brand_file else None)
-        ensure_brand_assets()
+        profile, banner = ensure_brand_assets()
 
         try:
             api = apply_brand_from_files(
                 channel_name=name or None,
                 description=desc or None,
-                banner_path=BANNER_PATH if BANNER_PATH.exists() else None,
+                banner_path=banner if banner.exists() else BANNER_PATH,
             )
             msg = api.message
-            msg += (
-                "\n\nProfile picture: upload `channel/brand/assets/profile.png` in "
-                "Studio → Customization → Branding (API cannot set avatar yet)."
-            )
+            profile_updated = False
+            if settings.browser_enabled and profile.exists():
+                try:
+                    from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+
+                    browser = YouTubeChannelBranding(
+                        profile_dir=settings.browser_profile_dir,
+                        headless=True,
+                    )
+                    pic = browser.upload_profile_only(profile)
+                    if pic.profile_updated:
+                        profile_updated = True
+                        msg += f"\n\nProfile picture uploaded via Studio ({profile.name})."
+                    elif pic.status == "not_logged_in":
+                        msg += (
+                            f"\n\nProfile: upload `{profile}` in Studio → Branding "
+                            "(browser not logged in for Studio)."
+                        )
+                    else:
+                        msg += (
+                            f"\n\nProfile: upload `{profile}` manually in Studio → Branding "
+                            f"({pic.message[:120]})."
+                        )
+                except Exception as pic_exc:
+                    msg += f"\n\nProfile: upload `{profile}` in Studio → Branding ({pic_exc})."
+            else:
+                msg += (
+                    f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
+                )
+            series = fields.series or "The Minute Before"
+            need_browser_text = not api.name_updated and not api.description_updated and (name or desc)
+            if need_browser_text and settings.browser_enabled:
+                try:
+                    from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+
+                    browser = YouTubeChannelBranding(
+                        profile_dir=settings.browser_profile_dir,
+                        headless=True,
+                    )
+                    studio = browser.apply(channel_name=name, description=desc)
+                    if studio.name_updated:
+                        msg += "\n\nDisplay name set via Studio browser."
+                    if studio.description_updated:
+                        msg += "\n\nDescription set via Studio browser."
+                except Exception as studio_exc:
+                    msg += f"\n\nStudio text fallback: {studio_exc}"
+
             return {
-                "ok": api.ok,
-                "status": "applied" if api.ok else "failed",
+                "ok": api.ok or api.banner_updated,
+                "status": "applied" if (api.ok or api.banner_updated) else "partial",
                 "message": msg,
                 "name_updated": api.name_updated,
                 "description_updated": api.description_updated,
+                "banner_updated": api.banner_updated,
+                "profile_updated": profile_updated,
                 "channel_name": name,
+                "series": series,
             }
         except Exception as exc:
+            scope_issue = "insufficient" in str(exc).lower() or "403" in str(exc)
+            if not use_browser_fallback and (scope_issue or settings.browser_enabled):
+                use_browser_fallback = True
             if not use_browser_fallback:
                 return {
                     "ok": False,

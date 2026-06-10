@@ -44,43 +44,52 @@ def update_channel_text(
     channel_name: str | None = None,
     description: str | None = None,
 ) -> ChannelApiResult:
-    """Set display name + description through brandingSettings.channel."""
-    yt = _youtube()
-    cid = get_my_channel_id()
-    current = yt.channels().list(part="brandingSettings", id=cid).execute()
-    items = current.get("items") or []
-    branding = (items[0].get("brandingSettings") if items else {}) or {}
-    channel_block = dict(branding.get("channel") or {})
-
-    name_ok = False
-    desc_ok = False
-    if channel_name:
-        channel_block["title"] = channel_name[:100]
-        name_ok = True
-    if description:
-        channel_block["description"] = description[:1000]
-        desc_ok = True
-
-    if not name_ok and not desc_ok:
+    """Set display name + description through brandingSettings.channel (needs force-ssl scope)."""
+    if not channel_name and not description:
         return ChannelApiResult(False, "Nothing to update.")
 
-    yt.channels().update(
-        part="brandingSettings",
-        body={"id": cid, "brandingSettings": {"channel": channel_block}},
-    ).execute()
+    try:
+        yt = _youtube()
+        cid = get_my_channel_id()
+        current = yt.channels().list(part="brandingSettings", id=cid).execute()
+        items = current.get("items") or []
+        branding = (items[0].get("brandingSettings") if items else {}) or {}
+        channel_block = dict(branding.get("channel") or {})
 
-    parts = []
-    if name_ok:
-        parts.append("name")
-    if desc_ok:
-        parts.append("description")
-    return ChannelApiResult(
-        ok=True,
-        message=f"Channel {' + '.join(parts)} updated via API.",
-        channel_id=cid,
-        name_updated=name_ok,
-        description_updated=desc_ok,
-    )
+        name_ok = False
+        desc_ok = False
+        if channel_name:
+            channel_block["title"] = channel_name[:100]
+            name_ok = True
+        if description:
+            channel_block["description"] = description[:1000]
+            desc_ok = True
+
+        yt.channels().update(
+            part="brandingSettings",
+            body={"id": cid, "brandingSettings": {"channel": channel_block}},
+        ).execute()
+
+        parts = []
+        if name_ok:
+            parts.append("name")
+        if desc_ok:
+            parts.append("description")
+        return ChannelApiResult(
+            ok=True,
+            message=f"Channel {' + '.join(parts)} updated via API.",
+            channel_id=cid,
+            name_updated=name_ok,
+            description_updated=desc_ok,
+        )
+    except Exception as exc:  # noqa: BLE001
+        hint = "Re-auth: YOUTUBE_OAUTH_UPLOAD=1 python3 -m shorts_bot.youtube.auth_cli"
+        if "insufficient" in str(exc).lower() or "403" in str(exc):
+            return ChannelApiResult(
+                False,
+                f"Name/description need youtube.force-ssl on token ({exc}). {hint}",
+            )
+        return ChannelApiResult(False, f"Channel text update failed: {exc}")
 
 
 def upload_channel_banner(banner_path: Path) -> ChannelApiResult:
@@ -108,26 +117,27 @@ def apply_brand_from_files(
     description: str | None = None,
     banner_path: Path | None = None,
 ) -> ChannelApiResult:
-    """API-only brand apply — text + optional banner."""
-    text = update_channel_text(channel_name=channel_name, description=description)
-    if not text.ok and not banner_path:
-        return text
-    if banner_path:
-        banner = upload_channel_banner(banner_path)
-        if not banner.ok:
-            return ChannelApiResult(
-                ok=text.ok,
-                message=f"{text.message} Banner failed: {banner.message}",
-                channel_id=text.channel_id,
-                name_updated=text.name_updated,
-                description_updated=text.description_updated,
-            )
-        return ChannelApiResult(
-            ok=True,
-            message=f"{text.message} {banner.message}",
-            channel_id=text.channel_id or banner.channel_id,
-            name_updated=text.name_updated,
-            description_updated=text.description_updated,
-            banner_updated=True,
-        )
-    return text
+    """API brand apply — banner (upload scope) + text (force-ssl scope). Partial OK."""
+    text = (
+        update_channel_text(channel_name=channel_name, description=description)
+        if channel_name or description
+        else ChannelApiResult(True, "No text fields to update.")
+    )
+    banner = (
+        upload_channel_banner(banner_path)
+        if banner_path
+        else ChannelApiResult(True, "No banner to upload.")
+    )
+
+    ok = text.ok or banner.ok
+    parts = [p for p in (text.message, banner.message) if p and "No " not in p]
+    message = " ".join(parts).strip() or "Nothing updated."
+
+    return ChannelApiResult(
+        ok=ok,
+        message=message,
+        channel_id=text.channel_id or banner.channel_id,
+        name_updated=text.name_updated,
+        description_updated=text.description_updated,
+        banner_updated=banner.banner_updated,
+    )
