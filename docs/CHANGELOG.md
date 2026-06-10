@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.3 — priorities: 100% automation north star
+
+- Added `docs/PRIORITIES.md` — top 4 only rule, honest gap vs pasted chat claims
+- North star: money from fully automated AI YouTube channel(s)
+- README + AGENTS.md corrected (render/upload/daily not built yet)
+
 ## 0.6.2 — docs: automated pipeline, manual publish gate
 
 - Documented end-to-end automation: draft → approve → CapCut → private upload
