@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     vidiq_enabled: bool = True
     vidiq_api_key: str | None = None  # vidIQ Max MCP API key → mcp.vidiq.com
     vidiq_use_browser: bool = True
+    google_trends_enabled: bool = True
+    google_trends_geo: str = "US"
+    google_trends_gprop: str = "youtube"  # youtube | web | news | images | froogle
+    google_trends_timeframe: str = "today 3-m"
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     youtube_channel_name: str = "Soft Continuity"

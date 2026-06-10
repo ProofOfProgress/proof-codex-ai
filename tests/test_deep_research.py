@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from shorts_bot.production.research import ProductionResearch, deep_research_topic, load_research
 from shorts_bot.production.upload_meta import build_upload_package
+from shorts_bot.research.google_trends import GoogleTrendsResult, TrendQuery
 from shorts_bot.research.vidiq import VidIQKeyword, VidIQResult, _parse_keyword_rows
 from shorts_bot.research.web_gather import WebGatherResult, WebSnippet
 from shorts_bot.services.chat_router import parse_research_request
@@ -60,11 +61,12 @@ def test_deep_research_with_mocked_web(tmp_path: Path, monkeypatch):
             "web_context": web.context_block(),
             "competitor_context": "- Competitor title",
             "keyword_context": "vol=high",
+            "trends_context": "GOOGLE TRENDS: sleep anxiety rising",
             "web_sources": [{"title": "Article", "url": "https://example.com", "snippet": "x", "source": "web"}],
             "competitor_titles": ["Competitor title"],
             "keyword_insights": [{"keyword": "test kw", "volume": "1k", "competition": "low", "score": ""}],
             "search_queries": ["test topic"],
-            "research_sources": ["web_search", "youtube_api"],
+            "research_sources": ["web_search", "youtube_api", "google_trends"],
         },
     )
 
@@ -72,6 +74,21 @@ def test_deep_research_with_mocked_web(tmp_path: Path, monkeypatch):
     assert r.viewer_moment
     assert "web_search" in r.research_sources or "offline" in r.research_sources
     assert load_research("test topic") is not None
+
+
+def test_google_trends_context_block():
+    r = GoogleTrendsResult(
+        topic="sleep anxiety",
+        related_top=[TrendQuery(query="guided meditation sleep", value=100)],
+        related_rising=[TrendQuery(query="sleep anxiety music", value=250)],
+        interest_trend="rising (~20% vs prior weeks)",
+        property="youtube",
+    )
+    block = r.context_block()
+    assert "GOOGLE TRENDS" in block
+    assert "guided meditation" in block
+    insights = r.to_insights()
+    assert any(i["score"] == "trends_top" for i in insights)
 
 
 def test_vidiq_context_block():

@@ -1,4 +1,4 @@
-"""Deep research — web browsing, vidIQ, YouTube competitors, Jenny course synthesis."""
+"""Deep research — web, Google Trends, vidIQ, YouTube competitors, Jenny synthesis."""
 
 from __future__ import annotations
 
@@ -75,13 +75,20 @@ class ProductionResearch:
         path = ""
         if self.recommended_path:
             path = f"\nFastest path to run:\n{self.recommended_path}\n"
-        return f"""DEEP RESEARCH (web + vidIQ + Jenny — use this, do not genericize):
+        trends = ""
+        trend_rows = [k for k in self.keyword_insights if str(k.get("score", "")).startswith("trends_")]
+        if trend_rows:
+            trends = "\nGoogle Trends (YouTube search):\n" + "\n".join(
+                f"- {k.get('keyword', '')} ({k.get('score', 'trends')})"
+                for k in trend_rows[:8]
+            )
+        return f"""DEEP RESEARCH (web + Google Trends + vidIQ + Jenny — use this, do not genericize):
 Niche: {self.niche}
 Viewer moment: {self.viewer_moment}
 Stakes: {self.emotional_stakes}
 Competitor gap: {self.competitor_gap}
 Title formula: {self.title_formula}
-{competitors}{keywords}{path}
+{competitors}{trends}{keywords}{path}
 Hook angles (pick strongest):
 {hooks}
 
@@ -117,6 +124,9 @@ YOUTUBE COMPETITOR SHORTS (real titles):
 
 KEYWORD / SEO SIGNALS (vidIQ + YouTube suggest):
 {keyword_context}
+
+GOOGLE TRENDS (YouTube search interest, related + rising queries):
+{trends_context}
 
 JENNY HOYOS COURSE — cite file numbers in jenny_citations:
 - 02: hook linked to idea, start ASAP
@@ -187,11 +197,12 @@ def load_research(topic: str) -> ProductionResearch | None:
 
 
 def _gather_external_context(topic: str) -> dict:
-    """Web browse + YouTube API + vidIQ — all optional, best-effort."""
+    """Web browse + Google Trends + YouTube API + vidIQ — all optional, best-effort."""
     sources: list[str] = []
     web_context = "(web research disabled)"
     competitor_context = "(no YouTube API — competitor search skipped)"
     keyword_context = "(no keyword data)"
+    trends_context = "(Google Trends disabled or no data)"
     web_sources: list[dict] = []
     competitor_titles: list[str] = []
     keyword_insights: list[dict] = []
@@ -255,10 +266,25 @@ def _gather_external_context(topic: str) -> dict:
         except Exception:
             pass
 
+    if settings.google_trends_enabled:
+        try:
+            from shorts_bot.research.google_trends import fetch_google_trends
+
+            trends = fetch_google_trends(topic)
+            if trends:
+                block = trends.context_block()
+                if block:
+                    trends_context = block
+                    sources.append("google_trends")
+                keyword_insights.extend(trends.to_insights())
+        except Exception:
+            pass
+
     return {
         "web_context": web_context,
         "competitor_context": competitor_context,
         "keyword_context": keyword_context,
+        "trends_context": trends_context,
         "web_sources": web_sources,
         "competitor_titles": competitor_titles,
         "keyword_insights": keyword_insights,
@@ -325,6 +351,7 @@ def deep_research_topic(
         "web_context": "(skipped)",
         "competitor_context": "(skipped)",
         "keyword_context": "(skipped)",
+        "trends_context": "(skipped)",
         "web_sources": [],
         "competitor_titles": [],
         "keyword_insights": [],
@@ -346,6 +373,7 @@ def deep_research_topic(
         web_context=external["web_context"],
         competitor_context=external["competitor_context"],
         keyword_context=external["keyword_context"],
+        trends_context=external.get("trends_context", "(no trends data)"),
         topic=topic,
     )
     response = backend.client.chat.completions.create(
