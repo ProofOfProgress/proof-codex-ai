@@ -16,6 +16,7 @@ from shorts_bot.production.script_humanize import finalize_script
 from shorts_bot.production.upload_meta import build_upload_package, write_upload_files
 from shorts_bot.production.variety import variety_for_draft
 from shorts_bot.production.video_qc import run_video_qc
+from shorts_bot.production.vision_qc import load_cached_report, run_vision_qc
 from shorts_bot.production.voiceover import generate_voiceover
 
 
@@ -164,40 +165,34 @@ def finish_draft_pipeline(
         save_state(pack_dir, state)
     _end("voiceover", t0)
 
-    # --- Transcript sync (AssemblyAI API or TurboScribe browser) ---
-    t0 = _step("turboscribe")
+    # --- Transcript sync (AssemblyAI API) ---
+    t0 = _step("transcript")
     turboscribe_text = ""
-    provider = (settings.transcript_provider or "assemblyai").strip().lower()
-    use_transcript = provider == "assemblyai" or settings.use_turboscribe_sync or settings.has_assemblyai
-    if use_transcript:
-        from shorts_bot.production.transcript_sync import transcribe_audio
+    from shorts_bot.production.transcript_sync import transcribe_audio
 
-        cached = pack_dir / "turboscribe_transcript.txt"
-        if resume and state.is_done("turboscribe") and cached.exists():
-            turboscribe_text = cached.read_text(encoding="utf-8").strip()
-            messages.append(f"Resume: using cached {cached.name}")
-        else:
-            try:
-                ts = transcribe_audio(vo_path)
-                turboscribe_text = ts.transcript_text
-                messages.append(ts.message)
-                state.mark("turboscribe")
-            except Exception as exc:
-                if settings.require_paid_stack and not settings.allow_script_timing_fallback:
-                    state.mark("turboscribe", status="failed")
-                    save_state(pack_dir, state)
-                    fix = (
-                        "Set ASSEMBLYAI_API_KEY"
-                        if provider == "assemblyai"
-                        else "python3 -m shorts_bot.login_handoff --only turboscribe"
-                    )
-                    raise RuntimeError(
-                        f"Transcript sync required but failed: {exc}. Fix: {fix}"
-                    ) from exc
-                messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
-                state.mark("turboscribe", status="failed")
-            save_state(pack_dir, state)
-    _end("turboscribe", t0)
+    cached_paths = [pack_dir / "transcript.txt", pack_dir / "turboscribe_transcript.txt"]
+    cached_hit = next((p for p in cached_paths if p.exists()), None)
+    if resume and state.is_done("transcript") and cached_hit:
+        turboscribe_text = cached_hit.read_text(encoding="utf-8").strip()
+        messages.append(f"Resume: using cached {cached_hit.name}")
+    else:
+        try:
+            ts = transcribe_audio(vo_path)
+            turboscribe_text = ts.transcript_text
+            messages.append(ts.message)
+            state.mark("transcript")
+        except Exception as exc:
+            if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+                state.mark("transcript", status="failed")
+                save_state(pack_dir, state)
+                raise RuntimeError(
+                    f"AssemblyAI transcript sync required but failed: {exc}. "
+                    "Fix: set ASSEMBLYAI_API_KEY in .env"
+                ) from exc
+            messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
+            state.mark("transcript", status="failed")
+        save_state(pack_dir, state)
+    _end("transcript", t0)
 
     # --- Pack ---
     t0 = _step("pack")
@@ -274,6 +269,39 @@ def finish_draft_pipeline(
     save_state(pack_dir, state)
     _end("video_qc", t0)
 
+    # --- Gemini vision QC (sparse frames, one call) ---
+    t0 = _step("vision_qc")
+    if resume and state.is_done("vision_qc"):
+        vision = load_cached_report(pack_dir, video.output_path)
+        if not vision:
+            vision = run_vision_qc(
+                video.output_path,
+                pack_dir,
+                topic=draft.topic,
+                hook=draft.hook,
+                use_cache=False,
+            )
+            if vision.passed:
+                state.mark("vision_qc")
+            else:
+                state.mark("vision_qc", status="failed")
+            save_state(pack_dir, state)
+        messages.append(f"Resume: {vision.summary()}")
+    else:
+        vision = run_vision_qc(
+            video.output_path,
+            pack_dir,
+            topic=draft.topic,
+            hook=draft.hook,
+        )
+        messages.append(vision.summary())
+        if vision.passed:
+            state.mark("vision_qc")
+        else:
+            state.mark("vision_qc", status="failed")
+    save_state(pack_dir, state)
+    _end("vision_qc", t0)
+
     # --- Upload metadata ---
     t0 = _step("metadata")
     from shorts_bot.production.research import load_research
@@ -290,6 +318,9 @@ def finish_draft_pipeline(
     if do_upload and video.output_path.exists():
         if settings.video_qc_blocks_upload and not vqc.passed:
             messages.append("Upload blocked — video QC failed")
+            do_upload = False
+        if settings.vision_qc_blocks_upload and not vision.passed:
+            messages.append("Upload blocked — vision QC failed")
             do_upload = False
 
         qc = run_quality_checks(
@@ -364,7 +395,8 @@ def finish_draft_pipeline(
                 save_state(pack_dir, state)
 
     report = _write_pipeline_report(pack_dir, draft_id, messages, timings)
-    pipeline_ok = vqc.passed and video.output_path.exists()
+    qc_ok = vqc.passed and vision.passed
+    pipeline_ok = qc_ok and video.output_path.exists()
     return PipelineResult(
         draft_id=draft_id,
         pack_dir=pack_dir,
@@ -374,5 +406,5 @@ def finish_draft_pipeline(
         report_path=report,
         step_timings=timings,
         success=pipeline_ok,
-        qc_passed=vqc.passed,
+        qc_passed=qc_ok,
     )

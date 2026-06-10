@@ -15,8 +15,8 @@ def test_paid_stack_issues_when_resemble_missing(monkeypatch):
         allow_free_tts_fallback=False,
         resemble_api_key=None,
         resemble_voice_uuid=None,
-        transcript_provider="assemblyai",
         assemblyai_api_key="a" * 24,
+        vision_qc_enabled=False,
     )
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
     issues = paid_stack_issues()

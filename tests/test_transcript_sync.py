@@ -30,8 +30,8 @@ def test_paid_stack_issues_assemblyai_key(monkeypatch):
         allow_script_timing_fallback=False,
         resemble_api_key="x" * 20,
         resemble_voice_uuid="voice-uuid-12",
-        transcript_provider="assemblyai",
         assemblyai_api_key=None,
+        vision_qc_enabled=False,
     )
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
     issues = paid_stack_issues()

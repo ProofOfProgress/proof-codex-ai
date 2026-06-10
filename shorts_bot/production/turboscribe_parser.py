@@ -141,3 +141,13 @@ def parse_turboscribe(text: str) -> list[TranscriptSegment]:
             )
 
     return sorted(merged.values(), key=lambda s: s.start_seconds)
+
+
+def format_timestamp_lines(lines: list[tuple[float, str]]) -> str:
+    """Build M:SS lines for parse_turboscribe: 0:07 words..."""
+    out: list[str] = []
+    for start, text in lines:
+        m = int(start // 60)
+        s = int(start % 60)
+        out.append(f"{m}:{s:02d} {text.strip()}")
+    return "\n".join(out)

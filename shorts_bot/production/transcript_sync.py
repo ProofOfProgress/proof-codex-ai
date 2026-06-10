@@ -1,4 +1,4 @@
-"""Word-level transcript sync — AssemblyAI API (default) or TurboScribe browser fallback."""
+"""Word-level transcript sync — AssemblyAI API only (no browser)."""
 
 from __future__ import annotations
 
@@ -10,11 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.turboscribe_sync import (
-    TurboScribeResult,
-    _format_segments_for_parser,
-    transcribe_audio as turboscribe_transcribe,
-)
+from shorts_bot.production.turboscribe_parser import format_timestamp_lines
 
 
 @dataclass
@@ -24,22 +20,26 @@ class TranscriptResult:
     message: str
 
 
+def _cached_transcript_paths(audio_path: Path) -> list[Path]:
+    parent = audio_path.parent
+    return [parent / "transcript.txt", parent / "turboscribe_transcript.txt"]
+
+
 def _cached_transcript_path(audio_path: Path) -> Path:
-    return audio_path.parent / "turboscribe_transcript.txt"
+    return audio_path.parent / "transcript.txt"
 
 
 def _read_cache(audio_path: Path) -> TranscriptResult | None:
-    path = _cached_transcript_path(audio_path)
-    if not path.exists():
-        return None
-    text = path.read_text(encoding="utf-8").strip()
-    if not text:
-        return None
-    return TranscriptResult(
-        transcript_text=text,
-        source="cache",
-        message=f"Using cached {path.name}",
-    )
+    for path in _cached_transcript_paths(audio_path):
+        if path.exists():
+            text = path.read_text(encoding="utf-8").strip()
+            if text:
+                return TranscriptResult(
+                    transcript_text=text,
+                    source="cache",
+                    message=f"Using cached {path.name}",
+                )
+    return None
 
 
 def _words_to_timestamp_lines(words: list[dict]) -> str:
@@ -66,7 +66,7 @@ def _words_to_timestamp_lines(words: list[dict]) -> str:
     if bucket_words:
         lines.append((bucket_start, " ".join(bucket_words)))
 
-    return _format_segments_for_parser(lines)
+    return format_timestamp_lines(lines)
 
 
 def _assemblyai_json(
@@ -99,13 +99,12 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
     """Upload MP3 to AssemblyAI and return timestamped transcript text."""
     key = (settings.assemblyai_api_key or "").strip()
     if not key:
-        raise RuntimeError(
-            "ASSEMBLYAI_API_KEY missing — set in .env or use TRANSCRIPT_PROVIDER=turboscribe"
-        )
+        raise RuntimeError("ASSEMBLYAI_API_KEY missing — add to .env and sync_secrets")
 
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio not found: {audio_path}")
 
+    model = (settings.assemblyai_speech_model or "universal").strip()
     audio_path = audio_path.resolve()
     up = _assemblyai_json(
         "POST",
@@ -122,7 +121,7 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
         "POST",
         "https://api.assemblyai.com/v2/transcript",
         api_key=key,
-        body={"audio_url": upload_url, "speech_model": "best"},
+        body={"audio_url": upload_url, "speech_model": model},
     )
     transcript_id = job.get("id")
     if not transcript_id:
@@ -147,10 +146,13 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
                 raise RuntimeError("AssemblyAI returned empty transcript")
             out_path = _cached_transcript_path(audio_path)
             out_path.write_text(text.strip() + "\n", encoding="utf-8")
+            legacy = audio_path.parent / "turboscribe_transcript.txt"
+            if legacy != out_path:
+                legacy.write_text(text.strip() + "\n", encoding="utf-8")
             return TranscriptResult(
                 transcript_text=text.strip(),
                 source="assemblyai",
-                message=f"AssemblyAI sync saved → {out_path.name}",
+                message=f"AssemblyAI ({model}) sync saved → {out_path.name}",
             )
         if status == "error":
             raise RuntimeError(f"AssemblyAI failed: {payload.get('error') or 'unknown'}")
@@ -160,41 +162,9 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
 
 
 def transcribe_audio(audio_path: Path) -> TranscriptResult:
-    """
-    Transcribe voiceover with configured provider.
-
-    Default: AssemblyAI API (no browser). Fallback: TurboScribe Playwright when
-    TRANSCRIPT_PROVIDER=turboscribe.
-    """
-    always_fresh = settings.transcript_always_fresh or settings.turboscribe_always_fresh
-    if not always_fresh:
+    """Transcribe voiceover via AssemblyAI API."""
+    if not settings.transcript_always_fresh:
         cached = _read_cache(audio_path)
         if cached:
             return cached
-
-    provider = (settings.transcript_provider or "assemblyai").strip().lower()
-    if provider == "turboscribe" or (
-        provider != "assemblyai" and settings.use_turboscribe_sync and not settings.has_assemblyai
-    ):
-        ts: TurboScribeResult = turboscribe_transcribe(audio_path)
-        return TranscriptResult(
-            transcript_text=ts.transcript_text,
-            source=ts.source,
-            message=ts.message,
-        )
-
-    if provider == "assemblyai" or settings.has_assemblyai:
-        return transcribe_with_assemblyai(audio_path)
-
-    if settings.use_turboscribe_sync:
-        ts = turboscribe_transcribe(audio_path)
-        return TranscriptResult(
-            transcript_text=ts.transcript_text,
-            source=ts.source,
-            message=ts.message,
-        )
-
-    raise RuntimeError(
-        "No transcript provider configured. Set ASSEMBLYAI_API_KEY + TRANSCRIPT_PROVIDER=assemblyai "
-        "or enable TurboScribe (TRANSCRIPT_PROVIDER=turboscribe + login_handoff)."
-    )
+    return transcribe_with_assemblyai(audio_path)

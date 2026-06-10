@@ -66,7 +66,7 @@ def merge_segments_for_visual_cuts(
 
 
 def load_cached_turboscribe_text(pack_dir: Path) -> str:
-    for name in ("turboscribe_transcript.txt", "turboscribe.txt"):
+    for name in ("transcript.txt", "turboscribe_transcript.txt", "turboscribe.txt"):
         path = pack_dir / name
         if path.exists():
             text = path.read_text(encoding="utf-8").strip()

@@ -2,7 +2,7 @@
 
 Fully automated daily Shorts: **Gemini brain → Resemble voice clone → AssemblyAI transcript sync → stick figure frames → ffmpeg → YouTube upload (unlisted)**.
 
-**Default:** `REQUIRE_PAID_STACK=true` — all video generation (`finish`, `make video`, `daily`) uses **Resemble + AssemblyAI** (API key, no browser). TurboScribe browser remains available via `TRANSCRIPT_PROVIDER=turboscribe`. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
+**Default:** `REQUIRE_PAID_STACK=true` — all video generation uses **Resemble + AssemblyAI + Gemini vision QC**. No TurboScribe browser. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
 
 ## 1. Buy & subscribe (today)
 
@@ -11,7 +11,7 @@ Fully automated daily Shorts: **Gemini brain → Resemble voice clone → Assemb
 | **Google AI Studio** | Pay-as-you-go billing on | ~$1–3/mo | Gemini scripts + humanize |
 | **Resemble AI** | Flex + Pro voice clone | ~$5/mo clone + ~$3–10 API | Your cloned voice |
 | **AssemblyAI** | Pay-as-you-go | **~$0.01–0.05/Short** | Word-level timestamps via API (default) |
-| **TurboScribe** (optional) | Unlimited (annual) | **$10/mo** | Browser Whale mode — legacy fallback |
+| **Gemini** | Free tier / pay-as-you-go | **~$0.01/Short** | Vision QC — 5 JPEG frames, one batched call |
 | **Replicate** (optional) | Pay-per-image | **~$0.003–0.015/image** | Only if `VISUAL_STYLE=ai` — default is stick figures (free) |
 | **Fal.ai** (optional) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` + `VISUAL_STYLE=ai` |
 
@@ -43,14 +43,9 @@ ASSEMBLYAI_API_KEY=...
 
 No browser login required — the bot uploads `voiceover.mp3` and gets word-level timestamps.
 
-### TurboScribe (optional legacy)
+## 3b. Gemini vision QC (automatic)
 
-1. Subscribe: https://turboscribe.ai/pricing ($10/mo billed yearly)
-2. Set `TRANSCRIPT_PROVIDER=turboscribe` and log in via Desktop:
-
-```bash
-python3 -m shorts_bot.login_handoff --only turboscribe
-```
+Uses your existing `GEMINI_API_KEY`. After each render, the bot extracts **5 beat-aligned JPEG frames** (360px wide) and makes **one** Gemini vision call. Blocks upload if score &lt; `VISION_QC_MIN_SCORE` (default 7). Results saved to `data/production/draft_N/vision_qc.json`.
 
 ## 4. Replicate image API (recommended)
 
@@ -73,8 +68,11 @@ GEMINI_MODEL=gemini-2.5-flash-lite
 RESEMBLE_API_KEY=...
 RESEMBLE_VOICE_UUID=...
 TTS_PROVIDER=resemble
-TRANSCRIPT_PROVIDER=assemblyai
 ASSEMBLYAI_API_KEY=...
+ASSEMBLYAI_SPEECH_MODEL=universal
+TRANSCRIPT_ALWAYS_FRESH=false
+GEMINI_API_KEY=...
+VISION_QC_MIN_SCORE=7
 AUTO_PUBLISH_HOURS=0
 AUTO_APPROVE_DRAFTS=true
 AUTO_UPLOAD_YOUTUBE=true

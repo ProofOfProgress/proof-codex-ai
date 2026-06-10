@@ -11,10 +11,11 @@ PIPELINE_STEPS = (
     "preflight",
     "humanize",
     "voiceover",
-    "turboscribe",
+    "transcript",
     "pack",
     "render",
     "video_qc",
+    "vision_qc",
     "metadata",
     "upload",
 )
@@ -30,7 +31,12 @@ class PipelineState:
         return pack_dir / "pipeline_state.json"
 
     def is_done(self, step: str) -> bool:
-        return self.steps.get(step) == "done"
+        if self.steps.get(step) == "done":
+            return True
+        # Backward compat: transcript step was turboscribe
+        if step == "transcript":
+            return self.steps.get("turboscribe") == "done"
+        return False
 
     def mark(self, step: str, *, status: str = "done") -> None:
         self.steps[step] = status

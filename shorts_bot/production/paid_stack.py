@@ -1,4 +1,4 @@
-"""Enforce paid production stack — Resemble voice + API/browser transcript sync."""
+"""Enforce paid production stack — Resemble voice + AssemblyAI transcript + Gemini vision."""
 
 from __future__ import annotations
 
@@ -21,18 +21,17 @@ def paid_stack_issues() -> list[str]:
                 "(or ALLOW_FREE_TTS_FALLBACK=true to use edge-tts)"
             )
 
-    provider = (settings.transcript_provider or "assemblyai").strip().lower()
-    if not settings.allow_script_timing_fallback:
-        if provider == "assemblyai" and not settings.has_assemblyai:
-            issues.append(
-                "AssemblyAI transcript missing — set ASSEMBLYAI_API_KEY "
-                "(or TRANSCRIPT_PROVIDER=turboscribe + TurboScribe login)"
-            )
-        elif provider == "turboscribe" and not settings.use_turboscribe_sync:
-            issues.append(
-                "TurboScribe sync disabled — set USE_TURBOSCRIBE_SYNC=true "
-                "(paid Unlimited + login_handoff --only turboscribe)"
-            )
+    if not settings.allow_script_timing_fallback and not settings.has_assemblyai:
+        issues.append(
+            "AssemblyAI transcript missing — set ASSEMBLYAI_API_KEY "
+            "(word-level timestamps for frame sync)"
+        )
+
+    if settings.vision_qc_enabled and settings.vision_qc_blocks_upload and not settings.has_gemini:
+        issues.append(
+            "Gemini vision QC required — set GEMINI_API_KEY "
+            "(or VISION_QC_BLOCKS_UPLOAD=false to skip)"
+        )
 
     return issues
 
@@ -59,19 +58,14 @@ def ensure_resemble_voice() -> None:
 
 
 def ensure_turboscribe_segments(sync_source: str) -> None:
-    """Block script-timing fallbacks when API/browser timestamps are required."""
+    """Block script-timing fallbacks when API transcript timestamps are required."""
     if settings.allow_script_timing_fallback:
         return
     if sync_source in _SCRIPT_FALLBACK_SOURCES:
-        provider = (settings.transcript_provider or "assemblyai").strip().lower()
-        hint = (
-            "Set ASSEMBLYAI_API_KEY (TRANSCRIPT_PROVIDER=assemblyai)"
-            if provider == "assemblyai"
-            else "Log in: python3 -m shorts_bot.login_handoff --only turboscribe"
-        )
         raise RuntimeError(
-            f"Video generation requires word-level transcript timestamps (got '{sync_source}'). "
-            f"{hint} — then re-run finish. Emergency only: ALLOW_SCRIPT_TIMING_FALLBACK=true"
+            f"Video generation requires AssemblyAI transcript timestamps (got '{sync_source}'). "
+            "Set ASSEMBLYAI_API_KEY — then re-run finish. "
+            "Emergency only: ALLOW_SCRIPT_TIMING_FALLBACK=true"
         )
 
 

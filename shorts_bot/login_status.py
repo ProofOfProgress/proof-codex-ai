@@ -222,28 +222,40 @@ def _check_image_api() -> ServiceStatus:
 
 
 def _check_transcript_sync() -> ServiceStatus:
-    provider = (settings.transcript_provider or "assemblyai").strip().lower()
-    if provider == "assemblyai":
-        if settings.has_assemblyai:
-            return ServiceStatus(
-                "transcript",
-                "AssemblyAI transcript sync",
-                True,
-                "API key configured",
-            )
+    if settings.has_assemblyai:
+        model = settings.assemblyai_speech_model or "universal"
         return ServiceStatus(
             "transcript",
             "AssemblyAI transcript sync",
-            False,
-            "ASSEMBLYAI_API_KEY missing",
-            "https://www.assemblyai.com/dashboard/signup",
+            True,
+            f"API key configured ({model})",
         )
-    return _check_browser_site(
-        "turboscribe",
-        "TurboScribe Unlimited (Whale sync)",
-        "https://turboscribe.ai/u",
-        logged_in_hint="transcription",
-        fallback_note="Paid Unlimited + login required for frame sync",
+    return ServiceStatus(
+        "transcript",
+        "AssemblyAI transcript sync",
+        False,
+        "ASSEMBLYAI_API_KEY missing",
+        "https://www.assemblyai.com/dashboard/signup",
+    )
+
+
+def _check_vision_qc() -> ServiceStatus:
+    if not settings.vision_qc_enabled:
+        return ServiceStatus("vision_qc", "Gemini vision QC", False, "Disabled", None)
+    if settings.has_gemini:
+        model = (settings.gemini_vision_model or settings.gemini_model).strip()
+        return ServiceStatus(
+            "vision_qc",
+            "Gemini vision QC",
+            True,
+            f"{model} — {settings.vision_qc_max_frames} frames/Short",
+        )
+    return ServiceStatus(
+        "vision_qc",
+        "Gemini vision QC",
+        False,
+        "GEMINI_API_KEY missing",
+        "https://aistudio.google.com/apikey",
     )
 
 
@@ -321,6 +333,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_chat(),
         _check_resemble(),
         _check_transcript_sync(),
+        _check_vision_qc(),
         _check_image_api(),
         _check_youtube_oauth(),
     ]

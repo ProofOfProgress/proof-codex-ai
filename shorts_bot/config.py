@@ -69,10 +69,10 @@ class Settings(BaseSettings):
     discord_avatar_path: Path = Path("channel/brand/assets/discord_bot_avatar.png")
     discord_set_avatar_on_start: bool = False  # run avatar_cli once; avoid rate limits on every restart
 
-    # Paid production stack — Resemble + TurboScribe for ALL video generation (see paid_stack.py)
+    # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
-    allow_script_timing_fallback: bool = False  # script WPS only when True + TurboScribe fails
+    allow_script_timing_fallback: bool = False  # script WPS only when True + transcript API fails
 
     # Production — TTS voiceover (Resemble clone; edge-tts emergency fallback only)
     auto_generate_voice: bool = True
@@ -109,19 +109,25 @@ class Settings(BaseSettings):
     video_max_duration_seconds: float = 58.0
     video_qc_blocks_upload: bool = True
 
+    # Gemini vision QC — sparse frames, one batched call (see vision_qc.py)
+    vision_qc_enabled: bool = True
+    vision_qc_blocks_upload: bool = True
+    vision_qc_min_score: float = 7.0
+    vision_qc_max_frames: int = 5
+    vision_qc_frame_width: int = 360
+    vision_qc_jpeg_quality: int = 72
+    gemini_vision_model: str = ""  # empty = use gemini_model (flash-lite)
+
     # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
     production_variety_enabled: bool = True
 
     # Quality gates — block before expensive steps / upload
     quality_gate_blocks_render: bool = True
 
-    # Transcript sync — AssemblyAI API (default) or TurboScribe browser (legacy)
-    transcript_provider: str = "assemblyai"  # assemblyai | turboscribe
+    # Transcript sync — AssemblyAI API only
     assemblyai_api_key: str | None = None
-    transcript_always_fresh: bool = True  # re-transcribe every finish (good for testing variants)
-    use_turboscribe_sync: bool = True  # legacy alias — enables turboscribe when provider=turboscribe
-    turboscribe_mode: str = "whale"
-    turboscribe_always_fresh: bool = True  # alias for transcript_always_fresh
+    assemblyai_speech_model: str = "universal"  # universal = cheaper; use "best" for max accuracy
+    transcript_always_fresh: bool = False  # reuse transcript.txt on pipeline retry (saves API $)
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True
