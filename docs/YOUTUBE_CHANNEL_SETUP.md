@@ -41,6 +41,7 @@ You're still here. Good.
 
 ## Default upload settings
 
+- **Visibility: Private** (bot uploads here; you flip to Public when ready — the only manual step per video)
 - Category: Education
 - Shorts: always 9:16, under 60s
 - Comments: on (learn from feedback)

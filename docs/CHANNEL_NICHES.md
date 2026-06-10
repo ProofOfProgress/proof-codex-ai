@@ -37,4 +37,4 @@ Week 2: focus (5 Shorts)
 Week 3: boundaries (5 Shorts)
 Week 4: meaning/calm (5 Shorts)
 
-Each: approve draft → CapCut template → post → sync analytics → Yes/No improvements.
+Each: approve draft → bot edits in CapCut → bot uploads **Private** → you set **Public** → sync analytics → Yes/No improvements.

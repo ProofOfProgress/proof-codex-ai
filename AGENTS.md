@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free. API LLMs + future Playwright for CapCut.
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free. Production pipeline is automated; **only manual per-video step: Private → Public** in YouTube Studio.
 
 ### Services
 
@@ -73,9 +73,9 @@ Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `Bot
 
 Web **Dev queue** panel or `!dev title | description` — user Yes/No before coding tasks run. Approved items append to `data/LEARNED.md`.
 
-### Next phases
+### Production pipeline
 
-CapCut Playwright operator.
+Draft → approve → CapCut (Playwright) → private YouTube upload → user sets Public → analytics sync → Yes/No improvements. Documented in `docs/FOR_YOU.md` and `docs/RUN_AT_HOME.md`.
 
 ### Git / PR policy (user does minimal work)
 

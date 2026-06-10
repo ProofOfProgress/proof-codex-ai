@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.2 — docs: automated pipeline, manual publish gate
+
+- Documented end-to-end automation: draft → approve → CapCut → private upload
+- Clarified sole manual per-video step: **Private → Public** in YouTube Studio
+- Updated README roadmap, FOR_YOU, RUN_AT_HOME, MORNING, QUICKSTART, AGENTS
+
 ## 0.6.1 — Soft Continuity brand pass
 
 - Channel identity: self-help + subtle oracle aesthetic
