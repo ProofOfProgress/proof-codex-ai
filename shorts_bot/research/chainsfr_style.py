@@ -3,27 +3,26 @@
 from __future__ import annotations
 
 CHAINSFR_VISUAL_BRIEF = """
-STICK FIGURE FORMAT (ChainsFR-inspired — Soft Continuity / The Minute Before):
+STICK FIGURE FORMAT (ChainsFR — Soft Continuity / The Minute Before):
 
-REFERENCE CREATORS:
-- **ChainsFR** (~4M subs): voice-over story + stick figures ACTING each beat. Simple rooms,
-  speech bubbles for dialogue, props for literal script moments. Background CHANGES per beat;
-  characters stay in a recognizable space.
-- **Zen-style faceless explosion** (case study): one still per TurboScribe timestamp, cuts every
-  2–3 seconds, MS-Paint-simple drawings on white/off-white. Retention = frequency of visual change
-  synced to voice, not cinematic quality.
+REFERENCE: **ChainsFR** (~4M subs)
+- Voice-over story + stick figures **acting** each beat (not frozen lecture poses)
+- MS-Paint-simple line art, black outlines, off-white backgrounds
+- **Background changes per beat** — bedroom, doorway, hallway, outdoors — only what the line needs
+- **Character is NOT locked to one couch** — they stand, walk, sit on bed, lean at a door, etc.
+- Speech bubbles **only** for quoted dialogue; narrator lines use captions (ffmpeg ASS)
+- Props are **literal and minimal** — phone when texting, door when walking in, clock when it's 3am
+- Retention = visual change every 2–3s synced to voice, not cinematic polish
 
-SOFT CONTINUITY RULE (your twist):
-- **Same couch every frame** — anchor continuity like a sitcom set.
-- **Background rotates** behind the couch: window (night/morning/rain), door, lamp, plant, calendar,
-  side desk — matched to the script line.
-- Stick figure on/near couch acts out the protocol; speech bubbles only for quoted dialogue.
-- Captions in Jenny 05 safe zone (ffmpeg ASS), not narration text baked into frames.
+ZEN-STYLE CASE STUDY (velocity):
+- One still per TurboScribe timestamp
+- Cut every 2–3 seconds
+- If a beat doesn't need a window, plant, and couch — **don't draw them**
 
-PIPELINE (this repo — not Claude):
+PIPELINE (this repo):
 Gemini script → Resemble voice → TurboScribe timestamps → local stick render → ffmpeg.
 
-CUT DENSITY: target 2–3s per frame when TurboScribe available; script fallback uses ~2.5s segments.
+CUT DENSITY: target 2–3s per frame; script fallback ~2.5s segments.
 """
 
 

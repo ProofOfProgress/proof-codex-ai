@@ -2,31 +2,27 @@
 
 **Default video format** for *The Minute Before* Shorts. See `docs/CHAINSFR_RESEARCH.md` for full research.
 
-## Core rule: same couch, changing room
+## Core rule: act the beat, minimal set
 
-- **Couch** — identical every frame (position, color, shape). Sitcom anchor.
-- **Background** — rotates per timestamp: window (night/morning/rain), door, lamp, plant, calendar, desk.
-- **Character** — black stick figure on/near couch, **acting** the spoken line.
-- **Cuts** — one still per TurboScribe timestamp (~every 2–3 seconds).
+- **Character** — black stick figure **acting** the spoken line (pose changes every timestamp)
+- **Background** — changes per beat; plain off-white when nothing specific is needed
+- **Furniture** — bed for sleep/3am beats; couch only when script says sit/couch
+- **Props** — only what the line mentions (phone, door, clock)
+- **Cuts** — one still per TurboScribe timestamp (~every 2–3 seconds)
 
 ## Visual rules (9:16)
 
-- **Room wall:** warm off-white `#E8E5DE`, MS-Paint-simple outlines
-- **Couch:** `#C4B8A8` with dark outline — never move or resize between frames
-- **Characters:** black stick figures, round head, expressive poses (ChainsFR)
+- **Canvas:** off-white `#F4F4F0`, MS-Paint-simple black outlines
+- **Characters:** round head, expressive poses (ChainsFR)
 - **Speech bubbles:** quoted dialogue only — narrator lines use captions (ffmpeg ASS)
-- **Props:** phone, laptop, clock, door — literal to script line
+- **Jenny 05:** action in upper 60%; bottom ~320px clear for Shorts UI
 
 ## Pose per beat
 
-Each timestamp = one scene: character **doing** the protocol on the couch (or standing by couch for “walk in / try this” beats).
-
-## Jenny 05
-
-Action in upper 60%; bottom ~320px clear for Shorts UI + burned captions.
+Each timestamp = one scene: character **doing** what the voice says — standing at a door, breathing, putting phone down, lying awake, etc.
 
 ## Anti-slop
 
 - Every scene must match the spoken line literally
-- Vary background props — not the couch
-- No photorealism, no 3D, no dark void circles (channel banner uses dark palette; **video frames stay bright room**)
+- Do not repeat the same couch/room layout every frame
+- No photorealism, no 3D, no dark void circles

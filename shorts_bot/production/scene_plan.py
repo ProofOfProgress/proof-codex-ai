@@ -25,7 +25,6 @@ class ScenePlan:
     pose: Pose
     bubble_text: str | None  # None = show action only (narrator VO)
     prop: str | None = None
-    on_couch: bool = True
 
 
 _AI_PHRASES = (
@@ -78,9 +77,9 @@ def plan_scene(spoken_text: str) -> ScenePlan:
     if "day can wait" in lower or "still here" in lower or lower.endswith("good."):
         return ScenePlan(t, Pose.STANDING_CALM, "You're still here. Good." if "good" in lower else None, None)
     if "try this" in lower:
-        return ScenePlan(t, Pose.POINTING_SELF, None, None, on_couch=False)
+        return ScenePlan(t, Pose.POINTING_SELF, None, None)
     if "walk" in lower or "party" in lower or "door" in lower:
-        return ScenePlan(t, Pose.STANDING_CALM, None, None, on_couch=False)
+        return ScenePlan(t, Pose.STANDING_CALM, None, None)
     return ScenePlan(t, Pose.THINKING, None, None)
 
 

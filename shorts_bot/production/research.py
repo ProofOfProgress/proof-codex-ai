@@ -103,7 +103,7 @@ Script beats (hook → momentum → payoff):
 {beats}
 
 Visual framing: {self.visual_framing}
-Stick format: same couch + rotating background props per beat (ChainsFR-style).
+Stick format: ChainsFR-style — figure acts each beat, minimal scene per timestamp (no locked couch).
 Jenny course refs: {cites}
 Quality bar: {self.quality_notes}
 Sources used: {", ".join(self.research_sources) or "llm+course"}
@@ -150,7 +150,7 @@ Return JSON only:
   "emotional_stakes": "what they fear if they do nothing",
   "hook_angles": ["3 curiosity hooks, first person, under 12 words each"],
   "script_beats": ["5-7 beats: hook, struggle, turn, one protocol, slip, try tonight, payoff"],
-  "visual_framing": "stick figure on fixed couch, rotating room background per beat, Jenny 05 safe zone",
+  "visual_framing": "ChainsFR stick figure acting each beat, minimal background/props per line, Jenny 05 safe zone",
   "competitor_gap": "what real Shorts miss — cite patterns from competitor titles/web data",
   "title_formula": "SEO-aware title using keyword signals, not rage-bait",
   "jenny_citations": ["Jenny 05", "Jenny 06"],

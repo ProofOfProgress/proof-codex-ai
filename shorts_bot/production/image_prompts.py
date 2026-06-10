@@ -67,13 +67,20 @@ def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     scene = seg.text.strip() or topic
     room = plan_room(scene)
     bg = room.background.value.replace("_", " ")
-    props = ", ".join(room.wall_props) if room.wall_props else "plant, clock"
+    extras = []
+    if room.wall_props:
+        extras.append(", ".join(room.wall_props))
+    if room.furniture:
+        extras.append(room.furniture)
+    if room.foreground_prop:
+        extras.append(room.foreground_prop)
+    detail = f" — {', '.join(extras)}" if extras else " — plain off-white, figure only"
     return (
-        f"ChainsFR stick figure on THE SAME COUCH: {scene}. Topic: {topic}. "
-        f"Background behind couch: {bg} with {props}. "
-        "MS-Paint-simple line art, off-white room, black stick figure ACTING the line. "
-        "Speech bubble ONLY for quoted dialogue. Couch geometry identical every frame. "
-        "No photorealism, no 3D, no cinematic lighting."
+        f"ChainsFR stick figure ACTING: {scene}. Topic: {topic}. "
+        f"Minimal scene: {bg}{detail}. "
+        "MS-Paint line art on off-white, expressive pose matching the spoken line. "
+        "Only props the line mentions. Speech bubble ONLY for quoted dialogue. "
+        "No photorealism, no 3D, no repeated couch every frame."
     )
 
 
