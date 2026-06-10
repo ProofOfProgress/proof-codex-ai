@@ -24,8 +24,8 @@ def _load_style_guide() -> str:
         if path.exists():
             return path.read_text(encoding="utf-8").strip()
         return (
-            "ChainsFR-style stick figures on off-white #F4F4F0, black line art, "
-            "character ACTING OUT each beat, speech bubbles only for quoted dialogue."
+            "ChainsFR-style stick figures on warm cream #F5EFE6, cosy domestic sets "
+            "(lamp, rainy window, couch, mug), soft black line art, character ACTING each beat."
         )
     path = Path("channel/brand/still_image_style.md")
     if path.exists():
@@ -38,7 +38,7 @@ def build_master_prompt(*, channel_topic: str = "Soft Continuity self-help Short
     from shorts_bot.config import settings
 
     format_line = (
-        "Every prompt: ChainsFR-style stick figure ACTING the line, off-white background, "
+        "Every prompt: ChainsFR-style stick figure ACTING the line, warm cosy home background, "
         "speech bubble only for quoted dialogue."
         if settings.visual_style == "stickfigure"
         else 'Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."'
@@ -78,7 +78,7 @@ def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     return (
         f"ChainsFR stick figure ACTING: {scene}. Topic: {topic}. "
         f"Minimal scene: {bg}{detail}. "
-        "MS-Paint line art on off-white, expressive pose matching the spoken line. "
+        "MS-Paint line art on warm cream, cosy lamp/window/couch when relevant, expressive pose. "
         "Only props the line mentions. Speech bubble ONLY for quoted dialogue. "
         "No photorealism, no 3D, no repeated couch every frame."
     )
@@ -91,9 +91,9 @@ def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     return (
         f"Calm faceless self-help still frame: {scene}. "
         f"Channel topic: {topic}. "
-        "Mood: quiet room, soft window light, minimal composition, generous negative space. "
+        "Mood: cosy quiet home, warm lamp glow, rainy window, mug or blanket, minimal composition. "
         "One symbolic element max (thin ring, faint glow, silhouette). "
-        "Palette: deep navy #0B1020, mist blue #8EB8FF, warm white accents. "
+        "Palette: cream #F5EFE6, sage #9DB8A0, terracotta #C9A08A, lamp glow #F2D98A. "
         "No human faces, no celebrity likeness, no horror, no robots. "
         f"{framing_notes_for_prompt()} "
         "vertical 9:16 still image, no text, no watermark, faceless, soft continuity aesthetic. "

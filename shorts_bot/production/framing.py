@@ -73,6 +73,6 @@ def stick_framing_notes_for_prompt() -> str:
     return (
         "Stick figure ACTING the spoken line — place in upper-middle (not bottom half), "
         "slightly left of center to avoid right-side like/comment rail. "
-        "MS-Paint-simple line art, off-white #F4F4F0, black outlines. "
+        "MS-Paint-simple line art, warm cream #F5EFE6, cosy domestic lamp/window, soft black outlines. "
         "Bottom 40% clear for burned captions + YouTube Shorts UI."
     )

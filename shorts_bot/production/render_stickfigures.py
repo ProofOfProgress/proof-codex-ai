@@ -166,7 +166,9 @@ def render_stick_frame(
     plan = plan_scene(brief.spoken_text, beat_hint=beat_hint)
     room = plan_room(brief.spoken_text)
     w, h = 1080, 1920
-    img = Image.new("RGB", (w, h), "#F4F4F0")
+    from shorts_bot.production.stick_background import WALL_CREAM
+
+    img = Image.new("RGB", (w, h), WALL_CREAM)
     draw = ImageDraw.Draw(img)
 
     draw_room_background(draw, w, h, room, _font_reg(16))

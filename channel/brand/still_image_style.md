@@ -5,10 +5,10 @@ Used when generating **one image per TurboScribe timestamp** for CapCut timeline
 ## Visual rules (9:16 still frame)
 
 - Faceless. No real people, no celebrity likeness.
-- Calm self-help mood: sleep, focus, boundaries, quiet rooms, soft light.
+- Cosy self-help mood: quiet home, lamp glow, rainy window, blanket, tea — soft continuity warmth.
 - Subtle oracle beat: one symbolic element max (thin ring, faint glow, window light) — never horror, never explicit AI/robot.
 - Minimal composition. Lots of negative space. One clear subject.
-- Color: deep navy `#0B1020`, mist `#8EB8FF`, warm text accent `#F2F5FA`.
+- Color: warm cream `#F5EFE6`, sage `#9DB8A0`, terracotta `#C9A08A`, lamp `#F2D98A`; dark void only for banner/profile.
 - **Not** MS Paint scribble style — Soft Continuity is polished-minimal, not “bad drawing” meme.
 
 ## Image prompt template (per timestamp)

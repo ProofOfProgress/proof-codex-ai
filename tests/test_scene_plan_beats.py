@@ -10,3 +10,9 @@ def test_office_bathroom_keywords():
     plan = plan_scene("I hide in the office bathroom stall")
     assert plan.pose == Pose.HUDDLED
     assert plan.prop == "stall"
+
+
+def test_cosy_couch_overwhelm():
+    plan = plan_scene("I can't move from the couch under my blanket")
+    assert plan.pose == Pose.HUDDLED
+    assert plan.prop == "blanket"

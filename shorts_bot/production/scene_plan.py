@@ -85,15 +85,20 @@ def plan_scene(spoken_text: str, *, beat_hint: str | None = None) -> ScenePlan:
     if bubble:
         return ScenePlan(t, Pose.NAMING_THOUGHT, bubble, "thought")
     if any(w in lower for w in ("bathroom", "stall", "cry", "hide in")):
-        return ScenePlan(t, Pose.HUDDLED, bubble, "stall")
-    if "overwhelm" in lower or "heart pound" in lower:
-        return ScenePlan(t, Pose.HUDDLED, None, "stall")
+        prop = "stall" if "office" in lower or "work" in lower else "blanket"
+        return ScenePlan(t, Pose.HUDDLED, bubble, prop)
+    if "overwhelm" in lower or "heart pound" in lower or "blanket" in lower or "couch" in lower:
+        return ScenePlan(t, Pose.HUDDLED, None, "blanket")
     if "excuse myself" in lower or "walk to" in lower or "close the" in lower:
         return ScenePlan(t, Pose.WALKING, None, "door")
     if "shoulder roll" in lower or "release tension" in lower:
         return ScenePlan(t, Pose.BREATHING, None, None)
-    if "office" in lower or "work" in lower:
+    if "office" in lower or ("work" in lower and "email" not in lower):
         return ScenePlan(t, Pose.THINKING, None, "desk")
+    if "email" in lower or "sunday" in lower or "dread" in lower:
+        return ScenePlan(t, Pose.REACHING_PHONE, None, "phone")
+    if "tea" in lower or "mug" in lower or "one small" in lower:
+        return ScenePlan(t, Pose.STANDING_CALM, None, "mug")
     if "phone" in lower and ("before" in lower or "reach" in lower):
         return ScenePlan(t, Pose.PUTTING_PHONE_DOWN, None, "phone")
     if "phone" in lower or "scrolling" in lower:

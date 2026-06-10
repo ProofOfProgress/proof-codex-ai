@@ -13,4 +13,4 @@ def test_stick_prompt_wording():
         topic="test",
     )
     assert "stick figure" in prompt.lower()
-    assert "off-white" in prompt.lower()
+    assert "warm cream" in prompt.lower() or "cosy" in prompt.lower()
