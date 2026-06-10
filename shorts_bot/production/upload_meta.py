@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -16,19 +17,26 @@ class UploadPackage:
     checklist: list[str]
 
 
-def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPackage:
+def build_upload_package(
+    topic: str,
+    hook: str,
+    *,
+    draft_id: int,
+    research=None,
+) -> UploadPackage:
     """Conservative metadata: helpful title, no clickbait."""
     from shorts_bot.config import settings
+    from shorts_bot.production.niche import NICHE_NAME
 
-    title = _safe_title(topic, hook)
+    title = _title_from_research(topic, hook, research) if research else _safe_title(topic, hook)
     description = _safe_description(topic)
-    tags = [
-        "sleep tips",
-        "insomnia help",
-        "3am anxiety",
-        "calm",
+    tags = _tags_from_research(research) if research else [
+        "calm shorts",
+        "anxiety help",
         "self help shorts",
+        "mental health tips",
         "soft continuity",
+        "the minute before",
     ]
     visibility = settings.youtube_upload_visibility
     if visibility not in ("public", "unlisted", "private"):
@@ -36,12 +44,15 @@ def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPacka
 
     checklist = [
         f"Visibility: {visibility}",
-        "One Short today only — no batch spam (shadowban / inauthentic signal)",
+        f"Niche: {NICHE_NAME}",
+        "YPP: max 1 Short per 24h — upload_guard enforces (inauthentic / spam-farm signal)",
+        "Script is first-person original — not template lecture or AI slop phrases",
         "Title is helpful, not rage-bait or ALL CAPS shock",
-        "No misleading thumbnail text (images are calm stills — good)",
+        "Disclose altered/synthetic audio in Studio if YouTube prompts",
+        "Captions in Jenny 05 safe zone — above Shorts title overlay",
         "After publish: run sync in bot for analytics learning",
         "If retention is weak, tweak hook — do not re-upload duplicate same day",
-        "Reply to first comments manually (engagement signal)",
+        "Light comments auto-reply via bot; serious ones queued for you (`comments pending`)",
     ]
     return UploadPackage(
         title=title,
@@ -52,22 +63,49 @@ def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPacka
     )
 
 
+def _title_from_research(topic: str, hook: str, research) -> str:
+    formula = (getattr(research, "title_formula", None) or "").strip()
+    if formula and len(formula) <= 100:
+        return formula[:100]
+    return _safe_title(topic, hook)
+
+
+def _tags_from_research(research) -> list[str]:
+    base = [
+        "calm shorts",
+        "self help shorts",
+        "soft continuity",
+        "the minute before",
+    ]
+    seen = {t.lower() for t in base}
+    for row in getattr(research, "keyword_insights", None) or []:
+        kw = str(row.get("keyword", "")).strip()
+        if kw and kw.lower() not in seen and len(kw) < 40:
+            base.append(kw)
+            seen.add(kw.lower())
+        if len(base) >= 12:
+            break
+    return base[:12]
+
+
 def _safe_title(topic: str, hook: str) -> str:
     t = topic.strip().lower()
-    if "3" in t and "sleep" in t:
-        return "When You Wake at 3AM — Do This Before Your Phone"
+    if "minute before" in t:
+        moment = re.sub(r"^the minute before\s+", "", t, flags=re.I).strip()
+        if moment:
+            return f"Before {moment[:55]} — do this first #Shorts"[:100]
     if hook and len(hook) < 70 and "stop scrolling" not in hook.lower():
         return hook[:95]
-    return f"A small fix for {topic} #Shorts"[:100]
+    return f"Before {topic[:60]} — one thing that helped me #Shorts"[:100]
 
 
 def _safe_description(topic: str) -> str:
     return (
-        "Small fixes for heavy days.\n\n"
-        f"Tonight: {topic} — one thing to try when your mind won't switch off.\n\n"
-        "Soft Continuity — calm, faceless Shorts. Sleep, focus, boundaries.\n"
-        "You're still here. Good.\n\n"
-        "#Shorts #sleep #calm"
+        "The Minute Before — one moment, one fix.\n\n"
+        f"Tonight: {topic}\n"
+        "Faceless calm Shorts for overloaded days.\n\n"
+        "Soft Continuity — one moment. one fix.\n\n"
+        "#Shorts #calm #selfhelp"
     )
 
 

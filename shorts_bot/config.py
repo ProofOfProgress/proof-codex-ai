@@ -13,9 +13,31 @@ class Settings(BaseSettings):
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
     learned_path: Path = Path("data/LEARNED.md")
+    memory_markdown_path: Path = Path("data/MEMORY.md")
+    memory_chat_context_limit: int = 24
+
+    # Deep research — web browse + vidIQ + YouTube competitors
+    research_web_enabled: bool = True
+    research_max_web_snippets: int = 8
+    tavily_api_key: str | None = None
+    vidiq_enabled: bool = False  # off by default — browser + Trends + YouTube API instead
+    vidiq_api_key: str | None = None  # vidIQ Max MCP API key → mcp.vidiq.com
+    vidiq_use_browser: bool = True
+    google_trends_enabled: bool = True
+    google_trends_geo: str = "US"
+    google_trends_gprop: str = "youtube"  # youtube | web | news | images | froogle
+    google_trends_timeframe: str = "today 3-m"
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
+    browser_screenshot_dir: Path = Path("data/screenshots")
+    browser_enabled: bool = True
+    browser_headless: bool = True
+    browser_allow_visible: bool = True
+    browser_use_for_research: bool = True
+    browser_save_screenshots: bool = False
+    browser_open_minutes: int = 15
     youtube_channel_name: str = "Soft Continuity"
+    channel_series_name: str = "The Minute Before"
     channel_tagline: str = "you're still here. good."
     web_host: str = "0.0.0.0"
     web_port: int = 8080
@@ -44,7 +66,7 @@ class Settings(BaseSettings):
     tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
     tts_rate: str = "-5%"
     tts_pitch: str = "+2Hz"
-    visual_style: str = "ai"  # ai | stickfigure | calm_stills
+    visual_style: str = "stickfigure"  # stickfigure (default) | ai | calm_stills
 
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal
@@ -55,7 +77,14 @@ class Settings(BaseSettings):
     image_aspect_ratio: str = "9:16"
     ai_detect_max_passes: int = 5
     ai_detect_threshold: int = 35
-    burn_in_subtitles: bool = False  # stick frames already have captions; use captions.srt for YT
+    # Captions: ffmpeg (default) burns ASS during MP4 render; frame bakes into each PNG
+    caption_mode: str = "ffmpeg"  # ffmpeg | frame
+    burn_in_subtitles: bool = True  # legacy alias — True when caption_mode=ffmpeg
+
+    # ffmpeg export — Shorts quality (see docs/SHORTS_ALIGNMENT.md)
+    video_crf: int = 18
+    video_preset: str = "slow"
+    video_audio_bitrate_k: int = 192
 
     # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
     use_turboscribe_sync: bool = True
@@ -66,6 +95,31 @@ class Settings(BaseSettings):
     auto_approve_drafts: bool = True
     auto_upload_youtube: bool = True
     youtube_upload_visibility: str = "unlisted"
+
+    # Automation — reduce manual sync / Yes-No / publish steps (login & payments still manual)
+    auto_analytics_sync: bool = True
+    auto_analytics_sync_interval_hours: int = 12
+    auto_approve_improvements: bool = True
+    auto_approve_dev_tasks: bool = True
+    auto_daily_enabled: bool = True
+    auto_daily_hour: int = 11
+    auto_daily_minute: int = 0
+    auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
+    quality_gate_blocks_upload: bool = True
+
+    # YPP / inauthentic-content guard — blocks spam-farm upload patterns
+    ypp_safe_mode: bool = True
+    max_uploads_per_24h: int = 1
+    min_hours_between_uploads: float = 20.0
+    topic_cooldown_days: int = 7
+    hook_cooldown_days: int = 14
+    max_script_overlap_ratio: float = 0.65
+
+    # Comment automation — auto-reply light comments; serious → human queue
+    auto_reply_comments: bool = True
+    auto_comment_sync: bool = True
+    comment_fetch_max: int = 40
+    comment_max_auto_per_run: int = 8
 
     @property
     def has_openai(self) -> bool:

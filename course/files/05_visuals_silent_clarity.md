@@ -21,6 +21,7 @@ visuals, props, mute, silent viewing, filming, phone camera, production, first f
 - Shorts do not need to look cinematic to perform well.
 - Use 4K and highest quality settings available.
 - Lighting matters; use rule of thirds; keep text/visuals in safe zone.
+- **YouTube Shorts UI** covers the bottom ~15–18% (title, like, comment). Place burned-in captions **above** that band; keep subject/action in the upper 60% of 9:16.
 
 ## Relatability filter
 Do not chase cinematic polish if it makes the content feel less relatable.

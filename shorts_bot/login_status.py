@@ -242,10 +242,56 @@ def _check_resemble() -> ServiceStatus:
     )
 
 
+def _check_vidiq() -> ServiceStatus:
+    if not settings.vidiq_enabled:
+        return ServiceStatus("vidiq", "vidIQ keyword research", False, "Disabled", None)
+    if (settings.vidiq_api_key or "").strip():
+        return ServiceStatus(
+            "vidiq",
+            "vidIQ (MCP API key)",
+            True,
+            "VIDIQ_API_KEY set — deep research uses MCP",
+            "https://vidiq.com/mcp/",
+        )
+    try:
+        from shorts_bot.research.vidiq import check_vidiq_session
+
+        ok, detail = check_vidiq_session()
+        return ServiceStatus(
+            "vidiq",
+            "vidIQ keyword research",
+            ok,
+            detail,
+            None if ok else "python3 -m shorts_bot.login_handoff --only vidiq",
+        )
+    except Exception as exc:
+        return ServiceStatus(
+            "vidiq",
+            "vidIQ keyword research",
+            False,
+            str(exc)[:120],
+            "python3 -m shorts_bot.login_handoff --only vidiq",
+        )
+
+
+def _check_playwright() -> ServiceStatus:
+    from shorts_bot.browser.session import is_playwright_ready
+
+    ok, detail = is_playwright_ready()
+    return ServiceStatus(
+        "playwright",
+        "Playwright browser",
+        ok,
+        detail,
+        None if ok else "python3 -m playwright install chromium",
+    )
+
+
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
         _check_discord(),
+        _check_playwright(),
         _check_chat(),
         _check_resemble(),
         _check_image_api(),
@@ -262,6 +308,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
                 logged_in_hint="transcription",
                 fallback_note="Paid Unlimited + login required for frame sync",
             ),
+            _check_vidiq(),
         ]
     )
     return [asdict(s) for s in items]

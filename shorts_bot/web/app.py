@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -18,12 +20,24 @@ from shorts_bot.web.deps import (
     get_proposer,
     get_reward_engine,
     get_store,
+    run_full_automation,
 )
 from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Soft Continuity Operator", version="0.7.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from shorts_bot.automation.background import start_background_automation
+
+    stop = await start_background_automation()
+    yield
+    stop.set()
+    await asyncio.sleep(0.1)
+
+
+app = FastAPI(title="Soft Continuity Operator", version="0.7.0", lifespan=lifespan)
 
 
 @app.exception_handler(Exception)
@@ -182,7 +196,9 @@ async def approve_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "approved", body.note or "Approved.")
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note or "Approved", "approved")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note or "Approved", "approved")
     return {"status": d.status}
 
 
@@ -195,7 +211,9 @@ async def reject_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "rejected", body.note)
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note, "rejected")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note, "rejected")
     return {"status": d.status}
 
 
@@ -206,11 +224,13 @@ async def score_video(body: ScoreRequest) -> dict:
         for k, v in body.model_dump().items()
         if k != "video_label" and v is not None
     }
+    from shorts_bot.learning.score_helpers import propose_reward_improvement
+
     engine = get_reward_engine()
     result = engine.score(body.video_label, metrics)
     improvement = None
     proposer = get_proposer()
-    imp = proposer.propose_from_reward(result)
+    imp = propose_reward_improvement(get_memory(), proposer, result)
     if imp:
         improvement = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
     return {
@@ -343,16 +363,39 @@ async def youtube_apply_brand() -> dict:
     return result
 
 
+@app.post("/api/youtube/comments")
+async def youtube_comments() -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    result = await asyncio.to_thread(BotOperations().run_comment_replies)
+    return result
+
+
+@app.get("/api/youtube/comments/pending")
+async def youtube_comments_pending() -> dict:
+    memory = get_memory()
+    return {
+        "pending": memory.count_comments_needing_human(),
+        "items": memory.list_comments_needing_human(limit=20),
+    }
+
+
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
-    result = get_analytics_sync().run()
+    automation = await asyncio.to_thread(run_full_automation)
+    result = automation.sync
     pending = len(get_memory().list_improvements(status="pending"))
+    msg = result.message
+    if automation.improvements_auto_approved:
+        msg += f" (auto-approved {automation.improvements_auto_approved})"
     return {
         "ok": result.ok,
-        "message": result.message,
+        "message": msg,
         "videos_scored": result.videos_scored,
         "improvements_created": result.improvements_created,
+        "improvements_auto_approved": automation.improvements_auto_approved,
+        "videos_published": automation.videos_published,
         "rewards": result.rewards or [],
         "pending_improvements": pending,
-        "sign_off_hint": "Tap Yes on the right — one tap each." if pending else None,
+        "sign_off_hint": "Tap Yes on risky proposals only." if pending else None,
     }

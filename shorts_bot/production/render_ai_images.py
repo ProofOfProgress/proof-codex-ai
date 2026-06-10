@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 from shorts_bot.config import settings
+from shorts_bot.production.captions import burn_captions_on_frames
 from shorts_bot.production.caption_overlay import apply_bottom_caption
 from shorts_bot.production.image_prompts import ImageBrief
 from shorts_bot.production.images.router import generate_image
@@ -14,7 +15,8 @@ from shorts_bot.production.images.router import generate_image
 def render_ai_frame(brief: ImageBrief, out_path: Path) -> bool:
     try:
         provider = generate_image(brief.prompt, out_path)
-        apply_bottom_caption(out_path, brief.spoken_text)
+        if burn_captions_on_frames():
+            apply_bottom_caption(out_path, brief.spoken_text)
         return True
     except Exception as exc:
         # Leave a marker for debugging; caller may fall back

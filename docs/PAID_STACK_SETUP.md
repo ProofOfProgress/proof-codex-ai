@@ -1,6 +1,6 @@
 # Paid stack setup — buy today, wire today
 
-Fully AI daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → paid AI images → ffmpeg → YouTube upload**.
+Fully automated daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → stick figure frames → ffmpeg → YouTube upload**.
 
 ## 1. Buy & subscribe (today)
 
@@ -9,8 +9,8 @@ Fully AI daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe W
 | **Google AI Studio** | Pay-as-you-go billing on | ~$1–3/mo | Gemini scripts + humanize |
 | **Resemble AI** | Flex + Pro voice clone | ~$5/mo clone + ~$3–10 API | Your cloned voice |
 | **TurboScribe** | Unlimited (annual) | **$10/mo** | Whale mode, unlimited A/B tests |
-| **Replicate** (recommended) | Pay-per-image | **~$0.003–0.015/image** | FLUX schnell / FLUX 2 — `VISUAL_STYLE=ai` |
-| **Fal.ai** (alternative) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` |
+| **Replicate** (optional) | Pay-per-image | **~$0.003–0.015/image** | Only if `VISUAL_STYLE=ai` — default is stick figures (free) |
+| **Fal.ai** (optional) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` + `VISUAL_STYLE=ai` |
 
 You do **not** need ElevenLabs, CapCut Pro, Runway, or Epidemic for the automated pipeline.
 
@@ -62,10 +62,12 @@ TURBOSCRIBE_MODE=whale
 AUTO_APPROVE_DRAFTS=true
 AUTO_UPLOAD_YOUTUBE=true
 YOUTUBE_UPLOAD_VISIBILITY=unlisted
-VISUAL_STYLE=ai
-IMAGE_PROVIDER=replicate
-REPLICATE_API_TOKEN=...
-REPLICATE_IMAGE_MODEL=black-forest-labs/flux-schnell
+VISUAL_STYLE=stickfigure
+# Optional AI stills instead of stick figures:
+# VISUAL_STYLE=ai
+# IMAGE_PROVIDER=replicate
+# REPLICATE_API_TOKEN=...
+# REPLICATE_IMAGE_MODEL=black-forest-labs/flux-schnell
 ```
 
 Then sync:
@@ -105,7 +107,7 @@ python3 -m shorts_bot.production.finish_cli --draft-id 6 --upload
 1. Humanize script (Gemini + local AI detect)
 2. **Resemble** → `voiceover.mp3` (your clone)
 3. **TurboScribe Whale** → `turboscribe_transcript.txt`
-4. Rebuild **AI image** frames (Replicate/Fal) synced to real audio timing + bottom captions
+4. Rebuild **stick figure** frames (default) synced to real audio timing + ASS captions
 5. ffmpeg → `final_short.mp4`
 6. YouTube API upload (if `AUTO_UPLOAD_YOUTUBE=true`)
 

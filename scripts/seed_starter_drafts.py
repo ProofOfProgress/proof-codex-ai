@@ -18,7 +18,7 @@ STARTERS = [
             "You're not lazy at 2pm — your brain is paying a debt from last night. "
             "Before noon tomorrow: ten minutes of daylight within an hour of waking. "
             "That's it. Not a morning routine montage — one lever. "
-            "This works on the days you don't believe it. You're still here. Good."
+            "This works on the days you don't believe it — try it before lunch tomorrow."
         ),
     },
     {
@@ -39,8 +39,7 @@ STARTERS = [
         "script": (
             "You don't need a speech to say no — you need one sentence and silence. "
             "Try: 'I can't take that on this week.' Full stop. No jury duty explanation. "
-            "Guilt is the price of a boundary. Pay it once, not forever. "
-            "You're still here. Good."
+            "Guilt is the price of a boundary. Pay it once, not forever."
         ),
     },
 ]

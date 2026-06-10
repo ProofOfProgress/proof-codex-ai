@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from shorts_bot.production.framing import framing_notes_for_prompt
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
@@ -16,6 +17,16 @@ class ImageBrief:
 
 
 def _load_style_guide() -> str:
+    from shorts_bot.config import settings
+
+    if settings.visual_style == "stickfigure":
+        path = Path("channel/brand/stick_figure_style.md")
+        if path.exists():
+            return path.read_text(encoding="utf-8").strip()
+        return (
+            "ChainsFR-style stick figures on off-white #F4F4F0, black line art, "
+            "character ACTING OUT each beat, speech bubbles only for quoted dialogue."
+        )
     path = Path("channel/brand/still_image_style.md")
     if path.exists():
         return path.read_text(encoding="utf-8").strip()
@@ -24,7 +35,15 @@ def _load_style_guide() -> str:
 
 def build_master_prompt(*, channel_topic: str = "Soft Continuity self-help Short") -> str:
     style = _load_style_guide()
-    return f"""You are generating still images for a faceless YouTube Short on channel "{channel_topic}".
+    from shorts_bot.config import settings
+
+    format_line = (
+        "Every prompt: ChainsFR-style stick figure ACTING the line, off-white background, "
+        "speech bubble only for quoted dialogue."
+        if settings.visual_style == "stickfigure"
+        else 'Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."'
+    )
+    return f"""You are generating frame images for a faceless YouTube Short on channel "{channel_topic}".
 
 RULES (critical):
 1. Read the timestamped script below.
@@ -32,10 +51,10 @@ RULES (critical):
 3. Each image covers only the words from that timestamp until the next timestamp.
 4. Output prompts as JSON array: [{{"timestamp": "00.07", "prompt": "..."}}]
 
-STYLE (Soft Continuity — not MS Paint scribbles):
+STYLE (Soft Continuity):
 {style[:2000]}
 
-Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."
+{format_line}
 
 TIMESTAMPED SCRIPT:
 (paste TurboScribe export below)
@@ -43,12 +62,25 @@ TIMESTAMPED SCRIPT:
 
 
 def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+    from shorts_bot.production.stick_background import plan_room
+
     scene = seg.text.strip() or topic
+    room = plan_room(scene)
+    bg = room.background.value.replace("_", " ")
+    extras = []
+    if room.wall_props:
+        extras.append(", ".join(room.wall_props))
+    if room.furniture:
+        extras.append(room.furniture)
+    if room.foreground_prop:
+        extras.append(room.foreground_prop)
+    detail = f" — {', '.join(extras)}" if extras else " — plain off-white, figure only"
     return (
-        f"ChainsFR-style stick figure scene: {scene}. Topic: {topic}. "
-        "Off-white background, black stick figure ACTING OUT the line, expressive pose. "
-        "Speech bubble ONLY if character speaks quoted dialogue. "
-        "Simple props (phone, bed, clock). No photorealism, no blue circles."
+        f"ChainsFR stick figure ACTING: {scene}. Topic: {topic}. "
+        f"Minimal scene: {bg}{detail}. "
+        "MS-Paint line art on off-white, expressive pose matching the spoken line. "
+        "Only props the line mentions. Speech bubble ONLY for quoted dialogue. "
+        "No photorealism, no 3D, no repeated couch every frame."
     )
 
 
@@ -63,6 +95,7 @@ def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
         "One symbolic element max (thin ring, faint glow, silhouette). "
         "Palette: deep navy #0B1020, mist blue #8EB8FF, warm white accents. "
         "No human faces, no celebrity likeness, no horror, no robots. "
+        f"{framing_notes_for_prompt()} "
         "vertical 9:16 still image, no text, no watermark, faceless, soft continuity aesthetic. "
         f"Style notes: {style[:400]}"
     )

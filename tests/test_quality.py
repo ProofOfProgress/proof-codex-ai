@@ -12,6 +12,20 @@ def test_quality_rejects_slop():
     assert any("Slop" in issue for issue in report.issues)
 
 
+def test_quality_warns_tagline_outro():
+    report = run_quality_checks(
+        topic="sleep",
+        hook="I wake at 3am every night.",
+        script=(
+            "I wake at 3am and my brain won't stop. "
+            "Phone stays dark, one breath, name the thought. "
+            "You're still here. Good."
+        ),
+        help_angle="Helps night owls shorten the 3am spiral with one pre-sleep reset.",
+    )
+    assert any("tagline" in w.lower() for w in report.warnings)
+
+
 def test_quality_passes_solid_draft():
     report = run_quality_checks(
         topic="focus",

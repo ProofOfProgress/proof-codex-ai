@@ -98,26 +98,83 @@ def finish_draft_pipeline(
     video = render_short_video(pack_dir, draft_id=draft_id)
     messages.append(video.message)
 
-    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id)
+    from shorts_bot.production.research import load_research
+
+    research = load_research(draft.topic)
+    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id, research=research)
     write_upload_files(pack_dir, package, draft_id=draft_id)
 
     upload_url: str | None = None
     do_upload = upload_youtube if upload_youtube is not None else settings.auto_upload_youtube
     if do_upload and video.output_path.exists():
+        from shorts_bot.drafts.quality import run_quality_checks
+        from shorts_bot.memory.extensions import MemoryExtensions
         from shorts_bot.youtube.upload import upload_short
 
-        try:
-            up = upload_short(
-                video.output_path,
+        qc = run_quality_checks(
+            topic=draft.topic,
+            script=draft.script,
+            hook=draft.hook,
+            help_angle=draft.help_angle,
+        )
+        if settings.quality_gate_blocks_upload and not qc.passed:
+            messages.append(f"Upload blocked — quality gate: {qc.summary()}")
+            do_upload = False
+        elif qc.warnings:
+            messages.append(f"Quality warnings: {'; '.join(qc.warnings[:3])}")
+
+        if do_upload:
+            mem = MemoryExtensions(store)
+            from shorts_bot.compliance.upload_guard import check_upload_allowed, record_upload
+
+            compliance = check_upload_allowed(
+                store,
+                mem,
+                draft_id=draft_id,
+                topic=draft.topic,
+                hook=draft.hook,
+                script=draft.script,
                 title=package.title,
-                description=package.description,
-                tags=package.tags,
-                visibility=package.visibility,
             )
-            upload_url = up.video_url
-            messages.append(up.message)
-        except Exception as exc:
-            messages.append(f"YouTube upload failed: {exc}")
+            if not compliance.allowed:
+                messages.append(f"Upload blocked — YPP guard: {compliance.summary()}")
+                do_upload = False
+            elif compliance.warnings:
+                messages.append(f"YPP warnings: {'; '.join(compliance.warnings[:3])}")
+
+        if do_upload:
+            try:
+                up = upload_short(
+                    video.output_path,
+                    title=package.title,
+                    description=package.description,
+                    tags=package.tags,
+                    visibility=package.visibility,
+                )
+                upload_url = up.video_url
+                messages.append(up.message)
+                record_upload(
+                    mem,
+                    draft_id=draft_id,
+                    topic=draft.topic,
+                    hook=draft.hook,
+                    script=draft.script,
+                    title=package.title,
+                    video_id=up.video_id,
+                )
+                if settings.auto_publish_hours > 0 and package.visibility == "unlisted":
+                    mem.schedule_publish(
+                        video_id=up.video_id,
+                        draft_id=draft_id,
+                        visibility="unlisted",
+                        publish_after_hours=settings.auto_publish_hours,
+                    )
+                    messages.append(
+                        f"Scheduled public publish in {settings.auto_publish_hours}h "
+                        f"(video {up.video_id})"
+                    )
+            except Exception as exc:
+                messages.append(f"YouTube upload failed: {exc}")
 
     return PipelineResult(
         draft_id=draft_id,

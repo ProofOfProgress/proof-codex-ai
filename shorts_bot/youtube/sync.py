@@ -87,12 +87,14 @@ class AnalyticsSync:
         wins = sorted((r for r in scored if r.verdict == "reward"), key=lambda r: r.score, reverse=True)
         candidates = punishes[:2] + wins[:1]
 
+        from shorts_bot.learning.score_helpers import propose_reward_improvement
+
         created = 0
         for result in candidates:
             source = f"reward:{result.verdict}:{result.video_label}"
             if source in pending:
                 continue
-            if self.proposer.propose_from_reward(result):
+            if propose_reward_improvement(self.memory, self.proposer, result):
                 created += 1
                 pending.add(source)
             if created >= MAX_IMPROVEMENTS_PER_SYNC:

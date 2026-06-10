@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Literal
 
 from shorts_bot.brand.loader import ChannelBrand
-from shorts_bot.youtube.studio import goto_channel_customization, open_studio
+from shorts_bot.brand.assets import PROFILE_PATH
+from shorts_bot.youtube.studio import (
+    goto_channel_branding_images,
+    goto_channel_customization,
+    open_studio,
+)
 
 BrandStatus = Literal["applied", "partial", "needs_human", "not_logged_in", "failed"]
 
@@ -18,6 +23,7 @@ class BrandApplyResult:
     message: str
     name_updated: bool = False
     description_updated: bool = False
+    profile_updated: bool = False
     channel_name: str | None = None
     screenshot_path: str | None = None
     current_url: str | None = None
@@ -30,6 +36,8 @@ class BrandApplyResult:
             lines.append("✓ Display name updated")
         if self.description_updated:
             lines.append("✓ Description updated")
+        if self.profile_updated:
+            lines.append("✓ Profile picture updated")
         if self.current_url:
             lines.append(f"URL: {self.current_url}")
         if self.screenshot_path:
@@ -55,7 +63,13 @@ class YouTubeChannelBranding:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
         self.screenshot_dir.mkdir(parents=True, exist_ok=True)
 
-    def apply_from_brand_file(self) -> BrandApplyResult:
+    def upload_profile_only(self, profile_path: Path) -> BrandApplyResult:
+        """Studio-only profile picture upload (API cannot set avatar)."""
+        if not profile_path.exists():
+            return BrandApplyResult(status="failed", message=f"Profile image not found: {profile_path}")
+        return self.apply(profile_path=profile_path)
+
+    def apply_from_brand_file(self, *, profile_path: Path | None = None) -> BrandApplyResult:
         brand = ChannelBrand()
         fields = brand.youtube_fields()
         if not fields.channel_name and not fields.description:
@@ -66,6 +80,7 @@ class YouTubeChannelBranding:
         return self.apply(
             channel_name=fields.channel_name or None,
             description=fields.description or None,
+            profile_path=profile_path or (PROFILE_PATH if PROFILE_PATH.exists() else None),
         )
 
     def apply(
@@ -73,11 +88,12 @@ class YouTubeChannelBranding:
         *,
         channel_name: str | None = None,
         description: str | None = None,
+        profile_path: Path | None = None,
     ) -> BrandApplyResult:
         channel_name = (channel_name or "").strip() or None
         description = (description or "").strip() or None
-        if not channel_name and not description:
-            return BrandApplyResult(status="failed", message="Provide channel_name and/or description.")
+        if not channel_name and not description and not (profile_path and profile_path.exists()):
+            return BrandApplyResult(status="failed", message="Provide channel_name, description, and/or profile_path.")
 
         try:
             from playwright.sync_api import sync_playwright
@@ -110,7 +126,7 @@ class YouTubeChannelBranding:
                     )
 
                 channel_id = goto_channel_customization(page)
-                if not channel_id:
+                if not channel_id and (channel_name or description):
                     return BrandApplyResult(
                         status="needs_human",
                         message=(
@@ -123,25 +139,35 @@ class YouTubeChannelBranding:
 
                 name_ok = False
                 desc_ok = False
-                if channel_name:
+                if channel_name and channel_id:
                     name_ok = self._fill_channel_name(page, channel_name)
-                if description:
+                if description and channel_id:
                     desc_ok = self._fill_description(page, description)
 
-                if name_ok or desc_ok:
+                profile_ok = False
+                if profile_path and profile_path.exists():
+                    branding_cid = goto_channel_branding_images(page, channel_id)
+                    if branding_cid:
+                        profile_ok = self._upload_profile_picture(page, profile_path)
+
+                if name_ok or desc_ok or profile_ok:
                     self._try_publish(page)
                     time.sleep(2)
 
-                if name_ok and (desc_ok or not description):
+                if (name_ok or not channel_name) and (desc_ok or not description) and (
+                    profile_ok or not profile_path
+                ):
                     status: BrandStatus = "applied"
                     msg = "Channel branding applied in YouTube Studio."
-                elif name_ok or desc_ok:
+                elif name_ok or desc_ok or profile_ok:
                     status = "partial"
                     parts = []
                     if name_ok:
                         parts.append("display name")
                     if desc_ok:
                         parts.append("description")
+                    if profile_ok:
+                        parts.append("profile picture")
                     msg = f"Updated {' and '.join(parts)}. Check Studio for anything still missing."
                 else:
                     status = "needs_human"
@@ -155,6 +181,7 @@ class YouTubeChannelBranding:
                     message=msg,
                     name_updated=name_ok,
                     description_updated=desc_ok,
+                    profile_updated=profile_ok,
                     channel_name=channel_name,
                     screenshot_path=self._screenshot(page, "brand_apply"),
                     current_url=page.url,
@@ -168,6 +195,38 @@ class YouTubeChannelBranding:
                 )
             finally:
                 context.close()
+
+    def _upload_profile_picture(self, page, profile_path: Path) -> bool:
+        selectors = [
+            'input[type="file"][accept*="image"]',
+            "input[type='file']",
+            "#picture-input input[type=file]",
+            "ytcp-profile-image-upload input[type=file]",
+        ]
+        for sel in selectors:
+            loc = page.locator(sel).first
+            if not loc.count():
+                continue
+            try:
+                loc.set_input_files(str(profile_path.resolve()), timeout=8000)
+                time.sleep(2)
+                self._try_publish(page)
+                time.sleep(1)
+                return True
+            except Exception:
+                continue
+        try:
+            page.get_by_text(re.compile(r"upload|change|picture", re.I)).first.click(timeout=3000)
+            time.sleep(1)
+            file_input = page.locator("input[type=file]").first
+            if file_input.count():
+                file_input.set_input_files(str(profile_path.resolve()), timeout=8000)
+                time.sleep(2)
+                self._try_publish(page)
+                return True
+        except Exception:
+            pass
+        return False
 
     def _fill_channel_name(self, page, channel_name: str) -> bool:
         selectors = [

@@ -7,16 +7,19 @@ import time
 
 from rich.console import Console
 
+from shorts_bot.browser.session import _SITE_URLS
 from shorts_bot.config import settings
 
 console = Console()
 
 SITES = {
-    "google": ("Google sign-in", "https://accounts.google.com/signin"),
-    "youtube": ("YouTube Studio", "https://studio.youtube.com"),
-    "turboscribe": ("TurboScribe", "https://turboscribe.ai/login"),
-    "capcut": ("CapCut web", "https://www.capcut.com/my-edit"),
-    "discord": ("Discord app", "https://discord.com/login"),
+    "google": ("Google sign-in", _SITE_URLS["google"]),
+    "youtube": ("YouTube Studio", _SITE_URLS["youtube"]),
+    "turboscribe": ("TurboScribe", _SITE_URLS["turboscribe"]),
+    "vidiq": ("vidIQ keyword research", _SITE_URLS["vidiq"]),
+    "trends": ("Google Trends", _SITE_URLS["trends"]),
+    "capcut": ("CapCut web", _SITE_URLS["capcut"]),
+    "discord": ("Discord app", _SITE_URLS["discord"]),
 }
 
 

@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from shorts_bot.memory.store import MemoryStore
-from shorts_bot.production.topic_rotation import DEFAULT_TOPICS, next_topic
+from shorts_bot.production.niche import DEFAULT_TOPICS
+from shorts_bot.production.topic_rotation import next_topic
 
 
 def test_next_topic_rotates(tmp_path: Path):

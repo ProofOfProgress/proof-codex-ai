@@ -25,6 +25,27 @@ def is_sync_command(message: str) -> bool:
     return t in {"sync", "sync youtube", "sync analytics", "youtube sync"} or t.startswith("sync ")
 
 
+def is_comments_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "comments",
+        "reply comments",
+        "comment sync",
+        "sync comments",
+        "auto comments",
+    }
+
+
+def is_comments_pending_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "comments pending",
+        "serious comments",
+        "comment queue",
+        "pending comments",
+    }
+
+
 def is_pending_command(message: str) -> bool:
     t = message.strip().lower()
     return t in {"pending", "approvals", "what needs approval", "improvements"}
@@ -93,4 +114,76 @@ def is_apply_brand_command(message: str) -> bool:
         "update channel name",
         "update description",
         "apply channel brand",
+        "brand channel",
+        "deck channel",
     } or t.startswith("apply brand ")
+
+
+def is_daily_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "daily",
+        "run daily",
+        "make short",
+        "autopilot",
+        "run short",
+        "produce daily",
+    } or t.startswith("daily ")
+
+
+def parse_daily_topic(message: str) -> str | None:
+    t = message.strip()
+    lower = t.lower()
+    if lower.startswith("daily "):
+        return t[6:].strip() or None
+    return None
+
+
+def parse_research_request(message: str) -> tuple[str, bool] | None:
+    """Return (topic, force_refresh) for research / deep research commands."""
+    text = message.strip()
+    lower = text.lower()
+    for prefix in (
+        "deep research ",
+        "deep-research ",
+        "research refresh ",
+        "research --refresh ",
+    ):
+        if lower.startswith(prefix):
+            topic = text[len(prefix) :].strip()
+            return (topic, True) if topic else None
+    if lower.startswith("research "):
+        topic = text[9:].strip()
+        return (topic, False) if topic else None
+    if lower in {"deep research", "research refresh"}:
+        return ("", True)
+    return None
+
+
+def parse_browse_request(message: str) -> tuple[str, bool] | None:
+    """Return (url_or_site, visible) for browse / browser commands."""
+    text = message.strip()
+    lower = text.lower()
+    if lower.startswith("browse "):
+        return text[7:].strip(), False
+    if lower.startswith("browser browse "):
+        return text[15:].strip(), False
+    for prefix in ("browser open ", "open browser ", "open "):
+        if lower.startswith(prefix) and prefix != "open ":
+            return text[len(prefix) :].strip(), True
+    if lower.startswith("browser login "):
+        site = text[14:].strip()
+        return site, True
+    if lower in {"browser", "browser status"}:
+        return "__status__", False
+    return None
+
+
+def is_login_status_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {"login status", "live status", "services", "health", "login_status"}
+
+
+def is_generate_assets_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {"generate assets", "make assets", "brand assets", "generate brand assets"}

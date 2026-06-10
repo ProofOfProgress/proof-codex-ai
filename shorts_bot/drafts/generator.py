@@ -9,6 +9,7 @@ from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
+from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 
@@ -45,6 +46,7 @@ class DraftGenerator:
         model: str | None = None,
         router: CourseRouter | None = None,
         memory: MemoryExtensions | None = None,
+        agent_memory: AgentMemoryStore | None = None,
         brand: ChannelBrand | None = None,
     ) -> None:
         self.store = store
@@ -52,6 +54,7 @@ class DraftGenerator:
         self.model = model or settings.openai_model
         self.router = router
         self.memory = memory
+        self.agent_memory = agent_memory
         self.brand = brand or ChannelBrand()
 
     def _feedback_context(self) -> str:
@@ -66,9 +69,19 @@ class DraftGenerator:
             parts.append("Recent rejections to avoid repeating:\n" + "\n".join(f"- {r}" for r in rejections))
         if approvals:
             parts.append("Recent approvals to learn from:\n" + "\n".join(f"- {a}" for a in approvals))
+        if self.agent_memory:
+            block = self.agent_memory.context_block(max_chars=2000)
+            if block:
+                parts.append(block)
         return "\n\n".join(parts) if parts else "No approval history yet."
 
-    def generate(self, topic: str, angle: str | None = None) -> GeneratedDraft:
+    def generate(
+        self,
+        topic: str,
+        angle: str | None = None,
+        *,
+        research=None,
+    ) -> GeneratedDraft:
         if self.client is None:
             return self._generate_offline(topic, angle)
 
@@ -78,13 +91,20 @@ class DraftGenerator:
 
             course_ctx = jenny_draft_guidance(topic)
 
+        research_block = ""
+        if research is not None:
+            research_block = f"\n{research.draft_context()}\n"
+
         user_prompt = f"""Topic: {topic}
 Optional angle: {angle or "none"}
-
+{research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Soft Continuity — warm help, one subtle oracle line in script):
+CHANNEL BRAND (Soft Continuity — warm help, first-person):
 {self.brand.draft_instructions()[:1800]}
+
+ENDING RULE: Stop right after the payoff (one concrete action landed). Do NOT end the script with
+"you're still here" / "you're still here. good." — that tagline is channel metadata only, not voiceover.
 
 JENNY COURSE RULES FOR THIS DRAFT:
 {course_ctx}
@@ -118,15 +138,14 @@ Return JSON with keys:
             f"So here's what I do now before I make it worse. "
             f"{(angle or 'One small thing that actually helped me')}. "
             f"I still slip sometimes — but this shortens the spiral. "
-            f"Try it once tonight. "
-            f"You're still here. Good."
+            f"Try it once tonight — one breath before {topic}."
         )
         help_angle = f"I share what helped me with {topic} — for anyone in the same loop."
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
 
-    def create_and_store(self, topic: str, angle: str | None = None) -> Draft:
-        generated = self.generate(topic, angle)
+    def create_and_store(self, topic: str, angle: str | None = None, *, research=None) -> Draft:
+        generated = self.generate(topic, angle, research=research)
         notes = generated.quality.summary()
         if self.router:
             route = self.router.route(topic)

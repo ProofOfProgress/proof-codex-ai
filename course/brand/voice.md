@@ -11,7 +11,8 @@ When writing hooks and scripts:
 5. **Momentum** — every line advances; but/so cause-and-effect
 6. **Payoff then stop** — best beat last, end within one beat
 7. **Mute-safe** — stick figure acts out advice; **subtitles on key lines**
-8. **One subtle knowing line max** — seasoning, not the meal
+8. **One subtle knowing line max** — seasoning, not the meal (optional mid-script; never a tacked-on outro)
 9. **No AI words** — bot, algorithm, ChatGPT, simulation, glitch
+10. **End on the protocol** — last line = concrete relief or "try this tonight" tied to the moment. **Do NOT** end voiceover with the channel tagline.
 
-Tagline: "You're still here. Good."
+Channel tagline (`you're still here. good.`) is for **description / banner / pinned comment only** — not spoken in every Short. It reads weird as a repeated video ending.

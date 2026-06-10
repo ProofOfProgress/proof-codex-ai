@@ -41,8 +41,10 @@ STRUCTURE (Jenny 02 + 06):
 - If subscribe CTA: BEFORE payoff, never only after
 
 VISUALS (Jenny 05):
-- 3-5 mute-safe beats — stick figure ACTING the advice
+- 3-5 mute-safe beats — stick figures ACTING the advice (ChainsFR-style, off-white frames)
 - Subtitles on screen for key lines (spoken_text per segment)
+- Framing: subject in upper 60%; captions above YouTube Shorts title overlay (safe zone)
+- Review on mute before upload — story must read without audio
 
 ANTI-SLOP (verbatim):
 - No forced relatability, no trend copy-paste, no generic motivation spam

@@ -10,7 +10,10 @@ from shorts_bot.production.image_prompts import build_image_briefs, build_master
 from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.production.render_stills import render_all_stills
 from shorts_bot.production.render_stickfigures import render_all_stickfigures
-from shorts_bot.production.script_segments import segments_from_script
+from shorts_bot.production.script_segments import (
+    segments_from_script,
+    segments_from_script_for_duration,
+)
 from shorts_bot.production.turboscribe_parser import parse_turboscribe
 
 
@@ -65,7 +68,17 @@ def build_production_pack(
     draft = store.get_draft(draft_id)
     segments = parse_turboscribe(turboscribe_text) if turboscribe_text.strip() else []
     if not segments and auto_from_script:
-        segments = segments_from_script(draft.script)
+        audio_path = (output_root or (settings.data_dir / "production" / f"draft_{draft_id}")) / "voiceover.mp3"
+        if audio_path.exists():
+            from shorts_bot.production.render_video import _probe_duration
+
+            try:
+                dur = _probe_duration(audio_path)
+                segments = segments_from_script_for_duration(draft.script, dur)
+            except Exception:
+                segments = segments_from_script(draft.script)
+        else:
+            segments = segments_from_script(draft.script)
     if not segments:
         raise ValueError(
             "No timestamps found. Use auto_from_script=True or paste TurboScribe export "
@@ -150,11 +163,11 @@ def build_production_pack(
         "Soft Continuity production pack\n\n"
         "1. Record voiceover from script in manifest.json\n"
         "2. Upload audio to TurboScribe → copy timestamped text → re-run produce if needed\n"
-        "3. Generate images: one per prompts/*.txt (Cursor, Higgsfield, or manual)\n"
+        "3. Stick-figure frames: auto-rendered in images/ (VISUAL_STYLE=stickfigure)\n"
         "4. Save PNGs to images/ named like 00.07.png\n"
         "5. Follow CAPCUT_TIMELINE.md\n"
         "6. captions.srt — upload to YouTube for extra subtitle track\n"
-        "7. Each PNG has bottom caption (mute-safe, Jenny 05)\n",
+        "7. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
         encoding="utf-8",
     )
 

@@ -6,58 +6,42 @@ from rich.console import Console
 from rich.panel import Panel
 
 from shorts_bot.config import settings
-from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+from shorts_bot.services.ops import BotOperations
 
 console = Console()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Apply channel display name and description in YouTube Studio."
+        description="Apply channel name, description, and banner via YouTube API."
     )
+    parser.add_argument("--channel-name", help="Override display name.")
+    parser.add_argument("--description", help="Override description.")
     parser.add_argument(
-        "--channel-name",
-        help="Override display name (default: channel/brand/youtube_copy.txt).",
-    )
-    parser.add_argument(
-        "--description",
-        help="Override description text.",
-    )
-    parser.add_argument(
-        "--no-brand-file",
+        "--browser",
         action="store_true",
-        help="Do not read youtube_copy.txt; require --channel-name and/or --description.",
-    )
-    parser.add_argument(
-        "--headless",
-        action="store_true",
-        help="Run browser headless (not recommended for first login).",
+        help="Fallback to Playwright Studio automation (legacy).",
     )
     args = parser.parse_args()
 
     console.print(
         Panel(
-            "[bold]Apply Channel Branding[/bold]\n\n"
-            "Opens YouTube Studio with your saved browser session and updates "
-            "display name + description.\n"
-            "[yellow]You must be logged into YouTube once in this profile.[/yellow]",
+            "[bold]Apply Channel Branding (API)[/bold]\n\n"
+            "Updates name + description + banner without opening a browser.\n"
+            "Profile picture: upload channel/brand/assets/profile.png manually in Studio.",
             border_style="blue",
         )
     )
 
-    operator = YouTubeChannelBranding(
-        profile_dir=settings.browser_profile_dir,
-        headless=args.headless,
+    ops = BotOperations()
+    result = ops.apply_channel_branding(
+        channel_name=args.channel_name,
+        description=args.description,
+        use_brand_file=not (args.channel_name or args.description),
+        use_browser_fallback=args.browser,
     )
-    if args.no_brand_file:
-        result = operator.apply(channel_name=args.channel_name, description=args.description)
-    elif args.channel_name or args.description:
-        result = operator.apply(channel_name=args.channel_name, description=args.description)
-    else:
-        result = operator.apply_from_brand_file()
-
-    style = "green" if result.status in {"applied", "partial"} else "yellow"
-    console.print(Panel(result.for_human(), title=result.status, border_style=style))
+    style = "green" if result.get("ok") else "yellow"
+    console.print(Panel(result.get("message", "Done"), title=result.get("status", "done"), border_style=style))
 
 
 if __name__ == "__main__":

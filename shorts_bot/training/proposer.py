@@ -83,6 +83,7 @@ class ImprovementProposer:
 
     def _llm_proposal(self, reward: RewardResult) -> Improvement:
         applied = self.memory.applied_improvements()
+        avoid = self.memory.avoid_patterns() + self.memory.rejected_training_hints()
         prompt = f"""Based on this YouTube Short performance result, propose ONE system improvement.
 
 Verdict: {reward.verdict}
@@ -91,6 +92,7 @@ Reason: {reward.reason}
 Diagnosis: {reward.diagnosis}
 Metrics: {json.dumps(reward.metrics)}
 Already applied improvements: {applied}
+Do NOT re-propose anything similar to these rejected/avoid rules: {avoid}
 
 Return JSON:
 - title: short title

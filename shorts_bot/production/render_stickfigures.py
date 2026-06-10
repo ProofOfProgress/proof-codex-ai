@@ -1,4 +1,4 @@
-"""ChainsFR-style stick figure frames with speech bubbles."""
+"""ChainsFR-style stick figure frames — minimal sets, expressive poses."""
 
 from __future__ import annotations
 
@@ -6,7 +6,14 @@ import textwrap
 from pathlib import Path
 
 from shorts_bot.production.image_prompts import ImageBrief
-from shorts_bot.production.scene_plan import Pose, ScenePlan, plan_scene
+from shorts_bot.production.scene_plan import Pose, plan_scene
+from shorts_bot.production.stick_background import (
+    draw_bed,
+    draw_couch,
+    draw_foreground_prop,
+    draw_room_background,
+    plan_room,
+)
 
 
 def _font(size: int):
@@ -35,23 +42,21 @@ def _draw_stick(draw, cx: int, cy: int, pose: Pose, scale: float = 1.0) -> None:
     draw.ellipse([cx - head_r, body_top - head_r * 2, cx + head_r, body_top], fill="#111111", outline="#111111")
 
     if pose == Pose.LYING_AWAKE:
-        # Horizontal on bed level
-        hx, hy = cx - int(80 * s), cy + int(40 * s)
+        hx, hy = cx - int(20 * s), cy + int(10 * s)
         draw.ellipse([hx - head_r, hy - head_r, hx + head_r, hy + head_r], fill="#111111")
-        draw.line([hx + head_r, hy, hx + int(100 * s), hy], fill="#111111", width=int(5 * s))
-        draw.line([hx + int(50 * s), hy, hx + int(30 * s), hy - int(40 * s)], fill="#111111", width=int(4 * s))
-        draw.line([hx + int(50 * s), hy, hx + int(70 * s), hy + int(25 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx + int(10 * s), hy, hx + int(70 * s), hy + int(15 * s)], fill="#111111", width=int(5 * s))
+        draw.line([hx + int(40 * s), hy + int(10 * s), hx + int(20 * s), hy + int(50 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx + int(40 * s), hy + int(10 * s), hx + int(65 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
         return
 
     if pose == Pose.CALM_IN_BED:
-        hx, hy = cx, cy + int(60 * s)
+        hx, hy = cx, cy + int(20 * s)
         draw.ellipse([hx - head_r, hy - head_r, hx + head_r, hy + head_r], fill="#111111")
-        draw.line([hx, hy + head_r, hx, hy + int(90 * s)], fill="#111111", width=int(5 * s))
-        draw.line([hx, hy + int(40 * s), hx - int(45 * s), hy + int(20 * s)], fill="#111111", width=int(4 * s))
-        draw.line([hx, hy + int(40 * s), hx + int(45 * s), hy + int(20 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx, hy + head_r, hx, hy + int(55 * s)], fill="#111111", width=int(5 * s))
+        draw.line([hx, hy + int(25 * s), hx - int(40 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx, hy + int(25 * s), hx + int(40 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
         return
 
-    # Standing poses — shared body
     draw.line([cx, body_top, cx, body_bot], fill="#111111", width=int(6 * s))
 
     if pose == Pose.BREATHING:
@@ -59,7 +64,6 @@ def _draw_stick(draw, cx: int, cy: int, pose: Pose, scale: float = 1.0) -> None:
         draw.line([cx, body_top + int(20 * s), cx + int(55 * s), body_top + int(70 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx - int(35 * s), body_bot + int(55 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx + int(35 * s), body_bot + int(55 * s)], fill="#111111", width=int(5 * s))
-        # breath lines
         for i, dx in enumerate((-90, -60, -30)):
             draw.arc([cx + dx - 20, body_top - 50 - i * 15, cx + dx + 20, body_top - 10 - i * 15], 200, 340, fill="#888888", width=2)
     elif pose == Pose.REACHING_PHONE:
@@ -69,7 +73,7 @@ def _draw_stick(draw, cx: int, cy: int, pose: Pose, scale: float = 1.0) -> None:
         draw.line([cx, body_bot, cx + int(30 * s), body_bot + int(60 * s)], fill="#111111", width=int(5 * s))
     elif pose == Pose.PUTTING_PHONE_DOWN:
         draw.line([cx, body_top + int(25 * s), cx - int(65 * s), body_top + int(55 * s)], fill="#111111", width=int(5 * s))
-        draw.line([cx, body_top + int(25 * s), cx + int(40 * s), body_top + int(80 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_top + int(20 * s), cx + int(40 * s), body_top + int(80 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx - int(35 * s), body_bot + int(55 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx + int(35 * s), body_bot + int(55 * s)], fill="#111111", width=int(5 * s))
     elif pose == Pose.NAMING_THOUGHT:
@@ -106,23 +110,6 @@ def _draw_prop(draw, cx: int, cy: int, prop: str | None, pose: Pose) -> None:
         draw.ellipse([tx + 25, ty + 20, tx + 50, ty + 50], fill="#FFFFFF", outline="#111111", width=2)
 
 
-def _draw_bottom_caption(draw, text: str, w: int, h: int) -> None:
-    font = _font_reg(36)
-    lines = textwrap.wrap(" ".join(text.split()), width=28)[:2]
-    if not lines:
-        return
-    line_h = 44
-    pad = 20
-    bar_h = len(lines) * line_h + pad * 2
-    by = h - bar_h - 80
-    draw.rounded_rectangle([40, by, w - 40, by + bar_h], radius=14, fill="#111111", outline="#111111")
-    y = by + pad
-    for ln in lines:
-        tw = draw.textlength(ln, font=font) if hasattr(draw, "textlength") else len(ln) * 18
-        draw.text(((w - tw) / 2, y), ln, fill="#FFFFFF", font=font)
-        y += line_h
-
-
 def _draw_bubble(draw, text: str, w: int, h: int) -> None:
     font = _font_reg(32)
     lines = textwrap.wrap(text, width=22)
@@ -133,7 +120,6 @@ def _draw_bubble(draw, text: str, w: int, h: int) -> None:
     bx = (w - bw) // 2
     by = int(h * 0.08)
     draw.rounded_rectangle([bx, by, bx + bw, by + bh], radius=20, fill="#FFFFFF", outline="#111111", width=4)
-    # tail
     tail_cx = bx + bw // 2
     draw.polygon([(tail_cx - 15, by + bh), (tail_cx + 15, by + bh), (tail_cx, by + bh + 25)], fill="#FFFFFF", outline="#111111")
     draw.line([tail_cx - 14, by + bh, tail_cx + 14, by + bh], fill="#FFFFFF", width=3)
@@ -143,33 +129,57 @@ def _draw_bubble(draw, text: str, w: int, h: int) -> None:
         y += line_h
 
 
-def _draw_bed_floor(draw, w: int, h: int, pose: Pose) -> None:
-    floor_y = int(h * 0.78)
-    if pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
-        draw.rounded_rectangle([80, floor_y - 40, w - 80, floor_y + 30], radius=12, fill="#E0DDD6", outline="#BBBBBB", width=2)
-        draw.line([(100, floor_y - 10), (w - 100, floor_y - 10)], fill="#C8C5BE", width=2)
-    else:
-        draw.line([(60, floor_y), (w - 60, floor_y)], fill="#CCCCCC", width=3)
+def _place_figure(w: int, h: int, plan, room) -> tuple[int, int, float]:
+    """Anchor figure in upper safe action zone — clear of captions + right UI rail."""
+    from shorts_bot.production.framing import action_figure_position
+
+    base_x, base_y = action_figure_position(width=w, height=h)
+    if room.furniture == "couch":
+        return base_x, int(h * 0.48), 0.95
+    if room.furniture == "bed" or plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
+        return base_x - 20, int(h * 0.44), 0.9
+    if plan.pose in {Pose.STANDING_CALM, Pose.POINTING_SELF}:
+        return base_x, int(h * 0.38), 1.0
+    return base_x, base_y, 1.0
 
 
 def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
     from PIL import Image, ImageDraw
 
     plan = plan_scene(brief.spoken_text)
+    room = plan_room(brief.spoken_text)
     w, h = 1080, 1920
     img = Image.new("RGB", (w, h), "#F4F4F0")
     draw = ImageDraw.Draw(img)
 
-    _draw_bed_floor(draw, w, h, plan.pose)
-    cx, cy = w // 2, int(h * 0.52)
-    _draw_stick(draw, cx, cy, plan.pose)
-    _draw_prop(draw, cx, cy, plan.prop, plan.pose)
+    draw_room_background(draw, w, h, room, _font_reg(16))
+
+    fig_x, fig_y, scale = _place_figure(w, h, plan, room)
+    if room.furniture == "couch":
+        fig_x, seat_y = draw_couch(draw, w, h)
+        fig_y = seat_y - 90
+        if plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
+            fig_x, fig_y = fig_x - 30, seat_y - 20
+    elif room.furniture == "bed" or plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
+        fig_x, bed_top = draw_bed(draw, w, h)
+        fig_y = bed_top - 8
+
+    _draw_stick(draw, fig_x, fig_y, plan.pose, scale=scale)
+
+    prop = plan.prop or room.foreground_prop
+    if prop:
+        _draw_prop(draw, fig_x, fig_y, prop, plan.pose)
+        if room.foreground_prop and room.foreground_prop != plan.prop:
+            draw_foreground_prop(draw, fig_x, fig_y, room.foreground_prop)
 
     if plan.bubble_text:
         _draw_bubble(draw, plan.bubble_text, w, h)
 
-    # Bottom subtitle — Jenny mute-safe + always-on captions
-    _draw_bottom_caption(draw, brief.spoken_text, w, h)
+    from shorts_bot.production.captions import burn_captions_on_frames
+    from shorts_bot.production.caption_overlay import draw_bottom_caption
+
+    if burn_captions_on_frames():
+        draw_bottom_caption(draw, brief.spoken_text, w, h)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     img.save(out_path, "PNG")
