@@ -130,15 +130,17 @@ def _draw_bubble(draw, text: str, w: int, h: int) -> None:
 
 
 def _place_figure(w: int, h: int, plan, room) -> tuple[int, int, float]:
-    """Anchor figure after optional furniture — ChainsFR: character moves with the story."""
+    """Anchor figure in upper safe action zone — clear of captions + right UI rail."""
+    from shorts_bot.production.framing import action_figure_position
+
+    base_x, base_y = action_figure_position(width=w, height=h)
     if room.furniture == "couch":
-        cx, seat_y = int(w * 0.5), int(h * 0.52)  # placeholder, overwritten below
-        return cx, seat_y, 0.95
+        return base_x, int(h * 0.48), 0.95
     if room.furniture == "bed" or plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
-        return w // 2 - 20, int(h * 0.56), 0.9
+        return base_x - 20, int(h * 0.44), 0.9
     if plan.pose in {Pose.STANDING_CALM, Pose.POINTING_SELF}:
-        return w // 2, int(h * 0.46), 1.0
-    return w // 2, int(h * 0.50), 1.0
+        return base_x, int(h * 0.38), 1.0
+    return base_x, base_y, 1.0
 
 
 def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:

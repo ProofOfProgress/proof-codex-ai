@@ -31,12 +31,34 @@ def _duration_seconds(text: str) -> float:
 
 def segments_from_script(script: str) -> list[TranscriptSegment]:
     """Estimate TurboScribe-style timestamps from approved script (no audio needed)."""
+    return _build_segments(_split_script(script))
+
+
+def segments_from_script_for_duration(script: str, audio_duration: float) -> list[TranscriptSegment]:
+    """Scale sentence cuts to match real voiceover length — tighter AV sync fallback."""
     chunks = _split_script(script)
+    if not chunks or audio_duration <= 0:
+        return segments_from_script(script)
+    raw = [_duration_seconds(c) for c in chunks]
+    total = sum(raw) or 1.0
+    scale = audio_duration / total
+    durations = [max(_MIN_SEGMENT_SECONDS, d * scale) for d in raw]
+    fix = audio_duration / sum(durations)
+    durations = [d * fix for d in durations]
+    return _build_segments(chunks, durations=durations)
+
+
+def _build_segments(
+    chunks: list[str],
+    *,
+    durations: list[float] | None = None,
+) -> list[TranscriptSegment]:
     segments: list[TranscriptSegment] = []
     t = 0.0
-    for chunk in chunks:
+    for i, chunk in enumerate(chunks):
+        dur = durations[i] if durations else _duration_seconds(chunk)
         segments.append(
             TranscriptSegment(start_seconds=t, text=chunk, label=label_from_seconds(t))
         )
-        t += _duration_seconds(chunk)
+        t += dur
     return segments

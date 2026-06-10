@@ -98,9 +98,15 @@ def render_short_video(
 
     ass_path = write_subtitle_files(pack_dir, segments, audio_duration)
 
-    vf = "format=yuv420p"
+    from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
+
+    vf_parts = [
+        f"scale={FRAME_WIDTH}:{FRAME_HEIGHT}:flags=lanczos",
+        "format=yuv420p",
+    ]
     if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
-        vf = ffmpeg_subtitles_filter(ass_path)
+        vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
+    vf = ",".join(vf_parts)
 
     cmd = [
         "ffmpeg",
@@ -118,13 +124,15 @@ def render_short_video(
         "-c:v",
         "libx264",
         "-preset",
-        "medium",
+        settings.video_preset,
         "-crf",
-        "20",
+        str(settings.video_crf),
+        "-pix_fmt",
+        "yuv420p",
         "-c:a",
         "aac",
         "-b:a",
-        "128k",
+        f"{settings.video_audio_bitrate_k}k",
         "-movflags",
         "+faststart",
         "-t",

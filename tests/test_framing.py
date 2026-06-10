@@ -17,5 +17,5 @@ def test_framing_notes_mention_jenny_safe_zone():
     from shorts_bot.production.framing import framing_notes_for_prompt
 
     notes = framing_notes_for_prompt()
-    assert "upper 60%" in notes
-    assert "caption safe zone" in notes.lower()
+    assert "15% and 55%" in notes
+    assert "caption" in notes.lower() and "safe zone" in notes.lower()

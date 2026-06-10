@@ -67,7 +67,7 @@ def build_subtitles_from_manifest(
     ass_events: list[str] = []
     idx = 1
 
-    margin_tag = ass_force_margin_override(SUBTITLE_MARGIN_V_PX)
+    margin_tag = ass_force_margin_override()
 
     for seg in segments:
         start = seg["start_seconds"] * scale

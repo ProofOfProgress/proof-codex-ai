@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack:** Gemini + Resemble voice clone + TurboScribe Whale + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`.
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack:** Gemini + Resemble voice clone + TurboScribe Whale + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md` (camera/caption/sync safe zones).
 
 **Channel mission:** loyal subscribers who come back because content **actually helps** — not viral one-offs. **TikTok account planned later** — no TikTok automation until user says go (`data/operating_rules_seed.md`).
 
@@ -65,8 +65,9 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 
 1. Enable YouTube Analytics API + YouTube Data API v3 in Google Cloud
 2. Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in `.env`
-3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`)
+3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`). For API uploads add `YOUTUBE_OAUTH_UPLOAD=1`.
 4. Web UI: **Sync YouTube Analytics** or POST `/api/youtube/sync`
+5. **Upload fallback:** if token lacks `youtube.upload`, use `python3 -c "from pathlib import Path; from shorts_bot.youtube.studio_upload import upload_pack_via_studio; print(upload_pack_via_studio(Path('data/production/draft_N')))"` — may need Desktop browser if Google shows “Verify it’s you”.
 5. User approves improvements via **Yes/No** in sidebar
 
 Home setup: `docs/RUN_AT_HOME.md` (master). YouTube: `docs/TOMORROW.md`. OpenAI: `docs/CHAT_TONIGHT.md`. Health: `bash scripts/doctor.sh`.

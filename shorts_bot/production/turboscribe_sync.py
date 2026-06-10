@@ -80,10 +80,34 @@ def transcribe_with_playwright(audio_path: Path, *, mode: str = "whale", timeout
                 "TurboScribe not logged in. Run: python3 -m shorts_bot.login_handoff --only turboscribe"
             )
 
-        # Upload audio
-        file_input = page.locator('input[type="file"]').first
-        file_input.wait_for(state="attached", timeout=30000)
-        file_input.set_input_files(str(audio_path))
+        # Upload audio — multiple selectors (TurboScribe UI changes often)
+        uploaded = False
+        for sel in (
+            'input[type="file"]',
+            'input[accept*="audio"]',
+            'input[accept*="video"]',
+        ):
+            loc = page.locator(sel)
+            if loc.count():
+                try:
+                    loc.first.set_input_files(str(audio_path), timeout=15000)
+                    uploaded = True
+                    break
+                except Exception:
+                    continue
+        if not uploaded:
+            try:
+                with page.expect_file_chooser(timeout=15000) as fc_info:
+                    page.get_by_role("button", name=re.compile(r"upload|transcribe|new", re.I)).first.click(
+                        timeout=8000
+                    )
+                fc_info.value.set_files(str(audio_path))
+                uploaded = True
+            except Exception:
+                pass
+        if not uploaded:
+            context.close()
+            raise RuntimeError("TurboScribe upload control not found — check login at turboscribe.ai/u")
         time.sleep(2)
 
         # Select transcription mode (Whale = max accuracy)

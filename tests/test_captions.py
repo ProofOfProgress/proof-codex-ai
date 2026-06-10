@@ -31,7 +31,7 @@ def test_ass_uses_box_style_and_safe_margin():
     ]
     _, ass = build_subtitles_from_manifest(segments, audio_duration=3.0)
     assert "BorderStyle" in ass or ",3," in ass  # BorderStyle 3 opaque box
-    assert "320" in ass  # MarginV safe zone
+    assert "1520" in ass  # Caption anchor above Shorts bottom UI (~380px)
     assert r"\pos(" in ass
     assert "Try this tonight." in ass
 

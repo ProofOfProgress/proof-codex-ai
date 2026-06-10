@@ -10,7 +10,10 @@ from shorts_bot.production.image_prompts import build_image_briefs, build_master
 from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.production.render_stills import render_all_stills
 from shorts_bot.production.render_stickfigures import render_all_stickfigures
-from shorts_bot.production.script_segments import segments_from_script
+from shorts_bot.production.script_segments import (
+    segments_from_script,
+    segments_from_script_for_duration,
+)
 from shorts_bot.production.turboscribe_parser import parse_turboscribe
 
 
@@ -65,7 +68,17 @@ def build_production_pack(
     draft = store.get_draft(draft_id)
     segments = parse_turboscribe(turboscribe_text) if turboscribe_text.strip() else []
     if not segments and auto_from_script:
-        segments = segments_from_script(draft.script)
+        audio_path = (output_root or (settings.data_dir / "production" / f"draft_{draft_id}")) / "voiceover.mp3"
+        if audio_path.exists():
+            from shorts_bot.production.render_video import _probe_duration
+
+            try:
+                dur = _probe_duration(audio_path)
+                segments = segments_from_script_for_duration(draft.script, dur)
+            except Exception:
+                segments = segments_from_script(draft.script)
+        else:
+            segments = segments_from_script(draft.script)
     if not segments:
         raise ValueError(
             "No timestamps found. Use auto_from_script=True or paste TurboScribe export "

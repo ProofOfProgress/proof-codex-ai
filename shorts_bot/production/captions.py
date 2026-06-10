@@ -86,8 +86,8 @@ def escape_ass_text(text: str) -> str:
     return t.replace("\n", r"\N")
 
 
-def ass_force_margin_override(margin_v: int) -> str:
-    """Per-line override so libass respects Jenny 05 bottom safe zone."""
-    from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
+def ass_force_margin_override(margin_v: int | None = None) -> str:
+    """Per-line override — caption anchor above Shorts bottom UI (see SHORTS_ALIGNMENT.md)."""
+    from shorts_bot.production.framing import ass_caption_position_tag
 
-    return rf"{{\an2\pos({FRAME_WIDTH // 2},{FRAME_HEIGHT - margin_v})}}"
+    return ass_caption_position_tag()

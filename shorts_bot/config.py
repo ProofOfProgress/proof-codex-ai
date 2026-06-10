@@ -81,6 +81,11 @@ class Settings(BaseSettings):
     caption_mode: str = "ffmpeg"  # ffmpeg | frame
     burn_in_subtitles: bool = True  # legacy alias — True when caption_mode=ffmpeg
 
+    # ffmpeg export — Shorts quality (see docs/SHORTS_ALIGNMENT.md)
+    video_crf: int = 18
+    video_preset: str = "slow"
+    video_audio_bitrate_k: int = 192
+
     # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
     use_turboscribe_sync: bool = True
     turboscribe_mode: str = "whale"
