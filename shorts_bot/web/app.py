@@ -182,7 +182,9 @@ async def approve_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "approved", body.note or "Approved.")
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note or "Approved", "approved")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note or "Approved", "approved")
     return {"status": d.status}
 
 
@@ -195,7 +197,9 @@ async def reject_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "rejected", body.note)
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note, "rejected")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note, "rejected")
     return {"status": d.status}
 
 
@@ -206,11 +210,13 @@ async def score_video(body: ScoreRequest) -> dict:
         for k, v in body.model_dump().items()
         if k != "video_label" and v is not None
     }
+    from shorts_bot.learning.score_helpers import propose_reward_improvement
+
     engine = get_reward_engine()
     result = engine.score(body.video_label, metrics)
     improvement = None
     proposer = get_proposer()
-    imp = proposer.propose_from_reward(result)
+    imp = propose_reward_improvement(get_memory(), proposer, result)
     if imp:
         improvement = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
     return {

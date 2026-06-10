@@ -119,10 +119,13 @@ class MemoryExtensions:
                 pass
 
     def save_analytics(self, video_label: str, metrics: dict[str, Any]) -> None:
+        """Upsert — latest metrics per video replace older rows."""
+        now = _utc_now()
         with self._conn() as conn:
+            conn.execute("DELETE FROM analytics_records WHERE video_label = ?", (video_label,))
             conn.execute(
                 "INSERT INTO analytics_records (video_label, metrics_json, recorded_at) VALUES (?, ?, ?)",
-                (video_label, json.dumps(metrics), _utc_now()),
+                (video_label, json.dumps(metrics), now),
             )
 
     def list_analytics(self, limit: int = 20) -> list[dict[str, Any]]:
@@ -239,6 +242,9 @@ class MemoryExtensions:
         imp = self.get_improvement(improvement_id)
         if approved:
             self.set_training_config(f"applied:{improvement_id}", imp.description)
+        else:
+            hint = f"{imp.title}: {note or imp.description}"[:500]
+            self.set_training_config(f"rejected:{improvement_id}", hint)
         return imp
 
     def set_training_config(self, key: str, value: str) -> None:
@@ -263,11 +269,52 @@ class MemoryExtensions:
             ).fetchall()
         return [r["value"] for r in rows]
 
-    def applied_training_context(self) -> str:
-        rules = self.applied_improvements()
-        if not rules:
+    def _config_values(self, prefix: str, *, limit: int = 10) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT value FROM training_config WHERE key LIKE ? ORDER BY updated_at DESC LIMIT ?",
+                (f"{prefix}%", limit),
+            ).fetchall()
+        return [r["value"] for r in rows]
+
+    def avoid_patterns(self) -> list[str]:
+        return self._config_values("avoid:", limit=8)
+
+    def repeat_patterns(self) -> list[str]:
+        return self._config_values("repeat:", limit=6)
+
+    def rejected_training_hints(self) -> list[str]:
+        return self._config_values("rejected:", limit=6)
+
+    def recent_performance_context(self, *, limit: int = 3) -> str:
+        rewards = self.recent_rewards(limit=limit)
+        if not rewards:
             return ""
-        return "Approved training rules (follow these):\n" + "\n".join(f"- {r}" for r in rules[:12])
+        lines = ["RECENT VIDEO PERFORMANCE (learn from these):"]
+        for r in rewards:
+            lines.append(
+                f"- {r['video_label']}: {r['verdict']} ({r['score']:+.2f}) — {r['reason'][:120]}"
+            )
+        return "\n".join(lines)
+
+    def applied_training_context(self) -> str:
+        """Unified self-learning block for drafts + strategist."""
+        parts: list[str] = []
+        rules = self.applied_improvements()
+        if rules:
+            parts.append("APPROVED TRAINING RULES:\n" + "\n".join(f"- {r}" for r in rules[:10]))
+        avoid = self.avoid_patterns()
+        rejected = self.rejected_training_hints()
+        if avoid or rejected:
+            lines = avoid + [f"(rejected proposal) {h}" for h in rejected]
+            parts.append("AVOID / DO NOT REPEAT:\n" + "\n".join(f"- {x}" for x in lines[:10]))
+        repeat = self.repeat_patterns()
+        if repeat:
+            parts.append("REPEAT WHEN RELEVANT:\n" + "\n".join(f"- {r}" for r in repeat[:6]))
+        perf = self.recent_performance_context()
+        if perf:
+            parts.append(perf)
+        return "\n\n".join(parts)
 
     def find_pending_dev_by_title(self, title: str) -> DevTask | None:
         with self._conn() as conn:

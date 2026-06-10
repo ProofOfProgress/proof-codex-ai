@@ -413,22 +413,28 @@ class ToolRunner:
         )
 
     def _approve_draft(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         draft = self.queue.approve(int(args["draft_id"]), args.get("note", ""))
+        learned = learn_from_draft(self._memory, draft.topic, args.get("note", ""), "approved")
         return json.dumps(
             {
                 "draft_id": draft.id,
                 "status": draft.status,
-                "message": "Draft approved. Video production comes later.",
+                "message": f"Draft approved. {learned}",
             }
         )
 
     def _reject_draft(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         draft = self.queue.reject(int(args["draft_id"]), args["reason"])
+        learned = learn_from_draft(self._memory, draft.topic, args["reason"], "rejected")
         return json.dumps(
             {
                 "draft_id": draft.id,
                 "status": draft.status,
-                "message": "Draft rejected. I'll learn from your reason next time.",
+                "message": f"Draft rejected. {learned}",
             }
         )
 
@@ -458,10 +464,12 @@ class ToolRunner:
         return json.dumps({"free_services": self.router.kb.free_services})
 
     def _score_video_performance(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.score_helpers import propose_reward_improvement
         metrics = {k: v for k, v in args.items() if k != "video_label" and v is not None}
         engine = RewardEngine(self._memory)
         result = engine.score(args["video_label"], metrics)
-        imp = ImprovementProposer(self._memory, client=None).propose_from_reward(result)
+        proposer = ImprovementProposer(self._memory, client=None)
+        imp = propose_reward_improvement(self._memory, proposer, result)
         payload: dict[str, Any] = {
             "score": result.score,
             "verdict": result.verdict,

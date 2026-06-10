@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     research_web_enabled: bool = True
     research_max_web_snippets: int = 8
     tavily_api_key: str | None = None
-    vidiq_enabled: bool = True
+    vidiq_enabled: bool = False  # off by default — browser + Trends + YouTube API instead
     vidiq_api_key: str | None = None  # vidIQ Max MCP API key → mcp.vidiq.com
     vidiq_use_browser: bool = True
     google_trends_enabled: bool = True

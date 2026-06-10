@@ -11,6 +11,7 @@ from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.memory.agent_memory import AgentMemoryStore
+from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 
 RESPONSE_FORMAT = """
@@ -36,15 +37,17 @@ def build_system_prompt(
     brand: ChannelBrand | None = None,
     *,
     memory_block: str = "",
+    learning_block: str = "",
 ) -> str:
     router = kb.router_prompt.strip()
     free = kb.free_services.strip()
     brand_block = brand.draft_instructions() if brand else ""
     memory_section = f"\n\n{memory_block}\n" if memory_block else ""
+    learning_section = f"\n\n{learning_block}\n" if learning_block else ""
     return f"""{router}
 
 {RESPONSE_FORMAT}
-{memory_section}
+{memory_section}{learning_section}
 CHANNEL BRAND (voice + positioning):
 {brand_block[:2200]}
 
@@ -67,6 +70,7 @@ class ShortsBotAgent:
         kb: CourseKnowledgeBase,
         brand: ChannelBrand | None = None,
         agent_memory: AgentMemoryStore | None = None,
+        training_memory: MemoryExtensions | None = None,
         *,
         llm_model: str | None = None,
         llm_provider: str = "offline",
@@ -80,9 +84,19 @@ class ShortsBotAgent:
         self.kb = kb
         self.brand = brand or ChannelBrand()
         self.agent_memory = agent_memory
+        self.training_memory = training_memory
         memory_block = agent_memory.context_block() if agent_memory else ""
+        learning_block = training_memory.applied_training_context() if training_memory else ""
         self.messages: list[dict[str, Any]] = [
-            {"role": "system", "content": build_system_prompt(kb, self.brand, memory_block=memory_block)}
+            {
+                "role": "system",
+                "content": build_system_prompt(
+                    kb,
+                    self.brand,
+                    memory_block=memory_block,
+                    learning_block=learning_block,
+                ),
+            }
         ]
         for msg in store.recent_chat(settings.memory_chat_context_limit):
             if msg["role"] in ("user", "assistant") and msg.get("content"):

@@ -1,6 +1,12 @@
-# vidIQ setup for Soft Continuity
+# vidIQ (optional — off by default)
 
-vidIQ feeds **keyword volume, competition, and related queries** into deep research.
+**We do not use vidIQ by default.** Deep research uses **Google Trends**, **YouTube API**, and **browser browse** instead (free/cheaper).
+
+Only enable if you already pay for vidIQ Max and want it back: `VIDIQ_ENABLED=true` in `.env`.
+
+---
+
+Legacy vidIQ setup (if you opted in):
 
 ## Option A — MCP API key (fastest for automation)
 

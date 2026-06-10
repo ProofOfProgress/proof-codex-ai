@@ -6,9 +6,15 @@ import argparse
 
 from rich.console import Console
 
+from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.config import settings
+from shorts_bot.course.loader import CourseKnowledgeBase
+from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
+from shorts_bot.memory.agent_memory import get_agent_memory_store
+from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
+from shorts_bot.llm.provider import get_llm_backend
 from shorts_bot.production.pipeline import finish_draft_pipeline
 from shorts_bot.production.research import deep_research_topic
 from shorts_bot.production.topic_rotation import next_topic
@@ -21,7 +27,19 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
     topic = topic or next_topic(store)
 
     research = deep_research_topic(topic)
-    gen = DraftGenerator(store)
+    backend = get_llm_backend()
+    memory = MemoryExtensions(store)
+    kb = CourseKnowledgeBase(settings.course_dir)
+    router = CourseRouter(kb)
+    gen = DraftGenerator(
+        store,
+        client=backend.client if backend else None,
+        model=backend.model if backend else settings.openai_model,
+        router=router,
+        memory=memory,
+        agent_memory=get_agent_memory_store(store),
+        brand=ChannelBrand(),
+    )
     draft = gen.create_and_store(topic, research=research)
     messages = [
         f"Research: {research.viewer_moment[:80]}…",

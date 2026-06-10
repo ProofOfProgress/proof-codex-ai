@@ -122,7 +122,7 @@ LIVE WEB RESEARCH:
 YOUTUBE COMPETITOR SHORTS (real titles):
 {competitor_context}
 
-KEYWORD / SEO SIGNALS (vidIQ + YouTube suggest):
+KEYWORD / SEO SIGNALS (YouTube suggest + Google Trends):
 {keyword_context}
 
 GOOGLE TRENDS (YouTube search interest, related + rising queries):

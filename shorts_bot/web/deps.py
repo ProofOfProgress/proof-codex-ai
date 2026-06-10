@@ -84,6 +84,7 @@ def get_agent() -> ShortsBotAgent:
         kb,
         ChannelBrand(),
         agent_memory,
+        memory,
         llm_model=llm_model,
         llm_provider=llm_provider,
     )

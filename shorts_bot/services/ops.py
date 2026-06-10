@@ -165,8 +165,8 @@ class BotOperations:
             "• memory / rules — list what the bot remembers\n"
             "• forget <id> — remove a saved memory\n"
             "• browse <url> — headless browser, return page text\n"
-            "• browser open <url|vidiq|youtube|trends> — visible Desktop browser\n"
-            "• browser login vidiq — open login tab (saved session)\n"
+            "• browser open <url|trends|youtube> — visible Desktop browser\n"
+            "• browser login youtube — open login tab (saved session)\n"
             "• Or chat normally (Gemini/OpenAI)"
         )
 
@@ -308,14 +308,18 @@ class BotOperations:
         ]
 
     def approve_draft(self, draft_id: int, note: str = "Approved.") -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         d = get_store().review_draft(draft_id, "approved", note)
-        get_proposer().propose_from_feedback(d.topic, note, "approved")
-        return f"✅ Draft #{d.id} approved: {d.topic}"
+        learned = learn_from_draft(get_memory(), d.topic, note, "approved")
+        return f"✅ Draft #{d.id} approved: {d.topic}\n{learned}"
 
     def reject_draft(self, draft_id: int, note: str) -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         d = get_store().review_draft(draft_id, "rejected", note)
-        get_proposer().propose_from_feedback(d.topic, note, "rejected")
-        return f"Draft #{d.id} rejected."
+        learned = learn_from_draft(get_memory(), d.topic, note, "rejected")
+        return f"Draft #{d.id} rejected. {learned}"
 
     def create_draft(self, topic: str, angle: str | None = None) -> str:
         result = get_agent().tool_runner.run("create_draft", {"topic": topic, "angle": angle})

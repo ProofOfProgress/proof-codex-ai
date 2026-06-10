@@ -26,4 +26,4 @@ Enforce hook → momentum → payoff (02, 06). Mute-safe visuals + caption safe 
 
 ## Deep research (user definition)
 
-When the user says **deep research**, do NOT limit to local files. Browse the web, pull Google Trends (YouTube search) related/rising queries, YouTube competitor titles, vidIQ keyword data when available, cross-check Jenny Hoyos course, and return the smoothest fastest pipeline path to run (`daily_cli`, research cache, CAPTION_MODE=ffmpeg, upload). Force refresh on `deep research <topic>`.
+When the user says **deep research**, do NOT limit to local files. Browse the web, Google Trends, YouTube competitors, browser for keyword pages if needed. No paid vidIQ. Cross-check Jenny course; return fastest pipeline path. Force refresh on `deep research <topic>`.

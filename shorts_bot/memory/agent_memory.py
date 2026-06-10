@@ -105,8 +105,8 @@ class AgentMemoryStore:
             (
                 "operating_rule",
                 "Deep research",
-                "Deep research = web browse + Google Trends + YouTube competitors + vidIQ keywords + "
-                "Jenny course synthesis. Not local files only. Include recommended_path for fastest pipeline run.",
+                "Deep research = web browse + Google Trends + YouTube competitors + Jenny course synthesis. "
+                "No paid vidIQ — use browser for keyword pages if needed. Include recommended_path.",
             ),
         ]
         for cat, title, content in defaults:
