@@ -4,38 +4,31 @@
 
 **North star:** Self-learning, fully autonomous YouTube channel that makes **a lot of money**.
 
-**Last assessed:** 2026-06-09
+**Last assessed:** 2026-06-09 (owner correction: channel has already posted — setup is not the bottleneck)
 
 ---
 
 ## Top 4 (only these until reassessed)
 
-| # | Priority | Why it matters | Status | Owner action |
-|---|----------|----------------|--------|--------------|
-| **1** | **Home PC online (`shorts-home`)** | Bot needs *your* computer for Google login, uploads, and renders | **In progress** — project folder found; worker not started yet | Run `agent login` then `agent worker start --name "shorts-home"` and leave window open |
-| **2** | **YouTube connected (one time)** | No uploads or analytics learning without this | **Blocked** on #1 | Click **Allow** in browser when we run YouTube sign-in |
-| **3** | **Daily autopilot: 1 Short/day end-to-end** | Revenue needs consistent posts: script → video → QC → unlisted upload | **Built in code**; not running on your machine yet | After #1–2: bot runs daily; you optionally skim unlisted videos |
-| **4** | **Self-learning loop closed** | Bot must get smarter from views, retention, rejections, vision QC | **Partial** — analytics + reflect exist; vision QC not fully wired to learning | Automatic once #3 runs for ~1–2 weeks |
+| # | Priority | Why it matters | Status |
+|---|----------|----------------|--------|
+| **1** | **Daily autopilot — 1 Short/day, no babysitting** | Money needs consistent posts; upload path already worked before | **Code ready** — Discord `auto_daily` + pipeline; must stay ON wherever bot runs (Discord/home/cloud) |
+| **2** | **Self-learning loop closed** | Bot must get smarter from uploads + analytics + **vision QC** (not just views) | **In progress** — wiring vision QC → avoid rules + upload snapshots |
+| **3** | **Analytics → next video** | Sync YouTube stats, auto-apply safe hook/retention wins, punish flops | **Mostly built** — needs steady uploads + sync running |
+| **4** | **Shrink human steps toward zero** | Full autopilot = less unlisted hand-holding over time | **Owner choice** — `AUTO_PUBLISH_HOURS=0` keeps manual review; raise when trust is high |
 
 ---
 
-## Not top 4 (do not spend time here unless #1–4 are done)
+## Backlog (not top 4 — do not distract)
 
-- Cursor API key injection / cloud VM secret quirks
-- Enterprise self-hosted **pools** (you have **My Machines** — enough)
-- TikTok automation
-- New features: CapCut operator, extra Discord polish, dev queue UI
-- Refactors, doc-only work, merge-conflict cleanup (unless it blocks #1–4)
-- Making uploads **public** automatically (keep unlisted review until you trust the bot)
+- Home PC **My Machines** (`shorts-home`) — optional reliability, not required if uploads already work elsewhere
+- `git` / ZIP download on Windows — only if moving bot to a new machine
+- Cursor API key / cloud VM secret injection
+- Enterprise self-hosted pools, TikTok, CapCut operator, dev queue polish
+- Refactors and merge cleanup unless they block #1–4
 
 ---
 
 ## How we reassess
 
-Update this file when:
-
-- A top-4 item is **done** (move next backlog item up)
-- Something **blocks** money or autopilot (bump it into top 4, drop something else)
-- Owner says priorities changed
-
-After each reassessment, change **Last assessed** date and notify the owner in plain English.
+Update this file when a top-4 item completes, a blocker appears, or the owner redirects. Notify owner in **plain English**.

@@ -45,7 +45,14 @@ def _write_voice_script(pack_dir: Path, hook: str, script: str) -> None:
     )
 
 
-def _write_pipeline_report(pack_dir: Path, draft_id: int, messages: list[str], timings: dict) -> Path:
+def _write_pipeline_report(
+    pack_dir: Path,
+    draft_id: int,
+    messages: list[str],
+    timings: dict,
+    *,
+    vision_qc: dict | None = None,
+) -> Path:
     report = {
         "draft_id": draft_id,
         "finished_at": datetime.now(timezone.utc).isoformat(),
@@ -53,6 +60,8 @@ def _write_pipeline_report(pack_dir: Path, draft_id: int, messages: list[str], t
         "step_timings_sec": timings,
         "variety": variety_for_draft(draft_id).summary(),
     }
+    if vision_qc:
+        report["vision_qc"] = vision_qc
     path = pack_dir / "pipeline_report.json"
     path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return path
@@ -322,6 +331,21 @@ def finish_draft_pipeline(
         if settings.vision_qc_blocks_upload and not vision.passed:
             messages.append("Upload blocked — vision QC failed")
             do_upload = False
+            if settings.self_training_enabled:
+                from shorts_bot.learning.reflect import reflect_after_vision_qc
+                from shorts_bot.memory.extensions import MemoryExtensions
+
+                mem_qc = MemoryExtensions(store)
+                msg = reflect_after_vision_qc(
+                    mem_qc,
+                    draft_id=draft_id,
+                    topic=draft.topic,
+                    score=vision.score,
+                    passed=vision.passed,
+                    issues=vision.issues,
+                )
+                if msg:
+                    messages.append(f"Self-learning: {msg[:200]}")
 
         qc = run_quality_checks(
             topic=draft.topic,
@@ -376,6 +400,8 @@ def finish_draft_pipeline(
                 )
                 upload_url = up.video_url
                 messages.append(up.message)
+                from shorts_bot.learning.reflect import vision_qc_snapshot
+
                 record_upload(
                     mem,
                     draft_id=draft_id,
@@ -384,6 +410,14 @@ def finish_draft_pipeline(
                     script=draft.script,
                     title=package.title,
                     video_id=up.video_id,
+                    extra_snapshot={
+                        "vision_qc": vision_qc_snapshot(
+                            score=vision.score,
+                            passed=vision.passed,
+                            issues=vision.issues,
+                            warnings=vision.warnings,
+                        )
+                    },
                 )
                 if settings.auto_publish_hours > 0 and package.visibility == "unlisted":
                     mem.schedule_publish(
@@ -403,7 +437,20 @@ def finish_draft_pipeline(
                 state.mark("upload", status="failed")
                 save_state(pack_dir, state)
 
-    report = _write_pipeline_report(pack_dir, draft_id, messages, timings)
+    from shorts_bot.learning.reflect import vision_qc_snapshot
+
+    report = _write_pipeline_report(
+        pack_dir,
+        draft_id,
+        messages,
+        timings,
+        vision_qc=vision_qc_snapshot(
+            score=vision.score,
+            passed=vision.passed,
+            issues=vision.issues,
+            warnings=vision.warnings,
+        ),
+    )
     qc_ok = vqc.passed and vision.passed
     pipeline_ok = qc_ok and video.output_path.exists()
     return PipelineResult(

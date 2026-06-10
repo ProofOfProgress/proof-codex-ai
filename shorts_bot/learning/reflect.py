@@ -7,6 +7,7 @@ experience–reflection–consolidation loops. See docs/AUTONOMOUS_SELF_TRAINING
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -68,6 +69,62 @@ def _match_upload(
     return None
 
 
+def vision_qc_snapshot(
+    *,
+    score: float,
+    passed: bool,
+    issues: list[str] | None = None,
+    warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    """Production-time visual quality — stored on upload for causal attribution."""
+    return {
+        "score": round(score, 2),
+        "passed": passed,
+        "issues": (issues or [])[:5],
+        "warnings": (warnings or [])[:3],
+    }
+
+
+def _slug(topic: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")[:50] or "topic"
+
+
+def reflect_after_vision_qc(
+    memory: MemoryExtensions,
+    *,
+    draft_id: int,
+    topic: str,
+    score: float,
+    passed: bool,
+    issues: list[str] | None = None,
+) -> str | None:
+    """Fast loop: failed vision QC → avoid rule + episode (no upload needed)."""
+    if not settings.self_training_enabled or passed:
+        return None
+
+    note = "; ".join(issues or [])[:400] or f"Vision QC score {score:.1f} below threshold"
+    key = f"avoid:vision-{_slug(topic)}"
+    prev = memory.get_training_config(key) or ""
+    merged = f"{prev}; {note}" if prev else note
+    memory.set_training_config(key, merged[:500])
+
+    reflection = (
+        f"Vision QC failed on draft #{draft_id} «{topic[:60]}» (score {score:.1f}): {note[:280]}. "
+        "Avoid similar visuals/hooks until pattern improves."
+    )
+    snapshot = memory.active_rules_snapshot()
+    snapshot["vision_qc"] = vision_qc_snapshot(score=score, passed=passed, issues=issues)
+    memory.record_learning_episode(
+        episode_type="vision_qc_fail",
+        video_label=topic[:120],
+        verdict="punish",
+        score=-1.0,
+        reflection=reflection,
+        active_rules_json=json.dumps(snapshot),
+    )
+    return reflection
+
+
 def _offline_reflection(result: RewardResult, upload: dict[str, Any] | None) -> str:
     lines = [
         f"Outcome: {result.verdict} ({result.score:+.2f}) — {result.reason[:200]}",
@@ -75,6 +132,17 @@ def _offline_reflection(result: RewardResult, upload: dict[str, Any] | None) -> 
     ]
     if upload:
         lines.append(f"Upload topic: {(upload.get('topic') or '')[:100]}")
+        if upload.get("active_rules_json"):
+            try:
+                snap = json.loads(upload["active_rules_json"])
+                vq = snap.get("vision_qc")
+                if vq:
+                    lines.append(
+                        f"Vision QC at upload: score {vq.get('score')} "
+                        f"({'pass' if vq.get('passed') else 'fail'})"
+                    )
+            except json.JSONDecodeError:
+                pass
     if result.verdict == "punish":
         lines.append(
             "Reflection: Hook or pacing likely failed — avoid repeating this angle; "

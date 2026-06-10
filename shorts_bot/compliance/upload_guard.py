@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -116,7 +117,11 @@ def record_upload(
     script: str,
     title: str,
     video_id: str,
+    extra_snapshot: dict | None = None,
 ) -> None:
+    snapshot = memory.active_rules_snapshot()
+    if extra_snapshot:
+        snapshot.update(extra_snapshot)
     memory.record_upload_event(
         draft_id=draft_id,
         topic=topic,
@@ -124,4 +129,5 @@ def record_upload(
         script=script,
         title=title,
         video_id=video_id,
+        active_rules_json=json.dumps(snapshot),
     )
