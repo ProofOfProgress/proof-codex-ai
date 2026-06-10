@@ -22,6 +22,7 @@ class AutomationResult:
     comments_auto_replied: int = 0
     comments_queued_human: int = 0
     comment_message: str = ""
+    self_training_summary: str = ""
 
     @property
     def ok(self) -> bool:
@@ -85,6 +86,19 @@ def run_analytics_sync_with_automation(
     sync = AnalyticsSync(memory, proposer).run(days=days, max_videos=max_videos)
     imp_n = auto_approve_pending_improvements(memory) if sync.ok else 0
     dev_n = auto_approve_pending_dev_tasks(memory) if sync.ok else 0
+
+    training_summary = ""
+    if sync.ok and sync.scored_results:
+        from shorts_bot.learning.reflect import reflect_after_sync
+        from shorts_bot.memory.agent_memory import get_agent_memory_store
+
+        reflect = reflect_after_sync(
+            memory,
+            sync.scored_results,
+            agent_memory_store=get_agent_memory_store(memory.store),
+        )
+        training_summary = reflect.summary()
+
     pub_n = process_publish_queue(memory)
     comment_result = process_comment_replies(memory)
     return AutomationResult(
@@ -95,4 +109,5 @@ def run_analytics_sync_with_automation(
         comments_auto_replied=comment_result.auto_replied if comment_result else 0,
         comments_queued_human=comment_result.queued_human if comment_result else 0,
         comment_message=comment_result.message if comment_result else "",
+        self_training_summary=training_summary,
     )

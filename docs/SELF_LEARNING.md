@@ -7,9 +7,12 @@ Soft Continuity learns from **your decisions** and **YouTube performance** — t
 ```
 YouTube sync (auto every 12h) → RewardEngine → improvement proposal (max 3/sync)
 Safe hook/retention proposals → auto-Yes (no tap)
-Draft Yes/No / auto-approve → immediate avoid/repeat rules
-Applied rules → DraftGenerator + ShortsBotAgent (refreshed each message)
+Reflective self-training (System 2) → episodes + rule confidence + promote to agent memory
+Draft Yes/No / auto-approve → immediate avoid/repeat + improvement proposal + episode
+Applied rules + reflections → DraftGenerator + ShortsBotAgent (refreshed each message)
 ```
+
+See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 
 ## What runs without you
 
@@ -51,7 +54,9 @@ Applied rules → DraftGenerator + ShortsBotAgent (refreshed each message)
 ## Storage
 
 - **Runtime truth:** SQLite `training_config` + `feedback` table
-- **Audit log:** `data/LEARNED.md` (human-readable, not read back automatically)
+- **Episodic memory:** `learning_episodes` + `rule_confidence` tables
+- **Upload attribution:** `upload_events.active_rules_json` snapshot at publish
+- **Audit log:** `data/LEARNED.md` (human-readable; excerpt now injected into training context)
 
 ## vidIQ
 

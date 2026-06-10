@@ -5,7 +5,19 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore, _utc_now
+
+
+@dataclass
+class RuleConfidence:
+    rule_key: str
+    rule_text: str
+    confidence: float
+    reward_hits: int
+    punish_hits: int
+    last_verdict: str
+    promoted: bool
 
 
 @dataclass
@@ -143,12 +155,39 @@ class MemoryExtensions:
                     script TEXT NOT NULL DEFAULT '',
                     title TEXT NOT NULL DEFAULT '',
                     video_id TEXT NOT NULL DEFAULT '',
-                    uploaded_at TEXT NOT NULL
+                    uploaded_at TEXT NOT NULL,
+                    active_rules_json TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS learning_episodes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    episode_type TEXT NOT NULL,
+                    video_label TEXT,
+                    verdict TEXT,
+                    score REAL,
+                    reflection TEXT NOT NULL,
+                    active_rules_json TEXT,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS rule_confidence (
+                    rule_key TEXT PRIMARY KEY,
+                    rule_text TEXT NOT NULL,
+                    confidence REAL NOT NULL DEFAULT 0.5,
+                    reward_hits INTEGER NOT NULL DEFAULT 0,
+                    punish_hits INTEGER NOT NULL DEFAULT 0,
+                    last_verdict TEXT NOT NULL DEFAULT '',
+                    promoted INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
                 );
                 """
             )
             try:
                 conn.execute("ALTER TABLE reward_events ADD COLUMN breakdown_json TEXT")
+            except Exception:
+                pass
+            try:
+                conn.execute("ALTER TABLE upload_events ADD COLUMN active_rules_json TEXT")
             except Exception:
                 pass
 
@@ -331,12 +370,169 @@ class MemoryExtensions:
             )
         return "\n".join(lines)
 
+    def active_rules_snapshot(self) -> dict[str, Any]:
+        """Rules in force at a point in time — stored on upload for causal attribution."""
+        return {
+            "applied": self.applied_improvements()[:15],
+            "avoid": self.avoid_patterns()[:8],
+            "repeat": self.repeat_patterns()[:6],
+        }
+
+    def record_learning_episode(
+        self,
+        *,
+        episode_type: str,
+        reflection: str,
+        video_label: str | None = None,
+        verdict: str | None = None,
+        score: float | None = None,
+        active_rules_json: str | None = None,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO learning_episodes
+                    (episode_type, video_label, verdict, score, reflection, active_rules_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    episode_type,
+                    video_label,
+                    verdict,
+                    score,
+                    reflection[:4000],
+                    active_rules_json,
+                    _utc_now(),
+                ),
+            )
+
+    def recent_episode_reflections(self, *, limit: int = 3) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT reflection FROM learning_episodes
+                ORDER BY id DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [r["reflection"][:500] for r in rows]
+
+    def bump_rule_confidence(
+        self,
+        *,
+        rule_key: str,
+        rule_text: str,
+        positive: bool,
+        verdict: str,
+    ) -> RuleConfidence:
+        delta = 0.12 if positive else -0.15
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM rule_confidence WHERE rule_key = ?",
+                (rule_key,),
+            ).fetchone()
+            if row:
+                conf = float(row["confidence"]) + delta
+                conf = max(0.0, min(1.0, conf))
+                rh = int(row["reward_hits"]) + (1 if positive else 0)
+                ph = int(row["punish_hits"]) + (0 if positive else 1)
+                conn.execute(
+                    """
+                    UPDATE rule_confidence
+                    SET confidence = ?, reward_hits = ?, punish_hits = ?,
+                        last_verdict = ?, rule_text = ?, updated_at = ?
+                    WHERE rule_key = ?
+                    """,
+                    (conf, rh, ph, verdict, rule_text[:500], _utc_now(), rule_key),
+                )
+            else:
+                conf = 0.5 + delta
+                conf = max(0.0, min(1.0, conf))
+                rh = 1 if positive else 0
+                ph = 0 if positive else 1
+                conn.execute(
+                    """
+                    INSERT INTO rule_confidence
+                        (rule_key, rule_text, confidence, reward_hits, punish_hits, last_verdict, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (rule_key, rule_text[:500], conf, rh, ph, verdict, _utc_now()),
+                )
+        return self.get_rule_confidence(rule_key)
+
+    def get_rule_confidence(self, rule_key: str) -> RuleConfidence:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM rule_confidence WHERE rule_key = ?",
+                (rule_key,),
+            ).fetchone()
+        if row is None:
+            raise KeyError(rule_key)
+        return RuleConfidence(
+            rule_key=row["rule_key"],
+            rule_text=row["rule_text"],
+            confidence=float(row["confidence"]),
+            reward_hits=int(row["reward_hits"]),
+            punish_hits=int(row["punish_hits"]),
+            last_verdict=row["last_verdict"] or "",
+            promoted=bool(row["promoted"]),
+        )
+
+    def demote_rule(self, rule_key: str, *, reason: str) -> None:
+        """Move low-confidence applied rule into rejected hints."""
+        try:
+            rc = self.get_rule_confidence(rule_key)
+        except KeyError:
+            return
+        self.set_training_config(f"rejected:auto:{rule_key}", f"{rc.rule_text[:200]} — {reason}"[:500])
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE rule_confidence SET confidence = 0.2, updated_at = ? WHERE rule_key = ?",
+                (_utc_now(), rule_key),
+            )
+
+    def rules_ready_for_promotion(self, *, threshold: int = 2) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT rule_key, rule_text, confidence, reward_hits
+                FROM rule_confidence
+                WHERE promoted = 0 AND reward_hits >= ? AND confidence >= 0.65
+                ORDER BY confidence DESC
+                LIMIT 5
+                """,
+                (threshold,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def mark_rule_promoted(self, rule_key: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE rule_confidence SET promoted = 1, updated_at = ? WHERE rule_key = ?",
+                (_utc_now(), rule_key),
+            )
+
+    def high_confidence_rules(self, *, limit: int = 6) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT rule_text, confidence FROM rule_confidence
+                WHERE confidence >= 0.55 AND promoted = 0
+                ORDER BY confidence DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [f"{r['rule_text']} (conf={float(r['confidence']):.0%})" for r in rows]
+
     def applied_training_context(self) -> str:
         """Unified self-learning block for drafts + strategist."""
         parts: list[str] = []
         rules = self.applied_improvements()
         if rules:
             parts.append("APPROVED TRAINING RULES:\n" + "\n".join(f"- {r}" for r in rules[:10]))
+        validated = self.high_confidence_rules()
+        if validated:
+            parts.append("VALIDATED BY PERFORMANCE:\n" + "\n".join(f"- {r}" for r in validated))
         avoid = self.avoid_patterns()
         rejected = self.rejected_training_hints()
         if avoid or rejected:
@@ -345,9 +541,24 @@ class MemoryExtensions:
         repeat = self.repeat_patterns()
         if repeat:
             parts.append("REPEAT WHEN RELEVANT:\n" + "\n".join(f"- {r}" for r in repeat[:6]))
+        episodes = self.recent_episode_reflections(limit=3)
+        if episodes and settings.self_training_enabled:
+            parts.append(
+                "RECENT REFLECTIONS (self-training):\n"
+                + "\n".join(f"- {e}" for e in episodes)
+            )
         perf = self.recent_performance_context()
         if perf:
             parts.append(perf)
+        if settings.self_training_enabled:
+            try:
+                from shorts_bot.learning.learned_file import LearnedFile
+
+                tail = LearnedFile(settings.learned_path).read_tail(max_chars=1200)
+                if tail and "No learned rules" not in tail:
+                    parts.append(f"CONSOLIDATED JOURNAL (excerpt):\n{tail[-1200:]}")
+            except Exception:
+                pass
         return "\n\n".join(parts)
 
     def find_pending_dev_by_title(self, title: str) -> DevTask | None:
@@ -549,13 +760,16 @@ class MemoryExtensions:
         script: str,
         title: str,
         video_id: str,
+        active_rules_json: str | None = None,
     ) -> None:
+        if active_rules_json is None:
+            active_rules_json = json.dumps(self.active_rules_snapshot())
         with self._conn() as conn:
             conn.execute(
                 """
                 INSERT INTO upload_events
-                    (draft_id, topic, hook, script, title, video_id, uploaded_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (draft_id, topic, hook, script, title, video_id, uploaded_at, active_rules_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     draft_id,
@@ -565,6 +779,7 @@ class MemoryExtensions:
                     title[:200],
                     video_id,
                     _utc_now(),
+                    active_rules_json,
                 ),
             )
 
@@ -575,7 +790,7 @@ class MemoryExtensions:
         with self._conn() as conn:
             rows = conn.execute(
                 """
-                SELECT draft_id, topic, hook, title, video_id, uploaded_at
+                SELECT draft_id, topic, hook, title, video_id, uploaded_at, active_rules_json
                 FROM upload_events
                 WHERE uploaded_at >= ?
                 ORDER BY id DESC

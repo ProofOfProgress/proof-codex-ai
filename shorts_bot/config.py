@@ -129,6 +129,9 @@ class Settings(BaseSettings):
     auto_analytics_sync_interval_hours: int = 12
     auto_approve_improvements: bool = True
     auto_approve_dev_tasks: bool = True
+    # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
+    self_training_enabled: bool = True
+    self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
     auto_daily_enabled: bool = True
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0

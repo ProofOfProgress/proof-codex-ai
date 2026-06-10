@@ -194,6 +194,22 @@ class AgentMemoryStore:
             raise KeyError(memory_id)
         return self._row(row)
 
+    def find_by_title_prefix(self, prefix: str) -> AgentMemory | None:
+        """Dedup self-training promotions."""
+        p = prefix.strip().lower()[:40]
+        if not p:
+            return None
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT * FROM agent_memories
+                WHERE lower(title) LIKE ? || '%'
+                ORDER BY id DESC LIMIT 1
+                """,
+                (p,),
+            ).fetchone()
+        return self._row(row) if row else None
+
     def list_memories(
         self,
         *,

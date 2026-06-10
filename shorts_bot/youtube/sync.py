@@ -20,6 +20,7 @@ class SyncResult:
     videos_scored: int = 0
     improvements_created: int = 0
     rewards: list[dict[str, Any]] | None = None
+    scored_results: list[RewardResult] | None = None
 
 
 class AnalyticsSync:
@@ -75,6 +76,7 @@ class AnalyticsSync:
             videos_scored=len(metrics),
             improvements_created=improvements_created,
             rewards=rewards,
+            scored_results=scored,
         )
 
     def _pending_sources(self) -> set[str]:

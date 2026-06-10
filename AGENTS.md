@@ -47,7 +47,7 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Deep research:** `research <topic>` / `deep research <topic>` — web browse, Google Trends, YouTube competitors, browser fallback. vidIQ off by default. See `docs/DEEP_RESEARCH.md`, `docs/BROWSER.md`.
 
-**Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3); safe improvements auto-approved; agent training context refreshes each chat. See `docs/SELF_LEARNING.md`.
+**Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3) + **reflective self-training** (episodes, rule confidence, promote to agent memory); safe improvements auto-approved. See `docs/SELF_LEARNING.md`, `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md`. Config: `SELF_TRAINING_ENABLED=true`.
 
 **Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, unlisted→public after 24h, quality gate + **YPP upload guard** before upload, **light comment auto-reply** (serious → `comments pending`). Login/payments still manual. See `docs/COMMENTS.md`, `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`, `AUTO_DAILY_ENABLED` in `.env`.
 
