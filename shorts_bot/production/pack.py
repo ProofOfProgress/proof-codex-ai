@@ -85,6 +85,9 @@ def build_production_pack(
         turboscribe_text=turboscribe_text if turboscribe_text.strip() else "",
         audio_duration=audio_duration,
     )
+    from shorts_bot.production.paid_stack import ensure_turboscribe_segments
+
+    ensure_turboscribe_segments(sync_source)
     if not segments and auto_from_script:
         from shorts_bot.production.script_segments import segments_from_script
 
@@ -220,7 +223,16 @@ def auto_produce_draft(
     *,
     render_images: bool = True,
 ) -> ProductionPack:
-    """Full automated pack from script — no TurboScribe paste required."""
+    """
+    Legacy pack-only path (script timing). Production videos should use finish_draft_pipeline
+    (Resemble + TurboScribe Whale).
+    """
+    if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+        raise ValueError(
+            "auto_produce_draft bypasses the paid stack (Resemble + TurboScribe). "
+            "Use: python3 -m shorts_bot.production.finish_cli --draft-id "
+            f"{draft_id}"
+        )
     return build_production_pack(
         store,
         draft_id=draft_id,

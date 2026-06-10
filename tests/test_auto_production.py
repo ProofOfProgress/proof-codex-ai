@@ -11,7 +11,18 @@ def test_segments_from_script():
     assert segs[1].start_seconds > segs[0].start_seconds
 
 
-def test_auto_produce_renders_images(tmp_path: Path):
+def test_auto_produce_renders_images(tmp_path: Path, monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(
+        data_dir=tmp_path,
+        require_paid_stack=False,
+        allow_script_timing_fallback=True,
+    )
+    monkeypatch.setattr("shorts_bot.config.settings", fake)
+    monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+
     store = MemoryStore(tmp_path / "t.db")
     d = store.save_draft(
         topic="sleep",

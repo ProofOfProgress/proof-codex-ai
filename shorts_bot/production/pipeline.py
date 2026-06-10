@@ -71,6 +71,10 @@ def finish_draft_pipeline(
     """
     import time
 
+    from shorts_bot.production.paid_stack import ensure_paid_stack_ready
+
+    ensure_paid_stack_ready()
+
     draft = store.get_draft(draft_id)
     pack_dir = settings.data_dir / "production" / f"draft_{draft_id}"
     pack_dir.mkdir(parents=True, exist_ok=True)
@@ -161,6 +165,13 @@ def finish_draft_pipeline(
                 messages.append(ts.message)
                 state.mark("turboscribe")
             except Exception as exc:
+                if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+                    state.mark("turboscribe", status="failed")
+                    save_state(pack_dir, state)
+                    raise RuntimeError(
+                        f"TurboScribe Whale sync required but failed: {exc}. "
+                        "Fix: python3 -m shorts_bot.login_handoff --only turboscribe"
+                    ) from exc
                 messages.append(f"TurboScribe sync failed ({exc}) — falling back to script timing.")
                 state.mark("turboscribe", status="failed")
             save_state(pack_dir, state)
@@ -168,6 +179,13 @@ def finish_draft_pipeline(
 
     # --- Pack ---
     t0 = _step("pack")
+    if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+        if not turboscribe_text.strip() and not (pack_dir / "turboscribe_transcript.txt").exists():
+            raise RuntimeError(
+                "TurboScribe transcript missing — video cannot be built without Whale timestamps. "
+                "Re-run after TurboScribe sync succeeds."
+            )
+
     pack = build_production_pack(
         store,
         draft_id=draft_id,

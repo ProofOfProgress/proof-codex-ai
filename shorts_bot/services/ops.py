@@ -398,43 +398,24 @@ class BotOperations:
         *,
         generate_voice: bool | None = None,
     ) -> dict[str, Any]:
-        from shorts_bot.production.pack import auto_produce_draft
+        """Full paid pipeline (Resemble + TurboScribe + render) — same as finish, no upload."""
+        del generate_voice  # voice is always generated in finish_draft_pipeline
+        return self.finish_video(draft_id, upload=False)
+
+    def finish_video(self, draft_id: int, *, upload: bool | None = None) -> dict[str, Any]:
+        from shorts_bot.production.pipeline import finish_draft_pipeline
 
         store = get_store()
         try:
-            pack = auto_produce_draft(store, draft_id, render_images=True)
-        except (ValueError, KeyError) as exc:
+            result = finish_draft_pipeline(store, draft_id, upload_youtube=upload)
+        except (ValueError, KeyError, FileNotFoundError, OSError, RuntimeError) as exc:
             return {"ok": False, "message": str(exc)}
-        if generate_voice is None:
-            generate_voice = settings.auto_generate_voice
-
-        voice_note = "record VOICEOVER_SCRIPT.txt"
-        if generate_voice:
-            voice = self.generate_voiceover(draft_id)
-            if voice.get("ok"):
-                voice_note = f"use {voice.get('output_path')} (TTS) or re-record your own voice"
-            else:
-                voice_note = f"TTS failed ({voice.get('message')}) — record VOICEOVER_SCRIPT.txt"
-        return {
-            "ok": True,
-            "message": (
-                f"{pack.message}\n"
-                f"Next: {voice_note} → CapCut import images/ + audio → upload."
-            ),
-            "draft_id": pack.draft_id,
-            "image_count": pack.image_count,
-            "images_rendered": pack.images_rendered,
-            "output_dir": str(pack.output_dir),
-        }
-
-    def finish_video(self, draft_id: int) -> dict[str, Any]:
-        from shorts_bot.production.finish_cli import finish_draft
-
-        try:
-            msg = finish_draft(draft_id)
-        except (ValueError, KeyError, FileNotFoundError, OSError) as exc:
-            return {"ok": False, "message": str(exc)}
-        return {"ok": True, "message": msg}
+        lines = list(result.messages)
+        if result.video_path:
+            lines.append(f"Video: {result.video_path}")
+        if result.upload_url:
+            lines.append(f"Upload: {result.upload_url}")
+        return {"ok": True, "message": "\n".join(lines)}
 
     def generate_voiceover(self, draft_id: int) -> dict[str, Any]:
         from shorts_bot.production.voiceover import generate_voiceover as gen_vo

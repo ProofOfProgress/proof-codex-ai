@@ -52,9 +52,12 @@ def test_pack_ai_fallback_without_api_key(tmp_path: Path, monkeypatch):
         visual_style="ai",
         replicate_api_token=None,
         fal_api_key=None,
+        require_paid_stack=False,
+        allow_script_timing_fallback=True,
     )
     monkeypatch.setattr("shorts_bot.config.settings", fake)
     monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
 
     store = MemoryStore(tmp_path / "t.db")
     d = store.save_draft(

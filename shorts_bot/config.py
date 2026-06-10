@@ -56,7 +56,12 @@ class Settings(BaseSettings):
     discord_briefing_hour: int = 8
     discord_briefing_minute: int = 30
 
-    # Production — TTS voiceover (Resemble clone preferred; edge-tts fallback)
+    # Paid production stack — Resemble + TurboScribe for ALL video generation (see paid_stack.py)
+    require_paid_stack: bool = True
+    allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
+    allow_script_timing_fallback: bool = False  # script WPS only when True + TurboScribe fails
+
+    # Production — TTS voiceover (Resemble clone; edge-tts emergency fallback only)
     auto_generate_voice: bool = True
     tts_provider: str = "resemble"  # resemble | edge
     resemble_api_key: str | None = None

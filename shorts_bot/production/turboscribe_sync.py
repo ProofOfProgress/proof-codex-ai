@@ -206,6 +206,9 @@ def transcribe_audio(audio_path: Path) -> TurboScribeResult:
             )
 
     if not settings.use_turboscribe_sync:
-        raise RuntimeError("TurboScribe sync disabled (USE_TURBOSCRIBE_SYNC=false).")
+        msg = "TurboScribe sync disabled (USE_TURBOSCRIBE_SYNC=false)."
+        if settings.require_paid_stack:
+            msg += " Paid stack requires TurboScribe Unlimited + Whale mode."
+        raise RuntimeError(msg)
 
     return transcribe_with_playwright(audio_path, mode=settings.turboscribe_mode)

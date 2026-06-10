@@ -2,6 +2,8 @@
 
 Fully automated daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → stick figure frames → ffmpeg → YouTube upload**.
 
+**Default:** `REQUIRE_PAID_STACK=true` — all video generation (`finish`, `make video`, `daily`) uses **Resemble + TurboScribe**. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
+
 ## 1. Buy & subscribe (today)
 
 | Service | Plan | Cost | What you get |
