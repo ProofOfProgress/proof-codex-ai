@@ -2,9 +2,21 @@
 
 ## Cursor Cloud specific instructions
 
+### North star (read first)
+
+**Make a lot of money from 100% AI-automated YouTube Shorts channel(s)** — self-learning, self-improving, self-posting. No “human does 70%.”
+
+**Work rule:** Only the **top 4** items in `docs/PRIORITIES.md` get built. Re-assess often.
+
+**User:** Not a coder — explain in plain English, one step at a time.
+
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free. Production pipeline is automated; **only manual per-video step: Private → Public** in YouTube Studio.
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free.
+
+**Built today:** script drafts, approval queue, analytics sync, reward/learning loop, Discord + web UI.
+
+**Not built yet (blocks money):** video render pipeline, YouTube upload API, daily autopilot, automated publish (no human Yes/No gates). See `docs/PRIORITIES.md`.
 
 ### Services
 
@@ -73,9 +85,11 @@ Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `Bot
 
 Web **Dev queue** panel or `!dev title | description` — user Yes/No before coding tasks run. Approved items append to `data/LEARNED.md`.
 
-### Production pipeline
+### Production pipeline (target)
 
-Draft → approve → CapCut (Playwright) → private YouTube upload → user sets Public → analytics sync → Yes/No improvements. Documented in `docs/FOR_YOU.md` and `docs/RUN_AT_HOME.md`.
+Fully automated: topic → script → render → QC → upload → publish → analytics → self-improve → repeat daily.
+
+**Top 4 build order:** `docs/PRIORITIES.md` (video factory → upload API → daily runner → remove human gates).
 
 ### Git / PR policy (user does minimal work)
 
