@@ -15,6 +15,8 @@ bash scripts/run-all.sh
 | YouTube setup | docs/TOMORROW.md |
 | OpenAI chat | docs/CHAT_TONIGHT.md (optional) |
 
+**Pipeline:** bot drafts → you approve → bot edits + uploads **Private** → you set **Public** in Studio.
+
 ## Discord without prefix (DMs)
 
 In a **private DM**, you can type normally — no `!` needed. The bot treats it like `!chat`.

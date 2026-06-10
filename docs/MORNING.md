@@ -54,15 +54,16 @@ On connect, the bot DMs you a **morning briefing**. No `DISCORD_OWNER_ID`? Just 
 
 ---
 
-## Only needs you (login)
+## Only needs you
 
-| Item | Command / doc |
-|------|----------------|
-| Google YouTube Analytics | `docs/TOMORROW.md` |
-| OpenAI full chat (optional) | `docs/CHAT_TONIGHT.md` |
-| Discord bot token | above |
+| When | What |
+|------|------|
+| **Once** | Google YouTube Analytics — `docs/TOMORROW.md` |
+| **Once** | OpenAI full chat (optional) — `docs/CHAT_TONIGHT.md` |
+| **Once** | Discord bot token — above |
+| **Per video** | YouTube Studio → **Private → Public** (~30 sec) |
 
-Everything else works without those.
+Everything else — drafts, CapCut, private upload, analytics sync — is automated.
 
 ---
 

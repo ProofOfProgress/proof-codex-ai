@@ -20,7 +20,14 @@ python3 scripts/seed_starter_drafts.py   # 3 ready-to-film scripts
 
 DM works without `!`. Morning briefing auto if you've DM'd the bot.
 
-## Only login left
+## Your daily job (per Short)
+
+1. Approve drafts in web UI (**Yes/No**)
+2. When a private upload is ready, open YouTube Studio → **Private → Public**
+
+CapCut edit and private upload are automatic. That's the only hands-on step per video.
+
+## Only login left (one time)
 
 - Google / YouTube → `docs/TOMORROW.md`
 - OpenAI (optional) → `docs/CHAT_TONIGHT.md`

@@ -2,7 +2,7 @@
 
 Jenny Hoyos–trained strategist for a faceless, human-approved YouTube Shorts channel.
 
-The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and approve or reject content before anything gets posted. **Free-first production stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
+The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and approve or reject content before anything gets posted. **Production is automated end-to-end** — CapCut edit and private YouTube upload included. **You only flip Private → Public** when ready to publish. **Free-first stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
 
 **Don't code?** Read [docs/FOR_YOU.md](docs/FOR_YOU.md) — plain English on what the bot does and what you do once.
 
@@ -89,6 +89,19 @@ course/
   free_services.md     # Free / free-tier tool stack
 ```
 
+## Production workflow
+
+| Step | Automated |
+|------|-----------|
+| Ideas + script drafts | Yes |
+| Human approve / reject | You (Yes/No) |
+| CapCut edit + export | Yes |
+| Upload to YouTube (Private) | Yes |
+| **Private → Public** | **You only** (~30 sec) |
+| Analytics sync + learning | Yes |
+
+See [docs/FOR_YOU.md](docs/FOR_YOU.md) and [docs/RUN_AT_HOME.md](docs/RUN_AT_HOME.md).
+
 ## Roadmap
 
 - [x] Talk to a bot
@@ -97,6 +110,7 @@ course/
 - [x] Approve / reject before posting
 - [x] Learn from feedback memory
 - [x] Free services reference (CapCut, YouTube Audio Library, etc.)
-- [ ] YouTube analytics reward loop
-- [ ] CapCut operator (Playwright)
-- [ ] Upload pipeline
+- [x] CapCut operator (Playwright)
+- [x] Upload pipeline (private by default)
+- [x] YouTube analytics reward loop
+- [ ] Optional: automate Private → Public (not planned — human publish gate)
