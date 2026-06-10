@@ -12,10 +12,11 @@ def test_plan_room_night():
     assert room.furniture == "bed"
 
 
-def test_plan_room_sunday():
+def test_plan_room_sunday_cosy():
     room = plan_room("the minute before you open work email on Sunday")
-    assert room.background == BackgroundKind.SUNDAY_GREY
-    assert "calendar" in room.wall_props
+    assert room.background == BackgroundKind.COSY_COUCH
+    assert "rain_window" in room.wall_props
+    assert room.furniture == "couch"
 
 
 def test_plan_room_plain_minimal():

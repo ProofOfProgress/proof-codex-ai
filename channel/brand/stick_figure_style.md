@@ -10,12 +10,14 @@
 - **Props** — only what the line mentions (phone, door, clock)
 - **Cuts** — one still per TurboScribe timestamp (~every 2–3 seconds)
 
-## Visual rules (9:16)
+## Visual rules (9:16) — cosy
 
-- **Canvas:** off-white `#F4F4F0`, MS-Paint-simple black outlines
+- **Canvas:** warm cream `#F5EFE6`, floor `#E8DFD4`, MS-Paint-simple `#1A1A1A` outlines
+- **Sets:** lamp glow, rainy window, couch + throw, bed, mug — see `cosy_aesthetic.md`
 - **Characters:** round head, expressive poses (ChainsFR)
 - **Speech bubbles:** quoted dialogue only — narrator lines use captions (ffmpeg ASS)
 - **Jenny 05:** action in upper 60%; bottom ~320px clear for Shorts UI
+- **Default mood:** warm domestic quiet — avoid office desk / bathroom stall unless script says so
 
 ## Pose per beat
 

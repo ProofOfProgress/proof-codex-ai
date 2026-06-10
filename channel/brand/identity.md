@@ -30,22 +30,25 @@ We narrowed from broad "sleep / anxiety / focus" lists to **one high-stakes minu
 | Short pauses that feel weighted | Edgelord nihilism or slop motivation |
 | Faceless stick figures acting the advice (ChainsFR-style) | Human face as brand mascot |
 
-## Visual system (video frames)
+## Visual system (video frames) — **cosy aesthetic**
 
-- **Format:** stick figures — off-white `#F4F4F0`, black line art, expressive poses (see `stick_figure_style.md`)
-- **Per beat:** character **doing** the protocol, not abstract shapes; speech bubbles only for quoted dialogue
+See `cosy_aesthetic.md` for full spec.
+
+- **Format:** stick figures — warm cream `#F5EFE6`, soft black line art, expressive poses (see `stick_figure_style.md`)
+- **Sets:** domestic cosy — couch + throw, rainy window, warm lamp, bed, tea mug — **not office/bathroom by default**
+- **Per beat:** character **doing** the protocol in a warm room; speech bubbles only for quoted dialogue
 - **Captions:** ffmpeg ASS in **Jenny 05 safe zone** (~320px above bottom) — not narration baked into frames
 - **Composition:** action in **upper 60%** of 9:16; bottom band clear for captions + Shorts UI
 
-Channel banner/profile use the dark void palette (`#0B0D10`, `#8EB8FF`) — video frames stay stick-figure bright.
+Channel banner/profile use the dark void palette (`#0B0D10`, `#8EB8FF`) — video frames stay **cosy bright** (warm lamp energy, not fluorescent office).
 
 ## Content pillars (rotate)
 
-1. **Conversations** — hard talks, angry texts, apologies
-2. **Work threshold** — email, meetings, Sunday dread
-3. **Body alarm** — only when tied to a specific minute (not generic sleep tips)
+1. **Quiet home minutes** — couch Sunday dread, 3am bed, can't leave the blanket, tea-before-one-thing
+2. **Conversations** — hard talks, angry texts, apologies (phone on sofa, not boardroom)
+3. **Body alarm** — only when tied to a specific minute (rainy window insomnia, not generic sleep tips)
 4. **Social edge** — parties, boundaries, saying no
-5. **After the slip** — shame, replaying, procrastination guilt
+5. **After the slip** — shame, replaying, procrastination guilt, low-spoon micro-wins
 
 ## Growth philosophy
 
