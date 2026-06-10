@@ -1,51 +1,90 @@
-"""Bottom caption bar for mute-safe Short frames (Jenny 05 safe zone).
-
-Jenny Hoyos course file 05 — keep text in the safe zone; Shorts UI covers the bottom
-~15–18% with title and buttons, so captions sit above that band (not flush to bottom).
-"""
+"""Frame caption bar — PIL fallback when caption_mode=frame (Jenny 05 safe zone)."""
 
 from __future__ import annotations
 
-import textwrap
-
+from shorts_bot.production.captions import format_caption_lines
 from shorts_bot.production.framing import (
     CAPTION_FONT_SIZE,
     CAPTION_LINE_HEIGHT,
-    CAPTION_MAX_LINES,
     CAPTION_SIDE_MARGIN_PX,
-    CAPTION_WRAP_WIDTH,
     caption_bar_y,
 )
 
 
-def _font_reg(size: int):
+def _font_bold(size: int):
     from PIL import ImageFont
 
-    try:
-        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size)
-    except OSError:
-        return ImageFont.load_default()
+    for path in (
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ):
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+def _line_width(draw, text: str, font) -> float:
+    if hasattr(draw, "textlength"):
+        return float(draw.textlength(text, font=font))
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return float(bbox[2] - bbox[0])
 
 
 def draw_bottom_caption(draw, text: str, w: int, h: int) -> None:
-    font = _font_reg(CAPTION_FONT_SIZE)
-    lines = textwrap.wrap(" ".join(text.split()), width=CAPTION_WRAP_WIDTH)[:CAPTION_MAX_LINES]
+    """Draw rounded bar + centered text using pixel-aware wrapping."""
+    font = _font_bold(CAPTION_FONT_SIZE)
+    max_px = w - CAPTION_SIDE_MARGIN_PX * 2 - 48
+    lines = format_caption_lines(text)
+
+    # Shrink lines that exceed pixel width
+    fitted: list[str] = []
+    for ln in lines:
+        if _line_width(draw, ln, font) <= max_px:
+            fitted.append(ln)
+            continue
+        words = ln.split()
+        chunk: list[str] = []
+        for word in words:
+            trial = " ".join([*chunk, word])
+            if _line_width(draw, trial, font) <= max_px:
+                chunk.append(word)
+            else:
+                if chunk:
+                    fitted.append(" ".join(chunk))
+                    chunk = [word]
+                else:
+                    fitted.append(word[:18] + "…")
+                    chunk = []
+        if chunk and len(fitted) < 2:
+            fitted.append(" ".join(chunk))
+
+    lines = fitted[:2]
     if not lines:
         return
+
     line_h = CAPTION_LINE_HEIGHT
     pad = 20
     bar_h = len(lines) * line_h + pad * 2
     by = caption_bar_y(bar_h, frame_height=h)
+
     draw.rounded_rectangle(
         [CAPTION_SIDE_MARGIN_PX, by, w - CAPTION_SIDE_MARGIN_PX, by + bar_h],
         radius=14,
-        fill="#111111",
-        outline="#111111",
+        fill="#141414",
+        outline="#2A2A2A",
+        width=1,
     )
+
     y = by + pad
     for ln in lines:
-        tw = draw.textlength(ln, font=font) if hasattr(draw, "textlength") else len(ln) * 18
-        draw.text(((w - tw) / 2, y), ln, fill="#FFFFFF", font=font)
+        tw = _line_width(draw, ln, font)
+        x = (w - tw) / 2
+        # subtle stroke for readability on bright stills
+        for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            draw.text((x + ox, y + oy), ln, fill="#000000", font=font)
+        draw.text((x, y), ln, fill="#FFFFFF", font=font)
         y += line_h
 
 

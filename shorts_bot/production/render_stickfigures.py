@@ -151,10 +151,11 @@ def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
     if plan.bubble_text:
         _draw_bubble(draw, plan.bubble_text, w, h)
 
-    # Bottom subtitle — Jenny 05 safe zone (above Shorts UI overlay)
+    from shorts_bot.production.captions import burn_captions_on_frames
     from shorts_bot.production.caption_overlay import draw_bottom_caption
 
-    draw_bottom_caption(draw, brief.spoken_text, w, h)
+    if burn_captions_on_frames():
+        draw_bottom_caption(draw, brief.spoken_text, w, h)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     img.save(out_path, "PNG")

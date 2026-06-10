@@ -32,8 +32,13 @@ def main() -> None:
         raise SystemExit(1)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
+    from shorts_bot.production.captions import burn_captions_on_frames
+
     provider = generate_image(args.prompt, args.out)
-    apply_bottom_caption(args.out, args.caption)
+    if burn_captions_on_frames():
+        apply_bottom_caption(args.out, args.caption)
+    else:
+        console.print("[dim]caption_mode=ffmpeg — captions added at MP4 render, not on PNG[/dim]")
     console.print(f"[green]Saved {args.out} via {provider}[/green]")
     console.print(f"Provider setting: {settings.image_provider} | model: {settings.replicate_image_model}")
 

@@ -21,6 +21,17 @@ Source: Jenny Hoyos course file `05_visuals_silent_clarity.md` — rule of third
 
 Constants: `shorts_bot/production/framing.py`
 
+## Captions (v2 — ffmpeg default)
+
+Old: PIL bar on every PNG (buggy wrap, double captions with ASS).
+
+New: **clean stills + ffmpeg ASS burn-in** at render time.
+
+```bash
+CAPTION_MODE=ffmpeg   # default — recommended
+CAPTION_MODE=frame    # PIL fallback only
+```
+
 ## Fresh start (purge old videos)
 
 ```bash

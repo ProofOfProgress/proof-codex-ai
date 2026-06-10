@@ -71,9 +71,9 @@ Jenny rules enforced: hook ASAP → momentum → payoff, singular you, mute-safe
 
 ## Subtitles (max coverage)
 
-- **On every frame:** bottom caption bar (mute viewers)
-- **`captions.srt`:** upload in YouTube Studio → Subtitles for second track
-- Optional `BURN_IN_SUBTITLES=true` in `.env` for ffmpeg overlay (off by default — frames already captioned)
+- **Default (`CAPTION_MODE=ffmpeg`):** libass burns `subtitles.ass` during MP4 render — Jenny 05 safe zone, opaque box, no duplicate PNG captions
+- **`captions.srt`:** upload in YouTube Studio → optional second subtitle track
+- **Legacy (`CAPTION_MODE=frame`):** PIL caption bar baked into each PNG (offline fallback)
 
 ## Script rule — AI detector passes (required)
 
