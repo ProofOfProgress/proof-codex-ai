@@ -15,7 +15,8 @@ from shorts_bot.agents.roles import (
 )
 from shorts_bot.agents.runner import SpecialistRunner
 from shorts_bot.config import settings
-from shorts_bot.production.niche import DEFAULT_TOPICS, NICHE_POSITIONING
+from shorts_bot.agents.research_topics import ai_video_context_block, research_topic_batch, user_wants_ai_video_research
+from shorts_bot.production.niche import NICHE_POSITIONING
 
 
 @dataclass
@@ -70,11 +71,17 @@ class WorkTaskRunner:
         task = "Score these topics:\n" + "\n".join(f"- {t}" for t in topics)
         if user_request:
             task += f"\n\nUser priority: {user_request}"
-        result = self.runner.run(NICHE_STRATEGIST, task, context=NICHE_POSITIONING[:1200])
+        ctx = (
+            ai_video_context_block()
+            if user_wants_ai_video_research(user_request)
+            else NICHE_POSITIONING[:1200]
+        )
+        result = self.runner.run(NICHE_STRATEGIST, task, context=ctx)
+        label = "AI video research angles" if user_wants_ai_video_research(user_request) else "cosy/RPM topics"
         return WorkLogEntry(
             task="score_topics",
             role=NICHE_STRATEGIST.name,
-            summary=f"Scored {len(topics)} cosy/RPM topics",
+            summary=f"Scored {len(topics)} {label}",
             elapsed_seconds=time.monotonic() - t0,
             detail=result,
             artifacts={"topics": topics},
@@ -171,8 +178,10 @@ class WorkTaskRunner:
         )
 
 
-def default_topic_batch(count: int, *, offset: int = 0) -> list[str]:
-    n = len(DEFAULT_TOPICS)
-    if n == 0:
-        return ["the minute before you can't move from the couch"]
-    return [DEFAULT_TOPICS[(offset + i) % n] for i in range(count)]
+def default_topic_batch(
+    count: int,
+    *,
+    offset: int = 0,
+    user_request: str = "",
+) -> list[str]:
+    return research_topic_batch(user_request, count, offset=offset)

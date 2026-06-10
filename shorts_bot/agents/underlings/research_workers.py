@@ -37,13 +37,20 @@ class DeepResearchUnderling(Underling):
 
     name = "deep_research_worker"
 
-    def execute(self, topic: str, *, context: str = "", force_refresh: bool = False) -> UnderlingResult:
+    def execute(
+        self,
+        topic: str,
+        *,
+        context: str = "",
+        force_refresh: bool = False,
+        research_mode: str = "shorts",
+    ) -> UnderlingResult:
         t0 = time.monotonic()
         self._progress(f"deep research: {topic[:50]}…")
         from shorts_bot.production.research import deep_research_topic, research_path
 
         refresh = force_refresh or settings.manager_research_force_refresh
-        pr = deep_research_topic(topic, force_refresh=refresh)
+        pr = deep_research_topic(topic, force_refresh=refresh, research_mode=research_mode)
         path = research_path(topic)
         detail = pr.draft_context()
         if pr.competitor_titles:

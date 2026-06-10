@@ -8,6 +8,7 @@ from typing import Any, Callable
 
 from shorts_bot.agents.duration import format_duration
 from shorts_bot.agents.priority import WorkPriority, user_wants_drafts
+from shorts_bot.agents.research_topics import research_topic_batch
 from shorts_bot.agents.tasks import WorkLogEntry, default_topic_batch
 from shorts_bot.agents.underlings.team import UnderlingTeam
 from shorts_bot.config import settings
@@ -78,11 +79,12 @@ class WorkSession:
 
 def _pick_next_topic(session: WorkSession, offset: int) -> str:
     researched = set(session.researched_topics())
-    for i in range(len(default_topic_batch(1))):
-        candidate = default_topic_batch(1, offset=offset + i)[0]
+    pool_size = max(len(research_topic_batch(session.user_request, 1)), 1)
+    for i in range(pool_size):
+        candidate = default_topic_batch(1, offset=offset + i, user_request=session.user_request)[0]
         if candidate not in researched:
             return candidate
-    return default_topic_batch(1, offset=offset)[0]
+    return default_topic_batch(1, offset=offset, user_request=session.user_request)[0]
 
 
 def run_timed_work(
@@ -156,7 +158,7 @@ def run_timed_work(
                     e.task == "deep_research" and e.artifacts.get("topic") == topic
                     for e in session.log
                 ):
-                    entry = team.research_topic_deep(topic)
+                    entry = team.research_topic_deep(topic, user_request=user_request)
                     session.log.append(entry)
                     deep_only_done += 1
                     progress(f"Done: {entry.summary}")

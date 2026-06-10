@@ -160,6 +160,48 @@ Return JSON only:
 }}
 """
 
+_AI_VIDEO_RESEARCH_PROMPT = """You are an AI video prompting researcher for faceless YouTube Shorts channel Soft Continuity.
+
+Your job: DEEP RESEARCH on AI video generation — models, prompts, I2V workflows, quality control.
+Use live web data and competitor signals. Ground answers in tools (Kling, Runway, Veo, Pika, Luma, Hailuo, Fal/Replicate APIs).
+Do NOT research cosy mental-health script topics — only AI video technique for 9:16 faceless Shorts.
+
+BASELINE FRAMEWORK (Soft Continuity):
+- Image-to-video from FLUX cosy stills beats pure text-to-video per beat
+- 5-part prompts: Subject, Action, Camera, Environment, Style + negative block
+- END STATE clip N = CONTINUITY IN clip N+1; captions in ffmpeg only (bottom 40% empty)
+- Hybrid default: stick figures + 1-3s AI hero hook clip
+
+LIVE WEB RESEARCH:
+{web_context}
+
+YOUTUBE / TOOL COMPETITOR SIGNALS:
+{competitor_context}
+
+KEYWORD / SEO SIGNALS:
+{keyword_context}
+
+GOOGLE TRENDS:
+{trends_context}
+
+Research angle: {topic}
+
+Return JSON only:
+{{
+  "viewer_moment": "when to use this technique in a 26-45s Short (hook/protocol/payoff)",
+  "emotional_stakes": "what quality failure looks like (morphing, drift, caption clash)",
+  "hook_angles": ["3 example video prompt snippets, 40-120 words each, model-tagged"],
+  "script_beats": ["5-7 workflow steps: still gen → I2V → chain → xfade → caption burn"],
+  "visual_framing": "prompt composition rules: camera lock, safe zone, faceless, VISUAL DNA palette",
+  "competitor_gap": "what creators miss in AI mental-health / faceless Shorts video",
+  "title_formula": "best model routing for this angle (e.g. hook→Runway, B-roll→Pika)",
+  "jenny_citations": ["Jenny 05 safe zone", "Jenny 06 retention if relevant"],
+  "quality_notes": "top mistakes + fixes for this AI video angle",
+  "recommended_path": "how to integrate into Soft Continuity repo pipeline — one paragraph",
+  "suggested_tags": ["5-8 search terms for further research"]
+}}
+"""
+
 
 def _slug(topic: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")
@@ -361,6 +403,7 @@ def deep_research_topic(
     *,
     force_refresh: bool = False,
     include_web: bool | None = None,
+    research_mode: str = "shorts",
 ) -> ProductionResearch:
     """Deep research: web browse + vidIQ + YouTube competitors + LLM synthesis."""
     if not force_refresh:
@@ -392,15 +435,24 @@ def deep_research_topic(
         save_research(result)
         return result
 
-    prompt = _RESEARCH_PROMPT.format(
-        niche_block=NICHE_POSITIONING,
-        quality_lessons=quality_lessons(),
-        web_context=external["web_context"],
-        competitor_context=external["competitor_context"],
-        keyword_context=external["keyword_context"],
-        trends_context=external.get("trends_context", "(no trends data)"),
-        topic=topic,
-    )
+    if research_mode == "ai_video" or topic.lower().startswith("ai video"):
+        prompt = _AI_VIDEO_RESEARCH_PROMPT.format(
+            web_context=external["web_context"],
+            competitor_context=external["competitor_context"],
+            keyword_context=external["keyword_context"],
+            trends_context=external.get("trends_context", "(no trends data)"),
+            topic=topic,
+        )
+    else:
+        prompt = _RESEARCH_PROMPT.format(
+            niche_block=NICHE_POSITIONING,
+            quality_lessons=quality_lessons(),
+            web_context=external["web_context"],
+            competitor_context=external["competitor_context"],
+            keyword_context=external["keyword_context"],
+            trends_context=external.get("trends_context", "(no trends data)"),
+            topic=topic,
+        )
     response = backend.client.chat.completions.create(
         model=backend.model,
         messages=[

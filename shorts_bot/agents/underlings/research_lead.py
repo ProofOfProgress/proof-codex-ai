@@ -15,6 +15,7 @@ from shorts_bot.agents.underlings.research_workers import (
     ResearchScoutUnderling,
     TrendsScoutUnderling,
 )
+from shorts_bot.agents.research_topics import ai_video_context_block, user_wants_ai_video_research
 from shorts_bot.production.niche import NICHE_POSITIONING
 
 ProgressCallback = Callable[[str], None]
@@ -46,26 +47,38 @@ class ResearchLead:
     def plan_research_queue(self, user_request: str, budget_seconds: int, topics: list[str]) -> str:
         self._progress("planning research queue…")
         topic_list = "\n".join(f"- {t}" for t in topics[:8])
+        ctx = (
+            ai_video_context_block()
+            if user_wants_ai_video_research(user_request)
+            else NICHE_POSITIONING[:1200]
+        )
         return self.runner.run(
             RESEARCH_LEAD,
             f"User request: {user_request}\n"
             f"Time budget: {budget_seconds}s\n"
             f"Candidate topics:\n{topic_list}\n\n"
             "Output numbered RESEARCH QUEUE (max 8 steps). Prioritize deep research + hooks.",
-            context=NICHE_POSITIONING[:1200],
+            context=ctx,
         )
 
     def run_full_research(self, topic: str, *, user_request: str = "") -> list[UnderlingResult]:
         """Full research stack on one topic — deep → competitor → hooks → trends."""
         results: list[UnderlingResult] = []
-        ctx = NICHE_POSITIONING[:800]
+        ai_video = user_wants_ai_video_research(user_request)
+        ctx = ai_video_context_block() if ai_video else NICHE_POSITIONING[:800]
+        mode = "ai_video" if ai_video else "shorts"
 
         # Quick scout brief (fast Gemini)
         scout = self.scout.execute(f"Topic: {topic}", context=ctx)
         results.append(scout)
 
         # Pipeline deep research (web + trends + competitors + cache)
-        deep = self.deep.execute(topic, context=user_request, force_refresh=False)
+        deep = self.deep.execute(
+            topic,
+            context=user_request,
+            force_refresh=ai_video,
+            research_mode=mode,
+        )
         results.append(deep)
 
         research_ctx = deep.detail[:3500]
@@ -90,8 +103,19 @@ class ResearchLead:
 
         return results
 
-    def run_deep_only(self, topic: str, *, force_refresh: bool = False) -> UnderlingResult:
-        return self.deep.execute(topic, force_refresh=force_refresh)
+    def run_deep_only(
+        self,
+        topic: str,
+        *,
+        force_refresh: bool = False,
+        user_request: str = "",
+    ) -> UnderlingResult:
+        ai_video = user_wants_ai_video_research(user_request)
+        return self.deep.execute(
+            topic,
+            force_refresh=force_refresh or ai_video,
+            research_mode="ai_video" if ai_video else "shorts",
+        )
 
     def run_batch_deep(
         self,
