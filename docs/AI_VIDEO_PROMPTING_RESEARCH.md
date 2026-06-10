@@ -161,27 +161,51 @@ python3 -m shorts_bot.production.ai_video_prompts_cli "the minute before you che
 
 ---
 
-## 1-hour research queue (manager underlings)
+## Manager session results (2026-06-10)
 
-When you say `take an hour to research AI video prompting`, underlings run:
+**Command:** `take 1h to research AI video prompting only — not cosy topics`  
+**Output:** 15 files in `data/research/ai-video-prompting-*.json` · log: `data/underlings/manager_1h_ai_video.log`
 
-1. Research Lead — queue plan  
-2. Deep research — competitor Shorts + tool landscape  
-3. Hook Analyst — 5 hook variants per cosy topic  
-4. Niche Strategist — stick vs AI video ROI per topic  
-5. Trends Scout — “AI mental health shorts” query volume  
+### Top priorities (from underling synthesis)
 
-Output: `data/research/*.json` + manager summary. Internal log: `data/underlings/work.log`.
+| Priority | Angle | Action |
+|----------|-------|--------|
+| **1** | Kling 3 I2V for 9:16 faceless Shorts | FLUX still → 3s I2V hook only → hard cut to stick |
+| **2** | END STATE → CONTINUITY IN chaining | 6–8 × 1–3s clips, never one long T2V |
+| **3** | Negative prompts | Block morphing, shake, faces, text in frame |
+| **4** | Caption safe zone | Bottom 40% empty in every prompt; ASS at y≈1520 |
+| **5** | Hybrid ROI | Stick protocol beats + single AI hero = best $/wow |
+
+### Model routing (confirmed across 15 passes)
+
+- **Hook (0–3s):** Kling 3 or Runway Gen-4  
+- **B-roll / tests:** Pika or Luma (3–5s)  
+- **Cosy illustration (not photoreal):** Kling over Veo  
+- **API integration:** Fal / Replicate Kling I2V  
+- **Between clips:** ffmpeg xfade 0.3–0.5s  
+
+### Production wiring (implemented)
+
+Every pack now exports:
+
+```bash
+python3 -m shorts_bot.production.video_prompt_pack_cli --draft-id 9 --hybrid
+```
+
+- `video_prompts/*.txt` + `.negative.txt` per segment  
+- `video_prompts.json` — template IDs, model hints, `ai_video_hero` on clip 1 when hybrid  
+- `AI_VIDEO_HOOK.md` — copy-paste I2V steps for draft 9 Sunday couch  
+
+Set `VISUAL_STYLE=hybrid` to flag hook clip on new packs.
 
 ---
 
-## Next build steps (when ready)
+## Next build steps
 
-1. `ai_segment_to_video_prompt()` wired when `VISUAL_STYLE=ai_video`  
-2. Provider module: Fal `fal-ai/kling-video` or Replicate video model  
-3. `export_last_frame()` + I2V chain in pipeline  
-4. ffmpeg `xfade` cross-dissolve between clips  
-5. Video QC: face detector, text-in-frame reject  
+1. Provider module: Fal `fal-ai/kling-video` or Replicate video model (automated I2V)  
+2. `export_last_frame()` + I2V chain in `render_video.py`  
+3. ffmpeg `xfade` cross-dissolve between AI clips (manual doc in research JSON)  
+4. Video QC: face detector, text-in-frame reject  
 
 ---
 

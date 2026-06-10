@@ -13,6 +13,7 @@ from shorts_bot.production.render_stickfigures import render_all_stickfigures
 from shorts_bot.drafts.meta import visual_beats_for_draft
 from shorts_bot.production.segment_sync import resolve_segments
 from shorts_bot.production.variety import variety_for_draft
+from shorts_bot.production.video_prompt_pack import write_video_prompt_pack
 
 
 @dataclass
@@ -110,6 +111,15 @@ def build_production_pack(
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 
+    hybrid_hook = settings.visual_style in ("hybrid", "ai_video", "ai_video_hook")
+    video_payload = write_video_prompt_pack(
+        root,
+        segments,
+        topic=draft.topic,
+        total_duration=audio_duration,
+        hybrid_hook=hybrid_hook,
+    )
+
     (root / "VOICEOVER_SCRIPT.txt").write_text(
         f"HOOK: {draft.hook}\n\n{draft.script}\n\n---\nRecord this, then optional TurboScribe re-sync.\n",
         encoding="utf-8",
@@ -163,6 +173,8 @@ def build_production_pack(
         "variety": variety.summary(),
         "visual_beats": beats,
         "visual_style": settings.visual_style,
+        "hybrid_ai_hook": hybrid_hook,
+        "video_prompts": f"video_prompts.json ({len(video_payload.get('clips', []))} clips)",
         "image_count": len(briefs),
         "images_rendered": rendered,
         "segments": [
@@ -190,10 +202,11 @@ def build_production_pack(
         "1. Record voiceover from script in manifest.json\n"
         "2. Upload audio to TurboScribe → copy timestamped text → re-run produce if needed\n"
         "3. Stick-figure frames: auto-rendered in images/ (VISUAL_STYLE=stickfigure)\n"
-        "4. Save PNGs to images/ named like 00.07.png\n"
-        "5. Follow CAPCUT_TIMELINE.md\n"
-        "6. captions.srt — upload to YouTube for extra subtitle track\n"
-        "7. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
+        "4. AI video: video_prompts/ + AI_VIDEO_HOOK.md (hybrid: VISUAL_STYLE=hybrid)\n"
+        "5. Save PNGs to images/ named like 00.07.png\n"
+        "6. Follow CAPCUT_TIMELINE.md\n"
+        "7. captions.srt — upload to YouTube for extra subtitle track\n"
+        "8. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
         encoding="utf-8",
     )
 
