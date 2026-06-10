@@ -17,6 +17,16 @@ class ImageBrief:
 
 
 def _load_style_guide() -> str:
+    from shorts_bot.config import settings
+
+    if settings.visual_style == "stickfigure":
+        path = Path("channel/brand/stick_figure_style.md")
+        if path.exists():
+            return path.read_text(encoding="utf-8").strip()
+        return (
+            "ChainsFR-style stick figures on off-white #F4F4F0, black line art, "
+            "character ACTING OUT each beat, speech bubbles only for quoted dialogue."
+        )
     path = Path("channel/brand/still_image_style.md")
     if path.exists():
         return path.read_text(encoding="utf-8").strip()
@@ -25,7 +35,15 @@ def _load_style_guide() -> str:
 
 def build_master_prompt(*, channel_topic: str = "Soft Continuity self-help Short") -> str:
     style = _load_style_guide()
-    return f"""You are generating still images for a faceless YouTube Short on channel "{channel_topic}".
+    from shorts_bot.config import settings
+
+    format_line = (
+        "Every prompt: ChainsFR-style stick figure ACTING the line, off-white background, "
+        "speech bubble only for quoted dialogue."
+        if settings.visual_style == "stickfigure"
+        else 'Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."'
+    )
+    return f"""You are generating frame images for a faceless YouTube Short on channel "{channel_topic}".
 
 RULES (critical):
 1. Read the timestamped script below.
@@ -33,10 +51,10 @@ RULES (critical):
 3. Each image covers only the words from that timestamp until the next timestamp.
 4. Output prompts as JSON array: [{{"timestamp": "00.07", "prompt": "..."}}]
 
-STYLE (Soft Continuity — not MS Paint scribbles):
+STYLE (Soft Continuity):
 {style[:2000]}
 
-Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."
+{format_line}
 
 TIMESTAMPED SCRIPT:
 (paste TurboScribe export below)

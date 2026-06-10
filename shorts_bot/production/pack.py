@@ -150,7 +150,7 @@ def build_production_pack(
         "Soft Continuity production pack\n\n"
         "1. Record voiceover from script in manifest.json\n"
         "2. Upload audio to TurboScribe → copy timestamped text → re-run produce if needed\n"
-        "3. Generate images: one per prompts/*.txt (Cursor, Higgsfield, or manual)\n"
+        "3. Stick-figure frames: auto-rendered in images/ (VISUAL_STYLE=stickfigure)\n"
         "4. Save PNGs to images/ named like 00.07.png\n"
         "5. Follow CAPCUT_TIMELINE.md\n"
         "6. captions.srt — upload to YouTube for extra subtitle track\n"

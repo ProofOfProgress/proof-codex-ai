@@ -62,7 +62,7 @@ data/production/draft_5/
 
 Stick figures **act out** each line. Speech bubbles when the character **says** something (quoted dialogue).
 
-See `channel/brand/stick_figure_style.md`. Set `VISUAL_STYLE=calm_stills` in `.env` to revert to old style.
+See `channel/brand/stick_figure_style.md`. Default: `VISUAL_STYLE=stickfigure`. Override with `VISUAL_STYLE=ai` (Replicate/Fal) or `calm_stills` only if you explicitly want a different look.
 
 ## Voice — real faceless creator (Jenny 07 + course)
 

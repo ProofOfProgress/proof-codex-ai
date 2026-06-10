@@ -6,11 +6,11 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-Soft Continuity niche v2: **The Minute Before** — one specific moment before life goes wrong, one concrete protocol. Draft 7 quality bar: specific stakes, calm AI stills, first-person voice, 6–8 beats.
+Soft Continuity niche v2: **The Minute Before** — one specific moment before life goes wrong, one concrete protocol. Draft 7 quality bar: specific stakes, **stick figure frames** (ChainsFR-style), first-person voice, 6–8 beats.
 
 ## Production stack
 
-Gemini scripts, Resemble voice clone, TurboScribe when possible (script timing fallback OK), Replicate AI images, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+Gemini scripts, Resemble voice clone, TurboScribe when possible (script timing fallback OK), **stick figure render** (`VISUAL_STYLE=stickfigure`), ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Do not switch to AI stills unless user explicitly asks. Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
 
 ## Browser
 

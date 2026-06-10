@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
     tts_rate: str = "-5%"
     tts_pitch: str = "+2Hz"
-    visual_style: str = "ai"  # ai | stickfigure | calm_stills
+    visual_style: str = "stickfigure"  # stickfigure (default) | ai | calm_stills
 
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal

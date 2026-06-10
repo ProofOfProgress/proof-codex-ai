@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack:** Gemini + Resemble voice clone + TurboScribe Whale + ffmpeg (no CapCut). See `docs/PAID_STACK_SETUP.md`.
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack:** Gemini + Resemble voice clone + TurboScribe Whale + **stick figure frames** + ffmpeg (no CapCut). Default `VISUAL_STYLE=stickfigure`. See `docs/PAID_STACK_SETUP.md`.
 
 ### Services
 

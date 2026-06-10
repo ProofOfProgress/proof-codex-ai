@@ -9,7 +9,7 @@ NICHE_POSITIONING = """
 Soft Continuity — niche v2: **The Minute Before**
 
 One specific high-stakes moment → one concrete 60-second protocol.
-Not generic "sleep tips" or hustle motivation. Faceless calm AI stills + first-person voice.
+Not generic "sleep tips" or hustle motivation. Faceless stick-figure visuals + first-person voice.
 
 Pillars (rotate):
 1. **Conversations** — before hard talks, angry replies, apologies
@@ -18,7 +18,7 @@ Pillars (rotate):
 4. **Social edge** — parties, boundaries, saying no in one sentence
 5. **After the slip** — shame spiral, replaying, procrastination guilt
 
-What worked (draft 7): specific moment, calm AI stills, personal arc, 8 paced beats.
+What worked (draft 7): specific moment, stick figures acting each beat, personal arc, 8 paced beats.
 What underperformed (early drafts): vague topics ("sleep"), too few beats, generic hooks.
 """
 
@@ -58,7 +58,7 @@ DEFAULT_TOPICS = [
 
 def quality_lessons() -> str:
     return (
-        "Better: draft 7 — 'minute before hard conversation', AI calm stills, 8 segments, "
+        "Better: draft 7 — 'minute before hard conversation', stick figure scenes, 8 segments, "
         "first-person arc, specific stakes. "
         "Worse: early 'sleep' drafts — vague topic, 4 segments, generic hook 'Stop scrolling'. "
         "Always: hook in first line, mute-safe captions in Jenny 05 safe zone (above Shorts UI)."

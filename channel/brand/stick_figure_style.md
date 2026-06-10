@@ -1,6 +1,6 @@
 # Stick figure style — ChainsFR-inspired (Soft Continuity)
 
-Faceless self-help Shorts with **stick figures acting out the advice**, not abstract shapes.
+**Default video format** for *The Minute Before* Shorts. Faceless self-help with **stick figures acting out the advice**, not abstract shapes or AI stills.
 
 ## Visual rules (9:16)
 
