@@ -257,6 +257,47 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "browse_web",
+            "description": (
+                "Open a headless browser (saved profile) and return page text. "
+                "Use for live web research, vidIQ, Trends, competitor pages."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "Full URL or site alias: vidiq, youtube, trends, turboscribe.",
+                    },
+                    "screenshot": {
+                        "type": "boolean",
+                        "description": "Save screenshot to data/screenshots/",
+                    },
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "open_browser",
+            "description": (
+                "Open a visible browser on Desktop for human login or manual steps. "
+                "Aliases: vidiq, youtube, trends, turboscribe."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "URL or site alias."},
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "setup_youtube_channel",
             "description": (
                 "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
@@ -303,6 +344,8 @@ class ToolRunner:
             "list_free_tools": self._list_free_tools,
             "apply_channel_branding": self._apply_channel_branding,
             "prepare_video_production": self._prepare_video_production,
+            "browse_web": self._browse_web,
+            "open_browser": self._open_browser,
             "setup_youtube_channel": self._setup_youtube_channel,
             "get_channel_brand": self._get_channel_brand,
             "queue_dev_task": self._queue_dev_task,
@@ -564,6 +607,43 @@ class ToolRunner:
                 "url": result.current_url,
             }
         )
+
+    def _browse_web(self, args: dict[str, Any]) -> str:
+        from shorts_bot.browser.session import browse_url
+
+        try:
+            result = browse_url(
+                args["url"],
+                screenshot=bool(args.get("screenshot", False)),
+            )
+            return json.dumps(
+                {
+                    "ok": True,
+                    "url": result.url,
+                    "title": result.title,
+                    "logged_in": result.logged_in_hint,
+                    "text": result.text[:6000],
+                    "screenshot": result.screenshot_path,
+                    "message": result.summary()[:4000],
+                }
+            )
+        except Exception as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
+
+    def _open_browser(self, args: dict[str, Any]) -> str:
+        from shorts_bot.browser.session import open_browser_for_human
+
+        try:
+            result = open_browser_for_human(args["url"])
+            return json.dumps(
+                {
+                    "ok": True,
+                    "url": result.url,
+                    "message": result.message or result.summary(),
+                }
+            )
+        except Exception as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
 
     def _setup_youtube_channel(self, args: dict[str, Any]) -> str:
         channel_name = args.get("channel_name") or settings.youtube_channel_name

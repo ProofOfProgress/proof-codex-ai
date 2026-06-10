@@ -13,6 +13,7 @@ from shorts_bot.services.chat_router import (
     is_login_status_command,
     is_pending_command,
     is_sync_command,
+    parse_browse_request,
     parse_daily_topic,
     parse_dev_request,
     parse_auto_video_request,
@@ -48,6 +49,14 @@ class BotOperations:
 
         if is_help_command(text):
             return self._help_text()
+        browse = parse_browse_request(text)
+        if browse is not None:
+            target, visible = browse
+            if target == "__status__":
+                return self.browser_status_text()
+            if visible:
+                return self.open_browser(target)
+            return self.browse_web(target)
         if is_memory_list_request(text):
             return self.list_agent_memory()
         forget_id = parse_forget_request(text)
@@ -155,8 +164,40 @@ class BotOperations:
             "• remember <fact> — save operating rule / preference for future sessions\n"
             "• memory / rules — list what the bot remembers\n"
             "• forget <id> — remove a saved memory\n"
+            "• browse <url> — headless browser, return page text\n"
+            "• browser open <url|vidiq|youtube|trends> — visible Desktop browser\n"
+            "• browser login vidiq — open login tab (saved session)\n"
             "• Or chat normally (Gemini/OpenAI)"
         )
+
+    def browser_status_text(self) -> str:
+        from shorts_bot.browser.session import is_playwright_ready
+
+        ok, detail = is_playwright_ready()
+        mark = "✓" if ok else "✗"
+        return (
+            f"{mark} **Browser** — {detail}\n"
+            f"Profile: `{settings.browser_profile_dir}`\n"
+            "Commands: `browse <url>` · `browser open vidiq` · `browser login youtube`"
+        )
+
+    def browse_web(self, url_or_site: str) -> str:
+        from shorts_bot.browser.session import browse_url
+
+        try:
+            result = browse_url(url_or_site, screenshot=settings.browser_save_screenshots)
+            return result.summary()
+        except Exception as exc:
+            return f"Browse failed: {exc}"
+
+    def open_browser(self, url_or_site: str) -> str:
+        from shorts_bot.browser.session import open_browser_for_human
+
+        try:
+            result = open_browser_for_human(url_or_site)
+            return result.message or result.summary()
+        except Exception as exc:
+            return f"Open browser failed: {exc}"
 
     def remember_agent_memory(self, content: str, *, category: str = "fact") -> str:
         mem = get_agent_memory().add_memory(content=content, category=category, source="user", pinned=False)

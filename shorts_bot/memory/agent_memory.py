@@ -79,7 +79,8 @@ class AgentMemoryStore:
                 "operating_rule",
                 "Pipeline",
                 "Paid stack: Gemini → Resemble voice → TurboScribe (or script timing) → AI images → "
-                "ffmpeg ASS captions → YouTube API upload. Prefer API over browser automation.",
+                "ffmpeg ASS captions → YouTube API upload. API first; use Playwright browser "
+                "for vidIQ, Trends, logins, and pages that block HTTP.",
             ),
             (
                 "operating_rule",

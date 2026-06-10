@@ -10,7 +10,11 @@ Soft Continuity niche v2: **The Minute Before** — one specific moment before l
 
 ## Production stack
 
-Gemini scripts, Resemble voice clone, TurboScribe when possible (script timing fallback OK), Replicate AI images, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Minimize browser automation.
+Gemini scripts, Resemble voice clone, TurboScribe when possible (script timing fallback OK), Replicate AI images, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+
+## Browser
+
+Discord bot and AI agent CAN run browsers: `browse <url>`, `browser open vidiq`, saved profile at data/browser_profile. Deep research uses browser fallback for JS/Cloudflare pages.
 
 ## Channel accounts
 

@@ -164,11 +164,11 @@ class ShortsCog(commands.Cog):
             "**Soft Continuity Bot**\n\n"
             "**DMs:** type normally (no `!`).\n"
             "**Servers:** `!command` or `@Bot your message` (owner can type without @).\n\n"
-            "**Pipeline (API — no browser):**\n"
-            "`!daily` · `!daily <topic>` · `!research <topic>`\n"
-            "`!finish <draft_id>` · `!makevideo <id>` · `!voice <id>`\n"
-            "`!applybrand` · `!brandassets` · `!live`\n"
-            "`!research <topic>` · `!deepresearch <topic>` (web + vidIQ)\n\n"
+            "**Pipeline:**\n"
+            "`!daily` · `!research <topic>` · `!deepresearch <topic>`\n"
+            "`!finish <id>` · `!makevideo <id>` · `!applybrand` · `!live`\n\n"
+            "**Browser (Playwright — saved login profile):**\n"
+            "`!browse <url>` · `!browser open vidiq` · `!browser login youtube`\n\n"
             "**Memory:** `!remember <rule>` · `!memory` · `!forget <id>`\n"
             "**Approvals:** `!pending` · `!yes` / `!no` · `!draftyes` / `!draftno`\n"
             "`!status` · `!sync` · `!briefing` · `!ping` · `!myid`\n"
@@ -224,6 +224,37 @@ class ShortsCog(commands.Cog):
         async with ctx.typing():
             msg = await asyncio.to_thread(self.ops.run_daily_short, topic)
         await self._reply_ops(ctx, msg)
+
+    @commands.command(name="browse")
+    async def browse_cmd(self, ctx: commands.Context, *, url: str) -> None:
+        await self._remember(ctx)
+        await ctx.reply(f"Browsing (headless): {url[:120]}…")
+        async with ctx.typing():
+            msg = await asyncio.to_thread(self.ops.browse_web, url)
+        await self._reply_ops(ctx, msg)
+
+    @commands.command(name="browser")
+    async def browser_cmd(self, ctx: commands.Context, action: str | None = None, *, target: str | None = None) -> None:
+        await self._remember(ctx)
+        act = (action or "").lower()
+        if act in {"status", ""} and not target:
+            msg = await asyncio.to_thread(self.ops.browser_status_text)
+            await ctx.reply(msg)
+            return
+        if act == "open" and target:
+            msg = await asyncio.to_thread(self.ops.open_browser, target)
+            await ctx.reply(msg)
+            return
+        if act == "login" and target:
+            msg = await asyncio.to_thread(self.ops.open_browser, target)
+            await ctx.reply(msg)
+            return
+        if act == "browse" and target:
+            async with ctx.typing():
+                msg = await asyncio.to_thread(self.ops.browse_web, target)
+            await self._reply_ops(ctx, msg)
+            return
+        await ctx.reply("Usage: `!browser status` · `!browser open vidiq` · `!browser login youtube` · `!browse <url>`")
 
     @commands.command(name="research")
     async def research_cmd(self, ctx: commands.Context, *, topic: str) -> None:

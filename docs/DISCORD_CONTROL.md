@@ -22,7 +22,18 @@ bash scripts/run-all.sh   # web + Discord
 | **Owner in server** | Plain text works (set `DISCORD_OWNER_ID`) |
 | **Slash** | `/daily` `/status` `/draft` `/pending` `/briefing` |
 
-## Pipeline commands (API-first — minimal browser)
+## Browser commands
+
+| Command | What it does |
+|---------|----------------|
+| `browse <url>` / `!browse` | Headless browser — returns page text |
+| `browser open vidiq` | Visible browser on Desktop (saved login) |
+| `browser login youtube` | Open login tab |
+| `browser status` | Playwright health |
+
+See `docs/BROWSER.md`.
+
+## Pipeline commands
 
 | Command | What it does |
 |---------|----------------|

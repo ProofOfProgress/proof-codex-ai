@@ -139,6 +139,25 @@ def parse_research_request(message: str) -> tuple[str, bool] | None:
     return None
 
 
+def parse_browse_request(message: str) -> tuple[str, bool] | None:
+    """Return (url_or_site, visible) for browse / browser commands."""
+    text = message.strip()
+    lower = text.lower()
+    if lower.startswith("browse "):
+        return text[7:].strip(), False
+    if lower.startswith("browser browse "):
+        return text[15:].strip(), False
+    for prefix in ("browser open ", "open browser ", "open "):
+        if lower.startswith(prefix) and prefix != "open ":
+            return text[len(prefix) :].strip(), True
+    if lower.startswith("browser login "):
+        site = text[14:].strip()
+        return site, True
+    if lower in {"browser", "browser status"}:
+        return "__status__", False
+    return None
+
+
 def is_login_status_command(message: str) -> bool:
     t = message.strip().lower()
     return t in {"login status", "live status", "services", "health", "login_status"}

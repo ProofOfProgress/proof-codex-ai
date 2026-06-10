@@ -274,10 +274,24 @@ def _check_vidiq() -> ServiceStatus:
         )
 
 
+def _check_playwright() -> ServiceStatus:
+    from shorts_bot.browser.session import is_playwright_ready
+
+    ok, detail = is_playwright_ready()
+    return ServiceStatus(
+        "playwright",
+        "Playwright browser",
+        ok,
+        detail,
+        None if ok else "python3 -m playwright install chromium",
+    )
+
+
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
         _check_discord(),
+        _check_playwright(),
         _check_chat(),
         _check_resemble(),
         _check_image_api(),

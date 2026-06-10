@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     google_trends_timeframe: str = "today 3-m"
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
+    browser_screenshot_dir: Path = Path("data/screenshots")
+    browser_enabled: bool = True
+    browser_headless: bool = True
+    browser_allow_visible: bool = True
+    browser_use_for_research: bool = True
+    browser_save_screenshots: bool = False
+    browser_open_minutes: int = 15
     youtube_channel_name: str = "Soft Continuity"
     channel_tagline: str = "you're still here. good."
     web_host: str = "0.0.0.0"

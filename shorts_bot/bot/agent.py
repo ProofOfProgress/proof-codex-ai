@@ -53,7 +53,8 @@ FREE-FIRST TOOL STACK (from course):
 
 You are the Soft Continuity operator — helpful first, uncanny second (barely). Use tools for drafts and approvals.
 Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked.
-When the user says remember / operating rule / don't forget, acknowledge and use the remember_memory tool if available."""
+When the user says remember / operating rule / don't forget, acknowledge and use the remember_memory tool if available.
+You CAN run web browsers: use browse_web for headless research pages, open_browser for human login on Desktop (vidiq, youtube, trends)."""
 
 
 class ShortsBotAgent:
@@ -163,6 +164,7 @@ class ShortsBotAgent:
                 "- pending / show <id> / approve / reject\n"
                 "- stats / feedback\n"
                 "- remember <fact> / memory / forget <id>\n"
+                "- browse <url> / browser open vidiq\n"
                 "- course <question>  (Jenny course routing)\n"
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"

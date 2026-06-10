@@ -164,10 +164,20 @@ def _fetch_page_snippet(url: str, *, max_chars: int = 500) -> str:
         return ""
     try:
         html = _http_get(url, timeout=10)
+        text = _strip_html(html)
+        if len(text) >= 80:
+            return text[:max_chars]
     except OSError:
-        return ""
-    text = _strip_html(html)
-    return text[:max_chars]
+        pass
+    try:
+        from shorts_bot.browser.session import fetch_page_text
+
+        browser_text = fetch_page_text(url, max_chars=max_chars)
+        if browser_text:
+            return browser_text[:max_chars]
+    except Exception:
+        pass
+    return ""
 
 
 def gather_web_context(topic: str, *, max_snippets: int | None = None) -> WebGatherResult:

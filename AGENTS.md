@@ -43,6 +43,8 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Deep research:** `research <topic>` / `deep research <topic>` — web browse, Google Trends (YouTube search via `pytrends`), YouTube competitors, vidIQ keywords, Jenny synthesis. `VIDIQ_API_KEY` or `login_handoff --only vidiq`. See `docs/DEEP_RESEARCH.md`, `docs/VIDIQ_SETUP.md`.
 
+**Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
+
 ### Course
 
 Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.
