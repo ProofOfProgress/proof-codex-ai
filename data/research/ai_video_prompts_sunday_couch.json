@@ -1,0 +1,64 @@
+Matched template: sunday_couch_phone — Sunday couch phone hook
+Model hint: runway | Role: hook
+[
+  {
+    "start_seconds": 0.0,
+    "end_seconds": 3.0,
+    "filename_stem": "00.00",
+    "spoken_text": "You're on the couch. the minute before you check your phone from the couch on Sunday.",
+    "template_id": "sunday_couch_phone",
+    "model_hint": "runway",
+    "duration_seconds": 3.0,
+    "end_state": "Thumb still hovering, phone glow unchanged, rain visible",
+    "prompt": "VISUAL DNA \u2014 Soft Continuity: Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. Lighting: warm floor lamp key, soft shadows, no fluorescent. Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. Faceless: hands, silhouettes from behind, POV only \u2014 no faces. Motion: slow push-in or static; meditative, not TikTok frantic.SUBJECT: Faceless silhouette on terracotta couch, phone glowing in lap. ACTION: Thumb hovers over lock screen, shoulders slightly hunched, rain on window \u2014 beat: You're on the couch. the minute before you check your phone from the couch on Sunday.. CAMERA: Medium static, locked tripod, slight vignette. Compose subject and action between 15% and 55% from top of vertical frame; keep right 120px and bottom 40% minimal for caption + Shorts UI safe zone. Rule of thirds, generous negative space, no text in image. ENVIRONMENT: Cream wall, rain-streaked window, sage throw, warm floor lamp glow. STYLE: Minimal illustration, soft grain, meditative Sunday dread. END STATE: Thumb still hovering, phone glow unchanged, rain visible. Clip 1, target 3s, 9:16 vertical video. Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
+    "negative_prompt": "no faces, no text, no watermark, no logos, morphing textures, camera shake, extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+  },
+  {
+    "start_seconds": 3.0,
+    "end_seconds": 8.0,
+    "filename_stem": "00.03",
+    "spoken_text": "Your thumb hovers. You don't have to open it yet.",
+    "template_id": "sunday_couch_phone",
+    "model_hint": "runway",
+    "duration_seconds": 5.0,
+    "end_state": "Thumb still hovering, phone glow unchanged, rain visible",
+    "prompt": "VISUAL DNA \u2014 Soft Continuity: Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. Lighting: warm floor lamp key, soft shadows, no fluorescent. Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. Faceless: hands, silhouettes from behind, POV only \u2014 no faces. Motion: slow push-in or static; meditative, not TikTok frantic.CONTINUITY IN: Thumb still hovering, phone glow unchanged, rain visible. SUBJECT: Faceless silhouette on terracotta couch, phone glowing in lap. ACTION: Thumb hovers over lock screen, shoulders slightly hunched, rain on window \u2014 beat: Your thumb hovers. You don't have to open it yet.. CAMERA: Medium static, locked tripod, slight vignette. Compose subject and action between 15% and 55% from top of vertical frame; keep right 120px and bottom 40% minimal for caption + Shorts UI safe zone. Rule of thirds, generous negative space, no text in image. ENVIRONMENT: Cream wall, rain-streaked window, sage throw, warm floor lamp glow. STYLE: Minimal illustration, soft grain, meditative Sunday dread. END STATE: Thumb still hovering, phone glow unchanged, rain visible. Clip 2, target 3s, 9:16 vertical video. Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
+    "negative_prompt": "no faces, no text, no watermark, no logos, morphing textures, camera shake, extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+  },
+  {
+    "start_seconds": 8.0,
+    "end_seconds": 14.0,
+    "filename_stem": "00.08",
+    "spoken_text": "Set a five-minute timer instead of scrolling.",
+    "template_id": "sunday_couch_phone",
+    "model_hint": "runway",
+    "duration_seconds": 6.0,
+    "end_state": "Thumb still hovering, phone glow unchanged, rain visible",
+    "prompt": "VISUAL DNA \u2014 Soft Continuity: Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. Lighting: warm floor lamp key, soft shadows, no fluorescent. Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. Faceless: hands, silhouettes from behind, POV only \u2014 no faces. Motion: slow push-in or static; meditative, not TikTok frantic.CONTINUITY IN: Thumb still hovering, phone glow unchanged, rain visible. SUBJECT: Faceless silhouette on terracotta couch, phone glowing in lap. ACTION: Thumb hovers over lock screen, shoulders slightly hunched, rain on window \u2014 beat: Set a five-minute timer instead of scrolling.. CAMERA: Medium static, locked tripod, slight vignette. Compose subject and action between 15% and 55% from top of vertical frame; keep right 120px and bottom 40% minimal for caption + Shorts UI safe zone. Rule of thirds, generous negative space, no text in image. ENVIRONMENT: Cream wall, rain-streaked window, sage throw, warm floor lamp glow. STYLE: Minimal illustration, soft grain, meditative Sunday dread. END STATE: Thumb still hovering, phone glow unchanged, rain visible. Clip 3, target 3s, 9:16 vertical video. Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
+    "negative_prompt": "no faces, no text, no watermark, no logos, morphing textures, camera shake, extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+  },
+  {
+    "start_seconds": 14.0,
+    "end_seconds": 20.0,
+    "filename_stem": "00.14",
+    "spoken_text": "Three slow breaths. Shoulders down.",
+    "template_id": "sunday_couch_phone",
+    "model_hint": "runway",
+    "duration_seconds": 6.0,
+    "end_state": "Thumb still hovering, phone glow unchanged, rain visible",
+    "prompt": "VISUAL DNA \u2014 Soft Continuity: Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. Lighting: warm floor lamp key, soft shadows, no fluorescent. Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. Faceless: hands, silhouettes from behind, POV only \u2014 no faces. Motion: slow push-in or static; meditative, not TikTok frantic.CONTINUITY IN: Thumb still hovering, phone glow unchanged, rain visible. SUBJECT: Faceless silhouette on terracotta couch, phone glowing in lap. ACTION: Thumb hovers over lock screen, shoulders slightly hunched, rain on window \u2014 beat: Three slow breaths. Shoulders down.. CAMERA: Medium static, locked tripod, slight vignette. Compose subject and action between 15% and 55% from top of vertical frame; keep right 120px and bottom 40% minimal for caption + Shorts UI safe zone. Rule of thirds, generous negative space, no text in image. ENVIRONMENT: Cream wall, rain-streaked window, sage throw, warm floor lamp glow. STYLE: Minimal illustration, soft grain, meditative Sunday dread. END STATE: Thumb still hovering, phone glow unchanged, rain visible. Clip 4, target 3s, 9:16 vertical video. Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
+    "negative_prompt": "no faces, no text, no watermark, no logos, morphing textures, camera shake, extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+  },
+  {
+    "start_seconds": 20.0,
+    "end_seconds": 26.0,
+    "filename_stem": "00.20",
+    "spoken_text": "You're still here. That counts.",
+    "template_id": "sunday_couch_phone",
+    "model_hint": "runway",
+    "duration_seconds": 6.0,
+    "end_state": "Thumb still hovering, phone glow unchanged, rain visible",
+    "prompt": "VISUAL DNA \u2014 Soft Continuity: Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. Lighting: warm floor lamp key, soft shadows, no fluorescent. Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. Faceless: hands, silhouettes from behind, POV only \u2014 no faces. Motion: slow push-in or static; meditative, not TikTok frantic.CONTINUITY IN: Thumb still hovering, phone glow unchanged, rain visible. SUBJECT: Faceless silhouette on terracotta couch, phone glowing in lap. ACTION: Thumb hovers over lock screen, shoulders slightly hunched, rain on window \u2014 beat: You're still here. That counts.. CAMERA: Medium static, locked tripod, slight vignette. Compose subject and action between 15% and 55% from top of vertical frame; keep right 120px and bottom 40% minimal for caption + Shorts UI safe zone. Rule of thirds, generous negative space, no text in image. ENVIRONMENT: Cream wall, rain-streaked window, sage throw, warm floor lamp glow. STYLE: Minimal illustration, soft grain, meditative Sunday dread. END STATE: Thumb still hovering, phone glow unchanged, rain visible. Clip 5, target 3s, 9:16 vertical video. Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
+    "negative_prompt": "no faces, no text, no watermark, no logos, morphing textures, camera shake, extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+  }
+]
