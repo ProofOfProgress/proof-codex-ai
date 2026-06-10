@@ -100,8 +100,11 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Soft Continuity — warm help, one subtle oracle line in script):
+CHANNEL BRAND (Soft Continuity — warm help, first-person):
 {self.brand.draft_instructions()[:1800]}
+
+ENDING RULE: Stop right after the payoff (one concrete action landed). Do NOT end the script with
+"you're still here" / "you're still here. good." — that tagline is channel metadata only, not voiceover.
 
 JENNY COURSE RULES FOR THIS DRAFT:
 {course_ctx}
@@ -135,8 +138,7 @@ Return JSON with keys:
             f"So here's what I do now before I make it worse. "
             f"{(angle or 'One small thing that actually helped me')}. "
             f"I still slip sometimes — but this shortens the spiral. "
-            f"Try it once tonight. "
-            f"You're still here. Good."
+            f"Try it once tonight — one breath before {topic}."
         )
         help_angle = f"I share what helped me with {topic} — for anyone in the same loop."
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)

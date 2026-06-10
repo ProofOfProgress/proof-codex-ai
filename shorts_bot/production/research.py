@@ -325,7 +325,7 @@ def _offline_research(topic: str, *, external: dict | None = None) -> Production
             "One protocol — single concrete action",
             "Honest slip — still human",
             "Try tonight — low friction CTA",
-            "Payoff — you're still here",
+            "Payoff — one concrete relief line tied to the moment (not channel tagline)",
         ],
         visual_framing=_visual_framing_for_pipeline(),
         competitor_gap="Most Shorts give generic tips; miss the specific minute-before moment.",

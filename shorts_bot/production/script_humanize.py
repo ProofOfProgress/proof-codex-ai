@@ -32,7 +32,7 @@ VOICE: Real person making faceless videos — SAME struggles as viewer, sharing 
 JENNY STRUCTURE:
 - Hook ASAP — curiosity + reason to watch to end
 - Every line moves toward payoff; but/so momentum
-- Payoff = best beat, then stop
+- Payoff = best beat, then stop (concrete action — NOT "you're still here. good.")
 - 3-5 mute-safe visual beats implied in script
 
 Rules:

@@ -13,12 +13,9 @@ from shorts_bot.llm.provider import get_llm_backend
 def _offline_reply(comment: str) -> str:
     lower = comment.lower()
     if TOPIC_REQUEST.search(comment):
-        return (
-            "Good one — I'll queue this for a future Minute Before Short. "
-            "you're still here. good."
-        )
+        return "Good one — I'll queue this for a future Minute Before Short."
     if re.search(r"\b(thank|thanks|helped|useful|needed this|appreciate)\b", lower):
-        return "Glad it landed. you're still here. good."
+        return "Glad it helped — hope the protocol lands when you need it."
     if re.search(r"\b(love|great|awesome|perfect|amazing)\b", lower):
         return "Means a lot — more minute-before protocols coming."
     if "?" in comment and len(comment) < 120:
@@ -49,7 +46,7 @@ Rules:
 - Max 220 characters
 - Warm, first-person, calm — not therapist, not crisis counselor
 - If they suggest a topic, say you'll queue it for "The Minute Before"
-- Tagline sparingly: "{tagline}"
+- Do NOT paste the channel tagline ("{tagline}") — it sounds robotic in comments
 - No links, no medical advice, no "as an AI"
 - Plain text only
 """

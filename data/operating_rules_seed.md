@@ -50,6 +50,7 @@ See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`
 - Optimize for **return viewers**, series recognition (*The Minute Before*), and trust — not rage-bait or empty curiosity loops
 - Comments: take serious messages seriously (human queue); light thanks OK — relationships matter
 - Hooks can be strong, but payoff must **deliver** — no bait-and-switch wellness slop
+- **Do NOT** end every Short with "you're still here. good." — tagline is channel metadata only; end on the concrete protocol
 - Jenny 07 + 09: relatability and subscriber value over pure view spikes
 
 ## TikTok — planned, not yet

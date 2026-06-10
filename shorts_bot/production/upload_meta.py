@@ -104,7 +104,7 @@ def _safe_description(topic: str) -> str:
         "The Minute Before — one moment, one fix.\n\n"
         f"Tonight: {topic}\n"
         "Faceless calm Shorts for overloaded days.\n\n"
-        "Soft Continuity — you're still here. Good.\n\n"
+        "Soft Continuity — one moment. one fix.\n\n"
         "#Shorts #calm #selfhelp"
     )
 

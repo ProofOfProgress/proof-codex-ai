@@ -17,8 +17,9 @@ We narrowed from broad "sleep / anxiety / focus" lists to **one high-stakes minu
 | Captions too low (covered by Shorts UI) | Jenny 05 safe zone — captions above title overlay |
 | Mixed quality | Draft 7 bar: stick figures acting each beat + first-person + specific stakes |
 
-**Tagline:** you're still here. good.  
-**Series hook:** *The Minute Before*
+**Series hook:** *The Minute Before*  
+**Metadata tagline:** you're still here. good. *(description/banner only — do not speak it at the end of every Short)*  
+**Spoken payoff:** end on the protocol working — e.g. "try this once tonight," not a repeated brand coda
 
 ## Tone (the subtle "broken god" layer)
 
@@ -50,7 +51,7 @@ Channel banner/profile use the dark void palette (`#0B0D10`, `#8EB8FF`) — vide
 
 **Loyal subscribers over viral one-offs.** The channel exists to **actually help people** — one concrete protocol per Short, not empty trend-chasing.
 
-- Prefer **series trust** (*The Minute Before*, "you're still here. good.") over disposable shock hooks
+- Prefer **series trust** (*The Minute Before*, recognizable hooks) over disposable shock hooks
 - Strong hooks are fine when the payoff **earns** them — no bait-and-switch
 - Reply like a human who cares; serious comments are not automation fodder
 - TikTok expansion is **planned later** — YouTube first until user says otherwise

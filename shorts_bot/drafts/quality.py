@@ -79,6 +79,11 @@ def run_quality_checks(
     if topic.strip().lower() in {"", "tbd", "test"}:
         warnings.append("Topic looks placeholder-ish.")
 
+    if re.search(r"you'?re still here\.?\s*(good\.?)?\s*$", script.strip(), re.I):
+        warnings.append(
+            "Script ends with channel tagline — cut it; end on the protocol payoff instead."
+        )
+
     try:
         from shorts_bot.production.jenny_checks import check_jenny_voice
 

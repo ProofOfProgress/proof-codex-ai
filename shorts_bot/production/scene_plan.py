@@ -74,8 +74,8 @@ def plan_scene(spoken_text: str) -> ScenePlan:
         return ScenePlan(t, Pose.BREATHING, None, None)
     if "dark" in lower or "room" in lower:
         return ScenePlan(t, Pose.CALM_IN_BED, None, None)
-    if "day can wait" in lower or "still here" in lower or lower.endswith("good."):
-        return ScenePlan(t, Pose.STANDING_CALM, "You're still here. Good." if "good" in lower else None, None)
+    if "day can wait" in lower or lower.endswith("tonight."):
+        return ScenePlan(t, Pose.STANDING_CALM, None, None)
     if "try this" in lower:
         return ScenePlan(t, Pose.POINTING_SELF, None, None)
     if "walk" in lower or "party" in lower or "door" in lower:
