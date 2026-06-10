@@ -4,6 +4,9 @@ __pycache__/
 .venv/
 venv/
 data/*.db
+data/*.db-wal
+data/*.db-shm
+data/production/
 data/*.sqlite
 data/browser_profile/
 data/screenshots/

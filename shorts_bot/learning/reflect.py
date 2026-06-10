@@ -36,11 +36,28 @@ class ReflectResult:
         return "; ".join(parts) if parts else "No new reflections"
 
 
-def _match_upload(memory: MemoryExtensions, video_label: str) -> dict[str, Any] | None:
+def _youtube_id_from_label(label: str) -> str | None:
+    import re
+
+    m = re.search(r"(?<![\w-])([a-zA-Z0-9_-]{11})(?![\w-])", label)
+    return m.group(1) if m else None
+
+
+def _match_upload(
+    memory: MemoryExtensions,
+    video_label: str,
+    *,
+    metrics: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
     label = video_label.lower().strip()
+    video_id = (metrics or {}).get("video_id") or _youtube_id_from_label(video_label)
+    if video_id:
+        video_id = str(video_id).lower()
     for row in memory.recent_uploads(hours=24 * 90):
-        title = (row.get("title") or "").lower()
         vid = (row.get("video_id") or "").lower()
+        if video_id and vid == video_id:
+            return row
+        title = (row.get("title") or "").lower()
         topic = (row.get("topic") or "").lower()
         if vid and vid in label:
             return row
@@ -102,7 +119,7 @@ def reflect_after_sync(
         if reward.verdict == "neutral":
             continue
 
-        upload = _match_upload(memory, reward.video_label)
+        upload = _match_upload(memory, reward.video_label, metrics=reward.metrics)
         snapshot: dict[str, Any] = {}
         if upload and upload.get("active_rules_json"):
             try:

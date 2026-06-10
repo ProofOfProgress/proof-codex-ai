@@ -1,8 +1,8 @@
 # Paid stack setup — buy today, wire today
 
-Fully automated daily Shorts: **Gemini brain → Resemble voice clone → TurboScribe Whale → stick figure frames → ffmpeg → YouTube upload**.
+Fully automated daily Shorts: **Gemini brain → Resemble voice clone → AssemblyAI transcript sync → stick figure frames → ffmpeg → YouTube upload (unlisted)**.
 
-**Default:** `REQUIRE_PAID_STACK=true` — all video generation (`finish`, `make video`, `daily`) uses **Resemble + TurboScribe**. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
+**Default:** `REQUIRE_PAID_STACK=true` — all video generation (`finish`, `make video`, `daily`) uses **Resemble + AssemblyAI** (API key, no browser). TurboScribe browser remains available via `TRANSCRIPT_PROVIDER=turboscribe`. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
 
 ## 1. Buy & subscribe (today)
 
@@ -10,7 +10,8 @@ Fully automated daily Shorts: **Gemini brain → Resemble voice clone → TurboS
 |---------|------|------|--------------|
 | **Google AI Studio** | Pay-as-you-go billing on | ~$1–3/mo | Gemini scripts + humanize |
 | **Resemble AI** | Flex + Pro voice clone | ~$5/mo clone + ~$3–10 API | Your cloned voice |
-| **TurboScribe** | Unlimited (annual) | **$10/mo** | Whale mode, unlimited A/B tests |
+| **AssemblyAI** | Pay-as-you-go | **~$0.01–0.05/Short** | Word-level timestamps via API (default) |
+| **TurboScribe** (optional) | Unlimited (annual) | **$10/mo** | Browser Whale mode — legacy fallback |
 | **Replicate** (optional) | Pay-per-image | **~$0.003–0.015/image** | Only if `VISUAL_STYLE=ai` — default is stick figures (free) |
 | **Fal.ai** (optional) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` + `VISUAL_STYLE=ai` |
 
@@ -29,10 +30,23 @@ python3 -m shorts_bot.production.voice_clone_cli list
 python3 -m shorts_bot.production.voice_clone_cli test
 ```
 
-## 3. TurboScribe Unlimited
+## 3. AssemblyAI transcript sync (recommended)
+
+1. Sign up: https://www.assemblyai.com/dashboard/signup
+2. Copy API key from dashboard
+3. Set in `.env`:
+
+```
+TRANSCRIPT_PROVIDER=assemblyai
+ASSEMBLYAI_API_KEY=...
+```
+
+No browser login required — the bot uploads `voiceover.mp3` and gets word-level timestamps.
+
+### TurboScribe (optional legacy)
 
 1. Subscribe: https://turboscribe.ai/pricing ($10/mo billed yearly)
-2. Log in via Desktop (saved session):
+2. Set `TRANSCRIPT_PROVIDER=turboscribe` and log in via Desktop:
 
 ```bash
 python3 -m shorts_bot.login_handoff --only turboscribe
@@ -59,8 +73,9 @@ GEMINI_MODEL=gemini-2.5-flash-lite
 RESEMBLE_API_KEY=...
 RESEMBLE_VOICE_UUID=...
 TTS_PROVIDER=resemble
-USE_TURBOSCRIBE_SYNC=true
-TURBOSCRIBE_MODE=whale
+TRANSCRIPT_PROVIDER=assemblyai
+ASSEMBLYAI_API_KEY=...
+AUTO_PUBLISH_HOURS=0
 AUTO_APPROVE_DRAFTS=true
 AUTO_UPLOAD_YOUTUBE=true
 YOUTUBE_UPLOAD_VISIBILITY=unlisted

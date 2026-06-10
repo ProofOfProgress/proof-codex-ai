@@ -221,6 +221,32 @@ def _check_image_api() -> ServiceStatus:
     )
 
 
+def _check_transcript_sync() -> ServiceStatus:
+    provider = (settings.transcript_provider or "assemblyai").strip().lower()
+    if provider == "assemblyai":
+        if settings.has_assemblyai:
+            return ServiceStatus(
+                "transcript",
+                "AssemblyAI transcript sync",
+                True,
+                "API key configured",
+            )
+        return ServiceStatus(
+            "transcript",
+            "AssemblyAI transcript sync",
+            False,
+            "ASSEMBLYAI_API_KEY missing",
+            "https://www.assemblyai.com/dashboard/signup",
+        )
+    return _check_browser_site(
+        "turboscribe",
+        "TurboScribe Unlimited (Whale sync)",
+        "https://turboscribe.ai/u",
+        logged_in_hint="transcription",
+        fallback_note="Paid Unlimited + login required for frame sync",
+    )
+
+
 def _check_resemble() -> ServiceStatus:
     if not settings.has_resemble:
         return ServiceStatus(
@@ -294,23 +320,13 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_playwright(),
         _check_chat(),
         _check_resemble(),
+        _check_transcript_sync(),
         _check_image_api(),
         _check_youtube_oauth(),
     ]
     if include_studio:
         items.append(_check_studio())
-    items.extend(
-        [
-            _check_browser_site(
-                "turboscribe",
-                "TurboScribe Unlimited (Whale sync)",
-                "https://turboscribe.ai/u",
-                logged_in_hint="transcription",
-                fallback_note="Paid Unlimited + login required for frame sync",
-            ),
-            _check_vidiq(),
-        ]
-    )
+    items.append(_check_vidiq())
     return [asdict(s) for s in items]
 
 

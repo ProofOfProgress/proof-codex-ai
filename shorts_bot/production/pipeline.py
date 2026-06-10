@@ -1,4 +1,4 @@
-"""Full automated Short pipeline — voice clone → TurboScribe → render → optional upload."""
+"""Full automated Short pipeline — voice clone → transcript sync → render → optional upload."""
 
 from __future__ import annotations
 
@@ -28,6 +28,12 @@ class PipelineResult:
     upload_url: str | None
     report_path: Path | None = None
     step_timings: dict[str, float] = field(default_factory=dict)
+    success: bool = True
+    qc_passed: bool = True
+
+    @property
+    def ok(self) -> bool:
+        return self.success
 
 
 def _write_voice_script(pack_dir: Path, hook: str, script: str) -> None:
@@ -64,7 +70,7 @@ def finish_draft_pipeline(
     1. Pre-flight quality gate
     2. Humanize script
     3. Resemble voice clone → voiceover.mp3
-    4. TurboScribe Whale → tight timestamps
+    4. AssemblyAI or TurboScribe → tight timestamps
     5. Rebuild stick-figure pack synced to audio
     6. ffmpeg → final_short.mp4 + video QC
     7. Upload metadata (+ optional YouTube API upload)
@@ -104,7 +110,17 @@ def finish_draft_pipeline(
         state.mark("preflight", status="blocked")
         save_state(pack_dir, state)
         report = _write_pipeline_report(pack_dir, draft_id, messages, timings)
-        return PipelineResult(draft_id, pack_dir, messages, None, None, report, timings)
+        return PipelineResult(
+            draft_id,
+            pack_dir,
+            messages,
+            None,
+            None,
+            report,
+            timings,
+            success=False,
+            qc_passed=False,
+        )
     if pre_qc.warnings:
         messages.append(f"Pre-flight warnings: {'; '.join(pre_qc.warnings[:3])}")
     state.mark("preflight")
@@ -148,11 +164,13 @@ def finish_draft_pipeline(
         save_state(pack_dir, state)
     _end("voiceover", t0)
 
-    # --- TurboScribe ---
+    # --- Transcript sync (AssemblyAI API or TurboScribe browser) ---
     t0 = _step("turboscribe")
     turboscribe_text = ""
-    if settings.use_turboscribe_sync:
-        from shorts_bot.production.turboscribe_sync import transcribe_audio
+    provider = (settings.transcript_provider or "assemblyai").strip().lower()
+    use_transcript = provider == "assemblyai" or settings.use_turboscribe_sync or settings.has_assemblyai
+    if use_transcript:
+        from shorts_bot.production.transcript_sync import transcribe_audio
 
         cached = pack_dir / "turboscribe_transcript.txt"
         if resume and state.is_done("turboscribe") and cached.exists():
@@ -168,11 +186,15 @@ def finish_draft_pipeline(
                 if settings.require_paid_stack and not settings.allow_script_timing_fallback:
                     state.mark("turboscribe", status="failed")
                     save_state(pack_dir, state)
+                    fix = (
+                        "Set ASSEMBLYAI_API_KEY"
+                        if provider == "assemblyai"
+                        else "python3 -m shorts_bot.login_handoff --only turboscribe"
+                    )
                     raise RuntimeError(
-                        f"TurboScribe Whale sync required but failed: {exc}. "
-                        "Fix: python3 -m shorts_bot.login_handoff --only turboscribe"
+                        f"Transcript sync required but failed: {exc}. Fix: {fix}"
                     ) from exc
-                messages.append(f"TurboScribe sync failed ({exc}) — falling back to script timing.")
+                messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
                 state.mark("turboscribe", status="failed")
             save_state(pack_dir, state)
     _end("turboscribe", t0)
@@ -182,35 +204,63 @@ def finish_draft_pipeline(
     if settings.require_paid_stack and not settings.allow_script_timing_fallback:
         if not turboscribe_text.strip() and not (pack_dir / "turboscribe_transcript.txt").exists():
             raise RuntimeError(
-                "TurboScribe transcript missing — video cannot be built without Whale timestamps. "
-                "Re-run after TurboScribe sync succeeds."
+                "Transcript missing — video cannot be built without word-level timestamps. "
+                "Re-run after transcript sync succeeds."
             )
 
-    pack = build_production_pack(
-        store,
-        draft_id=draft_id,
-        turboscribe_text=turboscribe_text,
-        auto_from_script=not turboscribe_text.strip(),
-        render_images=True,
-    )
-    messages.append(pack.message)
-    state.mark("pack")
-    save_state(pack_dir, state)
+    manifest_path = pack_dir / "manifest.json"
+    if resume and state.is_done("pack") and manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        from shorts_bot.production.pack import ProductionPack
+
+        pack = ProductionPack(
+            draft_id=draft_id,
+            topic=manifest.get("topic") or draft.topic,
+            output_dir=pack_dir,
+            image_count=int(manifest.get("image_count") or 0),
+            images_rendered=int(manifest.get("images_rendered") or 0),
+            manifest_path=manifest_path,
+            message=f"Resume: skipped pack ({manifest_path.name})",
+        )
+        messages.append(pack.message)
+    else:
+        pack = build_production_pack(
+            store,
+            draft_id=draft_id,
+            turboscribe_text=turboscribe_text,
+            auto_from_script=not turboscribe_text.strip(),
+            render_images=True,
+        )
+        messages.append(pack.message)
+        state.mark("pack")
+        save_state(pack_dir, state)
     _end("pack", t0)
 
     # --- Render ---
     t0 = _step("render")
     variety = variety_for_draft(draft_id)
     messages.append(variety.summary())
-    video = render_short_video(
-        pack_dir,
-        draft_id=draft_id,
-        caption_y_offset=variety.caption_y_offset,
-        zoom_motion=variety.zoom_motion if settings.video_ken_burns else "none",
-    )
-    messages.append(video.message)
-    state.mark("render")
-    save_state(pack_dir, state)
+    final_mp4 = pack_dir / "final_short.mp4"
+    if resume and state.is_done("render") and final_mp4.exists():
+        from shorts_bot.production.render_video import RenderedVideo, _probe_duration
+
+        video = RenderedVideo(
+            draft_id=draft_id,
+            output_path=final_mp4,
+            duration_seconds=_probe_duration(final_mp4),
+            message=f"Resume: skipped render ({final_mp4.name})",
+        )
+        messages.append(video.message)
+    else:
+        video = render_short_video(
+            pack_dir,
+            draft_id=draft_id,
+            caption_y_offset=variety.caption_y_offset,
+            zoom_motion=variety.zoom_motion if settings.video_ken_burns else "none",
+        )
+        messages.append(video.message)
+        state.mark("render")
+        save_state(pack_dir, state)
     _end("render", t0)
 
     # --- Video QC ---
@@ -314,6 +364,7 @@ def finish_draft_pipeline(
                 save_state(pack_dir, state)
 
     report = _write_pipeline_report(pack_dir, draft_id, messages, timings)
+    pipeline_ok = vqc.passed and video.output_path.exists()
     return PipelineResult(
         draft_id=draft_id,
         pack_dir=pack_dir,
@@ -322,4 +373,6 @@ def finish_draft_pipeline(
         upload_url=upload_url,
         report_path=report,
         step_timings=timings,
+        success=pipeline_ok,
+        qc_passed=vqc.passed,
     )

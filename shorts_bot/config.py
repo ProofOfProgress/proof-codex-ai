@@ -50,8 +50,9 @@ class Settings(BaseSettings):
     youtube_channel_name: str = "Soft Continuity"
     channel_series_name: str = "The Minute Before"
     channel_tagline: str = "you're still here. good."
-    web_host: str = "0.0.0.0"
+    web_host: str = "127.0.0.1"
     web_port: int = 8080
+    web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
@@ -114,10 +115,13 @@ class Settings(BaseSettings):
     # Quality gates — block before expensive steps / upload
     quality_gate_blocks_render: bool = True
 
-    # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
-    use_turboscribe_sync: bool = True
+    # Transcript sync — AssemblyAI API (default) or TurboScribe browser (legacy)
+    transcript_provider: str = "assemblyai"  # assemblyai | turboscribe
+    assemblyai_api_key: str | None = None
+    transcript_always_fresh: bool = True  # re-transcribe every finish (good for testing variants)
+    use_turboscribe_sync: bool = True  # legacy alias — enables turboscribe when provider=turboscribe
     turboscribe_mode: str = "whale"
-    turboscribe_always_fresh: bool = True  # re-transcribe every finish (good for testing variants)
+    turboscribe_always_fresh: bool = True  # alias for transcript_always_fresh
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True
@@ -136,7 +140,7 @@ class Settings(BaseSettings):
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
-    auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
+    auto_publish_hours: int = 0  # 0 = keep upload visibility (unlisted for manual review)
     quality_gate_blocks_upload: bool = True
 
     # YPP / inauthentic-content guard — blocks spam-farm upload patterns
@@ -199,6 +203,15 @@ class Settings(BaseSettings):
     @property
     def has_paid_images(self) -> bool:
         return self.has_replicate_images or self.has_fal_images
+
+    @property
+    def has_assemblyai(self) -> bool:
+        key = (self.assemblyai_api_key or "").strip()
+        if not key:
+            return False
+        if "your" in key.lower() and "key" in key.lower():
+            return False
+        return len(key) >= 16
 
     @property
     def has_resemble(self) -> bool:

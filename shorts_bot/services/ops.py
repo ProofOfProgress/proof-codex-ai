@@ -429,7 +429,11 @@ class BotOperations:
             lines.append(f"Video: {result.video_path}")
         if result.upload_url:
             lines.append(f"Upload: {result.upload_url}")
-        return {"ok": True, "message": "\n".join(lines)}
+        return {
+            "ok": result.success,
+            "qc_passed": result.qc_passed,
+            "message": "\n".join(lines),
+        }
 
     def generate_voiceover(self, draft_id: int) -> dict[str, Any]:
         from shorts_bot.production.voiceover import generate_voiceover as gen_vo

@@ -22,6 +22,7 @@ from shorts_bot.web.deps import (
     get_store,
     run_full_automation,
 )
+from shorts_bot.web.auth import ApiTokenMiddleware
 from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -38,6 +39,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="Soft Continuity Operator", version="0.7.0", lifespan=lifespan)
+app.add_middleware(ApiTokenMiddleware)
 
 
 @app.exception_handler(Exception)
@@ -116,6 +118,7 @@ async def home(request: Request) -> HTMLResponse:
             "pending_drafts": len(store.list_drafts(status="pending")),
             "pending_dev": len(memory.list_dev_tasks(status="pending")),
             "version": __version__,
+            "api_token": (settings.web_api_token or "").strip() or None,
         },
     )
 

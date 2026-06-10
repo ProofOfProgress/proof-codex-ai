@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** Gemini + **Resemble** voice clone + **TurboScribe Whale** + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md`, `docs/AI_VIDEO_PROMPTING_RESEARCH.md` (I2V prompts: `ai_video_prompts_cli`; pack export: `video_prompt_pack_cli --draft-id N --hybrid`). (methods, variety, sync, QC).
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** Gemini + **Resemble** voice clone + **AssemblyAI transcript sync** (or TurboScribe browser fallback) + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md`, `docs/AI_VIDEO_PROMPTING_RESEARCH.md` (I2V prompts: `ai_video_prompts_cli`; pack export: `video_prompt_pack_cli --draft-id N --hybrid`). (methods, variety, sync, QC).
 
 **Channel mission:** loyal subscribers who come back because content **actually helps** — not viral one-offs. **TikTok account planned later** — no TikTok automation until user says go (`data/operating_rules_seed.md`).
 
@@ -16,8 +16,10 @@ Web UI (recommended):
 
 ```bash
 python3 -m shorts_bot.web
-# http://localhost:8080
+# http://127.0.0.1:8080 (binds localhost by default)
 ```
+
+Set `WEB_API_TOKEN` in `.env` to require Bearer token on mutating `/api/*` routes (UI auto-injects when served from `/`).
 
 CLI:
 
@@ -49,7 +51,7 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3) + **reflective self-training** (episodes, rule confidence, promote to agent memory); safe improvements auto-approved. See `docs/SELF_LEARNING.md`, `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md`. Config: `SELF_TRAINING_ENABLED=true`.
 
-**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, unlisted→public after 24h, quality gate + **YPP upload guard** before upload, **light comment auto-reply** (serious → `comments pending`). Login/payments still manual. See `docs/COMMENTS.md`, `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`, `AUTO_DAILY_ENABLED` in `.env`.
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads stay unlisted** (`AUTO_PUBLISH_HOURS=0` — you review in Studio before going public), quality gate + **YPP upload guard** before upload, **light comment auto-reply** (serious → `comments pending`). Login/payments still manual. See `docs/COMMENTS.md`, `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`, `AUTO_DAILY_ENABLED`, `TRANSCRIPT_PROVIDER=assemblyai`, `ASSEMBLYAI_API_KEY` in `.env`.
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 

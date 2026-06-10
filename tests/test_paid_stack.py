@@ -15,7 +15,8 @@ def test_paid_stack_issues_when_resemble_missing(monkeypatch):
         allow_free_tts_fallback=False,
         resemble_api_key=None,
         resemble_voice_uuid=None,
-        use_turboscribe_sync=True,
+        transcript_provider="assemblyai",
+        assemblyai_api_key="a" * 24,
     )
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
     issues = paid_stack_issues()
@@ -27,7 +28,7 @@ def test_ensure_turboscribe_blocks_script_fallback(monkeypatch):
 
     fake = Settings(allow_script_timing_fallback=False)
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
-    with pytest.raises(RuntimeError, match="TurboScribe"):
+    with pytest.raises(RuntimeError, match="transcript timestamps"):
         ensure_turboscribe_segments("script_duration")
 
 

@@ -40,15 +40,22 @@ def uploads_for_draft(memory: MemoryExtensions, draft_id: int) -> list[dict]:
 
 def channel_videos_matching_title(title: str) -> list[str]:
     """Return video IDs on channel with same normalized title (YouTube API readonly)."""
-    try:
-        from shorts_bot.youtube.channel_videos import list_channel_videos
-    except Exception:
-        return []
+    from shorts_bot.youtube.channel_videos import list_channel_videos
+
     target = _normalize_title(title)
     if not target:
         return []
+    try:
+        videos = list_channel_videos(max_results=50)
+    except Exception as exc:
+        if settings.block_duplicate_title_upload:
+            raise RuntimeError(
+                f"Duplicate-title check failed (YouTube API): {exc}. "
+                "Upload blocked — fix OAuth or set BLOCK_DUPLICATE_TITLE_UPLOAD=false."
+            ) from exc
+        return []
     ids: list[str] = []
-    for v in list_channel_videos(max_results=50):
+    for v in videos:
         if _normalize_title(v.title) == target or target in _normalize_title(v.title):
             ids.append(v.video_id)
     return ids
@@ -85,7 +92,10 @@ def preflight_upload(
             )
 
     if settings.block_duplicate_title_upload:
-        on_channel = channel_videos_matching_title(title)
+        try:
+            on_channel = channel_videos_matching_title(title)
+        except RuntimeError as exc:
+            return UploadPreflight(False, str(exc), existing_ids)
         for vid in on_channel:
             if vid not in existing_ids:
                 existing_ids.append(vid)

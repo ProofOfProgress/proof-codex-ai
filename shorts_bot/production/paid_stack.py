@@ -1,10 +1,10 @@
-"""Enforce paid production stack — Resemble voice + TurboScribe Whale sync."""
+"""Enforce paid production stack — Resemble voice + API/browser transcript sync."""
 
 from __future__ import annotations
 
 from shorts_bot.config import settings
 
-_TURBOSCRIBE_SOURCES = frozenset({"turboscribe", "cache"})
+_TIMESTAMP_SOURCES = frozenset({"turboscribe", "cache", "assemblyai"})
 _SCRIPT_FALLBACK_SOURCES = frozenset({"script_duration", "script_estimate"})
 
 
@@ -21,8 +21,14 @@ def paid_stack_issues() -> list[str]:
                 "(or ALLOW_FREE_TTS_FALLBACK=true to use edge-tts)"
             )
 
-    if settings.use_turboscribe_sync or not settings.allow_script_timing_fallback:
-        if not settings.use_turboscribe_sync:
+    provider = (settings.transcript_provider or "assemblyai").strip().lower()
+    if not settings.allow_script_timing_fallback:
+        if provider == "assemblyai" and not settings.has_assemblyai:
+            issues.append(
+                "AssemblyAI transcript missing — set ASSEMBLYAI_API_KEY "
+                "(or TRANSCRIPT_PROVIDER=turboscribe + TurboScribe login)"
+            )
+        elif provider == "turboscribe" and not settings.use_turboscribe_sync:
             issues.append(
                 "TurboScribe sync disabled — set USE_TURBOSCRIBE_SYNC=true "
                 "(paid Unlimited + login_handoff --only turboscribe)"
@@ -53,16 +59,21 @@ def ensure_resemble_voice() -> None:
 
 
 def ensure_turboscribe_segments(sync_source: str) -> None:
-    """Block script-timing fallbacks when TurboScribe timestamps are required."""
+    """Block script-timing fallbacks when API/browser timestamps are required."""
     if settings.allow_script_timing_fallback:
         return
     if sync_source in _SCRIPT_FALLBACK_SOURCES:
+        provider = (settings.transcript_provider or "assemblyai").strip().lower()
+        hint = (
+            "Set ASSEMBLYAI_API_KEY (TRANSCRIPT_PROVIDER=assemblyai)"
+            if provider == "assemblyai"
+            else "Log in: python3 -m shorts_bot.login_handoff --only turboscribe"
+        )
         raise RuntimeError(
-            f"Video generation requires TurboScribe Whale timestamps (got '{sync_source}'). "
-            "Log in: python3 -m shorts_bot.login_handoff --only turboscribe — "
-            "then re-run finish. Emergency only: ALLOW_SCRIPT_TIMING_FALLBACK=true"
+            f"Video generation requires word-level transcript timestamps (got '{sync_source}'). "
+            f"{hint} — then re-run finish. Emergency only: ALLOW_SCRIPT_TIMING_FALLBACK=true"
         )
 
 
 def is_turboscribe_backed(sync_source: str) -> bool:
-    return sync_source in _TURBOSCRIBE_SOURCES
+    return sync_source in _TIMESTAMP_SOURCES
