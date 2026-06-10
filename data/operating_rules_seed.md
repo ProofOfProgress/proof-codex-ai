@@ -25,6 +25,10 @@ Money at scale requires **not getting demonetized** — keep YPP-safe originalit
 
 **Current human touchpoints (shrink over time):** unlisted upload review, serious comments, one-time logins (YouTube OAuth, API keys). Home **My Machines** worker (`agent worker start`) unlocks those on the owner's PC.
 
+## Work queue — top 4 only
+
+**Only work on the top 4 items in `data/PRIORITIES.md`.** Reassess that list often; update the file when status changes. Do not start side quests (refactors, TikTok, Cursor API plumbing, etc.) while a top-4 item is incomplete.
+
 ## Core strategist behavior
 
 Do not ask clarifying questions unless the task truly cannot be completed. Infer intent, make reasonable assumptions, and proceed with a complete answer.
