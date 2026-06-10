@@ -65,9 +65,12 @@ class BotOperations:
             return r.get("message", "Brand apply done.")
         if is_daily_command(text):
             return self.run_daily_short(topic=parse_daily_topic(text))
-        research_topic = parse_research_request(text)
-        if research_topic is not None:
-            return self.run_research(research_topic)
+        research_parsed = parse_research_request(text)
+        if research_parsed is not None:
+            topic, force_refresh = research_parsed
+            if not topic:
+                return "Usage: research <topic> or deep research <topic>"
+            return self.run_research(topic, force_refresh=force_refresh)
         if is_login_status_command(text):
             return self.login_status_text()
         if is_generate_assets_command(text):
@@ -142,7 +145,8 @@ class BotOperations:
             "• sync — YouTube Analytics (after Google login)\n"
             "• daily — full autopilot Short (research → draft → voice → render → upload)\n"
             "• daily <topic> — same with topic override\n"
-            "• research <topic> — deep production research (cached)\n"
+            "• research <topic> — deep research (web + vidIQ + competitors + Jenny)\n"
+            "• deep research <topic> — same, force refresh (re-browse web)\n"
             "• finish video <draft_id> — paid pipeline finish + upload\n"
             "• apply brand — channel name + description + banner via YouTube API\n"
             "• generate assets — profile.png + banner.png locally\n"
@@ -378,11 +382,15 @@ class BotOperations:
         except Exception as exc:
             return f"Daily pipeline failed: {exc}"
 
-    def run_research(self, topic: str) -> str:
+    def run_research(self, topic: str, *, force_refresh: bool = False) -> str:
         from shorts_bot.production.research import deep_research_topic
 
-        r = deep_research_topic(topic)
-        return f"Research saved for: {topic}\n\n{r.draft_context()[:1800]}"
+        r = deep_research_topic(topic, force_refresh=force_refresh)
+        sources = ", ".join(r.research_sources) or "course+llm"
+        header = f"Deep research saved: {topic}\nSources: {sources}"
+        if r.recommended_path:
+            header += f"\n\nFastest path:\n{r.recommended_path}"
+        return f"{header}\n\n{r.summary_for_chat()}"
 
     def login_status_text(self) -> str:
         from shorts_bot.login_status import full_status

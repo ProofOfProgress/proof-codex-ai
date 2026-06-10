@@ -323,7 +323,11 @@ class ToolRunner:
             return json.dumps({"error": str(exc)})
 
     def _create_draft(self, args: dict[str, Any]) -> str:
-        draft = self.generator.create_and_store(args["topic"], args.get("angle"))
+        from shorts_bot.production.research import deep_research_topic
+
+        topic = args["topic"]
+        research = deep_research_topic(topic)
+        draft = self.generator.create_and_store(topic, args.get("angle"), research=research)
         return json.dumps(
             {
                 "draft_id": draft.id,

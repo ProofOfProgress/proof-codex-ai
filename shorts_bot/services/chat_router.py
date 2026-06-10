@@ -118,10 +118,24 @@ def parse_daily_topic(message: str) -> str | None:
     return None
 
 
-def parse_research_request(message: str) -> str | None:
-    lower = message.strip().lower()
+def parse_research_request(message: str) -> tuple[str, bool] | None:
+    """Return (topic, force_refresh) for research / deep research commands."""
+    text = message.strip()
+    lower = text.lower()
+    for prefix in (
+        "deep research ",
+        "deep-research ",
+        "research refresh ",
+        "research --refresh ",
+    ):
+        if lower.startswith(prefix):
+            topic = text[len(prefix) :].strip()
+            return (topic, True) if topic else None
     if lower.startswith("research "):
-        return message.strip()[9:].strip() or None
+        topic = text[9:].strip()
+        return (topic, False) if topic else None
+    if lower in {"deep research", "research refresh"}:
+        return ("", True)
     return None
 
 

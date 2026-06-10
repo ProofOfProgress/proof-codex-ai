@@ -15,6 +15,7 @@ SITES = {
     "google": ("Google sign-in", "https://accounts.google.com/signin"),
     "youtube": ("YouTube Studio", "https://studio.youtube.com"),
     "turboscribe": ("TurboScribe", "https://turboscribe.ai/login"),
+    "vidiq": ("vidIQ keyword research", "https://app.vidiq.com/auth/login"),
     "capcut": ("CapCut web", "https://www.capcut.com/my-edit"),
     "discord": ("Discord app", "https://discord.com/login"),
 }

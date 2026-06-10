@@ -98,7 +98,10 @@ def finish_draft_pipeline(
     video = render_short_video(pack_dir, draft_id=draft_id)
     messages.append(video.message)
 
-    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id)
+    from shorts_bot.production.research import load_research
+
+    research = load_research(draft.topic)
+    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id, research=research)
     write_upload_files(pack_dir, package, draft_id=draft_id)
 
     upload_url: str | None = None

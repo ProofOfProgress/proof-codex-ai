@@ -14,7 +14,8 @@ def test_daily_commands():
 
 
 def test_research_command():
-    assert parse_research_request("research hard conversation") == "hard conversation"
+    assert parse_research_request("research hard conversation") == ("hard conversation", False)
+    assert parse_research_request("deep research hard conversation") == ("hard conversation", True)
 
 
 def test_login_status_command():

@@ -41,6 +41,8 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Agent memory (persistent):** operating rules / preferences / facts in `agent_memories` table; exported to `data/MEMORY.md`. Seeded from `data/operating_rules_seed.md` on first run. Injected into strategist + draft prompts; restored chat context on agent startup (`memory_chat_context_limit`, default 24). Commands: `remember <text>`, `memory`, `forget <id>` (Discord: `!remember`, `!memory`, `!forget`). CLI: `python3 -m shorts_bot.memory.memory_cli list`. See `docs/AGENT_MEMORY.md`.
 
+**Deep research:** `research <topic>` / `deep research <topic>` — web browse, YouTube competitors, vidIQ keywords, Jenny synthesis. `VIDIQ_API_KEY` or `login_handoff --only vidiq`. See `docs/DEEP_RESEARCH.md`, `docs/VIDIQ_SETUP.md`.
+
 ### Course
 
 Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.

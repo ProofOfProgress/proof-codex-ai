@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     learned_path: Path = Path("data/LEARNED.md")
     memory_markdown_path: Path = Path("data/MEMORY.md")
     memory_chat_context_limit: int = 24
+
+    # Deep research — web browse + vidIQ + YouTube competitors
+    research_web_enabled: bool = True
+    research_max_web_snippets: int = 8
+    tavily_api_key: str | None = None
+    vidiq_enabled: bool = True
+    vidiq_api_key: str | None = None  # vidIQ Max MCP API key → mcp.vidiq.com
+    vidiq_use_browser: bool = True
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     youtube_channel_name: str = "Soft Continuity"

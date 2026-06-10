@@ -17,14 +17,20 @@ class UploadPackage:
     checklist: list[str]
 
 
-def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPackage:
+def build_upload_package(
+    topic: str,
+    hook: str,
+    *,
+    draft_id: int,
+    research=None,
+) -> UploadPackage:
     """Conservative metadata: helpful title, no clickbait."""
     from shorts_bot.config import settings
     from shorts_bot.production.niche import NICHE_NAME
 
-    title = _safe_title(topic, hook)
+    title = _title_from_research(topic, hook, research) if research else _safe_title(topic, hook)
     description = _safe_description(topic)
-    tags = [
+    tags = _tags_from_research(research) if research else [
         "calm shorts",
         "anxiety help",
         "self help shorts",
@@ -53,6 +59,31 @@ def build_upload_package(topic: str, hook: str, *, draft_id: int) -> UploadPacka
         visibility=visibility,
         checklist=checklist,
     )
+
+
+def _title_from_research(topic: str, hook: str, research) -> str:
+    formula = (getattr(research, "title_formula", None) or "").strip()
+    if formula and len(formula) <= 100:
+        return formula[:100]
+    return _safe_title(topic, hook)
+
+
+def _tags_from_research(research) -> list[str]:
+    base = [
+        "calm shorts",
+        "self help shorts",
+        "soft continuity",
+        "the minute before",
+    ]
+    seen = {t.lower() for t in base}
+    for row in getattr(research, "keyword_insights", None) or []:
+        kw = str(row.get("keyword", "")).strip()
+        if kw and kw.lower() not in seen and len(kw) < 40:
+            base.append(kw)
+            seen.add(kw.lower())
+        if len(base) >= 12:
+            break
+    return base[:12]
 
 
 def _safe_title(topic: str, hook: str) -> str:

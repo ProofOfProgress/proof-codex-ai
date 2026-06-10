@@ -19,3 +19,7 @@ Primary Google/YouTube/Gemini: paypalacc4progress@gmail.com. Discord owner contr
 ## Jenny course
 
 Enforce hook → momentum → payoff (02, 06). Mute-safe visuals + caption safe zone (05). Singular you. No slop, no hey guys.
+
+## Deep research (user definition)
+
+When the user says **deep research**, do NOT limit to local files. Browse the web, pull YouTube competitor titles, use vidIQ keyword data when available, cross-check Jenny Hoyos course, and return the smoothest fastest pipeline path to run (`daily_cli`, research cache, CAPTION_MODE=ffmpeg, upload). Force refresh on `deep research <topic>`.

@@ -167,7 +167,8 @@ class ShortsCog(commands.Cog):
             "**Pipeline (API — no browser):**\n"
             "`!daily` · `!daily <topic>` · `!research <topic>`\n"
             "`!finish <draft_id>` · `!makevideo <id>` · `!voice <id>`\n"
-            "`!applybrand` · `!brandassets` · `!live`\n\n"
+            "`!applybrand` · `!brandassets` · `!live`\n"
+            "`!research <topic>` · `!deepresearch <topic>` (web + vidIQ)\n\n"
             "**Memory:** `!remember <rule>` · `!memory` · `!forget <id>`\n"
             "**Approvals:** `!pending` · `!yes` / `!no` · `!draftyes` / `!draftno`\n"
             "`!status` · `!sync` · `!briefing` · `!ping` · `!myid`\n"
@@ -227,8 +228,17 @@ class ShortsCog(commands.Cog):
     @commands.command(name="research")
     async def research_cmd(self, ctx: commands.Context, *, topic: str) -> None:
         await self._remember(ctx)
+        await ctx.reply(f"Deep researching (web + vidIQ + competitors): {topic[:80]}…")
         async with ctx.typing():
             msg = await asyncio.to_thread(self.ops.run_research, topic)
+        await self._reply_ops(ctx, msg)
+
+    @commands.command(name="deepresearch", aliases=["deep_research"])
+    async def deep_research_cmd(self, ctx: commands.Context, *, topic: str) -> None:
+        await self._remember(ctx)
+        await ctx.reply(f"Force-refresh deep research: {topic[:80]}…")
+        async with ctx.typing():
+            msg = await asyncio.to_thread(self.ops.run_research, topic, force_refresh=True)
         await self._reply_ops(ctx, msg)
 
     @commands.command(name="finish", aliases=["finishvideo"])

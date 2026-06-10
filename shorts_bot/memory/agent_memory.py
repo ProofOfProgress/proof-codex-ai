@@ -101,6 +101,12 @@ class AgentMemoryStore:
                 "Discord control",
                 "User controls pipeline via Discord: daily, research, apply brand, finish video.",
             ),
+            (
+                "operating_rule",
+                "Deep research",
+                "Deep research = web browse + YouTube competitors + vidIQ keywords + Jenny course synthesis. "
+                "Not local files only. Include recommended_path for fastest pipeline run.",
+            ),
         ]
         for cat, title, content in defaults:
             self.add_memory(category=cat, title=title, content=content, source="seed", pinned=True)

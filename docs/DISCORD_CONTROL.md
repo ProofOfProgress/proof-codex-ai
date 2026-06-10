@@ -28,7 +28,8 @@ bash scripts/run-all.sh   # web + Discord
 |---------|----------------|
 | `daily` | Full autopilot Short |
 | `daily <topic>` | Same with topic |
-| `research <topic>` | Deep production research |
+| `research <topic>` | Deep research (web + vidIQ + competitors) |
+| `deep research <topic>` / `!deepresearch` | Force refresh — re-browse web |
 | `finish video <id>` | Paid finish pipeline |
 | `apply brand` | Name + description + banner via **YouTube API** |
 | `generate assets` | Build profile.png + banner.png locally |
