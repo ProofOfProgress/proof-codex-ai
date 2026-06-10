@@ -222,20 +222,73 @@ def _check_image_api() -> ServiceStatus:
 
 
 def _check_transcript_sync() -> ServiceStatus:
-    if settings.has_assemblyai:
+    provider = (settings.transcript_provider or "gemini").strip().lower()
+    if provider == "assemblyai" and settings.has_assemblyai:
         model = settings.assemblyai_speech_model or "universal"
         return ServiceStatus(
             "transcript",
-            "AssemblyAI transcript sync",
+            "AssemblyAI transcript (optional)",
             True,
             f"API key configured ({model})",
         )
+    if settings.has_gemini:
+        model = (settings.gemini_transcript_model or settings.gemini_model).strip()
+        return ServiceStatus(
+            "transcript",
+            "Gemini audio transcript",
+            True,
+            f"{model} — same GEMINI_API_KEY as chat/vision",
+        )
     return ServiceStatus(
         "transcript",
-        "AssemblyAI transcript sync",
+        "Gemini audio transcript",
         False,
-        "ASSEMBLYAI_API_KEY missing",
-        "https://www.assemblyai.com/dashboard/signup",
+        "GEMINI_API_KEY missing",
+        "https://aistudio.google.com/apikey",
+    )
+
+
+def _check_youtube_upload() -> ServiceStatus:
+    from shorts_bot.youtube.google_auth import auth_status, upload_ready
+
+    st = auth_status()
+    if not st["credentials_configured"]:
+        return ServiceStatus(
+            "youtube_upload",
+            "YouTube API upload",
+            False,
+            "GOOGLE_CLIENT_ID/SECRET missing",
+            "Add to Cursor secrets — bash scripts/install.sh",
+        )
+    if not st["token_saved"]:
+        return ServiceStatus(
+            "youtube_upload",
+            "YouTube API upload",
+            False,
+            "OAuth not run yet",
+            "python3 -m shorts_bot.youtube.auth_cli",
+        )
+    if st.get("needs_upload_reauth"):
+        return ServiceStatus(
+            "youtube_upload",
+            "YouTube API upload",
+            False,
+            "Token lacks upload scope",
+            "python3 -m shorts_bot.youtube.auth_cli",
+        )
+    if upload_ready():
+        return ServiceStatus(
+            "youtube_upload",
+            "YouTube API upload",
+            True,
+            "Ready — no Studio browser needed",
+        )
+    return ServiceStatus(
+        "youtube_upload",
+        "YouTube API upload",
+        False,
+        "Upload credentials unavailable",
+        "python3 -m shorts_bot.youtube.auth_cli",
     )
 
 
@@ -336,6 +389,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_vision_qc(),
         _check_image_api(),
         _check_youtube_oauth(),
+        _check_youtube_upload(),
     ]
     if include_studio:
         items.append(_check_studio())

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from shorts_bot.youtube.google_auth import load_credentials_for_upload
+from shorts_bot.youtube.google_auth import load_credentials_for_upload, upload_ready as youtube_upload_ready
 
 
 @dataclass
@@ -73,4 +73,4 @@ def upload_short(
 
 
 def upload_ready() -> bool:
-    return bool(load_credentials_for_upload())
+    return youtube_upload_ready()

@@ -124,10 +124,15 @@ class Settings(BaseSettings):
     # Quality gates — block before expensive steps / upload
     quality_gate_blocks_render: bool = True
 
-    # Transcript sync — AssemblyAI API only
-    assemblyai_api_key: str | None = None
-    assemblyai_speech_model: str = "universal"  # universal = cheaper; use "best" for max accuracy
+    # Transcript sync — Gemini audio (default; uses GEMINI_API_KEY). AssemblyAI optional fallback.
+    transcript_provider: str = "gemini"  # gemini | assemblyai
+    gemini_transcript_model: str = ""  # empty = gemini_model
+    assemblyai_api_key: str | None = None  # optional — only if transcript_provider=assemblyai
+    assemblyai_speech_model: str = "universal"
     transcript_always_fresh: bool = False  # reuse transcript.txt on pipeline retry (saves API $)
+
+    # YouTube — API upload only (no Studio browser automation)
+    youtube_upload_via_api: bool = True
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True

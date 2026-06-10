@@ -4,7 +4,7 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** Gemini (chat + **vision QC**) + **Resemble** voice + **AssemblyAI** transcript API + **stick figure frames** (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md`, `docs/AI_VIDEO_PROMPTING_RESEARCH.md` (I2V prompts: `ai_video_prompts_cli`; pack export: `video_prompt_pack_cli --draft-id N --hybrid`). (methods, variety, sync, QC).
+**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** **Gemini** (chat + audio transcript + vision QC) + **Resemble** voice + **stick figure frames**. Keys sync from Cursor secrets via `bash scripts/install.sh` — no hand-editing `.env`. (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md`, `docs/AI_VIDEO_PROMPTING_RESEARCH.md` (I2V prompts: `ai_video_prompts_cli`; pack export: `video_prompt_pack_cli --draft-id N --hybrid`). (methods, variety, sync, QC).
 
 **Channel mission:** loyal subscribers who come back because content **actually helps** — not viral one-offs. **TikTok account planned later** — no TikTok automation until user says go (`data/operating_rules_seed.md`).
 
@@ -51,7 +51,7 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3) + **reflective self-training** (episodes, rule confidence, promote to agent memory); safe improvements auto-approved. See `docs/SELF_LEARNING.md`, `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md`. Config: `SELF_TRAINING_ENABLED=true`.
 
-**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads stay unlisted** (`AUTO_PUBLISH_HOURS=0`), **Gemini vision QC** (5 sparse frames, 1 API call) + ffmpeg QC before upload, **YPP upload guard**. Login/payments still manual. Config: `ASSEMBLYAI_API_KEY`, `GEMINI_API_KEY`, `VISION_QC_MIN_SCORE=7`, `TRANSCRIPT_ALWAYS_FRESH=false` (reuse transcript on retry).
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads stay unlisted** (`AUTO_PUBLISH_HOURS=0`), **Gemini vision QC** + ffmpeg QC before upload, **YouTube API upload** (no Studio Playwright). One-time: `python3 -m shorts_bot.youtube.auth_cli` (Google sign-in in system browser).
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 

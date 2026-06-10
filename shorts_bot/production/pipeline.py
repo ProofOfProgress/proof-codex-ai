@@ -186,8 +186,8 @@ def finish_draft_pipeline(
                 state.mark("transcript", status="failed")
                 save_state(pack_dir, state)
                 raise RuntimeError(
-                    f"AssemblyAI transcript sync required but failed: {exc}. "
-                    "Fix: set ASSEMBLYAI_API_KEY in .env"
+                    f"Gemini transcript sync required but failed: {exc}. "
+                    "Fix: ensure GEMINI_API_KEY is in Cursor secrets (bash scripts/install.sh)"
                 ) from exc
             messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
             state.mark("transcript", status="failed")
@@ -337,8 +337,17 @@ def finish_draft_pipeline(
 
         if do_upload:
             from shorts_bot.memory.extensions import MemoryExtensions
+            from shorts_bot.youtube.google_auth import upload_ready
             from shorts_bot.youtube.upload import upload_short
             from shorts_bot.youtube.upload_guardrails import preflight_upload
+
+            if settings.youtube_upload_via_api and not upload_ready():
+                messages.append(
+                    "Upload blocked — YouTube token missing API upload scope. "
+                    "Run once at home: python3 -m shorts_bot.youtube.auth_cli "
+                    "(Google sign-in in your browser, not Playwright)"
+                )
+                do_upload = False
 
             mem = MemoryExtensions(store)
             from shorts_bot.compliance.upload_guard import record_upload

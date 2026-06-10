@@ -1,8 +1,10 @@
-"""Word-level transcript sync — AssemblyAI API only (no browser)."""
+"""Timestamped transcript sync — Gemini audio (default) or optional AssemblyAI API."""
 
 from __future__ import annotations
 
+import base64
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -10,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.turboscribe_parser import format_timestamp_lines
+from shorts_bot.production.turboscribe_parser import format_timestamp_lines, parse_turboscribe
 
 
 @dataclass
@@ -29,6 +31,15 @@ def _cached_transcript_path(audio_path: Path) -> Path:
     return audio_path.parent / "transcript.txt"
 
 
+def _write_cache(audio_path: Path, text: str) -> Path:
+    out_path = _cached_transcript_path(audio_path)
+    out_path.write_text(text.strip() + "\n", encoding="utf-8")
+    legacy = audio_path.parent / "turboscribe_transcript.txt"
+    if legacy != out_path:
+        legacy.write_text(text.strip() + "\n", encoding="utf-8")
+    return out_path
+
+
 def _read_cache(audio_path: Path) -> TranscriptResult | None:
     for path in _cached_transcript_paths(audio_path):
         if path.exists():
@@ -42,8 +53,120 @@ def _read_cache(audio_path: Path) -> TranscriptResult | None:
     return None
 
 
+def _normalize_gemini_transcript(raw: str) -> str:
+    """Convert Gemini timestamp output to M:SS lines for parse_turboscribe."""
+    lines_out: list[tuple[float, str]] = []
+    for line in raw.splitlines():
+        text = line.strip()
+        if not text or text.startswith("#"):
+            continue
+        text = re.sub(r"^[-*•]\s*", "", text)
+        m = re.match(
+            r"^\[?(?:(\d+):)?(\d{1,2}):(\d{2})(?:[.,](\d+))?\]?\s*[-–:]?\s*(.+)$",
+            text,
+        )
+        if m:
+            h = int(m.group(1) or 0)
+            mins = int(m.group(2))
+            secs = int(m.group(3))
+            frac = int((m.group(4) or "0")[:1])
+            start = h * 3600 + mins * 60 + secs + frac / 10.0
+            spoken = m.group(5).strip()
+            if spoken:
+                lines_out.append((start, spoken))
+            continue
+        m2 = re.match(r"^(\d{1,2}):(\d{2})\s+(.+)$", text)
+        if m2:
+            start = int(m2.group(1)) * 60 + int(m2.group(2))
+            lines_out.append((start, m2.group(3).strip()))
+    if lines_out:
+        return format_timestamp_lines(lines_out)
+    return raw.strip()
+
+
+def _validate_transcript(text: str) -> str:
+    cleaned = _normalize_gemini_transcript(text)
+    if parse_turboscribe(cleaned):
+        return cleaned.strip()
+    if parse_turboscribe(text):
+        return text.strip()
+    raise RuntimeError("Transcript missing parseable timestamps (M:SS lines)")
+
+
+def _gemini_generate_content(model: str, body: dict) -> dict:
+    key = (settings.gemini_api_key or "").strip()
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        f"?key={key}"
+    )
+    data = json.dumps(body).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:400]
+        raise RuntimeError(f"Gemini transcript HTTP {exc.code}: {detail}") from exc
+
+
+def transcribe_with_gemini(audio_path: Path) -> TranscriptResult:
+    """Transcribe voiceover via Gemini audio understanding (same key as chat/vision)."""
+    if not settings.has_gemini:
+        raise RuntimeError("GEMINI_API_KEY missing — add to Cursor secrets; install.sh syncs it")
+
+    if not audio_path.exists():
+        raise FileNotFoundError(f"Audio not found: {audio_path}")
+
+    audio_bytes = audio_path.read_bytes()
+    if len(audio_bytes) > 18 * 1024 * 1024:
+        raise RuntimeError("Voiceover too large for inline Gemini audio")
+
+    model = (settings.gemini_transcript_model or settings.gemini_model).strip()
+    mime = "audio/mpeg" if audio_path.suffix.lower() in {".mp3", ".mpeg"} else "audio/mp4"
+    prompt = (
+        "Transcribe this voiceover. Output ONLY lines in format: M:SS words spoken\n"
+        "Example:\n0:00 the minute before\n0:03 you breathe once\n"
+        "Chunk phrases every 2-4 seconds at natural pauses. No commentary."
+    )
+    body = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt},
+                    {"inline_data": {"mime_type": mime, "data": base64.standard_b64encode(audio_bytes).decode()}},
+                ]
+            }
+        ],
+        "generationConfig": {
+            "audioTimestamp": True,
+            "temperature": 0.1,
+            "maxOutputTokens": 1200,
+        },
+    }
+    payload = _gemini_generate_content(model, body)
+    candidates = payload.get("candidates") or []
+    if not candidates:
+        raise RuntimeError(f"Gemini transcript empty response: {payload.get('error', payload)[:200]}")
+    parts = (candidates[0].get("content") or {}).get("parts") or []
+    raw = "".join(str(p.get("text", "")) for p in parts).strip()
+    if not raw:
+        raise RuntimeError("Gemini returned empty transcript")
+
+    text = _validate_transcript(raw)
+    out_path = _write_cache(audio_path, text)
+    return TranscriptResult(
+        transcript_text=text,
+        source="gemini",
+        message=f"Gemini ({model}) transcript saved → {out_path.name}",
+    )
+
+
 def _words_to_timestamp_lines(words: list[dict]) -> str:
-    """Group AssemblyAI words into M:SS lines for parse_turboscribe."""
     if not words:
         return ""
     lines: list[tuple[float, str]] = []
@@ -96,10 +219,10 @@ def _assemblyai_json(
 
 
 def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> TranscriptResult:
-    """Upload MP3 to AssemblyAI and return timestamped transcript text."""
+    """Optional fallback when ASSEMBLYAI_API_KEY is in Cursor secrets."""
     key = (settings.assemblyai_api_key or "").strip()
     if not key:
-        raise RuntimeError("ASSEMBLYAI_API_KEY missing — add to .env and sync_secrets")
+        raise RuntimeError("ASSEMBLYAI_API_KEY not set")
 
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio not found: {audio_path}")
@@ -144,13 +267,10 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
                 text = (payload.get("text") or "").strip()
             if not text.strip():
                 raise RuntimeError("AssemblyAI returned empty transcript")
-            out_path = _cached_transcript_path(audio_path)
-            out_path.write_text(text.strip() + "\n", encoding="utf-8")
-            legacy = audio_path.parent / "turboscribe_transcript.txt"
-            if legacy != out_path:
-                legacy.write_text(text.strip() + "\n", encoding="utf-8")
+            text = _validate_transcript(text)
+            out_path = _write_cache(audio_path, text)
             return TranscriptResult(
-                transcript_text=text.strip(),
+                transcript_text=text,
                 source="assemblyai",
                 message=f"AssemblyAI ({model}) sync saved → {out_path.name}",
             )
@@ -162,9 +282,20 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
 
 
 def transcribe_audio(audio_path: Path) -> TranscriptResult:
-    """Transcribe voiceover via AssemblyAI API."""
+    """Transcribe voiceover — Gemini by default (no extra signup)."""
     if not settings.transcript_always_fresh:
         cached = _read_cache(audio_path)
         if cached:
             return cached
-    return transcribe_with_assemblyai(audio_path)
+
+    provider = (settings.transcript_provider or "gemini").strip().lower()
+    if provider == "assemblyai" and settings.has_assemblyai:
+        return transcribe_with_assemblyai(audio_path)
+    if settings.has_gemini:
+        return transcribe_with_gemini(audio_path)
+    if settings.has_assemblyai:
+        return transcribe_with_assemblyai(audio_path)
+    raise RuntimeError(
+        "Transcript sync needs GEMINI_API_KEY in Cursor secrets (same key as chat/vision). "
+        "Run: bash scripts/install.sh"
+    )

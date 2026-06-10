@@ -93,8 +93,8 @@ def run_oauth_flow() -> dict:
             "redirect_uris": ["http://localhost:8090/"],
         }
     }
-    use_upload = os.environ.get("YOUTUBE_OAUTH_UPLOAD", "").lower() in ("1", "true", "yes")
-    oauth_scopes = UPLOAD_SCOPES if use_upload else SCOPES
+    # Always request upload + manage scopes so API upload works without Studio browser.
+    oauth_scopes = UPLOAD_SCOPES
     flow = InstalledAppFlow.from_client_config(client_config, oauth_scopes)
     open_browser = os.environ.get("OAUTH_NO_BROWSER", "").lower() not in ("1", "true", "yes")
     last_err: Exception | None = None
@@ -114,13 +114,24 @@ def run_oauth_flow() -> dict:
             raise
     if creds is None:
         raise last_err or RuntimeError("Could not bind OAuth callback port.")
-    save_credentials(creds)
-    return {"ok": True, "message": "YouTube Analytics connected. Token saved."}
+    save_credentials(creds, scopes=oauth_scopes)
+    return {
+        "ok": True,
+        "message": "YouTube connected with Analytics + API upload scopes. Token saved.",
+    }
+
+
+def upload_ready() -> bool:
+    return load_credentials_for_upload() is not None
 
 
 def auth_status() -> dict:
+    creds_ok = credentials_configured() and token_exists()
+    upload_ok = upload_ready()
     return {
         "credentials_configured": credentials_configured(),
         "token_saved": token_exists(),
-        "ready": credentials_configured() and token_exists(),
+        "ready": creds_ok,
+        "upload_ready": upload_ok,
+        "needs_upload_reauth": token_exists() and credentials_configured() and not upload_ok,
     }
