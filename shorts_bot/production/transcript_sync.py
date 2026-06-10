@@ -142,8 +142,8 @@ def transcribe_with_gemini(audio_path: Path) -> TranscriptResult:
                 ]
             }
         ],
+        # audioTimestamp is Vertex-only — not supported on Gemini Developer API (API key).
         "generationConfig": {
-            "audioTimestamp": True,
             "temperature": 0.1,
             "maxOutputTokens": 1200,
         },

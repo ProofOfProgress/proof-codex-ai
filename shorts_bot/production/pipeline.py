@@ -196,7 +196,7 @@ def finish_draft_pipeline(
                 save_state(pack_dir, state)
                 raise RuntimeError(
                     f"Gemini transcript sync required but failed: {exc}. "
-                    "Fix: ensure GEMINI_API_KEY is in Cursor secrets (bash scripts/install.sh)"
+                    "Check GEMINI_API_KEY in Cursor secrets (bash scripts/install.sh)."
                 ) from exc
             messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
             state.mark("transcript", status="failed")
