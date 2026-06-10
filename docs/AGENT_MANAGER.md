@@ -4,16 +4,33 @@ Soft Continuity uses a **Chief Manager** (what you talk to) that delegates to sm
 
 ## Who talks to whom
 
-| You talk to | It runs |
-|-------------|---------|
-| **Chief Manager** | Plans, delegates, synthesizes final reply |
-| Niche Strategist | Scores cosy/RPM topics |
-| Research Scout | Hooks, beats, competitor gaps (+ cached deep research) |
-| Script Writer | 60s protocol scripts → pipeline drafts |
-| Quality Reviewer | Rejects vague/office slop |
-| Content Manager | Plans the work queue for your time budget |
+**You only talk to the Chief Manager.** Underlings have no chat interface.
 
-All specialists use `GEMINI_API_KEY` via `shorts_bot/llm/provider.py`.
+| Layer | Role | What it does |
+|-------|------|----------------|
+| **You** | Owner | One message in, one manager reply out |
+| **Chief Manager** | Your interface | Plans, delegates, synthesizes |
+| **Research Lead** | Mini-manager | Queues research underlings |
+| **Deep Research Worker** | Underling | `deep_research_topic` → `data/research/*.json` |
+| **Competitor Analyst** | Underling | Gap vs existing Shorts |
+| **Hook Analyst** | Underling | Rank hooks + title formulas |
+| **Trends Scout** | Underling | Google Trends + RPM notes |
+| **Research Scout** | Underling | Fast hook/beat brief |
+| **Niche Strategist** | Underling | Scores cosy/RPM topics |
+| Script Writer | Underling | Drafts **only when you explicitly ask** |
+| Quality Reviewer | Underling | Review (balanced/production mode) |
+
+Internal audit log (not a chat UI): `data/underlings/work.log`
+
+All use `GEMINI_API_KEY` via `shorts_bot/llm/provider.py`.
+
+## Current priority: RESEARCH
+
+Default `MANAGER_WORK_PRIORITY=research`:
+
+- Underlings focus on **deep research stacks**, not drafts
+- Say `draft` / `make video` if you want scripts created
+- Plain messages like `plan cosy topics` auto-route to manager with a **3 min research burst** (`MANAGER_DEFAULT_RESEARCH_SECONDS=180`)
 
 ## Work duration — “take an hour to respond”
 
@@ -72,17 +89,22 @@ python3 -m shorts_bot.bot.cli
 
 Async kicks in when work budget ≥ **120s** (`MANAGER_ASYNC_THRESHOLD_SECONDS`).
 
-## What happens during a 1-hour session
+## What happens during a 1-hour session (research priority)
 
 Typical order (until budget runs out):
 
-1. Content Manager — work plan
-2. Niche Strategist — score 5 cosy topics
-3. Research Scout — deep research on top pick
-4. Script Writer — pipeline draft + quality review
-5. More research on rotation topics if time remains
+1. **Research Lead** — research queue plan
+2. **Niche Strategist** — score 5 cosy topics (light)
+3. **Full stack per topic** (×2–3):
+   - Research Scout brief
+   - Deep Research Worker (web + competitors + cache)
+   - Competitor Analyst
+   - Hook Analyst
+   - Trends Scout
+4. More **deep-only** passes on rotation topics if time remains
+5. Drafts **only** if you said `draft` / `make video`
 
-Footer lists tasks completed and `draft #` if created. Say `pending` to review.
+Footer lists underling tasks + `data/research/` file paths. Say `pending` only if drafts were created.
 
 ## Config
 
@@ -93,15 +115,22 @@ MANAGER_ENABLED=true
 MANAGER_WORK_FLOOR_SECONDS=30
 MANAGER_MAX_WORK_SECONDS=7200
 MANAGER_ASYNC_THRESHOLD_SECONDS=120
+MANAGER_WORK_PRIORITY=research
+MANAGER_AUTO_DELEGATE=true
+MANAGER_DEFAULT_RESEARCH_SECONDS=180
+MANAGER_RESEARCH_FORCE_REFRESH=false
 ```
 
 ## Files
 
 | Path | Role |
 |------|------|
-| `shorts_bot/agents/manager.py` | Chief Manager |
-| `shorts_bot/agents/work_loop.py` | Timed work budget |
+| `shorts_bot/agents/manager.py` | Chief Manager (your only interface) |
+| `shorts_bot/agents/underlings/team.py` | UnderlingTeam dispatch |
+| `shorts_bot/agents/underlings/research_lead.py` | Research Lead |
+| `shorts_bot/agents/underlings/research_workers.py` | Research underlings |
+| `shorts_bot/agents/work_loop.py` | Research-priority scheduler |
+| `shorts_bot/agents/priority.py` | research / balanced / production |
 | `shorts_bot/agents/duration.py` | Parse “take 1h” |
-| `shorts_bot/agents/runner.py` | Gemini specialist calls |
-| `shorts_bot/agents/tasks.py` | Research, draft, review units |
+| `shorts_bot/agents/runner.py` | Gemini calls |
 | `shorts_bot/agents/job_store.py` | Async job persistence |

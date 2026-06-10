@@ -21,7 +21,7 @@ def test_should_not_use_manager_plain():
 def test_offline_manager_with_budget(monkeypatch):
     from shorts_bot.agents import work_loop
 
-    def fake_run(user_request, budget_seconds, on_progress=None):
+    def fake_run(user_request, budget_seconds, on_progress=None, priority=None):
         s = WorkSession(budget_seconds=60, user_request=user_request)
         s.log.append(
             WorkLogEntry(

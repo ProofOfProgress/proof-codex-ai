@@ -15,6 +15,7 @@ from shorts_bot.agents.duration import (
 )
 from shorts_bot.agents.roles import CHIEF_MANAGER
 from shorts_bot.agents.runner import SpecialistRunner
+from shorts_bot.agents.priority import WorkPriority, user_wants_research
 from shorts_bot.agents.work_loop import WorkSession, run_timed_work
 from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
@@ -55,7 +56,7 @@ def strip_manager_prefix(message: str) -> str:
 
 
 def should_use_manager(message: str) -> bool:
-    """Route to chief manager when duration directive or explicit prefix."""
+    """Route to chief manager — humans only talk to the manager, never underlings."""
     if not settings.manager_enabled:
         return False
     text = strip_manager_prefix(message)
@@ -63,7 +64,32 @@ def should_use_manager(message: str) -> bool:
     if any(lower.startswith(p) for p in MANAGER_PREFIXES):
         return True
     parsed = parse_work_duration(text)
-    return parsed.has_work_budget
+    if parsed.has_work_budget:
+        return True
+    if settings.manager_auto_delegate and user_wants_research(text):
+        return True
+    return False
+
+
+def _resolve_work_budget(parsed: ParsedDuration, stripped: str) -> int:
+    """Apply explicit duration or default research burst when priority=research."""
+    if parsed.has_work_budget:
+        return clamp_work_seconds(
+            parsed.work_seconds or 0,
+            minimum=settings.manager_work_floor_seconds,
+            maximum=settings.manager_max_work_seconds,
+        )
+    if (
+        settings.manager_work_priority == "research"
+        and settings.manager_default_research_seconds > 0
+        and (user_wants_research(stripped) or strip_manager_prefix(stripped) != stripped)
+    ):
+        return clamp_work_seconds(
+            settings.manager_default_research_seconds,
+            minimum=settings.manager_work_floor_seconds,
+            maximum=settings.manager_max_work_seconds,
+        )
+    return 0
 
 
 class ChiefManager:
@@ -85,25 +111,23 @@ class ChiefManager:
         stripped = strip_manager_prefix(raw)
         parsed = parse_work_duration(stripped)
 
-        work_seconds = 0
+        work_seconds = _resolve_work_budget(parsed, stripped)
         session: WorkSession | None = None
 
-        if parsed.has_work_budget:
-            work_seconds = clamp_work_seconds(
-                parsed.work_seconds or 0,
-                minimum=settings.manager_work_floor_seconds,
-                maximum=settings.manager_max_work_seconds,
-            )
+        if work_seconds > 0:
             self.on_progress(
-                f"Work budget: {format_duration(work_seconds)} — starting specialist team…"
+                f"Work budget: {format_duration(work_seconds)} — dispatching underlings "
+                f"(priority: {settings.manager_work_priority})…"
             )
             session = run_timed_work(
                 parsed.cleaned_message or stripped,
                 work_seconds,
                 on_progress=self.on_progress,
+                priority=WorkPriority(settings.manager_work_priority),
             )
             self.on_progress(
-                f"Work session done — {len(session.log)} tasks in {format_duration(int(session.elapsed))}."
+                f"Work session done — {len(session.log)} underling tasks in "
+                f"{format_duration(int(session.elapsed))}."
             )
 
         reply = self._synthesize(parsed.cleaned_message or stripped, session)
@@ -134,16 +158,23 @@ class ChiefManager:
         footer_parts = []
         if session and session.log:
             footer_parts.append(
-                f"\n\n---\n**Work session:** {len(session.log)} tasks · "
+                f"\n\n---\n**Work session:** {len(session.log)} underling tasks · "
                 f"{format_duration(int(session.elapsed))} / "
-                f"{format_duration(session.budget_seconds)} budget"
+                f"{format_duration(session.budget_seconds)} budget · "
+                f"priority: {session.priority.value}"
             )
+            rfiles = session.research_files()
+            if rfiles:
+                footer_parts.append("**Research saved:** " + ", ".join(rfiles[:5]))
             for entry in session.log:
-                line = f"• {entry.summary}"
+                line = f"• [{entry.role}] {entry.summary}"
                 if entry.artifacts.get("draft_id"):
                     line += f" → draft #{entry.artifacts['draft_id']}"
+                if entry.artifacts.get("research_file"):
+                    line += f" → {entry.artifacts['research_file']}"
                 footer_parts.append(line)
-            footer_parts.append("Say `pending` to review drafts.")
+            if any(e.artifacts.get("draft_id") for e in session.log):
+                footer_parts.append("Say `pending` to review drafts.")
 
         return synthesis + "".join(footer_parts)
 
@@ -171,18 +202,15 @@ def run_manager_job(
 ) -> ManagerResult:
     """Entry for background jobs — forces a work budget even if not parsed from text."""
     mgr = ChiefManager(on_progress=on_progress)
-    parsed = parse_work_duration(strip_manager_prefix(message))
-    budget = work_seconds or parsed.work_seconds or 0
+    stripped = strip_manager_prefix(message)
+    parsed = parse_work_duration(stripped)
+    budget = work_seconds or _resolve_work_budget(parsed, stripped)
     if budget > 0:
-        budget = clamp_work_seconds(
-            budget,
-            minimum=settings.manager_work_floor_seconds,
-            maximum=settings.manager_max_work_seconds,
-        )
         session = run_timed_work(
-            parsed.cleaned_message or message,
+            parsed.cleaned_message or stripped,
             budget,
             on_progress=on_progress or (lambda _m: None),
+            priority=WorkPriority(settings.manager_work_priority),
         )
         reply = mgr._synthesize(parsed.cleaned_message or message, session)
         mgr.store.save_chat("user", message)
