@@ -10,11 +10,9 @@ from shorts_bot.production.image_prompts import build_image_briefs, build_master
 from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.production.render_stills import render_all_stills
 from shorts_bot.production.render_stickfigures import render_all_stickfigures
-from shorts_bot.production.script_segments import (
-    segments_from_script,
-    segments_from_script_for_duration,
-)
-from shorts_bot.production.turboscribe_parser import parse_turboscribe
+from shorts_bot.drafts.meta import visual_beats_for_draft
+from shorts_bot.production.segment_sync import resolve_segments
+from shorts_bot.production.variety import variety_for_draft
 
 
 @dataclass
@@ -66,27 +64,40 @@ def build_production_pack(
     render_images: bool = False,
 ) -> ProductionPack:
     draft = store.get_draft(draft_id)
-    segments = parse_turboscribe(turboscribe_text) if turboscribe_text.strip() else []
-    if not segments and auto_from_script:
-        audio_path = (output_root or (settings.data_dir / "production" / f"draft_{draft_id}")) / "voiceover.mp3"
-        if audio_path.exists():
-            from shorts_bot.production.render_video import _probe_duration
+    root = output_root or (settings.data_dir / "production" / f"draft_{draft_id}")
+    audio_duration: float | None = None
+    audio_path = root / "voiceover.mp3"
+    if audio_path.exists():
+        from shorts_bot.production.render_video import _probe_duration
 
-            try:
-                dur = _probe_duration(audio_path)
-                segments = segments_from_script_for_duration(draft.script, dur)
-            except Exception:
-                segments = segments_from_script(draft.script)
-        else:
-            segments = segments_from_script(draft.script)
+        try:
+            audio_duration = _probe_duration(audio_path)
+        except Exception:
+            audio_duration = None
+
+    variety = variety_for_draft(draft_id)
+    if audio_duration and variety.segment_merge_bias != 1.0:
+        audio_duration = audio_duration  # used below via resolve_segments
+
+    segments, sync_source = resolve_segments(
+        script=draft.script,
+        pack_dir=root,
+        turboscribe_text=turboscribe_text if turboscribe_text.strip() else "",
+        audio_duration=audio_duration,
+    )
+    if not segments and auto_from_script:
+        from shorts_bot.production.script_segments import segments_from_script
+
+        segments = segments_from_script(draft.script)
+        sync_source = "script_estimate"
     if not segments:
         raise ValueError(
             "No timestamps found. Use auto_from_script=True or paste TurboScribe export "
             "with lines like '0:07 your words...'"
         )
 
-    briefs = build_image_briefs(segments, topic=draft.topic)
-    root = output_root or (settings.data_dir / "production" / f"draft_{draft_id}")
+    briefs = build_image_briefs(segments, topic=draft.topic, total_duration=audio_duration)
+    beats = visual_beats_for_draft(draft_id)
     root.mkdir(parents=True, exist_ok=True)
     prompts_dir = root / "prompts"
     images_dir = root / "images"
@@ -121,9 +132,19 @@ def build_production_pack(
                 rendered = render_all_stickfigures(briefs, images_dir)
                 image_note = " (AI failed — stick figure fallback)"
         elif settings.visual_style == "stickfigure":
-            rendered = render_all_stickfigures(briefs, images_dir)
+            rendered = render_all_stickfigures(
+                briefs,
+                images_dir,
+                visual_beats=beats,
+                figure_x_offset=variety.figure_x_offset,
+            )
         elif settings.visual_style == "ai":
-            rendered = render_all_stickfigures(briefs, images_dir)
+            rendered = render_all_stickfigures(
+                briefs,
+                images_dir,
+                visual_beats=beats,
+                figure_x_offset=variety.figure_x_offset,
+            )
             image_note = " (no image API key — stick figure fallback)"
         else:
             rendered = render_all_stills(briefs, images_dir)
@@ -135,7 +156,9 @@ def build_production_pack(
         "topic": draft.topic,
         "hook": draft.hook,
         "script": draft.script,
-        "workflow": "auto_script" if auto_from_script and not turboscribe_text.strip() else "turboscribe",
+        "workflow": sync_source,
+        "variety": variety.summary(),
+        "visual_beats": beats,
         "visual_style": settings.visual_style,
         "image_count": len(briefs),
         "images_rendered": rendered,

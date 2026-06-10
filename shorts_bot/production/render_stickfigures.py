@@ -81,6 +81,16 @@ def _draw_stick(draw, cx: int, cy: int, pose: Pose, scale: float = 1.0) -> None:
         draw.line([cx, body_top + int(20 * s), cx + int(50 * s), body_top + int(60 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx - int(32 * s), body_bot + int(58 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_bot, cx + int(32 * s), body_bot + int(58 * s)], fill="#111111", width=int(5 * s))
+    elif pose == Pose.HUDDLED:
+        draw.line([cx, body_top + int(15 * s), cx - int(45 * s), body_top + int(55 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_top + int(15 * s), cx + int(45 * s), body_top + int(55 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_bot, cx - int(25 * s), body_bot + int(45 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_bot, cx + int(25 * s), body_bot + int(45 * s)], fill="#111111", width=int(5 * s))
+    elif pose == Pose.WALKING:
+        draw.line([cx, body_top + int(20 * s), cx - int(55 * s), body_top + int(45 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_top + int(25 * s), cx + int(50 * s), body_top + int(35 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_bot, cx - int(20 * s), body_bot + int(65 * s)], fill="#111111", width=int(5 * s))
+        draw.line([cx, body_bot, cx + int(45 * s), body_bot + int(50 * s)], fill="#111111", width=int(5 * s))
     elif pose == Pose.POINTING_SELF:
         draw.line([cx, body_top + int(20 * s), cx - int(45 * s), body_top + int(70 * s)], fill="#111111", width=int(5 * s))
         draw.line([cx, body_top + int(20 * s), cx + int(55 * s), body_top + int(35 * s)], fill="#111111", width=int(5 * s))
@@ -129,11 +139,12 @@ def _draw_bubble(draw, text: str, w: int, h: int) -> None:
         y += line_h
 
 
-def _place_figure(w: int, h: int, plan, room) -> tuple[int, int, float]:
+def _place_figure(w: int, h: int, plan, room, *, x_offset: int = 0) -> tuple[int, int, float]:
     """Anchor figure in upper safe action zone — clear of captions + right UI rail."""
     from shorts_bot.production.framing import action_figure_position
 
     base_x, base_y = action_figure_position(width=w, height=h)
+    base_x += x_offset
     if room.furniture == "couch":
         return base_x, int(h * 0.48), 0.95
     if room.furniture == "bed" or plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
@@ -143,10 +154,16 @@ def _place_figure(w: int, h: int, plan, room) -> tuple[int, int, float]:
     return base_x, base_y, 1.0
 
 
-def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
+def render_stick_frame(
+    brief: ImageBrief,
+    out_path: Path,
+    *,
+    beat_hint: str | None = None,
+    figure_x_offset: int = 0,
+) -> bool:
     from PIL import Image, ImageDraw
 
-    plan = plan_scene(brief.spoken_text)
+    plan = plan_scene(brief.spoken_text, beat_hint=beat_hint)
     room = plan_room(brief.spoken_text)
     w, h = 1080, 1920
     img = Image.new("RGB", (w, h), "#F4F4F0")
@@ -154,7 +171,7 @@ def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
 
     draw_room_background(draw, w, h, room, _font_reg(16))
 
-    fig_x, fig_y, scale = _place_figure(w, h, plan, room)
+    fig_x, fig_y, scale = _place_figure(w, h, plan, room, x_offset=figure_x_offset)
     if room.furniture == "couch":
         fig_x, seat_y = draw_couch(draw, w, h)
         fig_y = seat_y - 90
@@ -186,10 +203,18 @@ def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
     return True
 
 
-def render_all_stickfigures(briefs: list[ImageBrief], images_dir: Path) -> int:
+def render_all_stickfigures(
+    briefs: list[ImageBrief],
+    images_dir: Path,
+    *,
+    visual_beats: list[str] | None = None,
+    figure_x_offset: int = 0,
+) -> int:
     count = 0
-    for b in briefs:
+    beats = visual_beats or []
+    for i, b in enumerate(briefs):
+        hint = beats[i % len(beats)] if beats else None
         path = images_dir / f"{b.filename_stem}.png"
-        if render_stick_frame(b, path):
+        if render_stick_frame(b, path, beat_hint=hint, figure_x_offset=figure_x_offset):
             count += 1
     return count

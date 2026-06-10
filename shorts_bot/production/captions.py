@@ -86,8 +86,8 @@ def escape_ass_text(text: str) -> str:
     return t.replace("\n", r"\N")
 
 
-def ass_force_margin_override(margin_v: int | None = None) -> str:
+def ass_force_margin_override(*, y_offset: int = 0) -> str:
     """Per-line override — caption anchor above Shorts bottom UI (see SHORTS_ALIGNMENT.md)."""
     from shorts_bot.production.framing import ass_caption_position_tag
 
-    return ass_caption_position_tag()
+    return ass_caption_position_tag(y_offset=y_offset)

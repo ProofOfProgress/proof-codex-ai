@@ -342,6 +342,20 @@ def _offline_research(topic: str, *, external: dict | None = None) -> Production
     )
 
 
+def _research_is_stale(researched_at: str, *, max_days: int) -> bool:
+    if max_days <= 0 or not researched_at:
+        return False
+    try:
+        from datetime import datetime, timedelta, timezone
+
+        ts = datetime.fromisoformat(researched_at.replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return datetime.now(timezone.utc) - ts > timedelta(days=max_days)
+    except ValueError:
+        return True
+
+
 def deep_research_topic(
     topic: str,
     *,
@@ -352,7 +366,10 @@ def deep_research_topic(
     if not force_refresh:
         cached = load_research(topic)
         if cached and cached.viewer_moment:
-            return cached
+            if _research_is_stale(cached.researched_at, max_days=settings.research_cache_days):
+                pass  # refresh below
+            else:
+                return cached
 
     use_web = settings.research_web_enabled if include_web is None else include_web
     external = _gather_external_context(topic) if use_web else {

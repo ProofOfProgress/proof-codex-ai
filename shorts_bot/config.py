@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     google_trends_geo: str = "US"
     google_trends_gprop: str = "youtube"  # youtube | web | news | images | froogle
     google_trends_timeframe: str = "today 3-m"
+    research_cache_days: int = 7  # 0 = never expire cached deep research
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     browser_screenshot_dir: Path = Path("data/screenshots")
@@ -85,6 +86,16 @@ class Settings(BaseSettings):
     video_crf: int = 18
     video_preset: str = "slow"
     video_audio_bitrate_k: int = 192
+    video_ken_burns: bool = False  # subtle zoom per segment (slower render)
+    video_min_duration_seconds: float = 20.0
+    video_max_duration_seconds: float = 58.0
+    video_qc_blocks_upload: bool = True
+
+    # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
+    production_variety_enabled: bool = True
+
+    # Quality gates — block before expensive steps / upload
+    quality_gate_blocks_render: bool = True
 
     # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
     use_turboscribe_sync: bool = True
@@ -104,6 +115,7 @@ class Settings(BaseSettings):
     auto_daily_enabled: bool = True
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
+    daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
     auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
     quality_gate_blocks_upload: bool = True
 
