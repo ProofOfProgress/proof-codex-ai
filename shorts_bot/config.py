@@ -131,6 +131,8 @@ class Settings(BaseSettings):
     topic_cooldown_days: int = 7
     hook_cooldown_days: int = 14
     max_script_overlap_ratio: float = 0.65
+    block_duplicate_draft_upload: bool = True  # same draft_id → one upload only
+    block_duplicate_title_upload: bool = True  # same title already on channel → block
 
     # Comment automation — auto-reply light comments; serious → human queue
     auto_reply_comments: bool = True

@@ -257,11 +257,12 @@ def finish_draft_pipeline(
         if do_upload:
             from shorts_bot.memory.extensions import MemoryExtensions
             from shorts_bot.youtube.upload import upload_short
+            from shorts_bot.youtube.upload_guardrails import preflight_upload
 
             mem = MemoryExtensions(store)
-            from shorts_bot.compliance.upload_guard import check_upload_allowed, record_upload
+            from shorts_bot.compliance.upload_guard import record_upload
 
-            compliance = check_upload_allowed(
+            pre = preflight_upload(
                 store,
                 mem,
                 draft_id=draft_id,
@@ -270,11 +271,9 @@ def finish_draft_pipeline(
                 script=draft.script,
                 title=package.title,
             )
-            if not compliance.allowed:
-                messages.append(f"Upload blocked — YPP guard: {compliance.summary()}")
+            if not pre.allowed:
+                messages.append(f"Upload blocked — {pre.message}")
                 do_upload = False
-            elif compliance.warnings:
-                messages.append(f"YPP warnings: {'; '.join(compliance.warnings[:3])}")
 
         if do_upload:
             try:
