@@ -38,6 +38,7 @@ class AgentMemoryStore:
         self._init_table()
         self._seed_if_empty()
         self._ensure_ypp_rules()
+        self._ensure_mission_rules()
 
     def _conn(self):
         return self.store._connect()
@@ -82,6 +83,34 @@ class AgentMemoryStore:
             category="operating_rule",
             title="YPP / inauthentic content",
             content=OPERATING_RULES_BLOCK.strip(),
+            source="seed",
+            pinned=True,
+        )
+
+    def _ensure_mission_rules(self) -> None:
+        """Idempotent — loyal-subscriber mission + TikTok pending reminder."""
+        mems = self.list_memories(limit=100)
+        if any("loyal subscriber" in m.content.lower() or "tiktok" in m.title.lower() for m in mems):
+            return
+        self.add_memory(
+            category="operating_rule",
+            title="Mission — help people",
+            content=(
+                "Primary goal: loyal subscriber base, not one-off viral hits. "
+                "Every Short must actually help — one specific minute, one concrete protocol. "
+                "Optimize for return viewers and trust; serious comments stay human."
+            ),
+            source="seed",
+            pinned=True,
+        )
+        self.add_memory(
+            category="fact",
+            title="TikTok — not yet",
+            content=(
+                "User plans a TikTok account for the bot later. "
+                "Do NOT build TikTok login/upload/automation until user explicitly says go. "
+                "Nudge user about TikTok setup only when they ask about distribution expansion."
+            ),
             source="seed",
             pinned=True,
         )

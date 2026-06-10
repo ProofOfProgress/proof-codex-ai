@@ -41,3 +41,21 @@ YouTube does not ban AI — it demonetizes **inauthentic** mass-produced templat
 - Serious comments stay human; no mass identical auto-replies
 
 See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H` in `.env`.
+
+## Mission — help people, loyal subscribers
+
+**Primary goal is not one-off viral hits.** Build a **loyal subscriber base** of people who come back because the channel actually helps.
+
+- Every Short: one **real** protocol for one **specific** minute — viewer should leave able to *do something tonight*
+- Optimize for **return viewers**, series recognition (*The Minute Before*), and trust — not rage-bait or empty curiosity loops
+- Comments: take serious messages seriously (human queue); light thanks OK — relationships matter
+- Hooks can be strong, but payoff must **deliver** — no bait-and-switch wellness slop
+- Jenny 07 + 09: relatability and subscriber value over pure view spikes
+
+## TikTok — planned, not yet
+
+User wants a **TikTok account for the bot** eventually (cross-post / second surface). **Do not build TikTok login, upload, or automation until the user explicitly says go.**
+
+When ready: same help-first content, adapt captions/format for TikTok, avoid spam-farm cross-posting (YPP-style rules apply on every platform).
+
+**Reminder for user:** set up TikTok account when timing is right — bot should nudge if asked about distribution, not before.

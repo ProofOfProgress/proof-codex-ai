@@ -46,6 +46,15 @@ Channel banner/profile use the dark void palette (`#0B0D10`, `#8EB8FF`) — vide
 4. **Social edge** — parties, boundaries, saying no
 5. **After the slip** — shame, replaying, procrastination guilt
 
+## Growth philosophy
+
+**Loyal subscribers over viral one-offs.** The channel exists to **actually help people** — one concrete protocol per Short, not empty trend-chasing.
+
+- Prefer **series trust** (*The Minute Before*, "you're still here. good.") over disposable shock hooks
+- Strong hooks are fine when the payoff **earns** them — no bait-and-switch
+- Reply like a human who cares; serious comments are not automation fodder
+- TikTok expansion is **planned later** — YouTube first until user says otherwise
+
 ## Jenny course alignment
 
-Every Short: hook → momentum → payoff (02, 06). Mute-safe visuals + safe-zone captions (05). Relatability filter (07). Deep research runs before every draft.
+Every Short: hook → momentum → payoff (02, 06). Mute-safe visuals + safe-zone captions (05). Relatability filter (07). Deep research runs before every draft. Subscriber value (09) over pure view spikes.
