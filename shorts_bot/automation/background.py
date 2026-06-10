@@ -87,6 +87,9 @@ async def daily_autopilot_loop(stop_event: asyncio.Event) -> None:
             log.info("Auto daily: %s", msg.split("\n")[0][:120])
         except Exception as exc:  # noqa: BLE001
             log.warning("Auto daily failed: %s", exc)
+            from shorts_bot.automation.alerts import record_automation_alert
+
+            record_automation_alert("daily_autopilot", str(exc))
 
 
 async def comment_reply_loop(stop_event: asyncio.Event) -> None:

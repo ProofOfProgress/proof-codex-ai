@@ -8,6 +8,18 @@ python3 -m shorts_bot.discord_bot
 bash scripts/run-all.sh   # web + Discord
 ```
 
+## Bot profile picture
+
+Default avatar: `channel/brand/assets/discord_bot_avatar.png` (ROBOTUS / Alpha-Beta from *Inside Job*).
+
+```bash
+python3 -m shorts_bot.discord_bot.avatar_cli
+# custom image:
+python3 -m shorts_bot.discord_bot.avatar_cli --image path/to.png
+```
+
+Optional: `DISCORD_SET_AVATAR_ON_START=true` applies on every bot restart (Discord rate-limits avatar changes — prefer one-shot CLI).
+
 **Developer Portal checklist:**
 1. **Message Content Intent** — ON (required)
 2. Invite URL scopes: `bot` + `applications.commands`

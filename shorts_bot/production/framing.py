@@ -53,9 +53,10 @@ def action_figure_position(*, width: int = FRAME_WIDTH, height: int = FRAME_HEIG
     return x, y
 
 
-def ass_caption_position_tag(*, width: int = FRAME_WIDTH) -> str:
+def ass_caption_position_tag(*, width: int = FRAME_WIDTH, y_offset: int = 0) -> str:
     """ASS override: bottom-center anchor above Shorts UI overlay."""
-    return rf"{{\an2\pos({width // 2},{CAPTION_ANCHOR_Y_PX})}}"
+    y = CAPTION_ANCHOR_Y_PX + y_offset
+    return rf"{{\an2\pos({width // 2},{y})}}"
 
 
 def framing_notes_for_prompt() -> str:

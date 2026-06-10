@@ -58,6 +58,7 @@ def build_subtitles_from_manifest(
     segments: list[dict],
     *,
     audio_duration: float,
+    caption_y_offset: int = 0,
 ) -> tuple[str, str]:
     """Return (srt_content, ass_content) timed to scaled audio."""
     manifest_total = segments[-1]["end_seconds"] if segments else 1.0
@@ -67,7 +68,7 @@ def build_subtitles_from_manifest(
     ass_events: list[str] = []
     idx = 1
 
-    margin_tag = ass_force_margin_override()
+    margin_tag = ass_force_margin_override(y_offset=caption_y_offset)
 
     for seg in segments:
         start = seg["start_seconds"] * scale
@@ -97,8 +98,18 @@ def build_subtitles_from_manifest(
     return srt, ass
 
 
-def write_subtitle_files(pack_dir: Path, segments: list[dict], audio_duration: float) -> Path:
-    srt, ass = build_subtitles_from_manifest(segments, audio_duration=audio_duration)
+def write_subtitle_files(
+    pack_dir: Path,
+    segments: list[dict],
+    audio_duration: float,
+    *,
+    caption_y_offset: int = 0,
+) -> Path:
+    srt, ass = build_subtitles_from_manifest(
+        segments,
+        audio_duration=audio_duration,
+        caption_y_offset=caption_y_offset,
+    )
     (pack_dir / "captions.srt").write_text(srt, encoding="utf-8")
     ass_path = pack_dir / "subtitles.ass"
     ass_path.write_text(ass, encoding="utf-8")

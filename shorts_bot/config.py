@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     google_trends_geo: str = "US"
     google_trends_gprop: str = "youtube"  # youtube | web | news | images | froogle
     google_trends_timeframe: str = "today 3-m"
+    research_cache_days: int = 7  # 0 = never expire cached deep research
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     browser_screenshot_dir: Path = Path("data/screenshots")
@@ -54,8 +55,15 @@ class Settings(BaseSettings):
     discord_send_briefing_on_start: bool = True
     discord_briefing_hour: int = 8
     discord_briefing_minute: int = 30
+    discord_avatar_path: Path = Path("channel/brand/assets/discord_bot_avatar.png")
+    discord_set_avatar_on_start: bool = False  # run avatar_cli once; avoid rate limits on every restart
 
-    # Production — TTS voiceover (Resemble clone preferred; edge-tts fallback)
+    # Paid production stack — Resemble + TurboScribe for ALL video generation (see paid_stack.py)
+    require_paid_stack: bool = True
+    allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
+    allow_script_timing_fallback: bool = False  # script WPS only when True + TurboScribe fails
+
+    # Production — TTS voiceover (Resemble clone; edge-tts emergency fallback only)
     auto_generate_voice: bool = True
     tts_provider: str = "resemble"  # resemble | edge
     resemble_api_key: str | None = None
@@ -85,6 +93,16 @@ class Settings(BaseSettings):
     video_crf: int = 18
     video_preset: str = "slow"
     video_audio_bitrate_k: int = 192
+    video_ken_burns: bool = False  # subtle zoom per segment (slower render)
+    video_min_duration_seconds: float = 20.0
+    video_max_duration_seconds: float = 58.0
+    video_qc_blocks_upload: bool = True
+
+    # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
+    production_variety_enabled: bool = True
+
+    # Quality gates — block before expensive steps / upload
+    quality_gate_blocks_render: bool = True
 
     # TurboScribe Whale sync (paid Unlimited — tight frame timing for A/B tests)
     use_turboscribe_sync: bool = True
@@ -104,6 +122,7 @@ class Settings(BaseSettings):
     auto_daily_enabled: bool = True
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
+    daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
     auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
     quality_gate_blocks_upload: bool = True
 
@@ -114,6 +133,8 @@ class Settings(BaseSettings):
     topic_cooldown_days: int = 7
     hook_cooldown_days: int = 14
     max_script_overlap_ratio: float = 0.65
+    block_duplicate_draft_upload: bool = True  # same draft_id → one upload only
+    block_duplicate_title_upload: bool = True  # same title already on channel → block
 
     # Comment automation — auto-reply light comments; serious → human queue
     auto_reply_comments: bool = True

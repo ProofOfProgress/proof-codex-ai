@@ -36,6 +36,7 @@ class GeneratedDraft:
     script: str
     help_angle: str
     quality: QualityReport
+    visual_beats: list[str] | None = None
 
 
 class DraftGenerator:
@@ -128,8 +129,17 @@ Return JSON with keys:
         hook = str(payload.get("hook", "")).strip()
         script = str(payload.get("script", "")).strip()
         help_angle = str(payload.get("help_angle", "")).strip()
+        beats_raw = payload.get("visual_beats") or []
+        visual_beats = [str(b).strip() for b in beats_raw if str(b).strip()][:6]
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
-        return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
+        return GeneratedDraft(
+            topic=topic,
+            hook=hook,
+            script=script,
+            help_angle=help_angle,
+            quality=quality,
+            visual_beats=visual_beats or None,
+        )
 
     def _generate_offline(self, topic: str, angle: str | None) -> GeneratedDraft:
         hook = f"I used to lose sleep over {topic}. Same loop every night."
@@ -141,8 +151,20 @@ Return JSON with keys:
             f"Try it once tonight — one breath before {topic}."
         )
         help_angle = f"I share what helped me with {topic} — for anyone in the same loop."
+        visual_beats = [
+            f"stick figure stressed about {topic}",
+            "taking one slow breath",
+            "small calm gesture — try this",
+        ]
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
-        return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
+        return GeneratedDraft(
+            topic=topic,
+            hook=hook,
+            script=script,
+            help_angle=help_angle,
+            quality=quality,
+            visual_beats=visual_beats,
+        )
 
     def create_and_store(self, topic: str, angle: str | None = None, *, research=None) -> Draft:
         generated = self.generate(topic, angle, research=research)
@@ -150,10 +172,15 @@ Return JSON with keys:
         if self.router:
             route = self.router.route(topic)
             notes = f"{notes} | Lever: {route.main_lever}"
-        return self.store.save_draft(
+        draft = self.store.save_draft(
             topic=generated.topic,
             script=generated.script,
             hook=generated.hook,
             help_angle=generated.help_angle,
             quality_notes=notes,
         )
+        if generated.visual_beats:
+            from shorts_bot.drafts.meta import save_draft_meta
+
+            save_draft_meta(draft.id, visual_beats=generated.visual_beats)
+        return draft

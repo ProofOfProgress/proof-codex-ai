@@ -75,6 +75,8 @@ def upload_via_studio(
     visibility: str | None = None,
     pack_dir: Path | None = None,
     headless: bool | None = None,
+    skip_preflight: bool = False,
+    allow_duplicate_draft: bool = False,
 ) -> StudioUploadResult:
     """
     Browser upload through saved Playwright profile (data/browser_profile).
@@ -85,9 +87,34 @@ def upload_via_studio(
         return StudioUploadResult(False, None, None, f"Video not found: {video_path}")
 
     meta = _load_metadata(pack_dir) if pack_dir else {}
+    draft_id = int(meta.get("draft_id") or 0)
     use_title = title or meta.get("title") or video_path.stem
     use_desc = description or meta.get("description") or ""
     use_vis = (visibility or meta.get("visibility") or settings.youtube_upload_visibility).lower()
+
+    if not skip_preflight and draft_id and pack_dir:
+        from shorts_bot.memory.extensions import MemoryExtensions
+        from shorts_bot.memory.store import MemoryStore
+        from shorts_bot.youtube.upload_guardrails import preflight_upload
+
+        store = MemoryStore(settings.database_path)
+        mem = MemoryExtensions(store)
+        try:
+            draft = store.get_draft(draft_id)
+            pre = preflight_upload(
+                store,
+                mem,
+                draft_id=draft_id,
+                topic=draft.topic,
+                hook=draft.hook,
+                script=draft.script,
+                title=use_title,
+                allow_duplicate_draft=allow_duplicate_draft,
+            )
+            if not pre.allowed:
+                return StudioUploadResult(False, None, None, f"Studio upload blocked: {pre.message}")
+        except KeyError:
+            pass
 
     from playwright.sync_api import sync_playwright
 
@@ -253,6 +280,27 @@ def upload_via_studio(
                     "Google re-verification required — complete in Desktop browser "
                     f"(screenshot: {shot}). File may already be uploading in Studio.",
                 )
+
+            if video_id and draft_id and pack_dir:
+                try:
+                    from shorts_bot.compliance.upload_guard import record_upload
+                    from shorts_bot.memory.extensions import MemoryExtensions
+                    from shorts_bot.memory.store import MemoryStore
+
+                    store = MemoryStore(settings.database_path)
+                    mem = MemoryExtensions(store)
+                    draft = store.get_draft(draft_id)
+                    record_upload(
+                        mem,
+                        draft_id=draft_id,
+                        topic=draft.topic,
+                        hook=draft.hook,
+                        script=draft.script,
+                        title=use_title,
+                        video_id=video_id,
+                    )
+                except Exception:
+                    pass
 
             return StudioUploadResult(ok=bool(video_id), video_id=video_id, video_url=url, message=msg)
         except Exception as exc:

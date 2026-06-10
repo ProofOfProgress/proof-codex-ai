@@ -26,7 +26,7 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
     store = MemoryStore(settings.database_path)
     topic = topic or next_topic(store)
 
-    research = deep_research_topic(topic)
+    research = deep_research_topic(topic, force_refresh=settings.daily_research_force_refresh)
     backend = get_llm_backend()
     memory = MemoryExtensions(store)
     kb = CourseKnowledgeBase(settings.course_dir)

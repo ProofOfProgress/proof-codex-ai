@@ -17,6 +17,8 @@ class Pose(str, Enum):
     STANDING_CALM = "standing_calm"
     POINTING_SELF = "pointing_self"
     THINKING = "thinking"
+    HUDDLED = "huddled"
+    WALKING = "walking"
 
 
 @dataclass
@@ -51,13 +53,47 @@ def extract_quoted_dialogue(text: str) -> str | None:
     return None
 
 
-def plan_scene(spoken_text: str) -> ScenePlan:
+def _pose_from_beat_hint(beat: str) -> Pose | None:
+    """Map draft visual_beat description to a pose when keywords match."""
+    lower = beat.lower()
+    if any(w in lower for w in ("bathroom", "stall", "cry", "hide", "huddle")):
+        return Pose.HUDDLED
+    if any(w in lower for w in ("walk", "excuse", "leave", "door")):
+        return Pose.WALKING
+    if any(w in lower for w in ("breath", "breathe", "calm", "reset")):
+        return Pose.BREATHING
+    if any(w in lower for w in ("phone", "scroll")):
+        return Pose.REACHING_PHONE
+    if any(w in lower for w in ("point", "try this", "gesture")):
+        return Pose.POINTING_SELF
+    if any(w in lower for w in ("think", "overwhelm", "spiral")):
+        return Pose.THINKING
+    return None
+
+
+def plan_scene(spoken_text: str, *, beat_hint: str | None = None) -> ScenePlan:
     t = spoken_text.strip()
     lower = t.lower()
     bubble = extract_quoted_dialogue(t)
 
+    if beat_hint:
+        hinted = _pose_from_beat_hint(beat_hint)
+        if hinted:
+            prop = "stall" if hinted == Pose.HUDDLED else None
+            return ScenePlan(t, hinted, bubble, prop)
+
     if bubble:
         return ScenePlan(t, Pose.NAMING_THOUGHT, bubble, "thought")
+    if any(w in lower for w in ("bathroom", "stall", "cry", "hide in")):
+        return ScenePlan(t, Pose.HUDDLED, bubble, "stall")
+    if "overwhelm" in lower or "heart pound" in lower:
+        return ScenePlan(t, Pose.HUDDLED, None, "stall")
+    if "excuse myself" in lower or "walk to" in lower or "close the" in lower:
+        return ScenePlan(t, Pose.WALKING, None, "door")
+    if "shoulder roll" in lower or "release tension" in lower:
+        return ScenePlan(t, Pose.BREATHING, None, None)
+    if "office" in lower or "work" in lower:
+        return ScenePlan(t, Pose.THINKING, None, "desk")
     if "phone" in lower and ("before" in lower or "reach" in lower):
         return ScenePlan(t, Pose.PUTTING_PHONE_DOWN, None, "phone")
     if "phone" in lower or "scrolling" in lower:
