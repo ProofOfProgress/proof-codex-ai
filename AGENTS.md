@@ -3,7 +3,7 @@
 ## Owner (read first)
 
 - **Not a developer** — explain in plain English; give exact steps ("say `!daily` in Discord"), not code tours.
-- **North star (#1 priority):** self-learning, fully self-improving, self-posting, self-operating AI YouTube channel that makes **a lot of money**. Every action should move toward full autopilot revenue. Details in `data/operating_rules_seed.md` (Owner + North star sections).
+- **North star:** autonomous money-making channel. **Current focus:** **100% automation** + **better videos** (hooks, sync, vision QC, analytics learning). Top 4 only in `data/PRIORITIES.md`.
 - **Deprioritize** refactors, docs-for-docs-sake, and features that do not advance autopilot or revenue.
 - **Top 4 only:** see `data/PRIORITIES.md` — work only on those four until reassessed; update the file when priorities shift.
 

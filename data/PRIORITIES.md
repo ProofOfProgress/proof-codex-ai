@@ -2,33 +2,45 @@
 
 **Rule:** Agents and bots may **only** work on the **top 4** items below until the owner changes this file or approves a reorder. Everything else is backlog.
 
-**North star:** Self-learning, fully autonomous YouTube channel that makes **a lot of money**.
+**Goal right now:** **100% automation** + **better videos** (using the most important levers to improve them).
 
-**Last assessed:** 2026-06-09 (owner correction: channel has already posted — setup is not the bottleneck)
+**North star (unchanged):** Self-learning, fully autonomous channel that makes a lot of money — automation and quality are how we get there.
+
+**Last assessed:** 2026-06-09 (owner: automation + video quality are the focus)
 
 ---
 
 ## Top 4 (only these until reassessed)
 
-| # | Priority | Why it matters | Status |
-|---|----------|----------------|--------|
-| **1** | **Daily autopilot — 1 Short/day, no babysitting** | Money needs consistent posts; upload path already worked before | **Code ready** — Discord `auto_daily` + pipeline; must stay ON wherever bot runs (Discord/home/cloud) |
-| **2** | **Self-learning loop closed** | Bot must get smarter from uploads + analytics + **vision QC** (not just views) | **In progress** — wiring vision QC → avoid rules + upload snapshots |
-| **3** | **Analytics → next video** | Sync YouTube stats, auto-apply safe hook/retention wins, punish flops | **Mostly built** — needs steady uploads + sync running |
-| **4** | **Shrink human steps toward zero** | Full autopilot = less unlisted hand-holding over time | **Owner choice** — `AUTO_PUBLISH_HOURS=0` keeps manual review; raise when trust is high |
+| # | Priority | What it means | Most important levers | Status |
+|---|----------|---------------|----------------------|--------|
+| **1** | **100% automation** | Bot runs the full day without you: idea → script → voice → video → quality check → upload → stats sync | `auto_daily`, pipeline resume, auto analytics sync, auto-approve safe learning rules, comment triage | **Mostly built** — must run 24/7 where bot lives; remove any step that still needs a human click |
+| **2** | **Better hooks & scripts** | People swipe away in 1 second if the opening is weak | Jenny hook rules, analytics punish/reward, draft rejections → avoid rules, topic/hook cooldowns | **Built** — needs steady uploads + sync so data flows |
+| **3** | **Better visuals & sync** | Video must *look* right and match the voice beat-by-beat | Stick figure **acting** each beat, Gemini transcript timing, ffmpeg captions, ffmpeg + **vision QC** (bot watches its own Short) | **Built** — vision QC → self-learning wired; keep tightening failures |
+| **4** | **Learn from every video** | Each Short teaches the next one | YouTube retention/views → reflect loop; vision QC fails → avoid rules; approved patterns → repeat rules | **In progress** — close the loop so quality gains compound without you |
+
+---
+
+## What “better videos” means (in order of impact)
+
+1. **Hook** — first line earns the next 3 seconds  
+2. **Retention pacing** — 6–8 beats, ~2–3s cuts, concrete protocol payoff  
+3. **Visual sync** — figure moves with the voice, not a static slideshow  
+4. **Captions** — readable, safe zone, mute-friendly  
+5. **QC before upload** — bot rejects blurry, frozen, or sloppy renders  
+6. **Analytics feedback** — double down on what kept viewers watching  
 
 ---
 
 ## Backlog (not top 4 — do not distract)
 
-- Home PC **My Machines** (`shorts-home`) — optional reliability, not required if uploads already work elsewhere
-- `git` / ZIP download on Windows — only if moving bot to a new machine
-- Cursor API key / cloud VM secret injection
-- Enterprise self-hosted pools, TikTok, CapCut operator, dev queue polish
-- Refactors and merge cleanup unless they block #1–4
+- Slack / mobile Cursor setup (useful remote control, not the pipeline)
+- Home PC My Machines, git/ZIP on Windows
+- Cursor API key injection, Enterprise pools, TikTok
+- CapCut operator, dev queue UI, refactors unless they block top 4
 
 ---
 
 ## How we reassess
 
-Update this file when a top-4 item completes, a blocker appears, or the owner redirects. Notify owner in **plain English**.
+Update this file when the owner shifts focus or a top-4 item is done. Tell the owner in **plain English**.

@@ -11,15 +11,13 @@ The owner is **not a developer**. When explaining anything:
 
 ## North star — #1 priority (everything else is secondary)
 
-**Build a self-learning, fully autonomous AI YouTube channel** that:
+**Build a self-learning, fully autonomous AI YouTube channel** that makes a lot of money.
 
-1. **Creates** Shorts without hand-holding (research → script → voice → video → captions)
-2. **Improves itself** from real performance data (views, retention, rejections, vision QC)
-3. **Posts on a schedule** with minimal human steps (target: zero after setup)
-4. **Runs itself** (daily pipeline, analytics sync, safe rule updates, comment triage)
-5. **Makes a lot of money** — revenue and scalable autopilot beat polish, refactors, and side quests
+**Owner focus (reassessed):** **100% automation** and **better videos** — that is the immediate goal. Everything else is backlog.
 
-Every feature, fix, and conversation should answer: **does this move us closer to full autopilot + revenue?** If not, deprioritize it.
+Every feature, fix, and conversation must answer: **does this automate another step OR make the next Short noticeably better?** If not, deprioritize it.
+
+**Better videos — highest-impact levers (in order):** hook → retention pacing → stick-figure beat sync → captions → vision QC before upload → YouTube analytics feedback into the next draft.
 
 Money at scale requires **not getting demonetized** — keep YPP-safe originality (see below). Helpful content that retains viewers **is** the business model; do not sacrifice quality so badly that YouTube kills the channel.
 
