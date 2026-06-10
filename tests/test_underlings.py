@@ -54,7 +54,7 @@ def test_research_priority_skips_draft(monkeypatch):
                 )
             ]
 
-        def research_topic_deep(self, topic):
+        def research_topic_deep(self, topic, *, user_request=""):
             from shorts_bot.agents.tasks import WorkLogEntry
 
             return WorkLogEntry(
