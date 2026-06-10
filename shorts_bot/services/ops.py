@@ -147,7 +147,18 @@ class BotOperations:
             except (ValueError, IndexError):
                 pass
 
+        from shorts_bot.agents.manager import should_use_manager, ChiefManager
+
+        if should_use_manager(text):
+            return ChiefManager().handle(text).reply
+
         return get_agent().chat(text)
+
+    def manager_chat(self, message: str) -> dict:
+        """Chief manager with full result payload (work log, timing)."""
+        from shorts_bot.agents.manager import ChiefManager
+
+        return ChiefManager().handle(message).to_dict()
 
     def _help_text(self) -> str:
         return (
@@ -175,7 +186,10 @@ class BotOperations:
             "• browse <url> — headless browser, return page text\n"
             "• browser open <url|trends|youtube> — visible Desktop browser\n"
             "• browser login youtube — open login tab (saved session)\n"
-            "• Or chat normally (Gemini/OpenAI)"
+            "• Or chat normally (Gemini/OpenAI)\n"
+            "• Chief Manager: prefix manager: or say take 30m / [1h] before your request\n"
+            "  Example: take an hour to score cosy topics and draft the best one\n"
+            "• CLI: python3 -m shorts_bot.agents.cli"
         )
 
     def browser_status_text(self) -> str:

@@ -27,6 +27,8 @@ python3 -m shorts_bot
 
 Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversational mode. Keys sync via `scripts/sync_secrets.py` on start. See `docs/CHAT_TONIGHT.md`. Without either, offline command mode still works (`help`, `draft`, `pending`, etc.).
 
+**Chief Manager (multi-agent):** `python3 -m shorts_bot.agents.cli` — delegates Gemini specialists. Say `take 1h to plan cosy shorts` or `[30m] score topics` to set work budget before reply. Web: `POST /api/manager/run`, poll `GET /api/manager/jobs/{id}`. See `docs/AGENT_MANAGER.md`. Discord optional — CLI/web preferred.
+
 ### Lint / test
 
 No linter configured. Smoke checks:

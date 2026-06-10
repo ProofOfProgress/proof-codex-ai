@@ -59,6 +59,11 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class ManagerRequest(BaseModel):
+    message: str
+    force_async: bool = False
+
+
 class ImprovementDecision(BaseModel):
     note: str = ""
 
@@ -140,12 +145,79 @@ async def chat(body: ChatRequest) -> dict:
     if len(body.message) > 8000:
         raise HTTPException(400, "Message too long (max 8000 chars)")
     try:
+        from shorts_bot.agents.duration import parse_work_duration
+        from shorts_bot.agents.manager import should_use_manager
         from shorts_bot.services.ops import BotOperations
 
-        reply = BotOperations().chat(body.message.strip())
+        msg = body.message.strip()
+        if should_use_manager(msg):
+            parsed = parse_work_duration(msg)
+            budget = parsed.work_seconds or 0
+            if budget >= settings.manager_async_threshold_seconds:
+                return await manager_run(
+                    ManagerRequest(message=msg, force_async=True),
+                )
+            result = BotOperations().manager_chat(msg)
+            return {"reply": result["reply"], "manager": result}
+        reply = BotOperations().chat(msg)
         return {"reply": reply}
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(500, f"Chat error: {exc}") from exc
+
+
+@app.post("/api/manager/run")
+async def manager_run(body: ManagerRequest) -> dict:
+    """Chief Manager — sync for short budgets, async job for long work."""
+    if not body.message.strip():
+        raise HTTPException(400, "Empty message")
+    if len(body.message) > 8000:
+        raise HTTPException(400, "Message too long")
+
+    from shorts_bot.agents.duration import clamp_work_seconds, parse_work_duration
+    from shorts_bot.agents.job_runner import start_manager_job
+    from shorts_bot.agents.job_store import ManagerJobStore
+    from shorts_bot.agents.manager import strip_manager_prefix
+    from shorts_bot.services.ops import BotOperations
+
+    msg = body.message.strip()
+    parsed = parse_work_duration(strip_manager_prefix(msg))
+    budget = parsed.work_seconds or 0
+
+    use_async = body.force_async or budget >= settings.manager_async_threshold_seconds
+
+    if use_async and budget > 0:
+        store = ManagerJobStore(settings.database_path)
+        job = store.create(msg, work_seconds=budget)
+        start_manager_job(store, job.id)
+        return {
+            "async": True,
+            "job_id": job.id,
+            "status": "queued",
+            "work_seconds": budget,
+            "poll": f"/api/manager/jobs/{job.id}",
+        }
+
+    result = await asyncio.to_thread(BotOperations().manager_chat, msg)
+    return {"async": False, "manager": result, "reply": result["reply"]}
+
+
+@app.get("/api/manager/jobs/{job_id}")
+async def manager_job(job_id: str) -> dict:
+    from shorts_bot.agents.job_store import ManagerJobStore
+
+    try:
+        job = ManagerJobStore(settings.database_path).get(job_id)
+    except KeyError as exc:
+        raise HTTPException(404, "Job not found") from exc
+    return job.to_dict()
+
+
+@app.get("/api/manager/jobs")
+async def manager_jobs_list() -> dict:
+    from shorts_bot.agents.job_store import ManagerJobStore
+
+    jobs = ManagerJobStore(settings.database_path).list_recent(limit=20)
+    return {"jobs": [j.to_dict() for j in jobs]}
 
 
 @app.get("/api/improvements")

@@ -13,6 +13,7 @@ from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
+from shorts_bot.agents.manager import ChiefManager, should_use_manager
 from shorts_bot.llm.provider import get_llm_backend
 from shorts_bot.memory.store import MemoryStore
 
@@ -61,6 +62,8 @@ def main() -> None:
             f"Mode: [cyan]{mode}[/cyan] | Model: {model}\n"
             "Course files 01–09 loaded. Free-first stack: CapCut, YouTube Audio Library, Canva.\n"
             "Talk about ideas, drafts, hooks, retention — or approve/reject scripts.\n"
+            "Chief Manager: [dim]take 30m to plan cosy shorts[/dim] or [dim]manager: score topics[/dim]\n"
+            "Dedicated manager CLI: [dim]python3 -m shorts_bot.agents.cli[/dim]\n"
             "Type [bold]exit[/bold] or [bold]quit[/bold] to leave.",
             title="Shorts Bot",
             border_style="green",
@@ -80,8 +83,16 @@ def main() -> None:
             console.print("Bye.")
             break
 
-        reply = agent.chat(user_input)
-        console.print(Panel(reply, title="bot", border_style="blue"))
+        if should_use_manager(user_input):
+
+            def progress(msg: str) -> None:
+                console.print(f"[dim]… {msg}[/dim]")
+
+            result = ChiefManager(on_progress=progress).handle(user_input)
+            console.print(Panel(result.reply, title="Chief Manager", border_style="blue"))
+        else:
+            reply = agent.chat(user_input)
+            console.print(Panel(reply, title="bot", border_style="blue"))
 
 
 if __name__ == "__main__":
