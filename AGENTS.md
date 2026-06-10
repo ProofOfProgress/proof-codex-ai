@@ -65,11 +65,11 @@ Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `Bot
 
 ### Discord
 
-- `DISCORD_BOT_TOKEN` — required to connect bot
-- `DISCORD_OWNER_ID` — optional; bot remembers last DM user in `data/discord_prefs.json`
-- Run: `python3 -m shorts_bot.discord_bot` or `bash scripts/run-all.sh`
-- **DMs:** type normally (no `!` prefix). Servers: `!help`, `!chat`, `/status` slash commands
-- Extra: `!ping`, `!learned`, `!rewards`, `!briefing`
+- `DISCORD_BOT_TOKEN` — required; enable **Message Content Intent** in Developer Portal
+- `DISCORD_OWNER_ID` — numeric user ID (`!myid`); owner can chat in servers without `@`
+- Run: `bash scripts/discord-bot.sh` or `python3 -m shorts_bot.discord_bot`
+- **DMs:** type normally. **Servers:** `!daily`, `@Bot message`, or slash `/daily`
+- API pipeline: `daily`, `apply brand`, `finish video`, `research` — see `docs/DISCORD_CONTROL.md`
 
 ### Dev queue
 
