@@ -5,7 +5,7 @@ import re
 from shorts_bot.production.turboscribe_parser import TranscriptSegment, label_from_seconds
 
 _WORDS_PER_SECOND = 2.4
-_MIN_SEGMENT_SECONDS = 2.5
+_MIN_SEGMENT_SECONDS = 2.0  # ChainsFR / Zen case study: visual cut every ~2–3s
 
 
 def _split_script(script: str) -> list[str]:

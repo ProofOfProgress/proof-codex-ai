@@ -7,6 +7,12 @@ from pathlib import Path
 
 from shorts_bot.production.image_prompts import ImageBrief
 from shorts_bot.production.scene_plan import Pose, ScenePlan, plan_scene
+from shorts_bot.production.stick_background import (
+    draw_couch,
+    draw_foreground_prop,
+    draw_room_background,
+    plan_room,
+)
 
 
 def _font(size: int):
@@ -35,20 +41,20 @@ def _draw_stick(draw, cx: int, cy: int, pose: Pose, scale: float = 1.0) -> None:
     draw.ellipse([cx - head_r, body_top - head_r * 2, cx + head_r, body_top], fill="#111111", outline="#111111")
 
     if pose == Pose.LYING_AWAKE:
-        # Horizontal on bed level
-        hx, hy = cx - int(80 * s), cy + int(40 * s)
+        # Slumped on couch (ChainsFR sit-lean, not horizontal bed)
+        hx, hy = cx - int(20 * s), cy + int(10 * s)
         draw.ellipse([hx - head_r, hy - head_r, hx + head_r, hy + head_r], fill="#111111")
-        draw.line([hx + head_r, hy, hx + int(100 * s), hy], fill="#111111", width=int(5 * s))
-        draw.line([hx + int(50 * s), hy, hx + int(30 * s), hy - int(40 * s)], fill="#111111", width=int(4 * s))
-        draw.line([hx + int(50 * s), hy, hx + int(70 * s), hy + int(25 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx + int(10 * s), hy, hx + int(70 * s), hy + int(15 * s)], fill="#111111", width=int(5 * s))
+        draw.line([hx + int(40 * s), hy + int(10 * s), hx + int(20 * s), hy + int(50 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx + int(40 * s), hy + int(10 * s), hx + int(65 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
         return
 
     if pose == Pose.CALM_IN_BED:
-        hx, hy = cx, cy + int(60 * s)
+        hx, hy = cx, cy + int(20 * s)
         draw.ellipse([hx - head_r, hy - head_r, hx + head_r, hy + head_r], fill="#111111")
-        draw.line([hx, hy + head_r, hx, hy + int(90 * s)], fill="#111111", width=int(5 * s))
-        draw.line([hx, hy + int(40 * s), hx - int(45 * s), hy + int(20 * s)], fill="#111111", width=int(4 * s))
-        draw.line([hx, hy + int(40 * s), hx + int(45 * s), hy + int(20 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx, hy + head_r, hx, hy + int(55 * s)], fill="#111111", width=int(5 * s))
+        draw.line([hx, hy + int(25 * s), hx - int(40 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
+        draw.line([hx, hy + int(25 * s), hx + int(40 * s), hy + int(45 * s)], fill="#111111", width=int(4 * s))
         return
 
     # Standing poses — shared body
@@ -126,27 +132,28 @@ def _draw_bubble(draw, text: str, w: int, h: int) -> None:
         y += line_h
 
 
-def _draw_bed_floor(draw, w: int, h: int, pose: Pose) -> None:
-    floor_y = int(h * 0.78)
-    if pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
-        draw.rounded_rectangle([80, floor_y - 40, w - 80, floor_y + 30], radius=12, fill="#E0DDD6", outline="#BBBBBB", width=2)
-        draw.line([(100, floor_y - 10), (w - 100, floor_y - 10)], fill="#C8C5BE", width=2)
-    else:
-        draw.line([(60, floor_y), (w - 60, floor_y)], fill="#CCCCCC", width=3)
-
-
 def render_stick_frame(brief: ImageBrief, out_path: Path) -> bool:
     from PIL import Image, ImageDraw
 
     plan = plan_scene(brief.spoken_text)
+    room = plan_room(brief.spoken_text)
     w, h = 1080, 1920
     img = Image.new("RGB", (w, h), "#F4F4F0")
     draw = ImageDraw.Draw(img)
 
-    _draw_bed_floor(draw, w, h, plan.pose)
-    cx, cy = w // 2, int(h * 0.52)
-    _draw_stick(draw, cx, cy, plan.pose)
-    _draw_prop(draw, cx, cy, plan.prop, plan.pose)
+    draw_room_background(draw, w, h, room, _font_reg(16))
+    cx, seat_y = draw_couch(draw, w, h)
+    if plan.on_couch:
+        fig_x, fig_y = cx, seat_y - 95
+        if plan.pose in {Pose.LYING_AWAKE, Pose.CALM_IN_BED}:
+            fig_x, fig_y = cx - 30, seat_y - 25
+    else:
+        fig_x, fig_y = cx + 60, int(h * 0.48)
+
+    _draw_stick(draw, fig_x, fig_y, plan.pose, scale=0.95 if plan.on_couch else 1.0)
+    prop = plan.prop or room.foreground_prop
+    _draw_prop(draw, fig_x, fig_y, prop, plan.pose)
+    draw_foreground_prop(draw, cx, seat_y, room.foreground_prop if not plan.prop else None)
 
     if plan.bubble_text:
         _draw_bubble(draw, plan.bubble_text, w, h)

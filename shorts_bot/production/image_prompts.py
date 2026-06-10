@@ -62,12 +62,18 @@ TIMESTAMPED SCRIPT:
 
 
 def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+    from shorts_bot.production.stick_background import plan_room
+
     scene = seg.text.strip() or topic
+    room = plan_room(scene)
+    bg = room.background.value.replace("_", " ")
+    props = ", ".join(room.wall_props) if room.wall_props else "plant, clock"
     return (
-        f"ChainsFR-style stick figure scene: {scene}. Topic: {topic}. "
-        "Off-white background, black stick figure ACTING OUT the line, expressive pose. "
-        "Speech bubble ONLY if character speaks quoted dialogue. "
-        "Simple props (phone, bed, clock). No photorealism, no blue circles."
+        f"ChainsFR stick figure on THE SAME COUCH: {scene}. Topic: {topic}. "
+        f"Background behind couch: {bg} with {props}. "
+        "MS-Paint-simple line art, off-white room, black stick figure ACTING the line. "
+        "Speech bubble ONLY for quoted dialogue. Couch geometry identical every frame. "
+        "No photorealism, no 3D, no cinematic lighting."
     )
 
 

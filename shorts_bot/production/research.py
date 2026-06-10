@@ -9,8 +9,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.framing import framing_notes_for_prompt
+from shorts_bot.production.framing import framing_notes_for_prompt, stick_framing_notes_for_prompt
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
+from shorts_bot.research.chainsfr_style import chainsfr_research_block
+
+
+def _visual_framing_for_pipeline() -> str:
+    if settings.visual_style == "stickfigure":
+        return f"{stick_framing_notes_for_prompt()}\n\n{chainsfr_research_block()[:800]}"
+    return framing_notes_for_prompt()
 
 
 @dataclass
@@ -96,6 +103,7 @@ Script beats (hook → momentum → payoff):
 {beats}
 
 Visual framing: {self.visual_framing}
+Stick format: same couch + rotating background props per beat (ChainsFR-style).
 Jenny course refs: {cites}
 Quality bar: {self.quality_notes}
 Sources used: {", ".join(self.research_sources) or "llm+course"}
@@ -142,7 +150,7 @@ Return JSON only:
   "emotional_stakes": "what they fear if they do nothing",
   "hook_angles": ["3 curiosity hooks, first person, under 12 words each"],
   "script_beats": ["5-7 beats: hook, struggle, turn, one protocol, slip, try tonight, payoff"],
-  "visual_framing": "how to frame AI stills — subject upper 60%, bottom empty for captions",
+  "visual_framing": "stick figure on fixed couch, rotating room background per beat, Jenny 05 safe zone",
   "competitor_gap": "what real Shorts miss — cite patterns from competitor titles/web data",
   "title_formula": "SEO-aware title using keyword signals, not rage-bait",
   "jenny_citations": ["Jenny 05", "Jenny 06"],
@@ -181,7 +189,7 @@ def load_research(topic: str) -> ProductionResearch | None:
         emotional_stakes=data.get("emotional_stakes", ""),
         hook_angles=list(data.get("hook_angles") or []),
         script_beats=list(data.get("script_beats") or []),
-        visual_framing=data.get("visual_framing", framing_notes_for_prompt()),
+        visual_framing=data.get("visual_framing", _visual_framing_for_pipeline()),
         competitor_gap=data.get("competitor_gap", ""),
         title_formula=data.get("title_formula", ""),
         jenny_citations=list(data.get("jenny_citations") or []),
@@ -319,7 +327,7 @@ def _offline_research(topic: str, *, external: dict | None = None) -> Production
             "Try tonight — low friction CTA",
             "Payoff — you're still here",
         ],
-        visual_framing=framing_notes_for_prompt(),
+        visual_framing=_visual_framing_for_pipeline(),
         competitor_gap="Most Shorts give generic tips; miss the specific minute-before moment.",
         title_formula=f"Before {topic[:40]} — do this first #Shorts",
         jenny_citations=["Jenny 02 hook", "Jenny 05 safe zone framing", "Jenny 06 payoff"],
@@ -397,7 +405,7 @@ def deep_research_topic(
         emotional_stakes=str(payload.get("emotional_stakes", "")).strip(),
         hook_angles=[str(x).strip() for x in (payload.get("hook_angles") or []) if str(x).strip()],
         script_beats=[str(x).strip() for x in (payload.get("script_beats") or []) if str(x).strip()],
-        visual_framing=str(payload.get("visual_framing", "")).strip() or framing_notes_for_prompt(),
+        visual_framing=str(payload.get("visual_framing", "")).strip() or _visual_framing_for_pipeline(),
         competitor_gap=str(payload.get("competitor_gap", "")).strip(),
         title_formula=str(payload.get("title_formula", "")).strip(),
         jenny_citations=[str(x).strip() for x in (payload.get("jenny_citations") or []) if str(x).strip()],

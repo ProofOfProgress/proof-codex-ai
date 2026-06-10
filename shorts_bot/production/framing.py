@@ -39,3 +39,13 @@ def framing_notes_for_prompt() -> str:
         "keep bottom 18% empty/minimal for caption safe zone (Jenny 05 framing). "
         "Rule of thirds, generous negative space, no text in image."
     )
+
+
+def stick_framing_notes_for_prompt() -> str:
+    """ChainsFR couch format — character + couch in mid-frame, props in background."""
+    return (
+        "Fixed couch in lower-mid frame; stick figure sitting or standing beside it acting the line. "
+        "Background props change per timestamp (window, lamp, door, plant) but couch stays identical. "
+        "MS-Paint-simple line art, off-white wall #E8E5DE, black stick figure. "
+        "Bottom 18% clear for caption safe zone (Jenny 05)."
+    )

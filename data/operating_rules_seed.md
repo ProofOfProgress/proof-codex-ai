@@ -6,7 +6,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-Soft Continuity niche v2: **The Minute Before** — one specific moment before life goes wrong, one concrete protocol. Draft 7 quality bar: specific stakes, **stick figure frames** (ChainsFR-style), first-person voice, 6–8 beats.
+Soft Continuity niche v2: **The Minute Before** — one specific moment before life goes wrong, one concrete protocol. Draft 7 quality bar: specific stakes, **stick figure frames** (ChainsFR-style, **same couch** + rotating background props), first-person voice, 6–8 beats, ~2–3s cuts per timestamp.
 
 ## Production stack
 

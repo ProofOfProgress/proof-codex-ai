@@ -1,22 +1,32 @@
 # Stick figure style — ChainsFR-inspired (Soft Continuity)
 
-**Default video format** for *The Minute Before* Shorts. Faceless self-help with **stick figures acting out the advice**, not abstract shapes or AI stills.
+**Default video format** for *The Minute Before* Shorts. See `docs/CHAINSFR_RESEARCH.md` for full research.
+
+## Core rule: same couch, changing room
+
+- **Couch** — identical every frame (position, color, shape). Sitcom anchor.
+- **Background** — rotates per timestamp: window (night/morning/rain), door, lamp, plant, calendar, desk.
+- **Character** — black stick figure on/near couch, **acting** the spoken line.
+- **Cuts** — one still per TurboScribe timestamp (~every 2–3 seconds).
 
 ## Visual rules (9:16)
 
-- **Background:** off-white `#F4F4F0` or soft bedroom gray — not dark navy circles
-- **Characters:** black stick figures, round head, simple limbs, expressive poses
-- **Props:** phone, bed, clock, thought cloud — minimal line art
-- **Speech bubbles:** when the character **says** something (quoted dialogue or direct speech)
-- **No narration text on image** when it's voiceover-only — show the **action** instead
-- **Consistent cast:** one main character (viewer stand-in) per Short
+- **Room wall:** warm off-white `#E8E5DE`, MS-Paint-simple outlines
+- **Couch:** `#C4B8A8` with dark outline — never move or resize between frames
+- **Characters:** black stick figures, round head, expressive poses (ChainsFR)
+- **Speech bubbles:** quoted dialogue only — narrator lines use captions (ffmpeg ASS)
+- **Props:** phone, laptop, clock, door — literal to script line
 
 ## Pose per beat
 
-Each timestamp = one scene: character **doing** the advice (put phone down, breathe, name the thought).
+Each timestamp = one scene: character **doing** the protocol on the couch (or standing by couch for “walk in / try this” beats).
+
+## Jenny 05
+
+Action in upper 60%; bottom ~320px clear for Shorts UI + burned captions.
 
 ## Anti-slop
 
 - Every scene must match the spoken line literally
-- Vary poses — no duplicate frames
-- Text bubbles only for speakable lines (quotes or "say X" moments)
+- Vary background props — not the couch
+- No photorealism, no 3D, no dark void circles (channel banner uses dark palette; **video frames stay bright room**)
