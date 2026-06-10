@@ -10,7 +10,7 @@ console = Console()
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Set Discord bot avatar (Inside Job president default).")
+    parser = argparse.ArgumentParser(description="Set Discord bot avatar (ROBOTUS / Alpha-Beta default).")
     parser.add_argument(
         "--image",
         default=None,

@@ -10,7 +10,7 @@ bash scripts/run-all.sh   # web + Discord
 
 ## Bot profile picture
 
-Default avatar: `channel/brand/assets/discord_bot_avatar.png` (Inside Job–style president caricature).
+Default avatar: `channel/brand/assets/discord_bot_avatar.png` (ROBOTUS / Alpha-Beta from *Inside Job*).
 
 ```bash
 python3 -m shorts_bot.discord_bot.avatar_cli
