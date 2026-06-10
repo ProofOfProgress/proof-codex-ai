@@ -37,6 +37,7 @@ class AgentMemoryStore:
         self.store = store
         self._init_table()
         self._seed_if_empty()
+        self._ensure_ypp_rules()
 
     def _conn(self):
         return self.store._connect()
@@ -66,6 +67,24 @@ class AgentMemoryStore:
             self.import_markdown(seed, source="seed", category="operating_rule")
         else:
             self._seed_builtin()
+
+    def _ensure_ypp_rules(self) -> None:
+        """Idempotent — add YPP counter-rules for existing agent memory DBs."""
+        mems = self.list_memories(limit=100)
+        if any(
+            "ypp" in m.title.lower() or "inauthentic" in m.content.lower()[:80]
+            for m in mems
+        ):
+            return
+        from shorts_bot.compliance.inauthentic_rules import OPERATING_RULES_BLOCK
+
+        self.add_memory(
+            category="operating_rule",
+            title="YPP / inauthentic content",
+            content=OPERATING_RULES_BLOCK.strip(),
+            source="seed",
+            pinned=True,
+        )
 
     def _seed_builtin(self) -> None:
         defaults = [

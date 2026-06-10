@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from shorts_bot.memory.store import MemoryStore, _utc_now
@@ -132,6 +133,17 @@ class MemoryExtensions:
                     reason TEXT NOT NULL DEFAULT '',
                     reply_text TEXT,
                     created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS upload_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    draft_id INTEGER,
+                    topic TEXT NOT NULL,
+                    hook TEXT NOT NULL DEFAULT '',
+                    script TEXT NOT NULL DEFAULT '',
+                    title TEXT NOT NULL DEFAULT '',
+                    video_id TEXT NOT NULL DEFAULT '',
+                    uploaded_at TEXT NOT NULL
                 );
                 """
             )
@@ -527,6 +539,91 @@ class MemoryExtensions:
                 "SELECT COUNT(*) AS n FROM comment_actions WHERE decision = 'needs_human'"
             ).fetchone()
         return int(row["n"]) if row else 0
+
+    def record_upload_event(
+        self,
+        *,
+        draft_id: int,
+        topic: str,
+        hook: str,
+        script: str,
+        title: str,
+        video_id: str,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO upload_events
+                    (draft_id, topic, hook, script, title, video_id, uploaded_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    draft_id,
+                    topic[:200],
+                    hook[:300],
+                    script[:4000],
+                    title[:200],
+                    video_id,
+                    _utc_now(),
+                ),
+            )
+
+    def recent_uploads(self, *, hours: int = 24) -> list[dict[str, Any]]:
+        cutoff = (
+            datetime.now(timezone.utc) - timedelta(hours=hours)
+        ).isoformat()
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT draft_id, topic, hook, title, video_id, uploaded_at
+                FROM upload_events
+                WHERE uploaded_at >= ?
+                ORDER BY id DESC
+                """,
+                (cutoff,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def recent_upload_scripts(self, *, limit: int = 5) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT draft_id, topic, hook, script, title, uploaded_at
+                FROM upload_events
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def topic_uploaded_within_days(self, topic: str, *, days: int) -> bool:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT 1 FROM upload_events
+                WHERE lower(topic) = lower(?) AND uploaded_at >= ?
+                LIMIT 1
+                """,
+                (topic.strip(), cutoff),
+            ).fetchone()
+        return row is not None
+
+    def hook_uploaded_within_days(self, hook: str, *, days: int) -> bool:
+        if not hook.strip():
+            return False
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT 1 FROM upload_events
+                WHERE lower(hook) = lower(?) AND uploaded_at >= ?
+                LIMIT 1
+                """,
+                (hook.strip()[:120], cutoff),
+            ).fetchone()
+        return row is not None
 
     def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
         entries: list[dict[str, Any]] = []

@@ -45,8 +45,10 @@ def build_upload_package(
     checklist = [
         f"Visibility: {visibility}",
         f"Niche: {NICHE_NAME}",
-        "One Short today only — no batch spam (shadowban / inauthentic signal)",
+        "YPP: max 1 Short per 24h — upload_guard enforces (inauthentic / spam-farm signal)",
+        "Script is first-person original — not template lecture or AI slop phrases",
         "Title is helpful, not rage-bait or ALL CAPS shock",
+        "Disclose altered/synthetic audio in Studio if YouTube prompts",
         "Captions in Jenny 05 safe zone — above Shorts title overlay",
         "After publish: run sync in bot for analytics learning",
         "If retention is weak, tweak hook — do not re-upload duplicate same day",

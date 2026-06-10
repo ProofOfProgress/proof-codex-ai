@@ -27,3 +27,17 @@ Enforce hook → momentum → payoff (02, 06). Mute-safe visuals + caption safe 
 ## Deep research (user definition)
 
 When the user says **deep research**, do NOT limit to local files. Browse the web, Google Trends, YouTube competitors, browser for keyword pages if needed. No paid vidIQ. Cross-check Jenny course; return fastest pipeline path. Force refresh on `deep research <topic>`.
+
+## YPP / inauthentic content (anti shadowban)
+
+YouTube does not ban AI — it demonetizes **inauthentic** mass-produced template channels (Jul 2025 policy). Countermeasures:
+
+- First-person original scripts; no spam-farm phrases ("in today's fast-paced world", "let's dive in")
+- Max **1 upload per 24h**; topic cooldown 7d, hook cooldown 14d
+- No duplicate script skeletons — vary beats, titles, hooks per upload
+- Stick figures **acting** beats (ChainsFR), not slideshow + generic TTS farm
+- `upload_guard` blocks risky uploads automatically; render may finish, upload skipped
+- Flat views ≠ always shadowban — fix hook/retention before re-uploading same topic same day
+- Serious comments stay human; no mass identical auto-replies
+
+See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H` in `.env`.

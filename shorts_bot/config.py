@@ -102,6 +102,14 @@ class Settings(BaseSettings):
     auto_publish_hours: int = 24  # 0 = keep upload visibility as-is
     quality_gate_blocks_upload: bool = True
 
+    # YPP / inauthentic-content guard — blocks spam-farm upload patterns
+    ypp_safe_mode: bool = True
+    max_uploads_per_24h: int = 1
+    min_hours_between_uploads: float = 20.0
+    topic_cooldown_days: int = 7
+    hook_cooldown_days: int = 14
+    max_script_overlap_ratio: float = 0.65
+
     # Comment automation — auto-reply light comments; serious → human queue
     auto_reply_comments: bool = True
     auto_comment_sync: bool = True

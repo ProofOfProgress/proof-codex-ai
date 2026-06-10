@@ -124,6 +124,25 @@ def finish_draft_pipeline(
             messages.append(f"Quality warnings: {'; '.join(qc.warnings[:3])}")
 
         if do_upload:
+            mem = MemoryExtensions(store)
+            from shorts_bot.compliance.upload_guard import check_upload_allowed, record_upload
+
+            compliance = check_upload_allowed(
+                store,
+                mem,
+                draft_id=draft_id,
+                topic=draft.topic,
+                hook=draft.hook,
+                script=draft.script,
+                title=package.title,
+            )
+            if not compliance.allowed:
+                messages.append(f"Upload blocked — YPP guard: {compliance.summary()}")
+                do_upload = False
+            elif compliance.warnings:
+                messages.append(f"YPP warnings: {'; '.join(compliance.warnings[:3])}")
+
+        if do_upload:
             try:
                 up = upload_short(
                     video.output_path,
@@ -134,8 +153,16 @@ def finish_draft_pipeline(
                 )
                 upload_url = up.video_url
                 messages.append(up.message)
+                record_upload(
+                    mem,
+                    draft_id=draft_id,
+                    topic=draft.topic,
+                    hook=draft.hook,
+                    script=draft.script,
+                    title=package.title,
+                    video_id=up.video_id,
+                )
                 if settings.auto_publish_hours > 0 and package.visibility == "unlisted":
-                    mem = MemoryExtensions(store)
                     mem.schedule_publish(
                         video_id=up.video_id,
                         draft_id=draft_id,
