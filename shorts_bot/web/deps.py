@@ -8,6 +8,7 @@ from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.generator import DraftGenerator
+from shorts_bot.memory.agent_memory import AgentMemoryStore, get_agent_memory_store
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.rewards.engine import RewardEngine
@@ -17,6 +18,7 @@ from shorts_bot.llm.provider import get_llm_backend
 
 _store: MemoryStore | None = None
 _memory: MemoryExtensions | None = None
+_agent_memory: AgentMemoryStore | None = None
 _agent: ShortsBotAgent | None = None
 
 
@@ -32,6 +34,13 @@ def get_memory() -> MemoryExtensions:
     if _memory is None:
         _memory = MemoryExtensions(get_store())
     return _memory
+
+
+def get_agent_memory() -> AgentMemoryStore:
+    global _agent_memory
+    if _agent_memory is None:
+        _agent_memory = get_agent_memory_store(get_store())
+    return _agent_memory
 
 
 def get_agent() -> ShortsBotAgent:
@@ -55,12 +64,14 @@ def get_agent() -> ShortsBotAgent:
     llm_model = backend.model if backend else settings.openai_model
     llm_provider = backend.provider if backend else "offline"
     memory = get_memory()
+    agent_memory = get_agent_memory()
     generator = DraftGenerator(
         store,
         client=client,
         model=llm_model,
         router=router,
         memory=memory,
+        agent_memory=agent_memory,
         brand=ChannelBrand(),
     )
     queue = ApprovalQueue(store)
@@ -72,6 +83,7 @@ def get_agent() -> ShortsBotAgent:
         router,
         kb,
         ChannelBrand(),
+        agent_memory,
         llm_model=llm_model,
         llm_provider=llm_provider,
     )

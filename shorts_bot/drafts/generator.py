@@ -9,6 +9,7 @@ from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
+from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 
@@ -45,6 +46,7 @@ class DraftGenerator:
         model: str | None = None,
         router: CourseRouter | None = None,
         memory: MemoryExtensions | None = None,
+        agent_memory: AgentMemoryStore | None = None,
         brand: ChannelBrand | None = None,
     ) -> None:
         self.store = store
@@ -52,6 +54,7 @@ class DraftGenerator:
         self.model = model or settings.openai_model
         self.router = router
         self.memory = memory
+        self.agent_memory = agent_memory
         self.brand = brand or ChannelBrand()
 
     def _feedback_context(self) -> str:
@@ -66,6 +69,10 @@ class DraftGenerator:
             parts.append("Recent rejections to avoid repeating:\n" + "\n".join(f"- {r}" for r in rejections))
         if approvals:
             parts.append("Recent approvals to learn from:\n" + "\n".join(f"- {a}" for a in approvals))
+        if self.agent_memory:
+            block = self.agent_memory.context_block(max_chars=2000)
+            if block:
+                parts.append(block)
         return "\n\n".join(parts) if parts else "No approval history yet."
 
     def generate(

@@ -35,6 +35,19 @@ bash scripts/run-all.sh   # web + Discord
 | `login status` | Service health |
 | `!live` | Same as login status |
 
+## Agent memory (persistent rules)
+
+The bot remembers operating rules across sessions (like ChatGPT memory).
+
+| Command | What it does |
+|---------|----------------|
+| `remember <text>` / `!remember <text>` | Save a rule or fact |
+| `operating rule: <text>` | Save as pinned operating rule |
+| `memory` / `!memory` / `rules` | List saved memories |
+| `forget <id>` / `!forget <id>` | Delete a memory |
+
+Exported to `data/MEMORY.md`. See `docs/AGENT_MEMORY.md`.
+
 ## Channel branding
 
 See `docs/CHANNEL_BRANDING.md`. Profile picture is still a **one-time manual** upload in Studio (API limitation).

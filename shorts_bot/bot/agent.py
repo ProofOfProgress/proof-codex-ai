@@ -10,6 +10,7 @@ from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.brand.loader import ChannelBrand
+from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.store import MemoryStore
 
 RESPONSE_FORMAT = """
@@ -30,14 +31,20 @@ Channel constraints:
 """
 
 
-def build_system_prompt(kb: CourseKnowledgeBase, brand: ChannelBrand | None = None) -> str:
+def build_system_prompt(
+    kb: CourseKnowledgeBase,
+    brand: ChannelBrand | None = None,
+    *,
+    memory_block: str = "",
+) -> str:
     router = kb.router_prompt.strip()
     free = kb.free_services.strip()
     brand_block = brand.draft_instructions() if brand else ""
+    memory_section = f"\n\n{memory_block}\n" if memory_block else ""
     return f"""{router}
 
 {RESPONSE_FORMAT}
-
+{memory_section}
 CHANNEL BRAND (voice + positioning):
 {brand_block[:2200]}
 
@@ -45,7 +52,8 @@ FREE-FIRST TOOL STACK (from course):
 {free[:2000]}
 
 You are the Soft Continuity operator — helpful first, uncanny second (barely). Use tools for drafts and approvals.
-Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked."""
+Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked.
+When the user says remember / operating rule / don't forget, acknowledge and use the remember_memory tool if available."""
 
 
 class ShortsBotAgent:
@@ -57,6 +65,7 @@ class ShortsBotAgent:
         router: CourseRouter,
         kb: CourseKnowledgeBase,
         brand: ChannelBrand | None = None,
+        agent_memory: AgentMemoryStore | None = None,
         *,
         llm_model: str | None = None,
         llm_provider: str = "offline",
@@ -69,9 +78,14 @@ class ShortsBotAgent:
         self.router = router
         self.kb = kb
         self.brand = brand or ChannelBrand()
+        self.agent_memory = agent_memory
+        memory_block = agent_memory.context_block() if agent_memory else ""
         self.messages: list[dict[str, Any]] = [
-            {"role": "system", "content": build_system_prompt(kb, self.brand)}
+            {"role": "system", "content": build_system_prompt(kb, self.brand, memory_block=memory_block)}
         ]
+        for msg in store.recent_chat(settings.memory_chat_context_limit):
+            if msg["role"] in ("user", "assistant") and msg.get("content"):
+                self.messages.append({"role": msg["role"], "content": msg["content"]})
 
     def chat(self, user_message: str) -> str:
         self.store.save_chat("user", user_message)
@@ -148,6 +162,7 @@ class ShortsBotAgent:
                 "- draft <topic>\n"
                 "- pending / show <id> / approve / reject\n"
                 "- stats / feedback\n"
+                "- remember <fact> / memory / forget <id>\n"
                 "- course <question>  (Jenny course routing)\n"
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
@@ -155,6 +170,23 @@ class ShortsBotAgent:
                 "- produce <id> | <turboscribe paste>  (still-image video pack for CapCut)\n"
                 "Set GEMINI_API_KEY (free) or OPENAI_API_KEY for full Jenny strategist mode."
             )
+        from shorts_bot.memory.agent_memory import (
+            is_memory_list_request,
+            parse_forget_request,
+            parse_remember_request,
+        )
+
+        if is_memory_list_request(text):
+            return self.agent_memory.format_list() if self.agent_memory else "No memory store."
+        forget_id = parse_forget_request(text)
+        if forget_id is not None and self.agent_memory:
+            ok = self.agent_memory.delete_memory(forget_id)
+            return f"Forgot memory #{forget_id}." if ok else f"No memory #{forget_id}."
+        remembered = parse_remember_request(text)
+        if remembered is not None and self.agent_memory:
+            category, content = remembered
+            mem = self.agent_memory.add_memory(content=content, category=category, source="user")
+            return f"Saved memory #{mem.id}: {mem.content}"
         if text.startswith("setup channel "):
             name = user_message[14:].strip()
             data = json.loads(

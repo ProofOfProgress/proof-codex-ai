@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     data_dir: Path = Path("data")
     database_path: Path = Path("data/shorts_bot.db")
     learned_path: Path = Path("data/LEARNED.md")
+    memory_markdown_path: Path = Path("data/MEMORY.md")
+    memory_chat_context_limit: int = 24
     course_dir: Path = Path("course")
     browser_profile_dir: Path = Path("data/browser_profile")
     youtube_channel_name: str = "Soft Continuity"

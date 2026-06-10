@@ -168,10 +168,30 @@ class ShortsCog(commands.Cog):
             "`!daily` · `!daily <topic>` · `!research <topic>`\n"
             "`!finish <draft_id>` · `!makevideo <id>` · `!voice <id>`\n"
             "`!applybrand` · `!brandassets` · `!live`\n\n"
+            "**Memory:** `!remember <rule>` · `!memory` · `!forget <id>`\n"
             "**Approvals:** `!pending` · `!yes` / `!no` · `!draftyes` / `!draftno`\n"
             "`!status` · `!sync` · `!briefing` · `!ping` · `!myid`\n"
             "Slash: `/daily` `/status` `/draft` `/pending` `/briefing`"
         )
+
+    @commands.command(name="remember")
+    async def remember_cmd(self, ctx: commands.Context, *, text: str) -> None:
+        """Save an operating rule or fact for future sessions."""
+        await self._remember(ctx)
+        msg = await asyncio.to_thread(self.ops.remember_agent_memory, text.strip())
+        await ctx.reply(msg)
+
+    @commands.command(name="memory", aliases=["memories", "rules"])
+    async def memory_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        msg = await asyncio.to_thread(self.ops.list_agent_memory)
+        await self._reply_ops(ctx, msg)
+
+    @commands.command(name="forget")
+    async def forget_cmd(self, ctx: commands.Context, memory_id: int) -> None:
+        await self._remember(ctx)
+        msg = await asyncio.to_thread(self.ops.forget_agent_memory, memory_id)
+        await ctx.reply(msg)
 
     @commands.command(name="ping")
     async def ping_cmd(self, ctx: commands.Context) -> None:

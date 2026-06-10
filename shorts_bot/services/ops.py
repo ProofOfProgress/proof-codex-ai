@@ -21,8 +21,14 @@ from shorts_bot.services.chat_router import (
     parse_voice_request,
     parse_produce_request,
 )
+from shorts_bot.memory.agent_memory import (
+    is_memory_list_request,
+    parse_forget_request,
+    parse_remember_request,
+)
 from shorts_bot.web.deps import (
     get_agent,
+    get_agent_memory,
     get_analytics_sync,
     get_memory,
     get_proposer,
@@ -42,6 +48,15 @@ class BotOperations:
 
         if is_help_command(text):
             return self._help_text()
+        if is_memory_list_request(text):
+            return self.list_agent_memory()
+        forget_id = parse_forget_request(text)
+        if forget_id is not None:
+            return self.forget_agent_memory(forget_id)
+        remembered = parse_remember_request(text)
+        if remembered is not None:
+            category, content = remembered
+            return self.remember_agent_memory(content, category=category)
         if is_sync_command(text):
             r = self.youtube_sync()
             return r.get("message", "Sync done.")
@@ -133,8 +148,24 @@ class BotOperations:
             "• generate assets — profile.png + banner.png locally\n"
             "• login status — live service health\n"
             "• make video <draft_id> — auto still pack from script\n"
+            "• remember <fact> — save operating rule / preference for future sessions\n"
+            "• memory / rules — list what the bot remembers\n"
+            "• forget <id> — remove a saved memory\n"
             "• Or chat normally (Gemini/OpenAI)"
         )
+
+    def remember_agent_memory(self, content: str, *, category: str = "fact") -> str:
+        mem = get_agent_memory().add_memory(content=content, category=category, source="user", pinned=False)
+        return f"Saved memory #{mem.id} [{mem.category}]: {mem.content}"
+
+    def forget_agent_memory(self, memory_id: int) -> str:
+        ok = get_agent_memory().delete_memory(memory_id)
+        if ok:
+            return f"Forgot memory #{memory_id}."
+        return f"No memory with id #{memory_id}."
+
+    def list_agent_memory(self) -> str:
+        return get_agent_memory().format_list()
 
     def _format_pending(self) -> str:
         imps = self.list_improvements()
