@@ -35,11 +35,25 @@ def _chunk(text: str, limit: int = 1900) -> list[str]:
     return parts
 
 
+def _strip_mention(message: discord.Message, bot_user: discord.ClientUser | None) -> str:
+    text = (message.content or "").strip()
+    if not bot_user:
+        return text
+    text = text.replace(f"<@{bot_user.id}>", "").replace(f"<@!{bot_user.id}>", "").strip()
+    return text
+
+
+def _is_owner(user_id: int) -> bool:
+    owner = (settings.discord_owner_id or "").strip()
+    return bool(owner) and str(user_id) == owner
+
+
 class ShortsDiscordBot(commands.Bot):
     def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         intents.dm_messages = True
+        intents.guilds = True
         super().__init__(
             command_prefix=settings.discord_command_prefix,
             intents=intents,
@@ -53,7 +67,8 @@ class ShortsDiscordBot(commands.Bot):
         await self.add_cog(cog)
         cog.morning_briefing.start()
         try:
-            await self.tree.sync()
+            synced = await self.tree.sync()
+            log.info("Synced %s slash command(s)", len(synced))
         except Exception as exc:  # noqa: BLE001
             log.warning("Slash command sync failed: %s", exc)
 
@@ -67,19 +82,44 @@ class ShortsDiscordBot(commands.Bot):
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot:
             return
+
         if isinstance(message.channel, discord.DMChannel):
             remember_dm_user(message.author.id)
-        if (
-            isinstance(message.channel, discord.DMChannel)
-            and message.content
-            and not message.content.strip().startswith(settings.discord_command_prefix)
-        ):
+
+        content = (message.content or "").strip()
+        prefix = settings.discord_command_prefix
+        is_dm = isinstance(message.channel, discord.DMChannel)
+        mentioned = self.user is not None and self.user in message.mentions
+        owner_chat = _is_owner(message.author.id) and not is_dm
+
+        # Free-form chat: DMs, @mention, or owner messages in servers (no ! prefix)
+        if content and not content.startswith(prefix):
+            if is_dm or mentioned or owner_chat:
+                clean = _strip_mention(message, self.user)
+                if clean:
+                    await self._reply_chat(message, clean)
+                    return
+
+        try:
+            await self.process_commands(message)
+        except Exception as exc:  # noqa: BLE001
+            log.exception("Command failed")
+            try:
+                await message.channel.send(f"Command error: {exc}"[:1900])
+            except Exception:
+                pass
+
+    async def _reply_chat(self, message: discord.Message, text: str) -> None:
+        try:
             async with message.channel.typing():
-                reply = await asyncio.to_thread(self.ops.chat, message.content.strip())
+                reply = await asyncio.to_thread(self.ops.chat, text)
             for part in _chunk(reply):
                 await message.channel.send(part)
-            return
-        await self.process_commands(message)
+        except Exception as exc:  # noqa: BLE001
+            log.exception("Discord chat failed")
+            await message.channel.send(
+                f"Something broke — try `!help` or `!ping`. Error: `{exc}`"[:1900]
+            )
 
     async def _send_briefing(self) -> None:
         text = build_morning_briefing()
@@ -113,23 +153,31 @@ class ShortsCog(commands.Cog):
         if isinstance(ctx.channel, discord.DMChannel):
             remember_dm_user(ctx.author.id)
 
+    async def _reply_ops(self, ctx: commands.Context, text: str) -> None:
+        for part in _chunk(text):
+            await ctx.reply(part)
+
     @commands.command(name="help")
     async def help_cmd(self, ctx: commands.Context) -> None:
         await self._remember(ctx)
         await ctx.reply(
-            "**Shorts Bot** — prefix `!` in servers. In **DMs**, just type normally.\n\n"
-            "`!status` · `!chat <msg>` · `!draft <topic>` · `!pending`\n"
-            "`!yes <id>` / `!no <id>` · `!draftyes` / `!draftno`\n"
-            "`!sync` · `!applybrand` · `!produce` · `!dev title | desc` · `!devpending` · `!devyes` / `!devno`\n"
-            "`!briefing` · `!learned` · `!rewards` · `!ping` · `!myid`\n"
-            "Slash: `/status` `/draft` `/pending` `/briefing`"
+            "**Soft Continuity Bot**\n\n"
+            "**DMs:** type normally (no `!`).\n"
+            "**Servers:** `!command` or `@Bot your message` (owner can type without @).\n\n"
+            "**Pipeline (API — no browser):**\n"
+            "`!daily` · `!daily <topic>` · `!research <topic>`\n"
+            "`!finish <draft_id>` · `!makevideo <id>` · `!voice <id>`\n"
+            "`!applybrand` · `!brandassets` · `!live`\n\n"
+            "**Approvals:** `!pending` · `!yes` / `!no` · `!draftyes` / `!draftno`\n"
+            "`!status` · `!sync` · `!briefing` · `!ping` · `!myid`\n"
+            "Slash: `/daily` `/status` `/draft` `/pending` `/briefing`"
         )
 
     @commands.command(name="ping")
     async def ping_cmd(self, ctx: commands.Context) -> None:
         await self._remember(ctx)
         lat = round(self.bot.latency * 1000)
-        await ctx.reply(f"Pong — {lat}ms · v{__version__}")
+        await ctx.reply(f"Pong — {lat}ms · v{__version__} · I'm online.")
 
     @commands.command(name="myid")
     async def myid_cmd(self, ctx: commands.Context) -> None:
@@ -137,9 +185,45 @@ class ShortsCog(commands.Cog):
         uid = ctx.author.id
         await ctx.reply(
             f"Your user ID: `{uid}`\n"
-            f"Optional `.env`: `DISCORD_OWNER_ID={uid}`\n"
-            f"(Bot already remembers your DM for briefings.)"
+            f"Set in `.env`: `DISCORD_OWNER_ID={uid}` for owner chat in servers."
         )
+
+    @commands.command(name="live", aliases=["loginstatus", "health"])
+    async def live_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        async with ctx.typing():
+            text = await asyncio.to_thread(self.ops.login_status_text)
+        await self._reply_ops(ctx, text)
+
+    @commands.command(name="daily")
+    async def daily_cmd(self, ctx: commands.Context, *, topic: str | None = None) -> None:
+        """Full autopilot Short: !daily or !daily the minute before a hard conversation"""
+        await self._remember(ctx)
+        await ctx.reply("Starting daily pipeline (research → draft → render → upload)…")
+        async with ctx.typing():
+            msg = await asyncio.to_thread(self.ops.run_daily_short, topic)
+        await self._reply_ops(ctx, msg)
+
+    @commands.command(name="research")
+    async def research_cmd(self, ctx: commands.Context, *, topic: str) -> None:
+        await self._remember(ctx)
+        async with ctx.typing():
+            msg = await asyncio.to_thread(self.ops.run_research, topic)
+        await self._reply_ops(ctx, msg)
+
+    @commands.command(name="finish", aliases=["finishvideo"])
+    async def finish_cmd(self, ctx: commands.Context, draft_id: int) -> None:
+        await self._remember(ctx)
+        await ctx.reply(f"Finishing draft #{draft_id}…")
+        async with ctx.typing():
+            result = await asyncio.to_thread(self.ops.finish_video, draft_id)
+        await self._reply_ops(ctx, result.get("message", "Done"))
+
+    @commands.command(name="brandassets", aliases=["generateassets"])
+    async def brand_assets_cmd(self, ctx: commands.Context) -> None:
+        await self._remember(ctx)
+        msg = await asyncio.to_thread(self.ops.generate_brand_assets)
+        await ctx.reply(msg)
 
     @commands.command(name="learned")
     async def learned_cmd(self, ctx: commands.Context) -> None:
@@ -155,7 +239,7 @@ class ShortsCog(commands.Cog):
         if not rows:
             await ctx.reply("No reward scores yet — upload a Short and `!sync` after YouTube setup.")
             return
-        lines = [f"**Recent scores**"]
+        lines = ["**Recent scores**"]
         for r in rows:
             lines.append(f"• {r['video_label']}: **{r['verdict']}** ({r['score']})")
         await ctx.reply("\n".join(lines))
@@ -169,8 +253,11 @@ class ShortsCog(commands.Cog):
     @commands.command(name="chat")
     async def chat_cmd(self, ctx: commands.Context, *, message: str) -> None:
         await self._remember(ctx)
+        await self._reply_chat(ctx, message)
+
+    async def _reply_chat(self, ctx: commands.Context, text: str) -> None:
         async with ctx.typing():
-            reply = await asyncio.to_thread(self.ops.chat, message)
+            reply = await asyncio.to_thread(self.ops.chat, text)
         for part in _chunk(reply):
             await ctx.reply(part)
 
@@ -213,36 +300,29 @@ class ShortsCog(commands.Cog):
         if result.get("improvements_created", 0) > 0:
             await notify_pending_summary(self.bot, self.ops)
 
-    @commands.command(name="applybrand", aliases=["channelbrand"])
+    @commands.command(name="applybrand", aliases=["channelbrand", "brand"])
     async def apply_brand_cmd(self, ctx: commands.Context) -> None:
-        """Apply channel name + description from youtube_copy.txt in YouTube Studio."""
+        """Apply name + description + banner via YouTube API (no browser)."""
         await self._remember(ctx)
-        await ctx.reply("Opening browser to update channel name and description…")
+        await ctx.reply("Updating channel via YouTube API…")
         result = await asyncio.to_thread(self.ops.apply_channel_branding)
         msg = result.get("message", "Done")
-        if result.get("name_updated"):
-            msg += "\n✓ Name updated"
-        if result.get("description_updated"):
-            msg += "\n✓ Description updated"
-        await ctx.reply(msg)
+        await self._reply_ops(ctx, msg)
 
     @commands.command(name="makevideo")
     async def make_video_cmd(self, ctx: commands.Context, draft_id: int) -> None:
-        """Auto-build still images from draft script: !makevideo 6"""
         await self._remember(ctx)
         result = await asyncio.to_thread(self.ops.auto_make_video, draft_id)
         await ctx.reply(result.get("message", "Done"))
 
     @commands.command(name="voice")
     async def voice_cmd(self, ctx: commands.Context, draft_id: int) -> None:
-        """Generate TTS voiceover MP3: !voice 6"""
         await self._remember(ctx)
         result = await asyncio.to_thread(self.ops.generate_voiceover, draft_id)
         await ctx.reply(result.get("message", "Done"))
 
     @commands.command(name="produce")
     async def produce_cmd(self, ctx: commands.Context, *, payload: str) -> None:
-        """Build image production pack: !produce 5 | 0:00 line\\n0:07 line"""
         await self._remember(ctx)
         if "|" not in payload:
             await ctx.reply("Usage: `!produce <draft_id> | <paste TurboScribe timestamps>`")
@@ -258,7 +338,6 @@ class ShortsCog(commands.Cog):
 
     @commands.command(name="notify")
     async def notify_cmd(self, ctx: commands.Context) -> None:
-        """DM everyone on the notify list + anyone who has DMed the bot."""
         await self._remember(ctx)
         n = await dm_all(self.bot, build_morning_briefing())
         await ctx.reply(f"Sent briefing to {n} user(s).")
@@ -305,6 +384,14 @@ class ShortsCog(commands.Cog):
         s = self.ops.status()
         await interaction.response.send_message(embed=status_embed(s, web_port=settings.web_port))
 
+    @app_commands.command(name="daily", description="Run full daily Short pipeline")
+    @app_commands.describe(topic="Optional topic override")
+    async def slash_daily(self, interaction: discord.Interaction, topic: str | None = None) -> None:
+        await interaction.response.defer(thinking=True)
+        msg = await asyncio.to_thread(self.ops.run_daily_short, topic)
+        for part in _chunk(msg):
+            await interaction.followup.send(part)
+
     @app_commands.command(name="draft", description="Create a Short script draft")
     @app_commands.describe(topic="What the Short is about")
     async def slash_draft(self, interaction: discord.Interaction, topic: str) -> None:
@@ -323,10 +410,11 @@ class ShortsCog(commands.Cog):
 
 
 def run_bot() -> None:
+    logging.basicConfig(level=logging.INFO)
     if not settings.has_discord:
         raise SystemExit(
             "DISCORD_BOT_TOKEN missing in .env\n"
             "Discord Developer Portal → Bot → Reset Token → paste in .env"
         )
     bot = ShortsDiscordBot()
-    bot.run(settings.discord_bot_token)
+    bot.run(settings.discord_bot_token, log_handler=None)

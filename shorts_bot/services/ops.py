@@ -7,12 +7,17 @@ from shorts_bot.config import settings
 from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.services.chat_router import (
     is_apply_brand_command,
+    is_daily_command,
+    is_generate_assets_command,
     is_help_command,
+    is_login_status_command,
     is_pending_command,
     is_sync_command,
+    parse_daily_topic,
     parse_dev_request,
     parse_auto_video_request,
     parse_finish_request,
+    parse_research_request,
     parse_voice_request,
     parse_produce_request,
 )
@@ -43,6 +48,15 @@ class BotOperations:
         if is_apply_brand_command(text):
             r = self.apply_channel_branding()
             return r.get("message", "Brand apply done.")
+        if is_daily_command(text):
+            return self.run_daily_short(topic=parse_daily_topic(text))
+        research_topic = parse_research_request(text)
+        if research_topic is not None:
+            return self.run_research(research_topic)
+        if is_login_status_command(text):
+            return self.login_status_text()
+        if is_generate_assets_command(text):
+            return self.generate_brand_assets()
         auto_id = parse_auto_video_request(text)
         if auto_id is not None:
             if auto_id < 0:
@@ -111,11 +125,15 @@ class BotOperations:
             "• pending — what needs Yes/No\n"
             "• yes <id> / no <id> — approve improvements\n"
             "• sync — YouTube Analytics (after Google login)\n"
-            "• apply brand — update channel name + description in Studio\n"
-            "• make video <draft_id> — auto script + still images (no TurboScribe paste)\n"
-            "• make voice <draft_id> — regenerate TTS MP3 (auto-runs on make video)\n"
-            "• produce <draft_id> | <turboscribe paste> — image pack for CapCut\n"
-            "• Or just chat normally (needs OpenAI key for full mode)"
+            "• daily — full autopilot Short (research → draft → voice → render → upload)\n"
+            "• daily <topic> — same with topic override\n"
+            "• research <topic> — deep production research (cached)\n"
+            "• finish video <draft_id> — paid pipeline finish + upload\n"
+            "• apply brand — channel name + description + banner via YouTube API\n"
+            "• generate assets — profile.png + banner.png locally\n"
+            "• login status — live service health\n"
+            "• make video <draft_id> — auto still pack from script\n"
+            "• Or chat normally (Gemini/OpenAI)"
         )
 
     def _format_pending(self) -> str:
@@ -321,33 +339,106 @@ class BotOperations:
             "output_dir": str(pack.output_dir),
         }
 
+    def run_daily_short(self, topic: str | None = None) -> str:
+        from shorts_bot.production.daily_cli import run_daily
+
+        try:
+            return run_daily(topic=topic)
+        except Exception as exc:
+            return f"Daily pipeline failed: {exc}"
+
+    def run_research(self, topic: str) -> str:
+        from shorts_bot.production.research import deep_research_topic
+
+        r = deep_research_topic(topic)
+        return f"Research saved for: {topic}\n\n{r.draft_context()[:1800]}"
+
+    def login_status_text(self) -> str:
+        from shorts_bot.login_status import full_status
+
+        lines = ["**Soft Continuity — service status**"]
+        for row in full_status(include_studio=False):
+            mark = "✓" if row["ready"] else "✗"
+            lines.append(f"{mark} **{row['label']}** — {row['detail'][:100]}")
+        return "\n".join(lines)
+
+    def generate_brand_assets(self) -> str:
+        from shorts_bot.brand.assets import ensure_brand_assets
+
+        profile, banner = ensure_brand_assets()
+        return (
+            f"Generated brand assets:\n"
+            f"• Profile: `{profile}` (upload manually in Studio → Branding → picture)\n"
+            f"• Banner: `{banner}` (API upload via `apply brand`)"
+        )
+
     def apply_channel_branding(
         self,
         *,
         channel_name: str | None = None,
         description: str | None = None,
         use_brand_file: bool = True,
+        use_browser_fallback: bool = False,
     ) -> dict[str, Any]:
-        from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+        from shorts_bot.brand.loader import ChannelBrand
+        from shorts_bot.brand.assets import BANNER_PATH, ensure_brand_assets
+        from shorts_bot.youtube.channel_api import apply_brand_from_files
 
-        operator = YouTubeChannelBranding(
-            profile_dir=settings.browser_profile_dir,
-            headless=False,
-        )
-        if use_brand_file and not channel_name and not description:
-            result = operator.apply_from_brand_file()
-        else:
-            result = operator.apply(channel_name=channel_name, description=description)
-        return {
-            "ok": result.status in {"applied", "partial"},
-            "status": result.status,
-            "message": result.message,
-            "name_updated": result.name_updated,
-            "description_updated": result.description_updated,
-            "channel_name": result.channel_name,
-            "screenshot": result.screenshot_path,
-            "url": result.current_url,
-        }
+        brand = ChannelBrand()
+        fields = brand.youtube_fields()
+        name = channel_name or (fields.channel_name if use_brand_file else None)
+        desc = description or (fields.description if use_brand_file else None)
+        ensure_brand_assets()
+
+        try:
+            api = apply_brand_from_files(
+                channel_name=name or None,
+                description=desc or None,
+                banner_path=BANNER_PATH if BANNER_PATH.exists() else None,
+            )
+            msg = api.message
+            msg += (
+                "\n\nProfile picture: upload `channel/brand/assets/profile.png` in "
+                "Studio → Customization → Branding (API cannot set avatar yet)."
+            )
+            return {
+                "ok": api.ok,
+                "status": "applied" if api.ok else "failed",
+                "message": msg,
+                "name_updated": api.name_updated,
+                "description_updated": api.description_updated,
+                "channel_name": name,
+            }
+        except Exception as exc:
+            if not use_browser_fallback:
+                return {
+                    "ok": False,
+                    "status": "failed",
+                    "message": (
+                        f"YouTube API brand update failed: {exc}\n"
+                        "Re-auth: YOUTUBE_OAUTH_UPLOAD=1 python3 -m shorts_bot.youtube.auth_cli"
+                    ),
+                }
+            from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+
+            operator = YouTubeChannelBranding(
+                profile_dir=settings.browser_profile_dir,
+                headless=True,
+            )
+            if use_brand_file and not channel_name and not description:
+                result = operator.apply_from_brand_file()
+            else:
+                result = operator.apply(channel_name=name, description=desc)
+            return {
+                "ok": result.status in {"applied", "partial"},
+                "status": result.status,
+                "message": result.message,
+                "name_updated": result.name_updated,
+                "description_updated": result.description_updated,
+                "channel_name": result.channel_name,
+                "screenshot": result.screenshot_path,
+                "url": result.current_url,
+            }
 
     def recent_rewards(self, limit: int = 8) -> list[dict[str, Any]]:
         return get_memory().recent_rewards(limit=limit)

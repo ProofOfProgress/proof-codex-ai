@@ -93,4 +93,43 @@ def is_apply_brand_command(message: str) -> bool:
         "update channel name",
         "update description",
         "apply channel brand",
+        "brand channel",
+        "deck channel",
     } or t.startswith("apply brand ")
+
+
+def is_daily_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {
+        "daily",
+        "run daily",
+        "make short",
+        "autopilot",
+        "run short",
+        "produce daily",
+    } or t.startswith("daily ")
+
+
+def parse_daily_topic(message: str) -> str | None:
+    t = message.strip()
+    lower = t.lower()
+    if lower.startswith("daily "):
+        return t[6:].strip() or None
+    return None
+
+
+def parse_research_request(message: str) -> str | None:
+    lower = message.strip().lower()
+    if lower.startswith("research "):
+        return message.strip()[9:].strip() or None
+    return None
+
+
+def is_login_status_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {"login status", "live status", "services", "health", "login_status"}
+
+
+def is_generate_assets_command(message: str) -> bool:
+    t = message.strip().lower()
+    return t in {"generate assets", "make assets", "brand assets", "generate brand assets"}
