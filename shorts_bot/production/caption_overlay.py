@@ -1,8 +1,21 @@
-"""Bottom caption bar for mute-safe Short frames (Jenny 05)."""
+"""Bottom caption bar for mute-safe Short frames (Jenny 05 safe zone).
+
+Jenny Hoyos course file 05 — keep text in the safe zone; Shorts UI covers the bottom
+~15–18% with title and buttons, so captions sit above that band (not flush to bottom).
+"""
 
 from __future__ import annotations
 
 import textwrap
+
+from shorts_bot.production.framing import (
+    CAPTION_FONT_SIZE,
+    CAPTION_LINE_HEIGHT,
+    CAPTION_MAX_LINES,
+    CAPTION_SIDE_MARGIN_PX,
+    CAPTION_WRAP_WIDTH,
+    caption_bar_y,
+)
 
 
 def _font_reg(size: int):
@@ -15,15 +28,20 @@ def _font_reg(size: int):
 
 
 def draw_bottom_caption(draw, text: str, w: int, h: int) -> None:
-    font = _font_reg(36)
-    lines = textwrap.wrap(" ".join(text.split()), width=28)[:2]
+    font = _font_reg(CAPTION_FONT_SIZE)
+    lines = textwrap.wrap(" ".join(text.split()), width=CAPTION_WRAP_WIDTH)[:CAPTION_MAX_LINES]
     if not lines:
         return
-    line_h = 44
+    line_h = CAPTION_LINE_HEIGHT
     pad = 20
     bar_h = len(lines) * line_h + pad * 2
-    by = h - bar_h - 80
-    draw.rounded_rectangle([40, by, w - 40, by + bar_h], radius=14, fill="#111111", outline="#111111")
+    by = caption_bar_y(bar_h, frame_height=h)
+    draw.rounded_rectangle(
+        [CAPTION_SIDE_MARGIN_PX, by, w - CAPTION_SIDE_MARGIN_PX, by + bar_h],
+        radius=14,
+        fill="#111111",
+        outline="#111111",
+    )
     y = by + pad
     for ln in lines:
         tw = draw.textlength(ln, font=font) if hasattr(draw, "textlength") else len(ln) * 18

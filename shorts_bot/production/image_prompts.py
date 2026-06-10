@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from shorts_bot.production.framing import framing_notes_for_prompt
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
@@ -63,6 +64,7 @@ def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
         "One symbolic element max (thin ring, faint glow, silhouette). "
         "Palette: deep navy #0B1020, mist blue #8EB8FF, warm white accents. "
         "No human faces, no celebrity likeness, no horror, no robots. "
+        f"{framing_notes_for_prompt()} "
         "vertical 9:16 still image, no text, no watermark, faceless, soft continuity aesthetic. "
         f"Style notes: {style[:400]}"
     )

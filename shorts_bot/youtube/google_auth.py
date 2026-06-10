@@ -13,6 +13,7 @@ SCOPES = [
 
 UPLOAD_SCOPES = SCOPES + [
     "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.force-ssl",  # delete own videos
 ]
 
 
@@ -53,6 +54,17 @@ def load_credentials_for_upload():
         return None
     granted = set(creds.scopes or [])
     if "https://www.googleapis.com/auth/youtube.upload" not in granted:
+        return None
+    return creds
+
+
+def load_credentials_for_manage():
+    """Upload + delete — needs youtube.force-ssl on token."""
+    creds = _load_credentials(UPLOAD_SCOPES)
+    if not creds:
+        return None
+    granted = set(creds.scopes or [])
+    if "https://www.googleapis.com/auth/youtube.force-ssl" not in granted:
         return None
     return creds
 

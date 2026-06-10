@@ -68,7 +68,13 @@ class DraftGenerator:
             parts.append("Recent approvals to learn from:\n" + "\n".join(f"- {a}" for a in approvals))
         return "\n\n".join(parts) if parts else "No approval history yet."
 
-    def generate(self, topic: str, angle: str | None = None) -> GeneratedDraft:
+    def generate(
+        self,
+        topic: str,
+        angle: str | None = None,
+        *,
+        research=None,
+    ) -> GeneratedDraft:
         if self.client is None:
             return self._generate_offline(topic, angle)
 
@@ -78,9 +84,13 @@ class DraftGenerator:
 
             course_ctx = jenny_draft_guidance(topic)
 
+        research_block = ""
+        if research is not None:
+            research_block = f"\n{research.draft_context()}\n"
+
         user_prompt = f"""Topic: {topic}
 Optional angle: {angle or "none"}
-
+{research_block}
 {self._feedback_context()}
 
 CHANNEL BRAND (Soft Continuity — warm help, one subtle oracle line in script):
@@ -125,8 +135,8 @@ Return JSON with keys:
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(topic=topic, hook=hook, script=script, help_angle=help_angle, quality=quality)
 
-    def create_and_store(self, topic: str, angle: str | None = None) -> Draft:
-        generated = self.generate(topic, angle)
+    def create_and_store(self, topic: str, angle: str | None = None, *, research=None) -> Draft:
+        generated = self.generate(topic, angle, research=research)
         notes = generated.quality.summary()
         if self.router:
             route = self.router.route(topic)

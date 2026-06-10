@@ -10,6 +10,7 @@ from shorts_bot.config import settings
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.pipeline import finish_draft_pipeline
+from shorts_bot.production.research import deep_research_topic
 from shorts_bot.production.topic_rotation import next_topic
 
 console = Console()
@@ -19,9 +20,13 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
     store = MemoryStore(settings.database_path)
     topic = topic or next_topic(store)
 
+    research = deep_research_topic(topic)
     gen = DraftGenerator(store)
-    draft = gen.create_and_store(topic)
-    messages = [f"Draft #{draft.id} created: {topic}"]
+    draft = gen.create_and_store(topic, research=research)
+    messages = [
+        f"Research: {research.viewer_moment[:80]}…",
+        f"Draft #{draft.id} created: {topic}",
+    ]
 
     if settings.auto_approve_drafts:
         store.review_draft(draft.id, "approved", "Auto-approved (AI pipeline)")

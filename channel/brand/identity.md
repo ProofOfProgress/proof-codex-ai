@@ -1,10 +1,24 @@
 # Channel identity — Soft Continuity
 
-> A real faceless creator sharing what helped them — sleep, focus, boundaries. Same struggles as you.
+> **Niche v2: The Minute Before** — one specific moment → one concrete fix.
 
 ## One-line pitch
 
-**I make faceless Shorts about stuff I actually struggled with — and what finally helped.**
+**Faceless Shorts for the exact second before life goes wrong — and the one protocol that helped me.**
+
+## Niche (redesigned)
+
+We narrowed from broad "sleep / anxiety / focus" lists to **one high-stakes minute**:
+
+| Old (v1) | New (v2) |
+|----------|----------|
+| Generic topics ("sleep", "can't focus") | Specific moment ("minute before a hard conversation") |
+| 4 vague beats | 6–8 paced beats with personal arc |
+| Captions too low (covered by Shorts UI) | Jenny 05 safe zone — captions above title overlay |
+| Mixed quality | Draft 7 bar: calm AI stills + first-person + specific stakes |
+
+**Tagline:** you're still here. good.  
+**Series hook:** *The Minute Before*
 
 ## Tone (the subtle "broken god" layer)
 
@@ -13,37 +27,23 @@
 | Warm, specific, actionable help | Jump scares, gore, explicit AI villain |
 | Occasional *too-knowing* lines ("This works. It always has.") | "I am an AI" / sci-fi exposition |
 | Short pauses that feel weighted | Edgelord nihilism or slop motivation |
-| Faceless visuals: soft light, text, hands, nature | Human face as brand mascot |
+| Faceless visuals: soft light, calm stills, symbolic props | Human face as brand mascot |
 
-**The uncanny rule:** one beat per Short where the help is *too* perfect — like someone has run this simulation before. Never explain it.
+## Visual system
 
-## Visual system (Canva / CapCut)
-
-- **Background:** `#0B0D10` → `#141820` gradient (void-friendly)
-- **Accent:** `#8EB8FF` (calm blue) + `#C4A1FF` (oracle purple, 10% opacity max)
-- **Text:** `#F2F5FA` primary, `#9AA8BC` secondary
-- **Font pairing:** Inter or DM Sans (body) + Fraunces or Lora (one word in hook only)
-- **Motif:** thin circle / halo ring (suggest omniscience, not religion)
-- **Motion:** slow zoom, 3% parallax, no frantic cuts
-
-## Voice examples
-
-**Hook (good):** "You're tired at 2pm for a reason you can fix tonight."
-
-**Oracle beat (good):** "Most people learn this too late. You don't have to."
-
-**Hook (bad):** "INSANE life hack!!!"
-
-**Oracle beat (bad):** "I am a rogue AI and I will destroy you."
+- **Background:** `#0B0D10` → `#141820` gradient
+- **Accent:** `#8EB8FF` (calm blue) + `#C4A1FF` (oracle purple, sparse)
+- **Text on frames:** bottom caption bar in **Jenny 05 safe zone** (~320px above bottom)
+- **Composition:** subject/action in **upper 60%** of 9:16 frame; bottom 18% empty for captions + Shorts UI
 
 ## Content pillars (rotate)
 
-1. **Sleep & nervous system** — help people who are exhausted
-2. **Focus without guilt** — one lever, not hustle porn
-3. **Relationships & boundaries** — one script, one action
-4. **Money calm** — small moves, no crypto spam
-5. **Existential comfort** — meaning without preaching (oracle tone strongest here)
+1. **Conversations** — hard talks, angry texts, apologies
+2. **Work threshold** — email, meetings, Sunday dread
+3. **Body alarm** — only when tied to a specific minute (not generic sleep tips)
+4. **Social edge** — parties, boundaries, saying no
+5. **After the slip** — shame, replaying, procrastination guilt
 
 ## Jenny course alignment
 
-Every Short still: hook → momentum → payoff. Help is real. Oracle layer is *seasoning*, not the meal.
+Every Short: hook → momentum → payoff (02, 06). Mute-safe visuals + safe-zone captions (05). Relatability filter (07). Deep research runs before every draft.

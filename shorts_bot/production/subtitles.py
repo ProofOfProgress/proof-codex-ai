@@ -1,10 +1,11 @@
-"""Segment subtitles — SRT + ASS for burn-in (Jenny: mute-safe + clarity)."""
+"""Segment subtitles — SRT + ASS for burn-in (Jenny 05: mute-safe + safe zone)."""
 
 from __future__ import annotations
 
-import json
 import textwrap
 from pathlib import Path
+
+from shorts_bot.production.framing import SUBTITLE_FONT_SIZE, SUBTITLE_MARGIN_V_PX
 
 
 def _fmt_srt_time(seconds: float) -> str:
@@ -66,7 +67,7 @@ PlayResY: 1920
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,DejaVu Sans Bold,52,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,1,2,60,60,120,1
+Style: Default,DejaVu Sans Bold,{SUBTITLE_FONT_SIZE},&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,3,1,2,60,60,{SUBTITLE_MARGIN_V_PX},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

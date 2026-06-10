@@ -154,7 +154,7 @@ def build_production_pack(
         "4. Save PNGs to images/ named like 00.07.png\n"
         "5. Follow CAPCUT_TIMELINE.md\n"
         "6. captions.srt — upload to YouTube for extra subtitle track\n"
-        "7. Each PNG has bottom caption (mute-safe, Jenny 05)\n",
+        "7. Each PNG has bottom caption in Jenny 05 safe zone (above Shorts title UI)\n",
         encoding="utf-8",
     )
 

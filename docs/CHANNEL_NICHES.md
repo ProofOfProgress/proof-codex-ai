@@ -1,40 +1,45 @@
-# Channel niche research — Soft Continuity angles
+# Channel niche — v2: The Minute Before
 
-Ranked for faceless Shorts + self-help + subtle oracle vibe.
+Soft Continuity redesigned around **one specific moment → one protocol**.
 
-## Tier 1 — start here
+## Why we changed
 
-| Niche | Why it works | Example Short |
-|-------|----------------|---------------|
-| **Sleep debt recovery** | Huge search, genuine help, calm tone fits | "The 90-minute rule before bed nobody explains" |
-| **Anxiety micro-tools** | 30s breathing + one reframe | "When your chest tightens, do this first" |
-| **ADHD-friendly systems** | Underserved, no guru face needed | "One tray. Three tasks. That's the whole system." |
+| Signal | Lesson |
+|--------|--------|
+| Draft 7 (hard conversation) | Specific moment + AI calm stills + 8 beats = best quality |
+| Early "sleep" drafts | Too vague, weak hooks, captions buried under Shorts UI |
+| Jenny 05 framing | Keep text/visuals in safe zone; review on mute |
 
-## Tier 2 — grow into
+## Positioning
 
-| Niche | Oracle tone fit |
-|-------|-----------------|
-| Grief & loneliness (gentle) | High — "still here" messaging |
-| Financial calm for broke weeks | Medium — practical, not lambo |
-| Social exhaustion / introverts | High — boundary scripts |
+**The Minute Before** — faceless self-help for overloaded adults at the exact second before they make it worse.
 
-## Tier 3 — avoid early
+Not: generic sleep hacks, hustle porn, or "hey guys" guru mode.
 
-- Politics, medical claims, relationship drama bait
-- "Alpha" / sigma / red pill
-- True crime, horror cosplay (breaks friendly trust)
+## Tier 1 topics (start here)
 
-## Competitor patterns (faceless self-help Shorts)
+| Moment | Example hook |
+|--------|----------------|
+| Before a hard conversation | "I used to say the wrong thing every time — until this minute-before rule." |
+| Before an angry text | "My thumbs would send regret in 3 seconds. Here's what I do now." |
+| Before Sunday work email | "Sunday night dread isn't random. This is the minute it starts." |
+| Before a presentation | "My voice would shake. One breath sequence fixed the first 10 seconds." |
+| Before you say yes when you mean no | "I still feel the guilt — but I don't say yes anymore." |
 
-- Text-on-screen + stock B-roll + calm VO wins
-- Hooks under 2 seconds decide swipe-away
-- "One weird trick" is dead — **one clear mechanism** wins
+## Production stack
 
-## 30-day content calendar (starter)
+1. **Deep research** — `python3 -m shorts_bot.production.research_cli "topic"`
+2. **Draft** — research-informed Jenny script
+3. **Paid pipeline** — Resemble + TurboScribe + AI images + safe-zone captions
+4. **Upload** — conservative metadata, one Short/day
 
-Week 1: sleep (5 Shorts)
-Week 2: focus (5 Shorts)
-Week 3: boundaries (5 Shorts)
-Week 4: meaning/calm (5 Shorts)
+## 30-day calendar (v2)
 
-Each: approve draft → CapCut template → post → sync analytics → Yes/No improvements.
+Week 1: conversation minutes (5 Shorts)  
+Week 2: work threshold minutes (5 Shorts)  
+Week 3: social/boundary minutes (5 Shorts)  
+Week 4: after-the-slip minutes (5 Shorts)
+
+## Competitor gap
+
+Faceless Shorts flood generic tips. We win on **named seconds** viewers recognize in their body.
