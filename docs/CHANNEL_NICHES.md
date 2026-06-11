@@ -1,6 +1,6 @@
-# Channel niche — Don't Blink (horror Shorts)
+# Channel niche — Peripheral (horror Shorts)
 
-**Don't Blink** — faceless horror micro-stories (~30s) with **jumpscare in the last 3 seconds**, all set in **The Gap** — one shared universe.
+**Peripheral** — faceless horror micro-stories (~30s) with **jumpscare on finale beats** (most uploads). Merch tagline: *don't blink*. Audience research: `data/research/PERIPHERAL_CHANNEL_AUDIENCE_RESEARCH.md`.
 
 ## World (The Gap)
 
