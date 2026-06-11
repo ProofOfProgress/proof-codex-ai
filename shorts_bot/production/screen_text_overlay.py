@@ -102,7 +102,7 @@ def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, in
         else:
             regions.append((lay.x, lay.y, lay.w, lay.h, 0.93))
     if norm and norm.kind == "cctv_hud":
-        regions.append((FRAME_WIDTH - 400, 1520, 400, 360, 0.85))
+        regions.append((36, 148, 300, 108, 0.88))
     return regions
 
 
@@ -527,15 +527,25 @@ def _draw_phone_message(draw, spec: ScreenTextOverlay, *, width: int, height: in
 
 
 def _draw_cctv_hud(draw, spec: ScreenTextOverlay, *, width: int, height: int) -> None:
+    """Small night-vision OSD chip — top-left, not full-width floating text."""
     green = spec.accent
-    font_sm = _font(24, bold=True)
-    font_lg = _font(30, bold=True)
-    for y in range(0, height, 8):
-        draw.line([(0, y), (width, y)], fill=(0, 0, 0, 10), width=1)
-    draw.text((48, 56), spec.primary, fill=green, font=font_lg)
-    draw.text((width - 200, 56), spec.secondary, fill=green, font=font_sm)
+    font_sm = _font(20, bold=True)
+    font_lg = _font(22, bold=True)
+    pad = 14
+    box_x, box_y = 36, 148
+    box_w, box_h = 300, 108
+    draw.rounded_rectangle(
+        [box_x, box_y, box_x + box_w, box_y + box_h],
+        radius=10,
+        fill=(0, 0, 0, 140),
+        outline=(57, 255, 20, 80),
+        width=2,
+    )
+    tx, ty = box_x + pad, box_y + pad
+    draw.text((tx, ty), spec.primary, fill=green, font=font_lg)
+    draw.text((tx, ty + 30), spec.secondary, fill=green, font=font_sm)
     if spec.tertiary:
-        draw.text((48, 100), spec.tertiary, fill=green, font=font_sm)
+        draw.text((tx, ty + 56), spec.tertiary, fill=green, font=font_sm)
 
 
 def save_overlay_png(spec: ScreenTextOverlay, path: Path) -> Path:
