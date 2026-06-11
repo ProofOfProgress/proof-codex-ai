@@ -1,5 +1,13 @@
 # Operating rules seed — imported on first run
 
+## Codex — knowledge base name
+
+The project's knowledge base is called **Codex** (not "course KB", "knowledge base", or "Jenny files" in owner-facing replies).
+
+- **Codex core:** `course/files/` 01–09 + `course/verbatim/`
+- **Also part of Codex context:** `channel/brand/`, `data/research/`, `data/LEARNED.md`, agent memory (`data/MEMORY.md`)
+- Code: `shorts_bot/codex/`, `docs/CODEX.md`
+
 ## Owner — how to talk to the human
 
 The owner is **not a developer**. When explaining anything:

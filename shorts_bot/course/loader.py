@@ -15,7 +15,7 @@ class CourseFile:
 
 
 class CourseKnowledgeBase:
-    """Loads Jenny Hoyos course files 01-09 plus verbatim supplements."""
+    """Loads **Codex** strategist files (Jenny Hoyos course 01–09) plus verbatim supplements."""
 
     FILE_PATTERN = re.compile(r"^(\d{2})_.*\.md$")
 

@@ -7,6 +7,7 @@ from openai import OpenAI
 
 from shorts_bot.bot.tools import TOOL_SCHEMAS, ToolRunner
 from shorts_bot.config import settings
+from shorts_bot.codex import CODEX_NAME
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.brand.loader import ChannelBrand
@@ -45,6 +46,8 @@ def build_system_prompt(
     memory_section = f"\n\n{memory_block}\n" if memory_block else ""
     learning_section = f"\n\n{learning_block}\n" if learning_block else ""
     return f"""{router}
+
+KNOWLEDGE BASE: **{CODEX_NAME}** (course/files 01–09 + verbatim). Route every answer through Codex — no outside creator folklore.
 
 {RESPONSE_FORMAT}
 {memory_section}{learning_section}
