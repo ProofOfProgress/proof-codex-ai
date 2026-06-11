@@ -10,7 +10,7 @@ Every Short is a **different night in the same universe** — not a random scare
 
 | We are | We are not |
 |--------|------------|
-| Found-footage phone/cam grammar | Creature features, occult rituals, named folklore entities |
+| Found-footage fullscreen CCTV grammar | Creature features, occult rituals, named folklore entities |
 | Liminal apartment + signal lag | Gore, slashers, daylight crowds, camping-trip horror |
 | Cold blue-black rooms; green **only** on cam/feed | Full-frame green wash on every shot |
 
@@ -18,7 +18,7 @@ Code: `shorts_bot/production/horror_lane.py`
 
 ## The world in one sentence
 
-**The Gap** is the beat between what you see and what your phone, mirror, or camera recorded — and something uses that lag to get closer while you are alone at night.
+**The Gap** is the beat between what you see and what your CCTV, mirror, or recording captured — and something uses that lag to get closer while you are alone at night.
 
 ## Core laws (never break on-camera)
 
@@ -36,7 +36,7 @@ Not one GPS address — one **liminal apartment archetype** viewers recognize:
 
 - Narrow hallway that feels longer than it should (doors into darkness)
 - Bathroom mirror, cold tile, vanity bulb flicker
-- Bedroom phone glow on black sheets — UI light is the only warmth (still cold blue)
+- Alarm clock red LED on nightstand — only pinprick of warmth (still cold blue)
 - Security cam high corner: grainy green night vision, motion box on empty space
 - Closet you do not open; scratch marks on the **inside** of the door
 

@@ -2,7 +2,7 @@
 
 ## Primary: **Analog horror**
 
-Found-footage grammar — night-vision CCTV, security-app phone feeds, VHS grain, timestamp glitches, degraded signal at **3:12 AM**. The scare lives in the **lag between reality and the recording**.
+Found-footage grammar — fullscreen night-vision CCTV, VHS grain, alarm clock at **3:12 AM**, timestamp glitches, degraded signal. The scare lives in the **lag between reality and the recording**.
 
 ## Secondary: **Psychological horror**
 
@@ -13,7 +13,7 @@ Alone-at-night uncanny dread. You rationalize the gap as glitch, lag, or tired e
 | Shot type | Palette |
 |-----------|---------|
 | POV room / hallway (no feed) | Cold blue-black `#1A2A3A`, underexposed |
-| Wall-mounted CCTV or in-phone feed rect | Night-vision green grain **only inside that rect** |
+| Fullscreen wall-mounted CCTV | Night-vision green grain on entire surveillance frame |
 
 Never wash the full frame in green on a POV shot.
 

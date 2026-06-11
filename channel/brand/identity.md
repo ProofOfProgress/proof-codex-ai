@@ -11,8 +11,8 @@
 Every Short is **another night in the same universe** — not a random scare swap.
 
 - **Law:** reality and recordings are **one beat out of sync**; things move when you blink, look away, or refresh the feed
-- **Time:** **3:12 AM** is when phones, cams, and timestamps glitch widest
-- **Place:** same liminal alone-at-night apartment grammar (hallway, mirror, phone glow, security cam, closet)
+- **Time:** **3:12 AM** on the alarm clock — when cams and timestamps glitch widest
+- **Place:** same liminal alone-at-night apartment grammar (hallway, mirror, alarm clock, security cam, closet)
 - **Threat:** faceless in lag/peripherals until the final lunge — never named in VO
 
 Full bible: `channel/brand/world.md` — injected into scripts and I2V prompts via `shorts_bot/production/world.py`.
@@ -40,7 +40,7 @@ Full bible: `channel/brand/world.md` — injected into scripts and I2V prompts v
 | Earned scare — setup → silence → hit | Random loud noise with no story |
 | Rotate scare types each upload | Same monster every video |
 | 🔊 Volume warning in description/title | Surprise-report bait |
-| Faceless — shadows, eyes, hallways, phones | Gore, real victims, child harm |
+| Faceless — shadows, eyes, hallways, CCTV | Gore, real victims, child harm |
 
 ## Visual system
 

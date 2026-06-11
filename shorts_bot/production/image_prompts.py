@@ -63,7 +63,7 @@ def horror_segment_to_prompt(
         f"{beat_line}"
         f"Story: {topic}. "
         "Mood: uncanny, dread, something is wrong, cinematic horror movie still. "
-        "Setting: dark hallway, mirror, phone screen, empty room, security cam POV, shadows. "
+        "Setting: dark hallway, mirror, fullscreen security cam POV, alarm clock nightstand, shadows. "
         f"{world_visual_continuity()} "
         "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
         "Silhouettes only — no full face until scare beat. No gore, no blood. "

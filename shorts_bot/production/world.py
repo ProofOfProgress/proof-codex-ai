@@ -26,7 +26,7 @@ def world_rules_compact() -> str:
 {WORLD_TAGLINE}
 Laws: movement in the unwatched moment (blink, look away, refresh, mute); 3:12 AM is when systems glitch;
 CCTV/mirrors/recordings show truth delayed or wrong; no phone screens in analog lane; you are alone at home tonight; faceless until final scare beat.
-Setting: same liminal apartment grammar — narrow hallway, bathroom mirror, bedroom phone glow, security cam corner, closet you never open.
+Setting: same liminal apartment grammar — narrow hallway, bathroom mirror, alarm clock nightstand, security cam corner, closet you never open.
 Threat: the thing in the gap — never named in VO; advances when you stop watching; finale lunge from mirror/door/lens/screen.
 Not this world: cosy self-help, stick figures, gore, daytime crowds, generic creepypasta listicles.
 {horror_lane_compact()}"""
@@ -45,8 +45,8 @@ def world_visual_continuity() -> str:
     """Paste into every I2V / image prompt after visual DNA."""
     return (
         f"WORLD — {WORLD_NAME}: liminal alone-at-night apartment, narrow hallway into darkness, "
-        "analog horror: cold blue-black POV rooms, night-vision green only on CCTV or in-phone feed rect; "
-        "film grain, underexposed; phone/mirror/security-cam as truth sources that lag reality; "
+        "analog horror: cold blue-black POV rooms, night-vision green only on fullscreen CCTV; "
+        "film grain, underexposed; CCTV/mirror/recordings as truth sources that lag reality; "
         "3:12 AM motif when time appears; faceless silhouettes until final lunge; "
         "same domestic grammar across uploads — not a new location every video."
     )

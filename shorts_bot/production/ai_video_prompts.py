@@ -56,7 +56,7 @@ def visual_dna() -> str:
         "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
         "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
         "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
-        "Faceless until scare beat: silhouettes, POV, phone screens, hallway depth — no identifiable faces until final lunge. "
+        "Faceless until scare beat: silhouettes, CCTV POV, hallway depth — no phones, no identifiable faces until final lunge. "
         "Motion: slow dread drift or locked static; final beat may snap fast toward camera. "
         f"{world_visual_continuity()} "
         f"{analog_color_rules()} "
@@ -286,7 +286,7 @@ def match_template(
         id="derived_horror",
         name=f"Derived horror — {scene[:40]}",
         keywords=(),
-        subject="Dark hallway, mirror, phone screen, or closet — faceless POV",
+        subject="Dark hallway, mirror, fullscreen CCTV, or closet — faceless POV, no phones",
         action=f"Slow uncanny motion then wrong detail: {scene}",
         camera="Slow push-in or locked static, horror framing, 9:16",
         environment="Black and cold blue, film grain, liminal empty room",

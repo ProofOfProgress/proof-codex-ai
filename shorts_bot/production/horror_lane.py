@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-# Primary lane: degraded recordings, CCTV, night vision, phone feeds, signal lag
+# Primary lane: degraded recordings, fullscreen CCTV, night vision, alarm clock, signal lag
 HORROR_LANE_PRIMARY = "analog_horror"
 HORROR_LANE_LABEL = "Analog horror"
 
