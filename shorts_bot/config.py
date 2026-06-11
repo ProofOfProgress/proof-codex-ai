@@ -146,7 +146,7 @@ class Settings(BaseSettings):
     jumpscare_sting_gain: float = 2.2
     jumpscare_sting_mix: float = 0.9
     # Unlisted QA uploads skip 24h cooldown (owner preview / SFX validation)
-    unlisted_qa_bypass_upload_cooldown: bool = True
+    unlisted_qa_bypass_upload_cooldown: bool = False  # YPP: unlisted QA uploads count toward 24h cap
 
     # Gemini vision QC — sparse frames, one batched call (see vision_qc.py)
     vision_qc_enabled: bool = True
@@ -181,10 +181,10 @@ class Settings(BaseSettings):
     pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
     pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail
 
-    # Autopilot — fully AI pipeline, no human approval
-    auto_approve_drafts: bool = True
-    auto_upload_youtube: bool = True
-    youtube_upload_visibility: str = "public"  # owner approved auto-public (no pre-review)
+    # Autopilot — YPP-safe defaults: human review before public monetized uploads
+    auto_approve_drafts: bool = False
+    auto_upload_youtube: bool = False
+    youtube_upload_visibility: str = "unlisted"  # public only after manual Studio review
 
     # Automation — reduce manual sync / Yes-No / publish steps (login & payments still manual)
     auto_analytics_sync: bool = True
@@ -194,7 +194,7 @@ class Settings(BaseSettings):
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
     self_training_enabled: bool = True
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
-    auto_daily_enabled: bool = True
+    auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
@@ -208,7 +208,9 @@ class Settings(BaseSettings):
     upload_guard_void_video_ids: list[str] = ["JIkMhPH0l6o"]  # erroneous non-horror upload
     topic_cooldown_days: int = 7
     hook_cooldown_days: int = 14
-    max_script_overlap_ratio: float = 0.65
+    max_script_overlap_ratio: float = 0.50
+    ypp_allow_batch_series_upload: bool = False  # upload_series_cli — banned for monetized channels
+    ypp_block_qa_iteration_titles: bool = True  # block titles like "(build v9 ...)"
     block_duplicate_draft_upload: bool = True  # same draft_id → one upload only
     block_duplicate_title_upload: bool = True  # same title already on channel → block
 
@@ -216,7 +218,7 @@ class Settings(BaseSettings):
     auto_reply_comments: bool = True
     auto_comment_sync: bool = True
     comment_fetch_max: int = 40
-    comment_max_auto_per_run: int = 8
+    comment_max_auto_per_run: int = 3  # scale auto-replies = inauthentic engagement signal
 
     @property
     def has_openai(self) -> bool:

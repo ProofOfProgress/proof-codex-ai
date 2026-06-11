@@ -27,15 +27,16 @@
 
 **Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
 
-**QA uploads:** After each draft render, upload **unlisted** with a unique `(build vN …)` title suffix so the owner can compare iterations oldest-first:
+**QA previews (YPP-safe):** Compare renders **locally** (`final_short_vN.mp4`). Do **not** upload `(build vN …)` iterations to YouTube under `YPP_SAFE_MODE` — batch QA uploads are **banned** (Jul 2025 inauthentic-content policy). One public/unlisted upload per draft max; 1 Short / 24h.
 
 ```bash
-python3 -m shorts_bot.production.upload_unlisted_cli --draft-id 3 --video path/to/render.mp4 --no-render --title-suffix "(build v8 …)" --allow-duplicate-draft
-# Or batch all saved files in creation order:
-python3 -m shorts_bot.production.upload_series_cli --draft-id 3
+# Local render only — no YouTube upload for iteration builds
+python3 -m shorts_bot.production.render_jumpscare_cli --draft-id 3 --render
+# Single owner-approved upload (no build suffix, no --allow-duplicate-draft):
+python3 -m shorts_bot.production.upload_unlisted_cli --draft-id 3 --no-render
 ```
 
-Log lives at `data/production/draft_N/upload_series_log.json`.
+See `docs/YPP_ANTI_SHADOWBAN.md` and `shorts_bot/compliance/ypp_bans.py`.
 
 ### Services
 

@@ -13,7 +13,7 @@ FINALE_STORY_TEASE = (
 )
 
 SUSPENSE_STORY_TEASE = (
-    "Scary stories in about 30 seconds. Watch twice if you missed something."
+    "Scary stories in about 30 seconds. The ending might surprise you."
 )
 
 # Channel copy should never use jargon like this.

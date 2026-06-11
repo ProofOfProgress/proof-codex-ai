@@ -40,7 +40,7 @@ def test_upload_allowed_good_script(tmp_path: Path, monkeypatch):
         topic="sleep at 3am",
         hook="I wake at 3am and my brain won't stop",
         script=_GOOD_SCRIPT,
-        title="Before 3am spirals — what helped me #Shorts",
+        title="Before 3am spirals — what helped me",
     )
     assert report.allowed
     assert not report.issues

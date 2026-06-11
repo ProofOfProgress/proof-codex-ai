@@ -8,10 +8,18 @@ from pathlib import Path
 
 from rich.console import Console
 
+from shorts_bot.compliance.ypp_bans import batch_upload_forbidden_message
 from shorts_bot.config import settings
 from shorts_bot.production.upload_unlisted_cli import upload_existing_video
 
 console = Console()
+
+
+def _assert_batch_upload_allowed(*, force: bool = False) -> None:
+    if settings.ypp_allow_batch_series_upload and force:
+        return
+    if settings.ypp_safe_mode and not settings.ypp_allow_batch_series_upload:
+        raise SystemExit(batch_upload_forbidden_message())
 
 # Known draft #3 iteration files in creation order (oldest → newest).
 DRAFT_3_BUILD_SERIES: list[tuple[str, str]] = [
@@ -33,6 +41,7 @@ def upload_build_series(
     skip_existing_titles: bool = True,
 ) -> list[str]:
     """Upload each file in order; returns YouTube URLs."""
+    _assert_batch_upload_allowed()
     root = pack_dir or (settings.data_dir / "production" / f"draft_{draft_id}")
     entries = series or DRAFT_3_BUILD_SERIES
     log_path = root / "upload_series_log.json"
@@ -64,7 +73,7 @@ def upload_build_series(
                 video,
                 pack_dir=root,
                 title_suffix=suffix,
-                allow_duplicate_draft=True,
+                allow_duplicate_draft=False,
             )
             url = msg.split("OK: ")[-1].strip()
             uploaded[key] = url
@@ -82,7 +91,13 @@ def main() -> None:
     parser.add_argument("--draft-id", type=int, default=3)
     parser.add_argument("--pack-dir", type=Path, default=None)
     parser.add_argument("--force", action="store_true", help="Re-upload even if logged")
+    parser.add_argument(
+        "--ypp-override",
+        action="store_true",
+        help="Requires YPP_ALLOW_BATCH_SERIES_UPLOAD=true in .env (non-monetized test only)",
+    )
     args = parser.parse_args()
+    _assert_batch_upload_allowed(force=args.ypp_override)
     urls = upload_build_series(
         args.draft_id,
         pack_dir=args.pack_dir,
