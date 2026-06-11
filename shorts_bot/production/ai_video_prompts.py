@@ -183,6 +183,20 @@ def templates() -> list[VideoTemplate]:
             role="false_calm",
         ),
         VideoTemplate(
+            id="suspense_replay_hold",
+            name="Suspense into replay",
+            keywords=("watch", "again", "wait", "freeze", "staring", "hold", "replay"),
+            subject="Same dread frame as prior beat — wrong detail barely visible, no lunge",
+            action="Locked hold, micro shadow drift, tension peaks then hard stop — no scare payoff",
+            camera="Slow 2% zoom out, static dread, 9:16 — cut invites Shorts replay",
+            environment="Black crush, cold blue, film grain, underexposed",
+            style="Unresolved horror, replay bait, photoreal, no jumpscare",
+            end_state="Frame holds on wrong detail — viewer replays to catch it",
+            duration_seconds=5.0,
+            model_hint="runway",
+            role="false_calm",
+        ),
+        VideoTemplate(
             id="face_unlock_wrong",
             name="Face unlock without looking",
             keywords=("face unlock", "unlock", "looking", "screen", "selfie"),
@@ -357,13 +371,14 @@ def build_video_prompt_briefs(
         tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=i)
         if jumpscare_plan is not None:
             primary = int(jumpscare_plan.primary_segment_index)
-            decoy = jumpscare_plan.decoy_segment_index
+            profile = getattr(jumpscare_plan, "profile", "finale")
+            has_js = getattr(jumpscare_plan, "has_jumpscare", profile != "suspense_replay")
             lunge = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
-            tease = next((t for t in templates() if t.id == "jumpscare_tease"), None)
-            if i == primary and lunge:
+            replay_hold = next((t for t in templates() if t.id == "suspense_replay_hold"), None)
+            if profile == "suspense_replay" and i == len(segments) - 1 and replay_hold:
+                tmpl = replay_hold
+            elif has_js and i == primary and lunge:
                 tmpl = lunge
-            elif decoy is not None and i == decoy and tease:
-                tmpl = tease
         elif i == len(segments) - 1 and tmpl.role != "jumpscare":
             jumpscare = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
             if jumpscare:

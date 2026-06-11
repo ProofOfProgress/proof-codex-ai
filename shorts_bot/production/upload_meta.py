@@ -37,7 +37,7 @@ def _volume_warning_for_draft(draft_id: int) -> str:
     plan = load_plan_for_draft(draft_id, 8)
     if plan.volume_warning:
         return plan.volume_warning
-    return "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+    return "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
 
 
 def build_upload_package(
@@ -51,7 +51,11 @@ def build_upload_package(
     from shorts_bot.config import settings
     from shorts_bot.production.niche import NICHE_NAME
 
-    title = _title_from_research(topic, hook, research) if research else _safe_title(topic, hook)
+    title = (
+        _title_from_research(topic, hook, research)
+        if research
+        else _safe_title(topic, hook, draft_id=draft_id)
+    )
     description = _description_from_research(
         topic, hook, research, draft_id=draft_id
     ) if research else _safe_description(topic, hook, draft_id=draft_id)
@@ -63,7 +67,7 @@ def build_upload_package(
     checklist = [
         f"Visibility: {visibility}",
         f"Niche: {NICHE_NAME}",
-        "🔊 Volume warning in title + description (jumpscare roulette — timing varies)",
+        "🔊 Volume warning on finale-scare drafts only (suspense-replay drafts skip it)",
         "YPP: max 1 Short per 24h — upload_guard enforces",
         "Script is second-person horror micro-story — impossible hook in line 1",
         "Title front-loads hook keyword (first 40 chars); VO speaks hook in first 3s",
@@ -135,18 +139,24 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
     base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
     hashtags = " ".join(base_hashtags[:5])
     vol = _volume_warning_for_draft(draft_id) if draft_id else (
-        "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+        "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
     )
-
-    return (
-        f"{vol}\n\n"
-        f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"One impossible detail → tension → scare at the end. Watch the whole thing.\n\n"
-        f"AI motion visuals · synthetic media disclosed\n\n"
-        f"What should the next story be? One sentence in the comments.\n\n"
-        f"{hashtags}"
+    scare_line = (
+        "One impossible detail → tension → scare at the end."
+        if vol.strip()
+        else "One impossible detail → tension → replay to catch what you missed."
     )
+    lines = [vol, hook_line] if vol.strip() else [hook_line]
+    lines.extend(
+        [
+            f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
+            f"{scare_line} Watch the whole thing.",
+            "AI motion visuals · synthetic media disclosed",
+            "What should the next story be? One sentence in the comments.",
+            hashtags,
+        ]
+    )
+    return "\n\n".join(lines)
 
 
 def _tags_from_research(topic: str, research) -> list[str]:
@@ -180,32 +190,38 @@ def _tags_from_research(topic: str, research) -> list[str]:
     return base[:12]
 
 
-def _safe_title(topic: str, hook: str) -> str:
-    """Front-load impossible hook; volume warning for horror."""
+def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
+    """Front-load impossible hook; volume emoji only on finale-scare drafts."""
+    vol_prefix = ""
+    if draft_id and _volume_warning_for_draft(draft_id).strip():
+        vol_prefix = "🔊 "
     slop_hooks = ("stop scrolling", "hey guys", "you won't believe")
     if hook and len(hook) < 85 and not any(s in hook.lower() for s in slop_hooks):
         clean = hook.strip()
-        if not clean.upper().startswith("🔊"):
-            return f"🔊 {clean}"[:100]
-        return clean[:100]
+        if clean.upper().startswith("🔊"):
+            clean = clean.lstrip("🔊").strip()
+        return f"{vol_prefix}{clean}"[:100]
     t = topic.strip()
-    return f"🔊 {t[:80]} — watch the whole thing"[:100]
+    suffix = " — watch the whole thing" if vol_prefix else ""
+    return f"{vol_prefix}{t[:80]}{suffix}"[:100]
 
 
 def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     hook_line = _normalize_horror_hook(hook, topic)
     hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
     vol = _volume_warning_for_draft(draft_id) if draft_id else (
-        "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+        "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
     )
-    return (
-        f"{vol}\n\n"
-        f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"Watch the whole thing.\n\n"
-        f"AI motion visuals · synthetic media disclosed\n\n"
-        f"{hashtags}"
+    lines = [vol, hook_line] if vol.strip() else [hook_line]
+    lines.extend(
+        [
+            "Don't Blink — terrifying faceless horror micro-stories (~30s). "
+            "Watch the whole thing.",
+            "AI motion visuals · synthetic media disclosed",
+            hashtags,
+        ]
     )
+    return "\n\n".join(lines)
 
 
 def write_upload_files(pack_dir: Path, package: UploadPackage, *, draft_id: int) -> Path:

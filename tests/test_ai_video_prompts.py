@@ -18,7 +18,7 @@ def test_visual_dna_has_palette_and_safe_zone():
 
 def test_templates_count_and_mirror_match():
     all_t = templates()
-    assert len(all_t) == 10
+    assert len(all_t) >= 11
     m = match_template(topic="the mirror reflection blinked after you did")
     assert m.id == "mirror_blink"
 
@@ -65,3 +65,17 @@ def test_final_segment_uses_jumpscare_template():
     ]
     briefs = build_video_prompt_briefs(segs, topic="knock closet", total_duration=12.0)
     assert briefs[-1].template_id == "jumpscare_lunge"
+
+
+def test_suspense_replay_skips_jumpscare_on_finale():
+    from shorts_bot.production.jumpscare_timing import plan_for_draft
+
+    segs = [
+        TranscriptSegment(0.0, "You heard a knock.", "00.00"),
+        TranscriptSegment(5.0, "Something was still watching.", "00.05"),
+    ]
+    plan = plan_for_draft(3, len(segs))
+    briefs = build_video_prompt_briefs(
+        segs, topic="knock closet", total_duration=12.0, jumpscare_plan=plan
+    )
+    assert briefs[-1].template_id == "suspense_replay_hold"

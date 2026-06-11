@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from pathlib import Path
 
@@ -19,7 +20,7 @@ def select_i2v_beat_indices(
     *,
     priority_indices: list[int] | None = None,
 ) -> list[int]:
-    """Always render hook (0) + finale + roulette scare beat; sample middle when capped."""
+    """Always render hook (0) + finale; sample middle when capped."""
     if segment_count <= 0:
         return []
     if max_beats >= segment_count:
@@ -43,9 +44,72 @@ def select_i2v_beat_indices(
     return sorted(selected)
 
 
-def _video_prompt_for_segment(seg: TranscriptSegment, *, topic: str, clip_index: int) -> str:
-    tmpl = match_template(topic=topic, spoken_text=seg.text)
-    return segment_to_video_prompt(seg, topic=topic, template=tmpl, clip_index=clip_index)
+def replicate_i2v_model_for_clip(
+    *,
+    model_hint: str = "",
+    template_id: str = "",
+) -> str:
+    """Role-based Replicate routing inside the existing I2V stack."""
+    hint = (model_hint or "").strip().lower()
+    tmpl = (template_id or "").strip().lower()
+    if tmpl in {"jumpscare_lunge", "jumpscare_tease"} or hint == "hailuo":
+        return (settings.replicate_video_model_jumpscare or "minimax/hailuo-2.3-fast").strip()
+    if tmpl.endswith("_motion") or hint in {"veo", "runway"}:
+        return (settings.replicate_video_model_hook or settings.replicate_video_model).strip()
+    return (settings.replicate_video_model or "minimax/video-01").strip()
+
+
+def _load_video_prompt_pack(pack_dir: Path) -> dict:
+    path = pack_dir / "video_prompts.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def _clip_spec_from_pack(pack_dir: Path, filename_stem: str) -> tuple[str, str, str]:
+    """Return (motion_prompt, model_hint, template_id) from exported video_prompts pack."""
+    payload = _load_video_prompt_pack(pack_dir)
+    for clip in payload.get("clips") or []:
+        if str(clip.get("filename_stem")) == filename_stem:
+            prompt_file = clip.get("prompt_file")
+            prompt = ""
+            if prompt_file:
+                path = pack_dir / str(prompt_file)
+                if path.exists():
+                    prompt = path.read_text(encoding="utf-8").strip()
+            if not prompt:
+                prompt = str(clip.get("prompt") or "").strip()
+            return (
+                prompt,
+                str(clip.get("model_hint") or ""),
+                str(clip.get("template_id") or ""),
+            )
+    return "", "", ""
+
+
+def _video_prompt_for_segment(
+    seg: TranscriptSegment,
+    *,
+    topic: str,
+    clip_index: int,
+    pack_dir: Path | None = None,
+    filename_stem: str = "",
+) -> tuple[str, str, str]:
+    """Prefer exported video_prompts/*.txt; fall back to live template match."""
+    if pack_dir and filename_stem:
+        prompt, hint, tmpl_id = _clip_spec_from_pack(pack_dir, filename_stem)
+        if prompt:
+            return prompt, hint, tmpl_id
+
+    tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=clip_index)
+    return (
+        segment_to_video_prompt(seg, topic=topic, template=tmpl, clip_index=clip_index),
+        tmpl.model_hint,
+        tmpl.id,
+    )
 
 
 def render_ai_video_clip(
@@ -56,15 +120,22 @@ def render_ai_video_clip(
     clip_index: int,
     image_path: Path,
     clip_path: Path,
+    pack_dir: Path | None = None,
 ) -> bool:
     """One beat: generate still (if needed) → I2V motion clip."""
     try:
         if not image_path.exists():
             generate_image(image_brief.prompt, image_path)
 
-        motion_prompt = _video_prompt_for_segment(seg, topic=topic, clip_index=clip_index)
+        motion_prompt, model_hint, template_id = _video_prompt_for_segment(
+            seg,
+            topic=topic,
+            clip_index=clip_index,
+            pack_dir=pack_dir,
+            filename_stem=image_brief.filename_stem,
+        )
         token = (settings.replicate_api_token or "").strip()
-        model = (settings.replicate_video_model or "minimax/video-01").strip()
+        model = replicate_i2v_model_for_clip(model_hint=model_hint, template_id=template_id)
         generate_replicate_i2v(
             motion_prompt,
             image_path,
@@ -91,6 +162,7 @@ def render_all_ai_video_clips(
 ) -> int:
     """Generate one I2V MP4 per segment; pace Replicate to avoid 429s."""
     clips_dir.mkdir(parents=True, exist_ok=True)
+    pack_dir = clips_dir.parent
     pace = max(0.0, float(settings.ai_video_pace_sec))
     max_beats = max(1, int(settings.ai_video_max_beats))
     count = 0
@@ -114,6 +186,7 @@ def render_all_ai_video_clips(
             clip_index=seg_i,
             image_path=image_path,
             clip_path=clip_path,
+            pack_dir=pack_dir,
         ):
             count += 1
 
