@@ -26,6 +26,27 @@ def test_sting_start_couple_seconds_before_end():
     assert 24.0 <= t <= 26.0
 
 
+def test_sting_aligns_to_finale_segment_flash():
+    plan = plan_for_draft(5, 9)
+    segments = [
+        {"start_seconds": 0.0, "end_seconds": 20.0},
+        {"start_seconds": 20.0, "end_seconds": 27.4},
+    ]
+    plan = plan.__class__(
+        profile=plan.profile,
+        primary_segment_index=1,
+        decoy_segment_index=None,
+        has_jumpscare=True,
+        sting_start_ratio=plan.sting_start_ratio,
+        volume_warning=plan.volume_warning,
+        creator_note=plan.creator_note,
+    )
+    t = sting_start_seconds(plan, segments=segments, total_duration=27.4)
+    assert t is not None
+    # flash at 27.12 (27.4 - 0.28), sting ~0.06s before
+    assert 26.9 <= t <= 27.15
+
+
 def test_no_sting_on_suspense_replay():
     plan = plan_for_draft(3, 9)
     assert sting_start_seconds(plan, segments=[], total_duration=27.4) is None

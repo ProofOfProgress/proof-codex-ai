@@ -81,7 +81,7 @@ def upload_unlisted_draft(
         hook=draft.hook,
         script=draft.script,
         title=title,
-        allow_duplicate_draft=True,
+        allow_duplicate_draft=False,
         visibility="unlisted",
     )
     if not pre.allowed:

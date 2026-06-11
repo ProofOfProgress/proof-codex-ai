@@ -76,11 +76,26 @@ def sting_start_seconds(
     segments: list[dict],
     total_duration: float,
 ) -> float | None:
-    """When to start the audio sting — only for finale profile (~2s before video end)."""
+    """
+    When to start the audio sting — aligned to the finale visual flash, not wall-clock end.
+
+    Render applies zoom/brightness only in the last ~0.28s of the primary scare segment clip.
+    """
     if not plan.has_jumpscare or total_duration <= 1.0:
         return None
 
     from shorts_bot.config import settings
+
+    flash_lead = 0.28  # matches _jumpscare_video_filter in render_video.py
+    idx = plan.primary_segment_index
+    if segments and 0 <= idx < len(segments):
+        seg = segments[idx]
+        seg_start = float(seg.get("start_seconds", 0))
+        seg_end = float(seg.get("end_seconds", seg_start))
+        seg_dur = max(0.35, seg_end - seg_start)
+        visual_flash_at = seg_start + max(0.0, seg_dur - flash_lead)
+        # Sting just before the visible pop (not ~2.5s before video end).
+        return max(0.0, visual_flash_at - 0.06)
 
     lead = min(max(1.5, settings.jumpscare_sting_seconds), total_duration * 0.12)
     lead = min(lead, 3.0)
