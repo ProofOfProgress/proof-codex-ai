@@ -1,8 +1,16 @@
 from shorts_bot.production.jenny_checks import check_jenny_voice
 
 
-def test_first_person_passes():
-    assert not check_jenny_voice("I used to grab my phone at 3am.", "I can't sleep")
+def test_second_person_passes():
+    assert not check_jenny_voice(
+        "You checked the locks twice. The hallway feed was empty.",
+        "Your security camera flagged motion at 3:12 AM.",
+    )
+
+
+def test_missing_you_fails():
+    issues = check_jenny_voice("The hallway was empty.", "Motion alert.")
+    assert any("second-person" in i.lower() for i in issues)
 
 
 def test_plural_fails():

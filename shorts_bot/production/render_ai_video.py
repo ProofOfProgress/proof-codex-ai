@@ -13,6 +13,28 @@ from shorts_bot.production.images.router import generate_image
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
+def select_i2v_beat_indices(segment_count: int, max_beats: int) -> list[int]:
+    """Always render hook (0) + finale; evenly sample middle when capped."""
+    if segment_count <= 0:
+        return []
+    if max_beats >= segment_count:
+        return list(range(segment_count))
+    if max_beats <= 1:
+        return [0]
+    selected = {0, segment_count - 1}
+    remaining = max_beats - len(selected)
+    middle = list(range(1, segment_count - 1))
+    if remaining <= 0 or not middle:
+        return sorted(selected)[:max_beats]
+    if remaining >= len(middle):
+        selected.update(middle)
+        return sorted(selected)
+    step = len(middle) / remaining
+    for i in range(remaining):
+        selected.add(middle[int(i * step)])
+    return sorted(selected)
+
+
 def _video_prompt_for_segment(seg: TranscriptSegment, *, topic: str, clip_index: int) -> str:
     tmpl = match_template(topic=topic, spoken_text=seg.text)
     return segment_to_video_prompt(seg, topic=topic, template=tmpl, clip_index=clip_index)
@@ -64,9 +86,12 @@ def render_all_ai_video_clips(
     max_beats = max(1, int(settings.ai_video_max_beats))
     count = 0
 
-    pairs = list(zip(briefs, segments))[:max_beats]
-    for i, (brief, seg) in enumerate(pairs):
-        if pace and i > 0:
+    indices = select_i2v_beat_indices(len(segments), max_beats)
+    for render_i, seg_i in enumerate(indices):
+        if seg_i >= len(briefs) or seg_i >= len(segments):
+            continue
+        brief, seg = briefs[seg_i], segments[seg_i]
+        if pace and render_i > 0:
             time.sleep(pace)
         image_path = images_dir / f"{brief.filename_stem}.png"
         clip_path = clips_dir / f"{brief.filename_stem}.mp4"
@@ -77,7 +102,7 @@ def render_all_ai_video_clips(
             brief,
             seg,
             topic=topic,
-            clip_index=i,
+            clip_index=seg_i,
             image_path=image_path,
             clip_path=clip_path,
         ):
