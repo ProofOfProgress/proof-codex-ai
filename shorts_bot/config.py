@@ -113,10 +113,16 @@ class Settings(BaseSettings):
     video_max_duration_seconds: float = 58.0
     video_qc_blocks_upload: bool = True
 
+    # Jumpscare audio sting — layered on final seconds of voiceover at render
+    jumpscare_sting_enabled: bool = True
+    jumpscare_sting_seconds: float = 2.5
+    jumpscare_sting_gain: float = 2.2
+    jumpscare_sting_mix: float = 0.9
+
     # Gemini vision QC — sparse frames, one batched call (see vision_qc.py)
     vision_qc_enabled: bool = True
     vision_qc_blocks_upload: bool = True
-    vision_qc_min_score: float = 7.0
+    vision_qc_min_score: float = 7.5  # launch bar — bump to 8.0 for first uploads if needed
     vision_qc_max_frames: int = 5
     vision_qc_frame_width: int = 360
     vision_qc_jpeg_quality: int = 72

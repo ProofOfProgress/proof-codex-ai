@@ -1,4 +1,4 @@
-"""AI video prompt builder — Soft Continuity VISUAL DNA + 5-part clip framework.
+"""AI video prompt builder — Don't Blink horror VISUAL DNA + 5-part clip framework.
 
 See docs/AI_VIDEO_PROMPTING_RESEARCH.md for model tuning and hybrid stack guidance.
 """
@@ -16,7 +16,7 @@ ModelHint = Literal["kling", "runway", "veo", "pika", "luma", "hailuo", "auto"]
 
 @dataclass(frozen=True)
 class VideoTemplate:
-    """Production template — one cosy beat, one visible action."""
+    """Production template — one horror beat, one visible wrongness."""
 
     id: str
     name: str
@@ -29,7 +29,7 @@ class VideoTemplate:
     end_state: str
     duration_seconds: float = 4.0
     model_hint: ModelHint = "auto"
-    role: Literal["hook", "problem", "protocol", "payoff"] = "protocol"
+    role: Literal["hook", "escalation", "false_calm", "jumpscare"] = "escalation"
 
 
 @dataclass
@@ -49,165 +49,178 @@ class VideoPromptBrief:
 def visual_dna() -> str:
     """Paste unchanged into every clip prompt."""
     return (
-        "VISUAL DNA — Soft Continuity: "
-        "Style: polished minimal illustration, soft film grain, not photoreal, not 3D, not anime. "
-        "Palette: cream #F5EFE6, floor #E8DFD4, sage #9DB8A0, terracotta #C9A08A, lamp #F2D98A, rain #A8B8C8. "
-        "Lighting: warm floor lamp key, soft shadows, no fluorescent. "
-        "Composition: 9:16; action upper 55%; bottom 40% empty for captions + Shorts UI. "
-        "Faceless: hands, silhouettes from behind, POV only — no faces. "
-        "Motion: slow push-in or static; meditative, not TikTok frantic."
+        "VISUAL DNA — Don't Blink horror: "
+        "Style: cinematic photoreal horror still, film grain, harsh contrast, underexposed — not illustration, not anime. "
+        "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
+        "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
+        "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
+        "Faceless until scare beat: silhouettes, POV, phone screens, hallway depth — no identifiable faces until final lunge. "
+        "Motion: slow dread drift or locked static; final beat may snap fast toward camera."
     )
 
 
 def negative_block() -> str:
     return (
-        "no faces, no text, no watermark, no logos, morphing textures, camera shake, "
-        "extra fingers, horror, office fluorescent, photoreal skin, 3D render, anime"
+        "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
+        "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
+        "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood"
     )
 
 
 def templates() -> list[VideoTemplate]:
-    """Ten production templates — cosy mental-health Short beats."""
+    """Ten production templates — Don't Blink horror Short beats."""
     return [
         VideoTemplate(
-            id="sunday_couch_phone",
-            name="Sunday couch phone hook",
-            keywords=("sunday", "couch", "phone", "scroll", "check your phone"),
-            subject="Faceless silhouette on terracotta couch, phone glowing in lap",
-            action="Thumb hovers over lock screen, shoulders slightly hunched, rain on window",
-            camera="Medium static, locked tripod, slight vignette",
-            environment="Cream wall, rain-streaked window, sage throw, warm floor lamp glow",
-            style="Minimal illustration, soft grain, meditative Sunday dread",
-            end_state="Thumb still hovering, phone glow unchanged, rain visible",
-            duration_seconds=3.0,
+            id="mirror_blink",
+            name="Mirror delayed blink",
+            keywords=("mirror", "reflection", "blink", "blinked", "glass"),
+            subject="Bathroom mirror POV, your dark silhouette facing fogged glass",
+            action="You blink — reflection blinks one second late; eyes stay open when yours close",
+            camera="Medium static mirror POV, locked tripod, slight handheld micro-jitter on scare",
+            environment="Cold blue tile, black grout, underexposed vanity bulb flicker",
+            style="Uncanny reflection horror, photoreal, film grain, terrifying wrongness",
+            end_state="Reflection frozen mid-blink while real figure moves",
+            duration_seconds=4.0,
             model_hint="runway",
             role="hook",
         ),
         VideoTemplate(
-            id="timer_not_scroll",
-            name="Timer instead of scroll",
-            keywords=("timer", "scroll", "five minute", "5 minute", "instead of"),
-            subject="POV hands holding phone beside small kitchen timer",
-            action="Finger taps timer app start; phone screen dims as timer counts",
-            camera="Close medium static, hands in upper frame",
-            environment="Cosy kitchen nook, cream counter, mug edge in frame, lamp warmth",
-            style="Clean minimal illustration, one prop focus",
-            end_state="Timer digits visible, phone face-down beside it",
-            duration_seconds=4.0,
-            model_hint="pika",
-            role="protocol",
-        ),
-        VideoTemplate(
-            id="three_breaths",
-            name="Three breaths grounding",
-            keywords=("breath", "breathe", "inhale", "exhale", "ground"),
-            subject="Silhouette seated by floor lamp, blanket on shoulders",
-            action="Shoulders rise on inhale, fall on exhale — three slow cycles",
-            camera="Slow 10% push-in over 4s, locked after beat one",
-            environment="Calm lamp key light, cream wall, sage plant silhouette",
-            style="Meditative, soft shadows, minimal motion",
-            end_state="Shoulders at rest, lamp glow steady",
-            duration_seconds=5.0,
-            model_hint="kling",
-            role="protocol",
-        ),
-        VideoTemplate(
-            id="bed_3am",
-            name="3am bed insomnia",
-            keywords=("3am", "3 am", "can't sleep", "cant sleep", "insomnia", "wake"),
-            subject="Face-down on pillow POV, phone dark on nightstand",
-            action="Fingers curl blanket edge; subtle chest rise, no phone reach",
-            camera="Low static bedside angle, locked tripod",
-            environment="Soft night window #2A3040, dim lamp, cream bedding",
-            style="Quiet night illustration, not horror, adult loneliness",
-            end_state="Phone untouched, blanket held, breathing slowed",
-            duration_seconds=4.0,
-            model_hint="luma",
-            role="problem",
-        ),
-        VideoTemplate(
-            id="rainy_overthinking",
-            name="Rainy window overthinking",
-            keywords=("rain", "overthink", "grey", "window", "storm"),
-            subject="Silhouette at rain-streaked window, arms wrapped",
-            action="Raindrops slide; figure still, slight head tilt down",
-            camera="Medium static, window fills upper half",
-            environment="Rain glass #A8B8C8, cream room, terracotta couch edge",
-            style="Grey-day cosy, soft grain, contemplative",
-            end_state="Same pose, one new rain streak path",
-            duration_seconds=5.0,
-            model_hint="runway",
-            role="problem",
-        ),
-        VideoTemplate(
-            id="dreaded_text",
-            name="Before dreaded text reply",
-            keywords=("message", "text", "reply", "dreading", "open a message"),
-            subject="Hands on phone, notification banner blurred, on couch",
-            action="Thumb circles send button without pressing; hesitation loop",
-            camera="Close-up hands, locked, upper 50% of frame",
-            environment="Terracotta couch, throw, warm lamp, cream wall",
-            style="Tension without faces, minimal illustration",
-            end_state="Thumb lifted off screen, phone lowered slightly",
-            duration_seconds=4.0,
-            model_hint="kling",
-            role="hook",
-        ),
-        VideoTemplate(
-            id="door_party",
-            name="Door before party",
-            keywords=("party", "door", "walk in", "alone", "crowd"),
-            subject="Back-view silhouette at apartment door, coat on",
-            action="Hand on doorknob, frozen; shallow breath visible in shoulders",
-            camera="Medium static from behind, door centered upper frame",
-            environment="Warm hallway lamp, cream walls, muted coat terracotta",
-            style="Social anxiety beat, soft not dramatic",
-            end_state="Hand still on knob, door unopened",
+            id="security_cam_motion",
+            name="Security cam motion alone",
+            keywords=("security", "camera", "motion", "alone", "flagged", "cctv"),
+            subject="Grainy security cam overlay, empty living room night vision green",
+            action="Motion box appears in corner — nothing visible until box pulses once",
+            camera="Fixed high-corner CCTV angle, timestamp burn feel without readable text",
+            environment="Dark apartment, cold blue-black, furniture silhouettes",
+            style="Found-footage surveillance horror, low-res grain, dread",
+            end_state="Motion box locked on empty doorway",
             duration_seconds=3.5,
             model_hint="veo",
             role="hook",
         ),
         VideoTemplate(
-            id="shame_spiral_couch",
-            name="Shame spiral couch huddle",
-            keywords=("shame", "spiral", "huddle", "can't move", "cant move", "couch"),
-            subject="Curled silhouette on couch under throw, knees up",
-            action="Minimal rock forward then still; phone face-down on cushion",
-            camera="Wide medium static, figure left of center",
-            environment="Cosy couch, rain window, lamp glow, cream palette",
-            style="Low-spoon depression beat, gentle not melodramatic",
-            end_state="Figure slightly less curled, phone still down",
-            duration_seconds=4.5,
-            model_hint="kling",
-            role="problem",
-        ),
-        VideoTemplate(
-            id="mug_micro_win",
-            name="Low-spoon mug micro-win",
-            keywords=("mug", "tea", "micro-win", "one thing", "warm drink"),
-            subject="Hands wrapping terracotta mug, steam rising",
-            action="Steam curls upward; hands lift mug one inch, not drinking yet",
-            camera="Close static, mug centered upper third",
-            environment="Kitchen nook, cream counter, sage plant blur",
-            style="Small win ritual, warm and achievable",
-            end_state="Steam steady, mug held at chest height",
+            id="wrong_text_delivered",
+            name="Text delivered phone off",
+            keywords=("text", "message", "delivered", "phone", "notification", "read"),
+            subject="Phone screen close-up, message thread, face-down body in bed blur",
+            action="Delivered checkmark appears — phone was powered off; screen glows alone",
+            camera="Close macro on phone, shallow depth, upper 50% frame",
+            environment="Black bedroom, cold screen light on sheets, no warm tones",
+            style="Digital uncanny horror, photoreal phone UI shape without readable text",
+            end_state="Screen lit, room still dark, no hands on device",
             duration_seconds=3.5,
-            model_hint="pika",
-            role="protocol",
+            model_hint="kling",
+            role="hook",
         ),
         VideoTemplate(
-            id="payoff_lamp_still",
-            name="Payoff ring / lamp stillness",
-            keywords=("still here", "payoff", "minute", "ring", "lamp", "done"),
-            subject="Empty couch with warm lamp and faint thin ring on cushion",
-            action="Lamp flicker settles; room perfectly still, no figure",
-            camera="Slow 5% push-in to lamp, locked end",
-            environment="Cream wall, terracotta couch, sage throw folded",
-            style="Resolution stillness, CTA space in bottom 40%",
-            end_state="Lamp glow steady, ring faint, room calm",
-            duration_seconds=4.0,
+            id="knock_inside_closet",
+            name="Knock from inside closet",
+            keywords=("knock", "closet", "inside", "door", "wardrobe"),
+            subject="Closed closet door in narrow hallway, scratch marks on inside edge",
+            action="Door shudders once from within; handle does not move",
+            camera="Slow push-in down hallway toward door, low angle",
+            environment="Black hallway #0A0A0A, cold blue spill, deep shadow under door",
+            style="Domestic invasion dread, photoreal, silence before hit",
+            end_state="Door still, fresh scratch visible on inside jamb",
+            duration_seconds=4.5,
+            model_hint="luma",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="hallway_longer",
+            name="Hallway longer than yesterday",
+            keywords=("hallway", "longer", "stairs", "corridor", "steps"),
+            subject="Impossibly long apartment hallway, doors repeating into darkness",
+            action="Slow drift forward — end wall keeps receding, one new door appears",
+            camera="Steadicam drift forward, centered vanishing point",
+            environment="Liminal interior, cold blue walls, single buzzing fluorescent far away",
+            style="Spatial wrongness horror, Kubrick symmetry, terrifying",
+            end_state="Hallway longer than frame can hold, dark end unresolved",
+            duration_seconds=5.0,
             model_hint="runway",
-            role="payoff",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="photo_corner_figure",
+            name="Photo someone in corner",
+            keywords=("photo", "picture", "corner", "camera roll", "flash"),
+            subject="Phone gallery photo of your own room at night, wide angle",
+            action="Zoom into corner — faint tall silhouette not there when photo was taken",
+            camera="Screen-in-screen zoom, handheld micro shake",
+            environment="Dark room in photo, cold blue window spill, grain heavy",
+            style="Paranormal evidence horror, photoreal, subtle figure",
+            end_state="Silhouette sharper on pinch-zoom, room otherwise empty",
+            duration_seconds=4.0,
+            model_hint="pika",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="muted_call_breath",
+            name="Muted call breathing",
+            keywords=("muted", "call", "breathing", "phone", "silence"),
+            subject="Phone call UI dark mode, mute icon implied, ear POV dark room",
+            action="Waveform flat while slow breath audio implied visually via fog on glass",
+            camera="Close on phone + ear silhouette edge",
+            environment="Black room, phone screen only light, cold blue",
+            style="Audio-as-horror, claustrophobic, photoreal",
+            end_state="Breath rhythm visible as condensation pulse on window",
+            duration_seconds=4.0,
+            model_hint="hailuo",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="false_calm_static",
+            name="False calm hold",
+            keywords=("quiet", "still", "maybe", "nothing", "lag", "trick", "told yourself"),
+            subject="Same room as prior beat — now perfectly still, empty center frame",
+            action="Almost no motion — slow blink of light, hold tension, bait safety",
+            camera="Locked static wide, security-cam stillness",
+            environment="Underexposed interior, cold blue, deep black corners",
+            style="Hitchcock silence beat, dread without motion, photoreal",
+            end_state="Frame frozen calm, shadow unchanged",
+            duration_seconds=5.0,
+            model_hint="runway",
+            role="false_calm",
+        ),
+        VideoTemplate(
+            id="face_unlock_wrong",
+            name="Face unlock without looking",
+            keywords=("face unlock", "unlock", "looking", "screen", "selfie"),
+            subject="Phone lock screen POV, face ID scan animation implied",
+            action="Phone unlocks while you look away — screen shows your face staring back",
+            camera="POV phone in hand, tilt down to screen",
+            environment="Dark hallway reflection in glass, cold blue UI glow",
+            style="Digital possession horror, terrifying close-up",
+            end_state="Screen shows face you are not making",
+            duration_seconds=3.5,
+            model_hint="kling",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="jumpscare_lunge",
+            name="Final jumpscare lunge",
+            keywords=(
+                "lunged",
+                "scream",
+                "opened",
+                "behind you",
+                "turned",
+                "closet",
+                "mirror",
+                "grab",
+                "face",
+                "jumpscare",
+                "payoff",
+            ),
+            subject="Full-frame horror face or figure rushing from mirror/door/darkness",
+            action="Sudden fast lunge toward camera, motion blur, mouth open, eyes wide",
+            camera="Snap zoom or rapid dolly in, 9:16 full bleed scare",
+            environment="Black crush shadows, crimson accent, harsh flash",
+            style="Earned jumpscare, maximum terror, photoreal, not gore",
+            end_state="Face fills frame, motion peaked, cut on impact",
+            duration_seconds=3.0,
+            model_hint="hailuo",
+            role="jumpscare",
         ),
     ]
 
@@ -230,10 +243,10 @@ def match_template(*, topic: str, spoken_text: str = "") -> VideoTemplate:
         id="derived_horror",
         name=f"Derived horror — {scene[:40]}",
         keywords=(),
-        subject="Dark hallway or mirror or phone screen, faceless silhouette",
-        action=f"Slow uncanny motion: {scene}",
-        camera="Slow push-in or static locked, horror framing",
-        environment="Black and cold blue, film grain, empty room or liminal hallway",
+        subject="Dark hallway, mirror, phone screen, or closet — faceless POV",
+        action=f"Slow uncanny motion then wrong detail: {scene}",
+        camera="Slow push-in or locked static, horror framing, 9:16",
+        environment="Black and cold blue, film grain, liminal empty room",
         style="Cinematic horror, terrifying, photorealistic, no cosy palette",
         end_state="Shadow shifts or reflection wrong",
         duration_seconds=4.0,
@@ -246,11 +259,11 @@ def _model_suffix(hint: ModelHint) -> str:
     hints = {
         "kling": "Optimize for Kling 3: rich physics verbs, one coherent motion arc.",
         "runway": "Optimize for Runway Gen-4: mood-first, cinematic atmosphere.",
-        "veo": "Optimize for Veo 3.1: concise motion-forward, photoreal-adjacent still restrained.",
+        "veo": "Optimize for Veo 3.1: concise motion-forward, photoreal horror.",
         "pika": "Optimize for Pika: short stylized clip, minimal style keyword.",
         "luma": "Optimize for Luma Dream Machine: natural flowing sentence rhythm.",
-        "hailuo": "Optimize for Minimax Hailuo: narrative sentence, not keyword list.",
-        "auto": "Route: hook→Runway/Kling, protocol→Pika/Luma, payoff→Runway.",
+        "hailuo": "Optimize for Minimax Hailuo: narrative sentence, lunge on scare beats.",
+        "auto": "Route: hook→Runway/Veo, escalation→Kling/Luma, false calm→Runway static, jumpscare→Hailuo.",
     }
     return hints.get(hint, hints["auto"])
 
@@ -309,6 +322,11 @@ def build_video_prompt_briefs(
             end = seg.start_seconds + 5.0
 
         tmpl = match_template(topic=topic, spoken_text=seg.text)
+        if i == len(segments) - 1 and tmpl.role != "jumpscare":
+            jumpscare = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
+            if jumpscare:
+                tmpl = jumpscare
+
         prompt = segment_to_video_prompt(
             seg,
             topic=topic,

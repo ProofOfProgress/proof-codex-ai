@@ -11,21 +11,21 @@ from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 def test_visual_dna_has_palette_and_safe_zone():
     dna = visual_dna()
-    assert "F5EFE6" in dna
+    assert "0A0A0A" in dna
     assert "bottom 40%" in dna.lower()
-    assert "no faces" in dna.lower() or "Faceless" in dna
+    assert "horror" in dna.lower()
 
 
-def test_templates_count_and_sunday_match():
+def test_templates_count_and_mirror_match():
     all_t = templates()
     assert len(all_t) == 10
-    m = match_template(topic="the minute before you check your phone from the couch on Sunday")
-    assert m.id == "sunday_couch_phone"
+    m = match_template(topic="the mirror reflection blinked after you did")
+    assert m.id == "mirror_blink"
 
 
 def test_segment_prompt_includes_framework_parts():
-    seg = TranscriptSegment(0.0, "Your thumb hovers over the lock screen.", "00.00")
-    topic = "Sunday phone check from the couch"
+    seg = TranscriptSegment(0.0, "Your reflection blinked one second late.", "00.00")
+    topic = "mirror blink wrong reflection"
     prompt = segment_to_video_prompt(seg, topic=topic)
     assert "SUBJECT:" in prompt
     assert "ACTION:" in prompt
@@ -37,21 +37,31 @@ def test_segment_prompt_includes_framework_parts():
 
 def test_continuity_chain_links_clips():
     segs = [
-        TranscriptSegment(0.0, "On the couch.", "00.00"),
-        TranscriptSegment(4.0, "Three breaths.", "00.04"),
+        TranscriptSegment(0.0, "Motion flagged on security cam.", "00.00"),
+        TranscriptSegment(4.0, "You told yourself it was nothing.", "00.04"),
     ]
-    briefs = build_video_prompt_briefs(segs, topic="couch sunday phone", total_duration=10.0)
+    briefs = build_video_prompt_briefs(segs, topic="security cam alone", total_duration=10.0)
     assert len(briefs) == 2
     assert "CONTINUITY IN:" in briefs[1].prompt
     assert briefs[0].end_state in briefs[1].prompt
 
 
-def test_negative_block_bans_text_and_faces():
+def test_negative_block_bans_cosy_and_text():
     neg = negative_block()
     assert "no text" in neg
-    assert "no faces" in neg
+    assert "cosy" in neg
+    assert "stick figures" in neg
 
 
 def test_match_template_falls_back_to_derived():
     m = match_template(topic="something completely unrelated xyz", spoken_text="abstract notion")
     assert m.id == "derived_horror"
+
+
+def test_final_segment_uses_jumpscare_template():
+    segs = [
+        TranscriptSegment(0.0, "You heard a knock.", "00.00"),
+        TranscriptSegment(5.0, "You turned — it opened its mouth.", "00.05"),
+    ]
+    briefs = build_video_prompt_briefs(segs, topic="knock closet", total_duration=12.0)
+    assert briefs[-1].template_id == "jumpscare_lunge"

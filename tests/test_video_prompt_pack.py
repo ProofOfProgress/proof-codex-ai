@@ -11,13 +11,13 @@ from shorts_bot.production.video_prompt_pack import (
 
 def test_write_video_prompt_pack_creates_files(tmp_path: Path):
     segs = [
-        TranscriptSegment(0.0, "Thumb hovers over phone on couch.", "00.00"),
-        TranscriptSegment(4.0, "Three slow breaths.", "00.04"),
+        TranscriptSegment(0.0, "Motion flagged on your security cam.", "00.00"),
+        TranscriptSegment(4.0, "You told yourself it was nothing.", "00.04"),
     ]
     payload = write_video_prompt_pack(
         tmp_path,
         segs,
-        topic="Sunday phone check from the couch",
+        topic="security camera flagged motion you live alone",
         total_duration=10.0,
         hybrid_hook=True,
     )
@@ -30,33 +30,33 @@ def test_write_video_prompt_pack_creates_files(tmp_path: Path):
 
 def test_export_from_manifest(tmp_path: Path):
     manifest = {
-        "topic": "the minute before you check your phone from the couch on Sunday",
+        "topic": "the mirror reflection blinked one second after you did",
         "visual_style": "ai_video",
         "segments": [
             {
                 "start_seconds": 0.0,
                 "end_seconds": 3.0,
                 "filename": "00.00.png",
-                "spoken_text": "I used to get stuck there.",
+                "spoken_text": "You blinked at the mirror.",
             },
             {
                 "start_seconds": 3.0,
                 "end_seconds": 8.0,
                 "filename": "00.03.png",
-                "spoken_text": "Phone in hand, dread building.",
+                "spoken_text": "The reflection blinked late.",
             },
         ],
     }
     (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     payload = export_from_manifest(tmp_path, hybrid_hook=True)
-    assert payload["hook_template_id"] == "sunday_couch_phone"
+    assert payload["hook_template_id"] == "mirror_blink"
     assert len(payload["clips"]) == 2
 
 
-def test_hook_only_prompt_matches_sunday():
+def test_hook_only_prompt_matches_mirror():
     p = hook_only_prompt(
-        "the minute before you check your phone from the couch on Sunday",
-        "Thumb hovers.",
+        "the mirror reflection blinked one second after you did",
+        "You blinked.",
     )
     assert "SUBJECT:" in p
     assert "END STATE:" in p

@@ -12,21 +12,23 @@ from shorts_bot.drafts.quality import QualityReport, run_quality_checks
 from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
+from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 
 
-SYSTEM_PROMPT = """You write faceless YouTube Shorts using ONLY Jenny Hoyos course rules.
+SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
 
-CHANNEL VOICE: A real faceless creator — same struggles as the viewer, sharing what helped THEM (first person: I, my, I used to).
+CHANNEL VOICE: Second-person micro-story — "you" discover one impossible wrong detail. Tense, specific, not cosy.
+No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
 
-JENNY RULES:
-- Idea ↔ hook linked. Shock/curiosity hook. Start video ASAP — no warm-up.
-- Every line → payoff. Cause-and-effect (but/so). End right after payoff.
-- Mute-safe: 3-5 visual_beats (stick figure actions per beat).
-- Singular "you". CTA before payoff if subscribe mention.
-- No slop, no "hey guys", no guru lecture mode.
-- ~30-45 seconds spoken. 9:16 faceless.
+STRUCTURE (earn the jumpscare):
+- Line 1 = impossible hook (timestamp glitch, wrong reflection, text from dead contact)
+- 6-8 beats: each line adds a worse wrong detail (cause → effect, but/so chaining)
+- Beat 6-7: false calm — shorter lines, quiet dread, bait the swipe
+- Final line cues the visual jumpscare (door opens, face lunges, mirror blinks) — then STOP
+- Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
+- Singular "you". ~70-110 words spoken. 9:16 faceless horror.
 
-Return JSON: hook, script, help_angle, visual_beats (list of 3-5 stick-figure scene descriptions)."""
+Return JSON: hook, script, help_angle (one sentence: scare type + why hook is impossible), visual_beats (6-8 horror scene descriptions)."""
 
 
 @dataclass
@@ -76,6 +78,14 @@ class DraftGenerator:
                 parts.append(block)
         return "\n\n".join(parts) if parts else "No approval history yet."
 
+    def _horror_course_context(self, topic: str) -> str:
+        base = f"HORROR FORMAT (Don't Blink):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+        if self.router:
+            from shorts_bot.production.jenny_checks import jenny_retention_guidance
+
+            base += f"\n\nRETENTION (Jenny-adapted for horror):\n{jenny_retention_guidance(topic)}"
+        return base
+
     def generate(
         self,
         topic: str,
@@ -86,11 +96,7 @@ class DraftGenerator:
         if self.client is None:
             return self._generate_offline(topic, angle)
 
-        course_ctx = ""
-        if self.router:
-            from shorts_bot.production.jenny_checks import jenny_draft_guidance
-
-            course_ctx = jenny_draft_guidance(topic)
+        course_ctx = self._horror_course_context(topic)
 
         research_block = ""
         if research is not None:
@@ -101,20 +107,21 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Soft Continuity — warm help, first-person):
+CHANNEL BRAND (Don't Blink — terrifying faceless horror, jumpscare at end):
 {self.brand.draft_instructions()[:1800]}
 
-ENDING RULE: Stop right after the payoff (one concrete action landed). Do NOT end the script with
-"you're still here" / "you're still here. good." — that tagline is channel metadata only, not voiceover.
+ENDING RULE: Final spoken line cues the jumpscare, then STOP. No explanation after the scare.
+Do NOT end with channel taglines ("watch the whole thing") — those are metadata only, not voiceover.
+Do NOT use cosy self-help tone, stick figures, or generic "scary story #12" framing.
 
-JENNY COURSE RULES FOR THIS DRAFT:
+FORMAT RULES FOR THIS DRAFT:
 {course_ctx}
 
 Return JSON with keys:
-- hook: first spoken line
-- script: full voiceover script
-- help_angle: one sentence on who this helps and how
-- visual_beats: list of 3-5 visual shot descriptions (mute-friendly)
+- hook: first spoken line (impossible detail)
+- script: full voiceover script (25-35s when read aloud)
+- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook is impossible
+- visual_beats: list of 6-8 cinematic horror shot descriptions (mute-friendly, one per beat)
 """
         response = self.client.chat.completions.create(
             model=self.model,
@@ -123,14 +130,14 @@ Return JSON with keys:
                 {"role": "user", "content": user_prompt},
             ],
             response_format={"type": "json_object"},
-            temperature=0.8,
+            temperature=0.85,
         )
         payload = json.loads(response.choices[0].message.content or "{}")
         hook = str(payload.get("hook", "")).strip()
         script = str(payload.get("script", "")).strip()
         help_angle = str(payload.get("help_angle", "")).strip()
         beats_raw = payload.get("visual_beats") or []
-        visual_beats = [str(b).strip() for b in beats_raw if str(b).strip()][:6]
+        visual_beats = [str(b).strip() for b in beats_raw if str(b).strip()][:8]
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(
             topic=topic,
@@ -142,19 +149,28 @@ Return JSON with keys:
         )
 
     def _generate_offline(self, topic: str, angle: str | None) -> GeneratedDraft:
-        hook = f"I used to lose sleep over {topic}. Same loop every night."
+        hook = "You blinked at the mirror — your reflection blinked one second later."
         script = (
             f"{hook} "
-            f"So here's what I do now before I make it worse. "
-            f"{(angle or 'One small thing that actually helped me')}. "
-            f"I still slip sometimes — but this shortens the spiral. "
-            f"Try it once tonight — one breath before {topic}."
+            "You stepped closer and the glass stayed still, but the eyes in it didn't. "
+            "You raised your phone to record proof and the screen showed an empty bathroom. "
+            "You looked up — the reflection was already facing the door behind you. "
+            "The hallway light flickered off. "
+            "You told yourself it was a lag, a trick of tired eyes. "
+            "You turned to leave. "
+            f"{(angle or 'The thing in the mirror opened its mouth the moment you looked away')}."
         )
-        help_angle = f"I share what helped me with {topic} — for anyone in the same loop."
+        help_angle = (
+            f"Wrong-reflection jumpscare — impossible timing on {topic} hooks viewers who trust mirrors."
+        )
         visual_beats = [
-            f"stick figure stressed about {topic}",
-            "taking one slow breath",
-            "small calm gesture — try this",
+            "POV bathroom mirror, cold blue light, your silhouette facing glass",
+            "Reflection eyes blink delayed — one frame wrong",
+            "Phone screen recording shows empty room while mirror still has figure",
+            "Reflection turned toward hallway door you have not opened yet",
+            "Hallway light dies — long dark corridor, slow drift",
+            "False calm: static mirror, quiet hold, empty frame",
+            "Full-frame face lunge from mirror surface toward camera",
         ]
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(

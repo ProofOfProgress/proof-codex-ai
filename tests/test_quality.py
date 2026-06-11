@@ -3,39 +3,44 @@ from shorts_bot.drafts.quality import run_quality_checks
 
 def test_quality_rejects_slop():
     report = run_quality_checks(
-        topic="focus",
-        hook="x",
-        script="In today's fast-paced world you need focus.",
-        help_angle="Helps students focus better during study sessions.",
+        topic="mirror blink",
+        hook="Something scary happened.",
+        script="In today's fast-paced world you hear scary stories about mirrors.",
+        help_angle="Generic ghost story for anyone who likes horror.",
     )
     assert not report.passed
     assert any("Slop" in issue for issue in report.issues)
 
 
-def test_quality_warns_tagline_outro():
+def test_quality_rejects_cosy_tone():
     report = run_quality_checks(
         topic="sleep",
-        hook="I wake at 3am every night.",
+        hook="You wake at 3am every night.",
         script=(
-            "I wake at 3am and my brain won't stop. "
-            "Phone stays dark, one breath, name the thought. "
-            "You're still here. Good."
+            "You wake at 3am and your brain won't stop. "
+            "Try one breath and a cosy self-care protocol before bed. "
+            "You told yourself it was nothing. "
+            "You turned — the closet door opened behind you."
         ),
-        help_angle="Helps night owls shorten the 3am spiral with one pre-sleep reset.",
+        help_angle="Reflection scare — mirror blink timing is impossible.",
     )
-    assert any("tagline" in w.lower() for w in report.warnings)
+    assert not report.passed
+    assert any("cosy" in issue.lower() or "self-help" in issue.lower() for issue in report.issues)
 
 
-def test_quality_passes_solid_draft():
+def test_quality_passes_solid_horror_draft():
     report = run_quality_checks(
-        topic="focus",
-        hook="Your brain isn't lazy — your setup is.",
+        topic="mirror blink",
+        hook="You blinked at the mirror — your reflection blinked one second later.",
         script=(
-            "Your brain isn't lazy — your setup is. "
-            "Before you study, clear one surface, set a 10-minute timer, and put your phone in another room. "
-            "Pick one task, start ugly, and let momentum do the rest instead of waiting for perfect focus. "
-            "One small reset beats another hour of fake productivity."
+            "You blinked at the mirror — your reflection blinked one second later. "
+            "You stepped closer and the glass stayed still, but the eyes in it didn't. "
+            "You raised your phone to record proof and the screen showed an empty bathroom. "
+            "You looked up — the reflection was already facing the door behind you. "
+            "The hallway light flickered off. "
+            "You told yourself it was a lag, a trick of tired eyes. "
+            "You turned to leave — and the thing in the mirror opened its mouth."
         ),
-        help_angle="Helps overwhelmed students start focused study without relying on motivation.",
+        help_angle="Wrong-reflection jumpscare — delayed blink is physically impossible.",
     )
     assert report.passed

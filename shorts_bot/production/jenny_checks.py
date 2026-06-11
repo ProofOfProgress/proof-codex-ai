@@ -14,6 +14,19 @@ _FIRST_PERSON = re.compile(
 )
 
 
+def jenny_retention_guidance(topic: str) -> str:
+    """Hook/retention rules adapted for Don't Blink horror (not cosy self-help)."""
+    return f"""Topic: {topic}
+- Hook line 1 = impossible detail (not "scary story #N")
+- Start video immediately — no warm-up, no channel intro
+- Every beat adds a worse wrong detail (but/so cause-effect)
+- False calm beat before final scare — quiet VO bait
+- Payoff = jumpscare cue in final line, then stop (no explanation)
+- Mute-safe: each beat must read as a distinct horror shot
+- Singular "you"; captions in upper safe zone (Jenny 05)
+"""
+
+
 def jenny_draft_guidance(topic: str) -> str:
     from shorts_bot.course.router import CourseRouter
 

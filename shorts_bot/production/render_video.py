@@ -16,6 +16,55 @@ class RenderedVideo:
     message: str
 
 
+def _mix_jumpscare_sting(audio_path: Path, *, duration: float) -> Path:
+    """Layer a synthetic noise sting on the final beats of the voiceover."""
+    from shorts_bot.config import settings
+
+    if not settings.jumpscare_sting_enabled or duration <= 1.0:
+        return audio_path
+
+    sting_dur = min(settings.jumpscare_sting_seconds, duration * 0.45)
+    sting_start = max(0.0, duration - sting_dur)
+    delay_ms = int(sting_start * 1000)
+    fade_out_start = max(0.08, sting_dur - 0.18)
+    sting_src = (
+        f"anoisesrc=color=white:duration={sting_dur:.3f}:sample_rate=48000,"
+        f"highpass=f=900,lowpass=f=9000,volume={settings.jumpscare_sting_gain},"
+        f"afade=t=in:st=0:d=0.04,afade=t=out:st={fade_out_start:.3f}:d=0.16"
+    )
+    filter_complex = (
+        f"[1:a]adelay={delay_ms}|{delay_ms}[sting];"
+        f"[0:a][sting]amix=inputs=2:duration=first:dropout_transition=0:"
+        f"weights=1 {settings.jumpscare_sting_mix}[out]"
+    )
+    out_path = audio_path.parent / "_voiceover_stung.mp3"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(audio_path),
+            "-f",
+            "lavfi",
+            "-i",
+            sting_src,
+            "-filter_complex",
+            filter_complex,
+            "-map",
+            "[out]",
+            "-c:a",
+            "libmp3lame",
+            "-b:a",
+            f"{settings.video_audio_bitrate_k}k",
+            str(out_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return out_path
+
+
 def _probe_duration(audio_path: Path) -> float:
     out = subprocess.check_output(
         [
@@ -256,6 +305,9 @@ def render_short_video(
 
     images_dir = pack_dir / "images"
     audio_duration = _probe_duration(audio_path)
+    audio_path = _mix_jumpscare_sting(audio_path, duration=audio_duration)
+    if audio_path.name == "_voiceover_stung.mp3":
+        audio_duration = _probe_duration(audio_path)
     durations = _scaled_durations(segments, audio_duration)
 
     out_path = pack_dir / output_name

@@ -238,12 +238,12 @@ def _gemini_vision_review(
     model = (settings.gemini_vision_model or settings.gemini_model).strip()
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
     prompt = (
-        "QC this YouTube Short (stick figure + burned captions). "
+        "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions). "
         f"Frames in order at: {labels}. Topic: {topic[:80]}. Hook: {hook[:100]}.\n"
         "Return ONLY JSON keys: score (1-10), pass (bool), issues (string[]), warnings (string[]), "
-        "hook_clear, captions_safe, figure_visible (bools). "
-        "Fail pass=false if captions sit in bottom 25%, figure missing, unreadable text, "
-        "or hook frame has no visual interest."
+        "hook_clear, captions_safe, horror_visible, no_cosy_aesthetic, scare_potential (bools). "
+        "Fail pass=false if captions sit in bottom 25%, scene looks cosy/warm/self-help, stick figures, "
+        "bright daylight cheer, hook frame lacks dread, or final-frame scare potential is weak."
     )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
@@ -336,7 +336,7 @@ def run_vision_qc(
             passed = bool(data.get("pass", score >= settings.vision_qc_min_score))
             issues.extend(str(x) for x in (data.get("issues") or []) if x)
             warnings.extend(str(x) for x in (data.get("warnings") or []) if x)
-            for key in ("hook_clear", "captions_safe", "figure_visible"):
+            for key in ("hook_clear", "captions_safe", "horror_visible", "no_cosy_aesthetic", "scare_potential"):
                 if key in data:
                     checks[key] = bool(data[key])
             if score < settings.vision_qc_min_score:
