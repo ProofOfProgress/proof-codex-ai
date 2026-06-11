@@ -34,6 +34,32 @@ def main() -> None:
     review = run_production_review(
         video, pack_dir, use_cache=not args.no_cache, deep=args.deep
     )
+
+    if args.deep and settings.self_training_enabled:
+        from shorts_bot.learning.reflect import reflect_after_production_review
+        from shorts_bot.memory.extensions import MemoryExtensions
+        from shorts_bot.memory.store import MemoryStore
+
+        mem = MemoryExtensions(MemoryStore(settings.database_path))
+        manifest_path = pack_dir / "manifest.json"
+        topic = ""
+        if manifest_path.exists():
+            import json
+
+            topic = str(json.loads(manifest_path.read_text(encoding="utf-8")).get("topic") or "")
+        msg = reflect_after_production_review(
+            mem,
+            draft_id=args.draft_id,
+            topic=topic,
+            score=review.score,
+            production_score=review.production_score,
+            fixes=review.fixes,
+            phone_ui_issues=review.phone_ui_issues,
+            visual_glitches=review.visual_glitches,
+        )
+        if msg:
+            console.print(f"\n[magenta]Self-learning:[/magenta] {msg[:220]}…")
+
     console.print(
         f"[bold]Score {review.score:.0f}/100[/bold] "
         f"(concept {review.concept_score:.0f}, production {review.production_score:.0f})"

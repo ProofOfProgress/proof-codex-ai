@@ -26,7 +26,9 @@ def test_sting_start_couple_seconds_before_end():
     assert 24.0 <= t <= 26.0
 
 
-def test_sting_aligns_to_finale_segment_flash():
+def test_sting_aligns_to_finale_segment_flash(monkeypatch):
+    from shorts_bot.config import settings
+
     plan = plan_for_draft(5, 9)
     segments = [
         {"start_seconds": 0.0, "end_seconds": 20.0},
@@ -41,10 +43,17 @@ def test_sting_aligns_to_finale_segment_flash():
         volume_warning=plan.volume_warning,
         creator_note=plan.creator_note,
     )
+    monkeypatch.setattr(settings, "jumpscare_dedicated_clip", False)
     t = sting_start_seconds(plan, segments=segments, total_duration=27.4)
     assert t is not None
     # flash at 27.12 (27.4 - 0.28), sting ~0.06s before
     assert 26.9 <= t <= 27.15
+
+    monkeypatch.setattr(settings, "jumpscare_dedicated_clip", True)
+    t2 = sting_start_seconds(plan, segments=segments, total_duration=27.4)
+    assert t2 is not None
+    # dedicated clip: setup hold then lunge onset inside finale segment
+    assert 24.5 <= t2 <= 25.2
 
 
 def test_no_sting_on_suspense_replay():

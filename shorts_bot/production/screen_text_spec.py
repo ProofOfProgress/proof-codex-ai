@@ -79,7 +79,9 @@ def infer_overlay_from_spoken(
             tertiary="MOTION",
             accent="#39FF14",
         )
-    if "open the app" in lower:
+    if "live alone" in lower and "open" not in lower:
+        return None
+    if "open the app" in lower or "opened the app" in lower:
         return ScreenTextOverlay(
             kind="phone_feed",
             primary="Opening Security…",

@@ -35,6 +35,8 @@ def test_phone_ui_not_in_top_quarter_of_frame():
 
 
 def test_render_phone_feed_png_has_pixels_in_device_zone(tmp_path):
+    from shorts_bot.production.screen_text_overlay import phone_layout
+
     spec = ScreenTextOverlay(
         kind="phone_feed",
         primary="Hallway Camera",
@@ -44,7 +46,27 @@ def test_render_phone_feed_png_has_pixels_in_device_zone(tmp_path):
     path = save_overlay_png(spec, tmp_path / "phone.png")
     assert path.exists() and path.stat().st_size > 500
     img = render_overlay_rgba(spec)
-    assert img.getpixel((540, 700))[3] > 0
+    lay = phone_layout()
+    sx, sy, _, _ = lay.screen
+    assert img.getpixel((sx + 40, sy + 80))[3] > 0
+
+
+def test_screen_only_overlay_png_is_screen_sized(tmp_path):
+    from shorts_bot.production.screen_text_overlay import (
+        phone_layout,
+        render_screen_overlay_rgba,
+    )
+
+    spec = ScreenTextOverlay(
+        kind="phone_feed",
+        primary="Hallway Camera",
+        secondary="3:12 AM",
+        feed_state="empty",
+    )
+    lay = phone_layout()
+    _, _, sw, sh = lay.screen
+    screen_img = render_screen_overlay_rgba(spec)
+    assert screen_img.size == (sw, sh)
 
 
 def test_apply_overlay_runs_ffmpeg(tmp_path):

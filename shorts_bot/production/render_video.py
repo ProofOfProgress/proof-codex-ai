@@ -351,12 +351,16 @@ def _render_from_video_clips(
     jumpscare_segment_index: int | None = None,
     suspense_replay: bool = False,
     screen_text_specs: list | None = None,
+    caption_segments: list[dict] | None = None,
+    hook: str = "",
+    topic: str = "",
 ) -> Path:
     from shorts_bot.config import settings
     from shorts_bot.production.screen_text_overlay import maybe_apply_screen_text
 
     tmp_dir.mkdir(parents=True, exist_ok=True)
     overlay_specs = screen_text_specs or []
+    captions = caption_segments or []
     clip_paths: list[Path] = []
     still_fallbacks = 0
     last_i = len(segments) - 1
@@ -431,12 +435,16 @@ def _render_from_video_clips(
             )
             still_fallbacks += 1
         spec = overlay_specs[i] if i < len(overlay_specs) else None
-        if settings.screen_text_overlay_enabled and spec is not None:
+        if settings.screen_text_overlay_enabled and (spec is not None or captions):
             clip = maybe_apply_screen_text(
                 clip,
                 spec,
                 tmp_dir=tmp_dir,
                 segment_index=i,
+                segment=seg,
+                captions=captions if captions else None,
+                hook=hook,
+                topic=topic,
             )
         clip_paths.append(clip)
     if still_fallbacks:
@@ -609,6 +617,9 @@ def render_short_video(
             jumpscare_segment_index=jumpscare_segment_index,
             suspense_replay=suspense_replay,
             screen_text_specs=screen_specs,
+            caption_segments=caption_segments,
+            hook=str(manifest.get("hook") or ""),
+            topic=str(manifest.get("topic") or ""),
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []

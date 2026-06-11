@@ -1,4 +1,4 @@
-"""Composited diegetic UI text — all phone UI drawn inside the device screen."""
+"""Composited diegetic UI text — screen-only on I2V phone display (no fake bezel)."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ from pathlib import Path
 from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
 from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
-# POV phone in hands — centered lower-mid (matches I2V clips)
-_PHONE_X, _PHONE_Y, _PHONE_W, _PHONE_H = 140, 300, 800, 1180
+# I2V phone display rect — matches POV clips; no composited chassis in screen-only mode
+_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H = 248, 468, 584, 876
 _GIBBERISH_SCRUB = (380, 1580, 700, 340)
 
 
@@ -23,7 +23,11 @@ class PhoneLayout:
 
     @property
     def screen(self) -> tuple[int, int, int, int]:
-        """Inner display rect (inset from bezel)."""
+        """Inner display rect — equals layout in screen-only mode."""
+        from shorts_bot.config import settings
+
+        if settings.screen_text_screen_only:
+            return (self.x, self.y, self.w, self.h)
         inset_x, inset_y = 28, 72
         return (
             self.x + inset_x,
@@ -34,7 +38,11 @@ class PhoneLayout:
 
 
 def phone_layout(*, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> PhoneLayout:
-    return PhoneLayout(_PHONE_X, _PHONE_Y, _PHONE_W, _PHONE_H)
+    from shorts_bot.config import settings
+
+    if settings.screen_text_screen_only:
+        return PhoneLayout(_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H)
+    return PhoneLayout(140, 300, 800, 1180)
 
 
 def _font(size: int, *, bold: bool = False):
@@ -83,17 +91,28 @@ def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, in
     regions: list[tuple[int, int, int, int, float]] = [(gx, gy, gw, gh, 0.94)]
     if spec is None:
         return regions
-    norm = normalize_overlay_spec(spec) if spec else None
+    norm = normalize_overlay_spec(spec)
     if norm and norm.kind in {"phone_feed", "message_bubble"}:
         lay = phone_layout()
-        regions.append((lay.x, lay.y, lay.w, lay.h, 0.93))
+        sx, sy, sw, sh = lay.screen
+        from shorts_bot.config import settings
+
+        if settings.screen_text_screen_only:
+            regions.append((sx, sy, sw, sh, 0.90))
+        else:
+            regions.append((lay.x, lay.y, lay.w, lay.h, 0.93))
     if norm and norm.kind == "cctv_hud":
         regions.append((FRAME_WIDTH - 400, 1520, 400, 360, 0.85))
     return regions
 
 
-def _scrub_vf_chain(spec: ScreenTextOverlay | None) -> str:
+def _scrub_vf_chain(spec: ScreenTextOverlay | None, *, local: bool = False) -> str:
     parts: list[str] = []
+    if local and spec is not None and _is_phone_overlay(spec):
+        from shorts_bot.config import settings
+
+        if settings.screen_text_screen_only:
+            return "drawbox=x=0:y=0:w=iw:h=ih:color=black@0.88:t=fill"
     for x, y, w, h, alpha in scrub_regions_for_spec(spec):
         parts.append(f"drawbox=x={x}:y={y}:w={w}:h={h}:color=black@{alpha}:t=fill")
     return ",".join(parts)
@@ -112,7 +131,22 @@ def render_overlay_rgba(
 ) -> "Image.Image":
     from PIL import Image, ImageDraw
 
+    from shorts_bot.config import settings
+
     spec = normalize_overlay_spec(spec)
+    if settings.screen_text_screen_only and _is_phone_overlay(spec):
+        lay = phone_layout(width=width, height=height)
+        sx, sy, sw, sh = lay.screen
+        canvas = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(canvas)
+        if spec.kind == "phone_feed":
+            _draw_phone_screen_content(draw, spec, sw=sw, sh=sh)
+        elif spec.kind == "message_bubble":
+            _draw_message_on_screen(draw, spec, sw=sw, sh=sh)
+        full = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        full.paste(canvas, (sx, sy))
+        return full
+
     canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
 
@@ -139,6 +173,22 @@ def render_overlay_rgba(
     return canvas
 
 
+def render_screen_overlay_rgba(spec: ScreenTextOverlay) -> "Image.Image":
+    """Screen-sized RGBA for region-local ffmpeg overlay."""
+    from PIL import Image, ImageDraw
+
+    spec = normalize_overlay_spec(spec)
+    lay = phone_layout()
+    _, _, sw, sh = lay.screen
+    canvas = Image.new("RGBA", (sw, sh), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(canvas)
+    if spec.kind == "phone_feed":
+        _draw_phone_screen_content(draw, spec, sw=sw, sh=sh)
+    elif spec.kind == "message_bubble":
+        _draw_message_on_screen(draw, spec, sw=sw, sh=sh)
+    return canvas
+
+
 def _draw_phone_chassis(draw, lay: PhoneLayout) -> tuple[int, int, int, int]:
     px, py, pw, ph = lay.x, lay.y, lay.w, lay.h
     draw.rounded_rectangle(
@@ -154,7 +204,6 @@ def _draw_phone_chassis(draw, lay: PhoneLayout) -> tuple[int, int, int, int]:
         radius=28,
         fill=(4, 4, 6, 255),
     )
-    # Dynamic island / notch inside bezel only
     notch_w, notch_h = 180, 34
     nx = px + pw // 2 - notch_w // 2
     draw.rounded_rectangle(
@@ -166,7 +215,6 @@ def _draw_phone_chassis(draw, lay: PhoneLayout) -> tuple[int, int, int, int]:
 
 
 def _draw_inscreen_status_bar(draw, sx: int, sy: int, sw: int, time_lbl: str) -> int:
-    """Status row inside the phone screen — returns y below bar."""
     draw.text((sx + 16, sy + 8), time_lbl or "3:12 AM", fill="#EBEBF5", font=_font(18))
     draw.text((sx + sw - 72, sy + 8), "5G", fill="#EBEBF5", font=_font(16, bold=True))
     draw.rectangle([sx + 8, sy + 36, sx + sw - 8, sy + 38], fill=(40, 40, 44, 255))
@@ -195,7 +243,6 @@ def _draw_inscreen_banner(
     accent: str,
     y: int,
 ) -> None:
-    """Notification banner INSIDE the phone display — not floating on the frame."""
     bh = 88
     draw.rounded_rectangle(
         [sx + 12, y, sx + sw - 12, y + bh],
@@ -250,6 +297,121 @@ def _draw_hallway_feed(
     draw.text((sx + sw - 100, sy + 8), time_lbl, fill=green, font=_font(16, bold=True))
     if label:
         draw.text((sx + 12, sy + sh - 28), label, fill=green, font=_font(16, bold=True))
+
+
+def _draw_phone_screen_content(
+    draw,
+    spec: ScreenTextOverlay,
+    *,
+    sw: int,
+    sh: int,
+) -> None:
+    """Draw feed UI in local screen coordinates (0,0)–(sw,sh)."""
+    time_lbl = spec.time_label or spec.secondary or "3:12 AM"
+    green = spec.accent
+    state = spec.feed_state or "empty"
+
+    if state == "app_opening":
+        y = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
+        y = _draw_security_app_header(draw, 0, y + 8, sw, spec.accent)
+        _draw_inscreen_banner(
+            draw,
+            0,
+            0,
+            sw,
+            title=spec.primary or "Opening Security…",
+            subtitle=spec.secondary or "Hallway Camera",
+            accent=spec.accent,
+            y=y + 12,
+        )
+        draw.text((sw // 2 - 40, sh - 80), "Loading feed…", fill="#636366", font=_font(18))
+        return
+
+    if state == "live_audio":
+        feed_top = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
+        feed_h = sh - feed_top - 100
+        _draw_hallway_feed(
+            draw,
+            0,
+            feed_top,
+            sw,
+            feed_h,
+            with_figure=False,
+            green=green,
+            time_lbl=time_lbl,
+            label="LIVE",
+        )
+        _draw_inscreen_banner(
+            draw,
+            0,
+            0,
+            sw,
+            title="Live Audio",
+            subtitle=spec.secondary or "Tap detected",
+            accent=spec.accent,
+            y=sh - 92,
+        )
+        return
+
+    if state == "motion_banner":
+        feed_top = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
+        y = _draw_security_app_header(draw, 0, feed_top + 4, sw, "#FF453A")
+        _draw_inscreen_banner(
+            draw,
+            0,
+            0,
+            sw,
+            title=spec.primary or "Motion Detected",
+            subtitle=spec.secondary or "Hallway Camera",
+            accent="#FF453A",
+            y=y + 4,
+        )
+        feed_top2 = y + 100
+        feed_h = sh - feed_top2 - 8
+        _draw_hallway_feed(
+            draw,
+            0,
+            feed_top2,
+            sw,
+            feed_h,
+            with_figure=False,
+            green=green,
+            time_lbl=time_lbl,
+            label="LIVE",
+        )
+        return
+
+    feed_top = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
+    _draw_hallway_feed(
+        draw,
+        0,
+        feed_top,
+        sw,
+        sh - feed_top,
+        with_figure=state == "figure_closer",
+        green=green,
+        time_lbl=time_lbl,
+        label=spec.tertiary or ("MOTION" if state == "figure_closer" else "LIVE"),
+    )
+
+
+def _draw_message_on_screen(draw, spec: ScreenTextOverlay, *, sw: int, sh: int) -> None:
+    y = _draw_inscreen_status_bar(draw, 0, 0, sw, spec.secondary or "3:12 AM")
+    text = spec.primary
+    font = _font(26)
+    lines = [text[i : i + 24] for i in range(0, len(text), 24)][:3]
+    line_h = 34
+    bh = 24 + len(lines) * line_h + 20
+    by = y + 20
+    draw.rounded_rectangle(
+        [16, by, sw - 16, by + bh],
+        radius=20,
+        fill=(48, 48, 52, 250),
+    )
+    ty = by + 16
+    for ln in lines:
+        draw.text((28, ty), ln, fill="#FFFFFF", font=font)
+        ty += line_h
 
 
 def _draw_phone_device(draw, spec: ScreenTextOverlay, *, width: int, height: int) -> None:
@@ -329,7 +491,6 @@ def _draw_phone_device(draw, spec: ScreenTextOverlay, *, width: int, height: int
         )
         return
 
-    # Camera feed states (empty / figure closer)
     feed_top = _draw_inscreen_status_bar(draw, sx, sy, sw, time_lbl)
     _draw_hallway_feed(
         draw,
@@ -378,11 +539,13 @@ def _draw_cctv_hud(draw, spec: ScreenTextOverlay, *, width: int, height: int) ->
 
 
 def save_overlay_png(spec: ScreenTextOverlay, path: Path) -> Path:
-    from PIL import Image
+    from shorts_bot.config import settings
 
-    img = render_overlay_rgba(spec)
     path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(path, "PNG")
+    if settings.screen_text_screen_only and _is_phone_overlay(spec):
+        render_screen_overlay_rgba(normalize_overlay_spec(spec)).save(path, "PNG")
+    else:
+        render_overlay_rgba(spec).save(path, "PNG")
     return path
 
 
@@ -393,15 +556,31 @@ def apply_overlay_to_video(
     *,
     spec: ScreenTextOverlay | None = None,
 ) -> Path:
+    from shorts_bot.config import settings
+
     dest.parent.mkdir(parents=True, exist_ok=True)
-    scrub = _scrub_vf_chain(spec)
-    if spec is not None and _is_phone_overlay(spec):
+    lay = phone_layout()
+    sx, sy, sw, sh = lay.screen
+
+    if spec is not None and _is_phone_overlay(spec) and settings.screen_text_screen_only:
+        scrub = _scrub_vf_chain(spec, local=True)
+        vf = (
+            f"[0:v]split[base][cropin];"
+            f"[cropin]crop={sw}:{sh}:{sx}:{sy},{scrub},"
+            f"gblur=sigma=5,eq=brightness=-0.04:saturation=0.85[scrub];"
+            f"[scrub][1:v]overlay=0:0[screen];"
+            f"[base][screen]overlay={sx}:{sy}[out]"
+        )
+    elif spec is not None and _is_phone_overlay(spec):
+        scrub = _scrub_vf_chain(spec)
         vf = (
             f"[0:v]{scrub},gblur=sigma=12,eq=brightness=-0.1:saturation=0.75[scrub];"
             f"[scrub][1:v]overlay=0:0:format=auto[out]"
         )
     else:
+        scrub = _scrub_vf_chain(spec)
         vf = f"[0:v]{scrub}[scrub];[scrub][1:v]overlay=0:0:format=auto[out]"
+
     subprocess.run(
         [
             "ffmpeg",
@@ -456,14 +635,141 @@ def apply_caption_scrub_only(video_path: Path, dest: Path) -> Path:
     return dest
 
 
+def _trim_clip_segment(src: Path, dest: Path, *, start: float, duration: float) -> Path:
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-ss",
+            f"{start:.4f}",
+            "-i",
+            str(src.resolve()),
+            "-t",
+            f"{duration:.4f}",
+            "-an",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-pix_fmt",
+            "yuv420p",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return dest
+
+
+def _concat_clips(parts: list[Path], dest: Path) -> Path:
+    list_file = dest.parent / f"concat_{dest.stem}.txt"
+    list_file.write_text(
+        "\n".join(f"file '{p.resolve()}'" for p in parts),
+        encoding="utf-8",
+    )
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(list_file),
+            "-c",
+            "copy",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return dest
+
+
+def _caption_slices_for_segment(
+    segment: dict,
+    captions: list[dict],
+) -> list[tuple[float, float, str]]:
+    seg_start = float(segment.get("start_seconds", 0))
+    seg_end = float(segment.get("end_seconds", seg_start))
+    slices: list[tuple[float, float, str]] = []
+    for cap in captions:
+        c0 = float(cap.get("start_seconds", 0))
+        c1 = float(cap.get("end_seconds", c0))
+        overlap_start = max(seg_start, c0)
+        overlap_end = min(seg_end, c1)
+        if overlap_end - overlap_start < 0.08:
+            continue
+        rel_start = overlap_start - seg_start
+        rel_end = overlap_end - seg_start
+        slices.append((rel_start, rel_end, str(cap.get("spoken_text") or "")))
+    if not slices:
+        return [(0.0, seg_end - seg_start, str(segment.get("spoken_text") or ""))]
+    slices.sort(key=lambda x: x[0])
+    return slices
+
+
 def maybe_apply_screen_text(
     clip_path: Path,
     spec: ScreenTextOverlay | None,
     *,
     tmp_dir: Path,
     segment_index: int,
+    segment: dict | None = None,
+    captions: list[dict] | None = None,
+    hook: str = "",
+    topic: str = "",
 ) -> Path:
+    from shorts_bot.production.screen_text_spec import infer_overlay_from_spoken
+
     out = tmp_dir / f"screen_text_{segment_index:03d}.mp4"
+    if spec is None and not (segment and captions):
+        apply_caption_scrub_only(clip_path, out)
+        return out
+
+    if segment and captions:
+        slices = _caption_slices_for_segment(segment, captions)
+        unique_specs: list[tuple[float, float, ScreenTextOverlay | None]] = []
+        for rel_start, rel_end, spoken in slices:
+            cap_spec = infer_overlay_from_spoken(spoken, hook=hook, topic=topic)
+            ov = cap_spec if cap_spec is not None else spec
+            if unique_specs and unique_specs[-1][2] == ov:
+                prev_start, _, prev_ov = unique_specs[-1]
+                unique_specs[-1] = (prev_start, rel_end, prev_ov)
+            else:
+                unique_specs.append((rel_start, rel_end, ov))
+
+        if len(unique_specs) <= 1:
+            only = unique_specs[0][2] if unique_specs else spec
+            if only is None:
+                apply_caption_scrub_only(clip_path, out)
+                return out
+            norm = normalize_overlay_spec(only)
+            png = tmp_dir / f"screen_text_{segment_index:03d}.png"
+            save_overlay_png(norm, png)
+            apply_overlay_to_video(clip_path, png, out, spec=norm)
+            return out
+
+        parts: list[Path] = []
+        for j, (rel_start, rel_end, ov) in enumerate(unique_specs):
+            dur = max(0.05, rel_end - rel_start)
+            sub_in = tmp_dir / f"screen_text_{segment_index:03d}_sub_{j}_in.mp4"
+            sub_out = tmp_dir / f"screen_text_{segment_index:03d}_sub_{j}.mp4"
+            _trim_clip_segment(clip_path, sub_in, start=rel_start, duration=dur)
+            if ov is None:
+                apply_caption_scrub_only(sub_in, sub_out)
+            else:
+                norm = normalize_overlay_spec(ov)
+                png = tmp_dir / f"screen_text_{segment_index:03d}_sub_{j}.png"
+                save_overlay_png(norm, png)
+                apply_overlay_to_video(sub_in, png, sub_out, spec=norm)
+            parts.append(sub_out)
+        _concat_clips(parts, out)
+        return out
+
     if spec is None:
         apply_caption_scrub_only(clip_path, out)
         return out
