@@ -33,6 +33,7 @@ class ProductionReview:
     subtitle_sync: str = ""
     visual_glitches: list[str] = field(default_factory=list)
     framing_issues: list[str] = field(default_factory=list)
+    phone_ui_issues: list[str] = field(default_factory=list)
     nonsensical_elements: list[str] = field(default_factory=list)
     things_that_shouldnt_be_there: list[str] = field(default_factory=list)
     review_mode: str = "standard"
@@ -56,6 +57,7 @@ class ProductionReview:
             "subtitle_sync": self.subtitle_sync,
             "visual_glitches": self.visual_glitches,
             "framing_issues": self.framing_issues,
+            "phone_ui_issues": self.phone_ui_issues,
             "nonsensical_elements": self.nonsensical_elements,
             "things_that_shouldnt_be_there": self.things_that_shouldnt_be_there,
             "review_mode": self.review_mode,
@@ -338,13 +340,16 @@ def _gemini_review(
             "text, watermarks, wrong objects, anachronisms, duplicate UI layers.\n"
             "5) FRAMING — subject cropped badly, captions in Shorts UI dead zone, empty dead space, "
             "phone UI off-center, subject behind caption bar.\n"
+            "8) PHONE UI — are alerts/banners drawn INSIDE the phone screen (diegetic), or floating "
+            "at the top of the frame like a VR achievement trophy? Flag any pop-up not contained "
+            "in the phone bezel. Is the phone bezel aligned with hands in the shot?\n"
             "6) NONSENSICAL ELEMENTS — story logic breaks visible on screen (empty hallway then figure "
             "with no transition sense, wrong room, etc).\n"
             "7) JUMPSCARE — visible lunge motion vs audio sting timing.\n\n"
             "Return ONLY JSON. All score fields are integers 0-100 (not 1-10): "
             "score, concept_score, production_score, jumpscare, captions, visuals, "
             "vo_visual_match, subtitle_sync, summary, av_sync, "
-            "visual_glitches (string[]), framing_issues (string[]), "
+            "visual_glitches (string[]), framing_issues (string[]), phone_ui_issues (string[]), "
             "things_that_shouldnt_be_there (string[]), nonsensical_elements (string[]), "
             "weird_frames (string[], max 5), fixes (string[], max 6). "
             "Keep every string under 120 characters. Valid JSON only, no markdown."
@@ -428,6 +433,7 @@ def _review_from_data(
         subtitle_sync=str(data.get("subtitle_sync", "")),
         visual_glitches=[str(x) for x in (data.get("visual_glitches") or [])],
         framing_issues=[str(x) for x in (data.get("framing_issues") or [])],
+        phone_ui_issues=[str(x) for x in (data.get("phone_ui_issues") or [])],
         nonsensical_elements=[str(x) for x in (data.get("nonsensical_elements") or [])],
         things_that_shouldnt_be_there=[
             str(x) for x in (data.get("things_that_shouldnt_be_there") or [])

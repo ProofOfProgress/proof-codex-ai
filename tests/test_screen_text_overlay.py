@@ -2,25 +2,49 @@ from pathlib import Path
 from unittest.mock import patch
 
 from shorts_bot.production.screen_text_overlay import (
+    normalize_overlay_spec,
+    overlay_top_safe,
     render_overlay_rgba,
     save_overlay_png,
 )
 from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
 
-def test_render_phone_alert_png_has_pixels(tmp_path):
+def test_legacy_phone_alert_maps_to_in_phone_feed():
     spec = ScreenTextOverlay(
         kind="phone_alert",
-        primary="Motion Detected",
+        primary="Opening Security…",
         secondary="Hallway Camera",
         time_label="3:12 AM",
+    )
+    norm = normalize_overlay_spec(spec)
+    assert norm.kind == "phone_feed"
+    assert norm.feed_state == "app_opening"
+
+
+def test_phone_ui_not_in_top_quarter_of_frame():
+    for state in ("app_opening", "live_audio", "empty", "figure_closer", "motion_banner"):
+        spec = ScreenTextOverlay(
+            kind="phone_feed",
+            primary="Security",
+            secondary="Hallway Camera",
+            time_label="3:12 AM",
+            feed_state=state,
+        )
+        assert overlay_top_safe(spec), state
+
+
+def test_render_phone_feed_png_has_pixels_in_device_zone(tmp_path):
+    spec = ScreenTextOverlay(
+        kind="phone_feed",
+        primary="Hallway Camera",
+        secondary="3:12 AM",
+        feed_state="app_opening",
     )
     path = save_overlay_png(spec, tmp_path / "phone.png")
     assert path.exists() and path.stat().st_size > 500
     img = render_overlay_rgba(spec)
-    # non-transparent pixels in phone zone
-    px = img.getpixel((400, 400))
-    assert px[3] > 0
+    assert img.getpixel((540, 700))[3] > 0
 
 
 def test_apply_overlay_runs_ffmpeg(tmp_path):

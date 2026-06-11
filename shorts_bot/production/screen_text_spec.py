@@ -58,6 +58,90 @@ def _topic_camera_label(topic: str) -> str:
     return "Live Feed"
 
 
+def infer_overlay_from_spoken(
+    spoken_text: str,
+    *,
+    hook: str = "",
+    topic: str = "",
+) -> ScreenTextOverlay | None:
+    """VO-first overlay map — beats can drift when beat count != segment count."""
+    lower = (spoken_text or "").lower()
+    if not lower.strip():
+        return None
+    time_lbl = extract_time_label(hook, spoken_text, topic)
+    cam = _topic_camera_label(topic)
+
+    if "flagged motion" in lower or "flag motion" in lower or "motion at" in lower:
+        return ScreenTextOverlay(
+            kind="cctv_hud",
+            primary="REC",
+            secondary=time_lbl,
+            tertiary="MOTION",
+            accent="#39FF14",
+        )
+    if "open the app" in lower:
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary="Opening Security…",
+            secondary=cam,
+            time_label=time_lbl,
+            accent="#5AC8FA",
+            feed_state="app_opening",
+        )
+    if "hallway was empty" in lower or (
+        "glitch" in lower and ("told yourself" in lower or "empty" in lower)
+    ):
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary=cam,
+            secondary=time_lbl,
+            tertiary="LIVE",
+            feed_state="empty",
+            accent="#39FF14",
+        )
+    if "refreshed" in lower or "figure was closer" in lower or (
+        "figure" in lower and "closer" in lower
+    ):
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary=cam,
+            secondary=time_lbl,
+            tertiary="MOTION",
+            feed_state="figure_closer",
+            accent="#39FF14",
+        )
+    if "locks" in lower or "sealed" in lower:
+        return None
+    if "tap" in lower and "speaker" in lower:
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary="Live Audio",
+            secondary="Tap detected",
+            time_label=time_lbl,
+            accent="#FF9F0A",
+            feed_state="live_audio",
+        )
+    if "live view" in lower or ("bed" in lower and "bottom" in lower):
+        return ScreenTextOverlay(
+            kind="cctv_hud",
+            primary="REC",
+            secondary=time_lbl,
+            tertiary="BEDROOM CAM",
+            accent="#39FF14",
+        )
+    if "staring into the lens" in lower:
+        return ScreenTextOverlay(
+            kind="cctv_hud",
+            primary="REC",
+            secondary=time_lbl,
+            tertiary="BEDROOM CAM",
+            accent="#39FF14",
+        )
+    if "smiled" in lower or "lunged" in lower:
+        return None
+    return None
+
+
 def infer_overlay_from_beat(
     beat: str,
     *,
@@ -75,20 +159,22 @@ def infer_overlay_from_beat(
     spoken_lower = (spoken_text or "").lower()
     if "open the app" in spoken_lower or "opened the app" in spoken_lower:
         return ScreenTextOverlay(
-            kind="phone_alert",
+            kind="phone_feed",
             primary="Opening Security…",
             secondary=_topic_camera_label(topic),
             time_label=time_lbl,
             accent="#5AC8FA",
+            feed_state="app_opening",
         )
 
     if any(k in lower for k in ("phone screen", "security app", "lock screen", "notification", "opening")):
         return ScreenTextOverlay(
-            kind="phone_alert",
+            kind="phone_feed",
             primary="Motion Detected",
             secondary=_topic_camera_label(topic),
             time_label=time_lbl,
             accent="#FF453A",
+            feed_state="motion_banner",
         )
 
     if any(k in lower for k in ("refresh", "figure closer", "closer in frame", "tall figure")):
@@ -145,11 +231,12 @@ def infer_overlay_from_beat(
 
     if "speaker" in lower or "tap" in lower:
         return ScreenTextOverlay(
-            kind="phone_alert",
+            kind="phone_feed",
             primary="Live Audio",
             secondary="Tap detected",
             time_label=time_lbl,
             accent="#FF9F0A",
+            feed_state="live_audio",
         )
 
     if any(k in lower for k in ("figure at bed", "bed foot", "staring into")):
@@ -174,19 +261,18 @@ def overlays_for_segments(
     total = len(segments)
     out: list[ScreenTextOverlay | None] = []
     for i, seg in enumerate(segments):
-        beat = visual_beat_for_segment(visual_beats, i, total)
-        if not beat:
-            out.append(None)
-            continue
         spoken = str(seg.get("spoken_text") or "")
-        out.append(
-            infer_overlay_from_beat(
-                beat,
-                hook=hook,
-                topic=topic,
-                spoken_text=spoken,
-            )
-        )
+        ov = infer_overlay_from_spoken(spoken, hook=hook, topic=topic)
+        if ov is None:
+            beat = visual_beat_for_segment(visual_beats, i, total)
+            if beat:
+                ov = infer_overlay_from_beat(
+                    beat,
+                    hook=hook,
+                    topic=topic,
+                    spoken_text=spoken,
+                )
+        out.append(ov)
     return out
 
 

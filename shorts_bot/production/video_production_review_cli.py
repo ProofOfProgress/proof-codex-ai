@@ -50,6 +50,7 @@ def main() -> None:
     for label, items in (
         ("Visual glitches", review.visual_glitches),
         ("Framing issues", review.framing_issues),
+        ("Phone UI", review.phone_ui_issues),
         ("Shouldn't be there", review.things_that_shouldnt_be_there),
         ("Nonsensical", review.nonsensical_elements),
         ("Weird frames", review.weird_frames),

@@ -93,8 +93,14 @@ def sting_start_seconds(
         seg_start = float(seg.get("start_seconds", 0))
         seg_end = float(seg.get("end_seconds", seg_start))
         seg_dur = max(0.35, seg_end - seg_start)
-        visual_flash_at = seg_start + max(0.0, seg_dur - flash_lead)
-        # Sting just before the visible pop (not ~2.5s before video end).
+        if settings.jumpscare_dedicated_clip:
+            from shorts_bot.production.jumpscare_clip import scare_play_and_setup_durations
+
+            setup, _play = scare_play_and_setup_durations(seg_dur)
+            # Dedicated finale = setup hold then Hailuo lunge — sting at lunge onset.
+            visual_flash_at = seg_start + setup + 0.12
+        else:
+            visual_flash_at = seg_start + max(0.0, seg_dur - flash_lead)
         return max(0.0, visual_flash_at - 0.06)
 
     lead = min(max(1.5, settings.jumpscare_sting_seconds), total_duration * 0.12)
