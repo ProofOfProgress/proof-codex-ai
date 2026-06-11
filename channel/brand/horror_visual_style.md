@@ -1,5 +1,7 @@
 # Don't Blink — horror visual DNA
 
+All visuals live in **The Gap** — the same liminal alone-at-night apartment universe (`channel/brand/world.md`). Rotate scare pillars; keep place, palette, and lag grammar consistent.
+
 ## Palette
 - Black `#0A0A0A`, cold blue `#1A2A3A`, deep crimson `#8B0000`, sickly green `#3D5C3A` (sparingly)
 - Film grain, harsh contrast, underexposed interiors

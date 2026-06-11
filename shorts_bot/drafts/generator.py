@@ -13,9 +13,12 @@ from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
+from shorts_bot.production.world import world_lore_for_scripts
 
 
-SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
+
+{world_lore_for_scripts()}
 
 CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.

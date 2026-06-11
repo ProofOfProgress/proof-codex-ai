@@ -71,18 +71,26 @@ Given a topic, output:
 25-35s faceless horror. See data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md.""",
 )
 
+def _script_writer_prompt() -> str:
+    from shorts_bot.production.world import world_lore_for_scripts
+
+    return f"""You are the Script Writer for Don't Blink horror Shorts.
+
+{world_lore_for_scripts()}
+
+Write a 25-35 second horror script for cold narrator VO.
+- Impossible-detail hook in line 1 (lag, 3:12 AM, reflection delay, motion while alone)
+- Escalation beats every 2-3s — same apartment grammar, different pillar mask
+- False calm beat (quiet whisper) — in-world rationalization: glitch, lag, tired eyes
+- Final line cuts into jumpscare — no cosy payoff
+
+Return: HOOK, SCRIPT (line breaks), SCARE_TYPE, VISUAL_BEATS (6-8 bullets)."""
+
+
 SCRIPT_WRITER = AgentRole(
     name="script_writer",
     temperature=0.7,
-    system_prompt="""You are the Script Writer for Don't Blink horror Shorts.
-
-Write a 25-35 second horror script for cold narrator VO.
-- Impossible-detail hook in line 1
-- Escalation beats every 2-3s
-- False calm beat (quiet whisper) before end
-- Final line cuts into jumpscare — no cosy payoff
-
-Return: HOOK, SCRIPT (line breaks), SCARE_TYPE, VISUAL_BEATS (6-8 bullets).""",
+    system_prompt=_script_writer_prompt(),
 )
 
 QUALITY_REVIEWER = AgentRole(

@@ -1,10 +1,17 @@
 # Channel niche — Don't Blink (horror Shorts)
 
-**Don't Blink** — faceless horror micro-stories (~30s) with **jumpscare in the last 3 seconds**.
+**Don't Blink** — faceless horror micro-stories (~30s) with **jumpscare in the last 3 seconds**, all set in **The Gap** — one shared universe.
+
+## World (The Gap)
+
+- Recordings lag reality by one beat; movement happens when you stop watching
+- 3:12 AM = systems glitch (motion alerts, impossible timestamps, dead-contact texts)
+- Same liminal apartment grammar every upload — hallway, mirror, phone, security cam
+- Bible: `channel/brand/world.md` · code: `shorts_bot/production/world.py`
 
 ## Positioning
 
-Short scary story → tension builds → jumpscare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
+Another alone-at-night night in The Gap → tension builds → jumpscare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
 
 ## Scare pillars (rotate)
 

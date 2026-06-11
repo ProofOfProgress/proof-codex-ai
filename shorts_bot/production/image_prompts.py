@@ -6,6 +6,7 @@ from pathlib import Path
 from shorts_bot.drafts.meta import visual_beat_for_segment
 from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
+from shorts_bot.production.world import world_visual_continuity
 
 
 @dataclass
@@ -63,6 +64,7 @@ def horror_segment_to_prompt(
         f"Story: {topic}. "
         "Mood: uncanny, dread, something is wrong, cinematic horror movie still. "
         "Setting: dark hallway, mirror, phone screen, empty room, security cam POV, shadows. "
+        f"{world_visual_continuity()} "
         "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
         "Silhouettes only — no full face until scare beat. No gore, no blood. "
         f"{framing_notes_for_prompt()} "

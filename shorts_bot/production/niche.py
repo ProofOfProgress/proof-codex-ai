@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+from shorts_bot.production.world import WORLD_NAME, world_rules_compact
+
 NICHE_NAME = "Don't Blink"
 NICHE_TAGLINE = "Watch the whole thing."
 
-NICHE_POSITIONING = """
-Don't Blink — **terrifying faceless horror Shorts** (~30 seconds).
+NICHE_POSITIONING = f"""
+Don't Blink — **terrifying faceless horror Shorts** (~30 seconds) set in **{WORLD_NAME}** — the same universe every upload.
 
-Every video: one short scary story → tension builds → **jumpscare in the last 3 seconds**.
+Every video: another alone-at-night night in one liminal apartment → tension builds → **jumpscare in the last 3 seconds**.
 AI full-motion clips only (no stick figures). Faceless — eyes, hallways, phones, shadows, never cosy self-help.
+
+{world_rules_compact()}
 
 Pillars (rotate):
 1. **Wrong place** — empty room, locked door, hallway that wasn't there yesterday

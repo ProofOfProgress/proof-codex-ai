@@ -6,6 +6,17 @@
 
 **Faceless horror Shorts that hit you in the last 3 seconds — if you blink, you miss it.**
 
+## World (The Gap)
+
+Every Short is **another night in the same universe** — not a random scare swap.
+
+- **Law:** reality and recordings are **one beat out of sync**; things move when you blink, look away, or refresh the feed
+- **Time:** **3:12 AM** is when phones, cams, and timestamps glitch widest
+- **Place:** same liminal alone-at-night apartment grammar (hallway, mirror, phone glow, security cam, closet)
+- **Threat:** faceless in lag/peripherals until the final lunge — never named in VO
+
+Full bible: `channel/brand/world.md` — injected into scripts and I2V prompts via `shorts_bot/production/world.py`.
+
 ## Niche
 
 | Old (Soft Continuity) | New (Don't Blink) |
