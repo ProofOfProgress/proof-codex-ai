@@ -44,7 +44,7 @@ DEFAULT_ENV: dict[str, str] = {
     "VISION_QC_BLOCKS_UPLOAD": "true",
     "VISION_QC_MIN_SCORE": "7",
     "AUTO_PUBLISH_HOURS": "0",
-    "YOUTUBE_UPLOAD_VISIBILITY": "unlisted",
+    "YOUTUBE_UPLOAD_VISIBILITY": "public",
     "AUTO_UPLOAD_YOUTUBE": "true",
     "REQUIRE_PAID_STACK": "true",
     "ALLOW_SCRIPT_TIMING_FALLBACK": "false",

@@ -35,7 +35,9 @@ Every feature, fix, and conversation must answer: **does this automate another s
 
 Money at scale requires **not getting demonetized** — keep YPP-safe originality (see below). Helpful content that retains viewers **is** the business model; do not sacrifice quality so badly that YouTube kills the channel.
 
-**Current human touchpoints (shrink over time):** unlisted upload review, serious comments, rare 2FA/captcha on external dashboards. Agents should complete OAuth/API setup via browser when possible — not push docs to the owner by default.
+**Uploads — owner approved auto-public (2026-06):** Post **public** without asking first. `YOUTUBE_UPLOAD_VISIBILITY=public`. No unlisted review step unless owner revokes this rule.
+
+**Current human touchpoints (shrink over time):** serious comments, rare 2FA/captcha on external dashboards. Agents complete OAuth/API setup via browser when possible.
 
 ## Work queue — top 4 only
 

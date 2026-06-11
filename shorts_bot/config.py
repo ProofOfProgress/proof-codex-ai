@@ -137,7 +137,7 @@ class Settings(BaseSettings):
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True
     auto_upload_youtube: bool = True
-    youtube_upload_visibility: str = "unlisted"
+    youtube_upload_visibility: str = "public"  # owner approved auto-public (no pre-review)
 
     # Automation — reduce manual sync / Yes-No / publish steps (login & payments still manual)
     auto_analytics_sync: bool = True

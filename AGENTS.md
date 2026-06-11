@@ -62,7 +62,7 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3) + **reflective self-training** (episodes, rule confidence, promote to agent memory); safe improvements auto-approved. See `docs/SELF_LEARNING.md`, `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md`. Config: `SELF_TRAINING_ENABLED=true`.
 
-**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads stay unlisted** (`AUTO_PUBLISH_HOURS=0`), **Gemini vision QC** + ffmpeg QC before upload, **YouTube API upload** (no Studio Playwright). One-time: `python3 -m shorts_bot.youtube.auth_cli` (Google sign-in in system browser).
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads go public** (`YOUTUBE_UPLOAD_VISIBILITY=public` — owner approved, no pre-review), **Gemini vision QC** + ffmpeg QC before upload, **YouTube API upload** (no Studio Playwright).
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 
