@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shorts_bot.drafts.meta import visual_beat_for_segment
-from shorts_bot.production.framing import framing_notes_for_prompt
+from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
@@ -66,6 +66,7 @@ def horror_segment_to_prompt(
         "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
         "Silhouettes only — no full face until scare beat. No gore, no blood. "
         f"{framing_notes_for_prompt()} "
+        f"{screen_text_prompt_note()} "
         "vertical 9:16 still image, no text, no watermark, photorealistic horror, terrifying. "
         f"Style: {style[:400]}"
     )

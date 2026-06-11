@@ -68,6 +68,15 @@ def framing_notes_for_prompt() -> str:
     )
 
 
+def screen_text_prompt_note() -> str:
+    """Tell image/I2V models to leave UI areas blank — legible text is composited in post."""
+    return (
+        "Phone screens and security cam HUD areas must be blank or softly blurred — "
+        "no letters, numbers, timestamps, or UI glyphs in the generated image; "
+        "readable UI text is added in post-production."
+    )
+
+
 def horror_framing_notes_for_prompt() -> str:
     """Don't Blink — cinematic horror composition per beat."""
     return (

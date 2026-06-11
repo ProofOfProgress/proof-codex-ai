@@ -350,10 +350,13 @@ def _render_from_video_clips(
     height: int,
     jumpscare_segment_index: int | None = None,
     suspense_replay: bool = False,
+    screen_text_specs: list | None = None,
 ) -> Path:
     from shorts_bot.config import settings
+    from shorts_bot.production.screen_text_overlay import maybe_apply_screen_text
 
     tmp_dir.mkdir(parents=True, exist_ok=True)
+    overlay_specs = screen_text_specs or []
     clip_paths: list[Path] = []
     still_fallbacks = 0
     last_i = len(segments) - 1
@@ -425,6 +428,14 @@ def _render_from_video_clips(
                 suspense_replay=replay_hold,
             )
             still_fallbacks += 1
+        spec = overlay_specs[i] if i < len(overlay_specs) else None
+        if settings.screen_text_overlay_enabled and spec is not None:
+            clip = maybe_apply_screen_text(
+                clip,
+                spec,
+                tmp_dir=tmp_dir,
+                segment_index=i,
+            )
         clip_paths.append(clip)
     if still_fallbacks:
         note = tmp_dir / "_hybrid_still_fallbacks.txt"
@@ -554,6 +565,18 @@ def render_short_video(
             from shorts_bot.production.jumpscare_clip import ensure_jumpscare_video_clip
 
             ensure_jumpscare_video_clip(pack_dir)
+        from shorts_bot.production.screen_text_spec import (
+            overlays_for_segments,
+            write_overlay_manifest,
+        )
+
+        screen_specs = overlays_for_segments(
+            segments,
+            visual_beats=manifest.get("visual_beats"),
+            hook=str(manifest.get("hook") or ""),
+            topic=str(manifest.get("topic") or ""),
+        )
+        write_overlay_manifest(pack_dir, screen_specs)
         silent = _render_from_video_clips(
             clips_dir,
             images_dir,
@@ -564,6 +587,7 @@ def render_short_video(
             height=FRAME_HEIGHT,
             jumpscare_segment_index=jumpscare_segment_index,
             suspense_replay=suspense_replay,
+            screen_text_specs=screen_specs,
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []

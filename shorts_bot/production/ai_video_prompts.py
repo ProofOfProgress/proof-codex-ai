@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from shorts_bot.production.framing import framing_notes_for_prompt
+from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 ModelHint = Literal["kling", "runway", "veo", "pika", "luma", "hailuo", "auto"]
@@ -333,7 +333,7 @@ def segment_to_video_prompt(
         shot_dir,
         f"SUBJECT: {tmpl.subject}. ",
         f"ACTION: {tmpl.action} — beat: {scene_line}. ",
-        f"CAMERA: {tmpl.camera}. {framing_notes_for_prompt()} ",
+        f"CAMERA: {tmpl.camera}. {framing_notes_for_prompt()} {screen_text_prompt_note()} ",
         f"ENVIRONMENT: {tmpl.environment}. ",
         f"STYLE: {tmpl.style}. ",
         f"END STATE: {tmpl.end_state}. ",
