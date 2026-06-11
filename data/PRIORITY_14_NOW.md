@@ -167,6 +167,10 @@
 
 See `data/research/APPLIED_RESEARCH_ROUND_2.md` — scare pillars, post-upload hooks, category 24, strict false-calm, draft #4 knock prep, merge `main` into PR branch.
 
+## Round 3 applied
+
+See `data/research/APPLIED_RESEARCH_ROUND_3.md` — topic rotation by scare pillar, drafts #4–#5 approved, launch calendar, channel description API, horror research routing.
+
 ## Wake-up checklist
 
 - [x] Video #1 uploaded  

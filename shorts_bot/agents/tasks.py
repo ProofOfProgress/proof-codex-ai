@@ -77,7 +77,10 @@ class WorkTaskRunner:
             else NICHE_POSITIONING[:1200]
         )
         result = self.runner.run(NICHE_STRATEGIST, task, context=ctx)
-        label = "AI video research angles" if user_wants_ai_video_research(user_request) else "cosy/RPM topics"
+        if user_wants_ai_video_research(user_request):
+            label = "AI video research angles"
+        else:
+            label = "horror hook / topic research"
         return WorkLogEntry(
             task="score_topics",
             role=NICHE_STRATEGIST.name,

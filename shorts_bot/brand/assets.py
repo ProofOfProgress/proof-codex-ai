@@ -1,4 +1,4 @@
-"""Generate channel profile + banner PNGs — The Minute Before visual system."""
+"""Generate channel profile + banner PNGs — Don't Blink horror eye brand."""
 
 from __future__ import annotations
 
@@ -133,7 +133,7 @@ def generate_profile_image(out_path: Path | None = None) -> Path:
 
 
 def generate_banner_image(out_path: Path | None = None) -> Path:
-    """2560×1440 banner — Minute Before hero, YouTube safe-zone centered."""
+    """2560×1440 banner — Don't Blink horror eye, YouTube safe-zone centered."""
     from PIL import Image, ImageDraw
 
     out = out_path or BANNER_PATH
