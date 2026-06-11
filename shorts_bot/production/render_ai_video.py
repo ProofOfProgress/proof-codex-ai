@@ -20,7 +20,7 @@ def select_i2v_beat_indices(
     *,
     priority_indices: list[int] | None = None,
 ) -> list[int]:
-    """Always render hook (0) + finale + roulette scare beat; sample middle when capped."""
+    """Always render hook (0) + finale; sample middle when capped."""
     if segment_count <= 0:
         return []
     if max_beats >= segment_count:

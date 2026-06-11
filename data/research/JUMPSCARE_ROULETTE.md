@@ -1,31 +1,30 @@
-# Jumpscare roulette — Don't Blink retention
+# Jumpscare timing — Don't Blink
 
-**Why:** If every Short scares at second 27, viewers swipe early. Russian-roulette timing keeps them watching.
+**Policy (owner):** Scare at the **end** — a couple seconds before the video ends. **Not every video.**
 
 ## Profiles (rotate per `draft_id`)
 
-| Profile | Draft % 5 | Scare beat | Viewer experience |
-|---------|-----------|------------|-------------------|
-| `finale` | 0 | Last segment | Classic — safe until the end |
-| `early_snap` | 1 | ~40% | Hit early — "wait, already?" |
-| `late_hold` | 2 | Last + sting at 94% | Maximum delay |
-| `mid_twist` | 3 | ~55% | Twist mid, dread after |
-| `double_tap` | 4 | Fake tease ~42% + real lunge last | Two scares |
+| Profile | When (`draft_id % 3`) | Scare | Viewer experience |
+|---------|----------------------|-------|-------------------|
+| `finale` | 1, 2, 4, 5, 7, 8… (most) | Last beat + sting ~2s before end | Classic Don't Blink — earn the lunge |
+| `suspense_replay` | 0, 3, 6, 9… (every 3rd) | **None** | Dread hold → Shorts auto-replay bait |
+
+Removed: `early_snap`, `mid_twist`, `double_tap`, `late_hold` (scares mid-video broke VO/visual sync and felt random).
 
 ## Wired into
 
-- `jumpscare_timing.py` — plan per draft
-- I2V — `jumpscare_lunge` on primary segment; `jumpscare_tease` on decoy
-- Audio sting — `sting_start_seconds()` from manifest segment times
-- TTS — `scare_sentence_indices()` for edge/resemble prosody
-- Upload copy — profile-specific volume warning
+- `jumpscare_timing.py` — `has_jumpscare`, `sting_start_seconds()` → `total_duration - ~2s`
+- I2V — `jumpscare_lunge` on finale last beat; `suspense_replay_hold` on replay drafts
+- Render — visual flash/zoom only when `has_jumpscare`; slow hold on replay drafts
+- TTS — jumpscare prosody on **last sentence only** (finale)
+- Upload copy — volume warning only on finale drafts
 
 ## Draft map (launch queue)
 
-| Draft | Profile (expected) |
-|-------|-------------------|
-| #2 LIVE | `late_hold` (draft_id % 5 = 2) |
-| #3 | `mid_twist` |
-| #4 | `double_tap` |
+| Draft | Profile |
+|-------|---------|
+| #2 LIVE | `finale` |
+| #3 | `suspense_replay` |
+| #4 | `finale` |
 | #5 | `finale` |
-| #6 | `early_snap` |
+| #6 | `suspense_replay` |

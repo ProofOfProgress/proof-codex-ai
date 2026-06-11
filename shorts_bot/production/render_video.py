@@ -22,7 +22,7 @@ def _mix_jumpscare_sting(
     duration: float,
     sting_start: float | None = None,
 ) -> Path:
-    """Layer a synthetic noise sting at the planned jumpscare beat (Russian roulette timing)."""
+    """Layer a synthetic noise sting a couple seconds before the end (finale drafts only)."""
     from shorts_bot.config import settings
 
     if not settings.jumpscare_sting_enabled or duration <= 1.0:
@@ -209,6 +209,19 @@ def _render_motion_clips(
 
 
 
+def _suspense_replay_filter(duration: float, *, width: int, height: int) -> str:
+    """Slow zoom-out hold on finale — no scare, bait Shorts replay."""
+    frames = max(1, int(duration * 30))
+    return (
+        f"scale={width}:{height}:flags=lanczos,"
+        f"zoompan=z='if(lte(zoom,1.0),1.05,max(1.001,zoom-0.00035))':"
+        f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+        f"d={frames}:s={width}x{height}:fps=30,"
+        f"eq=brightness=-0.06:contrast=1.12:saturation=0.92,"
+        f"format=yuv420p"
+    )
+
+
 def _jumpscare_video_filter(duration: float, *, width: int, height: int) -> str:
     """Rapid zoom + brightness pulse so the scare has a visible pop, not audio-only static."""
     frames = max(1, int(duration * 30))
@@ -231,9 +244,12 @@ def _trim_scale_clip(
     width: int,
     height: int,
     jumpscare: bool = False,
+    suspense_replay: bool = False,
 ) -> None:
     if jumpscare:
         vf = _jumpscare_video_filter(duration, width=width, height=height)
+    elif suspense_replay:
+        vf = _suspense_replay_filter(duration, width=width, height=height)
     else:
         vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
     subprocess.run(
@@ -287,10 +303,13 @@ def _still_to_clip(
     width: int,
     height: int,
     jumpscare: bool = False,
+    suspense_replay: bool = False,
 ) -> None:
     """Hold a FLUX still for segment duration when I2V clip is capped/missing."""
     if jumpscare:
         vf = _jumpscare_video_filter(duration, width=width, height=height)
+    elif suspense_replay:
+        vf = _suspense_replay_filter(duration, width=width, height=height)
     else:
         vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
     subprocess.run(
@@ -330,12 +349,14 @@ def _render_from_video_clips(
     width: int,
     height: int,
     jumpscare_segment_index: int | None = None,
+    suspense_replay: bool = False,
 ) -> Path:
     from shorts_bot.config import settings
 
     tmp_dir.mkdir(parents=True, exist_ok=True)
     clip_paths: list[Path] = []
     still_fallbacks = 0
+    last_i = len(segments) - 1
     for i, (seg, dur) in enumerate(zip(segments, durations)):
         stem = Path(seg["filename"]).stem
         src = clips_dir / f"{stem}.mp4"
@@ -345,6 +366,7 @@ def _render_from_video_clips(
             and jumpscare_segment_index is not None
             and i == jumpscare_segment_index
         )
+        replay_hold = suspense_replay and i == last_i and not scare_beat
         if src.exists():
             _trim_scale_clip(
                 src,
@@ -353,6 +375,7 @@ def _render_from_video_clips(
                 width=width,
                 height=height,
                 jumpscare=scare_beat,
+                suspense_replay=replay_hold,
             )
         else:
             still = images_dir / seg["filename"]
@@ -368,6 +391,7 @@ def _render_from_video_clips(
                 width=width,
                 height=height,
                 jumpscare=scare_beat,
+                suspense_replay=replay_hold,
             )
             still_fallbacks += 1
         clip_paths.append(clip)
@@ -431,22 +455,31 @@ def render_short_video(
 
     segments = normalize_segment_timeline(segments, audio_duration)
 
-    sting_start: float | None = None
-    jumpscare_segment_index: int | None = None
-    plan_raw = manifest.get("jumpscare_plan")
-    if plan_raw:
-        from shorts_bot.production.jumpscare_timing import JumpscarePlan, sting_start_seconds
-
-        plan = JumpscarePlan.from_dict(plan_raw)
-        jumpscare_segment_index = plan.primary_segment_index
-        sting_start = sting_start_seconds(plan, segments=segments, total_duration=audio_duration)
-    elif segments:
-        jumpscare_segment_index = len(segments) - 1
-    audio_path = _mix_jumpscare_sting(
-        audio_path, duration=audio_duration, sting_start=sting_start
+    from shorts_bot.production.jumpscare_timing import (
+        JumpscarePlan,
+        load_plan_for_draft,
+        sting_start_seconds,
     )
-    if audio_path.name == "_voiceover_stung.mp3":
-        audio_duration = _probe_duration(audio_path)
+
+    plan_raw = manifest.get("jumpscare_plan")
+    plan = (
+        JumpscarePlan.from_dict(plan_raw)
+        if plan_raw
+        else load_plan_for_draft(draft_id, len(segments))
+    )
+    jumpscare_segment_index = (
+        plan.primary_segment_index if plan.has_jumpscare else None
+    )
+    suspense_replay = plan.profile == "suspense_replay"
+    sting_start = sting_start_seconds(
+        plan, segments=segments, total_duration=audio_duration
+    )
+    if sting_start is not None:
+        audio_path = _mix_jumpscare_sting(
+            audio_path, duration=audio_duration, sting_start=sting_start
+        )
+        if audio_path.name == "_voiceover_stung.mp3":
+            audio_duration = _probe_duration(audio_path)
     durations = _scaled_durations(segments, audio_duration)
 
     out_path = pack_dir / output_name
@@ -476,6 +509,7 @@ def render_short_video(
             width=FRAME_WIDTH,
             height=FRAME_HEIGHT,
             jumpscare_segment_index=jumpscare_segment_index,
+            suspense_replay=suspense_replay,
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []
