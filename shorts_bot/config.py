@@ -105,7 +105,10 @@ class Settings(BaseSettings):
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
-    replicate_video_model: str = "minimax/video-01"  # I2V when VISUAL_STYLE=ai_video
+    replicate_video_model: str = "minimax/video-01"  # I2V default / escalation beats
+    replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
+    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
+    jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash on primary scare segment
     ai_video_max_beats: int = 10  # cap Replicate I2V cost per Short (launch week: full beats)
     ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
     ai_video_timeout_sec: int = 600  # per-clip Replicate poll timeout

@@ -13,7 +13,51 @@ def test_ai_video_config_defaults():
     fields = Settings.model_fields
     assert fields["visual_style"].default == "ai_video"
     assert fields["replicate_video_model"].default == "minimax/video-01"
+    assert fields["replicate_video_model_jumpscare"].default == "minimax/hailuo-2.3-fast"
     assert fields["ai_video_max_beats"].default == 10
+
+
+def test_replicate_i2v_model_routing():
+    from shorts_bot.production.render_ai_video import replicate_i2v_model_for_clip
+
+    assert "hailuo" in replicate_i2v_model_for_clip(template_id="jumpscare_lunge")
+    assert replicate_i2v_model_for_clip(model_hint="veo") == "minimax/video-01"
+
+
+def test_load_motion_prompt_from_video_prompt_pack(tmp_path):
+    pack = tmp_path / "draft_3"
+    pack.mkdir()
+    vp = pack / "video_prompts"
+    vp.mkdir()
+    (vp / "00.28.txt").write_text("LUNGE PROMPT FROM PACK", encoding="utf-8")
+    (pack / "video_prompts.json").write_text(
+        json.dumps(
+            {
+                "clips": [
+                    {
+                        "filename_stem": "00.28",
+                        "prompt_file": "video_prompts/00.28.txt",
+                        "model_hint": "hailuo",
+                        "template_id": "jumpscare_lunge",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    from shorts_bot.production.render_ai_video import _video_prompt_for_segment
+    from shorts_bot.production.turboscribe_parser import TranscriptSegment
+
+    prompt, hint, tmpl = _video_prompt_for_segment(
+        TranscriptSegment(28.0, "lunge line", "00.28"),
+        topic="security cam",
+        clip_index=8,
+        pack_dir=pack,
+        filename_stem="00.28",
+    )
+    assert prompt == "LUNGE PROMPT FROM PACK"
+    assert hint == "hailuo"
+    assert tmpl == "jumpscare_lunge"
 
 
 def test_manifest_video_clips_mode_detected(tmp_path):

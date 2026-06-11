@@ -9,7 +9,7 @@ from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
 from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.drafts.meta import visual_beats_for_draft
-from shorts_bot.production.segment_sync import resolve_segments
+from shorts_bot.production.segment_sync import normalize_transcript_segments, resolve_segments
 from shorts_bot.production.variety import variety_for_draft
 from shorts_bot.production.video_prompt_pack import write_video_prompt_pack
 
@@ -84,6 +84,8 @@ def build_production_pack(
         turboscribe_text=turboscribe_text if turboscribe_text.strip() else "",
         audio_duration=audio_duration,
     )
+    if audio_duration and audio_duration > 0:
+        segments = normalize_transcript_segments(segments, audio_duration)
     from shorts_bot.production.paid_stack import ensure_turboscribe_segments
 
     ensure_turboscribe_segments(sync_source)

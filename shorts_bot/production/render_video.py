@@ -209,6 +209,20 @@ def _render_motion_clips(
 
 
 
+def _jumpscare_video_filter(duration: float, *, width: int, height: int) -> str:
+    """Rapid zoom + brightness pulse so the scare has a visible pop, not audio-only static."""
+    frames = max(1, int(duration * 30))
+    flash_start = max(0.0, duration - 0.28)
+    return (
+        f"scale={width}:{height}:flags=lanczos,"
+        f"zoompan=z='min(zoom+0.028,2.9)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+        f"d={frames}:s={width}x{height}:fps=30,"
+        f"eq=brightness='if(between(t,{flash_start:.3f},{duration:.3f}),"
+        f"0.75*sin(40*PI*t)+0.75,0)':contrast=1.25:saturation=1.1,"
+        f"format=yuv420p"
+    )
+
+
 def _trim_scale_clip(
     src: Path,
     dest: Path,
@@ -216,8 +230,12 @@ def _trim_scale_clip(
     duration: float,
     width: int,
     height: int,
+    jumpscare: bool = False,
 ) -> None:
-    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
+    if jumpscare:
+        vf = _jumpscare_video_filter(duration, width=width, height=height)
+    else:
+        vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
     subprocess.run(
         [
             "ffmpeg",
@@ -268,9 +286,13 @@ def _still_to_clip(
     duration: float,
     width: int,
     height: int,
+    jumpscare: bool = False,
 ) -> None:
     """Hold a FLUX still for segment duration when I2V clip is capped/missing."""
-    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
+    if jumpscare:
+        vf = _jumpscare_video_filter(duration, width=width, height=height)
+    else:
+        vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
     subprocess.run(
         [
             "ffmpeg",
@@ -307,7 +329,10 @@ def _render_from_video_clips(
     tmp_dir: Path,
     width: int,
     height: int,
+    jumpscare_segment_index: int | None = None,
 ) -> Path:
+    from shorts_bot.config import settings
+
     tmp_dir.mkdir(parents=True, exist_ok=True)
     clip_paths: list[Path] = []
     still_fallbacks = 0
@@ -315,8 +340,20 @@ def _render_from_video_clips(
         stem = Path(seg["filename"]).stem
         src = clips_dir / f"{stem}.mp4"
         clip = tmp_dir / f"clip_{i:03d}.mp4"
+        scare_beat = (
+            settings.jumpscare_visual_flash
+            and jumpscare_segment_index is not None
+            and i == jumpscare_segment_index
+        )
         if src.exists():
-            _trim_scale_clip(src, clip, duration=dur, width=width, height=height)
+            _trim_scale_clip(
+                src,
+                clip,
+                duration=dur,
+                width=width,
+                height=height,
+                jumpscare=scare_beat,
+            )
         else:
             still = images_dir / seg["filename"]
             if not still.exists():
@@ -324,7 +361,14 @@ def _render_from_video_clips(
                 if alt is None:
                     raise FileNotFoundError(f"Missing motion clip and still: {src} / {still}")
                 still = alt
-            _still_to_clip(still, clip, duration=dur, width=width, height=height)
+            _still_to_clip(
+                still,
+                clip,
+                duration=dur,
+                width=width,
+                height=height,
+                jumpscare=scare_beat,
+            )
             still_fallbacks += 1
         clip_paths.append(clip)
     if still_fallbacks:
@@ -382,13 +426,22 @@ def render_short_video(
 
     images_dir = pack_dir / "images"
     audio_duration = _probe_duration(audio_path)
+
+    from shorts_bot.production.segment_sync import normalize_segment_timeline
+
+    segments = normalize_segment_timeline(segments, audio_duration)
+
     sting_start: float | None = None
+    jumpscare_segment_index: int | None = None
     plan_raw = manifest.get("jumpscare_plan")
     if plan_raw:
         from shorts_bot.production.jumpscare_timing import JumpscarePlan, sting_start_seconds
 
         plan = JumpscarePlan.from_dict(plan_raw)
+        jumpscare_segment_index = plan.primary_segment_index
         sting_start = sting_start_seconds(plan, segments=segments, total_duration=audio_duration)
+    elif segments:
+        jumpscare_segment_index = len(segments) - 1
     audio_path = _mix_jumpscare_sting(
         audio_path, duration=audio_duration, sting_start=sting_start
     )
@@ -422,6 +475,7 @@ def render_short_video(
             tmp_dir=pack_dir / "_motion_clips",
             width=FRAME_WIDTH,
             height=FRAME_HEIGHT,
+            jumpscare_segment_index=jumpscare_segment_index,
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []
