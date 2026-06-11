@@ -133,6 +133,15 @@ def run_quality_checks(
     if re.search(r"\b(i used to|this helped me|my therapist|same loop every night)\b", lowered):
         issues.append("Self-help first-person voice — use second-person 'you' horror micro-story.")
 
+    from shorts_bot.config import settings
+    from shorts_bot.production.jenny_checks import check_jenny_voice
+
+    for issue in check_jenny_voice(script, hook):
+        if settings.pipeline_block_voice_drift:
+            issues.append(issue)
+        else:
+            warnings.append(issue)
+
     if not re.search(r"\byou\b", lowered):
         warnings.append("Missing singular 'you' — Don't Blink scripts are second-person micro-stories.")
 
@@ -164,8 +173,6 @@ def run_quality_checks(
 
     if not any(c in lowered for c in FALSE_CALM_CUES):
         msg = "No false-calm beat detected — add a quiet 'maybe it was nothing' moment before the scare."
-        from shorts_bot.config import settings
-
         if settings.launch_quality_strict:
             issues.append(msg)
         else:

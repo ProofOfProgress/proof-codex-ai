@@ -162,6 +162,9 @@ class Settings(BaseSettings):
     post_upload_cta_comment: bool = True  # series engagement comment after API upload
     post_upload_analytics_sync: bool = True
     launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
+    pipeline_exclusive_lock: bool = True  # one finish_cli / Replicate job at a time
+    pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
+    pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True

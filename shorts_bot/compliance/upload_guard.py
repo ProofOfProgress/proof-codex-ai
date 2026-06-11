@@ -56,6 +56,19 @@ def check_upload_allowed(
     issues: list[str] = []
     warnings: list[str] = []
 
+    topic_lower = topic.strip().lower()
+    off_niche_markers = (
+        "medieval",
+        "sword fight",
+        "mock battle",
+        "wholesome mock",
+        "self-help",
+        "sleep tips",
+        "productivity tips",
+    )
+    if any(m in topic_lower for m in off_niche_markers):
+        issues.append("off-niche topic — Don't Blink horror Shorts only (wrong vertical uploaded)")
+
     for risk in risk_signals_for_script(script, hook, title):
         if "missing personal voice" in risk or "spam-farm" in risk or "thin second-person" in risk:
             issues.append(risk)

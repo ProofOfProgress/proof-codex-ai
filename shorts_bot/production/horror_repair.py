@@ -7,7 +7,11 @@ from pathlib import Path
 
 from shorts_bot.drafts.generator import DraftGenerator
 from shorts_bot.memory.store import MemoryStore
-from shorts_bot.production.pipeline_state import PipelineState, load_state, save_state
+from shorts_bot.production.pipeline_integrity import (
+    clear_render_artifacts,
+    invalidate_downstream_steps,
+    write_content_stamp,
+)
 
 
 _FIRST_PERSON_HEAVY = re.compile(r"\b(i|i'm|my|me)\b", re.I)
@@ -41,21 +45,9 @@ def repair_draft_horror_voice(store: MemoryStore, draft_id: int) -> str:
     from shorts_bot.config import settings
 
     pack = settings.data_dir / "production" / f"draft_{draft_id}"
-    state = load_state(pack, draft_id)
-    for step in ("humanize", "voiceover", "transcript", "pack", "render", "video_qc", "vision_qc", "metadata"):
-        state.steps.pop(step, None)
-    save_state(pack, state)
-
-    for stale in ("voiceover.mp3", "transcript.txt", "manifest.json", "final_short.mp4"):
-        p = pack / stale
-        if p.exists():
-            p.unlink()
-    for sub in ("clips", "images"):
-        d = pack / sub
-        if d.is_dir():
-            for f in d.glob("*"):
-                if f.is_file():
-                    f.unlink()
+    clear_render_artifacts(pack)
+    invalidate_downstream_steps(pack, draft_id)
+    write_content_stamp(pack, hook=fixed.hook, script=fixed.script)
 
     return (
         f"Draft #{draft_id} repaired — second-person horror voice restored. "

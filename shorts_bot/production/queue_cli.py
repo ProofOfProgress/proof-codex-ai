@@ -146,6 +146,7 @@ def main() -> None:
     parser.add_argument("--run-next", action="store_true", help="Run finish_cli for next incomplete draft")
     parser.add_argument("--upload", action="store_true", help="Upload after render (with --run)")
     parser.add_argument("--no-resume", action="store_true", help="Full rebuild (with --run)")
+    parser.add_argument("--health", action="store_true", help="System health audit (supervisor)")
     parser.add_argument(
         "--repair-draft",
         type=int,
@@ -156,6 +157,11 @@ def main() -> None:
 
     store = MemoryStore(settings.database_path)
 
+    if args.health:
+        from shorts_bot.production.supervisor_cli import audit_health, print_health
+
+        print_health(audit_health(store))
+        return
     if args.repair_draft is not None:
         from shorts_bot.production.horror_repair import repair_draft_horror_voice
 
