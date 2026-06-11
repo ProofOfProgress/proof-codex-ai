@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -18,12 +20,26 @@ from shorts_bot.web.deps import (
     get_proposer,
     get_reward_engine,
     get_store,
+    run_full_automation,
 )
+from shorts_bot.web.auth import ApiTokenMiddleware
 from shorts_bot.youtube.google_auth import auth_status
 
 TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
-app = FastAPI(title="Soft Continuity Operator", version="0.6.1")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from shorts_bot.automation.background import start_background_automation
+
+    stop = await start_background_automation()
+    yield
+    stop.set()
+    await asyncio.sleep(0.1)
+
+
+app = FastAPI(title="Don't Blink Operator", version="0.7.0", lifespan=lifespan)
+app.add_middleware(ApiTokenMiddleware)
 
 
 @app.exception_handler(Exception)
@@ -45,6 +61,11 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class ManagerRequest(BaseModel):
+    message: str
+    force_async: bool = False
+
+
 class ImprovementDecision(BaseModel):
     note: str = ""
 
@@ -63,6 +84,11 @@ class DevRequest(BaseModel):
     description: str
 
 
+class ProductionRequest(BaseModel):
+    draft_id: int
+    turboscribe_text: str = Field(min_length=10)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request) -> HTMLResponse:
     memory = get_memory()
@@ -71,11 +97,15 @@ async def home(request: Request) -> HTMLResponse:
     from shorts_bot.services.ops import BotOperations
 
     pending_imps = memory.list_improvements(status="pending")
+    from shorts_bot.agents.identity import manager_name
+
     return TEMPLATES.TemplateResponse(
         request,
         "index.html",
         {
-            "has_openai": settings.has_openai,
+            "manager_name": manager_name(),
+            "has_openai": settings.has_full_chat,
+            "chat_provider": settings.chat_provider,
             "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
             "checklist": BotOperations().setup_checklist(),
@@ -91,6 +121,7 @@ async def home(request: Request) -> HTMLResponse:
             "pending_drafts": len(store.list_drafts(status="pending")),
             "pending_dev": len(memory.list_dev_tasks(status="pending")),
             "version": __version__,
+            "api_token": (settings.web_api_token or "").strip() or None,
         },
     )
 
@@ -102,7 +133,9 @@ async def health() -> dict:
     return {
         "ok": True,
         "version": __version__,
-        "openai": settings.has_openai,
+        "openai": settings.has_full_chat,
+        "chat_provider": settings.chat_provider,
+        "gemini": settings.has_gemini,
         "discord": settings.has_discord,
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
@@ -118,11 +151,79 @@ async def chat(body: ChatRequest) -> dict:
     if len(body.message) > 8000:
         raise HTTPException(400, "Message too long (max 8000 chars)")
     try:
-        agent = get_agent()
-        reply = agent.chat(body.message.strip())
+        from shorts_bot.agents.duration import parse_work_duration
+        from shorts_bot.agents.manager import should_use_manager
+        from shorts_bot.services.ops import BotOperations
+
+        msg = body.message.strip()
+        if should_use_manager(msg):
+            parsed = parse_work_duration(msg)
+            budget = parsed.work_seconds or 0
+            if budget >= settings.manager_async_threshold_seconds:
+                return await manager_run(
+                    ManagerRequest(message=msg, force_async=True),
+                )
+            result = BotOperations().manager_chat(msg)
+            return {"reply": result["reply"], "manager": result}
+        reply = BotOperations().chat(msg)
         return {"reply": reply}
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(500, f"Chat error: {exc}") from exc
+
+
+@app.post("/api/manager/run")
+async def manager_run(body: ManagerRequest) -> dict:
+    """Chief Manager — sync for short budgets, async job for long work."""
+    if not body.message.strip():
+        raise HTTPException(400, "Empty message")
+    if len(body.message) > 8000:
+        raise HTTPException(400, "Message too long")
+
+    from shorts_bot.agents.duration import clamp_work_seconds, parse_work_duration
+    from shorts_bot.agents.job_runner import start_manager_job
+    from shorts_bot.agents.job_store import ManagerJobStore
+    from shorts_bot.agents.manager import strip_manager_prefix
+    from shorts_bot.services.ops import BotOperations
+
+    msg = body.message.strip()
+    parsed = parse_work_duration(strip_manager_prefix(msg))
+    budget = parsed.work_seconds or 0
+
+    use_async = body.force_async or budget >= settings.manager_async_threshold_seconds
+
+    if use_async and budget > 0:
+        store = ManagerJobStore(settings.database_path)
+        job = store.create(msg, work_seconds=budget)
+        start_manager_job(store, job.id)
+        return {
+            "async": True,
+            "job_id": job.id,
+            "status": "queued",
+            "work_seconds": budget,
+            "poll": f"/api/manager/jobs/{job.id}",
+        }
+
+    result = await asyncio.to_thread(BotOperations().manager_chat, msg)
+    return {"async": False, "manager": result, "reply": result["reply"]}
+
+
+@app.get("/api/manager/jobs/{job_id}")
+async def manager_job(job_id: str) -> dict:
+    from shorts_bot.agents.job_store import ManagerJobStore
+
+    try:
+        job = ManagerJobStore(settings.database_path).get(job_id)
+    except KeyError as exc:
+        raise HTTPException(404, "Job not found") from exc
+    return job.to_dict()
+
+
+@app.get("/api/manager/jobs")
+async def manager_jobs_list() -> dict:
+    from shorts_bot.agents.job_store import ManagerJobStore
+
+    jobs = ManagerJobStore(settings.database_path).list_recent(limit=20)
+    return {"jobs": [j.to_dict() for j in jobs]}
 
 
 @app.get("/api/improvements")
@@ -173,7 +274,9 @@ async def approve_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "approved", body.note or "Approved.")
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note or "Approved", "approved")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note or "Approved", "approved")
     return {"status": d.status}
 
 
@@ -186,7 +289,9 @@ async def reject_draft(draft_id: int, body: ImprovementDecision) -> dict:
         d = store.review_draft(draft_id, "rejected", body.note)
     except KeyError:
         raise HTTPException(404, "Not found") from None
-    get_proposer().propose_from_feedback(d.topic, body.note, "rejected")
+    from shorts_bot.learning.feedback import learn_from_draft
+
+    learn_from_draft(get_memory(), d.topic, body.note, "rejected")
     return {"status": d.status}
 
 
@@ -197,11 +302,13 @@ async def score_video(body: ScoreRequest) -> dict:
         for k, v in body.model_dump().items()
         if k != "video_label" and v is not None
     }
+    from shorts_bot.learning.score_helpers import propose_reward_improvement
+
     engine = get_reward_engine()
     result = engine.score(body.video_label, metrics)
     improvement = None
     proposer = get_proposer()
-    imp = proposer.propose_from_reward(result)
+    imp = propose_reward_improvement(get_memory(), proposer, result)
     if imp:
         improvement = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
     return {
@@ -226,7 +333,9 @@ async def status() -> dict:
     store = get_store()
     memory = get_memory()
     return {
-        "openai": settings.has_openai,
+        "openai": settings.has_full_chat,
+        "chat_provider": settings.chat_provider,
+        "gemini": settings.has_gemini,
         "channel": store.channel_summary(),
         "stats": store.stats(),
         "pending_improvements": len(memory.list_improvements(status="pending")),
@@ -241,6 +350,17 @@ async def status() -> dict:
 @app.get("/api/youtube/status")
 async def youtube_status() -> dict:
     return auth_status()
+
+
+@app.get("/api/login-status")
+async def login_status() -> dict:
+    import asyncio
+
+    from shorts_bot.login_status import full_status
+
+    rows = await asyncio.to_thread(full_status)
+    ready = sum(1 for r in rows if r["ready"])
+    return {"ready": ready, "total": len(rows), "services": rows}
 
 
 @app.get("/api/learned")
@@ -299,6 +419,20 @@ async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
     return {"status": task.status, "title": task.title}
 
 
+@app.post("/api/production")
+async def create_production_pack(body: ProductionRequest) -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    return BotOperations().prepare_video_production(body.draft_id, body.turboscribe_text)
+
+
+@app.post("/api/production/auto/{draft_id}")
+async def auto_production(draft_id: int) -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    return BotOperations().auto_make_video(draft_id)
+
+
 @app.post("/api/youtube/apply-brand")
 async def youtube_apply_brand() -> dict:
     from shorts_bot.services.ops import BotOperations
@@ -307,16 +441,39 @@ async def youtube_apply_brand() -> dict:
     return result
 
 
+@app.post("/api/youtube/comments")
+async def youtube_comments() -> dict:
+    from shorts_bot.services.ops import BotOperations
+
+    result = await asyncio.to_thread(BotOperations().run_comment_replies)
+    return result
+
+
+@app.get("/api/youtube/comments/pending")
+async def youtube_comments_pending() -> dict:
+    memory = get_memory()
+    return {
+        "pending": memory.count_comments_needing_human(),
+        "items": memory.list_comments_needing_human(limit=20),
+    }
+
+
 @app.post("/api/youtube/sync")
 async def youtube_sync() -> dict:
-    result = get_analytics_sync().run()
+    automation = await asyncio.to_thread(run_full_automation)
+    result = automation.sync
     pending = len(get_memory().list_improvements(status="pending"))
+    msg = result.message
+    if automation.improvements_auto_approved:
+        msg += f" (auto-approved {automation.improvements_auto_approved})"
     return {
         "ok": result.ok,
-        "message": result.message,
+        "message": msg,
         "videos_scored": result.videos_scored,
         "improvements_created": result.improvements_created,
+        "improvements_auto_approved": automation.improvements_auto_approved,
+        "videos_published": automation.videos_published,
         "rewards": result.rewards or [],
         "pending_improvements": pending,
-        "sign_off_hint": "Tap Yes on the right — one tap each." if pending else None,
+        "sign_off_hint": "Tap Yes on risky proposals only." if pending else None,
     }

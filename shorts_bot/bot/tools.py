@@ -145,7 +145,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_channel_brand",
-            "description": "Get Soft Continuity channel brand voice, YouTube copy, and niche guidance.",
+            "description": "Get Don't Blink channel brand voice, YouTube copy, and niche guidance.",
             "parameters": {"type": "object", "properties": {}},
         },
     },
@@ -236,6 +236,68 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "prepare_video_production",
+            "description": (
+                "Build timestamped still-image production pack from TurboScribe transcript: "
+                "one image prompt per timestamp, CapCut timeline, manifest for Don't Blink Shorts."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "draft_id": {"type": "integer", "description": "Draft ID with approved script."},
+                    "turboscribe_text": {
+                        "type": "string",
+                        "description": "Pasted TurboScribe export with timestamps.",
+                    },
+                },
+                "required": ["draft_id", "turboscribe_text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "browse_web",
+            "description": (
+                "Open a headless browser (saved profile) and return page text. "
+                "Use for live web research, vidIQ, Trends, competitor pages."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "Full URL or site alias: vidiq, youtube, trends, turboscribe.",
+                    },
+                    "screenshot": {
+                        "type": "boolean",
+                        "description": "Save screenshot to data/screenshots/",
+                    },
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "open_browser",
+            "description": (
+                "Open a visible browser on Desktop for human login or manual steps. "
+                "Aliases: vidiq, youtube, trends, turboscribe."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "URL or site alias."},
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "setup_youtube_channel",
             "description": (
                 "Open a browser and set up a YouTube channel. Google phone/CAPTCHA "
@@ -281,6 +343,9 @@ class ToolRunner:
             "get_course_guidance": self._get_course_guidance,
             "list_free_tools": self._list_free_tools,
             "apply_channel_branding": self._apply_channel_branding,
+            "prepare_video_production": self._prepare_video_production,
+            "browse_web": self._browse_web,
+            "open_browser": self._open_browser,
             "setup_youtube_channel": self._setup_youtube_channel,
             "get_channel_brand": self._get_channel_brand,
             "queue_dev_task": self._queue_dev_task,
@@ -301,7 +366,11 @@ class ToolRunner:
             return json.dumps({"error": str(exc)})
 
     def _create_draft(self, args: dict[str, Any]) -> str:
-        draft = self.generator.create_and_store(args["topic"], args.get("angle"))
+        from shorts_bot.production.research import deep_research_topic
+
+        topic = args["topic"]
+        research = deep_research_topic(topic)
+        draft = self.generator.create_and_store(topic, args.get("angle"), research=research)
         return json.dumps(
             {
                 "draft_id": draft.id,
@@ -344,22 +413,28 @@ class ToolRunner:
         )
 
     def _approve_draft(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         draft = self.queue.approve(int(args["draft_id"]), args.get("note", ""))
+        learned = learn_from_draft(self._memory, draft.topic, args.get("note", ""), "approved")
         return json.dumps(
             {
                 "draft_id": draft.id,
                 "status": draft.status,
-                "message": "Draft approved. Video production comes later.",
+                "message": f"Draft approved. {learned}",
             }
         )
 
     def _reject_draft(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.feedback import learn_from_draft
+
         draft = self.queue.reject(int(args["draft_id"]), args["reason"])
+        learned = learn_from_draft(self._memory, draft.topic, args["reason"], "rejected")
         return json.dumps(
             {
                 "draft_id": draft.id,
                 "status": draft.status,
-                "message": "Draft rejected. I'll learn from your reason next time.",
+                "message": f"Draft rejected. {learned}",
             }
         )
 
@@ -389,10 +464,12 @@ class ToolRunner:
         return json.dumps({"free_services": self.router.kb.free_services})
 
     def _score_video_performance(self, args: dict[str, Any]) -> str:
+        from shorts_bot.learning.score_helpers import propose_reward_improvement
         metrics = {k: v for k, v in args.items() if k != "video_label" and v is not None}
         engine = RewardEngine(self._memory)
         result = engine.score(args["video_label"], metrics)
-        imp = ImprovementProposer(self._memory, client=None).propose_from_reward(result)
+        proposer = ImprovementProposer(self._memory, client=None)
+        imp = propose_reward_improvement(self._memory, proposer, result)
         payload: dict[str, Any] = {
             "score": result.score,
             "verdict": result.verdict,
@@ -492,6 +569,29 @@ class ToolRunner:
         self.store.mark_channel_ready(channel_name=name, note=note)
         return json.dumps({"message": "Channel marked ready.", "channel_name": name, "note": note})
 
+    def _prepare_video_production(self, args: dict[str, Any]) -> str:
+        from shorts_bot.production.pack import build_production_pack
+
+        try:
+            pack = build_production_pack(
+                self.store,
+                draft_id=int(args["draft_id"]),
+                turboscribe_text=args["turboscribe_text"],
+            )
+        except (ValueError, KeyError) as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
+        return json.dumps(
+            {
+                "ok": True,
+                "message": pack.message,
+                "draft_id": pack.draft_id,
+                "topic": pack.topic,
+                "image_count": pack.image_count,
+                "output_dir": str(pack.output_dir),
+                "manifest": str(pack.manifest_path),
+            }
+        )
+
     def _apply_channel_branding(self, args: dict[str, Any]) -> str:
         operator = YouTubeChannelBranding(
             profile_dir=settings.browser_profile_dir,
@@ -515,6 +615,43 @@ class ToolRunner:
                 "url": result.current_url,
             }
         )
+
+    def _browse_web(self, args: dict[str, Any]) -> str:
+        from shorts_bot.browser.session import browse_url
+
+        try:
+            result = browse_url(
+                args["url"],
+                screenshot=bool(args.get("screenshot", False)),
+            )
+            return json.dumps(
+                {
+                    "ok": True,
+                    "url": result.url,
+                    "title": result.title,
+                    "logged_in": result.logged_in_hint,
+                    "text": result.text[:6000],
+                    "screenshot": result.screenshot_path,
+                    "message": result.summary()[:4000],
+                }
+            )
+        except Exception as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
+
+    def _open_browser(self, args: dict[str, Any]) -> str:
+        from shorts_bot.browser.session import open_browser_for_human
+
+        try:
+            result = open_browser_for_human(args["url"])
+            return json.dumps(
+                {
+                    "ok": True,
+                    "url": result.url,
+                    "message": result.message or result.summary(),
+                }
+            )
+        except Exception as exc:
+            return json.dumps({"ok": False, "message": str(exc)})
 
     def _setup_youtube_channel(self, args: dict[str, Any]) -> str:
         channel_name = args.get("channel_name") or settings.youtube_channel_name

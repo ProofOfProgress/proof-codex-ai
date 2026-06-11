@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Soft Continuity — Operator</title>
-  <meta name="description" content="Faceless YouTube Shorts strategist — chat, approve, learn." />
+  <title>AlphaBeta001 — Don't Blink Operator</title>
+  <meta name="description" content="AlphaBeta001 Chief Manager — Don't Blink horror Shorts." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -13,15 +13,15 @@
 <body>
   <div class="shell">
     <nav class="nav">
-      <div class="brand">Soft <span>Continuity</span></div>
-      <div class="brand-tagline">you're still here. good.</div>
+      <div class="brand">Don't <span>Blink</span></div>
+      <div class="brand-tagline">Manager: {{ manager_name }}</div>
       <div class="sub">Operator v{{ version }}</div>
       <button class="nav-btn active" data-panel="chat" type="button">Chat</button>
       <button class="nav-btn" data-panel="rewards" type="button">Rewards</button>
       <button class="nav-btn" data-panel="learning" type="button">Learning</button>
       <button class="nav-btn" data-panel="dev" type="button">Dev queue</button>
       <div class="badges">
-        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% else %}Chat offline{% endif %}</span>
+        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% if chat_provider == 'gemini' %} (Gemini){% elif chat_provider == 'openai' %} (OpenAI){% endif %}{% else %}Chat offline{% endif %}</span>
         <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
           {% if youtube.ready %}YT ready{% elif youtube.credentials_configured %}YT sign-in{% else %}YT setup{% endif %}
         </span>
@@ -40,7 +40,7 @@
 
     <main class="main">
       <header class="topbar">
-        <h1 id="panel-title">Strategist chat</h1>
+        <h1 id="panel-title">{{ manager_name }}</h1>
         <div class="stats">
           <div class="stat"><div class="label">Improvements</div><div class="value">{{ pending_count }}</div></div>
           <div class="stat"><div class="label">Drafts</div><div class="value">{{ pending_drafts }}</div></div>
@@ -51,14 +51,14 @@
       <section id="panel-chat" class="panel active">
         {% if not has_openai %}
         <div style="margin:12px 24px 0;padding:12px 14px;border-radius:12px;background:#422006;border:1px solid #854d0e;font-size:.86rem;">
-          <strong>Offline chat.</strong> Add OpenAI API key later — see <code>docs/CHAT_TONIGHT.md</code>. Offline commands still work in Discord: <code>!draft topic</code>
+          <strong>Offline chat.</strong> Add free <code>GEMINI_API_KEY</code> from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">AI Studio</a> — see <code>docs/CHAT_TONIGHT.md</code>. Offline commands still work: <code>draft topic</code>
         </div>
         {% endif %}
         <div class="chat-messages" id="messages">
-          <div class="msg bot">{% if has_openai %}I'm here to help — sleep, focus, boundaries. Ask for drafts or say sync after YouTube login.{% else %}Offline. Try: <code>draft can't sleep</code> · <code>dev: polish banner</code> · Discord DM works too.{% endif %}</div>
+          <div class="msg bot">{% if has_openai %}{{ manager_name }} here — Chief Manager for Don't Blink horror Shorts. Ask for hooks, drafts, or research.{% else %}Offline. Try: <code>draft mirror blink</code> · <code>manager: score topics</code>{% endif %}</div>
         </div>
         <form class="composer" id="chat-form">
-          <input id="chat-input" type="text" placeholder="Talk to your Shorts strategist..." autocomplete="off" />
+          <input id="chat-input" type="text" placeholder="Talk to {{ manager_name }}..." autocomplete="off" />
           <button type="submit">Send</button>
         </form>
       </section>
@@ -94,6 +94,16 @@
             <p style="font-size:.82rem;margin-bottom:10px;">Banner: <code>channel/brand/assets/banner.svg</code> · <code>docs/YOUTUBE_CHANNEL_SETUP.md</code></p>
             <button class="btn" id="apply-brand-btn" type="button" style="width:100%;">Apply name &amp; description to YouTube</button>
             <div class="sync-msg" id="brand-msg"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Video production (TurboScribe → still images)</h3>
+            <p style="font-size:.85rem;color:var(--muted);">Auto-make creates images + TTS voiceover. Optional: TurboScribe paste for tighter sync.</p>
+            <input id="produce-draft-id" type="number" min="1" placeholder="Draft ID" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
+            <textarea id="produce-transcript" rows="6" placeholder="0:00 First line&#10;0:07 Second line&#10;0:15 Third line" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.82rem;"></textarea>
+            <button class="btn" id="produce-auto-btn" type="button" style="width:100%;margin-bottom:8px;">Auto-make video (script → images)</button>
+            <button class="btn secondary" id="produce-btn" type="button" style="width:100%;">Build from TurboScribe paste</button>
+            <div class="sync-msg" id="produce-msg"></div>
+            <p style="font-size:.78rem;color:var(--muted);margin-top:8px;">Output: <code>data/production/draft_&lt;id&gt;/</code> · <code>docs/VIDEO_PRODUCTION.md</code></p>
           </div>
           <h3>Learned rules file</h3>
           <button class="btn secondary" type="button" id="copy-learned" style="margin-bottom:8px;">Copy learned rules</button>
@@ -184,6 +194,7 @@
       {% endfor %}
     </aside>
   </div>
+  <script>window.__API_TOKEN__ = {{ api_token|tojson }};</script>
   <script src="/static/app.js"></script>
 </body>
 </html>

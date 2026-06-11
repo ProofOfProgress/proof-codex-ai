@@ -57,11 +57,13 @@ else
   note "YouTube not connected — run: python3 -m shorts_bot.youtube.auth_cli"
 fi
 
-# OpenAI (optional)
-if [ -f .env ] && grep -qE '^OPENAI_API_KEY=sk-' .env 2>/dev/null && ! grep -qi 'your-key' .env 2>/dev/null; then
+# Gemini (free chat — preferred)
+if [ -f .env ] && grep -qE '^GEMINI_API_KEY=.{20,}' .env 2>/dev/null && ! grep -qi 'your-gemini' .env 2>/dev/null; then
+  pass "GEMINI_API_KEY set (free full chat)"
+elif [ -f .env ] && grep -qE '^OPENAI_API_KEY=sk-' .env 2>/dev/null && ! grep -qi 'your-key' .env 2>/dev/null; then
   pass "OPENAI_API_KEY set (smarter chat)"
 else
-  note "OPENAI_API_KEY not set — offline mode still works"
+  note "No GEMINI_API_KEY or OPENAI_API_KEY — offline mode still works"
 fi
 
 # Discord

@@ -20,6 +20,7 @@ class SyncResult:
     videos_scored: int = 0
     improvements_created: int = 0
     rewards: list[dict[str, Any]] | None = None
+    scored_results: list[RewardResult] | None = None
 
 
 class AnalyticsSync:
@@ -75,6 +76,7 @@ class AnalyticsSync:
             videos_scored=len(metrics),
             improvements_created=improvements_created,
             rewards=rewards,
+            scored_results=scored,
         )
 
     def _pending_sources(self) -> set[str]:
@@ -87,12 +89,14 @@ class AnalyticsSync:
         wins = sorted((r for r in scored if r.verdict == "reward"), key=lambda r: r.score, reverse=True)
         candidates = punishes[:2] + wins[:1]
 
+        from shorts_bot.learning.score_helpers import propose_reward_improvement
+
         created = 0
         for result in candidates:
             source = f"reward:{result.verdict}:{result.video_label}"
             if source in pending:
                 continue
-            if self.proposer.propose_from_reward(result):
+            if propose_reward_improvement(self.memory, self.proposer, result):
                 created += 1
                 pending.add(source)
             if created >= MAX_IMPROVEMENTS_PER_SYNC:

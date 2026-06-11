@@ -4,11 +4,15 @@ __pycache__/
 .venv/
 venv/
 data/*.db
+data/*.db-wal
+data/*.db-shm
+data/production/
 data/*.sqlite
 data/browser_profile/
 data/screenshots/
 data/youtube_token.json
 data/LEARNED.md
+data/MEMORY.md
 data/discord_prefs.json
 data/backups/
 *.log

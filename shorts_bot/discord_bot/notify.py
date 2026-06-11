@@ -28,13 +28,15 @@ async def dm_all(bot: discord.Client, text: str, *, chunk: int = 1900) -> int:
 
 async def notify_pending_summary(bot: discord.Client, ops) -> None:
     s = ops.status()
-    if s["pending_improvements"] + s["pending_drafts"] + s["pending_dev"] == 0:
+    pending_comments = s.get("pending_comments", 0)
+    if s["pending_improvements"] + s["pending_drafts"] + s["pending_dev"] + pending_comments == 0:
         return
     msg = (
         "**Shorts Bot — needs your tap**\n"
         f"• Improvements: {s['pending_improvements']} → `!pending` then `!yes <id>`\n"
         f"• Drafts: {s['pending_drafts']}\n"
         f"• Dev tasks: {s['pending_dev']}\n"
+        f"• Serious comments: {pending_comments} → `!comments pending`\n"
         f"Web: http://localhost:8080"
     )
     await dm_all(bot, msg)

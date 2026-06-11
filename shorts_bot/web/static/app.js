@@ -1,3 +1,11 @@
+function apiHeaders(extra = {}) {
+  const h = { ...extra };
+  if (window.__API_TOKEN__) {
+    h.Authorization = `Bearer ${window.__API_TOKEN__}`;
+  }
+  return h;
+}
+
 function toast(msg, ok = true) {
   const el = document.createElement('div');
   el.textContent = msg;
@@ -30,7 +38,7 @@ if (chatForm) {
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ message: text }),
       });
       const data = await res.json();
@@ -58,7 +66,7 @@ async function decideImprovement(id, yes) {
   const path = yes ? 'yes' : 'no';
   await fetch(`/api/improvements/${id}/${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ note: yes ? 'Approved.' : 'Skipped.' }),
   });
   document.querySelector(`.imp-card[data-id="${id}"]`)?.remove();
@@ -69,7 +77,7 @@ async function decideDraft(id, yes) {
   const path = yes ? 'yes' : 'no';
   await fetch(`/api/drafts/${id}/${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ note }),
   });
   document.querySelector(`.draft-card[data-draft="${id}"]`)?.remove();
@@ -79,7 +87,7 @@ async function decideDev(id, yes) {
   const path = yes ? 'yes' : 'no';
   await fetch(`/api/dev/${id}/${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ note: yes ? 'Approved.' : 'Skipped.' }),
   });
   document.querySelector(`.dev-card[data-id="${id}"]`)?.remove();
@@ -93,7 +101,7 @@ if (applyBrandBtn) {
     brandMsg.className = 'sync-msg';
     brandMsg.textContent = 'Opening browser — updating channel name and description…';
     try {
-      const res = await fetch('/api/youtube/apply-brand', { method: 'POST' });
+      const res = await fetch('/api/youtube/apply-brand', { method: 'POST', headers: apiHeaders() });
       const data = await res.json();
       brandMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
       let text = data.message || 'Done';
@@ -109,6 +117,64 @@ if (applyBrandBtn) {
   });
 }
 
+const produceMsg = document.getElementById('produce-msg');
+const produceAutoBtn = document.getElementById('produce-auto-btn');
+if (produceAutoBtn && produceMsg) {
+  produceAutoBtn.addEventListener('click', async () => {
+    const draftId = parseInt(document.getElementById('produce-draft-id')?.value, 10);
+    if (!draftId) {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Enter draft ID first.';
+      return;
+    }
+    produceAutoBtn.disabled = true;
+    produceMsg.className = 'sync-msg';
+    produceMsg.textContent = 'Auto-building still images from script…';
+    try {
+      const res = await fetch(`/api/production/auto/${draftId}`, { method: 'POST', headers: apiHeaders() });
+      const data = await res.json();
+      produceMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      produceMsg.textContent = data.message || 'Done';
+    } catch {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Auto production failed.';
+    } finally {
+      produceAutoBtn.disabled = false;
+    }
+  });
+}
+
+const produceBtn = document.getElementById('produce-btn');
+if (produceBtn && produceMsg) {
+  produceBtn.addEventListener('click', async () => {
+    const draftId = parseInt(document.getElementById('produce-draft-id')?.value, 10);
+    const text = document.getElementById('produce-transcript')?.value?.trim();
+    if (!draftId || !text) {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Enter draft ID and TurboScribe transcript.';
+      return;
+    }
+    produceBtn.disabled = true;
+    produceMsg.className = 'sync-msg';
+    produceMsg.textContent = 'Building image prompts and CapCut timeline…';
+    try {
+      const res = await fetch('/api/production', {
+        method: 'POST',
+        headers: apiHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ draft_id: draftId, turboscribe_text: text }),
+      });
+      const data = await res.json();
+      produceMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
+      produceMsg.textContent = data.message || (data.detail || 'Done');
+    } catch {
+      produceMsg.className = 'sync-msg err';
+      produceMsg.textContent = 'Production pack failed.';
+    } finally {
+      produceBtn.disabled = false;
+    }
+  });
+}
+
 const syncBtn = document.getElementById('sync-btn');
 const syncMsg = document.getElementById('sync-msg');
 if (syncBtn) {
@@ -117,7 +183,7 @@ if (syncBtn) {
     syncMsg.className = 'sync-msg';
     syncMsg.textContent = 'Syncing...';
     try {
-      const res = await fetch('/api/youtube/sync', { method: 'POST' });
+      const res = await fetch('/api/youtube/sync', { method: 'POST', headers: apiHeaders() });
       const data = await res.json();
       syncMsg.className = 'sync-msg ' + (data.ok ? 'ok' : 'err');
       syncMsg.textContent = data.message || 'Done';
@@ -140,7 +206,7 @@ if (devForm) {
     if (!title || !desc) return;
     const res = await fetch('/api/dev', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ title, description: desc }),
     });
     const data = await res.json();

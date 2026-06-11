@@ -37,6 +37,8 @@ class MemoryStore:
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         return conn
 
     def _init_db(self) -> None:
@@ -139,6 +141,33 @@ class MemoryStore:
         if row is None:
             raise KeyError(f"Draft {draft_id} not found")
         return self._row_to_draft(row)
+
+    def update_draft_content(
+        self,
+        draft_id: int,
+        *,
+        script: str | None = None,
+        hook: str | None = None,
+        help_angle: str | None = None,
+        quality_notes: str | None = None,
+    ) -> Draft:
+        draft = self.get_draft(draft_id)
+        with self._connect() as conn:
+            conn.execute(
+                """
+                UPDATE drafts
+                SET script = ?, hook = ?, help_angle = ?, quality_notes = ?
+                WHERE id = ?
+                """,
+                (
+                    script if script is not None else draft.script,
+                    hook if hook is not None else draft.hook,
+                    help_angle if help_angle is not None else draft.help_angle,
+                    quality_notes if quality_notes is not None else draft.quality_notes,
+                    draft_id,
+                ),
+            )
+        return self.get_draft(draft_id)
 
     def list_drafts(self, status: str | None = None, limit: int = 20) -> list[Draft]:
         query = "SELECT * FROM drafts"

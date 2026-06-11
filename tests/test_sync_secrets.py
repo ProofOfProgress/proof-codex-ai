@@ -24,15 +24,18 @@ def test_sync_openai_key_to_env(tmp_path: Path, monkeypatch):
 
 
 def test_sync_skips_placeholder(monkeypatch, tmp_path: Path):
+    import scripts.sync_secrets as mod
+
     env_file = tmp_path / ".env"
     env_file.write_text("OPENAI_API_KEY=sk-old\n", encoding="utf-8")
     monkeypatch.setenv("OPENAI_API_KEY", "sk-your-key-here")
+    for key in mod.SYNC_VARS:
+        if key != "OPENAI_API_KEY":
+            monkeypatch.delenv(key, raising=False)
     monkeypatch.chdir(tmp_path)
-
-    import scripts.sync_secrets as mod
-
     monkeypatch.setattr(mod, "ENV_PATH", env_file)
     monkeypatch.setattr(mod, "ROOT", tmp_path)
+    monkeypatch.setattr(mod, "DEFAULT_ENV", {})
 
     written = sync(quiet=True)
     assert written == []

@@ -1,5 +1,24 @@
 # Chat tonight (2 minutes)
 
+## Free option: Gemini (recommended)
+
+1. Open [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (same Google account as YouTube is fine)
+2. Create an API key
+3. Add to Cursor secrets as **`GEMINI_API_KEY`** or paste into `.env`:
+
+```
+GEMINI_API_KEY=your-key-here
+GEMINI_MODEL=gemini-2.0-flash
+```
+
+4. Restart the bot — header shows **Chat full (Gemini)**
+
+Gemini free tier is enough for drafting scripts and strategist chat. The bot prefers Gemini over OpenAI when both are set.
+
+---
+
+## OpenAI (optional, paid)
+
 ChatGPT Pro and the **OpenAI API** are separate. The bot needs an API key for natural conversation.
 
 ## I have ChatGPT Pro — why can't we use that?

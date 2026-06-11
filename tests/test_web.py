@@ -14,7 +14,7 @@ def test_status_endpoint():
 def test_home_page():
     r = client.get("/")
     assert r.status_code == 200
-    assert "Soft Continuity" in r.text
+    assert "Don't Blink" in r.text
     assert "Sync YouTube Analytics" in r.text
 
 
@@ -29,6 +29,14 @@ def test_youtube_status():
     assert r.status_code == 200
     data = r.json()
     assert "ready" in data
+
+
+def test_login_status():
+    r = client.get("/api/login-status")
+    assert r.status_code == 200
+    data = r.json()
+    assert "services" in data
+    assert data["total"] >= 4
 
 
 def test_youtube_sync_graceful():

@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## Owner (read first)
+
+- **Not a developer** — explain in plain English; give exact steps ("say `!daily` in Discord"), not code tours.
+- **North star:** autonomous money-making channel. **Current focus:** **100% automation** + **better videos** (hooks, sync, vision QC, analytics learning). Top 4 only in `data/PRIORITIES.md`.
+- **Deprioritize** refactors, docs-for-docs-sake, and features that do not advance autopilot or revenue.
+- **Top 4 only:** see `data/PRIORITIES.md` — work only on those four until reassessed; update the file when priorities shift.
+- **Do it yourself:** external setup (Google Cloud OAuth, YouTube `auth_cli`, provider dashboards) — use **browser + terminal first**; only ask the owner when blocked (wrong account, 2FA, payment). See `data/operating_rules_seed.md` → “Cloud agents — do it yourself first”.
+- **Owner handoff:** if the owner must do something — drive the **browser to the exact screen** first, then they take over. No long manual doc dumps unless browser is unavailable.
+
 ## Cursor Cloud specific instructions
 
 ### North star (read first)
@@ -12,22 +21,26 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. Free-first stack: CapCut, YouTube Audio Library, Canva free.
+**Shorts Bot** — Jenny Hoyos strategist CLI for **Don't Blink** horror Shorts. Course KB in `course/files/` (01–09). **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. Applied learnings: `data/research/APPLIED_RESEARCH_ROUND_2.md`.
 
-**Built today:** script drafts, approval queue, analytics sync, reward/learning loop, Discord + web UI.
+**Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).
 
-**Not built yet (blocks money):** video render pipeline, YouTube upload API, daily autopilot, automated publish (no human Yes/No gates). See `docs/PRIORITIES.md`.
+**Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
 
 ### Services
 
 Install: `bash scripts/install.sh`
 
+**Cursor Cloud Agent secrets:** add keys in Cursor → your cloud agent → Secrets (same names as below). Run `bash scripts/install.sh` on the VM to sync into `.env`. See secret checklist in `docs/CURSOR_SECRETS.md`.
+
 Web UI (recommended):
 
 ```bash
 python3 -m shorts_bot.web
-# http://localhost:8080
+# http://127.0.0.1:8080 (binds localhost by default)
 ```
+
+Set `WEB_API_TOKEN` in `.env` to require Bearer token on mutating `/api/*` routes (UI auto-injects when served from `/`).
 
 CLI:
 
@@ -35,7 +48,11 @@ CLI:
 python3 -m shorts_bot
 ```
 
-Set `OPENAI_API_KEY` for full conversational mode. Quick setup: `bash scripts/set-openai-key.sh` or add `OPENAI_API_KEY` to Cursor secrets (auto-synced via `scripts/sync_secrets.py` on start). See `docs/CHAT_TONIGHT.md`. Without it, offline command mode still works (`help`, `draft`, `pending`, etc.).
+Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversational mode. Keys sync via `scripts/sync_secrets.py` on start. See `docs/CHAT_TONIGHT.md`. Without either, offline command mode still works (`help`, `draft`, `pending`, etc.).
+
+**Chief Manager (AlphaBeta001):** `python3 -m shorts_bot.agents.cli` — you talk to **AlphaBeta001** only (not the channel name); research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research horror hooks` or `plan this week's hooks`. Web: `POST /api/manager/run`. See `docs/AGENT_MANAGER.md`. Discord optional. Override: `MANAGER_DISPLAY_NAME` in `.env`.
+
+**Slack ↔ Cursor (long sessions away from IDE):** Official path is `@cursor` in Slack → Cloud Agent → replies in thread. Setup: `docs/SLACK_CURSOR_SETUP.md`. Slack MCP (`needsAuth` until owner links in Cursor Desktop) lets agents post/read Slack during grinds. Suggested channel: `#dont-blink-ops`, default repo `proof-codex-ai`.
 
 ### Lint / test
 
@@ -51,6 +68,16 @@ python -m pytest tests/ -q
 
 SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejections, chat history.
 
+**Agent memory (persistent):** operating rules / preferences / facts in `agent_memories` table; exported to `data/MEMORY.md`. Seeded from `data/operating_rules_seed.md` on first run. Injected into strategist + draft prompts; restored chat context on agent startup (`memory_chat_context_limit`, default 24). Commands: `remember <text>`, `memory`, `forget <id>` (Discord: `!remember`, `!memory`, `!forget`). CLI: `python3 -m shorts_bot.memory.memory_cli list`. See `docs/AGENT_MEMORY.md`.
+
+**Deep research:** `research <topic>` / `deep research <topic>` — web browse, Google Trends, YouTube competitors, browser fallback. vidIQ off by default. See `docs/DEEP_RESEARCH.md`, `docs/BROWSER.md`.
+
+**Self-learning:** Draft reject → immediate `avoid:*` rules; sync → reward proposals (max 3) + **reflective self-training** (episodes, rule confidence, promote to agent memory); safe improvements auto-approved. See `docs/SELF_LEARNING.md`, `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md`. Config: `SELF_TRAINING_ENABLED=true`.
+
+**Automation (default on):** Background analytics sync, auto-Yes on safe improvements, scheduled `!daily`, **uploads go public** (`YOUTUBE_UPLOAD_VISIBILITY=public` — owner approved, no pre-review), **Gemini vision QC** + ffmpeg QC before upload, **YouTube API upload** (no Studio Playwright).
+
+**Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
+
 ### Course
 
 Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.
@@ -65,25 +92,28 @@ Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message.
 
 1. Enable YouTube Analytics API + YouTube Data API v3 in Google Cloud
 2. Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in `.env`
-3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`)
+3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`). For API uploads add `YOUTUBE_OAUTH_UPLOAD=1`.
 4. Web UI: **Sync YouTube Analytics** or POST `/api/youtube/sync`
+5. **Upload fallback:** if token lacks `youtube.upload`, use `python3 -c "from pathlib import Path; from shorts_bot.youtube.studio_upload import upload_pack_via_studio; print(upload_pack_via_studio(Path('data/production/draft_N')))"` — may need Desktop browser if Google shows “Verify it’s you”.
 5. User approves improvements via **Yes/No** in sidebar
 
 Home setup: `docs/RUN_AT_HOME.md` (master). YouTube: `docs/TOMORROW.md`. OpenAI: `docs/CHAT_TONIGHT.md`. Health: `bash scripts/doctor.sh`.
+
+**Live login check:** `python3 -m shorts_bot.login_status` or `GET /api/login-status`. **Open remaining browser logins:** `python3 -m shorts_bot.login_handoff --all-remaining` (Desktop tab).
 
 Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `BotOperations.chat`.
 
 ### Discord
 
-- `DISCORD_BOT_TOKEN` — required to connect bot
-- `DISCORD_OWNER_ID` — optional; bot remembers last DM user in `data/discord_prefs.json`
-- Run: `python3 -m shorts_bot.discord_bot` or `bash scripts/run-all.sh`
-- **DMs:** type normally (no `!` prefix). Servers: `!help`, `!chat`, `/status` slash commands
-- Extra: `!ping`, `!learned`, `!rewards`, `!briefing`
+- `DISCORD_BOT_TOKEN` — required; enable **Message Content Intent** in Developer Portal
+- `DISCORD_OWNER_ID` — numeric user ID (`!myid`); owner can chat in servers without `@`
+- Run: `bash scripts/discord-bot.sh` or `python3 -m shorts_bot.discord_bot`
+- **DMs:** type normally. **Servers:** `!daily`, `@Bot message`, or slash `/daily`
+- API pipeline: `daily`, `apply brand`, `finish video`, `research` — see `docs/DISCORD_CONTROL.md`
 
 ### Dev queue
 
-Web **Dev queue** panel or `!dev title | description` — user Yes/No before coding tasks run. Approved items append to `data/LEARNED.md`.
+Web **Dev queue** panel or `!dev title | description` — safe tasks auto-approve to `data/DEV_QUEUE.md`; login/payment tasks need `devyes`. Approved items also append to `data/LEARNED.md`.
 
 ### Production pipeline (target)
 

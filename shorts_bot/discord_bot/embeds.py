@@ -4,9 +4,16 @@ import discord
 
 
 def status_embed(data: dict, *, web_port: int) -> discord.Embed:
+    from shorts_bot.config import settings
+
     yt = data.get("youtube", {})
-    embed = discord.Embed(title="Soft Continuity", description="you're still here. good.", color=0x8EB8FF)
-    embed.add_field(name="Chat", value="full" if data.get("openai") else "offline", inline=True)
+    name = settings.youtube_channel_name or "Don't Blink"
+    embed = discord.Embed(title=name, description="Watch the whole thing.", color=0x1A0A0A)
+    chat = "offline"
+    if data.get("openai"):
+        provider = data.get("chat_provider", "")
+        chat = f"full ({provider})" if provider else "full"
+    embed.add_field(name="Chat", value=chat, inline=True)
     embed.add_field(name="YouTube", value="ready" if yt.get("ready") else "setup needed", inline=True)
     embed.add_field(name="Discord", value="on", inline=True)
     embed.add_field(name="Improvements", value=str(data.get("pending_improvements", 0)), inline=True)

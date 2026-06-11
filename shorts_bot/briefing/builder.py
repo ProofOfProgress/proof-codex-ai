@@ -9,14 +9,14 @@ def build_morning_briefing() -> str:
     s = ops.status()
     yt = s["youtube"]
     lines = [
-        "**Good morning — Soft Continuity**",
-        "_you're still here. good._",
+        "**Good morning — Don't Blink**",
+        "_Don't Blink — watch the whole thing. 🔊 jumpscare at the end._",
         "",
         f"• Web UI: http://localhost:{settings.web_port}",
         f"• Chat: {'full (OpenAI)' if s['openai'] else 'offline — API key optional'}",
         f"• Discord: {'connected' if s['discord'] else 'needs DISCORD_BOT_TOKEN'}",
         "",
-        "**Waiting for you (login/setup only):**",
+        "**You only (login / payments):**",
     ]
 
     if not yt.get("credentials_configured"):
@@ -26,7 +26,7 @@ def build_morning_briefing() -> str:
             "• YouTube OAuth once: `python3 -m shorts_bot.youtube.auth_cli` — see docs/TOMORROW.md"
         )
     else:
-        lines.append("• YouTube Analytics: ready — tap Sync in web UI")
+        lines.append("• YouTube OAuth done — analytics sync runs automatically")
 
     if not s["openai"]:
         lines.append("• OpenAI API key optional — see docs/CHAT_TONIGHT.md")
@@ -34,10 +34,17 @@ def build_morning_briefing() -> str:
     lines.extend(
         [
             "",
-            "**Ready now (no login):**",
-            f"• Pending improvements: {s['pending_improvements']} (Yes/No in web or Discord)",
+            "**Automated (no tap needed):**",
+            f"• Analytics sync every {settings.auto_analytics_sync_interval_hours}h (safe improvements auto-Yes)",
+            f"• Daily Short at {settings.auto_daily_hour:02d}:{settings.auto_daily_minute:02d} UTC" if settings.auto_daily_enabled else "• Daily Short: manual `!daily`",
+            f"• Unlisted → public after {settings.auto_publish_hours}h" if settings.auto_publish_hours > 0 else "• Upload visibility: as configured",
+            "• Light YouTube comments auto-reply; serious ones queued for you",
+            "",
+            "**Still needs you (if any):**",
+            f"• Risky improvements: {s['pending_improvements']}",
             f"• Pending drafts: {s['pending_drafts']}",
-            f"• Pending dev tasks: {s['pending_dev']}",
+            f"• Login/payment dev tasks: {s['pending_dev']}",
+            f"• Serious comments: {s.get('pending_comments', 0)} (`comments pending`)",
             "",
             "**Quick start:**",
             "`bash scripts/start.sh`  — web",

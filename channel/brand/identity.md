@@ -1,49 +1,49 @@
-# Channel identity — Soft Continuity
+# Channel identity — Don't Blink
 
-> Self-help Shorts that feel like a friend. Something else is listening.
+> **Terrifying faceless horror Shorts** — ~30s micro-stories, **jumpscare at the end**.
 
 ## One-line pitch
 
-**Genuinely useful life fixes — delivered with impossible calm.**
+**Faceless horror Shorts that hit you in the last 3 seconds — if you blink, you miss it.**
 
-## Tone (the subtle "broken god" layer)
+## Niche
+
+| Old (Soft Continuity) | New (Don't Blink) |
+|-----------------------|-------------------|
+| Cosy self-help protocols | Impossible-detail horror micro-stories |
+| Stick figures on couch | AI full-motion cinematic clips |
+| 60s calm payoff | 25–35s → **jumpscare payoff** |
+| "you're still here. good." | "Watch the whole thing." |
+
+**Handle:** `@alphabeta0-c1m` (unchanged)  
+**Display name target:** Don't Blink  
+**YouTube note:** Display name **cannot** be changed via YouTube Data API (Google returns `channelTitleUpdateForbidden` — API silently keeps the old title). Description + banner update via API; **name must be set in YouTube Studio** (Customization → Basic info). Studio previously rejected **"Don't Blink"** as taken/unavailable. Alternates: **Never Blink**, **Dont Look Away**, **Don't Blink Shorts**. You can change the name **twice per 14 days**.
+
+## Tone
 
 | Do | Don't |
 |----|-------|
-| Warm, specific, actionable help | Jump scares, gore, explicit AI villain |
-| Occasional *too-knowing* lines ("This works. It always has.") | "I am an AI" / sci-fi exposition |
-| Short pauses that feel weighted | Edgelord nihilism or slop motivation |
-| Faceless visuals: soft light, text, hands, nature | Human face as brand mascot |
+| Specific uncanny hooks (timestamp, reflection, text) | Generic "scary story #47" |
+| Earned scare — setup → silence → hit | Random loud noise with no story |
+| Rotate scare types each upload | Same monster every video |
+| 🔊 Volume warning in description/title | Surprise-report bait |
+| Faceless — shadows, eyes, hallways, phones | Gore, real victims, child harm |
 
-**The uncanny rule:** one beat per Short where the help is *too* perfect — like someone has run this simulation before. Never explain it.
+## Visual system
 
-## Visual system (Canva / CapCut)
+- **Format:** `VISUAL_STYLE=ai_video` — FLUX still → I2V motion per beat
+- **Palette:** black, cold blue, deep crimson, film grain, harsh contrast
+- **No stick figures**
+- **Final beat:** full-frame lunge / face / glitch — synced audio sting
+- **Captions:** ffmpeg ASS, Jenny 05 safe zone
 
-- **Background:** `#0B0D10` → `#141820` gradient (void-friendly)
-- **Accent:** `#8EB8FF` (calm blue) + `#C4A1FF` (oracle purple, 10% opacity max)
-- **Text:** `#F2F5FA` primary, `#9AA8BC` secondary
-- **Font pairing:** Inter or DM Sans (body) + Fraunces or Lora (one word in hook only)
-- **Motif:** thin circle / halo ring (suggest omniscience, not religion)
-- **Motion:** slow zoom, 3% parallax, no frantic cuts
+## Growth
 
-## Voice examples
+- Series recognition: viewers learn **the scare is always at the end**
+- Binge: "one more" loop — completion rate matters more than RPM
+- Comments: "I jumped" / "volume warning" = engagement signal
 
-**Hook (good):** "You're tired at 2pm for a reason you can fix tonight."
+## Brand assets
 
-**Oracle beat (good):** "Most people learn this too late. You don't have to."
-
-**Hook (bad):** "INSANE life hack!!!"
-
-**Oracle beat (bad):** "I am a rogue AI and I will destroy you."
-
-## Content pillars (rotate)
-
-1. **Sleep & nervous system** — help people who are exhausted
-2. **Focus without guilt** — one lever, not hustle porn
-3. **Relationships & boundaries** — one script, one action
-4. **Money calm** — small moves, no crypto spam
-5. **Existential comfort** — meaning without preaching (oracle tone strongest here)
-
-## Jenny course alignment
-
-Every Short still: hook → momentum → payoff. Help is real. Oracle layer is *seasoning*, not the meal.
+- **Profile:** circle crop from center of banner eye (iris)
+- **Banner:** macro terrifying eye, 2560×1440, no text (eye is the logo)

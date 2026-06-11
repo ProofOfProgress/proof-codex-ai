@@ -13,9 +13,15 @@ from shorts_bot.rewards.engine import RewardResult
 class ImprovementProposer:
     """Generate self-training improvement proposals with pros and cons."""
 
-    def __init__(self, memory: MemoryExtensions, client: OpenAI | None = None) -> None:
+    def __init__(
+        self,
+        memory: MemoryExtensions,
+        client: OpenAI | None = None,
+        model: str | None = None,
+    ) -> None:
         self.memory = memory
         self.client = client
+        self.model = model or settings.openai_model
 
     def propose_from_reward(self, reward: RewardResult) -> Improvement | None:
         if reward.verdict == "neutral":
@@ -77,6 +83,7 @@ class ImprovementProposer:
 
     def _llm_proposal(self, reward: RewardResult) -> Improvement:
         applied = self.memory.applied_improvements()
+        avoid = self.memory.avoid_patterns() + self.memory.rejected_training_hints()
         prompt = f"""Based on this YouTube Short performance result, propose ONE system improvement.
 
 Verdict: {reward.verdict}
@@ -85,6 +92,7 @@ Reason: {reward.reason}
 Diagnosis: {reward.diagnosis}
 Metrics: {json.dumps(reward.metrics)}
 Already applied improvements: {applied}
+Do NOT re-propose anything similar to these rejected/avoid rules: {avoid}
 
 Return JSON:
 - title: short title
@@ -94,7 +102,7 @@ Return JSON:
 - cons: list of 2-3 strings (honest risks)
 """
         response = self.client.chat.completions.create(
-            model=settings.openai_model,
+            model=self.model,
             messages=[
                 {"role": "system", "content": "You improve a YouTube Shorts automation bot. Be specific. JSON only."},
                 {"role": "user", "content": prompt},

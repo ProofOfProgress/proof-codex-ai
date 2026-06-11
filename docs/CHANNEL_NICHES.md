@@ -1,40 +1,33 @@
-# Channel niche research — Soft Continuity angles
+# Channel niche — Don't Blink (horror Shorts)
 
-Ranked for faceless Shorts + self-help + subtle oracle vibe.
+**Don't Blink** — faceless horror micro-stories (~30s) with **jumpscare in the last 3 seconds**.
 
-## Tier 1 — start here
+## Positioning
 
-| Niche | Why it works | Example Short |
-|-------|----------------|---------------|
-| **Sleep debt recovery** | Huge search, genuine help, calm tone fits | "The 90-minute rule before bed nobody explains" |
-| **Anxiety micro-tools** | 30s breathing + one reframe | "When your chest tightens, do this first" |
-| **ADHD-friendly systems** | Underserved, no guru face needed | "One tray. Three tasks. That's the whole system." |
+One impossible detail → tension → earned scare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
 
-## Tier 2 — grow into
+## Scare pillars (rotate)
 
-| Niche | Oracle tone fit |
-|-------|-----------------|
-| Grief & loneliness (gentle) | High — "still here" messaging |
-| Financial calm for broke weeks | Medium — practical, not lambo |
-| Social exhaustion / introverts | High — boundary scripts |
+| Pillar | Example hook |
+|--------|----------------|
+| Wrong reflection | Mirror blinked one second after you did |
+| Wrong place | Security cam flagged motion — you live alone |
+| Wrong text | Last text showed delivered — phone was off |
+| Wrong sound | Knock came from inside the closet |
+| Wrong time | Photo timestamp from next week |
 
-## Tier 3 — avoid early
+## Production stack
 
-- Politics, medical claims, relationship drama bait
-- "Alpha" / sigma / red pill
-- True crime, horror cosplay (breaks friendly trust)
+1. **Deep research** — `data/research/LAUNCH_VIDEO_*_SEO_HOOKS.md`
+2. **Draft** — second-person horror script (`drafts/generator.py`)
+3. **Paid pipeline** — Resemble/edge VO + Gemini transcript + Replicate I2V
+4. **Upload** — vision QC ≥ 7.5, 1 Short/day, rotate scare pillar
 
-## Competitor patterns (faceless self-help Shorts)
+## Launch calendar (first 4)
 
-- Text-on-screen + stock B-roll + calm VO wins
-- Hooks under 2 seconds decide swipe-away
-- "One weird trick" is dead — **one clear mechanism** wins
+1. Mirror blink (live)
+2. Security cam motion (draft #3)
+3. Closet knock (research prep)
+4. Wrong text delivered (playbook)
 
-## 30-day content calendar (starter)
-
-Week 1: sleep (5 Shorts)
-Week 2: focus (5 Shorts)
-Week 3: boundaries (5 Shorts)
-Week 4: meaning/calm (5 Shorts)
-
-Each: approve draft → bot edits in CapCut → bot uploads **Private** → you set **Public** → sync analytics → Yes/No improvements.
+See `data/PRIORITIES.md` and `data/PRIORITY_14_NOW.md`.

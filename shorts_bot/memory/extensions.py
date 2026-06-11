@@ -2,9 +2,22 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore, _utc_now
+
+
+@dataclass
+class RuleConfidence:
+    rule_key: str
+    rule_text: str
+    confidence: float
+    reward_hits: int
+    punish_hits: int
+    last_verdict: str
+    promoted: bool
 
 
 @dataclass
@@ -111,18 +124,81 @@ class MemoryExtensions:
                     reviewed_at TEXT,
                     review_note TEXT
                 );
+
+                CREATE TABLE IF NOT EXISTS scheduled_publishes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    draft_id INTEGER,
+                    video_id TEXT NOT NULL UNIQUE,
+                    visibility TEXT NOT NULL DEFAULT 'unlisted',
+                    uploaded_at TEXT NOT NULL,
+                    publish_at TEXT NOT NULL,
+                    published_at TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS comment_actions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    youtube_comment_id TEXT NOT NULL UNIQUE,
+                    video_id TEXT NOT NULL,
+                    author TEXT NOT NULL DEFAULT '',
+                    original_text TEXT NOT NULL,
+                    decision TEXT NOT NULL,
+                    reason TEXT NOT NULL DEFAULT '',
+                    reply_text TEXT,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS upload_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    draft_id INTEGER,
+                    topic TEXT NOT NULL,
+                    hook TEXT NOT NULL DEFAULT '',
+                    script TEXT NOT NULL DEFAULT '',
+                    title TEXT NOT NULL DEFAULT '',
+                    video_id TEXT NOT NULL DEFAULT '',
+                    uploaded_at TEXT NOT NULL,
+                    active_rules_json TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS learning_episodes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    episode_type TEXT NOT NULL,
+                    video_label TEXT,
+                    verdict TEXT,
+                    score REAL,
+                    reflection TEXT NOT NULL,
+                    active_rules_json TEXT,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS rule_confidence (
+                    rule_key TEXT PRIMARY KEY,
+                    rule_text TEXT NOT NULL,
+                    confidence REAL NOT NULL DEFAULT 0.5,
+                    reward_hits INTEGER NOT NULL DEFAULT 0,
+                    punish_hits INTEGER NOT NULL DEFAULT 0,
+                    last_verdict TEXT NOT NULL DEFAULT '',
+                    promoted INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
             try:
                 conn.execute("ALTER TABLE reward_events ADD COLUMN breakdown_json TEXT")
             except Exception:
                 pass
+            try:
+                conn.execute("ALTER TABLE upload_events ADD COLUMN active_rules_json TEXT")
+            except Exception:
+                pass
 
     def save_analytics(self, video_label: str, metrics: dict[str, Any]) -> None:
+        """Upsert — latest metrics per video replace older rows."""
+        now = _utc_now()
         with self._conn() as conn:
+            conn.execute("DELETE FROM analytics_records WHERE video_label = ?", (video_label,))
             conn.execute(
                 "INSERT INTO analytics_records (video_label, metrics_json, recorded_at) VALUES (?, ?, ?)",
-                (video_label, json.dumps(metrics), _utc_now()),
+                (video_label, json.dumps(metrics), now),
             )
 
     def list_analytics(self, limit: int = 20) -> list[dict[str, Any]]:
@@ -239,6 +315,9 @@ class MemoryExtensions:
         imp = self.get_improvement(improvement_id)
         if approved:
             self.set_training_config(f"applied:{improvement_id}", imp.description)
+        else:
+            hint = f"{imp.title}: {note or imp.description}"[:500]
+            self.set_training_config(f"rejected:{improvement_id}", hint)
         return imp
 
     def set_training_config(self, key: str, value: str) -> None:
@@ -263,11 +342,224 @@ class MemoryExtensions:
             ).fetchall()
         return [r["value"] for r in rows]
 
-    def applied_training_context(self) -> str:
-        rules = self.applied_improvements()
-        if not rules:
+    def _config_values(self, prefix: str, *, limit: int = 10) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT value FROM training_config WHERE key LIKE ? ORDER BY updated_at DESC LIMIT ?",
+                (f"{prefix}%", limit),
+            ).fetchall()
+        return [r["value"] for r in rows]
+
+    def avoid_patterns(self) -> list[str]:
+        return self._config_values("avoid:", limit=8)
+
+    def repeat_patterns(self) -> list[str]:
+        return self._config_values("repeat:", limit=6)
+
+    def rejected_training_hints(self) -> list[str]:
+        return self._config_values("rejected:", limit=6)
+
+    def recent_performance_context(self, *, limit: int = 3) -> str:
+        rewards = self.recent_rewards(limit=limit)
+        if not rewards:
             return ""
-        return "Approved training rules (follow these):\n" + "\n".join(f"- {r}" for r in rules[:12])
+        lines = ["RECENT VIDEO PERFORMANCE (learn from these):"]
+        for r in rewards:
+            lines.append(
+                f"- {r['video_label']}: {r['verdict']} ({r['score']:+.2f}) — {r['reason'][:120]}"
+            )
+        return "\n".join(lines)
+
+    def active_rules_snapshot(self) -> dict[str, Any]:
+        """Rules in force at a point in time — stored on upload for causal attribution."""
+        return {
+            "applied": self.applied_improvements()[:15],
+            "avoid": self.avoid_patterns()[:8],
+            "repeat": self.repeat_patterns()[:6],
+        }
+
+    def record_learning_episode(
+        self,
+        *,
+        episode_type: str,
+        reflection: str,
+        video_label: str | None = None,
+        verdict: str | None = None,
+        score: float | None = None,
+        active_rules_json: str | None = None,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO learning_episodes
+                    (episode_type, video_label, verdict, score, reflection, active_rules_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    episode_type,
+                    video_label,
+                    verdict,
+                    score,
+                    reflection[:4000],
+                    active_rules_json,
+                    _utc_now(),
+                ),
+            )
+
+    def recent_episode_reflections(self, *, limit: int = 3) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT reflection FROM learning_episodes
+                ORDER BY id DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [r["reflection"][:500] for r in rows]
+
+    def bump_rule_confidence(
+        self,
+        *,
+        rule_key: str,
+        rule_text: str,
+        positive: bool,
+        verdict: str,
+    ) -> RuleConfidence:
+        delta = 0.12 if positive else -0.15
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM rule_confidence WHERE rule_key = ?",
+                (rule_key,),
+            ).fetchone()
+            if row:
+                conf = float(row["confidence"]) + delta
+                conf = max(0.0, min(1.0, conf))
+                rh = int(row["reward_hits"]) + (1 if positive else 0)
+                ph = int(row["punish_hits"]) + (0 if positive else 1)
+                conn.execute(
+                    """
+                    UPDATE rule_confidence
+                    SET confidence = ?, reward_hits = ?, punish_hits = ?,
+                        last_verdict = ?, rule_text = ?, updated_at = ?
+                    WHERE rule_key = ?
+                    """,
+                    (conf, rh, ph, verdict, rule_text[:500], _utc_now(), rule_key),
+                )
+            else:
+                conf = 0.5 + delta
+                conf = max(0.0, min(1.0, conf))
+                rh = 1 if positive else 0
+                ph = 0 if positive else 1
+                conn.execute(
+                    """
+                    INSERT INTO rule_confidence
+                        (rule_key, rule_text, confidence, reward_hits, punish_hits, last_verdict, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (rule_key, rule_text[:500], conf, rh, ph, verdict, _utc_now()),
+                )
+        return self.get_rule_confidence(rule_key)
+
+    def get_rule_confidence(self, rule_key: str) -> RuleConfidence:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT * FROM rule_confidence WHERE rule_key = ?",
+                (rule_key,),
+            ).fetchone()
+        if row is None:
+            raise KeyError(rule_key)
+        return RuleConfidence(
+            rule_key=row["rule_key"],
+            rule_text=row["rule_text"],
+            confidence=float(row["confidence"]),
+            reward_hits=int(row["reward_hits"]),
+            punish_hits=int(row["punish_hits"]),
+            last_verdict=row["last_verdict"] or "",
+            promoted=bool(row["promoted"]),
+        )
+
+    def demote_rule(self, rule_key: str, *, reason: str) -> None:
+        """Move low-confidence applied rule into rejected hints."""
+        try:
+            rc = self.get_rule_confidence(rule_key)
+        except KeyError:
+            return
+        self.set_training_config(f"rejected:auto:{rule_key}", f"{rc.rule_text[:200]} — {reason}"[:500])
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE rule_confidence SET confidence = 0.2, updated_at = ? WHERE rule_key = ?",
+                (_utc_now(), rule_key),
+            )
+
+    def rules_ready_for_promotion(self, *, threshold: int = 2) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT rule_key, rule_text, confidence, reward_hits
+                FROM rule_confidence
+                WHERE promoted = 0 AND reward_hits >= ? AND confidence >= 0.65
+                ORDER BY confidence DESC
+                LIMIT 5
+                """,
+                (threshold,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def mark_rule_promoted(self, rule_key: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE rule_confidence SET promoted = 1, updated_at = ? WHERE rule_key = ?",
+                (_utc_now(), rule_key),
+            )
+
+    def high_confidence_rules(self, *, limit: int = 6) -> list[str]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT rule_text, confidence FROM rule_confidence
+                WHERE confidence >= 0.55 AND promoted = 0
+                ORDER BY confidence DESC LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [f"{r['rule_text']} (conf={float(r['confidence']):.0%})" for r in rows]
+
+    def applied_training_context(self) -> str:
+        """Unified self-learning block for drafts + strategist."""
+        parts: list[str] = []
+        rules = self.applied_improvements()
+        if rules:
+            parts.append("APPROVED TRAINING RULES:\n" + "\n".join(f"- {r}" for r in rules[:10]))
+        validated = self.high_confidence_rules()
+        if validated:
+            parts.append("VALIDATED BY PERFORMANCE:\n" + "\n".join(f"- {r}" for r in validated))
+        avoid = self.avoid_patterns()
+        rejected = self.rejected_training_hints()
+        if avoid or rejected:
+            lines = avoid + [f"(rejected proposal) {h}" for h in rejected]
+            parts.append("AVOID / DO NOT REPEAT:\n" + "\n".join(f"- {x}" for x in lines[:10]))
+        repeat = self.repeat_patterns()
+        if repeat:
+            parts.append("REPEAT WHEN RELEVANT:\n" + "\n".join(f"- {r}" for r in repeat[:6]))
+        episodes = self.recent_episode_reflections(limit=3)
+        if episodes and settings.self_training_enabled:
+            parts.append(
+                "RECENT REFLECTIONS (self-training):\n"
+                + "\n".join(f"- {e}" for e in episodes)
+            )
+        perf = self.recent_performance_context()
+        if perf:
+            parts.append(perf)
+        if settings.self_training_enabled:
+            try:
+                from shorts_bot.learning.learned_file import LearnedFile
+
+                tail = LearnedFile(settings.learned_path).read_tail(max_chars=1200)
+                if tail and "No learned rules" not in tail:
+                    parts.append(f"CONSOLIDATED JOURNAL (excerpt):\n{tail[-1200:]}")
+            except Exception:
+                pass
+        return "\n\n".join(parts)
 
     def find_pending_dev_by_title(self, title: str) -> DevTask | None:
         with self._conn() as conn:
@@ -331,7 +623,222 @@ class MemoryExtensions:
         task = self.get_dev_task(task_id)
         if approved:
             self.set_training_config(f"dev:{task_id}", task.description)
+            from shorts_bot.automation.dev_queue import export_dev_queue
+
+            export_dev_queue(self)
         return task
+
+    def schedule_publish(
+        self,
+        *,
+        video_id: str,
+        draft_id: int | None = None,
+        visibility: str = "unlisted",
+        publish_after_hours: int,
+    ) -> None:
+        if publish_after_hours <= 0:
+            return
+        from datetime import datetime, timedelta, timezone
+
+        now = datetime.now(timezone.utc)
+        publish_at = now + timedelta(hours=publish_after_hours)
+        uploaded_at = _utc_now()
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO scheduled_publishes
+                    (draft_id, video_id, visibility, uploaded_at, publish_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(video_id) DO UPDATE SET
+                    draft_id = excluded.draft_id,
+                    visibility = excluded.visibility,
+                    uploaded_at = excluded.uploaded_at,
+                    publish_at = excluded.publish_at,
+                    published_at = NULL
+                """,
+                (
+                    draft_id,
+                    video_id,
+                    visibility,
+                    uploaded_at,
+                    publish_at.isoformat(),
+                ),
+            )
+
+    def list_due_scheduled_publishes(self, *, limit: int = 10) -> list[dict[str, Any]]:
+        now = _utc_now()
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT video_id, draft_id, visibility, publish_at
+                FROM scheduled_publishes
+                WHERE published_at IS NULL AND publish_at <= ?
+                ORDER BY publish_at ASC
+                LIMIT ?
+                """,
+                (now, limit),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def mark_scheduled_published(self, video_id: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                "UPDATE scheduled_publishes SET published_at = ? WHERE video_id = ?",
+                (_utc_now(), video_id),
+            )
+
+    def comment_already_handled(self, youtube_comment_id: str) -> bool:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM comment_actions WHERE youtube_comment_id = ? LIMIT 1",
+                (youtube_comment_id,),
+            ).fetchone()
+        return row is not None
+
+    def record_comment_action(
+        self,
+        *,
+        comment_id: str,
+        video_id: str,
+        author: str,
+        original_text: str,
+        decision: str,
+        reason: str = "",
+        reply_text: str | None = None,
+    ) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO comment_actions
+                    (youtube_comment_id, video_id, author, original_text, decision, reason, reply_text, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(youtube_comment_id) DO UPDATE SET
+                    decision = excluded.decision,
+                    reason = excluded.reason,
+                    reply_text = excluded.reply_text,
+                    created_at = excluded.created_at
+                """,
+                (
+                    comment_id,
+                    video_id,
+                    author[:120],
+                    original_text[:2000],
+                    decision,
+                    reason[:500],
+                    reply_text[:2000] if reply_text else None,
+                    _utc_now(),
+                ),
+            )
+
+    def list_comments_needing_human(self, *, limit: int = 20) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT youtube_comment_id, video_id, author, original_text, reason, created_at
+                FROM comment_actions
+                WHERE decision = 'needs_human'
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def count_comments_needing_human(self) -> int:
+        with self._conn() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n FROM comment_actions WHERE decision = 'needs_human'"
+            ).fetchone()
+        return int(row["n"]) if row else 0
+
+    def record_upload_event(
+        self,
+        *,
+        draft_id: int,
+        topic: str,
+        hook: str,
+        script: str,
+        title: str,
+        video_id: str,
+        active_rules_json: str | None = None,
+    ) -> None:
+        if active_rules_json is None:
+            active_rules_json = json.dumps(self.active_rules_snapshot())
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO upload_events
+                    (draft_id, topic, hook, script, title, video_id, uploaded_at, active_rules_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    draft_id,
+                    topic[:200],
+                    hook[:300],
+                    script[:4000],
+                    title[:200],
+                    video_id,
+                    _utc_now(),
+                    active_rules_json,
+                ),
+            )
+
+    def recent_uploads(self, *, hours: int = 24) -> list[dict[str, Any]]:
+        cutoff = (
+            datetime.now(timezone.utc) - timedelta(hours=hours)
+        ).isoformat()
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT draft_id, topic, hook, title, video_id, uploaded_at, active_rules_json
+                FROM upload_events
+                WHERE uploaded_at >= ?
+                ORDER BY id DESC
+                """,
+                (cutoff,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def recent_upload_scripts(self, *, limit: int = 5) -> list[dict[str, Any]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT draft_id, topic, hook, script, title, uploaded_at
+                FROM upload_events
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def topic_uploaded_within_days(self, topic: str, *, days: int) -> bool:
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT 1 FROM upload_events
+                WHERE lower(topic) = lower(?) AND uploaded_at >= ?
+                LIMIT 1
+                """,
+                (topic.strip(), cutoff),
+            ).fetchone()
+        return row is not None
+
+    def hook_uploaded_within_days(self, hook: str, *, days: int) -> bool:
+        if not hook.strip():
+            return False
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        with self._conn() as conn:
+            row = conn.execute(
+                """
+                SELECT 1 FROM upload_events
+                WHERE lower(hook) = lower(?) AND uploaded_at >= ?
+                LIMIT 1
+                """,
+                (hook.strip()[:120], cutoff),
+            ).fetchone()
+        return row is not None
 
     def learning_journal(self, limit: int = 15) -> list[dict[str, Any]]:
         entries: list[dict[str, Any]] = []

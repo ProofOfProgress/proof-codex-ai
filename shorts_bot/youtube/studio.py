@@ -90,6 +90,30 @@ def goto_channel_customization(page, channel_id: str | None = None) -> str | Non
     return cid
 
 
+def goto_channel_branding_images(page, channel_id: str | None = None) -> str | None:
+    """Open Studio → Customization → Branding (profile + banner)."""
+    page.set_extra_http_headers({"User-Agent": CHROME_UA})
+    cid = channel_id or resolve_channel_id(page)
+    if not cid:
+        page.goto("https://studio.youtube.com", wait_until="domcontentloaded", timeout=90000)
+        time.sleep(2)
+        _skip_unsupported_warning(page)
+        cid = resolve_channel_id(page)
+    if not cid:
+        return None
+
+    for path in ("editing/images", "editing/branding", "editing/profile"):
+        url = f"https://studio.youtube.com/channel/{cid}/{path}"
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=45000)
+            time.sleep(2)
+            if "accounts.google.com" not in page.url:
+                return cid
+        except Exception:
+            continue
+    return cid
+
+
 def _skip_unsupported_warning(page) -> None:
     try:
         skip = page.get_by_text(re.compile(r"skip to youtube studio", re.I))

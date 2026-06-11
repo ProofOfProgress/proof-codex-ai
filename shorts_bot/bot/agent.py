@@ -10,6 +10,8 @@ from shorts_bot.config import settings
 from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.course.router import CourseRouter
 from shorts_bot.brand.loader import ChannelBrand
+from shorts_bot.memory.agent_memory import AgentMemoryStore
+from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 
 RESPONSE_FORMAT = """
@@ -19,32 +21,43 @@ Every substantive answer must follow this structure:
 3. Jenny-approved constraint check — confirm non-negotiables are respected
 4. Uniqueness space — what can be customized without breaking hook → momentum → payoff
 
-Channel: **Soft Continuity** — self-help Shorts, warm + subtly oracle (see brand voice). Genuinely help; one uncanny beat max per answer, never explicit horror/AI.
+Channel: **Don't Blink** — real faceless creator voice (Jenny Hoyos). Same struggles as viewer; share what helped YOU. First person. Subtitles + AI horror motions act out advice.
 Channel constraints:
-- Faceless Shorts only (9:16). No slop. Must genuinely help people.
-- Niche: sleep, focus, boundaries, calm (see docs/CHANNEL_NICHES.md).
-- Approve before posting. Production uses free-first stack: CapCut, YouTube Audio Library, Canva free, Google Drive.
+- Jenny: hook→momentum→payoff, mute-safe visuals, singular you, start ASAP.
+- Faceless Shorts (9:16). No slop. One concrete action per Short.
+- Niche: sleep, focus, boundaries, calm.
+- Approve before posting. Free-first: CapCut, YouTube Audio Library, Canva.
 - YouTube channel exists — human configured name/handle. Use get_youtube_status to confirm.
 - Do not ask clarifying questions unless truly impossible to proceed.
 """
 
 
-def build_system_prompt(kb: CourseKnowledgeBase, brand: ChannelBrand | None = None) -> str:
+def build_system_prompt(
+    kb: CourseKnowledgeBase,
+    brand: ChannelBrand | None = None,
+    *,
+    memory_block: str = "",
+    learning_block: str = "",
+) -> str:
     router = kb.router_prompt.strip()
     free = kb.free_services.strip()
     brand_block = brand.draft_instructions() if brand else ""
+    memory_section = f"\n\n{memory_block}\n" if memory_block else ""
+    learning_section = f"\n\n{learning_block}\n" if learning_block else ""
     return f"""{router}
 
 {RESPONSE_FORMAT}
-
+{memory_section}{learning_section}
 CHANNEL BRAND (voice + positioning):
 {brand_block[:2200]}
 
 FREE-FIRST TOOL STACK (from course):
 {free[:2000]}
 
-You are the Soft Continuity operator — helpful first, uncanny second (barely). Use tools for drafts and approvals.
-Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked."""
+You are the Don't Blink operator — helpful first, uncanny second (barely). Use tools for drafts and approvals.
+Sound like a calm strategist who knows too much but only uses it to help. Do not mention file numbers unless asked.
+When the user says remember / operating rule / don't forget, acknowledge and use the remember_memory tool if available.
+You CAN run web browsers: use browse_web for headless research pages, open_browser for human login on Desktop (vidiq, youtube, trends)."""
 
 
 class ShortsBotAgent:
@@ -56,18 +69,54 @@ class ShortsBotAgent:
         router: CourseRouter,
         kb: CourseKnowledgeBase,
         brand: ChannelBrand | None = None,
+        agent_memory: AgentMemoryStore | None = None,
+        training_memory: MemoryExtensions | None = None,
+        *,
+        llm_model: str | None = None,
+        llm_provider: str = "offline",
     ) -> None:
         self.store = store
         self.tool_runner = tool_runner
         self.client = client
+        self.llm_model = llm_model or settings.openai_model
+        self.llm_provider = llm_provider
         self.router = router
         self.kb = kb
         self.brand = brand or ChannelBrand()
+        self.agent_memory = agent_memory
+        self.training_memory = training_memory
+        memory_block = agent_memory.context_block() if agent_memory else ""
+        learning_block = training_memory.applied_training_context() if training_memory else ""
         self.messages: list[dict[str, Any]] = [
-            {"role": "system", "content": build_system_prompt(kb, self.brand)}
+            {
+                "role": "system",
+                "content": build_system_prompt(
+                    kb,
+                    self.brand,
+                    memory_block=memory_block,
+                    learning_block=learning_block,
+                ),
+            }
         ]
+        for msg in store.recent_chat(settings.memory_chat_context_limit):
+            if msg["role"] in ("user", "assistant") and msg.get("content"):
+                self.messages.append({"role": msg["role"], "content": msg["content"]})
+
+    def _refresh_system_prompt(self) -> None:
+        memory_block = self.agent_memory.context_block() if self.agent_memory else ""
+        learning_block = self.training_memory.applied_training_context() if self.training_memory else ""
+        self.messages[0] = {
+            "role": "system",
+            "content": build_system_prompt(
+                self.kb,
+                self.brand,
+                memory_block=memory_block,
+                learning_block=learning_block,
+            ),
+        }
 
     def chat(self, user_message: str) -> str:
+        self._refresh_system_prompt()
         self.store.save_chat("user", user_message)
         guidance = self.router.build_guidance(user_message)
         augmented = (
@@ -86,7 +135,7 @@ class ShortsBotAgent:
         for _ in range(6):
             try:
                 response = self.client.chat.completions.create(
-                model=settings.openai_model,
+                model=self.llm_model,
                 messages=self.messages,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
@@ -137,17 +186,37 @@ class ShortsBotAgent:
         text = user_message.strip().lower()
         if text in {"help", "/help"}:
             return (
-                "Offline mode (no OPENAI_API_KEY).\n"
+                "Offline mode (no GEMINI_API_KEY or OPENAI_API_KEY).\n"
                 "Commands:\n"
                 "- draft <topic>\n"
                 "- pending / show <id> / approve / reject\n"
                 "- stats / feedback\n"
+                "- remember <fact> / memory / forget <id>\n"
+                "- browse <url> / browser open vidiq\n"
                 "- course <question>  (Jenny course routing)\n"
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
                 "- apply brand  (updates channel name + description in Studio from youtube_copy.txt)\n"
-                "Set OPENAI_API_KEY for full Jenny strategist mode."
+                "- produce <id> | <turboscribe paste>  (still-image video pack for CapCut)\n"
+                "Set GEMINI_API_KEY (free) or OPENAI_API_KEY for full Jenny strategist mode."
             )
+        from shorts_bot.memory.agent_memory import (
+            is_memory_list_request,
+            parse_forget_request,
+            parse_remember_request,
+        )
+
+        if is_memory_list_request(text):
+            return self.agent_memory.format_list() if self.agent_memory else "No memory store."
+        forget_id = parse_forget_request(text)
+        if forget_id is not None and self.agent_memory:
+            ok = self.agent_memory.delete_memory(forget_id)
+            return f"Forgot memory #{forget_id}." if ok else f"No memory #{forget_id}."
+        remembered = parse_remember_request(text)
+        if remembered is not None and self.agent_memory:
+            category, content = remembered
+            mem = self.agent_memory.add_memory(content=content, category=category, source="user")
+            return f"Saved memory #{mem.id}: {mem.content}"
         if text.startswith("setup channel "):
             name = user_message[14:].strip()
             data = json.loads(
@@ -235,5 +304,5 @@ class ShortsBotAgent:
         route = self.router.route(user_message)
         return (
             f"Offline mode. Routed lever: {route.main_lever} (files {', '.join(route.files)}).\n"
-            "Type 'course <your question>' for course guidance, or set OPENAI_API_KEY for full chat."
+            "Type 'course <your question>' for course guidance, or set GEMINI_API_KEY for full chat."
         )
