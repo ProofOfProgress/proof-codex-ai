@@ -323,13 +323,29 @@ def _gemini_review(
     cap_ctx = _format_caption_context(captions or [], [t for t, _ in frames])
     from shorts_bot.production.horror_lane import horror_lane_for_qc
 
+    from shorts_bot.production.screen_text_spec import phone_screens_enabled
+
     lane_ctx = horror_lane_for_qc()
+    phone_qc = (
+        "8) PHONE UI — N/A: this build uses fullscreen CCTV + alarm clock only. "
+        "Return phone_ui_issues as []. Penalize smartphones or hands holding phones in visuals.\n"
+        if not phone_screens_enabled()
+        else (
+            "8) PHONE UI — are alerts drawn INSIDE the phone screen (diegetic)? "
+            "Flag floating pop-ups or bezel misalignment.\n"
+        )
+    )
+    overlay_note = (
+        "composited CCTV REC OSD + alarm clock"
+        if not phone_screens_enabled()
+        else "composited phone/CCTV UI"
+    )
     if deep:
         prompt = (
             "You are a senior YouTube Shorts post-production QC lead auditing a horror Short.\n"
             f"{lane_ctx}\n"
             f"Frames in order at: {labels}. Each frame is a screenshot from the FINAL rendered MP4 "
-            "(with burned-in captions and composited phone/CCTV UI).\n\n"
+            f"(with burned-in captions and {overlay_note}).\n\n"
             f"Topic: {topic[:120]}\nHook: {hook[:120]}\n"
             f"Full VO script: {script[:900]}\n{sting_note}\n\n{cap_ctx}\n\n"
             "Deep audit PRODUCTION QUALITY ONLY. Be brutally specific with timestamps.\n"
@@ -343,10 +359,8 @@ def _gemini_review(
             "4) THINGS THAT SHOULDN'T BE THERE — cosy aesthetic, daylight cheer, readable AI gibberish "
             "text, watermarks, wrong objects, anachronisms, duplicate UI layers.\n"
             "5) FRAMING — subject cropped badly, captions in Shorts UI dead zone, empty dead space, "
-            "phone UI off-center, subject behind caption bar.\n"
-            "8) PHONE UI — are alerts/banners drawn INSIDE the phone screen (diegetic), or floating "
-            "at the top of the frame like a VR achievement trophy? Flag any pop-up not contained "
-            "in the phone bezel. Is the phone bezel aligned with hands in the shot?\n"
+            "CCTV OSD readable, subject behind caption bar.\n"
+            f"{phone_qc}"
             "6) NONSENSICAL ELEMENTS — story logic breaks visible on screen (empty hallway then figure "
             "with no transition sense, wrong room, etc).\n"
             "7) JUMPSCARE — visible lunge motion vs audio sting timing.\n\n"

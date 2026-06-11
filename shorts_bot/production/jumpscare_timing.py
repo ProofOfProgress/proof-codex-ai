@@ -98,7 +98,7 @@ def sting_start_seconds(
 
             setup, _play = scare_play_and_setup_durations(seg_dur)
             # Dedicated finale = setup hold then Hailuo lunge — sting on lunge onset.
-            visual_flash_at = seg_start + setup + 0.05
+            visual_flash_at = seg_start + setup + 0.02
         else:
             visual_flash_at = seg_start + max(0.0, seg_dur - flash_lead)
         return max(0.0, visual_flash_at - 0.03)
