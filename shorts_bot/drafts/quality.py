@@ -49,6 +49,7 @@ FALSE_CALM_CUES = [
     "quiet",
     "still",
     "told yourself",
+    "telling yourself",
     "maybe it was",
     "just a",
     "for a second",

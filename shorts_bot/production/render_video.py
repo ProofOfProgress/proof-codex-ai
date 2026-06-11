@@ -234,8 +234,64 @@ def _trim_scale_clip(
     )
 
 
+def _nearest_still_image(images_dir: Path, stem: str) -> Path | None:
+    """When transcript resync renames the final segment stem, use closest timestamp still."""
+    try:
+        target = float(stem)
+    except ValueError:
+        return None
+    candidates: list[tuple[float, Path]] = []
+    for path in images_dir.glob("*.png"):
+        try:
+            candidates.append((float(path.stem), path))
+        except ValueError:
+            continue
+    if not candidates:
+        return None
+    candidates.sort(key=lambda row: abs(row[0] - target))
+    return candidates[0][1]
+
+
+def _still_to_clip(
+    src: Path,
+    dest: Path,
+    *,
+    duration: float,
+    width: int,
+    height: int,
+) -> None:
+    """Hold a FLUX still for segment duration when I2V clip is capped/missing."""
+    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-loop",
+            "1",
+            "-i",
+            str(src.resolve()),
+            "-t",
+            f"{duration:.4f}",
+            "-vf",
+            vf,
+            "-an",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-pix_fmt",
+            "yuv420p",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
 def _render_from_video_clips(
     clips_dir: Path,
+    images_dir: Path,
     segments: list[dict],
     durations: list[float],
     *,
@@ -245,14 +301,26 @@ def _render_from_video_clips(
 ) -> Path:
     tmp_dir.mkdir(parents=True, exist_ok=True)
     clip_paths: list[Path] = []
+    still_fallbacks = 0
     for i, (seg, dur) in enumerate(zip(segments, durations)):
         stem = Path(seg["filename"]).stem
         src = clips_dir / f"{stem}.mp4"
-        if not src.exists():
-            raise FileNotFoundError(f"Missing motion clip: {src}")
         clip = tmp_dir / f"clip_{i:03d}.mp4"
-        _trim_scale_clip(src, clip, duration=dur, width=width, height=height)
+        if src.exists():
+            _trim_scale_clip(src, clip, duration=dur, width=width, height=height)
+        else:
+            still = images_dir / seg["filename"]
+            if not still.exists():
+                alt = _nearest_still_image(images_dir, stem)
+                if alt is None:
+                    raise FileNotFoundError(f"Missing motion clip and still: {src} / {still}")
+                still = alt
+            _still_to_clip(still, clip, duration=dur, width=width, height=height)
+            still_fallbacks += 1
         clip_paths.append(clip)
+    if still_fallbacks:
+        note = tmp_dir / "_hybrid_still_fallbacks.txt"
+        note.write_text(f"{still_fallbacks} segment(s) used FLUX stills (I2V cap)\n", encoding="utf-8")
     concat_path = tmp_dir / "_clips_concat.txt"
     lines = ["ffconcat version 1.0"]
     for clip in clip_paths:
@@ -330,6 +398,7 @@ def render_short_video(
         clips_dir = pack_dir / "clips"
         silent = _render_from_video_clips(
             clips_dir,
+            images_dir,
             segments,
             durations,
             tmp_dir=pack_dir / "_motion_clips",
