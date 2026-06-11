@@ -101,6 +101,8 @@ def _topic_hashtags(topic: str) -> list[str]:
         tags.extend(["#WrongText", "#PhoneHorror"])
     if "knock" in lower or "closet" in lower or "door" in lower:
         tags.extend(["#KnockHorror", "#HomeAlone"])
+    if "security" in lower or "camera" in lower or "motion" in lower:
+        tags.extend(["#SecurityCamera", "#FoundFootage"])
     if "alone" in lower:
         tags.append("#HomeAlone")
     return tags[:3]
@@ -148,6 +150,16 @@ def _tags_from_research(topic: str, research) -> list[str]:
         base.append("mirror horror")
     if "blink" in lower and "wrong reflection" not in seen:
         base.append("wrong reflection")
+    if any(k in lower for k in ("security", "camera", "motion", "cctv")):
+        for tag in ("security camera horror", "night vision", "home alone"):
+            if tag not in seen:
+                base.append(tag)
+                seen.add(tag)
+    if any(k in lower for k in ("text", "message", "delivered")):
+        for tag in ("phone horror", "wrong text"):
+            if tag not in seen:
+                base.append(tag)
+                seen.add(tag)
     return base[:12]
 
 

@@ -158,6 +158,10 @@ class Settings(BaseSettings):
     # YouTube — API upload only (no Studio browser automation)
     youtube_upload_via_api: bool = True
     youtube_declare_synthetic_media: bool = True  # status.containsSyntheticMedia on every upload (YouTube AI disclosure)
+    youtube_category_id: str = "24"  # Entertainment — horror Shorts (not 22 self-help)
+    post_upload_cta_comment: bool = True  # series engagement comment after API upload
+    post_upload_analytics_sync: bool = True
+    launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True

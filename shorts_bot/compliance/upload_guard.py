@@ -104,6 +104,20 @@ def check_upload_allowed(
         if d.topic.strip().lower() == topic_key and d.status == "approved":
             warnings.append(f"same topic in draft #{d.id} — ensure script is meaningfully different")
 
+    from shorts_bot.production.scare_pillar import pillar_label, scare_pillar_for_topic
+
+    pillar = scare_pillar_for_topic(topic)
+    for prev in memory.recent_upload_scripts(limit=8):
+        if prev.get("draft_id") == draft_id:
+            continue
+        prev_pillar = scare_pillar_for_topic(prev.get("topic", ""))
+        if prev_pillar == pillar:
+            warnings.append(
+                f"same scare pillar ({pillar_label(pillar)}) as draft #{prev.get('draft_id')} — "
+                "rotate reflection/knock/glitch/cam per LAUNCH_QUALITY"
+            )
+            break
+
     allowed = len(issues) == 0
     return ComplianceReport(allowed=allowed, issues=issues, warnings=warnings)
 

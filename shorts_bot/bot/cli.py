@@ -58,7 +58,7 @@ def main() -> None:
         model = "none"
     console.print(
         Panel(
-            "[bold]Don't Blink[/bold] — self-help Shorts strategist (Jenny course + brand voice)\n"
+            "[bold]Don't Blink[/bold] — horror Shorts strategist (Jenny course + AlphaBeta001)\n"
             f"Mode: [cyan]{mode}[/cyan] | Model: {model}\n"
             "Course files 01–09 loaded. Free-first stack: CapCut, YouTube Audio Library, Canva.\n"
             "Talk about ideas, drafts, hooks, retention — or approve/reject scripts.\n"

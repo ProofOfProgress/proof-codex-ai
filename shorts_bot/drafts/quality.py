@@ -163,7 +163,13 @@ def run_quality_checks(
         )
 
     if not any(c in lowered for c in FALSE_CALM_CUES):
-        warnings.append("No false-calm beat detected — add a quiet 'maybe it was nothing' moment before the scare.")
+        msg = "No false-calm beat detected — add a quiet 'maybe it was nothing' moment before the scare."
+        from shorts_bot.config import settings
+
+        if settings.launch_quality_strict:
+            issues.append(msg)
+        else:
+            warnings.append(msg)
 
     tail = lowered[-120:]
     if not any(c in tail for c in JUMPSCARE_CUES):

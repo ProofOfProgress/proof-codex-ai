@@ -23,7 +23,7 @@ def main() -> None:
     parser.add_argument(
         "message",
         nargs="?",
-        help='Request, e.g. "take an hour to plan cosy shorts this week"',
+        help='Request, e.g. "take an hour to research horror hooks this week"',
     )
     parser.add_argument(
         "--work",
@@ -44,7 +44,7 @@ def main() -> None:
             + (f" ({backend.model})" if backend else " [yellow](offline)[/yellow]")
             + "\n\n"
             "Duration examples:\n"
-            "  • [dim]take an hour to plan this week's cosy shorts[/dim]\n"
+            "  • [dim]take an hour to plan this week's Don't Blink hooks[/dim]\n"
             "  • [dim][30m] score topics for RPM[/dim]\n"
             "  • [dim]don't respond for 45 minutes — research attachment hooks[/dim]\n\n"
             "Interactive: run with no args. One-shot: pass message as argument.",

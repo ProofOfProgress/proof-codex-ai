@@ -188,7 +188,7 @@ class BotOperations:
             "• browser login youtube — open login tab (saved session)\n"
             "• Or chat normally (Gemini/OpenAI)\n"
             "• AlphaBeta001 (Chief Manager): prefix manager: or say take 30m / [1h] before your request\n"
-            "  Example: take an hour to score cosy topics and draft the best one\n"
+            "  Example: take an hour to score horror hooks and draft the best one\n"
             "• CLI: python3 -m shorts_bot.agents.cli"
         )
 

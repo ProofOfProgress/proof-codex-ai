@@ -44,7 +44,7 @@ def upload_short(
             "title": title[:100],
             "description": description[:5000],
             "tags": tags[:30],
-            "categoryId": "22",  # People & Blogs — fine for self-help Shorts
+            "categoryId": (settings.youtube_category_id or "24")[:2],
         },
         "status": {
             "privacyStatus": visibility if visibility in ("public", "unlisted", "private") else "unlisted",

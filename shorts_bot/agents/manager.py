@@ -194,7 +194,7 @@ class ChiefManager:
                 if e.artifacts.get("draft_id"):
                     lines.append(f"  draft #{e.artifacts['draft_id']}")
         else:
-            lines.append("No work budget detected. Try: take 30 minutes to plan cosy shorts")
+            lines.append("No work budget detected. Try: take 30 minutes to research horror hooks")
         return "\n".join(lines)
 
 

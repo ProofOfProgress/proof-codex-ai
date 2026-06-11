@@ -435,6 +435,17 @@ def finish_draft_pipeline(
                 )
                 upload_url = up.video_url
                 messages.append(up.message)
+                if settings.post_upload_cta_comment:
+                    from shorts_bot.youtube.post_upload import post_upload_cta_comment
+
+                    cta_id = post_upload_cta_comment(up.video_id)
+                    if cta_id:
+                        messages.append(f"Post-upload CTA comment posted ({cta_id[:16]}…)")
+                if settings.post_upload_analytics_sync:
+                    from shorts_bot.youtube.post_upload import sync_analytics_after_upload
+
+                    sync_msg = sync_analytics_after_upload()
+                    messages.append(f"Analytics: {sync_msg[:180]}")
                 from shorts_bot.learning.reflect import vision_qc_snapshot
 
                 record_upload(
