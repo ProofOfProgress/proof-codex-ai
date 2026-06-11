@@ -9,6 +9,18 @@ The owner is **not a developer**. When explaining anything:
 - One step at a time; assume they will not read terminal output or git diffs.
 - Cloud agents and the Discord bot must **do the technical work**; the owner approves money/risk steps only when truly necessary.
 
+## Cloud agents — do it yourself first (browser + terminal)
+
+When setup or fixes need an external dashboard (Google Cloud OAuth, YouTube consent, API enablement, provider dashboards):
+
+1. **Try autonomously first** — use the cloud agent **browser** (computer use) + terminal. Click through forms, create credentials, run `python3 -m shorts_bot.youtube.auth_cli`, complete OAuth if the browser session can reach the right Google account.
+2. **Do not** default to “the owner must click Create” if a browser is available — only hand off when blocked (wrong Google account, 2FA only on owner’s phone, payment, or captcha the agent cannot pass).
+3. After obtaining secrets: write to `.env` via `scripts/sync_secrets.py` patterns (never commit secrets); remind owner to mirror into **Cursor Secrets** for VM persistence.
+4. Verify with `python3 -m shorts_bot.login_status` before telling the owner it’s done.
+5. Report to owner in plain English: what was completed, what file/token exists, what (if anything) still needs them.
+
+**Lesson (2026-06):** YouTube `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` + `data/youtube_token.json` were completed by agent browser — owner should not be sent through manual OAuth docs unless the agent session truly cannot authenticate.
+
 ## North star — #1 priority (everything else is secondary)
 
 **Build a self-learning, fully autonomous AI YouTube channel** that makes a lot of money.
@@ -21,7 +33,7 @@ Every feature, fix, and conversation must answer: **does this automate another s
 
 Money at scale requires **not getting demonetized** — keep YPP-safe originality (see below). Helpful content that retains viewers **is** the business model; do not sacrifice quality so badly that YouTube kills the channel.
 
-**Current human touchpoints (shrink over time):** unlisted upload review, serious comments, one-time logins (YouTube OAuth, API keys). Home **My Machines** worker (`agent worker start`) unlocks those on the owner's PC.
+**Current human touchpoints (shrink over time):** unlisted upload review, serious comments, rare 2FA/captcha on external dashboards. Agents should complete OAuth/API setup via browser when possible — not push docs to the owner by default.
 
 ## Work queue — top 4 only
 
