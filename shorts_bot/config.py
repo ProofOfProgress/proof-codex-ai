@@ -91,6 +91,8 @@ class Settings(BaseSettings):
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
+    # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
+    content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
 
     @field_validator("visual_style", mode="before")
     @classmethod

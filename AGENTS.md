@@ -29,6 +29,8 @@
 
 **Channel brand:** **Peripheral** (display name). Merch tagline: *don't blink* under line-eye logo. Spec: `channel/brand/identity.md`.
 
+**Formats:** Shorts now; long-form later via **asset reuse** — `docs/CONTENT_FORMATS.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
+
 **Visual grammar (default):** fullscreen **CCTV** for security-cam drafts — **no phone screens**. Time via **alarm clock** or REC OSD (`screen_text_phone_enabled=false`).
 
 **Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. **Universe:** all Shorts live in **The Gap** (`channel/brand/world.md`, `shorts_bot/production/world.py`) — same alone-at-night apartment, lag between reality and recordings, 3:12 AM glitch hour. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).

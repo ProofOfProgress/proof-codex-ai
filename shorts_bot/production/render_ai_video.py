@@ -168,7 +168,11 @@ def render_all_ai_video_clips(
     clips_dir.mkdir(parents=True, exist_ok=True)
     pack_dir = clips_dir.parent
     pace = max(0.0, float(settings.ai_video_pace_sec))
-    max_beats = max(1, int(settings.ai_video_max_beats))
+    from shorts_bot.production.content_format import effective_max_i2v_beats
+
+    max_beats = effective_max_i2v_beats()
+    if max_beats <= 0:
+        return 0
     count = 0
 
     indices = select_i2v_beat_indices(len(segments), max_beats, priority_indices=priority_indices)
