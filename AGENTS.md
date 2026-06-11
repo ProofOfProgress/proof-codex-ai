@@ -42,6 +42,8 @@ Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversation
 
 **Chief Manager (AlphaBeta001):** `python3 -m shorts_bot.agents.cli` — you talk to **AlphaBeta001** only (not the channel name); research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research horror hooks` or `plan this week's hooks`. Web: `POST /api/manager/run`. See `docs/AGENT_MANAGER.md`. Discord optional. Override: `MANAGER_DISPLAY_NAME` in `.env`.
 
+**Slack ↔ Cursor (long sessions away from IDE):** Official path is `@cursor` in Slack → Cloud Agent → replies in thread. Setup: `docs/SLACK_CURSOR_SETUP.md`. Slack MCP (`needsAuth` until owner links in Cursor Desktop) lets agents post/read Slack during grinds. Suggested channel: `#dont-blink-ops`, default repo `proof-codex-ai`.
+
 ### Lint / test
 
 No linter configured. Smoke checks:
