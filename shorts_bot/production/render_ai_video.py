@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import time
 from pathlib import Path
 
@@ -189,5 +190,31 @@ def render_all_ai_video_clips(
             pack_dir=pack_dir,
         ):
             count += 1
+            _, _, template_id = _video_prompt_for_segment(
+                seg,
+                topic=topic,
+                clip_index=seg_i,
+                pack_dir=pack_dir,
+                filename_stem=brief.filename_stem,
+            )
+            if template_id in {"jumpscare_lunge", "jumpscare_tease"}:
+                from shorts_bot.production.jumpscare_clip import (
+                    JUMPSCARE_CLIP_FILENAME,
+                    jumpscare_clip_path,
+                )
+
+                shutil.copy2(clip_path, jumpscare_clip_path(clips_dir))
+                (pack_dir / "jumpscare_clip.json").write_text(
+                    json.dumps(
+                        {
+                            "source_stem": brief.filename_stem,
+                            "template_id": template_id,
+                            "clip_file": JUMPSCARE_CLIP_FILENAME,
+                            "model": replicate_i2v_model_for_clip(template_id=template_id),
+                        },
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
 
     return count

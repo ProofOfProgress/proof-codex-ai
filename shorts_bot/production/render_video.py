@@ -362,19 +362,47 @@ def _render_from_video_clips(
         src = clips_dir / f"{stem}.mp4"
         clip = tmp_dir / f"clip_{i:03d}.mp4"
         scare_beat = (
-            settings.jumpscare_visual_flash
-            and jumpscare_segment_index is not None
+            jumpscare_segment_index is not None
             and i == jumpscare_segment_index
         )
+        use_dedicated_scare = (
+            scare_beat
+            and settings.jumpscare_dedicated_clip
+        )
         replay_hold = suspense_replay and i == last_i and not scare_beat
-        if src.exists():
+        if use_dedicated_scare:
+            from shorts_bot.production.jumpscare_clip import (
+                compose_finale_jumpscare_segment,
+                jumpscare_clip_path,
+            )
+
+            scare_src = jumpscare_clip_path(clips_dir)
+            if not scare_src.exists() or scare_src.stat().st_size < 5000:
+                scare_src = src
+            prev_still = None
+            prev_clip = None
+            if i > 0:
+                prev = segments[i - 1]
+                prev_still = images_dir / prev["filename"]
+                prev_clip = clips_dir / f"{Path(prev['filename']).stem}.mp4"
+            compose_finale_jumpscare_segment(
+                jumpscare_src=scare_src,
+                dest=clip,
+                segment_duration=dur,
+                setup_still=prev_still,
+                setup_clip=prev_clip if prev_clip and prev_clip.exists() else None,
+                width=width,
+                height=height,
+            )
+        elif src.exists():
+            zoom_scare = scare_beat and settings.jumpscare_visual_flash
             _trim_scale_clip(
                 src,
                 clip,
                 duration=dur,
                 width=width,
                 height=height,
-                jumpscare=scare_beat,
+                jumpscare=zoom_scare,
                 suspense_replay=replay_hold,
             )
         else:
@@ -390,7 +418,7 @@ def _render_from_video_clips(
                 duration=dur,
                 width=width,
                 height=height,
-                jumpscare=scare_beat,
+                jumpscare=scare_beat and settings.jumpscare_visual_flash,
                 suspense_replay=replay_hold,
             )
             still_fallbacks += 1
