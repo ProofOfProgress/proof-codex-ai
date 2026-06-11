@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from shorts_bot.config import Settings
 from shorts_bot.production.jumpscare_clip import (
+    jumpscare_clip_is_valid,
     scare_play_and_setup_durations,
     trim_jumpscare_impact,
 )
@@ -18,7 +19,20 @@ def test_scare_play_and_setup_durations():
 def test_jumpscare_dedicated_clip_config_defaults():
     fields = Settings.model_fields
     assert fields["jumpscare_dedicated_clip"].default is True
-    assert fields["jumpscare_clip_play_seconds"].default == 1.85
+    assert fields["jumpscare_auto_generate"].default is True
+    assert fields["jumpscare_clip_play_seconds"].default == 2.2
+
+
+def test_jumpscare_clip_is_valid_requires_hailuo_meta(tmp_path):
+    clips = tmp_path / "clips"
+    clips.mkdir()
+    (clips / "jumpscare_lunge.mp4").write_bytes(b"x" * 20_000)
+    assert not jumpscare_clip_is_valid(tmp_path, clips)
+    (tmp_path / "jumpscare_clip.json").write_text(
+        '{"model": "minimax/hailuo-2.3-fast", "clip_file": "jumpscare_lunge.mp4"}',
+        encoding="utf-8",
+    )
+    assert jumpscare_clip_is_valid(tmp_path, clips)
 
 
 def test_trim_jumpscare_impact_runs_ffmpeg(tmp_path):

@@ -109,7 +109,8 @@ class Settings(BaseSettings):
     replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
-    jumpscare_clip_play_seconds: float = 1.85  # how long the scare motion plays in the final Short
+    jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
+    jumpscare_clip_play_seconds: float = 2.2  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.9  # min pre-scare hold (figure at bed / smile)
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off

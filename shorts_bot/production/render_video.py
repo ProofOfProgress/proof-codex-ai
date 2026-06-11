@@ -378,7 +378,10 @@ def _render_from_video_clips(
 
             scare_src = jumpscare_clip_path(clips_dir)
             if not scare_src.exists() or scare_src.stat().st_size < 5000:
-                scare_src = src
+                raise FileNotFoundError(
+                    f"Missing dedicated jumpscare video at {scare_src}. "
+                    "Run: python3 -m shorts_bot.production.render_jumpscare_cli --draft-id N --force"
+                )
             prev_still = None
             prev_clip = None
             if i > 0:
@@ -543,6 +546,14 @@ def render_short_video(
     render_mode = manifest.get("render_mode") or "slideshow"
     if render_mode == "video_clips":
         clips_dir = pack_dir / "clips"
+        if (
+            plan.has_jumpscare
+            and settings.jumpscare_dedicated_clip
+            and settings.jumpscare_auto_generate
+        ):
+            from shorts_bot.production.jumpscare_clip import ensure_jumpscare_video_clip
+
+            ensure_jumpscare_video_clip(pack_dir)
         silent = _render_from_video_clips(
             clips_dir,
             images_dir,

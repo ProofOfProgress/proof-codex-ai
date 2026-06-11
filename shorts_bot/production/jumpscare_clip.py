@@ -34,13 +34,13 @@ def probe_clip_duration(video_path: Path) -> float:
 
 
 def scare_play_and_setup_durations(segment_duration: float) -> tuple[float, float]:
-    """Return (setup_seconds, scare_play_seconds) for finale segment."""
+    """Return (setup_seconds, scare_play_seconds) — scare video gets the majority."""
     play = min(
-        max(1.2, settings.jumpscare_clip_play_seconds),
-        segment_duration * 0.55,
+        max(1.5, settings.jumpscare_clip_play_seconds),
+        segment_duration * 0.72,
     )
     play = min(play, segment_duration - settings.jumpscare_setup_min_seconds)
-    play = max(1.0, play)
+    play = max(1.2, play)
     setup = max(settings.jumpscare_setup_min_seconds, segment_duration - play)
     return setup, play
 
@@ -226,6 +226,47 @@ def compose_finale_jumpscare_segment(
     return dest
 
 
+def jumpscare_clip_meta_path(pack_dir: Path) -> Path:
+    return pack_dir / "jumpscare_clip.json"
+
+
+def load_jumpscare_clip_meta(pack_dir: Path) -> dict | None:
+    path = jumpscare_clip_meta_path(pack_dir)
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def save_jumpscare_clip_meta(pack_dir: Path, *, stem: str, model: str, template_id: str) -> None:
+    jumpscare_clip_meta_path(pack_dir).write_text(
+        json.dumps(
+            {
+                "source_stem": stem,
+                "template_id": template_id,
+                "clip_file": JUMPSCARE_CLIP_FILENAME,
+                "model": model,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def jumpscare_clip_is_valid(pack_dir: Path, clips_dir: Path) -> bool:
+    """True when a dedicated Hailuo lunge file exists and was tagged as such."""
+    clip = jumpscare_clip_path(clips_dir)
+    if not clip.exists() or clip.stat().st_size < 10_000:
+        return False
+    meta = load_jumpscare_clip_meta(pack_dir)
+    if not meta:
+        return False
+    model = str(meta.get("model") or "").lower()
+    return "hailuo" in model
+
+
 def _load_jumpscare_segment_index(manifest: dict) -> int | None:
     plan = manifest.get("jumpscare_plan") or {}
     if not plan.get("has_jumpscare", True):
@@ -248,10 +289,19 @@ def render_dedicated_jumpscare_clip(
     Writes clips/jumpscare_lunge.mp4 and mirrors to the segment stem clip.
     """
     from shorts_bot.production.image_prompts import build_image_briefs
-    from shorts_bot.production.render_ai_video import render_ai_video_clip
+    from shorts_bot.production.render_ai_video import (
+        _video_prompt_for_segment,
+        replicate_i2v_model_for_clip,
+    )
     from shorts_bot.production.segment_sync import resolve_segments, normalize_transcript_segments
     from shorts_bot.production.render_video import _probe_duration
     from shorts_bot.memory.store import MemoryStore
+
+    if not settings.has_paid_images or not (settings.replicate_api_token or "").strip():
+        raise RuntimeError(
+            "Jumpscare requires Replicate I2V (REPLICATE_API_TOKEN). "
+            "Cannot use still-image slideshow for the scare beat."
+        )
 
     manifest_path = pack_dir / "manifest.json"
     if not manifest_path.exists():
@@ -273,14 +323,12 @@ def render_dedicated_jumpscare_clip(
     stem = Path(seg_row["filename"]).stem
     stem_clip = clips_dir / f"{stem}.mp4"
 
-    if (
-        not force
-        and out.exists()
-        and out.stat().st_size > 10_000
-        and stem_clip.exists()
-        and stem_clip.stat().st_size > 10_000
-    ):
+    if not force and jumpscare_clip_is_valid(pack_dir, clips_dir):
         return out
+
+    for path in (out, stem_clip, stem_clip.with_suffix(".error.txt")):
+        if path.exists():
+            path.unlink()
 
     store = MemoryStore(settings.database_path)
     draft = store.get_draft(draft_id)
@@ -301,25 +349,74 @@ def render_dedicated_jumpscare_clip(
 
     brief = briefs[idx]
     seg = segments[idx]
-    image_path = images_dir / f"{brief.filename_stem}.png"
+    # Manifest stems (e.g. 00.28) are authoritative — brief stems can drift after resync.
+    image_name = str(seg_row.get("filename") or f"{stem}.png")
+    image_path = images_dir / image_name
     if not image_path.exists():
         from shorts_bot.production.images.router import generate_image
 
         generate_image(brief.prompt, image_path)
 
-    ok = render_ai_video_clip(
-        brief,
+    motion_prompt, model_hint, template_id = _video_prompt_for_segment(
         seg,
         topic=topic,
         clip_index=idx,
-        image_path=image_path,
-        clip_path=stem_clip,
         pack_dir=pack_dir,
+        filename_stem=stem,
     )
-    if not ok or not stem_clip.exists():
-        err = stem_clip.with_suffix(".error.txt")
-        detail = err.read_text(encoding="utf-8") if err.exists() else "I2V failed"
-        raise RuntimeError(f"Jumpscare I2V failed: {detail}")
+    if not motion_prompt:
+        from shorts_bot.production.ai_video_prompts import match_template, segment_to_video_prompt
+
+        tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=idx)
+        if tmpl.id != "jumpscare_lunge":
+            from shorts_bot.production.ai_video_prompts import templates
+
+            tmpl = next(t for t in templates() if t.id == "jumpscare_lunge")
+        motion_prompt = segment_to_video_prompt(seg, topic=topic, template=tmpl, clip_index=idx)
+        template_id = tmpl.id
+        model_hint = tmpl.model_hint
+
+    model = replicate_i2v_model_for_clip(
+        model_hint=model_hint or "hailuo",
+        template_id=template_id or "jumpscare_lunge",
+    )
+    from shorts_bot.production.images.replicate import generate_replicate_i2v
+
+    try:
+        generate_replicate_i2v(
+            motion_prompt,
+            image_path,
+            stem_clip,
+            token=(settings.replicate_api_token or "").strip(),
+            model=model,
+            timeout_sec=settings.ai_video_timeout_sec,
+        )
+    except Exception as exc:
+        stem_clip.with_suffix(".error.txt").write_text(str(exc), encoding="utf-8")
+        raise RuntimeError(f"Jumpscare I2V failed: {exc}") from exc
+
+    if not stem_clip.exists():
+        raise RuntimeError("Jumpscare I2V failed: no output clip")
+    if "hailuo" not in model.lower():
+        raise RuntimeError(f"Jumpscare must use Hailuo I2V, got {model}")
 
     shutil.copy2(stem_clip, out)
+    save_jumpscare_clip_meta(
+        pack_dir,
+        stem=stem,
+        model=model,
+        template_id=template_id or "jumpscare_lunge",
+    )
     return out
+
+
+def ensure_jumpscare_video_clip(pack_dir: Path, *, force: bool = False) -> Path:
+    """
+    Guarantee clips/jumpscare_lunge.mp4 exists (Hailuo I2V) before final render.
+
+    Raises if the scare cannot be a real motion clip.
+    """
+    clips_dir = pack_dir / "clips"
+    if not force and jumpscare_clip_is_valid(pack_dir, clips_dir):
+        return jumpscare_clip_path(clips_dir)
+    return render_dedicated_jumpscare_clip(pack_dir, force=True)
