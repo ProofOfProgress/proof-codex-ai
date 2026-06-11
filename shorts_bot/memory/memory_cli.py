@@ -10,7 +10,7 @@ from shorts_bot.memory.agent_memory import get_agent_memory_store
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Soft Continuity agent memory")
+    parser = argparse.ArgumentParser(description="AlphaBeta001 agent memory")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("list", help="List saved memories")

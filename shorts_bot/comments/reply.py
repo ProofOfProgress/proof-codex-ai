@@ -13,39 +13,39 @@ from shorts_bot.llm.provider import get_llm_backend
 def _offline_reply(comment: str) -> str:
     lower = comment.lower()
     if TOPIC_REQUEST.search(comment):
-        return "Good one — I'll queue this for a future Minute Before Short."
+        return "Good one — I'll queue this for a future Don't Blink Short."
     if re.search(r"\b(thank|thanks|helped|useful|needed this|appreciate)\b", lower):
-        return "Glad it helped — hope the protocol lands when you need it."
+        return "Glad it landed — watch the whole thing on the next one too."
     if re.search(r"\b(love|great|awesome|perfect|amazing)\b", lower):
-        return "Means a lot — more minute-before protocols coming."
+        return "Means a lot — more impossible-detail horror coming."
     if "?" in comment and len(comment) < 120:
         return (
-            "Short answer: try the one-breath reset from the video, then name what's "
-            "actually scaring you. If it's heavier than that, reach someone you trust offline too."
+            "Short answer: rewatch the hook frame — the wrong detail is the clue. "
+            "If it's heavier than fiction, reach someone you trust offline too."
         )
     return (
-        "Appreciate you stopping by. If you want a specific minute covered, "
-        "drop it in one sentence — I read these."
+        "Appreciate you stopping by. One sentence for the next story — I read these."
     )
 
 
 def generate_reply(comment: str, *, video_title: str = "") -> str:
-    """Warm Soft Continuity reply — max ~280 chars."""
+    """Don't Blink channel owner reply — max ~280 chars."""
     backend = get_llm_backend()
     if backend is None:
         return _offline_reply(comment)[:280]
 
     brand = ChannelBrand()
+    channel = settings.youtube_channel_name or "Don't Blink"
     tagline = brand.youtube_fields().tagline or settings.channel_tagline
-    prompt = f"""Write ONE YouTube comment reply as Soft Continuity channel owner.
+    prompt = f"""Write ONE YouTube comment reply as {channel} channel owner.
 
 Comment: {comment[:500]}
 Video: {video_title[:120] or "a Short"}
 
 Rules:
 - Max 220 characters
-- Warm, first-person, calm — not therapist, not crisis counselor
-- If they suggest a topic, say you'll queue it for "The Minute Before"
+- Tense but human horror-creator voice — not therapist, not crisis counselor
+- If they suggest a topic, say you'll queue it for the next Don't Blink micro-story
 - Do NOT paste the channel tagline ("{tagline}") — it sounds robotic in comments
 - No links, no medical advice, no "as an AI"
 - Plain text only

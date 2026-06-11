@@ -12,7 +12,7 @@ console = Console()
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Soft Continuity browser control")
+    parser = argparse.ArgumentParser(description="Don't Blink browser control")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("status", help="Check Playwright + Chromium")

@@ -191,6 +191,8 @@ def finish_draft_pipeline(
         messages.append("Voiceover checkpoint stale — regenerating (provider/delivery/script changed)")
         for step in ("transcript", "pack", "render", "vision_qc"):
             state.steps.pop(step, None)
+        for stale in ("transcript.txt", "turboscribe_transcript.txt"):
+            (pack_dir / stale).unlink(missing_ok=True)
         save_state(pack_dir, state)
     if resume and state.is_done("voiceover") and vo_path.exists() and not vo_stale:
         messages.append("Resume: skipped voiceover (voiceover.mp3 exists)")

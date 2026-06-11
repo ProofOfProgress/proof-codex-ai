@@ -35,7 +35,7 @@ def _demo_segments(topic: str) -> list[TranscriptSegment]:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Generate Soft Continuity AI video prompts (I2V/T2V clip chain)."
+        description="Generate Don't Blink horror AI video prompts (I2V clip chain)."
     )
     parser.add_argument(
         "topic",

@@ -149,29 +149,91 @@ Return JSON with keys:
         )
 
     def _generate_offline(self, topic: str, angle: str | None) -> GeneratedDraft:
-        hook = "You blinked at the mirror — your reflection blinked one second later."
-        script = (
-            f"{hook} "
-            "You stepped closer and the glass stayed still, but the eyes in it didn't. "
-            "You raised your phone to record proof and the screen showed an empty bathroom. "
-            "You looked up — the reflection was already facing the door behind you. "
-            "The hallway light flickered off. "
-            "You told yourself it was a lag, a trick of tired eyes. "
-            "You turned to leave. "
-            f"{(angle or 'The thing in the mirror opened its mouth the moment you looked away')}."
-        )
-        help_angle = (
-            f"Wrong-reflection jumpscare — impossible timing on {topic} hooks viewers who trust mirrors."
-        )
-        visual_beats = [
-            "POV bathroom mirror, cold blue light, your silhouette facing glass",
-            "Reflection eyes blink delayed — one frame wrong",
-            "Phone screen recording shows empty room while mirror still has figure",
-            "Reflection turned toward hallway door you have not opened yet",
-            "Hallway light dies — long dark corridor, slow drift",
-            "False calm: static mirror, quiet hold, empty frame",
-            "Full-frame face lunge from mirror surface toward camera",
-        ]
+        lower = topic.lower()
+        if "security" in lower or "camera" in lower or "motion" in lower:
+            hook = "Your security camera flagged motion at 3:12 AM — you live alone."
+            script = (
+                f"{hook} "
+                "You opened the app. The hallway was empty. You told yourself it was a glitch. "
+                "You refreshed the feed. The figure was closer. You checked the locks — all sealed. "
+                "You heard a soft tap from the speaker. The live view updated. "
+                "Something stood at the bottom of your bed, staring into the lens. "
+                "It smiled. Then it lunged at the camera."
+            )
+            help_angle = "Wrong place — security cam motion while alone; false calm glitch excuse; lens lunge scare."
+            visual_beats = [
+                "Phone screen: security app motion alert 3:12 AM, dark apartment",
+                "Live feed hallway empty — timestamp overlay",
+                "Refresh: tall figure closer in frame, grainy night vision",
+                "POV checking door locks, chain still on",
+                "Speaker tap — camera LED flickers",
+                "False calm: empty hallway hold, quiet",
+                "Figure at bed foot staring into camera, night vision green",
+                "Full-frame lunge into lens, screen glitch",
+            ]
+        elif "text" in lower or "delivered" in lower or "message" in lower:
+            hook = "The last text showed delivered — but their phone was off."
+            script = (
+                f"{hook} "
+                "You stared at the screen. No typing bubble. You called anyway — straight to voicemail. "
+                "You told yourself the app lagged. A new message appeared: I can see you. "
+                "You checked the window. Nothing. Your phone lit up again from inside the dark hallway. "
+                "The message read: behind you. Then the screen showed your own face screaming."
+            )
+            help_angle = "Wrong text — delivered while phone off; false calm app lag; screen-face jumpscare."
+            visual_beats = [
+                "Phone lock screen: delivered receipt, contact name, 3am",
+                "Call failed — phone off icon",
+                "New message slides in: I can see you",
+                "Window reflection empty",
+                "Phone glows in dark hallway on its own",
+                "False calm: static chat screen",
+                "Screen morphs to your face screaming full frame",
+            ]
+        elif "knock" in lower or "closet" in lower:
+            hook = "The knock came from inside the closet you never open."
+            script = (
+                f"{hook} "
+                "You froze. You told yourself it was the house settling. "
+                "You pressed your ear to the door. Three slow knocks answered from inside. "
+                "You backed away. The handle turned by itself. "
+                "You whispered that nobody was home. The closet door cracked open. "
+                "A hand reached out. Then the whole thing lunged into the hallway."
+            )
+            help_angle = "Wrong sound — knock from sealed closet; false calm settling; door lunge scare."
+            visual_beats = [
+                "Bedroom closet door, never opened, dim lamp",
+                "Ear to door — muffled knock from inside",
+                "Handle turns slowly",
+                "Crack of door, darkness within",
+                "False calm: door still, quiet",
+                "Hand reaches from closet slit",
+                "Full-body lunge into hallway toward camera",
+            ]
+        else:
+            hook = "You blinked at the mirror — your reflection blinked one second later."
+            script = (
+                f"{hook} "
+                "You stepped closer and the glass stayed still, but the eyes in it didn't. "
+                "You raised your phone to record proof and the screen showed an empty bathroom. "
+                "You looked up — the reflection was already facing the door behind you. "
+                "The hallway light flickered off. "
+                "You told yourself it was a lag, a trick of tired eyes. "
+                "You turned to leave. "
+                f"{(angle or 'The thing in the mirror opened its mouth the moment you looked away')}."
+            )
+            help_angle = (
+                f"Wrong-reflection jumpscare — impossible timing on {topic} hooks viewers who trust mirrors."
+            )
+            visual_beats = [
+                "POV bathroom mirror, cold blue light, your silhouette facing glass",
+                "Reflection eyes blink delayed — one frame wrong",
+                "Phone screen recording shows empty room while mirror still has figure",
+                "Reflection turned toward hallway door you have not opened yet",
+                "Hallway light dies — long dark corridor, slow drift",
+                "False calm: static mirror, quiet hold, empty frame",
+                "Full-frame face lunge from mirror surface toward camera",
+            ]
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(
             topic=topic,

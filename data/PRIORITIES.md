@@ -6,7 +6,7 @@
 
 **North star (unchanged):** Self-learning, fully autonomous channel that makes a lot of money — automation and quality are how we get there.
 
-**Last assessed:** 2026-06-11 (launch grind — see also `data/PRIORITY_7_NOW.md` for the full top-7 overnight list)
+**Last assessed:** 2026-06-11 (Video #1 live — see `data/PRIORITY_14_NOW.md` for full top-14 list)
 
 ---
 

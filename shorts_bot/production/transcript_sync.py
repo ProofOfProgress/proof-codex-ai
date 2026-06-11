@@ -37,10 +37,38 @@ def _write_cache(audio_path: Path, text: str) -> Path:
     legacy = audio_path.parent / "turboscribe_transcript.txt"
     if legacy != out_path:
         legacy.write_text(text.strip() + "\n", encoding="utf-8")
+    if audio_path.exists():
+        stamp = audio_path.parent / "transcript_stamp.json"
+        stamp.write_text(
+            json.dumps({"voiceover_mtime": audio_path.stat().st_mtime}, indent=2),
+            encoding="utf-8",
+        )
     return out_path
 
 
+def _transcript_cache_stale(audio_path: Path) -> bool:
+    """Invalidate transcript when voiceover.mp3 was regenerated after cache write."""
+    if not audio_path.exists():
+        return True
+    stamp_path = audio_path.parent / "transcript_stamp.json"
+    if stamp_path.exists():
+        try:
+            saved = json.loads(stamp_path.read_text(encoding="utf-8"))
+            if abs(float(saved.get("voiceover_mtime", 0)) - audio_path.stat().st_mtime) > 0.01:
+                return True
+            return False
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return True
+    vo_mtime = audio_path.stat().st_mtime
+    for path in _cached_transcript_paths(audio_path):
+        if path.exists() and path.stat().st_mtime < vo_mtime - 0.5:
+            return True
+    return False
+
+
 def _read_cache(audio_path: Path) -> TranscriptResult | None:
+    if _transcript_cache_stale(audio_path):
+        return None
     for path in _cached_transcript_paths(audio_path):
         if path.exists():
             text = path.read_text(encoding="utf-8").strip()
