@@ -7,7 +7,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
+HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#ScaryStories", "#Creepy")
+HORROR_HASHTAGS_JUMPSCARE = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
 HORROR_BACKEND_TAGS = [
     "horror shorts",
     "jumpscare",
@@ -98,12 +99,17 @@ def _title_from_research(topic: str, hook: str, research) -> str:
 
 
 def _clean_title_formula(formula: str) -> str:
-    """Strip hashtags and legacy prefixes; keep 🔊 volume warning."""
+    """Strip hashtags and legacy prefixes; keep 🔊 volume warning when appropriate."""
+    from shorts_bot.compliance.ypp_bans import RESEARCH_TITLE_BLOCK_RE
+
     t = re.sub(r"#\w+", "", formula).strip()
     t = re.sub(r"\s+", " ", t)
     t = re.sub(r"^VOLUME WARNING:\s*", "", t, flags=re.I).strip()
-    if t and not t.startswith("🔊"):
-        t = f"🔊 {t}"
+    for pat in RESEARCH_TITLE_BLOCK_RE:
+        if pat.search(t):
+            return ""
+    if len(t) > 12 and sum(1 for c in t if c.isupper()) > len(t) * 0.55:
+        return ""
     return t.strip()
 
 
@@ -136,21 +142,21 @@ def _normalize_horror_hook(hook: str, topic: str) -> str:
 
 
 def _description_from_research(topic: str, hook: str, research, *, draft_id: int = 0) -> str:
-    hook_line = _normalize_horror_hook(hook, topic)
-    topic_tags = _topic_hashtags(topic)
-    base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
-    hashtags = " ".join(base_hashtags[:5])
     from shorts_bot.production.description_copy import story_tease_line
     from shorts_bot.production.jumpscare_timing import load_plan_for_draft
 
+    hook_line = _normalize_horror_hook(hook, topic)
+    topic_tags = _topic_hashtags(topic)
     vol = _volume_warning_for_draft(draft_id) if draft_id else ""
     has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    tag_base = HORROR_HASHTAGS_JUMPSCARE if has_js else HORROR_HASHTAGS
+    base_hashtags = list(tag_base) + [t for t in topic_tags if t not in tag_base]
+    hashtags = " ".join(base_hashtags[:5])
     scare_line = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(
         [
-            f"Don't Blink — scary horror Shorts (~30s). "
-            f"{scare_line} Watch the whole thing.",
+            f"Don't Blink — scary horror Shorts (~30s). {scare_line}",
             "AI motion visuals · synthetic media disclosed",
             "What should the next story be? One sentence in the comments.",
             hashtags,
@@ -204,18 +210,18 @@ def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
             clean = clean.lstrip("🔊").strip()
         return f"{vol_prefix}{clean}"[:100]
     t = topic.strip()
-    suffix = " — watch the whole thing" if vol_prefix else ""
-    return f"{vol_prefix}{t[:80]}{suffix}"[:100]
+    return f"{vol_prefix}{t[:95]}"[:100]
 
 
 def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     hook_line = _normalize_horror_hook(hook, topic)
-    hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
-    from shorts_bot.production.description_copy import story_tease_line, sanitize_description_text
     from shorts_bot.production.jumpscare_timing import load_plan_for_draft
 
     vol = _volume_warning_for_draft(draft_id) if draft_id else ""
     has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    tag_base = HORROR_HASHTAGS_JUMPSCARE if has_js else HORROR_HASHTAGS
+    hashtags = " ".join(list(tag_base)[:5])
+    from shorts_bot.production.description_copy import story_tease_line, sanitize_description_text
     tease = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(

@@ -17,7 +17,7 @@ def upload_existing_video(
     *,
     pack_dir: Path | None = None,
     title_suffix: str = "",
-    allow_duplicate_draft: bool = True,
+    allow_duplicate_draft: bool = False,
 ) -> str:
     """Upload an already-rendered MP4 as unlisted (no re-render)."""
     from shorts_bot.config import settings

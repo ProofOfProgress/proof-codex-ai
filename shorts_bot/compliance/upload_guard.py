@@ -8,6 +8,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from shorts_bot.compliance.inauthentic_rules import risk_signals_for_script
+from shorts_bot.compliance.ypp_bans import (
+    metadata_bait_issues,
+    title_compliance_issues,
+)
 from shorts_bot.config import settings
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
@@ -71,15 +75,27 @@ def check_upload_allowed(
         issues.append("off-niche topic — Don't Blink horror Shorts only (wrong vertical uploaded)")
 
     for risk in risk_signals_for_script(script, hook, title):
-        if "missing personal voice" in risk or "spam-farm" in risk or "thin second-person" in risk:
+        if (
+            "missing personal voice" in risk
+            or "spam-farm" in risk
+            or "thin second-person" in risk
+            or "hashtags in title" in risk
+            or "spam title pattern" in risk
+        ):
             issues.append(risk)
         else:
             warnings.append(risk)
 
-    skip_cooldown = (
-        visibility == "unlisted"
-        and settings.unlisted_qa_bypass_upload_cooldown
-    )
+    issues.extend(title_compliance_issues(title))
+    issues.extend(metadata_bait_issues(title, hook, script))
+
+    # Unlisted QA bypass disabled by default — every upload counts (Jul 2025 inauthentic policy)
+    skip_cooldown = False
+    if visibility == "unlisted" and settings.unlisted_qa_bypass_upload_cooldown:
+        warnings.append(
+            "unlisted_qa_bypass_upload_cooldown=true — cooldown skipped (not recommended for YPP)"
+        )
+        skip_cooldown = True
     now = datetime.now(timezone.utc)
     recent = memory.recent_uploads(hours=24)
     if not skip_cooldown:
@@ -124,7 +140,9 @@ def check_upload_allowed(
         if d.id == draft_id:
             continue
         if d.topic.strip().lower() == topic_key and d.status == "approved":
-            warnings.append(f"same topic in draft #{d.id} — ensure script is meaningfully different")
+            issues.append(
+                f"same topic already approved in draft #{d.id} — template repetition (inauthentic)"
+            )
 
     from shorts_bot.production.scare_pillar import pillar_label, scare_pillar_for_topic
 
@@ -134,9 +152,9 @@ def check_upload_allowed(
             continue
         prev_pillar = scare_pillar_for_topic(prev.get("topic", ""))
         if prev_pillar == pillar:
-            warnings.append(
+            issues.append(
                 f"same scare pillar ({pillar_label(pillar)}) as draft #{prev.get('draft_id')} — "
-                "rotate reflection/knock/glitch/cam per LAUNCH_QUALITY"
+                "rotate pillar types (inauthentic template channel signal)"
             )
             break
 
