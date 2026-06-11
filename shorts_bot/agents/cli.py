@@ -8,6 +8,7 @@ import sys
 from rich.console import Console
 from rich.panel import Panel
 from shorts_bot.agents.duration import format_duration, parse_work_duration
+from shorts_bot.agents.identity import manager_intro_line, manager_name
 from shorts_bot.agents.manager import ChiefManager
 from shorts_bot.config import settings
 from shorts_bot.llm.provider import chat_provider_label, get_llm_backend
@@ -17,7 +18,7 @@ console = Console()
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Don't Blink Chief Manager — delegates Gemini specialists."
+        description=f"{manager_name()} — Chief Manager for Don't Blink (delegates Gemini specialists)."
     )
     parser.add_argument(
         "message",
@@ -38,7 +39,7 @@ def main() -> None:
     provider = chat_provider_label()
     console.print(
         Panel(
-            "[bold]Chief Manager[/bold] — Don't Blink\n"
+            f"[bold]{manager_intro_line()}[/bold]\n"
             f"LLM: [cyan]{provider}[/cyan]"
             + (f" ({backend.model})" if backend else " [yellow](offline)[/yellow]")
             + "\n\n"
@@ -47,7 +48,7 @@ def main() -> None:
             "  • [dim][30m] score topics for RPM[/dim]\n"
             "  • [dim]don't respond for 45 minutes — research attachment hooks[/dim]\n\n"
             "Interactive: run with no args. One-shot: pass message as argument.",
-            title="Manager",
+            title=manager_name(),
             border_style="green",
         )
     )
@@ -81,7 +82,7 @@ def main() -> None:
                 f"[dim]Completed {len(result.session.log)} tasks in "
                 f"{format_duration(int(result.session.elapsed))}[/dim]"
             )
-        console.print(Panel(result.reply, title="Chief Manager", border_style="blue"))
+        console.print(Panel(result.reply, title=manager_name(), border_style="blue"))
 
     if args.message:
         run_once(args.message)
@@ -89,7 +90,7 @@ def main() -> None:
 
     while True:
         try:
-            user_input = console.input("[bold yellow]manager>[/bold yellow] ").strip()
+            user_input = console.input(f"[bold yellow]{manager_name().lower()}>[/bold yellow] ").strip()
         except (EOFError, KeyboardInterrupt):
             console.print("\nBye.")
             break

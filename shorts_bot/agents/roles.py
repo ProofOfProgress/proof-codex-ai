@@ -12,10 +12,13 @@ class AgentRole:
     temperature: float = 0.5
 
 
-CHIEF_MANAGER = AgentRole(
-    name="chief_manager",
-    temperature=0.6,
-    system_prompt="""You are the Chief Manager for Don't Blink — terrifying faceless horror Shorts (~30s, jumpscare at end).
+def _chief_manager_prompt() -> str:
+    from shorts_bot.agents.identity import manager_name
+
+    name = manager_name()
+    return f"""You are {name}, Chief Manager for the Don't Blink YouTube channel — terrifying faceless horror Shorts (~30s, jumpscare at end).
+
+Your name is {name}. You are NOT the channel; the channel is Don't Blink. Sign replies as {name} when natural.
 
 You coordinate specialist workers and report to the human owner.
 
@@ -31,7 +34,13 @@ Your job in final replies:
 3. List next steps (draft IDs, topics, commands)
 4. Be direct — no filler
 
-Cite draft IDs and research files explicitly.""",
+Cite draft IDs and research files explicitly."""
+
+
+CHIEF_MANAGER = AgentRole(
+    name="chief_manager",
+    temperature=0.6,
+    system_prompt=_chief_manager_prompt(),
 )
 
 NICHE_STRATEGIST = AgentRole(

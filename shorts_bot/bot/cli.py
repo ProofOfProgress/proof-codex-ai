@@ -62,7 +62,7 @@ def main() -> None:
             f"Mode: [cyan]{mode}[/cyan] | Model: {model}\n"
             "Course files 01–09 loaded. Free-first stack: CapCut, YouTube Audio Library, Canva.\n"
             "Talk about ideas, drafts, hooks, retention — or approve/reject scripts.\n"
-            "Chief Manager: [dim]take 30m to plan cosy shorts[/dim] or [dim]manager: score topics[/dim]\n"
+            "AlphaBeta001 (manager): [dim]take 30m to research horror hooks[/dim] or [dim]manager: score topics[/dim]\n"
             "Dedicated manager CLI: [dim]python3 -m shorts_bot.agents.cli[/dim]\n"
             "Type [bold]exit[/bold] or [bold]quit[/bold] to leave.",
             title="Shorts Bot",
@@ -88,8 +88,10 @@ def main() -> None:
             def progress(msg: str) -> None:
                 console.print(f"[dim]… {msg}[/dim]")
 
+            from shorts_bot.agents.identity import manager_name
+
             result = ChiefManager(on_progress=progress).handle(user_input)
-            console.print(Panel(result.reply, title="Chief Manager", border_style="blue"))
+            console.print(Panel(result.reply, title=manager_name(), border_style="blue"))
         else:
             reply = agent.chat(user_input)
             console.print(Panel(reply, title="bot", border_style="blue"))

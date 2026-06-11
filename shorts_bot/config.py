@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.5-flash-lite"
 
     # Chief Manager + specialist workers (Gemini) — primary chat path when duration/prefix set
+    manager_display_name: str = "AlphaBeta001"  # agent name (not the YouTube channel)
     manager_enabled: bool = True
     manager_work_floor_seconds: int = 30
     manager_max_work_seconds: int = 7200  # cap 2h work budgets

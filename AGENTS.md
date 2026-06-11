@@ -40,7 +40,7 @@ python3 -m shorts_bot
 
 Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversational mode. Keys sync via `scripts/sync_secrets.py` on start. See `docs/CHAT_TONIGHT.md`. Without either, offline command mode still works (`help`, `draft`, `pending`, etc.).
 
-**Chief Manager + underlings:** `python3 -m shorts_bot.agents.cli` — you talk to the manager only; research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research cosy topics` or just `plan this week's hooks`. Web: `POST /api/manager/run`. See `docs/AGENT_MANAGER.md`. Discord optional.
+**Chief Manager (AlphaBeta001):** `python3 -m shorts_bot.agents.cli` — you talk to **AlphaBeta001** only (not the channel name); research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research horror hooks` or `plan this week's hooks`. Web: `POST /api/manager/run`. See `docs/AGENT_MANAGER.md`. Discord optional. Override: `MANAGER_DISPLAY_NAME` in `.env`.
 
 ### Lint / test
 

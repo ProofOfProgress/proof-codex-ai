@@ -13,6 +13,7 @@ from shorts_bot.agents.duration import (
     format_duration,
     parse_work_duration,
 )
+from shorts_bot.agents.identity import manager_intro_line, manager_name
 from shorts_bot.agents.roles import CHIEF_MANAGER
 from shorts_bot.agents.runner import SpecialistRunner
 from shorts_bot.agents.priority import WorkPriority, user_wants_research
@@ -145,7 +146,10 @@ class ChiefManager:
             return self._offline_reply(user_request, session)
 
         context = session.context_for_synthesis() if session else "No timed work session."
-        task = f"User said:\n{user_request}\n\nWrite the final manager reply."
+        task = (
+            f"User said:\n{user_request}\n\n"
+            f"Write the final reply as {manager_name()}, Chief Manager (not as the channel)."
+        )
 
         synthesis = self.runner.run(
             CHIEF_MANAGER,
@@ -180,7 +184,7 @@ class ChiefManager:
 
     def _offline_reply(self, user_request: str, session: WorkSession | None) -> str:
         lines = [
-            "Chief Manager (offline — set GEMINI_API_KEY).",
+            f"{manager_name()} (Chief Manager, offline — set GEMINI_API_KEY).",
             f"Request: {user_request}",
         ]
         if session:

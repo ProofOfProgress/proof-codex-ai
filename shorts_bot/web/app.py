@@ -97,10 +97,13 @@ async def home(request: Request) -> HTMLResponse:
     from shorts_bot.services.ops import BotOperations
 
     pending_imps = memory.list_improvements(status="pending")
+    from shorts_bot.agents.identity import manager_name
+
     return TEMPLATES.TemplateResponse(
         request,
         "index.html",
         {
+            "manager_name": manager_name(),
             "has_openai": settings.has_full_chat,
             "chat_provider": settings.chat_provider,
             "has_discord": settings.has_discord,

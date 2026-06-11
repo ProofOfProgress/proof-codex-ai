@@ -1,15 +1,15 @@
-# Chief Manager + specialist workers
+# AlphaBeta001 — Chief Manager + specialist workers
 
-Soft Continuity uses a **Chief Manager** (what you talk to) that delegates to small **Gemini specialists** behind the scenes. Discord is optional — use **CLI** or **web UI**.
+**Don't Blink** uses **AlphaBeta001** as the Chief Manager (the agent you talk to). AlphaBeta001 is not the YouTube channel — the channel is Don't Blink. The manager delegates to small **Gemini specialists** behind the scenes. Discord is optional — use **CLI** or **web UI**.
 
 ## Who talks to whom
 
-**You only talk to the Chief Manager.** Underlings have no chat interface.
+**You only talk to AlphaBeta001 (Chief Manager).** Underlings have no chat interface.
 
 | Layer | Role | What it does |
 |-------|------|----------------|
 | **You** | Owner | One message in, one manager reply out |
-| **Chief Manager** | Your interface | Plans, delegates, synthesizes |
+| **AlphaBeta001** | Chief Manager / your interface | Plans, delegates, synthesizes |
 | **Research Lead** | Mini-manager | Queues research underlings |
 | **Deep Research Worker** | Underling | `deep_research_topic` → `data/research/*.json` |
 | **Competitor Analyst** | Underling | Gap vs existing Shorts |
