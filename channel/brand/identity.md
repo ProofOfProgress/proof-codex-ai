@@ -36,6 +36,8 @@ Stories can share mood (alone at night, uncanny domestic wrongness) without one 
 **Display name:** **Peripheral** (set in YouTube Studio — API cannot change channel title)  
 **Studio note:** You can rename **twice per 14 days**.
 
+**Channel description (source of truth):** `channel/brand/youtube_copy.txt` — first line is the homepage preview before "Show more". Apply: `python3 -m shorts_bot.youtube.brand_cli`. Audience delivery research: `data/research/PERIPHERAL_AUDIENCE_DELIVERY_RESEARCH.md`.
+
 ## Tone
 
 | Do | Don't |

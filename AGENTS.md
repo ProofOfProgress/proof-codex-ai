@@ -41,7 +41,7 @@
 # Local render only — no YouTube upload for iteration builds
 python3 -m shorts_bot.production.render_jumpscare_cli --draft-id 3 --render
 # Single owner-approved upload (no build suffix, no --allow-duplicate-draft):
-python3 -m shorts_bot.production.upload_unlisted_cli --draft-id 3 --no-render
+python3 -m shorts_bot.production.upload_canonical_cli --draft-id 3 --video data/production/draft_3/final_short_v21_cctv.mp4
 ```
 
 See `docs/YPP_ANTI_SHADOWBAN.md` and `shorts_bot/compliance/ypp_bans.py`.

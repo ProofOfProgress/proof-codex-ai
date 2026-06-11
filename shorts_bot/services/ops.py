@@ -531,9 +531,11 @@ class BotOperations:
         profile, banner = ensure_brand_assets()
 
         try:
+            keywords = fields.keywords if use_brand_file else None
             api = apply_brand_from_files(
                 channel_name=name or None,
                 description=desc or None,
+                keywords=keywords or None,
                 banner_path=banner if banner.exists() else BANNER_PATH,
             )
             msg = api.message
@@ -566,7 +568,7 @@ class BotOperations:
                 msg += (
                     f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
                 )
-            series = fields.series or "Don't Blink"
+            series = fields.series or "Peripheral"
             need_studio_name = bool(name) and not api.name_updated
             need_studio_desc = bool(desc) and not api.description_updated
             if (need_studio_name or need_studio_desc) and settings.browser_enabled:

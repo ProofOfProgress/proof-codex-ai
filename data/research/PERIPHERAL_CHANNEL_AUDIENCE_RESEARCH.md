@@ -2,6 +2,7 @@
 
 **Assessed:** 2026-06-12  
 **Brand:** Peripheral (horror Shorts · faceless · ~30s · finale scare on most uploads)  
+**Delivery playbook:** `data/research/PERIPHERAL_AUDIENCE_DELIVERY_RESEARCH.md`  
 **Sources:** YouTube Shorts algorithm literature (2025–2026), audience-strategy frameworks (vidIQ, Studio Audience tab), in-repo horror psychology research, analog-horror Shorts competitor patterns, Peripheral brand positioning (`channel/brand/identity.md`).
 
 ---
