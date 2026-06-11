@@ -69,6 +69,7 @@ def horror_segment_to_prompt(
         "Silhouettes only — no full face until scare beat. No gore, no blood. "
         f"{framing_notes_for_prompt()} "
         f"{screen_text_prompt_note()} "
+        "CRITICAL: zero smartphones, zero human hands, zero mobile devices in frame. "
         "vertical 9:16 still image, no text, no watermark, photorealistic horror, terrifying. "
         f"Style: {style[:400]}"
     )

@@ -68,6 +68,7 @@ def negative_block() -> str:
     return (
         "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
         "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
+        "no smartphone, no mobile phone, no hands holding phone, no phone screen, no UI bezel, "
         "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood"
     )
 
