@@ -50,6 +50,12 @@ def repair_draft_horror_voice(store: MemoryStore, draft_id: int) -> str:
         p = pack / stale
         if p.exists():
             p.unlink()
+    for sub in ("clips", "images"):
+        d = pack / sub
+        if d.is_dir():
+            for f in d.glob("*"):
+                if f.is_file():
+                    f.unlink()
 
     return (
         f"Draft #{draft_id} repaired — second-person horror voice restored. "
