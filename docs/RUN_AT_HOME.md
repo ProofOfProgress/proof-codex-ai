@@ -1,6 +1,6 @@
 # Run at home — complete guide
 
-Everything works **without** OpenAI or Google until you're ready. Only login steps need you.
+Everything works **without** OpenAI or Google until you're ready. One-time login steps need you; day-to-day, the only manual video step is **Private → Public** in YouTube Studio.
 
 ## 1. Pull latest
 
@@ -28,7 +28,18 @@ bash scripts/run-all.sh
 - **Banner:** open `channel/brand/assets/banner.svg` → Canva or screenshot
 - **Starter scripts:** `python3 scripts/seed_starter_drafts.py` → approve in web UI
 
-## 4. What works immediately (no login)
+## 4. Production pipeline (automated except publish)
+
+| Step | Who | Notes |
+|------|-----|--------|
+| Ideas + script draft | Bot | Jenny course + your niche |
+| Approve / reject draft | You | Web **Yes/No** or Discord |
+| CapCut edit + export | Bot | Uses `channel/brand/capcut_style.md` |
+| Upload to YouTube | Bot | Always **Private** first |
+| **Private → Public** | **You** | Only manual step per video (~30 sec) |
+| Sync analytics + learn | Bot | Web **Sync** or `!sync`; you Yes/No improvements |
+
+## 5. What works immediately (no login)
 
 - Discord chat in DM (type normally, no `!`)
 - `!draft sleep tips` — script drafts
@@ -37,7 +48,7 @@ bash scripts/run-all.sh
 - Reward learning loop (after you have video data)
 - Jenny course routing offline
 
-## 5. What needs you once (login only)
+## 6. What needs you once (login only)
 
 | Step | Time | Doc |
 |------|------|-----|
@@ -46,7 +57,7 @@ bash scripts/run-all.sh
 | YouTube OAuth once | ~2 min | `python3 -m shorts_bot.youtube.auth_cli` |
 | OpenAI API key (optional) | ~2 min | docs/CHAT_TONIGHT.md |
 
-## 5. Discord — text you + others
+## 7. Discord — text you + others
 
 Anyone who **DMs the bot** is auto-remembered for morning messages.
 
@@ -65,15 +76,15 @@ DISCORD_BRIEFING_MINUTE=30
 
 Manual ping: `!notify` in Discord.
 
-## 7. Self-learning flow
+## 8. Self-learning flow
 
-1. Upload Shorts on YouTube
+1. Bot uploads approved Shorts as **Private** (or you flip older uploads to Public when ready)
 2. After Google login: tap **Sync YouTube Analytics** (web) or `!sync` (Discord)
 3. Bot scores videos → proposes up to **3 improvements** with pros/cons
 4. Tap **Yes** or **No** (one tap, web or `!yes 3` / `!no 3`)
 5. Approved rules → `data/LEARNED.md` + better future drafts
 
-## 7. Dev / coding requests
+## 9. Dev / coding requests
 
 **Discord DM:** `build: add export button for drafts`
 
@@ -81,7 +92,7 @@ Manual ping: `!notify` in Discord.
 
 **Future:** approved dev tasks are picked up by the cloud agent.
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 ```bash
 bash scripts/doctor.sh    # what's missing
@@ -90,7 +101,7 @@ bash scripts/backup.sh    # backup database
 make test                 # 37+ tests
 ```
 
-## 10. Local hosting (Docker, optional)
+## 11. Local hosting (Docker, optional)
 
 ```bash
 docker compose up --build

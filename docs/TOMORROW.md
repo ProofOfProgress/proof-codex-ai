@@ -49,10 +49,11 @@ Open **http://localhost:8080** in your browser.
 ## Daily use (after setup)
 
 1. `bash scripts/start.sh`
-2. Open **http://localhost:8080**
-3. Tap **Sync YouTube Analytics** (pulls real stats)
-4. Read each suggestion — **Pros** and **Cons** are listed
-5. Tap **Yes — do this** or **No** (one tap, no typing)
+2. Approve drafts in **http://localhost:8080** (bot handles CapCut + private upload)
+3. When ready to publish: YouTube Studio → open the Short → **Private → Public** (~30 sec)
+4. Tap **Sync YouTube Analytics** (pulls real stats)
+5. Read each suggestion — **Pros** and **Cons** are listed
+6. Tap **Yes — do this** or **No** (one tap, no typing)
 
 That's it. The bot learns from what you approve.
 
@@ -65,7 +66,7 @@ That's it. The bot learns from what you approve.
 | "Add Google API keys" | Complete Step 1–2 |
 | "Run auth_cli" | Run `python3 -m shorts_bot.youtube.auth_cli` once |
 | Browser won't open | Copy the URL from the terminal into Chrome |
-| "No video data yet" | Upload at least one Short, wait a few hours, sync again |
+| "No video data yet" | Publish at least one Short (Private → Public), wait a few hours, sync again |
 | Chat feels dumb | Add `OPENAI_API_KEY` to `.env` (optional) |
 
 Run `bash scripts/doctor.sh` anytime — it tells you what's missing.
@@ -74,9 +75,10 @@ Run `bash scripts/doctor.sh` anytime — it tells you what's missing.
 
 ## What the bot does on its own
 
+- CapCut edit and **private** YouTube upload after you approve a draft
 - Pulls **official** YouTube Analytics (views, likes, comments, retention)
 - Scores each video vs Jenny course benchmarks
 - Proposes **up to 3 improvements** per sync (easy sign-off)
 - Remembers what you approved for future drafts
 
-You never paste code. You only tap Yes or No.
+You never paste code. Per video you only set **Private → Public**; improvements are Yes or No.

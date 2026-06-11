@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.3 — priorities: 100% automation north star
+
+- Added `docs/PRIORITIES.md` — top 4 only rule, honest gap vs pasted chat claims
+- North star: money from fully automated AI YouTube channel(s)
+- README + AGENTS.md corrected (render/upload/daily not built yet)
+
+## 0.6.2 — docs: automated pipeline, manual publish gate
+
+- Documented end-to-end automation: draft → approve → CapCut → private upload
+- Clarified sole manual per-video step: **Private → Public** in YouTube Studio
+- Updated README roadmap, FOR_YOU, RUN_AT_HOME, MORNING, QUICKSTART, AGENTS
+
 ## 0.6.1 — Soft Continuity brand pass
 
 - Channel identity: self-help + subtle oracle aesthetic

@@ -22,7 +22,9 @@ def build_morning_briefing() -> str:
     if not yt.get("credentials_configured"):
         lines.append("• Google API keys in `.env` — see docs/TOMORROW.md")
     elif not yt.get("token_saved"):
-        lines.append("• Run once: `python3 -m shorts_bot.youtube.auth_cli`")
+        lines.append(
+            "• YouTube OAuth once: `python3 -m shorts_bot.youtube.auth_cli` — see docs/TOMORROW.md"
+        )
     else:
         lines.append("• YouTube OAuth done — analytics sync runs automatically")
 

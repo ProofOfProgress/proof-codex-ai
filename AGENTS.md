@@ -11,11 +11,21 @@
 
 ## Cursor Cloud specific instructions
 
+### North star (read first)
+
+**Make a lot of money from 100% AI-automated YouTube Shorts channel(s)** — self-learning, self-improving, self-posting. No “human does 70%.”
+
+**Work rule:** Only the **top 4** items in `docs/PRIORITIES.md` get built. Re-assess often.
+
+**User:** Not a coder — explain in plain English, one step at a time.
+
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for **Don't Blink** horror Shorts. Course KB in `course/files/` (01–09). **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. I2V: `ai_video_prompts_cli`, `video_prompt_pack_cli`.
+**Shorts Bot** — Jenny Hoyos strategist CLI for **Don't Blink** horror Shorts. Course KB in `course/files/` (01–09). **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. Applied learnings: `data/research/APPLIED_RESEARCH_ROUND_2.md`.
 
 **Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).
+
+**Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
 
 ### Services
 
@@ -105,9 +115,11 @@ Smart chat (no OpenAI): `dev:`, `build:`, `sync`, `pending`, `yes <id>` via `Bot
 
 Web **Dev queue** panel or `!dev title | description` — safe tasks auto-approve to `data/DEV_QUEUE.md`; login/payment tasks need `devyes`. Approved items also append to `data/LEARNED.md`.
 
-### Next phases
+### Production pipeline (target)
 
-CapCut Playwright operator.
+Fully automated: topic → script → render → QC → upload → publish → analytics → self-improve → repeat daily.
+
+**Top 4 build order:** `docs/PRIORITIES.md` (video factory → upload API → daily runner → remove human gates).
 
 ### Git / PR policy (user does minimal work)
 

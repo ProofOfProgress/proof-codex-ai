@@ -1,5 +1,26 @@
 # For you (no coding knowledge needed)
 
+## What you do vs what the bot does
+
+Almost everything is automated. **The only step you do per video** is flip it from **Private → Public** in YouTube Studio when you're ready to publish.
+
+### The bot handles (automatic)
+
+1. Short ideas and script drafts (Jenny Hoyos course rules)
+2. Your **Yes / No** on drafts and self-improvements (web or Discord)
+3. CapCut edit from approved script (template + export)
+4. Upload to YouTube as **Private** (title, description, Shorts format)
+5. Analytics sync, scoring, and up to 3 improvement proposals per sync
+
+### You handle (manual)
+
+| When | What | How long |
+|------|------|----------|
+| **Once** | Google phone verification, YouTube login, API keys | 2–15 min total — see docs below |
+| **Per video** | Set visibility **Private → Public** | ~30 seconds in YouTube Studio |
+
+Uploads land as **Private** on purpose — you choose the publish moment. Everything else runs without you in the loop.
+
 ## Can the bot create a YouTube channel by itself?
 
 **Almost — but Google blocks one step.**
@@ -50,7 +71,7 @@ That's the whole list for now.
 
 Your YouTube channel is **live** and logged in. You set the name yourself — the bot saved the session and won't fight you for browser control unless you ask.
 
-**Next:** the bot drafts Short scripts → you approve → later CapCut + upload.
+**Pipeline:** draft → you approve → CapCut edit → private upload → you go **Public** when ready → sync analytics → Yes/No improvements.
 
 ## Run at home (start here)
 

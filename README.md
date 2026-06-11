@@ -2,7 +2,7 @@
 
 Jenny Hoyos–trained strategist for a faceless, human-approved YouTube Shorts channel.
 
-The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and approve or reject content before anything gets posted. **Free-first production stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
+The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and learn from analytics. **North star:** 100% AI-automated Shorts channels that make money without ongoing human ops. **Today:** strong script + learning layer; **building next:** video render, upload, daily autopilot (see [docs/PRIORITIES.md](docs/PRIORITIES.md)). **Free-first stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
 
 **Don't code?** Read [docs/FOR_YOU.md](docs/FOR_YOU.md) — plain English on what the bot does and what you do once.
 
@@ -89,14 +89,36 @@ course/
   free_services.md     # Free / free-tier tool stack
 ```
 
+## Priorities (top 4 only)
+
+See **[docs/PRIORITIES.md](docs/PRIORITIES.md)** — ranked for money + full automation.
+
+| # | Building now | Status |
+|---|--------------|--------|
+| 1 | Video factory (script → voice → visuals → `.mp4`) | Not started |
+| 2 | YouTube upload API (no Studio clicks) | Not started |
+| 3 | Daily autopilot runner | Not started |
+| 4 | Remove human Yes/No gates (auto QC + publish) | Not started |
+
+## What works today
+
+| Step | Status |
+|------|--------|
+| Ideas + script drafts | Yes |
+| Quality checks + course routing | Yes |
+| Human approve / reject drafts | Yes (to be automated in #4) |
+| Analytics sync + reward learning | Yes |
+| Video render + upload + daily post | **No** |
+
 ## Roadmap
 
 - [x] Talk to a bot
 - [x] Jenny Hoyos course integrated (files 01–09)
 - [x] Draft Short scripts with quality checks
-- [x] Approve / reject before posting
-- [x] Learn from feedback memory
+- [x] Approve / reject + feedback memory
+- [x] YouTube analytics sync + reward loop
 - [x] Free services reference (CapCut, YouTube Audio Library, etc.)
-- [ ] YouTube analytics reward loop
-- [ ] CapCut operator (Playwright)
-- [ ] Upload pipeline
+- [ ] Video factory (TTS + visuals + render)
+- [ ] YouTube upload API + auto-publish
+- [ ] Daily autopilot (unattended loop)
+- [ ] Fully automated QC (no human gates)
