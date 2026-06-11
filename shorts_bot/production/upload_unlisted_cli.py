@@ -47,7 +47,7 @@ def upload_unlisted_draft(
             decoy_segment_index=None,
             has_jumpscare=True,
             sting_start_ratio=0.92,
-            volume_warning="🔊 VOLUME WARNING — jumpscare near the end. Headphones advised.",
+            volume_warning="🔊 VOLUME WARNING — loud moment at the end. Headphones advised.",
             creator_note="QA upload — finale scare + agent-mixed SFX.",
         )
     manifest["jumpscare_plan"] = scare_plan.to_dict()

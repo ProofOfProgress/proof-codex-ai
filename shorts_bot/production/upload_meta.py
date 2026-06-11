@@ -32,12 +32,14 @@ class UploadPackage:
 
 
 def _volume_warning_for_draft(draft_id: int) -> str:
+    from shorts_bot.production.description_copy import volume_warning_for_plan
     from shorts_bot.production.jumpscare_timing import load_plan_for_draft
 
     plan = load_plan_for_draft(draft_id, 8)
-    if plan.volume_warning:
-        return plan.volume_warning
-    return "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
+    return volume_warning_for_plan(
+        has_jumpscare=plan.has_jumpscare,
+        raw_warning=plan.volume_warning,
+    )
 
 
 def build_upload_package(
@@ -138,14 +140,12 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
     topic_tags = _topic_hashtags(topic)
     base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
     hashtags = " ".join(base_hashtags[:5])
-    vol = _volume_warning_for_draft(draft_id) if draft_id else (
-        "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
-    )
-    scare_line = (
-        "One impossible detail → tension → scare at the end."
-        if vol.strip()
-        else "One impossible detail → tension → replay to catch what you missed."
-    )
+    from shorts_bot.production.description_copy import story_tease_line
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    vol = _volume_warning_for_draft(draft_id) if draft_id else ""
+    has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    scare_line = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(
         [
@@ -156,7 +156,9 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
             hashtags,
         ]
     )
-    return "\n\n".join(lines)
+    from shorts_bot.production.description_copy import sanitize_description_text
+
+    return sanitize_description_text("\n\n".join(lines))
 
 
 def _tags_from_research(topic: str, research) -> list[str]:
@@ -209,19 +211,26 @@ def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
 def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     hook_line = _normalize_horror_hook(hook, topic)
     hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
-    vol = _volume_warning_for_draft(draft_id) if draft_id else (
-        "🔊 VOLUME WARNING — jumpscare near the end on scare videos. Headphones advised."
-    )
+    from shorts_bot.production.description_copy import story_tease_line, sanitize_description_text
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    vol = _volume_warning_for_draft(draft_id) if draft_id else ""
+    has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    tease = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(
         [
-            "Don't Blink — terrifying faceless horror micro-stories (~30s). "
-            "Watch the whole thing.",
+            sanitize_description_text(
+                f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
+                f"{tease} Watch the whole thing."
+            ),
             "AI motion visuals · synthetic media disclosed",
             hashtags,
         ]
     )
-    return "\n\n".join(lines)
+    from shorts_bot.production.description_copy import sanitize_description_text
+
+    return sanitize_description_text("\n\n".join(lines))
 
 
 def write_upload_files(pack_dir: Path, package: UploadPackage, *, draft_id: int) -> Path:

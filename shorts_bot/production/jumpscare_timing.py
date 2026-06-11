@@ -65,7 +65,7 @@ def plan_for_draft(draft_id: int, segment_count: int) -> JumpscarePlan:
         decoy_segment_index=None,
         has_jumpscare=True,
         sting_start_ratio=0.92,
-        volume_warning="🔊 VOLUME WARNING — jumpscare near the end. Headphones advised.",
+        volume_warning="🔊 VOLUME WARNING — loud moment at the end. Headphones advised.",
         creator_note="Finale scare — lunge on last beat, sting ~2s before end.",
     )
 
