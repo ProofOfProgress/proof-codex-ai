@@ -72,7 +72,7 @@ def test_spoken_overlay_draft3_segments():
         hook=hook,
         topic=topic,
     )
-    assert specs[1].feed_state == "app_opening"
+    assert specs[1].feed_state == "empty"
     assert specs[2] is not None and specs[2].feed_state == "empty"
     assert specs[3] is not None and specs[3].feed_state == "figure_closer"
     assert specs[5].feed_state == "live_audio"

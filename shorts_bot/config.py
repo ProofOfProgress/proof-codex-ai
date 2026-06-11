@@ -111,10 +111,11 @@ class Settings(BaseSettings):
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
     screen_text_overlay_enabled: bool = True  # composited phone/CCTV UI (not AI-generated glyphs)
     screen_text_screen_only: bool = True  # UI inside I2V phone screen — no fake bezel overlay
+    screen_text_draw_phone_ui: bool = True  # in-screen UI; use blur-only scrub underneath
     jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
     jumpscare_clip_play_seconds: float = 2.6  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
-    jumpscare_setup_min_seconds: float = 0.9  # min pre-scare hold (figure at bed / smile)
+    jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off
     ai_video_max_beats: int = 10  # cap Replicate I2V cost per Short (launch week: full beats)
     ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
@@ -129,7 +130,7 @@ class Settings(BaseSettings):
     burn_in_subtitles: bool = True  # legacy alias — True when caption_mode=ffmpeg
 
     # ffmpeg export — Shorts quality (see docs/SHORTS_ALIGNMENT.md)
-    video_crf: int = 18
+    video_crf: int = 16
     video_preset: str = "slow"
     video_audio_bitrate_k: int = 192
     video_ken_burns: bool = False  # subtle zoom per segment (slower render)

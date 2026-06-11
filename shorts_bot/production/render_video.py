@@ -231,7 +231,7 @@ def _jumpscare_video_filter(duration: float, *, width: int, height: int) -> str:
         f"zoompan=z='min(zoom+0.028,2.9)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
         f"d={frames}:s={width}x{height}:fps=30,"
         f"eq=brightness='if(between(t,{flash_start:.3f},{duration:.3f}),"
-        f"0.75*sin(40*PI*t)+0.75,0)':contrast=1.25:saturation=1.1,"
+        f"1.1*sin(50*PI*t)+1.1,0)':contrast=1.35:saturation=1.15,"
         f"format=yuv420p"
     )
 

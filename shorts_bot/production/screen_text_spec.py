@@ -76,7 +76,17 @@ def infer_overlay_from_spoken(
         return None
     if "live alone" in lower and "open" not in lower:
         return None
-    if "open the app" in lower or "opened the app" in lower:
+    if "opened the app" in lower or "open the app" in lower:
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary=cam,
+            secondary=time_lbl,
+            tertiary="LIVE",
+            time_label=time_lbl,
+            accent="#39FF14",
+            feed_state="empty",
+        )
+    if "opening" in lower and "security" in lower:
         return ScreenTextOverlay(
             kind="phone_feed",
             primary="Opening Security…",
@@ -94,7 +104,7 @@ def infer_overlay_from_spoken(
             secondary=time_lbl,
             tertiary="LIVE",
             feed_state="empty",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
     if "refreshed" in lower or "figure was closer" in lower or (
         "figure" in lower and "closer" in lower
@@ -105,7 +115,7 @@ def infer_overlay_from_spoken(
             secondary=time_lbl,
             tertiary="MOTION",
             feed_state="figure_closer",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
     if "locks" in lower or "sealed" in lower:
         return None
@@ -185,13 +195,7 @@ def infer_overlay_from_beat(
         )
 
     if any(k in lower for k in ("security camera hallway", "motion blur", "cctv hallway")):
-        return ScreenTextOverlay(
-            kind="cctv_hud",
-            primary="REC",
-            secondary=time_lbl,
-            tertiary="MOTION",
-            accent="#39FF14",
-        )
+        return None  # full-frame CCTV I2V — no composited HUD
 
     if any(k in lower for k in ("live feed", "hallway empty", "empty hallway", "empty hold")):
         return ScreenTextOverlay(

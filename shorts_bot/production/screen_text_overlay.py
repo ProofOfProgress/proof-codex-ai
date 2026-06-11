@@ -9,8 +9,8 @@ from pathlib import Path
 from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
 from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
-# I2V phone display rect — matches POV clips; no composited chassis in screen-only mode
-_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H = 248, 468, 584, 876
+# I2V phone display rect — centered POV in regen clips (hands below screen)
+_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H = 340, 760, 400, 520
 _GIBBERISH_SCRUB = (380, 1580, 700, 340)
 
 
@@ -86,9 +86,15 @@ def normalize_overlay_spec(spec: ScreenTextOverlay) -> ScreenTextOverlay:
     )
 
 
-def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, int, int, int, float]]:
-    gx, gy, gw, gh = _GIBBERISH_SCRUB
-    regions: list[tuple[int, int, int, int, float]] = [(gx, gy, gw, gh, 0.94)]
+def scrub_regions_for_spec(
+    spec: ScreenTextOverlay | None,
+    *,
+    include_gibberish: bool = True,
+) -> list[tuple[int, int, int, int, float]]:
+    regions: list[tuple[int, int, int, int, float]] = []
+    if include_gibberish:
+        gx, gy, gw, gh = _GIBBERISH_SCRUB
+        regions.append((gx, gy, gw, gh, 0.94))
     if spec is None:
         return regions
     norm = normalize_overlay_spec(spec)
@@ -108,12 +114,13 @@ def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, in
 
 def _scrub_vf_chain(spec: ScreenTextOverlay | None, *, local: bool = False) -> str:
     parts: list[str] = []
+    skip_gibberish = spec is not None and _is_phone_overlay(spec)
     if local and spec is not None and _is_phone_overlay(spec):
         from shorts_bot.config import settings
 
         if settings.screen_text_screen_only:
-            return "drawbox=x=0:y=0:w=iw:h=ih:color=black@0.88:t=fill"
-    for x, y, w, h, alpha in scrub_regions_for_spec(spec):
+            return "drawbox=x=0:y=0:w=iw:h=ih:color=black@0.35:t=fill,gblur=sigma=2,eq=brightness=-0.02:saturation=0.92"
+    for x, y, w, h, alpha in scrub_regions_for_spec(spec, include_gibberish=not skip_gibberish):
         parts.append(f"drawbox=x={x}:y={y}:w={w}:h={h}:color=black@{alpha}:t=fill")
     return ",".join(parts)
 
@@ -271,32 +278,20 @@ def _draw_hallway_feed(
     green: str,
     time_lbl: str,
     label: str,
+    chrome_only: bool = False,
 ) -> None:
-    draw.rectangle([sx, sy, sx + sw, sy + sh], fill=(6, 16, 11, 255))
-    mid_x = sx + sw // 2
-    floor_y = sy + sh - 16
-    draw.polygon(
-        [(mid_x, sy + 60), (sx + 12, floor_y), (sx + sw - 12, floor_y)],
-        fill=(10, 26, 16, 255),
-    )
-    draw.line([(mid_x, sy + 60), (mid_x, floor_y)], fill=(24, 60, 34, 200), width=2)
-    door_w = 64
-    draw.rectangle(
-        [mid_x - door_w // 2, sy + 100, mid_x + door_w // 2, floor_y - 50],
-        fill=(36, 48, 38, 255),
-    )
-    if with_figure:
-        fig_w, fig_h = 72, 200
-        fx = mid_x - fig_w // 2
-        fy = floor_y - fig_h - 30
-        draw.rectangle([fx, fy, fx + fig_w, fy + fig_h], fill=(2, 6, 4, 255))
-        draw.ellipse([fx + 14, fy - 42, fx + 58, fy], fill=(2, 6, 4, 255))
-    for ly in range(sy, sy + sh, 5):
-        draw.line([(sx, ly), (sx + sw, ly)], fill=(0, 0, 0, 22), width=1)
-    draw.text((sx + 12, sy + 8), "REC", fill=green, font=_font(18, bold=True))
-    draw.text((sx + sw - 100, sy + 8), time_lbl, fill=green, font=_font(16, bold=True))
+    if chrome_only:
+        draw.text((sx + 12, sy + 8), "REC", fill=green, font=_font(18, bold=True))
+        draw.text((sx + sw - 100, sy + 8), time_lbl, fill=green, font=_font(16, bold=True))
+        if label:
+            draw.text((sx + 12, sy + sh - 28), label, fill=green, font=_font(16, bold=True))
+        return
+    if not chrome_only:
+        # Light tint only — I2V hallway remains visible underneath
+        draw.rectangle([sx, sy, sx + sw, sy + sh], fill=(8, 18, 28, 72))
+    hud = "#C8D6E5" if green.lower() in {"#39ff14", "#39ff14"} else green
     if label:
-        draw.text((sx + 12, sy + sh - 28), label, fill=green, font=_font(16, bold=True))
+        draw.text((sx + 12, sy + sh - 28), label, fill=hud, font=_font(16, bold=True))
 
 
 def _draw_phone_screen_content(
@@ -381,13 +376,12 @@ def _draw_phone_screen_content(
         )
         return
 
-    feed_top = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
     _draw_hallway_feed(
         draw,
         0,
-        feed_top,
+        0,
         sw,
-        sh - feed_top,
+        sh,
         with_figure=state == "figure_closer",
         green=green,
         time_lbl=time_lbl,
@@ -619,6 +613,60 @@ def apply_overlay_to_video(
     return dest
 
 
+def apply_phone_scrub_only(video_path: Path, dest: Path) -> Path:
+    """Blur/scrub phone display rect only — no composited UI layer."""
+    lay = phone_layout()
+    sx, sy, sw, sh = lay.screen
+    vf = (
+        f"[0:v]split[base][cropin];"
+        f"[cropin]crop={sw}:{sh}:{sx}:{sy},"
+        f"gblur=sigma=3,eq=brightness=-0.03:saturation=0.88[scrub];"
+        f"[base][scrub]overlay={sx}:{sy}[out]"
+    )
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(video_path.resolve()),
+            "-filter_complex",
+            vf,
+            "-map",
+            "[out]",
+            "-an",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-pix_fmt",
+            "yuv420p",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return dest
+
+
+def _phone_segment_spoken(spoken: str) -> bool:
+    lower = (spoken or "").lower()
+    return any(
+        k in lower
+        for k in (
+            "app",
+            "hallway",
+            "feed",
+            "refresh",
+            "glitch",
+            "empty",
+            "live alone",
+            "live view",
+        )
+    )
+
+
 def apply_caption_scrub_only(video_path: Path, dest: Path) -> Path:
     scrub = _scrub_vf_chain(None)
     subprocess.run(
@@ -755,9 +803,18 @@ def maybe_apply_screen_text(
         if len(unique_specs) <= 1:
             only = unique_specs[0][2] if unique_specs else spec
             if only is None:
-                apply_caption_scrub_only(clip_path, out)
+                spoken = str(segment.get("spoken_text") or "") if segment else ""
+                if _phone_segment_spoken(spoken):
+                    apply_phone_scrub_only(clip_path, out)
+                else:
+                    apply_caption_scrub_only(clip_path, out)
                 return out
             norm = normalize_overlay_spec(only)
+            from shorts_bot.config import settings
+
+            if norm.kind in {"phone_feed", "message_bubble"} and not settings.screen_text_draw_phone_ui:
+                apply_phone_scrub_only(clip_path, out)
+                return out
             png = tmp_dir / f"screen_text_{segment_index:03d}.png"
             save_overlay_png(norm, png)
             apply_overlay_to_video(clip_path, png, out, spec=norm)
@@ -773,9 +830,14 @@ def maybe_apply_screen_text(
                 apply_caption_scrub_only(sub_in, sub_out)
             else:
                 norm = normalize_overlay_spec(ov)
-                png = tmp_dir / f"screen_text_{segment_index:03d}_sub_{j}.png"
-                save_overlay_png(norm, png)
-                apply_overlay_to_video(sub_in, png, sub_out, spec=norm)
+                from shorts_bot.config import settings
+
+                if norm.kind in {"phone_feed", "message_bubble"} and not settings.screen_text_draw_phone_ui:
+                    apply_phone_scrub_only(sub_in, sub_out)
+                else:
+                    png = tmp_dir / f"screen_text_{segment_index:03d}_sub_{j}.png"
+                    save_overlay_png(norm, png)
+                    apply_overlay_to_video(sub_in, png, sub_out, spec=norm)
             parts.append(sub_out)
         _concat_clips(parts, out)
         return out
@@ -784,6 +846,11 @@ def maybe_apply_screen_text(
         apply_caption_scrub_only(clip_path, out)
         return out
     norm = normalize_overlay_spec(spec)
+    from shorts_bot.config import settings
+
+    if norm.kind in {"phone_feed", "message_bubble"} and not settings.screen_text_draw_phone_ui:
+        apply_phone_scrub_only(clip_path, out)
+        return out
     png = tmp_dir / f"screen_text_{segment_index:03d}.png"
     save_overlay_png(norm, png)
     apply_overlay_to_video(clip_path, png, out, spec=norm)
