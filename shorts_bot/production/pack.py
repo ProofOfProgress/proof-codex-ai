@@ -45,9 +45,12 @@ def _capcut_instructions(briefs: list, topic: str) -> str:
     lines.extend(
         [
             "",
-            "4. Add captions (optional — TurboScribe SRT also works).",
-            "5. Music: YouTube Audio Library, duck under voice.",
-            "6. Export 1080×1920 H.264 → YouTube Short.",
+            "4. **SFX:** follow `CAPCUT_SFX.md` — separate audio lane, VO loudest.",
+            "5. Add captions (optional — TurboScribe SRT also works).",
+            "6. Music: YouTube Audio Library, duck under voice (-12dB or keyframes).",
+            "7. Export 1080×1920 H.264 → YouTube Short.",
+            "",
+            "CapCut horror workflow: `channel/brand/capcut_horror_sfx.md`",
         ]
     )
     return "\n".join(lines)
@@ -216,16 +219,35 @@ def build_production_pack(
         encoding="utf-8",
     )
     (root / "CAPCUT_TIMELINE.md").write_text(_capcut_instructions(briefs, draft.topic), encoding="utf-8")
+
+    from shorts_bot.production.capcut_sfx import build_capcut_sfx_markdown
+
+    (root / "CAPCUT_SFX.md").write_text(
+        build_capcut_sfx_markdown(
+            [
+                {
+                    "start_seconds": b.start_seconds,
+                    "spoken_text": b.spoken_text,
+                }
+                for b in briefs
+            ],
+            topic=draft.topic,
+            jumpscare_plan=scare_plan.to_dict(),
+            audio_duration=audio_duration,
+        ),
+        encoding="utf-8",
+    )
     (root / "README.txt").write_text(
         "Don't Blink horror production pack\n\n"
         "1. Record voiceover from script in manifest.json\n"
         "2. Transcript sync via Gemini audio timestamps\n"
         "3. AI motion clips: clips/ (VISUAL_STYLE=ai_video)\n"
         "4. video_prompts/ for I2V motion prompts per beat\n"
-        "5. Save PNGs to images/ named like 00.07.png\n"
-        "6. Follow CAPCUT_TIMELINE.md\n"
-        "7. captions.srt — upload to YouTube for extra subtitle track\n"
-        "8. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
+        "5. CAPCUT_SFX.md — per-beat sound effects for CapCut\n"
+        "6. Save PNGs to images/ named like 00.07.png\n"
+        "7. Follow CAPCUT_TIMELINE.md + channel/brand/capcut_horror_sfx.md\n"
+        "8. captions.srt — upload to YouTube for extra subtitle track\n"
+        "9. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
         encoding="utf-8",
     )
 
