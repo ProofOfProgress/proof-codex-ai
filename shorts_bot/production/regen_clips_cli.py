@@ -118,7 +118,14 @@ def main() -> None:
     pack = args.pack_dir or (settings.data_dir / "production" / f"draft_{args.draft_id}")
     if args.sync_prompts:
         n = sync_pack_prompts(pack)
-        console.print(f"[green]Synced {n} prompt(s) from manifest[/green]")
+        console.print(f"[green]Synced {n} image prompt(s) from manifest[/green]")
+        try:
+            from shorts_bot.production.video_prompt_pack import export_video_prompt_pack
+
+            export_video_prompt_pack(pack)
+            console.print("[green]Synced video_prompts/ I2V motion pack from manifest[/green]")
+        except Exception as exc:
+            console.print(f"[yellow]video_prompts sync skipped: {exc}[/yellow]")
 
     if args.all:
         manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
