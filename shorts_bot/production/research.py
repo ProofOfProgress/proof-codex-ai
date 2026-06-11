@@ -157,7 +157,9 @@ Return JSON only:
   "jenny_citations": ["Jenny 05", "Jenny 06"],
   "quality_notes": "tension + earned scare; avoid cosy/self-help tone and stick figures",
   "recommended_path": "pipeline: research → draft → ai_video pack → render → upload — one paragraph",
-  "suggested_tags": ["5-8 horror YouTube tags"]
+  "suggested_tags": ["8-12 horror YouTube backend tags — horror shorts, jumpscare, topic-specific"],
+  "suggested_hashtags": ["3-5 description hashtags — #Horror #HorrorShorts #Jumpscare + topic-specific"],
+  "description_formula": "2-sentence description: line 1 = hook keyword + volume warning; line 2 = Don't Blink CTA; end with 3-5 hashtags"
 }}
 """
 
@@ -355,22 +357,21 @@ def _offline_research(topic: str, *, external: dict | None = None) -> Production
         viewer_moment=f"The exact second before {topic} goes wrong.",
         emotional_stakes="They'll say something they'll regret or shut down completely.",
         hook_angles=[
-            f"I used to wreck {topic} every time.",
-            f"Right before {topic}, my chest would lock up.",
-            f"One thing changed how I handle {topic}.",
+            f"You blinked — {topic} one second later.",
+            f"The impossible detail: {topic}.",
+            f"Watch the mirror. {topic}.",
         ],
         script_beats=[
-            "Hook — personal struggle, ASAP",
-            "Same loop — viewer recognizes themselves",
-            "Turn — what I do now in the minute before",
-            "One protocol — single concrete action",
-            "Honest slip — still human",
-            "Try tonight — low friction CTA",
-            "Payoff — one concrete relief line tied to the moment (not channel tagline)",
+            "Hook — impossible detail in line 1",
+            "Escalation — each beat adds worse wrongness",
+            "Micro-cue — sound/visual fracture",
+            "False calm — quiet VO, bait the swipe",
+            "Jumpscare cue — final line triggers scare",
+            "Linger — cut on impact, no explanation",
         ],
         visual_framing=_visual_framing_for_pipeline(),
-        competitor_gap="Most Shorts give generic tips; miss the specific minute-before moment.",
-        title_formula=f"Before {topic[:40]} — do this first #Shorts",
+        competitor_gap="Generic creepypasta listicles miss earned scare + false calm structure.",
+        title_formula=f"🔊 {topic[:70]}",
         jenny_citations=["Jenny 02 hook", "Jenny 05 safe zone framing", "Jenny 06 payoff"],
         quality_notes=quality_lessons(),
         researched_at=datetime.now(timezone.utc).isoformat(),
@@ -465,6 +466,13 @@ def deep_research_topic(
     suggested_tags = [str(x).strip() for x in (payload.get("suggested_tags") or []) if str(x).strip()]
     for tag in suggested_tags:
         external["keyword_insights"].append({"keyword": tag, "volume": "", "competition": "", "score": "suggested"})
+    for tag in [str(x).strip() for x in (payload.get("suggested_hashtags") or []) if str(x).strip()]:
+        external["keyword_insights"].append({"keyword": tag, "volume": "", "competition": "", "score": "hashtag"})
+    desc_formula = str(payload.get("description_formula", "")).strip()
+    if desc_formula:
+        external["keyword_insights"].append(
+            {"keyword": desc_formula, "volume": "", "competition": "", "score": "description_formula"}
+        )
 
     result = ProductionResearch(
         topic=topic,

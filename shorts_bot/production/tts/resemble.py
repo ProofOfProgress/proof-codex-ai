@@ -140,7 +140,8 @@ def synthesize_resemble(text: str, out_path: Path) -> tuple[str, str]:
 
     return (
         "resemble-clone",
-        f"Resemble voice clone saved {out_path.name} (voice {voice_uuid[:8]}…)",
+        f"Resemble voice clone saved {out_path.name} (voice {voice_uuid[:8]}…"
+        + (", horror SSML)" if text.lstrip().startswith("<speak") else ")"),
     )
 
 
@@ -162,7 +163,7 @@ def probe_resemble(api_key: str, voice_uuid: str) -> tuple[bool, str]:
             SYNTH_URL,
             {
                 "voice_uuid": voice_uuid,
-                "data": "Soft Continuity voice check.",
+                "data": '<speak prompt="Tense horror narrator, whispered dread.">Don\'t Blink voice check.</speak>',
                 "output_format": "mp3",
                 "sample_rate": 44100,
             },

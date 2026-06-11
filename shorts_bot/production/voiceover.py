@@ -67,7 +67,40 @@ def generate_voiceover(
         raise ValueError("Script too short for voiceover generation.")
 
     out_path = _voiceover_path(pack_dir)
-    provider, detail = synthesize_speech(spoken, out_path)
+    use_horror = settings.tts_horror_delivery
+    provider_name = (settings.tts_provider or "resemble").strip().lower()
+    use_edge = provider_name == "edge" or (
+        settings.allow_free_tts_fallback and not settings.has_resemble
+    ) or (settings.allow_free_tts_fallback and provider_name != "resemble")
+
+    if use_horror and use_edge:
+        from shorts_bot.production.tts.edge_horror import synthesize_horror_edge
+
+        (pack_dir / "voiceover_delivery.txt").write_text(
+            f"horror edge pacing ({len(spoken.split())} words)\n{spoken}",
+            encoding="utf-8",
+        )
+        provider, detail = synthesize_horror_edge(
+            spoken,
+            out_path,
+            voice=voice or settings.tts_voice,
+        )
+    else:
+        tts_input = spoken
+        if use_horror and not use_edge:
+            from shorts_bot.production.tts.horror_voice import prepare_horror_resemble_ssml
+
+            prompt = (settings.resemble_horror_prompt or "").strip() or None
+            tts_input = prepare_horror_resemble_ssml(spoken, prompt=prompt)
+            (pack_dir / "voiceover_ssml.txt").write_text(tts_input, encoding="utf-8")
+
+        provider, detail = synthesize_speech(
+            tts_input,
+            out_path,
+            rate=rate or settings.tts_rate,
+            pitch=pitch or settings.tts_pitch,
+            voice=voice or settings.tts_voice,
+        )
 
     voice_label = voice or settings.tts_voice or DEFAULT_VOICE
     if provider == "resemble-clone":
@@ -75,13 +108,14 @@ def generate_voiceover(
 
     word_count = len(spoken.split())
     secs = max(25, int(word_count / 2.4))
+    delivery = " (horror dread pacing)" if settings.tts_horror_delivery else ""
 
     return VoiceoverResult(
         draft_id=draft_id,
         output_path=out_path,
         voice=voice_label,
-        duration_hint=f"~{secs}s at calm pace",
-        message=detail,
+        duration_hint=f"~{secs}s at dread pace",
+        message=detail + delivery,
     )
 
 

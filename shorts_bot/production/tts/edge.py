@@ -9,7 +9,11 @@ from pathlib import Path
 async def _run(text: str, out_path: Path, *, voice: str, rate: str, pitch: str) -> None:
     import edge_tts
 
-    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
+    # Full SSML document (horror pacing) — rate/pitch on Communicate ignored when SSML has prosody.
+    if text.lstrip().startswith("<speak"):
+        communicate = edge_tts.Communicate(text, voice)
+    else:
+        communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
     await communicate.save(str(out_path))
 
 

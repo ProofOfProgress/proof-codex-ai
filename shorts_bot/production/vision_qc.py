@@ -202,9 +202,11 @@ def _local_frame_checks(frame_paths: list[Path]) -> tuple[list[str], list[str], 
             pixels = list(img.getdata())
             if pixels:
                 avg = sum(pixels) / len(pixels)
-                if avg < 12:
+                if avg < 3:
                     issues.append(f"near-black frame at {p.name}")
                     break
+                if avg < 12:
+                    warnings.append(f"dark frame at {p.name} (OK for horror if scene is intentional)")
     except Exception:
         warnings.append("could not run brightness check")
 

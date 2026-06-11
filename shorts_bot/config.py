@@ -82,9 +82,11 @@ class Settings(BaseSettings):
     resemble_project_uuid: str | None = None
     resemble_sample_rate: int = 44100
     resemble_use_hd: bool = True
-    tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
-    tts_rate: str = "-5%"
-    tts_pitch: str = "+2Hz"
+    tts_voice: str = "en-US-AndrewNeural"  # edge-tts fallback — deep horror narrator
+    tts_rate: str = "-12%"
+    tts_pitch: str = "-4Hz"
+    tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
+    resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | ai_video | hybrid | ai (stills) | calm_stills
 
     # Paid image generation (Replicate FLUX or Fal.ai)
