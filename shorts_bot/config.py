@@ -130,11 +130,15 @@ class Settings(BaseSettings):
     video_max_duration_seconds: float = 58.0
     video_qc_blocks_upload: bool = True
 
-    # Jumpscare audio sting — layered on final seconds of voiceover at render
-    jumpscare_sting_enabled: bool = True
+    # Horror SFX — agent-mixed procedural cues + finale stinger at render (replaces raw noise sting)
+    horror_sfx_enabled: bool = True
+    # Legacy white-noise sting (off when horror_sfx_enabled)
+    jumpscare_sting_enabled: bool = False
     jumpscare_sting_seconds: float = 2.5
     jumpscare_sting_gain: float = 2.2
     jumpscare_sting_mix: float = 0.9
+    # Unlisted QA uploads skip 24h cooldown (owner preview / SFX validation)
+    unlisted_qa_bypass_upload_cooldown: bool = True
 
     # Gemini vision QC — sparse frames, one batched call (see vision_qc.py)
     vision_qc_enabled: bool = True
