@@ -107,8 +107,8 @@ def build_sfx_cues(
         sting_at = sting_start_seconds(plan, segments=segments, total_duration=audio_duration)
         if sting_at is None:
             sting_at = max(0.0, audio_duration - 2.5)
-        cues.append(SfxCue(start_seconds=sting_at, kind="stinger", gain=1.0))
-        cues.append(SfxCue(start_seconds=sting_at + 0.01, kind="stinger_noise", gain=0.85))
+        cues.append(SfxCue(start_seconds=sting_at, kind="stinger", gain=1.15))
+        cues.append(SfxCue(start_seconds=sting_at + 0.008, kind="stinger_noise", gain=0.95))
 
     return cues
 

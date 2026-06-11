@@ -114,7 +114,7 @@ class Settings(BaseSettings):
     screen_text_screen_only: bool = True  # legacy phone rect mode (off while screen_text_phone_enabled=false)
     screen_text_draw_phone_ui: bool = True  # ignored when screen_text_phone_enabled=false
     jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
-    jumpscare_clip_play_seconds: float = 2.6  # how long the scare motion plays in the final Short
+    jumpscare_clip_play_seconds: float = 2.85  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off

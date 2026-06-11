@@ -692,6 +692,10 @@ def apply_phone_scrub_only(video_path: Path, dest: Path) -> Path:
 
 
 def _phone_segment_spoken(spoken: str) -> bool:
+    from shorts_bot.production.screen_text_spec import phone_screens_enabled
+
+    if not phone_screens_enabled():
+        return False
     lower = (spoken or "").lower()
     return any(
         k in lower
