@@ -114,10 +114,21 @@ Sources used: {", ".join(self.research_sources) or "llm+course"}
         return self.draft_context()[:max_chars]
 
 
+_CREDIBLE_SOURCES_BLOCK = """
+CREDIBLE SOURCES (mandatory — cite in quality_notes / web_sources):
+- Tier A: peer-reviewed journals (Frontiers, PMC, Brill), academic film-sound theses, DOI papers
+- Tier B: expert institutions (The Conversation, university research), established film-sound scholarship (Kerins, Chion, Redfern)
+- Tier C: practitioner craft (CapCut guides, sound-design educators) — workflow only, not psychology claims
+- REJECT: using random listicles or TikTok tips as sole evidence for scare mechanics
+- Horror audio: prioritize ASE/startle-reflex literature + integrated soundtrack studies (music + SFX + silence)
+See: data/research/HORROR_SOUND_EFFECTS_RESEARCH.md
+"""
+
 _RESEARCH_PROMPT = """You are a YouTube Shorts production researcher for faceless HORROR channel Don't Blink.
 
 Your job: DEEP RESEARCH on terrifying micro-stories (~30s, jumpscare at end). Use web data, competitors, keyword signals.
 Cross-check Jenny hook/retention rules. Ground answers in horror psychology (prediction error, tension, earned scares).
+""" + _CREDIBLE_SOURCES_BLOCK + """
 
 NICHE POSITIONING:
 {niche_block}
@@ -155,7 +166,7 @@ Return JSON only:
   "competitor_gap": "what horror Shorts miss — cite competitor/web patterns",
   "title_formula": "🔊 VOLUME WARNING style title + impossible detail + #horror #shorts",
   "jenny_citations": ["Jenny 05", "Jenny 06"],
-  "quality_notes": "tension + earned scare; avoid cosy/self-help tone and stick figures",
+  "quality_notes": "tension + earned scare; cite Tier A/B sources for any audio/scare claims; avoid cosy tone",
   "recommended_path": "pipeline: research → draft → ai_video pack → render → upload — one paragraph",
   "suggested_tags": ["8-12 horror YouTube backend tags — horror shorts, jumpscare, topic-specific"],
   "suggested_hashtags": ["3-5 description hashtags — #Horror #HorrorShorts #Jumpscare + topic-specific"],

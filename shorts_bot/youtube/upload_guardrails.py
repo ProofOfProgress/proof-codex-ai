@@ -71,6 +71,7 @@ def preflight_upload(
     script: str,
     title: str,
     allow_duplicate_draft: bool = False,
+    visibility: str = "public",
 ) -> UploadPreflight:
     """
     Run YPP guard + duplicate draft/title checks before any upload path (API or Studio).
@@ -115,6 +116,7 @@ def preflight_upload(
         hook=hook,
         script=script,
         title=title,
+        visibility=visibility,
     )
     if not compliance.allowed:
         return UploadPreflight(False, compliance.summary(), existing_ids)

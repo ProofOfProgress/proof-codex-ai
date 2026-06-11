@@ -17,6 +17,51 @@ from shorts_bot.production.framing import (
     SUBTITLE_FONT_SIZE,
     SUBTITLE_MARGIN_V_PX,
 )
+from shorts_bot.production.script_segments import _split_script
+
+
+def _merge_chunks_to_count(chunks: list[str], target: int) -> list[str]:
+    """Merge script sentences until count matches visual segment count."""
+    if target <= 0 or not chunks:
+        return chunks
+    merged = list(chunks)
+    while len(merged) > target:
+        best_i = 0
+        best_len = len(merged[0]) + len(merged[1])
+        for i in range(len(merged) - 1):
+            pair_len = len(merged[i]) + len(merged[i + 1])
+            if pair_len < best_len:
+                best_len = pair_len
+                best_i = i
+        merged[best_i : best_i + 2] = [f"{merged[best_i]} {merged[best_i + 1]}".strip()]
+    return merged
+
+
+def caption_text_for_segments(
+    segments: list[dict],
+    *,
+    script: str | None = None,
+) -> list[str]:
+    """Prefer approved script lines over TurboScribe spoken_text (ASR typos)."""
+    n = len(segments)
+    if not script or not script.strip():
+        return [str(s.get("spoken_text", "")).strip() for s in segments]
+    chunks = _merge_chunks_to_count(_split_script(script), n)
+    if len(chunks) != n:
+        return [str(s.get("spoken_text", "")).strip() for s in segments]
+    return chunks
+
+
+def _timeline_scale(segments: list[dict], audio_duration: float) -> float:
+    """Return 1.0 when segments are already normalized to audio_duration."""
+    if not segments or audio_duration <= 0:
+        return 1.0
+    first = float(segments[0].get("start_seconds", 0))
+    last = float(segments[-1].get("end_seconds", 0))
+    if first < 0.15 and abs(last - audio_duration) < 0.35:
+        return 1.0
+    manifest_total = last if last > 0 else 1.0
+    return audio_duration / manifest_total
 
 
 def _fmt_srt_time(seconds: float) -> str:
@@ -59,10 +104,11 @@ def build_subtitles_from_manifest(
     *,
     audio_duration: float,
     caption_y_offset: int = 0,
+    script: str | None = None,
 ) -> tuple[str, str]:
     """Return (srt_content, ass_content) timed to scaled audio."""
-    manifest_total = segments[-1]["end_seconds"] if segments else 1.0
-    scale = audio_duration / manifest_total if manifest_total > 0 else 1.0
+    scale = _timeline_scale(segments, audio_duration)
+    caption_lines = caption_text_for_segments(segments, script=script)
 
     srt_lines: list[str] = []
     ass_events: list[str] = []
@@ -70,10 +116,10 @@ def build_subtitles_from_manifest(
 
     margin_tag = ass_force_margin_override(y_offset=caption_y_offset)
 
-    for seg in segments:
+    for seg, raw in zip(segments, caption_lines):
         start = seg["start_seconds"] * scale
         end = max(start + 0.08, seg["end_seconds"] * scale)
-        raw = seg.get("spoken_text", "").strip()
+        raw = raw.strip()
         if not raw:
             continue
 
@@ -104,11 +150,22 @@ def write_subtitle_files(
     audio_duration: float,
     *,
     caption_y_offset: int = 0,
+    script: str | None = None,
 ) -> Path:
+    if script is None:
+        manifest_path = pack_dir / "manifest.json"
+        if manifest_path.exists():
+            try:
+                import json
+
+                script = json.loads(manifest_path.read_text(encoding="utf-8")).get("script")
+            except (json.JSONDecodeError, OSError):
+                script = None
     srt, ass = build_subtitles_from_manifest(
         segments,
         audio_duration=audio_duration,
         caption_y_offset=caption_y_offset,
+        script=script,
     )
     (pack_dir / "captions.srt").write_text(srt, encoding="utf-8")
     ass_path = pack_dir / "subtitles.ass"

@@ -471,15 +471,30 @@ def render_short_video(
         plan.primary_segment_index if plan.has_jumpscare else None
     )
     suspense_replay = plan.profile == "suspense_replay"
-    sting_start = sting_start_seconds(
-        plan, segments=segments, total_duration=audio_duration
-    )
-    if sting_start is not None:
-        audio_path = _mix_jumpscare_sting(
-            audio_path, duration=audio_duration, sting_start=sting_start
+    from shorts_bot.config import settings
+
+    if settings.horror_sfx_enabled:
+        from shorts_bot.production.horror_sfx_mix import apply_horror_sfx_to_pack_audio
+
+        audio_path = apply_horror_sfx_to_pack_audio(
+            pack_dir,
+            segments,
+            plan,
+            audio_path,
+            audio_duration=audio_duration,
         )
-        if audio_path.name == "_voiceover_stung.mp3":
+        if audio_path.name == "_voiceover_sfx.mp3":
             audio_duration = _probe_duration(audio_path)
+    else:
+        sting_start = sting_start_seconds(
+            plan, segments=segments, total_duration=audio_duration
+        )
+        if sting_start is not None and settings.jumpscare_sting_enabled:
+            audio_path = _mix_jumpscare_sting(
+                audio_path, duration=audio_duration, sting_start=sting_start
+            )
+            if audio_path.name == "_voiceover_stung.mp3":
+                audio_duration = _probe_duration(audio_path)
     durations = _scaled_durations(segments, audio_duration)
 
     out_path = pack_dir / output_name

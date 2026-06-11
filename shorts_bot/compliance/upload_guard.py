@@ -49,6 +49,7 @@ def check_upload_allowed(
     hook: str,
     script: str,
     title: str,
+    visibility: str = "public",
 ) -> ComplianceReport:
     if not settings.ypp_safe_mode:
         return ComplianceReport(True)
@@ -75,41 +76,49 @@ def check_upload_allowed(
         else:
             warnings.append(risk)
 
+    skip_cooldown = (
+        visibility == "unlisted"
+        and settings.unlisted_qa_bypass_upload_cooldown
+    )
     now = datetime.now(timezone.utc)
     recent = memory.recent_uploads(hours=24)
-    if len(recent) >= settings.max_uploads_per_24h:
-        issues.append(
-            f"max {settings.max_uploads_per_24h} upload(s) per 24h (already {len(recent)}) — spam-farm signal"
-        )
-    elif recent:
-        last = recent[0]
-        last_at = datetime.fromisoformat(last["uploaded_at"].replace("Z", "+00:00"))
-        if last_at.tzinfo is None:
-            last_at = last_at.replace(tzinfo=timezone.utc)
-        hours = (now - last_at).total_seconds() / 3600
-        if hours < settings.min_hours_between_uploads:
+    if not skip_cooldown:
+        if len(recent) >= settings.max_uploads_per_24h:
             issues.append(
-                f"only {hours:.1f}h since last upload — wait {settings.min_hours_between_uploads}h minimum"
+                f"max {settings.max_uploads_per_24h} upload(s) per 24h (already {len(recent)}) — spam-farm signal"
             )
+        elif recent:
+            last = recent[0]
+            last_at = datetime.fromisoformat(last["uploaded_at"].replace("Z", "+00:00"))
+            if last_at.tzinfo is None:
+                last_at = last_at.replace(tzinfo=timezone.utc)
+            hours = (now - last_at).total_seconds() / 3600
+            if hours < settings.min_hours_between_uploads:
+                issues.append(
+                    f"only {hours:.1f}h since last upload — wait {settings.min_hours_between_uploads}h minimum"
+                )
 
-    topic_key = topic.strip().lower()
-    if memory.topic_uploaded_within_days(topic_key, days=settings.topic_cooldown_days):
-        issues.append(f"topic uploaded within last {settings.topic_cooldown_days} days")
+    if not skip_cooldown:
+        topic_key = topic.strip().lower()
+        if memory.topic_uploaded_within_days(topic_key, days=settings.topic_cooldown_days):
+            issues.append(f"topic uploaded within last {settings.topic_cooldown_days} days")
 
-    hook_key = hook.strip().lower()[:120]
-    if memory.hook_uploaded_within_days(hook_key, days=settings.hook_cooldown_days):
-        issues.append(f"hook too similar to recent upload (within {settings.hook_cooldown_days} days)")
+        hook_key = hook.strip().lower()[:120]
+        if memory.hook_uploaded_within_days(hook_key, days=settings.hook_cooldown_days):
+            issues.append(f"hook too similar to recent upload (within {settings.hook_cooldown_days} days)")
 
-    script_tokens = _token_set(script)
-    for prev in memory.recent_upload_scripts(limit=5):
-        if prev.get("draft_id") == draft_id:
-            continue
-        overlap = _jaccard(script_tokens, _token_set(prev.get("script", "")))
-        if overlap >= settings.max_script_overlap_ratio:
-            issues.append(
-                f"script {overlap:.0%} similar to draft #{prev.get('draft_id')} — template repetition"
-            )
-            break
+        script_tokens = _token_set(script)
+        for prev in memory.recent_upload_scripts(limit=5):
+            if prev.get("draft_id") == draft_id:
+                continue
+            overlap = _jaccard(script_tokens, _token_set(prev.get("script", "")))
+            if overlap >= settings.max_script_overlap_ratio:
+                issues.append(
+                    f"script {overlap:.0%} similar to draft #{prev.get('draft_id')} — template repetition"
+                )
+                break
+    else:
+        topic_key = topic.strip().lower()
 
     for d in store.list_drafts(limit=20):
         if d.id == draft_id:
