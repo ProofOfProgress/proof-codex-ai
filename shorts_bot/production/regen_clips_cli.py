@@ -9,11 +9,36 @@ from pathlib import Path
 from rich.console import Console
 
 from shorts_bot.config import settings
-from shorts_bot.production.image_prompts import ImageBrief
+from shorts_bot.drafts.meta import visual_beat_for_segment
+from shorts_bot.production.image_prompts import ImageBrief, horror_segment_to_prompt
 from shorts_bot.production.render_ai_video import render_ai_video_clip
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 console = Console()
+
+
+def sync_pack_prompts(pack_dir: Path) -> int:
+    """Rewrite prompts/*.txt from manifest segments + visual_beats."""
+    manifest = json.loads((pack_dir / "manifest.json").read_text(encoding="utf-8"))
+    segments = manifest.get("segments") or []
+    beats = manifest.get("visual_beats")
+    topic = str(manifest.get("topic") or "")
+    prompts_dir = pack_dir / "prompts"
+    prompts_dir.mkdir(parents=True, exist_ok=True)
+    written = 0
+    for i, seg in enumerate(segments):
+        stem = Path(seg["filename"]).stem
+        spoken = str(seg.get("spoken_text") or "")
+        tseg = TranscriptSegment(
+            start_seconds=float(seg.get("start_seconds", 0)),
+            text=spoken,
+            label=stem,
+        )
+        beat = visual_beat_for_segment(beats, i, len(segments))
+        prompt = horror_segment_to_prompt(tseg, topic=topic, visual_beat=beat)
+        (prompts_dir / f"{stem}.txt").write_text(prompt + "\n", encoding="utf-8")
+        written += 1
+    return written
 
 
 def regen_clips(
@@ -83,13 +108,26 @@ def regen_clips(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Regenerate selected I2V clips")
     parser.add_argument("--draft-id", type=int, required=True)
-    parser.add_argument("--stems", required=True, help="Comma-separated stems e.g. 00.06,00.11")
+    parser.add_argument("--stems", default="", help="Comma-separated stems e.g. 00.06,00.11")
+    parser.add_argument("--all", action="store_true", help="Regenerate every manifest segment clip")
+    parser.add_argument("--sync-prompts", action="store_true", help="Rewrite prompts from manifest beats first")
     parser.add_argument("--pack-dir", type=Path, default=None)
     parser.add_argument("--render", action="store_true", help="Rebuild final_short.mp4 after regen")
     args = parser.parse_args()
 
-    stems = [s.strip() for s in args.stems.split(",")]
-    regen_clips(args.draft_id, stems, pack_dir=args.pack_dir, force=True)
+    pack = args.pack_dir or (settings.data_dir / "production" / f"draft_{args.draft_id}")
+    if args.sync_prompts:
+        n = sync_pack_prompts(pack)
+        console.print(f"[green]Synced {n} prompt(s) from manifest[/green]")
+
+    if args.all:
+        manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
+        stems = [Path(s["filename"]).stem for s in manifest.get("segments") or []]
+    else:
+        if not args.stems:
+            parser.error("Provide --stems or --all")
+        stems = [s.strip() for s in args.stems.split(",")]
+    regen_clips(args.draft_id, stems, pack_dir=pack, force=True)
 
     if args.render:
         from shorts_bot.production.render_video import render_short_video

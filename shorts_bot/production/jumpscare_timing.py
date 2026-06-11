@@ -97,11 +97,11 @@ def sting_start_seconds(
             from shorts_bot.production.jumpscare_clip import scare_play_and_setup_durations
 
             setup, _play = scare_play_and_setup_durations(seg_dur)
-            # Dedicated finale = setup hold then Hailuo lunge — sting at lunge onset.
-            visual_flash_at = seg_start + setup + 0.12
+            # Dedicated finale = setup hold then Hailuo lunge — sting on lunge onset.
+            visual_flash_at = seg_start + setup + 0.05
         else:
             visual_flash_at = seg_start + max(0.0, seg_dur - flash_lead)
-        return max(0.0, visual_flash_at - 0.06)
+        return max(0.0, visual_flash_at - 0.03)
 
     lead = min(max(1.5, settings.jumpscare_sting_seconds), total_duration * 0.12)
     lead = min(lead, 3.0)

@@ -53,7 +53,7 @@ def test_sting_aligns_to_finale_segment_flash(monkeypatch):
     t2 = sting_start_seconds(plan, segments=segments, total_duration=27.4)
     assert t2 is not None
     # dedicated clip: setup hold then lunge onset inside finale segment
-    assert 24.5 <= t2 <= 25.2
+    assert 24.75 <= t2 <= 25.0
 
 
 def test_no_sting_on_suspense_replay():

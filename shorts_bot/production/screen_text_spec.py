@@ -72,13 +72,8 @@ def infer_overlay_from_spoken(
     cam = _topic_camera_label(topic)
 
     if "flagged motion" in lower or "flag motion" in lower or "motion at" in lower:
-        return ScreenTextOverlay(
-            kind="cctv_hud",
-            primary="REC",
-            secondary=time_lbl,
-            tertiary="MOTION",
-            accent="#39FF14",
-        )
+        # Hook hallway shot — no floating HUD; diegetic UI only on phone feeds
+        return None
     if "live alone" in lower and "open" not in lower:
         return None
     if "open the app" in lower or "opened the app" in lower:

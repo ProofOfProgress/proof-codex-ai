@@ -63,7 +63,7 @@ def test_spoken_overlay_draft3_segments():
     for seg in DRAFT_3_SEGMENTS:
         ov = infer_overlay_from_spoken(seg["spoken_text"], hook=hook, topic=topic)
         kinds.append(ov.kind if ov else None)
-    assert kinds[0] == "cctv_hud"
+    assert kinds[0] is None  # hook hallway — no floating HUD overlay
     assert kinds[1] == "phone_feed"
     assert kinds[5] == "phone_feed"
     specs = overlays_for_segments(
