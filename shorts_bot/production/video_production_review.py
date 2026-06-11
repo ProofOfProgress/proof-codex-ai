@@ -216,16 +216,68 @@ def _extract_frame(video_path: Path, t: float, out_path: Path) -> None:
     )
 
 
+def _salvage_scores(raw: str) -> dict[str, Any]:
+    """Extract core numeric fields when the model truncates long JSON arrays."""
+    data: dict[str, Any] = {}
+    for key in (
+        "score",
+        "concept_score",
+        "production_score",
+        "jumpscare",
+        "captions",
+        "visuals",
+        "vo_visual_match",
+        "subtitle_sync",
+    ):
+        m = re.search(rf'"{key}"\s*:\s*("([^"]*)"|(-?\d+(?:\.\d+)?))', raw)
+        if not m:
+            continue
+        data[key] = m.group(2) if m.group(2) is not None else m.group(3)
+    sm = re.search(r'"summary"\s*:\s*"((?:[^"\\]|\\.)*)"', raw)
+    if sm:
+        data["summary"] = sm.group(1)
+    for arr_key in (
+        "visual_glitches",
+        "framing_issues",
+        "things_that_shouldnt_be_there",
+        "nonsensical_elements",
+        "weird_frames",
+        "fixes",
+    ):
+        items = re.findall(
+            rf'"{arr_key}"\s*:\s*\[(.*?)\]',
+            raw,
+            re.S,
+        )
+        if items:
+            strings = re.findall(r'"((?:[^"\\]|\\.)*)"', items[0])
+            data[arr_key] = strings[:8]
+    return data
+
+
 def _parse_json(raw: str) -> dict[str, Any]:
     text = raw.strip()
-    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
-    if fence:
-        text = fence.group(1)
-    else:
-        brace = re.search(r"\{.*\}", text, re.S)
-        if brace:
-            text = brace.group(0)
-    return json.loads(text)
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+    brace = re.search(r"\{.*\}", text, re.S)
+    if brace:
+        text = brace.group(0)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        trimmed = text.rstrip()
+        if not trimmed.endswith("}"):
+            trimmed = re.sub(r',\s*"[^"]*$', "", trimmed)
+            trimmed = re.sub(r',\s*\[[^\]]*$', "", trimmed)
+            trimmed = trimmed.rstrip(",") + "}"
+        try:
+            return json.loads(trimmed)
+        except json.JSONDecodeError:
+            salvaged = _salvage_scores(raw)
+            if salvaged.get("score") is not None:
+                return salvaged
+            raise
 
 
 def _format_caption_context(captions: list[dict], frame_times: list[float]) -> str:
@@ -294,7 +346,8 @@ def _gemini_review(
             "vo_visual_match, subtitle_sync, summary, av_sync, "
             "visual_glitches (string[]), framing_issues (string[]), "
             "things_that_shouldnt_be_there (string[]), nonsensical_elements (string[]), "
-            "weird_frames (string[]), fixes (string[])."
+            "weird_frames (string[], max 5), fixes (string[], max 6). "
+            "Keep every string under 120 characters. Valid JSON only, no markdown."
         )
     else:
         prompt = (
@@ -328,7 +381,7 @@ def _gemini_review(
     resp = backend.client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": content}],
-        max_tokens=2400 if deep else 1200,
+        max_tokens=4096 if deep else 1200,
         temperature=0.2,
     )
     raw = (resp.choices[0].message.content or "").strip()

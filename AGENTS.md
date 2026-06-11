@@ -27,6 +27,16 @@
 
 **Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
 
+**QA uploads:** After each draft render, upload **unlisted** with a unique `(build vN …)` title suffix so the owner can compare iterations oldest-first:
+
+```bash
+python3 -m shorts_bot.production.upload_unlisted_cli --draft-id 3 --video path/to/render.mp4 --no-render --title-suffix "(build v8 …)" --allow-duplicate-draft
+# Or batch all saved files in creation order:
+python3 -m shorts_bot.production.upload_series_cli --draft-id 3
+```
+
+Log lives at `data/production/draft_N/upload_series_log.json`.
+
 ### Services
 
 Install: `bash scripts/install.sh`

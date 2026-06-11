@@ -111,7 +111,7 @@ class Settings(BaseSettings):
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
     screen_text_overlay_enabled: bool = True  # composited phone/CCTV UI (not AI-generated glyphs)
     jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
-    jumpscare_clip_play_seconds: float = 2.2  # how long the scare motion plays in the final Short
+    jumpscare_clip_play_seconds: float = 2.6  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.9  # min pre-scare hold (figure at bed / smile)
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off

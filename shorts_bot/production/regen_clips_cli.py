@@ -39,8 +39,11 @@ def regen_clips(
         if stem not in stem_set:
             continue
         clip_path = clips_dir / f"{stem}.mp4"
-        if force and clip_path.exists():
-            clip_path.unlink()
+        image_path = images_dir / f"{stem}.png"
+        if force:
+            for path in (clip_path, image_path, clip_path.with_suffix(".error.txt")):
+                if path.exists():
+                    path.unlink()
 
         prompt_path = root / str(seg.get("prompt_file", f"prompts/{stem}.txt"))
         prompt = prompt_path.read_text(encoding="utf-8").strip() if prompt_path.exists() else ""

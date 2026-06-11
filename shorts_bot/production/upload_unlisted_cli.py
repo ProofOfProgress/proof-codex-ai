@@ -11,6 +11,75 @@ from rich.console import Console
 console = Console()
 
 
+def upload_existing_video(
+    draft_id: int,
+    video_path: Path,
+    *,
+    pack_dir: Path | None = None,
+    title_suffix: str = "",
+    allow_duplicate_draft: bool = True,
+) -> str:
+    """Upload an already-rendered MP4 as unlisted (no re-render)."""
+    from shorts_bot.config import settings
+    from shorts_bot.memory.store import MemoryStore
+    from shorts_bot.memory.extensions import MemoryExtensions
+    from shorts_bot.production.upload_meta import build_upload_package, write_upload_files
+    from shorts_bot.youtube.upload import upload_short
+    from shorts_bot.youtube.upload_guardrails import preflight_upload
+    from shorts_bot.compliance.upload_guard import record_upload
+
+    root = pack_dir or (settings.data_dir / "production" / f"draft_{draft_id}")
+    if not video_path.exists():
+        raise FileNotFoundError(video_path)
+
+    store = MemoryStore(settings.database_path)
+    draft = store.get_draft(draft_id)
+    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id)
+    title = package.title
+    if title_suffix and title_suffix not in title:
+        title = f"{title} {title_suffix}".strip()[:100]
+    package.visibility = "unlisted"
+    write_upload_files(root, package, draft_id=draft_id)
+
+    mem = MemoryExtensions(store)
+    pre = preflight_upload(
+        store,
+        mem,
+        draft_id=draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        script=draft.script,
+        title=title,
+        allow_duplicate_draft=allow_duplicate_draft,
+        visibility="unlisted",
+    )
+    if not pre.allowed:
+        raise RuntimeError(f"Upload blocked: {pre.message}")
+
+    up = upload_short(
+        video_path,
+        title=title,
+        description=package.description,
+        tags=package.tags,
+        visibility="unlisted",
+    )
+    record_upload(
+        mem,
+        draft_id=draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        script=draft.script,
+        title=title,
+        video_id=up.video_id,
+        extra_snapshot={
+            "visibility": "unlisted",
+            "qa_sfx_upload": True,
+            "source_file": video_path.name,
+        },
+    )
+    return f"Unlisted upload OK: {up.video_url}"
+
+
 def upload_unlisted_draft(
     draft_id: int,
     *,
@@ -18,6 +87,8 @@ def upload_unlisted_draft(
     output_name: str = "final_short_unlisted.mp4",
     title_suffix: str = "",
     allow_duplicate_draft: bool = False,
+    video_path: Path | None = None,
+    render: bool = True,
 ) -> str:
     from shorts_bot.config import settings
     from shorts_bot.memory.store import MemoryStore
@@ -33,6 +104,15 @@ def upload_unlisted_draft(
     manifest_path = root / "manifest.json"
     if not manifest_path.exists():
         raise FileNotFoundError(f"No pack at {root}")
+
+    if video_path and video_path.exists() and not render:
+        return upload_existing_video(
+            draft_id,
+            video_path,
+            pack_dir=root,
+            title_suffix=title_suffix,
+            allow_duplicate_draft=allow_duplicate_draft,
+        )
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     segments = manifest.get("segments") or []
@@ -118,6 +198,12 @@ def main() -> None:
         action="store_true",
         help="Re-upload same draft_id with a unique title suffix (QA)",
     )
+    parser.add_argument("--video", type=Path, default=None, help="Upload this MP4 (skip render)")
+    parser.add_argument(
+        "--no-render",
+        action="store_true",
+        help="With --video: upload existing file without re-rendering",
+    )
     args = parser.parse_args()
     console.print(
         upload_unlisted_draft(
@@ -125,6 +211,8 @@ def main() -> None:
             pack_dir=args.pack_dir,
             title_suffix=args.title_suffix,
             allow_duplicate_draft=args.allow_duplicate_draft,
+            video_path=args.video,
+            render=not args.no_render,
         )
     )
 

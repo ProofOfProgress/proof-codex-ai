@@ -72,7 +72,17 @@ def infer_overlay_from_beat(
     lower = b.lower()
     time_lbl = extract_time_label(b, hook, spoken_text, topic)
 
-    if any(k in lower for k in ("phone screen", "security app", "lock screen", "notification")):
+    spoken_lower = (spoken_text or "").lower()
+    if "open the app" in spoken_lower or "opened the app" in spoken_lower:
+        return ScreenTextOverlay(
+            kind="phone_alert",
+            primary="Opening Security…",
+            secondary=_topic_camera_label(topic),
+            time_label=time_lbl,
+            accent="#5AC8FA",
+        )
+
+    if any(k in lower for k in ("phone screen", "security app", "lock screen", "notification", "opening")):
         return ScreenTextOverlay(
             kind="phone_alert",
             primary="Motion Detected",
@@ -88,6 +98,15 @@ def infer_overlay_from_beat(
             secondary=time_lbl,
             tertiary="MOTION",
             feed_state="figure_closer",
+            accent="#39FF14",
+        )
+
+    if any(k in lower for k in ("security camera hallway", "motion blur", "cctv hallway")):
+        return ScreenTextOverlay(
+            kind="cctv_hud",
+            primary="REC",
+            secondary=time_lbl,
+            tertiary="MOTION",
             accent="#39FF14",
         )
 

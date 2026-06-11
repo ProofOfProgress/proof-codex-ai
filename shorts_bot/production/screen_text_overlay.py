@@ -10,8 +10,8 @@ from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
 # Phone screen bounds in 9:16 (POV holding phone)
 _PHONE_X, _PHONE_Y, _PHONE_W, _PHONE_H = 200, 360, 680, 1040
-# Bottom band — AI models often paint gibberish here; captions burn above later
-_CAPTION_SCRUB_Y, _CAPTION_SCRUB_H = 1480, 440
+# Bottom-right corner — AI gibberish hotspot; avoid full-width band (eats frame)
+_GIBBERISH_SCRUB = (380, 1580, 700, 340)
 
 
 def _font(size: int, *, bold: bool = False):
@@ -33,8 +33,9 @@ def _font(size: int, *, bold: bool = False):
 
 def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, int, int, int, float]]:
     """Return drawbox regions (x, y, w, h, alpha) to kill AI gibberish before overlay."""
+    gx, gy, gw, gh = _GIBBERISH_SCRUB
     regions: list[tuple[int, int, int, int, float]] = [
-        (0, _CAPTION_SCRUB_Y, FRAME_WIDTH, _CAPTION_SCRUB_H, 0.96),
+        (gx, gy, gw, gh, 0.94),
     ]
     if spec is None:
         return regions
@@ -42,7 +43,7 @@ def scrub_regions_for_spec(spec: ScreenTextOverlay | None) -> list[tuple[int, in
     if kind in {"phone_alert", "phone_feed", "message_bubble"}:
         regions.append((_PHONE_X, _PHONE_Y, _PHONE_W, _PHONE_H, 0.92))
     if kind == "cctv_hud":
-        regions.append((FRAME_WIDTH - 360, _CAPTION_SCRUB_Y - 80, 360, 200, 0.88))
+        regions.append((FRAME_WIDTH - 400, 1520, 400, 360, 0.85))
     return regions
 
 
@@ -115,14 +116,34 @@ def _draw_phone_feed(draw, spec: ScreenTextOverlay, *, width: int, height: int) 
         width=4,
     )
     sx, sy, sw, sh = px + 20, py + 56, pw - 40, ph - 120
-    draw.rectangle([sx, sy, sx + sw, sy + sh], fill=(8, 22, 16, 255))
-    # hallway perspective
+    draw.rectangle([sx, sy, sx + sw, sy + sh], fill=(6, 18, 12, 255))
+    # hallway with walls, door glow, floor depth
     mid_x = sx + sw // 2
     draw.polygon(
-        [(mid_x, sy + 40), (sx + 30, sy + sh - 20), (sx + sw - 30, sy + sh - 20)],
-        fill=(12, 32, 22, 255),
+        [(mid_x, sy + 50), (sx + 16, sy + sh - 12), (sx + sw - 16, sy + sh - 12)],
+        fill=(10, 28, 18, 255),
     )
-    draw.line([(mid_x, sy + 40), (mid_x, sy + sh - 20)], fill=(20, 50, 30, 200), width=3)
+    draw.polygon(
+        [(mid_x, sy + 50), (sx + 16, sy + sh - 12), (mid_x, sy + sh - 12)],
+        fill=(8, 22, 14, 255),
+    )
+    draw.polygon(
+        [(mid_x, sy + 50), (sx + sw - 16, sy + sh - 12), (mid_x, sy + sh - 12)],
+        fill=(14, 36, 22, 255),
+    )
+    door_w = 70
+    draw.rectangle(
+        [mid_x - door_w // 2, sy + 120, mid_x + door_w // 2, sy + sh - 80],
+        fill=(40, 55, 45, 255),
+    )
+    draw.rectangle(
+        [mid_x - 18, sy + 150, mid_x + 18, sy + 220],
+        fill=(120, 140, 110, 200),
+    )
+    draw.line([(mid_x, sy + 50), (mid_x, sy + sh - 12)], fill=(22, 58, 32, 180), width=2)
+    # scanlines
+    for ly in range(sy, sy + sh, 4):
+        draw.line([(sx, ly), (sx + sw, ly)], fill=(0, 0, 0, 30), width=1)
     if spec.feed_state == "figure_closer":
         fig_w, fig_h = 90, 260
         fx = mid_x - fig_w // 2
@@ -213,7 +234,13 @@ def apply_overlay_to_video(
 ) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     scrub = _scrub_vf_chain(spec)
-    vf = f"[0:v]{scrub}[scrub];[scrub][1:v]overlay=0:0:format=auto[out]"
+    if spec is not None and spec.kind == "phone_feed":
+        vf = (
+            f"[0:v]{scrub},gblur=sigma=14,eq=brightness=-0.12:saturation=0.7[scrub];"
+            f"[scrub][1:v]overlay=0:0:format=auto[out]"
+        )
+    else:
+        vf = f"[0:v]{scrub}[scrub];[scrub][1:v]overlay=0:0:format=auto[out]"
     subprocess.run(
         [
             "ffmpeg",

@@ -34,7 +34,10 @@ def main() -> None:
     review = run_production_review(
         video, pack_dir, use_cache=not args.no_cache, deep=args.deep
     )
-    console.print(f"[bold]Score {review.score}/10[/bold] (concept {review.concept_score}, production {review.production_score})")
+    console.print(
+        f"[bold]Score {review.score:.0f}/100[/bold] "
+        f"(concept {review.concept_score:.0f}, production {review.production_score:.0f})"
+    )
     console.print(review.summary)
     console.print(f"\n[yellow]AV sync:[/yellow] {review.av_sync}")
     if review.vo_visual_match:

@@ -401,7 +401,9 @@ def _render_from_video_clips(
                 height=height,
             )
         elif src.exists():
-            zoom_scare = scare_beat and settings.jumpscare_visual_flash
+            zoom_scare = scare_beat and (
+                settings.jumpscare_visual_flash or settings.jumpscare_dedicated_clip
+            )
             _trim_scale_clip(
                 src,
                 clip,

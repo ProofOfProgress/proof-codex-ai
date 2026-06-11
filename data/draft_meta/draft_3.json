@@ -8,5 +8,14 @@
     "False calm: empty hallway hold, quiet",
     "Figure at bed foot staring into camera, night vision green",
     "Full-frame lunge into lens, screen glitch"
-  ]
+  ],
+  "jumpscare_plan": {
+    "profile": "finale",
+    "primary_segment_index": 8,
+    "decoy_segment_index": null,
+    "has_jumpscare": true,
+    "sting_start_ratio": 0.92,
+    "volume_warning": "\ud83d\udd0a VOLUME WARNING \u2014 loud moment at the end. Headphones advised.",
+    "creator_note": "QA upload \u2014 finale scare + agent-mixed SFX."
+  }
 }

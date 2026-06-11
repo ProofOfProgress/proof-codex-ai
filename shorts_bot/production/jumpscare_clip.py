@@ -60,7 +60,10 @@ def trim_jumpscare_impact(
     tail = min(max(1.0, settings.jumpscare_i2v_tail_seconds), src_dur)
     start = max(0.0, src_dur - tail)
     play = min(play_seconds, tail)
-    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
+    from shorts_bot.production.render_video import _jumpscare_video_filter
+
+    scare_vf = _jumpscare_video_filter(play, width=width, height=height)
+    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p,{scare_vf}"
     dest.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
