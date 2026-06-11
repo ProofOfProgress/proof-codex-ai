@@ -17,6 +17,7 @@ def upload_unlisted_draft(
     pack_dir: Path | None = None,
     output_name: str = "final_short_unlisted.mp4",
     title_suffix: str = "",
+    allow_duplicate_draft: bool = False,
 ) -> str:
     from shorts_bot.config import settings
     from shorts_bot.memory.store import MemoryStore
@@ -81,7 +82,7 @@ def upload_unlisted_draft(
         hook=draft.hook,
         script=draft.script,
         title=title,
-        allow_duplicate_draft=False,
+        allow_duplicate_draft=allow_duplicate_draft,
         visibility="unlisted",
     )
     if not pre.allowed:
@@ -111,8 +112,21 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Render + upload unlisted Don't Blink Short")
     parser.add_argument("--draft-id", type=int, required=True)
     parser.add_argument("--pack-dir", type=Path, default=None)
+    parser.add_argument("--title-suffix", type=str, default="")
+    parser.add_argument(
+        "--allow-duplicate-draft",
+        action="store_true",
+        help="Re-upload same draft_id with a unique title suffix (QA)",
+    )
     args = parser.parse_args()
-    console.print(upload_unlisted_draft(args.draft_id, pack_dir=args.pack_dir))
+    console.print(
+        upload_unlisted_draft(
+            args.draft_id,
+            pack_dir=args.pack_dir,
+            title_suffix=args.title_suffix,
+            allow_duplicate_draft=args.allow_duplicate_draft,
+        )
+    )
 
 
 if __name__ == "__main__":

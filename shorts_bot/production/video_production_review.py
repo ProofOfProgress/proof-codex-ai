@@ -28,6 +28,14 @@ class ProductionReview:
     frame_times: list[float] = field(default_factory=list)
     frame_paths: list[str] = field(default_factory=list)
     raw: dict[str, Any] = field(default_factory=dict)
+    # Deep review fields (empty on shallow review)
+    vo_visual_match: str = ""
+    subtitle_sync: str = ""
+    visual_glitches: list[str] = field(default_factory=list)
+    framing_issues: list[str] = field(default_factory=list)
+    nonsensical_elements: list[str] = field(default_factory=list)
+    things_that_shouldnt_be_there: list[str] = field(default_factory=list)
+    review_mode: str = "standard"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -44,11 +52,71 @@ class ProductionReview:
             "frame_times": self.frame_times,
             "frame_paths": self.frame_paths,
             "raw": self.raw,
+            "vo_visual_match": self.vo_visual_match,
+            "subtitle_sync": self.subtitle_sync,
+            "visual_glitches": self.visual_glitches,
+            "framing_issues": self.framing_issues,
+            "nonsensical_elements": self.nonsensical_elements,
+            "things_that_shouldnt_be_there": self.things_that_shouldnt_be_there,
+            "review_mode": self.review_mode,
         }
 
 
-def _report_path(pack_dir: Path) -> Path:
-    return pack_dir / "gemini_review.json"
+def _report_path(pack_dir: Path, *, deep: bool = False) -> Path:
+    return pack_dir / ("gemini_deep_review.json" if deep else "gemini_review.json")
+
+
+def _load_caption_timeline(pack_dir: Path) -> list[dict]:
+    path = pack_dir / "caption_segments.json"
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def _caption_at_time(captions: list[dict], t: float) -> str:
+    for row in captions:
+        if float(row.get("start_seconds", 0)) <= t < float(row.get("end_seconds", 0)):
+            return str(row.get("spoken_text", ""))[:120]
+    return ""
+
+
+def pick_deep_frame_times(
+    duration: float,
+    pack_dir: Path,
+    *,
+    max_frames: int = 14,
+) -> list[float]:
+    """Every visual cut + caption midpoints + finale — dense production audit."""
+    manifest = _load_manifest(pack_dir)
+    segments = manifest.get("segments") or []
+    captions = _load_caption_timeline(pack_dir)
+    first_start = float(segments[0].get("start_seconds", 0)) if segments else 0.0
+    last_end = float(segments[-1].get("end_seconds", duration)) if segments else duration
+    span = max(0.01, last_end - first_start)
+    scale = duration / span
+    cap = max(0.2, duration - 0.2)
+
+    picks: list[float] = [0.35]
+    for seg in segments:
+        s0 = float(seg.get("start_seconds", 0)) - first_start
+        t = min(cap, max(0.2, s0 * scale + 0.12))
+        picks.append(round(t, 2))
+    for row in captions:
+        s0 = float(row.get("start_seconds", 0))
+        s1 = float(row.get("end_seconds", s0))
+        mid = min(cap, (s0 + s1) / 2)
+        if mid > 0.3:
+            picks.append(round(mid, 2))
+    picks.append(min(cap, duration - 0.15))
+
+    deduped: list[float] = []
+    for t in sorted(picks):
+        if not deduped or abs(t - deduped[-1]) >= 0.38:
+            deduped.append(t)
+    return deduped[:max_frames]
 
 
 def _probe_duration(video_path: Path) -> float:
@@ -160,6 +228,23 @@ def _parse_json(raw: str) -> dict[str, Any]:
     return json.loads(text)
 
 
+def _format_caption_context(captions: list[dict], frame_times: list[float]) -> str:
+    if not captions:
+        return "Caption timeline: not available."
+    lines = ["Caption timeline (voice-synced, floats on video):"]
+    for row in captions[:24]:
+        s0 = float(row.get("start_seconds", 0))
+        s1 = float(row.get("end_seconds", s0))
+        text = str(row.get("spoken_text", ""))[:80]
+        lines.append(f"  {s0:.1f}s–{s1:.1f}s: {text}")
+    lines.append("Per-frame caption visible:")
+    for t in frame_times:
+        cap = _caption_at_time(captions, t)
+        if cap:
+            lines.append(f"  @{t:.1f}s: «{cap}»")
+    return "\n".join(lines)
+
+
 def _gemini_review(
     frames: list[tuple[float, Path]],
     *,
@@ -167,6 +252,8 @@ def _gemini_review(
     hook: str,
     script: str,
     sfx_cues: list[dict],
+    captions: list[dict] | None = None,
+    deep: bool = False,
 ) -> dict[str, Any]:
     from shorts_bot.llm.provider import get_llm_backend
 
@@ -179,24 +266,53 @@ def _gemini_review(
     sting = next((c for c in sfx_cues if c.get("kind") == "stinger"), None)
     sting_note = f"Audio stinger cue at {sting['start']:.1f}s" if sting else "No stinger cue logged"
 
-    prompt = (
-        "You are a horror YouTube Shorts producer reviewing a near-finished Don't Blink draft.\n"
-        f"Frames in order at: {labels}.\n"
-        f"Topic: {topic[:120]}\nHook: {hook[:120]}\n"
-        f"Approved script (caption text should match this, not ASR errors): {script[:500]}\n"
-        f"{sting_note}\n\n"
-        "Critique PRODUCTION only (concept is close). Focus on:\n"
-        "1) AV sync — do cuts match VO beats? Any late/early visuals?\n"
-        "2) Jumpscare — is there a visible finale lunge/zoom/flash synced with audio sting? "
-        "Or is scare audio-only / mistimed?\n"
-        "3) Captions — typos (e.g. 'flag' vs 'flagged'), mid-sentence ellipsis splits, safe zone?\n"
-        "4) Weird frames — list timestamps where AI image/motion looks wrong (wrong scene, cosy, "
-        "extra limbs, text gibberish, wrong setting).\n"
-        "5) Top 5 concrete ffmpeg/pipeline fixes (not 'make it scarier' fluff).\n\n"
-        "Return ONLY JSON keys: score (1-10 overall), concept_score (1-10), production_score (1-10), "
-        "summary (string), av_sync (string), jumpscare (string), captions (string), visuals (string), "
-        "weird_frames (string[]), fixes (string[])."
-    )
+    cap_ctx = _format_caption_context(captions or [], [t for t, _ in frames])
+    if deep:
+        prompt = (
+            "You are a senior YouTube Shorts post-production QC lead auditing a horror Short.\n"
+            f"Frames in order at: {labels}. Each frame is a screenshot from the FINAL rendered MP4 "
+            "(with burned-in captions and composited phone/CCTV UI).\n\n"
+            f"Topic: {topic[:120]}\nHook: {hook[:120]}\n"
+            f"Full VO script: {script[:900]}\n{sting_note}\n\n{cap_ctx}\n\n"
+            "Deep audit PRODUCTION QUALITY ONLY. Be brutally specific with timestamps.\n"
+            "1) VO vs VIDEO — does the image shown match what the narrator is saying at that moment? "
+            "Flag every cut where visual scene is wrong for the spoken line.\n"
+            "2) SUBTITLES vs VO vs VIDEO — do burned-in captions match the script words AND stay on "
+            "screen long enough? Do captions change while the same line is still being spoken? "
+            "Caption vs visual independence issues?\n"
+            "3) VISUAL GLITCHES — compression artifacts, frozen frames, sudden jumps, AI morphing, "
+            "duplicate limbs, face distortions, screen tearing, overlay misalignment.\n"
+            "4) THINGS THAT SHOULDN'T BE THERE — cosy aesthetic, daylight cheer, readable AI gibberish "
+            "text, watermarks, wrong objects, anachronisms, duplicate UI layers.\n"
+            "5) FRAMING — subject cropped badly, captions in Shorts UI dead zone, empty dead space, "
+            "phone UI off-center, subject behind caption bar.\n"
+            "6) NONSENSICAL ELEMENTS — story logic breaks visible on screen (empty hallway then figure "
+            "with no transition sense, wrong room, etc).\n"
+            "7) JUMPSCARE — visible lunge motion vs audio sting timing.\n\n"
+            "Return ONLY JSON: score, concept_score, production_score, summary, av_sync, "
+            "vo_visual_match, subtitle_sync, jumpscare, captions, visuals, "
+            "visual_glitches (string[]), framing_issues (string[]), "
+            "things_that_shouldnt_be_there (string[]), nonsensical_elements (string[]), "
+            "weird_frames (string[]), fixes (string[])."
+        )
+    else:
+        prompt = (
+            "You are a horror YouTube Shorts producer reviewing a near-finished Don't Blink draft.\n"
+            f"Frames in order at: {labels}.\n"
+            f"Topic: {topic[:120]}\nHook: {hook[:120]}\n"
+            f"Approved script (caption text should match this, not ASR errors): {script[:500]}\n"
+            f"{sting_note}\n\n{cap_ctx}\n\n"
+            "Critique PRODUCTION only (concept is close). Focus on:\n"
+            "1) AV sync — do cuts match VO beats? Any late/early visuals?\n"
+            "2) Jumpscare — is there a visible finale lunge/zoom/flash synced with audio sting? "
+            "Or is scare audio-only / mistimed?\n"
+            "3) Captions — typos, timing vs voice, safe zone?\n"
+            "4) Weird frames — AI wrongness, gibberish text, wrong setting.\n"
+            "5) Top 5 concrete pipeline fixes.\n\n"
+            "Return ONLY JSON keys: score (1-10 overall), concept_score (1-10), production_score (1-10), "
+            "summary (string), av_sync (string), jumpscare (string), captions (string), visuals (string), "
+            "weird_frames (string[]), fixes (string[])."
+        )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
     for _t, path in frames:
@@ -211,8 +327,8 @@ def _gemini_review(
     resp = backend.client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": content}],
-        max_tokens=1200,
-        temperature=0.25,
+        max_tokens=2400 if deep else 1200,
+        temperature=0.2,
     )
     raw = (resp.choices[0].message.content or "").strip()
     try:
@@ -221,22 +337,57 @@ def _gemini_review(
         raise RuntimeError(f"Gemini returned non-JSON: {raw[:400]}") from exc
 
 
+def _review_from_data(
+    data: dict[str, Any],
+    *,
+    times: list[float],
+    frames: list[tuple[float, Path]],
+    deep: bool,
+) -> ProductionReview:
+    return ProductionReview(
+        score=float(data.get("score", 0)),
+        concept_score=float(data.get("concept_score", 0)),
+        production_score=float(data.get("production_score", 0)),
+        summary=str(data.get("summary", "")),
+        av_sync=str(data.get("av_sync", "")),
+        jumpscare=str(data.get("jumpscare", "")),
+        captions=str(data.get("captions", "")),
+        visuals=str(data.get("visuals", "")),
+        weird_frames=[str(x) for x in (data.get("weird_frames") or [])],
+        fixes=[str(x) for x in (data.get("fixes") or [])],
+        frame_times=times,
+        frame_paths=[str(p) for _, p in frames],
+        raw=data,
+        vo_visual_match=str(data.get("vo_visual_match", "")),
+        subtitle_sync=str(data.get("subtitle_sync", "")),
+        visual_glitches=[str(x) for x in (data.get("visual_glitches") or [])],
+        framing_issues=[str(x) for x in (data.get("framing_issues") or [])],
+        nonsensical_elements=[str(x) for x in (data.get("nonsensical_elements") or [])],
+        things_that_shouldnt_be_there=[
+            str(x) for x in (data.get("things_that_shouldnt_be_there") or [])
+        ],
+        review_mode="deep" if deep else "standard",
+    )
+
+
 def run_production_review(
     video_path: Path,
     pack_dir: Path,
     *,
     use_cache: bool = False,
+    deep: bool = False,
 ) -> ProductionReview:
     """Extract beat-aware frames and get Gemini production feedback."""
     if not video_path.exists():
         raise FileNotFoundError(video_path)
 
-    report_path = _report_path(pack_dir)
+    report_path = _report_path(pack_dir, deep=deep)
     if use_cache and report_path.exists():
         try:
             cached = json.loads(report_path.read_text(encoding="utf-8"))
             if float(cached.get("video_mtime", 0)) == video_path.stat().st_mtime:
-                return ProductionReview(**{k: cached[k] for k in ProductionReview.__dataclass_fields__ if k in cached})
+                fields = {k: cached[k] for k in ProductionReview.__dataclass_fields__ if k in cached}
+                return ProductionReview(**fields)
         except (json.JSONDecodeError, OSError, TypeError):
             pass
 
@@ -250,8 +401,12 @@ def run_production_review(
     if sfx_path.exists():
         sfx_cues = json.loads(sfx_path.read_text(encoding="utf-8"))
 
+    captions = _load_caption_timeline(pack_dir)
     duration = _probe_duration(video_path)
-    times = pick_production_frame_times(duration, pack_dir, max_frames=10)
+    if deep:
+        times = pick_deep_frame_times(duration, pack_dir, max_frames=14)
+    else:
+        times = pick_production_frame_times(duration, pack_dir, max_frames=10)
     frames_dir = pack_dir / "review_frames"
     frames: list[tuple[float, Path]] = []
     for i, t in enumerate(times):
@@ -271,23 +426,11 @@ def run_production_review(
         hook=hook,
         script=script,
         sfx_cues=sfx_cues,
+        captions=captions,
+        deep=deep,
     )
 
-    review = ProductionReview(
-        score=float(data.get("score", 0)),
-        concept_score=float(data.get("concept_score", 0)),
-        production_score=float(data.get("production_score", 0)),
-        summary=str(data.get("summary", "")),
-        av_sync=str(data.get("av_sync", "")),
-        jumpscare=str(data.get("jumpscare", "")),
-        captions=str(data.get("captions", "")),
-        visuals=str(data.get("visuals", "")),
-        weird_frames=[str(x) for x in (data.get("weird_frames") or [])],
-        fixes=[str(x) for x in (data.get("fixes") or [])],
-        frame_times=times,
-        frame_paths=[str(p) for _, p in frames],
-        raw=data,
-    )
+    review = _review_from_data(data, times=times, frames=frames, deep=deep)
 
     payload = review.to_dict()
     payload["video_mtime"] = video_path.stat().st_mtime
