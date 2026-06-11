@@ -57,7 +57,7 @@ def check_upload_allowed(
     warnings: list[str] = []
 
     for risk in risk_signals_for_script(script, hook, title):
-        if "missing first-person" in risk or "spam-farm" in risk:
+        if "missing personal voice" in risk or "spam-farm" in risk or "thin second-person" in risk:
             issues.append(risk)
         else:
             warnings.append(risk)

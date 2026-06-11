@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 import subprocess
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -12,22 +13,37 @@ from pathlib import Path
 SYNTH_URL = "https://f.cluster.resemble.ai/synthesize"
 VOICES_URL = "https://app.resemble.ai/api/v2/voices"
 MAX_CHARS = 1900
+_RETRYABLE_HTTP = frozenset({429, 500, 502, 503, 504})
+_MAX_RETRIES = 4
+_RETRY_BASE_SEC = 2.0
 
 
 def _post_json(url: str, payload: dict, *, api_key: str) -> dict:
     body = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    last_exc: urllib.error.HTTPError | None = None
+    for attempt in range(_MAX_RETRIES):
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            last_exc = exc
+            if exc.code in _RETRYABLE_HTTP and attempt < _MAX_RETRIES - 1:
+                time.sleep(_RETRY_BASE_SEC * (2**attempt))
+                continue
+            raise
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("Resemble POST failed without response")
 
 
 def _get_json(url: str, *, api_key: str) -> dict:

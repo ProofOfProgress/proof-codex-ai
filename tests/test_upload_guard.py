@@ -22,12 +22,12 @@ _GOOD_SCRIPT = (
 
 def test_risk_flags_spam_phrase():
     risks = risk_signals_for_script(
-        "In today's fast-paced world you need better sleep habits every night.",
+        "In today's fast-paced world better sleep habits matter every night for students.",
         "Sleep tips",
         "Before sleep — one thing",
     )
     assert any("spam-farm" in r for r in risks)
-    assert any("first-person" in r for r in risks)
+    assert any("personal voice" in r for r in risks)
 
 
 def test_upload_allowed_good_script(tmp_path: Path, monkeypatch):
@@ -59,7 +59,29 @@ def test_upload_blocked_no_first_person(tmp_path: Path, monkeypatch):
         title="Focus tips #Shorts",
     )
     assert not report.allowed
-    assert any("first-person" in i for i in report.issues)
+    assert any("personal voice" in i for i in report.issues)
+
+
+def test_horror_second_person_allowed(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(settings, "ypp_safe_mode", True)
+    store, mem = _mem(tmp_path)
+    script = (
+        "You blinked at the mirror and your reflection blinked one second later. "
+        "You blinked again, staring. It didn't blink. You turned away, telling yourself "
+        "it was just tired eyes. Then you heard scraping from the bathroom. You looked back. "
+        "Your reflection was smiling, but you weren't. It raised a hand, tapping the glass. "
+        "It mouthed Mine. Then it lunged."
+    )
+    report = check_upload_allowed(
+        store,
+        mem,
+        draft_id=3,
+        topic="mirror reflection blink",
+        hook="You blinked — your reflection blinked one second later",
+        script=script,
+        title="🔊 You blinked — your reflection blinked one second later",
+    )
+    assert report.allowed
 
 
 def test_upload_blocked_rate_limit(tmp_path: Path, monkeypatch):

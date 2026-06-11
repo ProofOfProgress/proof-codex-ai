@@ -73,9 +73,21 @@ def build_upload_package(
 
 def _title_from_research(topic: str, hook: str, research) -> str:
     formula = (getattr(research, "title_formula", None) or "").strip()
-    if formula and len(formula) <= 100:
-        return formula[:100]
+    if formula:
+        cleaned = _clean_title_formula(formula)
+        if cleaned and len(cleaned) <= 100:
+            return cleaned[:100]
     return _safe_title(topic, hook)
+
+
+def _clean_title_formula(formula: str) -> str:
+    """Strip hashtags and legacy prefixes; keep 🔊 volume warning."""
+    t = re.sub(r"#\w+", "", formula).strip()
+    t = re.sub(r"\s+", " ", t)
+    t = re.sub(r"^VOLUME WARNING:\s*", "", t, flags=re.I).strip()
+    if t and not t.startswith("🔊"):
+        t = f"🔊 {t}"
+    return t.strip()
 
 
 def _topic_hashtags(topic: str) -> list[str]:

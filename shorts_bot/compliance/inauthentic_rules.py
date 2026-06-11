@@ -37,6 +37,8 @@ FIRST_PERSON = re.compile(
     re.I,
 )
 
+IMMERSIVE_YOU = re.compile(r"\byou\b", re.I)
+
 OPERATING_RULES_BLOCK = """
 YPP / INAUTHENTIC CONTENT — OPERATING RULES (counter demonetization & distribution throttling)
 
@@ -54,9 +56,9 @@ WHAT GETS FLAGGED (fully automated AI farms — often looks like "shadowban"):
 - Undisclosed realistic synthetic media presented as real footage
 - Flat views after upload often = weak hook/retention OR duplicate-topic spam — do NOT re-upload same day
 
-WHAT IS SAFE (Soft Continuity / The Minute Before):
-- AI as production assistant: Gemini drafts, Resemble OWN voice clone, stick figures acting beats
-- First-person lived-experience scripts (I/my/me) — not lecture mode
+WHAT IS SAFE (Don't Blink / faceless creator channels):
+- AI as production assistant: Gemini drafts, Resemble OWN voice clone, I2V horror clips per beat
+- Immersive second-person horror micro-stories (singular you) OR first-person lived experience — not lecture mode
 - ChainsFR minimal scenes — figure acts each beat, not one repeated room template
 - Topic + hook cooldown (7–14 days), max 1 upload per 24h
 - Quality gate + humanize pass before upload
@@ -64,7 +66,7 @@ WHAT IS SAFE (Soft Continuity / The Minute Before):
 - Unlisted first → public after retention check (optional 24h)
 
 BOT ENFORCEMENT (upload_guard — set YPP_SAFE_MODE=false to override):
-- Blocks: spam-farm phrases, no first-person, >1 upload/24h, topic/hook cooldown, script overlap >65%
+- Blocks: spam-farm phrases, no personal voice (no you/I), >1 upload/24h, topic/hook cooldown, script overlap >65%
 - auto_daily may render but **skips upload** when guard blocks
 - Never auto-publish 5+ Shorts/day
 
@@ -83,8 +85,12 @@ def risk_signals_for_script(script: str, hook: str, title: str) -> list[str]:
     for phrase in SCRIPT_FARM_PHRASES:
         if phrase in blob:
             risks.append(f"spam-farm phrase: {phrase}")
-    if not FIRST_PERSON.search(script):
-        risks.append("missing first-person voice (inauthentic lecture risk)")
+    has_you = bool(IMMERSIVE_YOU.search(script))
+    has_i = bool(FIRST_PERSON.search(script))
+    if not has_you and not has_i:
+        risks.append("missing personal voice (inauthentic lecture risk)")
+    elif has_you and not has_i and len(script.split()) < 40:
+        risks.append("thin second-person template — add specific impossible detail beats")
     if len(script.split()) < 35:
         risks.append("script too short — thin template risk")
     for pat in TITLE_SPAM_PATTERNS:

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -73,6 +74,7 @@ class Settings(BaseSettings):
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
+    resemble_fallback_on_429: bool = True  # edge horror pacing when Resemble rate-limits
     allow_script_timing_fallback: bool = False  # script WPS only when True + transcript API fails
 
     # Production — TTS voiceover (Resemble clone; edge-tts emergency fallback only)
@@ -88,7 +90,16 @@ class Settings(BaseSettings):
     tts_pitch: str = "-4Hz"
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
-    visual_style: str = "ai_video"  # ai_video (I2V clips) | ai_video | hybrid | ai (stills) | calm_stills
+    visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
+
+    @field_validator("visual_style", mode="before")
+    @classmethod
+    def normalize_visual_style(cls, v: object) -> str:
+        """Legacy VISUAL_STYLE=ai meant FLUX stills; Don't Blink launch requires I2V motion."""
+        s = str(v or "ai_video").strip().lower()
+        if s == "ai":
+            return "ai_video"
+        return s
 
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal

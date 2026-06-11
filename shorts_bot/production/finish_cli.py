@@ -13,9 +13,9 @@ from shorts_bot.production.pipeline import finish_draft_pipeline
 console = Console()
 
 
-def finish_draft(draft_id: int, *, upload: bool | None = None) -> str:
+def finish_draft(draft_id: int, *, upload: bool | None = None, resume: bool = True) -> str:
     store = MemoryStore(settings.database_path)
-    result = finish_draft_pipeline(store, draft_id, upload_youtube=upload)
+    result = finish_draft_pipeline(store, draft_id, upload_youtube=upload, resume=resume)
     lines = list(result.messages)
     lines.append(f"Pack: {result.pack_dir}")
     if result.video_path:
@@ -30,13 +30,20 @@ def main() -> None:
     parser.add_argument("--draft-id", type=int, required=True)
     parser.add_argument("--upload", action="store_true", help="Upload to YouTube after render")
     parser.add_argument("--no-upload", action="store_true", help="Skip YouTube upload")
+    parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Ignore pipeline checkpoints (full rebuild)",
+    )
     args = parser.parse_args()
     upload: bool | None = None
     if args.upload:
         upload = True
     if args.no_upload:
         upload = False
-    console.print(f"[green]{finish_draft(args.draft_id, upload=upload)}[/green]")
+    console.print(
+        f"[green]{finish_draft(args.draft_id, upload=upload, resume=not args.no_resume)}[/green]"
+    )
 
 
 if __name__ == "__main__":

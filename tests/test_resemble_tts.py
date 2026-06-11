@@ -1,9 +1,11 @@
 import base64
+import io
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+import urllib.error
 
 from shorts_bot.production.tts.resemble import _chunk_text, synthesize_resemble
 
@@ -44,3 +46,22 @@ def test_synthesize_resemble_writes_mp3(tmp_path: Path, monkeypatch):
     assert provider == "resemble-clone"
     assert out.exists()
     assert out.read_bytes() == fake_audio
+
+
+def test_post_json_retries_on_429(monkeypatch):
+    from shorts_bot.production.tts.resemble import _post_json
+
+    calls = {"n": 0}
+
+    def fake_urlopen(req, timeout=120):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise urllib.error.HTTPError(req.full_url, 429, "rate limit", hdrs=None, fp=io.BytesIO(b"busy"))
+        return io.BytesIO(json.dumps({"ok": True}).encode())
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr("shorts_bot.production.tts.resemble.time.sleep", lambda _s: None)
+
+    data = _post_json("https://example.test/synth", {"data": "hi"}, api_key="test-key")
+    assert data["ok"] is True
+    assert calls["n"] == 2

@@ -37,6 +37,25 @@ class PipelineResult:
         return self.success
 
 
+def _manifest_needs_repack(manifest_path: Path) -> bool:
+    """Re-pack when visual style requires I2V but checkpoint used slideshow."""
+    from shorts_bot.config import settings
+
+    if not manifest_path.exists():
+        return False
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return True
+    if settings.visual_style != "ai_video":
+        return False
+    if manifest.get("render_mode") != "video_clips":
+        return True
+    if int(manifest.get("clips_rendered") or 0) < 1:
+        return True
+    return False
+
+
 def _write_voice_script(pack_dir: Path, hook: str, script: str) -> None:
     pack_dir.mkdir(parents=True, exist_ok=True)
     (pack_dir / "VOICEOVER_SCRIPT.txt").write_text(
@@ -165,7 +184,15 @@ def finish_draft_pipeline(
     # --- Voiceover ---
     t0 = _step("voiceover")
     vo_path = pack_dir / "voiceover.mp3"
-    if resume and state.is_done("voiceover") and vo_path.exists():
+    from shorts_bot.production.voiceover import voiceover_checkpoint_stale
+
+    vo_stale = voiceover_checkpoint_stale(pack_dir, draft.script)
+    if vo_stale and state.is_done("voiceover"):
+        messages.append("Voiceover checkpoint stale — regenerating (provider/delivery/script changed)")
+        for step in ("transcript", "pack", "render", "vision_qc"):
+            state.steps.pop(step, None)
+        save_state(pack_dir, state)
+    if resume and state.is_done("voiceover") and vo_path.exists() and not vo_stale:
         messages.append("Resume: skipped voiceover (voiceover.mp3 exists)")
     else:
         vo = generate_voiceover(pack_dir, draft_id=draft_id, script_text=draft.script)
@@ -213,7 +240,13 @@ def finish_draft_pipeline(
             )
 
     manifest_path = pack_dir / "manifest.json"
-    if resume and state.is_done("pack") and manifest_path.exists():
+    pack_stale = _manifest_needs_repack(manifest_path)
+    if pack_stale and state.is_done("pack"):
+        messages.append("Pack checkpoint stale — slideshow/manifest mismatch; rebuilding for I2V")
+        state.steps.pop("pack", None)
+        state.steps.pop("render", None)
+        save_state(pack_dir, state)
+    if resume and state.is_done("pack") and manifest_path.exists() and not pack_stale:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         from shorts_bot.production.pack import ProductionPack
 

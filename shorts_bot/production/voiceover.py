@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,6 +43,52 @@ def _clean_script_for_tts(text: str) -> str:
 
 def _voiceover_path(pack_dir: Path) -> Path:
     return pack_dir / "voiceover.mp3"
+
+
+def _stamp_path(pack_dir: Path) -> Path:
+    return pack_dir / "voiceover_stamp.json"
+
+
+def _expected_voiceover_stamp(spoken: str, *, provider: str, horror: bool) -> dict:
+    digest = hashlib.sha256(spoken.encode("utf-8")).hexdigest()[:16]
+    return {"provider": provider, "horror": horror, "script_hash": digest}
+
+
+def voiceover_checkpoint_stale(pack_dir: Path, script_text: str) -> bool:
+    """True when an existing voiceover.mp3 should be regenerated on resume."""
+    from shorts_bot.config import settings
+
+    vo_path = _voiceover_path(pack_dir)
+    stamp_path = _stamp_path(pack_dir)
+    if not vo_path.exists():
+        return True
+    spoken = _clean_script_for_tts(script_text)
+    provider_name = (settings.tts_provider or "resemble").strip().lower()
+    prefer_resemble = provider_name == "resemble" and settings.has_resemble
+    expected_provider = "resemble-clone" if prefer_resemble else "edge-tts"
+    expected = _expected_voiceover_stamp(
+        spoken,
+        provider=expected_provider,
+        horror=settings.tts_horror_delivery,
+    )
+    if not stamp_path.exists():
+        delivery = pack_dir / "voiceover_delivery.txt"
+        if delivery.exists() and "horror edge" in delivery.read_text(encoding="utf-8").lower():
+            return prefer_resemble
+        ssml = pack_dir / "voiceover_ssml.txt"
+        if prefer_resemble and settings.tts_horror_delivery and not ssml.exists():
+            return True
+        return False
+    try:
+        saved = json.loads(stamp_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return True
+    return saved != expected
+
+
+def _write_voiceover_stamp(pack_dir: Path, spoken: str, *, provider: str, horror: bool) -> None:
+    stamp = _expected_voiceover_stamp(spoken, provider=provider, horror=horror)
+    _stamp_path(pack_dir).write_text(json.dumps(stamp, indent=2), encoding="utf-8")
 
 
 def generate_voiceover(
@@ -105,6 +153,13 @@ def generate_voiceover(
     voice_label = voice or settings.tts_voice or DEFAULT_VOICE
     if provider == "resemble-clone":
         voice_label = f"resemble:{settings.resemble_voice_uuid[:8]}…"
+
+    _write_voiceover_stamp(
+        pack_dir,
+        spoken,
+        provider=provider,
+        horror=settings.tts_horror_delivery,
+    )
 
     word_count = len(spoken.split())
     secs = max(25, int(word_count / 2.4))
