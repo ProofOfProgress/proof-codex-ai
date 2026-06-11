@@ -574,11 +574,21 @@ def render_short_video(
         __import__("json").dumps(caption_segments, indent=2),
         encoding="utf-8",
     )
+    from shorts_bot.production.variety import variety_for_draft
+
+    topic_lower = str(manifest.get("topic") or "").lower()
+    phone_topic = any(
+        k in topic_lower for k in ("security", "camera", "phone", "text", "message", "app")
+    )
+    variety = variety_for_draft(draft_id)
+    phone_caption_lift = -88 if phone_topic else 0
+    effective_caption_y = caption_y_offset + variety.caption_y_offset + phone_caption_lift
+
     ass_path = write_subtitle_files(
         pack_dir,
         caption_segments,
         audio_duration,
-        caption_y_offset=caption_y_offset,
+        caption_y_offset=effective_caption_y,
     )
 
     from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH

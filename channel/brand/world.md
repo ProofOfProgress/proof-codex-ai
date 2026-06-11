@@ -2,6 +2,20 @@
 
 Every Short is a **different night in the same universe** — not a random scare template.
 
+## Horror lane (picked — do not drift)
+
+**Primary: Analog horror** — night-vision CCTV, security-app feeds, VHS grain, timestamp glitches, degraded signal at 3:12 AM.
+
+**Secondary: Psychological horror** — alone-at-night uncanny dread; you rationalize lag as glitch or tired eyes.
+
+| We are | We are not |
+|--------|------------|
+| Found-footage phone/cam grammar | Creature features, occult rituals, named folklore entities |
+| Liminal apartment + signal lag | Gore, slashers, daylight crowds, camping-trip horror |
+| Cold blue-black rooms; green **only** on cam/feed | Full-frame green wash on every shot |
+
+Code: `shorts_bot/production/horror_lane.py`
+
 ## The world in one sentence
 
 **The Gap** is the beat between what you see and what your phone, mirror, or camera recorded — and something uses that lag to get closer while you are alone at night.

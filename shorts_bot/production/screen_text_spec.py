@@ -83,8 +83,17 @@ def infer_overlay_from_spoken(
             secondary=time_lbl,
             tertiary="LIVE",
             time_label=time_lbl,
-            accent="#39FF14",
+            accent="#8EAEFF",
             feed_state="empty",
+        )
+    if "opening security" in lower:
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary="Opening Security…",
+            secondary=cam,
+            time_label=time_lbl,
+            accent="#5AC8FA",
+            feed_state="app_opening",
         )
     if "opening" in lower and "security" in lower:
         return ScreenTextOverlay(
@@ -134,7 +143,7 @@ def infer_overlay_from_spoken(
             primary="REC",
             secondary=time_lbl,
             tertiary="BEDROOM CAM",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
     if "staring into the lens" in lower:
         return ScreenTextOverlay(
@@ -142,7 +151,7 @@ def infer_overlay_from_spoken(
             primary="REC",
             secondary=time_lbl,
             tertiary="BEDROOM CAM",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
     if "smiled" in lower or "lunged" in lower:
         return None
@@ -174,7 +183,7 @@ def infer_overlay_from_beat(
             feed_state="app_opening",
         )
 
-    if any(k in lower for k in ("phone screen", "security app", "lock screen", "notification", "opening")):
+    if any(k in lower for k in ("motion detected", "motion banner", "motion alert")):
         return ScreenTextOverlay(
             kind="phone_feed",
             primary="Motion Detected",
@@ -191,7 +200,7 @@ def infer_overlay_from_beat(
             secondary=time_lbl,
             tertiary="MOTION",
             feed_state="figure_closer",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
 
     if any(k in lower for k in ("security camera hallway", "motion blur", "cctv hallway")):
@@ -204,7 +213,7 @@ def infer_overlay_from_beat(
             secondary=time_lbl,
             tertiary="LIVE",
             feed_state="empty",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
 
     if any(k in lower for k in ("timestamp", "security cam", "cctv", "night vision")):
@@ -214,7 +223,7 @@ def infer_overlay_from_beat(
             primary="REC",
             secondary=time_lbl,
             tertiary=cam.upper(),
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
 
     if any(k in lower for k in ("message", "delivered", "text", "read receipt", "slides in")):
@@ -246,7 +255,7 @@ def infer_overlay_from_beat(
             primary="REC",
             secondary=time_lbl,
             tertiary="BEDROOM CAM",
-            accent="#39FF14",
+            accent="#8EAEFF",
         )
 
     return None

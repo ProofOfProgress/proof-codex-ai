@@ -10,6 +10,7 @@ from typing import Literal
 
 from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
+from shorts_bot.production.horror_lane import analog_color_rules, horror_lane_compact
 from shorts_bot.production.world import world_visual_continuity
 
 ModelHint = Literal["kling", "runway", "veo", "pika", "luma", "hailuo", "auto"]
@@ -57,7 +58,9 @@ def visual_dna() -> str:
         "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
         "Faceless until scare beat: silhouettes, POV, phone screens, hallway depth — no identifiable faces until final lunge. "
         "Motion: slow dread drift or locked static; final beat may snap fast toward camera. "
-        f"{world_visual_continuity()}"
+        f"{world_visual_continuity()} "
+        f"{analog_color_rules()} "
+        f"{horror_lane_compact()}"
     )
 
 

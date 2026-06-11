@@ -321,9 +321,13 @@ def _gemini_review(
     sting_note = f"Audio stinger cue at {sting['start']:.1f}s" if sting else "No stinger cue logged"
 
     cap_ctx = _format_caption_context(captions or [], [t for t, _ in frames])
+    from shorts_bot.production.horror_lane import horror_lane_for_qc
+
+    lane_ctx = horror_lane_for_qc()
     if deep:
         prompt = (
             "You are a senior YouTube Shorts post-production QC lead auditing a horror Short.\n"
+            f"{lane_ctx}\n"
             f"Frames in order at: {labels}. Each frame is a screenshot from the FINAL rendered MP4 "
             "(with burned-in captions and composited phone/CCTV UI).\n\n"
             f"Topic: {topic[:120]}\nHook: {hook[:120]}\n"

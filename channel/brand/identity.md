@@ -17,6 +17,8 @@ Every Short is **another night in the same universe** — not a random scare swa
 
 Full bible: `channel/brand/world.md` — injected into scripts and I2V prompts via `shorts_bot/production/world.py`.
 
+**Horror lane (locked):** **Analog horror** + psychological — see `channel/brand/horror_lane.md`.
+
 ## Niche
 
 | Old (Soft Continuity) | New (Don't Blink) |

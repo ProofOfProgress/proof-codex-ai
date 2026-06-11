@@ -10,7 +10,8 @@ from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
 from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
 # I2V phone display rect — centered POV in regen clips (hands below screen)
-_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H = 340, 760, 400, 520
+# Raised so bottom ~1040px — clears caption band (~1260px anchor)
+_SCREEN_X, _SCREEN_Y, _SCREEN_W, _SCREEN_H = 340, 500, 400, 520
 _GIBBERISH_SCRUB = (380, 1580, 700, 340)
 
 
@@ -286,10 +287,8 @@ def _draw_hallway_feed(
         if label:
             draw.text((sx + 12, sy + sh - 28), label, fill=green, font=_font(16, bold=True))
         return
-    if not chrome_only:
-        # Light tint only — I2V hallway remains visible underneath
-        draw.rectangle([sx, sy, sx + sw, sy + sh], fill=(8, 18, 28, 72))
-    hud = "#C8D6E5" if green.lower() in {"#39ff14", "#39ff14"} else green
+    # No full-screen green wash — I2V feed provides night-vision; HUD text only
+    hud = "#8EAEFF"
     if label:
         draw.text((sx + 12, sy + sh - 28), label, fill=hud, font=_font(16, bold=True))
 
@@ -308,7 +307,19 @@ def _draw_phone_screen_content(
 
     if state == "app_opening":
         y = _draw_inscreen_status_bar(draw, 0, 0, sw, time_lbl)
-        y = _draw_security_app_header(draw, 0, y + 8, sw, spec.accent)
+        feed_top = y + 4
+        feed_h = sh - feed_top - 96
+        _draw_hallway_feed(
+            draw,
+            0,
+            feed_top,
+            sw,
+            feed_h,
+            with_figure=False,
+            green="#8EAEFF",
+            time_lbl=time_lbl,
+            label="LIVE",
+        )
         _draw_inscreen_banner(
             draw,
             0,
@@ -317,9 +328,8 @@ def _draw_phone_screen_content(
             title=spec.primary or "Opening Security…",
             subtitle=spec.secondary or "Hallway Camera",
             accent=spec.accent,
-            y=y + 12,
+            y=feed_top + 8,
         )
-        draw.text((sw // 2 - 40, sh - 80), "Loading feed…", fill="#636366", font=_font(18))
         return
 
     if state == "live_audio":

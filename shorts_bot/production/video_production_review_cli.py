@@ -26,9 +26,13 @@ def main() -> None:
     args = parser.parse_args()
 
     pack_dir = settings.data_dir / "production" / f"draft_{args.draft_id}"
-    video = args.video or (pack_dir / "final_short_unlisted.mp4")
-    if not video.exists():
-        video = pack_dir / "final_short.mp4"
+    video = args.video
+    if video is None:
+        candidates = list(pack_dir.glob("final_short*.mp4"))
+        if candidates:
+            video = max(candidates, key=lambda p: p.stat().st_mtime)
+        else:
+            video = pack_dir / "final_short.mp4"
 
     console.print(f"[cyan]Reviewing {video}…[/cyan]")
     review = run_production_review(

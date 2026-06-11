@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shorts_bot.production.horror_lane import HORROR_LANE_LABEL, horror_lane_compact
+
 WORLD_NAME = "The Gap"
 WORLD_TAGLINE = "Reality and recordings are one beat out of sync."
 
@@ -26,7 +28,8 @@ Laws: movement in the unwatched moment (blink, look away, refresh, mute); 3:12 A
 phones/mirrors/cameras show truth delayed or wrong; you are alone at home tonight; faceless until final scare beat.
 Setting: same liminal apartment grammar — narrow hallway, bathroom mirror, bedroom phone glow, security cam corner, closet you never open.
 Threat: the thing in the gap — never named in VO; advances when you stop watching; finale lunge from mirror/door/lens/screen.
-Not this world: cosy self-help, stick figures, gore, daytime crowds, generic creepypasta listicles."""
+Not this world: cosy self-help, stick figures, gore, daytime crowds, generic creepypasta listicles.
+{horror_lane_compact()}"""
 
 
 def world_lore_for_scripts() -> str:
@@ -42,7 +45,8 @@ def world_visual_continuity() -> str:
     """Paste into every I2V / image prompt after visual DNA."""
     return (
         f"WORLD — {WORLD_NAME}: liminal alone-at-night apartment, narrow hallway into darkness, "
-        "cold blue-black palette, film grain, underexposed; phone/mirror/security-cam as truth sources that lag reality; "
+        "analog horror: cold blue-black POV rooms, night-vision green only on CCTV or in-phone feed rect; "
+        "film grain, underexposed; phone/mirror/security-cam as truth sources that lag reality; "
         "3:12 AM motif when time appears; faceless silhouettes until final lunge; "
         "same domestic grammar across uploads — not a new location every video."
     )
