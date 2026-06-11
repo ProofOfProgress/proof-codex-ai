@@ -37,6 +37,8 @@ Money at scale requires **not getting demonetized** — keep YPP-safe originalit
 
 **Uploads — owner approved auto-public (2026-06):** Post **public** without asking first. `YOUTUBE_UPLOAD_VISIBILITY=public`. No unlisted review step unless owner revokes this rule.
 
+**YouTube AI disclosure (required):** Every upload must set `containsSyntheticMedia=true` (altered/synthetic content) — voice clone, AI visuals, automated pipeline. Default `YOUTUBE_DECLARE_SYNTHETIC_MEDIA=true`.
+
 **Current human touchpoints (shrink over time):** serious comments, rare 2FA/captcha on external dashboards. Agents complete OAuth/API setup via browser when possible.
 
 ## Work queue — top 4 only

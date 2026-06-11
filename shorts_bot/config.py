@@ -133,6 +133,7 @@ class Settings(BaseSettings):
 
     # YouTube — API upload only (no Studio browser automation)
     youtube_upload_via_api: bool = True
+    youtube_declare_synthetic_media: bool = True  # status.containsSyntheticMedia on every upload (YouTube AI disclosure)
 
     # Autopilot — fully AI pipeline, no human approval
     auto_approve_drafts: bool = True

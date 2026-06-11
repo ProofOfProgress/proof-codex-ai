@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from shorts_bot.config import settings
 from shorts_bot.youtube.google_auth import load_credentials_for_upload, upload_ready as youtube_upload_ready
 
 
@@ -50,6 +51,8 @@ def upload_short(
             "selfDeclaredMadeForKids": False,
         },
     }
+    if settings.youtube_declare_synthetic_media:
+        body["status"]["containsSyntheticMedia"] = True
 
     media = MediaFileUpload(
         str(video_path),

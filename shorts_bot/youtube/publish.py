@@ -6,6 +6,22 @@ from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.youtube.google_auth import load_credentials_for_upload
 
 
+def declare_synthetic_media(video_id: str, *, enabled: bool = True) -> str:
+    """Set YouTube altered/synthetic (AI) disclosure on an existing video."""
+    from googleapiclient.discovery import build
+
+    creds = load_credentials_for_upload()
+    if not creds:
+        raise RuntimeError("YouTube upload scope required")
+    youtube = build("youtube", "v3", credentials=creds)
+    youtube.videos().update(
+        part="status",
+        body={"id": video_id, "status": {"containsSyntheticMedia": enabled}},
+    ).execute()
+    label = "on" if enabled else "off"
+    return f"AI disclosure {label} for {video_id}"
+
+
 def update_video_visibility(video_id: str, visibility: str = "public") -> str:
     from googleapiclient.discovery import build
 
