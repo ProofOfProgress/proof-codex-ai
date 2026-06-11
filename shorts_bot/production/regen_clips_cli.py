@@ -48,6 +48,9 @@ def regen_clips(
     pack_dir: Path | None = None,
     force: bool = True,
 ) -> list[Path]:
+    from shorts_bot.production.ai_video_guard import require_ai_video_generation
+
+    require_ai_video_generation(action="regen_clips_cli")
     root = pack_dir or (settings.data_dir / "production" / f"draft_{draft_id}")
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     segments = manifest.get("segments") or []

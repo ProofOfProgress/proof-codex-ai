@@ -1,5 +1,13 @@
 # Operating rules seed — imported on first run
 
+## Video generation — owner pause (2026-06)
+
+**Do not call Replicate I2V / FLUX / Hailuo** unless the owner explicitly asks for new clips.
+
+- Default: `AI_VIDEO_GENERATION_ENABLED=false` — improve code, overlays, captions, metadata, tests
+- **OK without owner ask:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (assemble existing clips)
+- **Blocked:** `regen_clips_cli`, `render_jumpscare_cli --force`, full pack I2V regen
+
 ## Codex — knowledge base name
 
 The project's knowledge base is called **Codex** (not "course KB", "knowledge base", or "Jenny files" in owner-facing replies).

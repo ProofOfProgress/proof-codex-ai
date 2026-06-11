@@ -422,4 +422,7 @@ def ensure_jumpscare_video_clip(pack_dir: Path, *, force: bool = False) -> Path:
     clips_dir = pack_dir / "clips"
     if not force and jumpscare_clip_is_valid(pack_dir, clips_dir):
         return jumpscare_clip_path(clips_dir)
+    from shorts_bot.production.ai_video_guard import require_ai_video_generation
+
+    require_ai_video_generation(action="jumpscare I2V")
     return render_dedicated_jumpscare_clip(pack_dir, force=True)

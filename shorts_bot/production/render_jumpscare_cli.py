@@ -26,6 +26,10 @@ def main() -> None:
 
     pack_dir = args.pack_dir or (settings.data_dir / "production" / f"draft_{args.draft_id}")
     console.print(f"[cyan]Generating dedicated jumpscare I2V for draft #{args.draft_id}…[/cyan]")
+    if args.force:
+        from shorts_bot.production.ai_video_guard import require_ai_video_generation
+
+        require_ai_video_generation(action="render_jumpscare_cli --force")
     out = render_dedicated_jumpscare_clip(pack_dir, force=args.force)
     console.print(f"[green]Jumpscare clip ready: {out}[/green]")
 

@@ -124,6 +124,9 @@ def render_ai_video_clip(
     pack_dir: Path | None = None,
 ) -> bool:
     """One beat: generate still (if needed) → I2V motion clip."""
+    from shorts_bot.production.ai_video_guard import require_ai_video_generation
+
+    require_ai_video_generation(action="render_ai_video_clip")
     try:
         if not image_path.exists():
             generate_image(image_brief.prompt, image_path)

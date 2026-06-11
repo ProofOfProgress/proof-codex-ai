@@ -101,6 +101,9 @@ class Settings(BaseSettings):
             return "ai_video"
         return s
 
+    # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
+    ai_video_generation_enabled: bool = False
+
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
@@ -113,7 +116,7 @@ class Settings(BaseSettings):
     screen_text_phone_enabled: bool = False  # no phone screens — fullscreen CCTV + alarm clock for time
     screen_text_screen_only: bool = True  # legacy phone rect mode (off while screen_text_phone_enabled=false)
     screen_text_draw_phone_ui: bool = True  # ignored when screen_text_phone_enabled=false
-    jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
+    jumpscare_auto_generate: bool = False  # requires ai_video_generation_enabled + existing clip preferred
     jumpscare_clip_play_seconds: float = 2.85  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
