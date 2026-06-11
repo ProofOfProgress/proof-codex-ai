@@ -49,8 +49,8 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "Don't Blink"
-    channel_series_name: str = "Don't Blink"
+    youtube_channel_name: str = "Peripheral"
+    channel_series_name: str = "Peripheral"
     channel_tagline: str = "Watch the whole thing."
     web_host: str = "127.0.0.1"
     web_port: int = 8080

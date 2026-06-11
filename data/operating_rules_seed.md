@@ -67,7 +67,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Don't Blink** — scary horror Shorts (~30s). Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Peripheral** — scary horror Shorts (~30s). Merch tagline: *don't blink*. Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
 
 ## Production stack
 

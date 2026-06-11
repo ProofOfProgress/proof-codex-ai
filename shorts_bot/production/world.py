@@ -22,7 +22,7 @@ def world_doc_path() -> Path:
 
 def world_rules_compact() -> str:
     """Short rules block for prompts (scripts + agents)."""
-    return f"""UNIVERSE — {WORLD_NAME} (Don't Blink world):
+    return f"""UNIVERSE — {WORLD_NAME} (Peripheral anthology — optional shared mood):
 {WORLD_TAGLINE}
 Laws: movement in the unwatched moment (blink, look away, refresh, mute); 3:12 AM is when systems glitch;
 CCTV/mirrors/recordings show truth delayed or wrong; no phone screens in analog lane; you are alone at home tonight; faceless until final scare beat.

@@ -16,7 +16,7 @@ from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 from shorts_bot.production.world import world_lore_for_scripts
 
 
-SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Peripheral (~25-35 seconds).
 
 {world_lore_for_scripts()}
 
@@ -84,7 +84,7 @@ class DraftGenerator:
         return "\n\n".join(parts) if parts else "No approval history yet."
 
     def _horror_course_context(self, topic: str) -> str:
-        base = f"HORROR FORMAT (Don't Blink):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+        base = f"HORROR FORMAT (Peripheral):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
         if self.router:
             from shorts_bot.production.jenny_checks import jenny_retention_guidance
 
@@ -112,7 +112,7 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Don't Blink — terrifying faceless horror, jumpscare at end):
+CHANNEL BRAND (Peripheral — terrifying faceless horror, jumpscare at end):
 {self.brand.draft_instructions()[:1800]}
 
 ENDING RULE: Final spoken line cues the jumpscare, then STOP. No explanation after the scare.

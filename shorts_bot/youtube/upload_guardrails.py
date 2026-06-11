@@ -32,6 +32,7 @@ def uploads_for_draft(memory: MemoryExtensions, draft_id: int) -> list[dict]:
             SELECT draft_id, topic, hook, title, video_id, uploaded_at
             FROM upload_events
             WHERE draft_id = ?
+              AND (voided IS NULL OR voided = 0)
             ORDER BY id DESC
             """,
             (draft_id,),

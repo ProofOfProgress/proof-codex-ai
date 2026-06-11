@@ -1,4 +1,4 @@
-"""YouTube upload metadata — Don't Blink horror Shorts SEO."""
+"""YouTube upload metadata — Peripheral horror Shorts SEO."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ HORROR_BACKEND_TAGS = [
     "analog horror",
     "found footage",
     "faceless horror",
-    "dont blink",
+    "peripheral horror",
     "horror story",
     "short horror",
     "scary short",
@@ -174,7 +174,7 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(
         [
-            f"Don't Blink — scary horror Shorts (~30s). {scare_line}",
+            f"Peripheral — scary horror Shorts (~30s). {scare_line}\n\ndon't blink.",
             "AI motion visuals · synthetic media disclosed",
             "What should the next story be? One sentence in the comments.",
             hashtags,
@@ -261,8 +261,8 @@ def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     lines.extend(
         [
             sanitize_description_text(
-                f"Don't Blink — scary horror Shorts (~30s). "
-                f"{tease} Watch the whole thing."
+                f"Peripheral — scary horror Shorts (~30s). "
+                f"{tease} Watch the whole thing.\n\ndon't blink."
             ),
             "AI motion visuals · synthetic media disclosed",
             hashtags,

@@ -72,7 +72,7 @@ def check_upload_allowed(
         "productivity tips",
     )
     if any(m in topic_lower for m in off_niche_markers):
-        issues.append("off-niche topic — Don't Blink horror Shorts only (wrong vertical uploaded)")
+        issues.append("off-niche topic — Peripheral horror Shorts only (wrong vertical uploaded)")
 
     for risk in risk_signals_for_script(script, hook, title):
         if (

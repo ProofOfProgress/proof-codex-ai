@@ -1,17 +1,19 @@
-"""Niche — Don't Blink (faceless horror Shorts, end jumpscare)."""
+"""Niche — Peripheral (faceless horror Shorts, end jumpscare)."""
 
 from __future__ import annotations
 
 from shorts_bot.production.world import WORLD_NAME, world_rules_compact
 
-NICHE_NAME = "Don't Blink"
+NICHE_NAME = "Peripheral"
 NICHE_TAGLINE = "Watch the whole thing."
 
 NICHE_POSITIONING = f"""
-Don't Blink — **terrifying faceless horror Shorts** (~30 seconds) set in **{WORLD_NAME}** — the same universe every upload.
+Peripheral — **faceless horror Shorts** (~30 seconds). Anthology dread — watched, stalked, almost in frame.
+Optional texture in **{WORLD_NAME}** when stories share mood; rotate scare pillars, not one template.
 
 Every video: another alone-at-night night in one liminal apartment → tension builds → **jumpscare in the last 3 seconds**.
-AI full-motion clips only (no stick figures). Faceless — eyes, hallways, phones, shadows, never cosy self-help.
+AI full-motion clips only (no stick figures). Faceless — eyes, hallways, CCTV, shadows, never cosy self-help.
+Merch tagline: *don't blink* — not the channel name.
 
 {world_rules_compact()}
 
