@@ -178,9 +178,8 @@ def run_quality_checks(
         else:
             warnings.append(msg)
 
-    tail = lowered[-120:]
-    if not any(c in tail for c in JUMPSCARE_CUES):
-        warnings.append("Final lines may not cue a jumpscare — end on a visual scare trigger.")
+    if not any(c in lowered for c in JUMPSCARE_CUES):
+        warnings.append("Script may not cue a jumpscare — include lunge/turn/face/scream trigger on scare line.")
 
     if not re.search(r"[.!?]", script):
         warnings.append("Script has no sentence endings. Add clearer pacing.")

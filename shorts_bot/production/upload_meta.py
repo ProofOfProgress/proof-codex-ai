@@ -31,6 +31,15 @@ class UploadPackage:
     checklist: list[str]
 
 
+def _volume_warning_for_draft(draft_id: int) -> str:
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    plan = load_plan_for_draft(draft_id, 8)
+    if plan.volume_warning:
+        return plan.volume_warning
+    return "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+
+
 def build_upload_package(
     topic: str,
     hook: str,
@@ -43,7 +52,9 @@ def build_upload_package(
     from shorts_bot.production.niche import NICHE_NAME
 
     title = _title_from_research(topic, hook, research) if research else _safe_title(topic, hook)
-    description = _description_from_research(topic, hook, research) if research else _safe_description(topic, hook)
+    description = _description_from_research(
+        topic, hook, research, draft_id=draft_id
+    ) if research else _safe_description(topic, hook, draft_id=draft_id)
     tags = _tags_from_research(topic, research) if research else list(HORROR_BACKEND_TAGS)
     visibility = settings.youtube_upload_visibility
     if visibility not in ("public", "unlisted", "private"):
@@ -52,7 +63,7 @@ def build_upload_package(
     checklist = [
         f"Visibility: {visibility}",
         f"Niche: {NICHE_NAME}",
-        "🔊 Volume warning in title + description (jumpscare at end)",
+        "🔊 Volume warning in title + description (jumpscare roulette — timing varies)",
         "YPP: max 1 Short per 24h — upload_guard enforces",
         "Script is second-person horror micro-story — impossible hook in line 1",
         "Title front-loads hook keyword (first 40 chars); VO speaks hook in first 3s",
@@ -118,14 +129,17 @@ def _normalize_horror_hook(hook: str, topic: str) -> str:
     return line.strip()
 
 
-def _description_from_research(topic: str, hook: str, research) -> str:
+def _description_from_research(topic: str, hook: str, research, *, draft_id: int = 0) -> str:
     hook_line = _normalize_horror_hook(hook, topic)
     topic_tags = _topic_hashtags(topic)
     base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
     hashtags = " ".join(base_hashtags[:5])
+    vol = _volume_warning_for_draft(draft_id) if draft_id else (
+        "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+    )
 
     return (
-        f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
+        f"{vol}\n\n"
         f"{hook_line}\n\n"
         f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
         f"One impossible detail → tension → scare at the end. Watch the whole thing.\n\n"
@@ -178,11 +192,14 @@ def _safe_title(topic: str, hook: str) -> str:
     return f"🔊 {t[:80]} — watch the whole thing"[:100]
 
 
-def _safe_description(topic: str, hook: str) -> str:
+def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     hook_line = _normalize_horror_hook(hook, topic)
     hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
+    vol = _volume_warning_for_draft(draft_id) if draft_id else (
+        "🔊 VOLUME WARNING — jumpscare timing varies. Headphones advised."
+    )
     return (
-        f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
+        f"{vol}\n\n"
         f"{hook_line}\n\n"
         f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
         f"Watch the whole thing.\n\n"

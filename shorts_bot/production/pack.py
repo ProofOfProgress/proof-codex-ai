@@ -116,6 +116,11 @@ def build_production_pack(
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 
+    from shorts_bot.production.jumpscare_timing import persist_plan, plan_for_draft
+
+    scare_plan = plan_for_draft(draft_id, len(segments))
+    persist_plan(draft_id, scare_plan)
+
     hybrid_hook = settings.visual_style in ("hybrid", "ai_video", "ai_video_hook")
     video_payload = write_video_prompt_pack(
         root,
@@ -124,6 +129,7 @@ def build_production_pack(
         total_duration=audio_duration,
         hybrid_hook=hybrid_hook,
         visual_beats=beats or None,
+        jumpscare_plan=scare_plan,
     )
 
     (root / "VOICEOVER_SCRIPT.txt").write_text(
@@ -139,12 +145,16 @@ def build_production_pack(
         if settings.visual_style == "ai_video" and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
+            priority = [scare_plan.primary_segment_index]
+            if scare_plan.decoy_segment_index is not None:
+                priority.append(scare_plan.decoy_segment_index)
             clips_rendered = render_all_ai_video_clips(
                 briefs,
                 segments,
                 topic=draft.topic,
                 images_dir=images_dir,
                 clips_dir=clips_dir,
+                priority_indices=priority,
             )
             if clips_rendered > 0:
                 rendered = clips_rendered
@@ -175,6 +185,7 @@ def build_production_pack(
         "workflow": sync_source,
         "variety": variety.summary(),
         "visual_beats": beats,
+        "jumpscare_plan": scare_plan.to_dict(),
         "visual_style": settings.visual_style,
         "render_mode": render_mode,
         "hybrid_ai_hook": hybrid_hook,

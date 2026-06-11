@@ -197,6 +197,20 @@ def templates() -> list[VideoTemplate]:
             role="escalation",
         ),
         VideoTemplate(
+            id="jumpscare_tease",
+            name="Fake scare tease",
+            keywords=("shudder", "flinch", "almost", "something moved", "flicker"),
+            subject="Dark hallway or mirror edge — shape barely visible",
+            action="Brief snap toward camera then freeze — false scare, not full lunge",
+            camera="Quick 0.5s push-in then hard stop, 9:16",
+            environment="Black crush, cold blue, grain",
+            style="Decoy scare tease, photoreal horror",
+            end_state="Frame holds on empty space — bait for real scare later",
+            duration_seconds=2.5,
+            model_hint="hailuo",
+            role="escalation",
+        ),
+        VideoTemplate(
             id="jumpscare_lunge",
             name="Final jumpscare lunge",
             keywords=(
@@ -321,6 +335,7 @@ def build_video_prompt_briefs(
     topic: str,
     total_duration: float | None = None,
     visual_beats: list[str] | None = None,
+    jumpscare_plan=None,
 ) -> list[VideoPromptBrief]:
     """One video prompt per AV segment, with END STATE → CONTINUITY IN chaining."""
     if not segments:
@@ -340,7 +355,16 @@ def build_video_prompt_briefs(
             end = seg.start_seconds + 5.0
 
         tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=i)
-        if i == len(segments) - 1 and tmpl.role != "jumpscare":
+        if jumpscare_plan is not None:
+            primary = int(jumpscare_plan.primary_segment_index)
+            decoy = jumpscare_plan.decoy_segment_index
+            lunge = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
+            tease = next((t for t in templates() if t.id == "jumpscare_tease"), None)
+            if i == primary and lunge:
+                tmpl = lunge
+            elif decoy is not None and i == decoy and tease:
+                tmpl = tease
+        elif i == len(segments) - 1 and tmpl.role != "jumpscare":
             jumpscare = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
             if jumpscare:
                 tmpl = jumpscare

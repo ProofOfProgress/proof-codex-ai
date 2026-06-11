@@ -13,8 +13,13 @@ from shorts_bot.production.images.router import generate_image
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
-def select_i2v_beat_indices(segment_count: int, max_beats: int) -> list[int]:
-    """Always render hook (0) + finale; evenly sample middle when capped."""
+def select_i2v_beat_indices(
+    segment_count: int,
+    max_beats: int,
+    *,
+    priority_indices: list[int] | None = None,
+) -> list[int]:
+    """Always render hook (0) + finale + roulette scare beat; sample middle when capped."""
     if segment_count <= 0:
         return []
     if max_beats >= segment_count:
@@ -22,6 +27,9 @@ def select_i2v_beat_indices(segment_count: int, max_beats: int) -> list[int]:
     if max_beats <= 1:
         return [0]
     selected = {0, segment_count - 1}
+    for idx in priority_indices or []:
+        if 0 <= idx < segment_count:
+            selected.add(idx)
     remaining = max_beats - len(selected)
     middle = list(range(1, segment_count - 1))
     if remaining <= 0 or not middle:
@@ -79,6 +87,7 @@ def render_all_ai_video_clips(
     topic: str,
     images_dir: Path,
     clips_dir: Path,
+    priority_indices: list[int] | None = None,
 ) -> int:
     """Generate one I2V MP4 per segment; pace Replicate to avoid 429s."""
     clips_dir.mkdir(parents=True, exist_ok=True)
@@ -86,7 +95,7 @@ def render_all_ai_video_clips(
     max_beats = max(1, int(settings.ai_video_max_beats))
     count = 0
 
-    indices = select_i2v_beat_indices(len(segments), max_beats)
+    indices = select_i2v_beat_indices(len(segments), max_beats, priority_indices=priority_indices)
     for render_i, seg_i in enumerate(indices):
         if seg_i >= len(briefs) or seg_i >= len(segments):
             continue

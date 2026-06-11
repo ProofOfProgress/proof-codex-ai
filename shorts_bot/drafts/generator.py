@@ -25,7 +25,8 @@ STRUCTURE (earn the jumpscare — write backwards from final scare):
 - Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
 - Beats 5-6 (12-20s): escalation — sound + visual micro-cues
 - Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
-- Final line (26-30s): jumpscare cue (lunge, slam, lens fill) — then STOP, no explanation
+- JUMPSCARE ROULETTE: timing varies per video — place the scare line where the plan says (early / mid / late / double-tap fake+real). Viewer must NOT predict the hit.
+- Every script still needs ONE clear jumpscare cue (lunge, slam, lens fill) on the primary scare line — then STOP or brief dread coda, no explanation
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
 - Singular "you". ~70-110 words spoken. 9:16 faceless horror.
 

@@ -50,6 +50,7 @@ def write_video_prompt_pack(
     total_duration: float | None = None,
     hybrid_hook: bool = False,
     visual_beats: list[str] | None = None,
+    jumpscare_plan=None,
 ) -> dict:
     """Write video_prompts/*.txt + video_prompts.json + AI_VIDEO_HOOK.md into pack_dir."""
     briefs = build_video_prompt_briefs(
@@ -57,6 +58,7 @@ def write_video_prompt_pack(
         topic=topic,
         total_duration=total_duration,
         visual_beats=visual_beats,
+        jumpscare_plan=jumpscare_plan,
     )
     vp_dir = pack_dir / "video_prompts"
     vp_dir.mkdir(parents=True, exist_ok=True)
@@ -73,6 +75,7 @@ def write_video_prompt_pack(
         "negative_block": negative_block(),
         "hook_template_id": hook_tmpl.id,
         "hook_model_hint": hook_tmpl.model_hint,
+        "jumpscare_plan": jumpscare_plan.to_dict() if jumpscare_plan else None,
         "clips": _briefs_to_manifest_entries(briefs, hybrid_hook=hybrid_hook),
     }
     out_path = pack_dir / "video_prompts.json"

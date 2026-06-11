@@ -16,15 +16,24 @@ class RenderedVideo:
     message: str
 
 
-def _mix_jumpscare_sting(audio_path: Path, *, duration: float) -> Path:
-    """Layer a synthetic noise sting on the final beats of the voiceover."""
+def _mix_jumpscare_sting(
+    audio_path: Path,
+    *,
+    duration: float,
+    sting_start: float | None = None,
+) -> Path:
+    """Layer a synthetic noise sting at the planned jumpscare beat (Russian roulette timing)."""
     from shorts_bot.config import settings
 
     if not settings.jumpscare_sting_enabled or duration <= 1.0:
         return audio_path
 
     sting_dur = min(settings.jumpscare_sting_seconds, duration * 0.45)
-    sting_start = max(0.0, duration - sting_dur)
+    if sting_start is None:
+        sting_start = max(0.0, duration - sting_dur)
+    else:
+        sting_start = max(0.0, min(sting_start, duration - 0.25))
+        sting_dur = min(sting_dur, duration - sting_start)
     delay_ms = int(sting_start * 1000)
     fade_out_start = max(0.08, sting_dur - 0.18)
     sting_src = (
@@ -373,7 +382,16 @@ def render_short_video(
 
     images_dir = pack_dir / "images"
     audio_duration = _probe_duration(audio_path)
-    audio_path = _mix_jumpscare_sting(audio_path, duration=audio_duration)
+    sting_start: float | None = None
+    plan_raw = manifest.get("jumpscare_plan")
+    if plan_raw:
+        from shorts_bot.production.jumpscare_timing import JumpscarePlan, sting_start_seconds
+
+        plan = JumpscarePlan.from_dict(plan_raw)
+        sting_start = sting_start_seconds(plan, segments=segments, total_duration=audio_duration)
+    audio_path = _mix_jumpscare_sting(
+        audio_path, duration=audio_duration, sting_start=sting_start
+    )
     if audio_path.name == "_voiceover_stung.mp3":
         audio_duration = _probe_duration(audio_path)
     durations = _scaled_durations(segments, audio_duration)
