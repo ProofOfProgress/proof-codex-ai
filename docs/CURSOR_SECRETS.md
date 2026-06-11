@@ -62,7 +62,7 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `DISCORD_NOTIFY_IDS` | Environment Variable | Comma-separated snowflake IDs | `__________________,__________________` | Extra DM targets |
 | `FAL_API_KEY` | Runtime Secret | API key (string) | `________________________________` | If `IMAGE_PROVIDER=fal` |
 | `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
-| `VISUAL_STYLE` | Environment Variable | Enum: `stickfigure` \| `hybrid` \| `ai` \| `calm_stills` | `stickfigure` | Default = free stick figures |
+| `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |
 | `TAVILY_API_KEY` | Runtime Secret | API key (string, starts `tvly-`) | `tvly-____________________________` | Deep web research |
 
 ---

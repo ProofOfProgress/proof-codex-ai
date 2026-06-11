@@ -31,7 +31,7 @@ def test_write_video_prompt_pack_creates_files(tmp_path: Path):
 def test_export_from_manifest(tmp_path: Path):
     manifest = {
         "topic": "the minute before you check your phone from the couch on Sunday",
-        "visual_style": "stickfigure",
+        "visual_style": "ai_video",
         "segments": [
             {
                 "start_seconds": 0.0,

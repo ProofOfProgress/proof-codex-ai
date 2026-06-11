@@ -24,10 +24,10 @@ def test_agent_memory_crud(tmp_path: Path):
 def test_context_block_includes_saved_memory(tmp_path: Path):
     store = MemoryStore(tmp_path / "mem2.db")
     mem_store = AgentMemoryStore(store)
-    mem_store.add_memory(content="Niche is The Minute Before", category="operating_rule", pinned=True)
+    mem_store.add_memory(content="Niche is Don't Blink", category="operating_rule", pinned=True)
     block = mem_store.context_block()
     assert "LONG-TERM MEMORY" in block
-    assert "Minute Before" in block
+    assert "Don't Blink" in block
 
 
 def test_export_markdown(tmp_path: Path):

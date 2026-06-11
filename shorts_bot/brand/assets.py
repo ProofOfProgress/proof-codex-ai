@@ -153,10 +153,10 @@ def generate_banner_image(out_path: Path | None = None) -> Path:
 
     font_lg, font_md, font_sm = _load_fonts(128, 52, 40)
 
-    eyebrow = "SOFT CONTINUITY"
-    title = "The Minute Before"
-    sub = "one specific moment · one concrete fix"
-    tag = "you're still here. good."
+    eyebrow = "DON'T BLINK"
+    title = "Watch the whole thing."
+    sub = "terrifying horror Shorts · jumpscare at the end"
+    tag = "🔊 volume warning"
 
     ew = draw.textlength(eyebrow, font=font_sm) if hasattr(draw, "textlength") else 700
     draw.text(((w - ew) / 2, h * 0.30), eyebrow, fill=TEXT_MUTED, font=font_sm)
@@ -179,4 +179,7 @@ def generate_banner_image(out_path: Path | None = None) -> Path:
 
 
 def ensure_brand_assets() -> tuple[Path, Path]:
+    """Return Don't Blink eye assets; use committed PNGs when present."""
+    if PROFILE_PATH.exists() and BANNER_PATH.exists():
+        return PROFILE_PATH, BANNER_PATH
     return generate_profile_image(), generate_banner_image()

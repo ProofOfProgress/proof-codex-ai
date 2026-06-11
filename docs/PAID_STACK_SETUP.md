@@ -1,6 +1,6 @@
 # Paid stack setup — buy today, wire today
 
-Fully automated daily Shorts: **Gemini brain → Resemble voice clone → AssemblyAI transcript sync → stick figure frames → ffmpeg → YouTube upload (unlisted)**.
+Fully automated daily Shorts: **Gemini brain → Resemble voice clone → AssemblyAI transcript sync → AI horror motion frames → ffmpeg → YouTube upload (unlisted)**.
 
 **Default:** `REQUIRE_PAID_STACK=true` — all video generation uses **Resemble + AssemblyAI + Gemini vision QC**. No TurboScribe browser. No silent edge-tts or script-timing fallbacks unless you set `ALLOW_FREE_TTS_FALLBACK=true` or `ALLOW_SCRIPT_TIMING_FALLBACK=true`.
 
@@ -12,7 +12,7 @@ Fully automated daily Shorts: **Gemini brain → Resemble voice clone → Assemb
 | **Resemble AI** | Flex + Pro voice clone | ~$5/mo clone + ~$3–10 API | Your cloned voice |
 | **AssemblyAI** | Pay-as-you-go | **~$0.01–0.05/Short** | Word-level timestamps via API (default) |
 | **Gemini** | Free tier / pay-as-you-go | **~$0.01/Short** | Vision QC — 5 JPEG frames, one batched call |
-| **Replicate** (optional) | Pay-per-image | **~$0.003–0.015/image** | Only if `VISUAL_STYLE=ai` — default is stick figures (free) |
+| **Replicate** (optional) | Pay-per-image | **~$0.003–0.015/image** | Only if `VISUAL_STYLE=ai` — default is AI horror motions (free) |
 | **Fal.ai** (optional) | Pay-per-image | **~$0.003–0.02/image** | Set `IMAGE_PROVIDER=fal` + `VISUAL_STYLE=ai` |
 
 You do **not** need ElevenLabs, CapCut Pro, Runway, or Epidemic for the automated pipeline.
@@ -77,8 +77,8 @@ AUTO_PUBLISH_HOURS=0
 AUTO_APPROVE_DRAFTS=true
 AUTO_UPLOAD_YOUTUBE=true
 YOUTUBE_UPLOAD_VISIBILITY=unlisted
-VISUAL_STYLE=stickfigure
-# Optional AI stills instead of stick figures:
+VISUAL_STYLE=ai_video
+# Optional AI stills instead of AI horror motions:
 # VISUAL_STYLE=ai
 # IMAGE_PROVIDER=replicate
 # REPLICATE_API_TOKEN=...
@@ -122,7 +122,7 @@ python3 -m shorts_bot.production.finish_cli --draft-id 6 --upload
 1. Humanize script (Gemini + local AI detect)
 2. **Resemble** → `voiceover.mp3` (your clone)
 3. **TurboScribe Whale** → `turboscribe_transcript.txt`
-4. Rebuild **stick figure** frames (default) synced to real audio timing + ASS captions
+4. Rebuild **AI horror motion** frames (default) synced to real audio timing + ASS captions
 5. ffmpeg → `final_short.mp4`
 6. YouTube API upload (if `AUTO_UPLOAD_YOUTUBE=true`)
 

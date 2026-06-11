@@ -101,10 +101,10 @@ def _safe_title(topic: str, hook: str) -> str:
 
 def _safe_description(topic: str) -> str:
     return (
-        "The Minute Before — one moment, one fix.\n\n"
+        "Don't Blink — terrifying horror Shorts. 🔊 Volume warning.\n\n"
         f"Tonight: {topic}\n"
         "Faceless calm Shorts for overloaded days.\n\n"
-        "Soft Continuity — one moment. one fix.\n\n"
+        "Don't Blink — watch the whole thing.\n\n"
         "#Shorts #calm #selfhelp"
     )
 

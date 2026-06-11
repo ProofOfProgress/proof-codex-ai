@@ -1,6 +1,6 @@
 # Self-learning model
 
-Soft Continuity learns from **your decisions** and **YouTube performance** — then injects rules into the next draft and strategist chat.
+Don't Blink learns from **your decisions** and **YouTube performance** — then injects rules into the next draft and strategist chat.
 
 ## Loop
 

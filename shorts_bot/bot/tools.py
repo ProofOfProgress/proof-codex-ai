@@ -145,7 +145,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
         "type": "function",
         "function": {
             "name": "get_channel_brand",
-            "description": "Get Soft Continuity channel brand voice, YouTube copy, and niche guidance.",
+            "description": "Get Don't Blink channel brand voice, YouTube copy, and niche guidance.",
             "parameters": {"type": "object", "properties": {}},
         },
     },
@@ -239,7 +239,7 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             "name": "prepare_video_production",
             "description": (
                 "Build timestamped still-image production pack from TurboScribe transcript: "
-                "one image prompt per timestamp, CapCut timeline, manifest for Soft Continuity Shorts."
+                "one image prompt per timestamp, CapCut timeline, manifest for Don't Blink Shorts."
             ),
             "parameters": {
                 "type": "object",

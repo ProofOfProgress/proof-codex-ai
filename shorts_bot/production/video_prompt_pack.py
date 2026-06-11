@@ -120,8 +120,8 @@ def export_from_manifest(pack_dir: Path, *, hybrid_hook: bool | None = None) -> 
         raise FileNotFoundError(f"No manifest at {manifest_path}")
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    topic = manifest.get("topic") or "Soft Continuity Short"
-    style = manifest.get("visual_style") or "stickfigure"
+    topic = manifest.get("topic") or "Don't Blink Short"
+    style = manifest.get("visual_style") or "ai_video"
     if hybrid_hook is None:
         hybrid_hook = style in ("hybrid", "ai_video", "ai_video_hook")
 

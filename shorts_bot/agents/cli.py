@@ -17,7 +17,7 @@ console = Console()
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Soft Continuity Chief Manager — delegates Gemini specialists."
+        description="Don't Blink Chief Manager — delegates Gemini specialists."
     )
     parser.add_argument(
         "message",
@@ -38,7 +38,7 @@ def main() -> None:
     provider = chat_provider_label()
     console.print(
         Panel(
-            "[bold]Chief Manager[/bold] — Soft Continuity\n"
+            "[bold]Chief Manager[/bold] — Don't Blink\n"
             f"LLM: [cyan]{provider}[/cyan]"
             + (f" ({backend.model})" if backend else " [yellow](offline)[/yellow]")
             + "\n\n"

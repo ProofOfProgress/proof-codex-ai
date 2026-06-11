@@ -120,7 +120,7 @@ class AgentMemoryStore:
             (
                 "operating_rule",
                 "Niche v2",
-                "Channel niche is The Minute Before — one specific high-stakes moment, one concrete fix. "
+                "Channel niche is Don't Blink — one specific high-stakes moment, one concrete fix. "
                 "Not generic sleep/anxiety lists.",
             ),
             (
@@ -138,7 +138,7 @@ class AgentMemoryStore:
             (
                 "operating_rule",
                 "Accounts",
-                "Google/YouTube/Gemini: paypalacc4progress@gmail.com. Channel: Soft Continuity.",
+                "Google/YouTube/Gemini: paypalacc4progress@gmail.com. Channel: Don't Blink.",
             ),
             (
                 "operating_rule",
@@ -278,7 +278,7 @@ class AgentMemoryStore:
         out.parent.mkdir(parents=True, exist_ok=True)
         mems = self.list_memories(limit=100)
         lines = [
-            "# Agent memory — Soft Continuity",
+            "# Agent memory — Don't Blink",
             "",
             f"_Updated {datetime.now(timezone.utc).isoformat()}_",
             "",

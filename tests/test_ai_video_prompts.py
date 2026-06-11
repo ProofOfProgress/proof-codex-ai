@@ -54,4 +54,4 @@ def test_negative_block_bans_text_and_faces():
 
 def test_match_template_falls_back_to_derived():
     m = match_template(topic="something completely unrelated xyz", spoken_text="abstract notion")
-    assert m.id == "derived"
+    assert m.id == "derived_horror"

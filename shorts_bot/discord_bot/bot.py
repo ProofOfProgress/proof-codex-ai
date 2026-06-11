@@ -214,7 +214,7 @@ class ShortsCog(commands.Cog):
     async def help_cmd(self, ctx: commands.Context) -> None:
         await self._remember(ctx)
         await ctx.reply(
-            "**Soft Continuity Bot**\n\n"
+            "**Don't Blink Bot**\n\n"
             "**DMs:** type normally (no `!`).\n"
             "**Servers:** `!command` or `@Bot your message` (owner can type without @).\n\n"
             "**Pipeline:**\n"

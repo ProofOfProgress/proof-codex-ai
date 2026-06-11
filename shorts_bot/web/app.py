@@ -38,7 +38,7 @@ async def lifespan(_app: FastAPI):
     await asyncio.sleep(0.1)
 
 
-app = FastAPI(title="Soft Continuity Operator", version="0.7.0", lifespan=lifespan)
+app = FastAPI(title="Don't Blink Operator", version="0.7.0", lifespan=lifespan)
 app.add_middleware(ApiTokenMiddleware)
 
 

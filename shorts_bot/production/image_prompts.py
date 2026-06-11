@@ -17,41 +17,18 @@ class ImageBrief:
 
 
 def _load_style_guide() -> str:
-    from shorts_bot.config import settings
-
-    if settings.visual_style in ("ai_video", "ai", "hybrid", "ai_video_hook"):
-        path = Path("channel/brand/horror_visual_style.md")
-        if path.exists():
-            return path.read_text(encoding="utf-8").strip()
-        return (
-            "Terrifying faceless horror 9:16, cinematic, cold blue-black palette, "
-            "film grain, hallways mirrors shadows phones, no cosy aesthetic."
-        )
-    if settings.visual_style in ("stickfigure",):
-        path = Path("channel/brand/stick_figure_style.md")
-        if path.exists():
-            return path.read_text(encoding="utf-8").strip()
-        return (
-            "ChainsFR-style stick figures on warm cream #F5EFE6, cosy domestic sets "
-            "(lamp, rainy window, couch, mug), soft black line art, character ACTING each beat."
-        )
-    path = Path("channel/brand/still_image_style.md")
+    path = Path("channel/brand/horror_visual_style.md")
     if path.exists():
         return path.read_text(encoding="utf-8").strip()
-    return "Calm faceless 9:16 still, soft continuity aesthetic, no text on image."
-
-
-def build_master_prompt(*, channel_topic: str = "Soft Continuity self-help Short") -> str:
-    style = _load_style_guide()
-    from shorts_bot.config import settings
-
-    format_line = (
-        "Every prompt: ChainsFR-style stick figure ACTING the line, warm cosy home background, "
-        "speech bubble only for quoted dialogue."
-        if settings.visual_style in ("stickfigure",)
-        else 'Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."'
+    return (
+        "Terrifying faceless horror 9:16, cinematic, cold blue-black palette, "
+        "film grain, hallways mirrors shadows phones, no cosy aesthetic."
     )
-    return f"""You are generating frame images for a faceless YouTube Short on channel "{channel_topic}".
+
+
+def build_master_prompt(*, channel_topic: str = "Don't Blink horror Short") -> str:
+    style = _load_style_guide()
+    return f"""You are generating horror keyframe images for faceless YouTube Short "{channel_topic}".
 
 RULES (critical):
 1. Read the timestamped script below.
@@ -59,37 +36,14 @@ RULES (critical):
 3. Each image covers only the words from that timestamp until the next timestamp.
 4. Output prompts as JSON array: [{{"timestamp": "00.07", "prompt": "..."}}]
 
-STYLE (Soft Continuity):
+STYLE (Don't Blink — terrifying, not cosy):
 {style[:2000]}
 
-{format_line}
+Every prompt must end with: "vertical 9:16 still image, no text, no watermark, photorealistic horror."
 
 TIMESTAMPED SCRIPT:
 (paste TurboScribe export below)
 """
-
-
-def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
-    from shorts_bot.production.stick_background import plan_room
-
-    scene = seg.text.strip() or topic
-    room = plan_room(scene)
-    bg = room.background.value.replace("_", " ")
-    extras = []
-    if room.wall_props:
-        extras.append(", ".join(room.wall_props))
-    if room.furniture:
-        extras.append(room.furniture)
-    if room.foreground_prop:
-        extras.append(room.foreground_prop)
-    detail = f" — {', '.join(extras)}" if extras else " — plain off-white, figure only"
-    return (
-        f"ChainsFR stick figure ACTING: {scene}. Topic: {topic}. "
-        f"Minimal scene: {bg}{detail}. "
-        "MS-Paint line art on warm cream, cosy lamp/window/couch when relevant, expressive pose. "
-        "Only props the line mentions. Speech bubble ONLY for quoted dialogue. "
-        "No photorealism, no 3D, no repeated couch every frame."
-    )
 
 
 def horror_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
@@ -110,7 +64,6 @@ def horror_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
 
 
 def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
-    """Paid image generator prompt — horror default for Don't Blink."""
     return horror_segment_to_prompt(seg, topic=topic)
 
 
@@ -135,19 +88,13 @@ def build_image_briefs(
         from shorts_bot.production.turboscribe_parser import label_from_seconds
 
         stem = label_from_seconds(seg.start_seconds)
-        from shorts_bot.config import settings
-
-        if settings.visual_style in ("ai", "ai_video", "hybrid", "ai_video_hook"):
-            prompt_fn = horror_segment_to_prompt
-        else:
-            prompt_fn = segment_to_prompt
         briefs.append(
             ImageBrief(
                 start_seconds=seg.start_seconds,
                 end_seconds=end,
                 filename_stem=stem,
                 spoken_text=seg.text,
-                prompt=prompt_fn(seg, topic=topic),
+                prompt=horror_segment_to_prompt(seg, topic=topic),
             )
         )
     return briefs

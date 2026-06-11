@@ -1,4 +1,4 @@
-"""Daily topic rotation — niche v2: The Minute Before."""
+"""Daily topic rotation — niche v2: Don't Blink."""
 
 from __future__ import annotations
 

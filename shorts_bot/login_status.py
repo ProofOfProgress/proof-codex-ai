@@ -402,7 +402,7 @@ def print_report() -> int:
     from rich.table import Table
 
     console = Console()
-    table = Table(title="Soft Continuity — live login status")
+    table = Table(title="Don't Blink — live login status")
     table.add_column("Service")
     table.add_column("Ready")
     table.add_column("Detail")

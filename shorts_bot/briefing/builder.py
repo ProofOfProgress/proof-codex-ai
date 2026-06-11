@@ -9,8 +9,8 @@ def build_morning_briefing() -> str:
     s = ops.status()
     yt = s["youtube"]
     lines = [
-        "**Good morning — Soft Continuity**",
-        "_The Minute Before — one moment. one fix._",
+        "**Good morning — Don't Blink**",
+        "_Don't Blink — watch the whole thing. 🔊 jumpscare at the end._",
         "",
         f"• Web UI: http://localhost:{settings.web_port}",
         f"• Chat: {'full (OpenAI)' if s['openai'] else 'offline — API key optional'}",

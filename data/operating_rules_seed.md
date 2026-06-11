@@ -51,7 +51,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Don't Blink** — terrifying faceless horror Shorts (~30s). One impossible detail → tension → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No stick figures.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Don't Blink** — terrifying faceless horror Shorts (~30s). One impossible detail → tension → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
 
 ## Production stack
 
@@ -80,7 +80,7 @@ YouTube does not ban AI — it demonetizes **inauthentic** mass-produced templat
 - First-person original scripts; no spam-farm phrases ("in today's fast-paced world", "let's dive in")
 - Max **1 upload per 24h**; topic cooldown 7d, hook cooldown 14d
 - No duplicate script skeletons — vary beats, titles, hooks per upload
-- Stick figures **acting** beats (ChainsFR), not slideshow + generic TTS farm
+- AI horror motion clips **acting** beats (ChainsFR), not slideshow + generic TTS farm
 - `upload_guard` blocks risky uploads automatically; render may finish, upload skipped
 - Flat views ≠ always shadowban — fix hook/retention before re-uploading same topic same day
 - Serious comments stay human; no mass identical auto-replies
@@ -92,7 +92,7 @@ See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`
 **Primary goal is not one-off viral hits.** Build a **loyal subscriber base** of people who come back because the channel actually helps.
 
 - Every Short: one **real** protocol for one **specific** minute — viewer should leave able to *do something tonight*
-- Optimize for **return viewers**, series recognition (*The Minute Before*), and trust — not rage-bait or empty curiosity loops
+- Optimize for **completion rate** and binge — jumpscare at end every Short; rotate scare types
 - Comments: take serious messages seriously (human queue); light thanks OK — relationships matter
 - Hooks can be strong, but payoff must **deliver** — no bait-and-switch wellness slop
 - **Do NOT** end every Short with "you're still here. good." — tagline is channel metadata only; end on the concrete protocol

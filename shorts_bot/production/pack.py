@@ -8,8 +8,6 @@ from shorts_bot.config import settings
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
 from shorts_bot.production.render_ai_images import render_all_ai_images
-from shorts_bot.production.render_stills import render_all_stills
-from shorts_bot.production.render_stickfigures import render_all_stickfigures
 from shorts_bot.drafts.meta import visual_beats_for_draft
 from shorts_bot.production.segment_sync import resolve_segments
 from shorts_bot.production.variety import variety_for_draft
@@ -152,40 +150,14 @@ def build_production_pack(
                 raise RuntimeError(
                     f"I2V returned 0 clips for {len(briefs)} beats — no stick-figure fallback on Don't Blink."
                 )
-        elif settings.visual_style == "ai" and settings.has_paid_images:
+        elif settings.has_paid_images:
             rendered = render_all_ai_images(briefs, images_dir)
-            image_note = f" via {settings.image_provider}"
-            if rendered < len(briefs):
-                image_note += f" ({rendered}/{len(briefs)} ok)"
-                missing = [
-                    b
-                    for b in briefs
-                    if not (images_dir / f"{b.filename_stem}.png").exists()
-                ]
-                if missing:
-                    filled = render_all_stickfigures(missing, images_dir)
-                    rendered += filled
-                    image_note += f"; stick-figure fallback for {filled} gaps"
-            if rendered == 0:
-                rendered = render_all_stickfigures(briefs, images_dir)
-                image_note = " (AI failed — stick figure fallback)"
-        elif settings.visual_style == "stickfigure":
-            rendered = render_all_stickfigures(
-                briefs,
-                images_dir,
-                visual_beats=beats,
-                figure_x_offset=variety.figure_x_offset,
-            )
-        elif settings.visual_style == "ai":
-            rendered = render_all_stickfigures(
-                briefs,
-                images_dir,
-                visual_beats=beats,
-                figure_x_offset=variety.figure_x_offset,
-            )
-            image_note = " (no image API key — stick figure fallback)"
+            render_mode = "slideshow"
+            image_note = f" via {settings.image_provider} stills (set VISUAL_STYLE=ai_video for motion)"
         else:
-            rendered = render_all_stills(briefs, images_dir)
+            raise RuntimeError(
+                "Don't Blink requires paid image stack (REPLICATE_API_TOKEN). No stick-figure fallback."
+            )
     else:
         rendered = 0
 
@@ -226,11 +198,11 @@ def build_production_pack(
     )
     (root / "CAPCUT_TIMELINE.md").write_text(_capcut_instructions(briefs, draft.topic), encoding="utf-8")
     (root / "README.txt").write_text(
-        "Soft Continuity production pack\n\n"
+        "Don't Blink horror production pack\n\n"
         "1. Record voiceover from script in manifest.json\n"
-        "2. Upload audio to TurboScribe → copy timestamped text → re-run produce if needed\n"
-        "3. Stick-figure frames: auto-rendered in images/ (VISUAL_STYLE=stickfigure)\n"
-        "4. AI video: video_prompts/ + AI_VIDEO_HOOK.md (hybrid: VISUAL_STYLE=hybrid)\n"
+        "2. Transcript sync via Gemini audio timestamps\n"
+        "3. AI motion clips: clips/ (VISUAL_STYLE=ai_video)\n"
+        "4. video_prompts/ for I2V motion prompts per beat\n"
         "5. Save PNGs to images/ named like 00.07.png\n"
         "6. Follow CAPCUT_TIMELINE.md\n"
         "7. captions.srt — upload to YouTube for extra subtitle track\n"

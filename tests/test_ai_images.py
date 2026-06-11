@@ -67,6 +67,7 @@ def test_pack_ai_fallback_without_api_key(tmp_path: Path, monkeypatch):
         help_angle="helps",
         quality_notes="ok",
     )
-    pack = auto_produce_draft(store, d.id, render_images=True)
-    assert pack.images_rendered >= 1
-    assert "fallback" in pack.message.lower() or pack.images_rendered >= 1
+    import pytest
+
+    with pytest.raises(RuntimeError, match="paid image stack"):
+        auto_produce_draft(store, d.id, render_images=True)

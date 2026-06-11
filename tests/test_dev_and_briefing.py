@@ -42,7 +42,7 @@ def test_learned_file_append(tmp_path: Path):
 
 def test_morning_briefing_contains_essentials():
     text = build_morning_briefing()
-    assert "Soft Continuity" in text
+    assert "Don't Blink" in text
     assert "localhost" in text
     assert "TOMORROW" in text or "YouTube" in text
 

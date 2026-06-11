@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import Literal
 
 from shorts_bot.production.framing import framing_notes_for_prompt
-from shorts_bot.production.stick_background import plan_room
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 ModelHint = Literal["kling", "runway", "veo", "pika", "luma", "hailuo", "auto"]
@@ -226,21 +225,20 @@ def match_template(*, topic: str, spoken_text: str = "") -> VideoTemplate:
     if scored[0][1] > 0:
         return scored[0][0]
 
-    room = plan_room(spoken_text or topic)
-    bg = room.background.value.replace("_", " ")
+    scene = (spoken_text or topic).strip()[:80]
     return VideoTemplate(
-        id="derived",
-        name=f"Derived — {bg}",
+        id="derived_horror",
+        name=f"Derived horror — {scene[:40]}",
         keywords=(),
-        subject=f"Faceless figure or hands in {bg} setting",
-        action=f"One slow motion illustrating: {spoken_text or topic}",
-        camera="Medium static, locked tripod or slow 10% push-in",
-        environment=f"Cosy {bg}, cream #F5EFE6, warm lamp, props: {', '.join(room.wall_props) or 'minimal'}",
-        style="Minimal illustration, soft grain, meditative",
-        end_state="Pose held, environment unchanged",
+        subject="Dark hallway or mirror or phone screen, faceless silhouette",
+        action=f"Slow uncanny motion: {scene}",
+        camera="Slow push-in or static locked, horror framing",
+        environment="Black and cold blue, film grain, empty room or liminal hallway",
+        style="Cinematic horror, terrifying, photorealistic, no cosy palette",
+        end_state="Shadow shifts or reflection wrong",
         duration_seconds=4.0,
         model_hint="auto",
-        role="protocol",
+        role="escalation",
     )
 
 

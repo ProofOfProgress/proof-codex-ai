@@ -496,7 +496,7 @@ class BotOperations:
     def login_status_text(self) -> str:
         from shorts_bot.login_status import full_status
 
-        lines = ["**Soft Continuity — service status**"]
+        lines = ["**Don't Blink — service status**"]
         for row in full_status(include_studio=False):
             mark = "✓" if row["ready"] else "✗"
             lines.append(f"{mark} **{row['label']}** — {row['detail'][:100]}")
@@ -566,7 +566,7 @@ class BotOperations:
                 msg += (
                     f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
                 )
-            series = fields.series or "The Minute Before"
+            series = fields.series or "Don't Blink"
             need_browser_text = not api.name_updated and not api.description_updated and (name or desc)
             if need_browser_text and settings.browser_enabled:
                 try:

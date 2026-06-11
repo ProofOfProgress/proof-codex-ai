@@ -9,15 +9,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.framing import framing_notes_for_prompt, stick_framing_notes_for_prompt
+from shorts_bot.production.framing import framing_notes_for_prompt
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
-from shorts_bot.research.chainsfr_style import chainsfr_research_block
 
 
 def _visual_framing_for_pipeline() -> str:
-    if settings.visual_style == "stickfigure":
-        return f"{stick_framing_notes_for_prompt()}\n\n{chainsfr_research_block()[:800]}"
-    return framing_notes_for_prompt()
+    return (
+        f"{framing_notes_for_prompt()}\n\n"
+        "Don't Blink: AI full-motion horror clips per beat. Dark palette, no stick figures. "
+        "Final beat = full-frame jumpscare. See data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md."
+    )
 
 
 @dataclass
@@ -103,7 +104,7 @@ Script beats (hook → momentum → payoff):
 {beats}
 
 Visual framing: {self.visual_framing}
-Stick format: ChainsFR-style — figure acts each beat, minimal scene per timestamp (no locked couch).
+Horror format: ai_video I2V clips, false calm before final jumpscare beat.
 Jenny course refs: {cites}
 Quality bar: {self.quality_notes}
 Sources used: {", ".join(self.research_sources) or "llm+course"}
@@ -113,15 +114,15 @@ Sources used: {", ".join(self.research_sources) or "llm+course"}
         return self.draft_context()[:max_chars]
 
 
-_RESEARCH_PROMPT = """You are a YouTube Shorts production researcher for faceless channel Soft Continuity.
+_RESEARCH_PROMPT = """You are a YouTube Shorts production researcher for faceless HORROR channel Don't Blink.
 
-Your job: DEEP RESEARCH — not generic advice. Use the live web data, competitor titles, and keyword signals below.
-Cross-check with Jenny Hoyos course rules. Recommend the smoothest, fastest pipeline path to publish.
+Your job: DEEP RESEARCH on terrifying micro-stories (~30s, jumpscare at end). Use web data, competitors, keyword signals.
+Cross-check Jenny hook/retention rules. Ground answers in horror psychology (prediction error, tension, earned scares).
 
 NICHE POSITIONING:
 {niche_block}
 
-QUALITY LESSONS (channel performance):
+QUALITY LESSONS:
 {quality_lessons}
 
 LIVE WEB RESEARCH:
@@ -130,47 +131,45 @@ LIVE WEB RESEARCH:
 YOUTUBE COMPETITOR SHORTS (real titles):
 {competitor_context}
 
-KEYWORD / SEO SIGNALS (YouTube suggest + Google Trends):
+KEYWORD / SEO SIGNALS:
 {keyword_context}
 
-GOOGLE TRENDS (YouTube search interest, related + rising queries):
+GOOGLE TRENDS:
 {trends_context}
 
-JENNY HOYOS COURSE — cite file numbers in jenny_citations:
-- 02: hook linked to idea, start ASAP
-- 05: mute-safe visuals, rule of thirds, safe zones (captions above Shorts UI)
-- 06: cause-effect script, payoff at end
-- 07: relatability filter
+JENNY HOYOS (adapt for horror):
+- 02: hook in first line, start with impossible detail
+- 05: captions above Shorts UI safe zone
+- 06: cause-effect beats, payoff = jumpscare at end
+- 07: retention via false calm before scare
 
 Topic to research: {topic}
 
 Return JSON only:
 {{
-  "viewer_moment": "one specific second the viewer is in",
-  "emotional_stakes": "what they fear if they do nothing",
-  "hook_angles": ["3 curiosity hooks, first person, under 12 words each"],
-  "script_beats": ["5-7 beats: hook, struggle, turn, one protocol, slip, try tonight, payoff"],
-  "visual_framing": "ChainsFR stick figure acting each beat, minimal background/props per line, Jenny 05 safe zone",
-  "competitor_gap": "what real Shorts miss — cite patterns from competitor titles/web data",
-  "title_formula": "SEO-aware title using keyword signals, not rage-bait",
+  "viewer_moment": "the uncanny second before reality breaks",
+  "emotional_stakes": "what the viewer fears losing (safety, control, sanity)",
+  "hook_angles": ["3 hooks — impossible detail, under 12 words each"],
+  "script_beats": ["6-8 beats: hook, escalation, micro-cues, false calm, jumpscare, linger"],
+  "visual_framing": "AI I2V horror clips — hallway/mirror/phone; final beat full-frame scare; Jenny 05 captions",
+  "competitor_gap": "what horror Shorts miss — cite competitor/web patterns",
+  "title_formula": "🔊 VOLUME WARNING style title + impossible detail + #horror #shorts",
   "jenny_citations": ["Jenny 05", "Jenny 06"],
-  "quality_notes": "how to beat generic slop on this topic",
-  "recommended_path": "smoothest fastest link to run: daily CLI, research cache, caption mode, upload steps — one paragraph",
-  "suggested_tags": ["5-8 YouTube tags from keyword research"]
+  "quality_notes": "tension + earned scare; avoid cosy/self-help tone and stick figures",
+  "recommended_path": "pipeline: research → draft → ai_video pack → render → upload — one paragraph",
+  "suggested_tags": ["5-8 horror YouTube tags"]
 }}
 """
 
-_AI_VIDEO_RESEARCH_PROMPT = """You are an AI video prompting researcher for faceless YouTube Shorts channel Soft Continuity.
+_AI_VIDEO_RESEARCH_PROMPT = """You are an AI video prompting researcher for horror channel Don't Blink.
 
-Your job: DEEP RESEARCH on AI video generation — models, prompts, I2V workflows, quality control.
-Use live web data and competitor signals. Ground answers in tools (Kling, Runway, Veo, Pika, Luma, Hailuo, Fal/Replicate APIs).
-Do NOT research cosy mental-health script topics — only AI video technique for 9:16 faceless Shorts.
+Your job: DEEP RESEARCH on AI horror video — I2V for terrifying 9:16 Shorts with end jumpscare.
+Tools: Replicate MiniMax, Kling, Runway, Pika, Fal APIs.
 
-BASELINE FRAMEWORK (Soft Continuity):
-- Image-to-video from FLUX cosy stills beats pure text-to-video per beat
-- 5-part prompts: Subject, Action, Camera, Environment, Style + negative block
-- END STATE clip N = CONTINUITY IN clip N+1; captions in ffmpeg only (bottom 40% empty)
-- Hybrid default: stick figures + 1-3s AI hero hook clip
+BASELINE (Don't Blink):
+- FLUX horror still → I2V motion per beat; final beat = lunge/scare clip
+- Prompts: Subject, Action, Camera, Environment, Style + negative (no cosy, no stick figures)
+- Captions ffmpeg only (bottom 40% empty); cold narrator VO
 
 LIVE WEB RESEARCH:
 {web_context}
@@ -193,11 +192,11 @@ Return JSON only:
   "hook_angles": ["3 example video prompt snippets, 40-120 words each, model-tagged"],
   "script_beats": ["5-7 workflow steps: still gen → I2V → chain → xfade → caption burn"],
   "visual_framing": "prompt composition rules: camera lock, safe zone, faceless, VISUAL DNA palette",
-  "competitor_gap": "what creators miss in AI mental-health / faceless Shorts video",
-  "title_formula": "best model routing for this angle (e.g. hook→Runway, B-roll→Pika)",
-  "jenny_citations": ["Jenny 05 safe zone", "Jenny 06 retention if relevant"],
-  "quality_notes": "top mistakes + fixes for this AI video angle",
-  "recommended_path": "how to integrate into Soft Continuity repo pipeline — one paragraph",
+  "competitor_gap": "what creators miss in AI horror Shorts video",
+  "title_formula": "best model routing for horror I2V (e.g. scare beat→MiniMax)",
+  "jenny_citations": ["Jenny 05 safe zone", "Jenny 06 retention"],
+  "quality_notes": "morphing/drift fixes; false calm beat before scare",
+  "recommended_path": "integrate into Don't Blink ai_video pipeline — one paragraph",
   "suggested_tags": ["5-8 search terms for further research"]
 }}
 """

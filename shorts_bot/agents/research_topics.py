@@ -17,7 +17,7 @@ AI_VIDEO_RESEARCH_TOPICS: tuple[str, ...] = (
     "AI video prompting: Fal and Replicate Kling I2V API integration for Shorts pipelines",
     "AI video prompting: competitor faceless mental-health Shorts using AI video tools",
     "AI video prompting: 5-part framework (subject action camera environment style) best practices",
-    "AI video prompting: Soft Continuity VISUAL DNA translation from stills to motion",
+    "AI video prompting: Don't Blink VISUAL DNA translation from stills to motion",
     "AI video prompting: Minimax Hailuo narrative prompts vs keyword lists",
     "AI video prompting: ffmpeg xfade cross-dissolve between AI clips workflow",
     "AI video prompting: face and text-in-frame QC for automated video rejection",
@@ -96,13 +96,13 @@ def ai_video_context_block() -> str:
 
     return f"""RESEARCH MODE: AI VIDEO PROMPTING (not cosy Short topics).
 
-Channel: Soft Continuity — faceless mental-health Shorts, stick-figure default, AI video for hero clips only.
+Channel: Don't Blink — faceless mental-health Shorts, stick-figure default, AI video for hero clips only.
 
 Focus research on:
 - Model-specific prompt patterns (Kling, Runway, Veo, Pika, Luma, Hailuo)
 - Image-to-video continuity chaining (END STATE → CONTINUITY IN)
 - Caption-safe 9:16 composition (no text in AI frames)
-- Hybrid pipeline: stick figures + 1-3s AI hook
+- Hybrid pipeline: AI horror motions + 1-3s AI hook
 - Tool APIs (Fal/Replicate Kling I2V), ffmpeg xfade, QC
 
 Do NOT score cosy domestic topics. Do NOT draft mental-health scripts unless explicitly asked.

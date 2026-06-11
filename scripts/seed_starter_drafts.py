@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Seed 3 on-brand starter drafts for Soft Continuity (idempotent-ish)."""
+"""Seed 3 on-brand starter drafts for Don't Blink (idempotent-ish)."""
 
 import sys
 from pathlib import Path
@@ -57,7 +57,7 @@ def main() -> None:
             script=s["script"],
             hook=s["hook"],
             help_angle=s["help_angle"],
-            quality_notes="Starter draft — Soft Continuity brand voice",
+            quality_notes="Starter draft — Don't Blink brand voice",
         )
         created += 1
     print(f"Seeded {created} starter draft(s). Open web UI to approve.")

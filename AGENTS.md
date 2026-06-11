@@ -13,9 +13,9 @@
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for faceless Shorts. Course KB in `course/files/` (01–09) + `course/verbatim/`. **Paid autopilot stack (required by default):** **Gemini** (chat + audio transcript + vision QC) + **Resemble** voice + **stick figure frames**. Keys sync from Cursor secrets via `bash scripts/install.sh` — no hand-editing `.env`. (ChainsFR-style: figure acts each beat, minimal scene per timestamp) + ffmpeg (no CapCut/Higgsfield). Default `VISUAL_STYLE=stickfigure`. See `docs/CHAINSFR_RESEARCH.md`, `docs/PAID_STACK_SETUP.md`, `docs/SHORTS_ALIGNMENT.md`, `docs/PRODUCTION_RESEARCH.md`, `docs/HEALTH_NICHE_RESEARCH.md`, `docs/AI_VIDEO_PROMPTING_RESEARCH.md` (I2V prompts: `ai_video_prompts_cli`; pack export: `video_prompt_pack_cli --draft-id N --hybrid`). (methods, variety, sync, QC).
+**Shorts Bot** — Jenny Hoyos strategist CLI for **Don't Blink** horror Shorts. Course KB in `course/files/` (01–09). **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. I2V: `ai_video_prompts_cli`, `video_prompt_pack_cli`.
 
-**Channel mission:** loyal subscribers who come back because content **actually helps** — not viral one-offs. **TikTok account planned later** — no TikTok automation until user says go (`data/operating_rules_seed.md`).
+**Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help.
 
 ### Services
 

@@ -38,7 +38,7 @@ def _ass_header() -> str:
     # BorderStyle 3 = opaque box behind text (TikTok-style bar via libass)
     # MarginV + \pos override = Jenny 05 safe zone above Shorts title UI
     return f"""[Script Info]
-Title: Soft Continuity
+Title: Don't Blink
 ScriptType: v4.00+
 PlayResX: {FRAME_WIDTH}
 PlayResY: {FRAME_HEIGHT}
