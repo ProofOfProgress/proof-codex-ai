@@ -512,7 +512,7 @@ def _run_pipeline_locked(
                 if settings.post_upload_cta_comment:
                     from shorts_bot.youtube.post_upload import post_upload_cta_comment
 
-                    cta_id = post_upload_cta_comment(up.video_id)
+                    cta_id = post_upload_cta_comment(up.video_id, draft_id=draft_id)
                     if cta_id:
                         messages.append(f"Post-upload CTA comment posted ({cta_id[:16]}…)")
                 if settings.post_upload_analytics_sync:
