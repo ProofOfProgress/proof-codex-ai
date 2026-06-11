@@ -15,6 +15,8 @@ HORROR_BACKEND_TAGS = [
     "scary stories",
     "creepy",
     "psychological horror",
+    "analog horror",
+    "found footage",
     "faceless horror",
     "dont blink",
     "horror story",
@@ -113,22 +115,38 @@ def _clean_title_formula(formula: str) -> str:
     return t.strip()
 
 
+def _phones_in_upload_meta() -> bool:
+    from shorts_bot.config import settings
+
+    return bool(settings.screen_text_phone_enabled)
+
+
 def _topic_hashtags(topic: str) -> list[str]:
+    from shorts_bot.production.screen_text_spec import is_cctv_topic
+
     lower = topic.lower()
     tags: list[str] = []
     if "mirror" in lower or "reflection" in lower or "blink" in lower:
         tags.extend(["#MirrorHorror", "#Reflection"])
-    if "security" in lower or "camera" in lower or "motion" in lower:
-        tags.extend(["#SecurityCamera", "#FoundFootage"])
+    if is_cctv_topic(topic) or any(k in lower for k in ("security", "camera", "motion", "cctv")):
+        tags.extend(["#AnalogHorror", "#SecurityCamera", "#FoundFootage"])
     if "text" in lower or "message" in lower or "delivered" in lower:
-        tags.extend(["#WrongText", "#PhoneHorror"])
+        if _phones_in_upload_meta():
+            tags.extend(["#WrongText", "#PhoneHorror"])
+        else:
+            tags.append("#AnalogHorror")
     if "knock" in lower or "closet" in lower or "door" in lower:
         tags.extend(["#KnockHorror", "#HomeAlone"])
-    if "security" in lower or "camera" in lower or "motion" in lower:
-        tags.extend(["#SecurityCamera", "#FoundFootage"])
     if "alone" in lower:
         tags.append("#HomeAlone")
-    return tags[:3]
+    # dedupe while preserving order
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for tag in tags:
+        if tag not in seen:
+            ordered.append(tag)
+            seen.add(tag)
+    return ordered[:3]
 
 
 def _normalize_horror_hook(hook: str, topic: str) -> str:
@@ -167,9 +185,40 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
     return sanitize_description_text("\n\n".join(lines))
 
 
+def _topic_backend_tags(topic: str) -> list[str]:
+    """Topic-specific Studio tags — merged before generic horror defaults."""
+    lower = topic.lower()
+    tags: list[str] = []
+    if "mirror" in lower:
+        tags.append("mirror horror")
+    if "blink" in lower:
+        tags.append("wrong reflection")
+    if any(k in lower for k in ("security", "camera", "motion", "cctv")):
+        tags.extend(
+            [
+                "security camera horror",
+                "surveillance horror",
+                "night vision",
+                "home alone",
+            ]
+        )
+    if any(k in lower for k in ("text", "message", "delivered")):
+        if _phones_in_upload_meta():
+            tags.extend(["phone horror", "wrong text"])
+        else:
+            tags.extend(["analog horror", "wrong text"])
+    return tags
+
+
 def _tags_from_research(topic: str, research) -> list[str]:
-    base = list(HORROR_BACKEND_TAGS)
-    seen = {t.lower() for t in base}
+    base: list[str] = []
+    seen: set[str] = set()
+    for tag in _topic_backend_tags(topic) + list(HORROR_BACKEND_TAGS):
+        key = tag.lower()
+        if key in seen or len(tag) > 40:
+            continue
+        base.append(tag)
+        seen.add(key)
     for row in getattr(research, "keyword_insights", None) or []:
         kw = str(row.get("keyword", "")).strip().lower()
         if not kw or kw in seen or len(kw) > 40:
@@ -180,21 +229,6 @@ def _tags_from_research(topic: str, research) -> list[str]:
         seen.add(kw)
         if len(base) >= 12:
             break
-    lower = topic.lower()
-    if "mirror" in lower and "mirror horror" not in seen:
-        base.append("mirror horror")
-    if "blink" in lower and "wrong reflection" not in seen:
-        base.append("wrong reflection")
-    if any(k in lower for k in ("security", "camera", "motion", "cctv")):
-        for tag in ("security camera horror", "night vision", "home alone"):
-            if tag not in seen:
-                base.append(tag)
-                seen.add(tag)
-    if any(k in lower for k in ("text", "message", "delivered")):
-        for tag in ("phone horror", "wrong text"):
-            if tag not in seen:
-                base.append(tag)
-                seen.add(tag)
     return base[:12]
 
 

@@ -24,7 +24,7 @@ def _load_style_guide() -> str:
         return path.read_text(encoding="utf-8").strip()
     return (
         "Terrifying faceless horror 9:16, cinematic, cold blue-black palette, "
-        "film grain, hallways mirrors shadows phones, no cosy aesthetic."
+        "film grain, hallways mirrors shadows CCTV alarm clock, no cosy aesthetic."
     )
 
 

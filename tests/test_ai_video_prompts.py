@@ -18,9 +18,23 @@ def test_visual_dna_has_palette_and_safe_zone():
 
 def test_templates_count_and_mirror_match():
     all_t = templates()
-    assert len(all_t) >= 11
+    assert len(all_t) >= 8
     m = match_template(topic="the mirror reflection blinked after you did")
     assert m.id == "mirror_blink"
+
+
+def test_phone_templates_omitted_when_phones_disabled():
+    from shorts_bot.config import settings
+
+    assert not settings.screen_text_phone_enabled
+    ids = {t.id for t in templates()}
+    assert "wrong_text_delivered" not in ids
+    assert "face_unlock_wrong" not in ids
+    m = match_template(
+        topic="text delivered phone off",
+        spoken_text="message delivered while phone was powered off",
+    )
+    assert m.id != "wrong_text_delivered"
 
 
 def test_segment_prompt_includes_framework_parts():

@@ -73,8 +73,18 @@ def negative_block() -> str:
     )
 
 
-def templates() -> list[VideoTemplate]:
-    """Ten production templates — Don't Blink horror Short beats."""
+PHONE_TEMPLATE_IDS = frozenset(
+    {
+        "wrong_text_delivered",
+        "photo_corner_figure",
+        "muted_call_breath",
+        "face_unlock_wrong",
+    }
+)
+
+
+def _all_templates() -> list[VideoTemplate]:
+    """Full template pool — includes phone beats when lane allows them."""
     return [
         VideoTemplate(
             id="mirror_blink",
@@ -257,6 +267,16 @@ def templates() -> list[VideoTemplate]:
             role="jumpscare",
         ),
     ]
+
+
+def templates() -> list[VideoTemplate]:
+    """Active templates — phone beats omitted when screen_text_phone_enabled=false."""
+    pool = _all_templates()
+    from shorts_bot.production.screen_text_spec import phone_screens_enabled
+
+    if phone_screens_enabled():
+        return pool
+    return [t for t in pool if t.id not in PHONE_TEMPLATE_IDS]
 
 
 def _score_template(template: VideoTemplate, text: str) -> int:

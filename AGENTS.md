@@ -21,7 +21,7 @@
 
 **Long jobs (Replicate I2V, regen, QC):** always run in the **background** and do other work in parallel (docs, tests, commits, prompt fixes). Never sit idle waiting on shell — poll every 1–2 min.
 
-**Video generation (owner rule):** `AI_VIDEO_GENERATION_ENABLED=false` by default — **no new Replicate I2V/FLUX** unless owner asks. Keep improving code, overlays, captions, upload meta, tests. **Render-only OK:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N`.
+**Video generation (owner rule):** `AI_VIDEO_GENERATION_ENABLED=false` by default — **no new Replicate I2V/FLUX** unless owner asks. Keep improving code, overlays, captions, upload meta, tests. **Render-only OK:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (runs pack health first). **Pre-flight:** `python3 -m shorts_bot.production.pack_health_cli --draft-id N`.
 
 ### Project overview
 

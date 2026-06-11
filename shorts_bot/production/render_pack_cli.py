@@ -27,6 +27,21 @@ def main() -> None:
     args = parser.parse_args()
 
     pack = args.pack_dir or (settings.data_dir / "production" / f"draft_{args.draft_id}")
+    from shorts_bot.production.pack_health import assess_pack_health
+
+    health = assess_pack_health(pack, draft_id=args.draft_id)
+    for line in health.summary_lines():
+        if "[issue]" in line:
+            console.print(f"[red]{line}[/red]")
+        elif "[warn]" in line:
+            console.print(f"[yellow]{line}[/yellow]")
+        else:
+            console.print(f"[cyan]{line}[/cyan]")
+    if not health.ready_to_render:
+        raise SystemExit(
+            "Pack not ready to render — fix issues above or run pack_health_cli for details"
+        )
+
     console.print(
         f"[cyan]Render-only draft #{args.draft_id} — assembling from {pack}/clips (no Replicate)[/cyan]"
     )
