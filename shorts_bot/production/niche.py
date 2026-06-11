@@ -1,65 +1,73 @@
-"""Niche v2 — The Minute Before (Soft Continuity)."""
+"""Niche — Don't Blink (faceless horror Shorts, end jumpscare)."""
 
 from __future__ import annotations
 
-NICHE_NAME = "The Minute Before"
-NICHE_TAGLINE = "one moment. one fix."
+NICHE_NAME = "Don't Blink"
+NICHE_TAGLINE = "Watch the whole thing."
 
 NICHE_POSITIONING = """
-Soft Continuity — niche v2: **The Minute Before**
+Don't Blink — **terrifying faceless horror Shorts** (~30 seconds).
 
-One specific high-stakes moment → one concrete 60-second protocol.
-Not generic "sleep tips" or hustle motivation. Faceless stick-figure visuals + first-person voice.
+Every video: one micro-story → tension builds → **loud visual jumpscare in the last 3 seconds**.
+AI full-motion clips only (no stick figures). Faceless — eyes, hallways, phones, shadows, never cosy self-help.
 
-Pillars (rotate) — **cosy aesthetic** (warm home, not office):
-1. **Quiet home minutes** — couch Sunday dread, 3am bed, blanket, tea-before-one-thing
-2. **Conversations** — before hard talks, angry replies, apologies (phone on sofa)
-3. **Body alarm** — rainy-window insomnia, chest tight on the couch (moment-specific only)
-4. **Social edge** — parties, boundaries, saying no in one sentence
-5. **After the slip** — shame spiral, low-spoon micro-wins, one tiny thing when you can't move
+Pillars (rotate):
+1. **Wrong place** — empty room, locked door, hallway that wasn't there yesterday
+2. **Wrong time** — timestamp glitch, photo taken after death, 3am notification
+3. **Wrong reflection** — mirror, window, phone screen shows someone else
+4. **Wrong sound** — knock when alone, breathing on a muted call, footsteps upstairs
+5. **Wrong text** — last message from a deleted contact, autocorrect to something impossible
 
-What worked (draft 7): specific moment, stick figures acting each beat, personal arc, 8 paced beats.
-What underperformed (early drafts): vague topics ("sleep"), too few beats, generic hooks.
+Format rules:
+- Hook in line 1 (impossible detail, not "scary story #12")
+- 6–8 beats, cut every 2–3s, visual change each beat
+- Beat 6–7: false calm (quiet VO, slow motion) — bait the swipe
+- Final beat: full-frame scare + audio sting (🔊 volume warning in title/description)
+- 25–35s total length — not 60s slow burn
+
+What works: specific uncanny detail, earned scare, varied scare types (face lunge / reflection / door slam / glitch morph).
+What fails: generic creepypasta listicles, gore, real victims, cosy aesthetic, stick figures, slow slideshow.
 """
 
 DEFAULT_TOPICS = [
-    "the minute before you check your phone from the couch on Sunday",
-    "the minute before you cancel plans and stay under the blanket",
-    "the minute before you send an angry text under a warm lamp",
-    "the minute before a hard conversation",
-    "the minute before you doom-scroll in bed at 3am",
-    "the minute before you walk into a party alone",
-    "the minute before you say yes when you mean no",
-    "the minute before a difficult apology",
-    "the minute before you make tea instead of doing nothing",
-    "the minute before you open a message you're dreading",
-    "the minute before you snap at someone you love",
-    "the minute before you eat nothing all day — one small thing first",
-    "the minute before a family dinner",
-    "the minute before you quit scrolling and try to sleep",
-    "the minute before you bring up money",
-    "the minute before a first date",
-    "the minute before rainy-window overthinking wins",
-    "the minute before you set a boundary with a friend",
-    "the minute before you compare yourself online from the couch",
-    "the minute before you procrastinate again",
-    "the minute before you rehearse a breakup talk",
-    "the minute before you wake up already anxious",
-    "the minute before you ask for help",
-    "the minute before you forgive yourself for today",
-    "the minute before you can't shower — one tiny step instead",
-    "the minute before you double-text from the sofa",
-    "the minute before you breathe with the lamp on low",
-    "the minute before you put the phone down by the window",
-    "the minute before you try one thing when you can't move",
-    "the minute before you reply sorry for the delay again",
+    "the last text showed delivered — but their phone was off",
+    "you took a photo of your room — someone was in the corner",
+    "the knock came from inside the closet you never open",
+    "your security camera flagged motion — you live alone",
+    "the mirror reflection blinked one second after you did",
+    "voicemail from your own number — timestamp tomorrow",
+    "the hallway was three steps longer than yesterday",
+    "every light in the house turned on — you didn't touch a switch",
+    "the baby monitor picked up a second heartbeat",
+    "your face unlock worked — but you weren't looking at the phone",
+    "the GPS says you're home — the camera shows an empty driveway",
+    "you muted the call — the breathing didn't stop",
+    "the door was locked from the inside — the key is still in your pocket",
+    "the photo timestamp is from next week",
+    "something sat on the edge of your bed — the sheets are still cold",
+    "the elevator stopped on a floor that doesn't exist",
+    "your smart speaker answered a question you didn't ask",
+    "the scratch marks on the door are on the inside",
+    "you woke up with sand in your bed — you don't live near a beach",
+    "the figure in the window waved before you looked up",
+    "the lullaby played from the empty nursery",
+    "your reflection didn't put the phone down when you did",
+    "the emergency alert was for your exact address — wrong date",
+    "you heard your voice calling from the basement",
+    "the family photo has one more person than you remember",
+    "the scarecrow faces your window every morning — closer than yesterday",
+    "the static on the TV formed a face for one frame",
+    "you found a second set of teeth marks on the apple",
+    "the car headlights behind you never passed — for twenty miles",
+    "don't blink at the end — the thing in the hall moves when you do",
 ]
 
 
 def quality_lessons() -> str:
     return (
-        "Better: draft 7 — 'minute before hard conversation', stick figure scenes, 8 segments, "
-        "first-person arc, specific stakes. "
-        "Worse: early 'sleep' drafts — vague topic, 4 segments, generic hook 'Stop scrolling'. "
-        "Always: hook in first line, mute-safe captions in Jenny 05 safe zone (above Shorts UI)."
+        "Better: impossible hook in line 1, 6–8 paced beats, false calm before scare, "
+        "AI motion clips synced to VO, jumpscare on final beat with audio sting. "
+        "Worse: generic 'scary story', cosy self-help tone, stick figures, 60s slow build, "
+        "same scare every upload. Always: 🔊 volume warning, captions in Jenny 05 safe zone, "
+        "declare synthetic media, rotate scare types."
     )

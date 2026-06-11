@@ -34,7 +34,7 @@ def _purge_local_production() -> list[str]:
 
 def _reset_channel_state(store: MemoryStore) -> None:
     store.set_channel_state("daily_topic_index", "0")
-    store.set_channel_state("niche_version", "v2_minute_before")
+    store.set_channel_state("niche_version", "dont_blink_horror")
     store.set_channel_state("last_topic_pick", "")
 
 

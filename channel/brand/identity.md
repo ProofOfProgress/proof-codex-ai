@@ -1,64 +1,49 @@
-# Channel identity — Soft Continuity
+# Channel identity — Don't Blink
 
-> **Niche v2: The Minute Before** — one specific moment → one concrete fix.
+> **Terrifying faceless horror Shorts** — ~30s micro-stories, **jumpscare at the end**.
 
 ## One-line pitch
 
-**Faceless Shorts for the exact second before life goes wrong — and the one protocol that helped me.**
+**Faceless horror Shorts that hit you in the last 3 seconds — if you blink, you miss it.**
 
-## Niche (redesigned)
+## Niche
 
-We narrowed from broad "sleep / anxiety / focus" lists to **one high-stakes minute**:
+| Old (Soft Continuity) | New (Don't Blink) |
+|-----------------------|-------------------|
+| Cosy self-help protocols | Impossible-detail horror micro-stories |
+| Stick figures on couch | AI full-motion cinematic clips |
+| 60s calm payoff | 25–35s → **jumpscare payoff** |
+| "you're still here. good." | "Watch the whole thing." |
 
-| Old (v1) | New (v2) |
-|----------|----------|
-| Generic topics ("sleep", "can't focus") | Specific moment ("minute before a hard conversation") |
-| 4 vague beats | 6–8 paced beats with personal arc |
-| Captions too low (covered by Shorts UI) | Jenny 05 safe zone — captions above title overlay |
-| Mixed quality | Draft 7 bar: stick figures acting each beat + first-person + specific stakes |
+**Handle:** `@alphabeta0-c1m` (unchanged)  
+**Display name target:** Don't Blink  
+**YouTube note (2026-06-11):** Studio rejected "Don't Blink" as taken/unavailable; name-change rate-limited 24h. Description, banner, and profile picture are live. Retry alternate names after cooldown (e.g. Never Blink, Dont Look Away).
 
-**Series hook:** *The Minute Before*  
-**Metadata tagline:** you're still here. good. *(description/banner only — do not speak it at the end of every Short)*  
-**Spoken payoff:** end on the protocol working — e.g. "try this once tonight," not a repeated brand coda
-
-## Tone (the subtle "broken god" layer)
+## Tone
 
 | Do | Don't |
 |----|-------|
-| Warm, specific, actionable help | Jump scares, gore, explicit AI villain |
-| Occasional *too-knowing* lines ("This works. It always has.") | "I am an AI" / sci-fi exposition |
-| Short pauses that feel weighted | Edgelord nihilism or slop motivation |
-| Faceless stick figures acting the advice (ChainsFR-style) | Human face as brand mascot |
+| Specific uncanny hooks (timestamp, reflection, text) | Generic "scary story #47" |
+| Earned scare — setup → silence → hit | Random loud noise with no story |
+| Rotate scare types each upload | Same monster every video |
+| 🔊 Volume warning in description/title | Surprise-report bait |
+| Faceless — shadows, eyes, hallways, phones | Gore, real victims, child harm |
 
-## Visual system (video frames) — **cosy aesthetic**
+## Visual system
 
-See `cosy_aesthetic.md` for full spec.
+- **Format:** `VISUAL_STYLE=ai_video` — FLUX still → I2V motion per beat
+- **Palette:** black, cold blue, deep crimson, film grain, harsh contrast
+- **No stick figures**
+- **Final beat:** full-frame lunge / face / glitch — synced audio sting
+- **Captions:** ffmpeg ASS, Jenny 05 safe zone
 
-- **Format:** stick figures — warm cream `#F5EFE6`, soft black line art, expressive poses (see `stick_figure_style.md`)
-- **Sets:** domestic cosy — couch + throw, rainy window, warm lamp, bed, tea mug — **not office/bathroom by default**
-- **Per beat:** character **doing** the protocol in a warm room; speech bubbles only for quoted dialogue
-- **Captions:** ffmpeg ASS in **Jenny 05 safe zone** (~320px above bottom) — not narration baked into frames
-- **Composition:** action in **upper 60%** of 9:16; bottom band clear for captions + Shorts UI
+## Growth
 
-Channel banner/profile use the dark void palette (`#0B0D10`, `#8EB8FF`) — video frames stay **cosy bright** (warm lamp energy, not fluorescent office).
+- Series recognition: viewers learn **the scare is always at the end**
+- Binge: "one more" loop — completion rate matters more than RPM
+- Comments: "I jumped" / "volume warning" = engagement signal
 
-## Content pillars (rotate)
+## Brand assets
 
-1. **Quiet home minutes** — couch Sunday dread, 3am bed, can't leave the blanket, tea-before-one-thing
-2. **Conversations** — hard talks, angry texts, apologies (phone on sofa, not boardroom)
-3. **Body alarm** — only when tied to a specific minute (rainy window insomnia, not generic sleep tips)
-4. **Social edge** — parties, boundaries, saying no
-5. **After the slip** — shame, replaying, procrastination guilt, low-spoon micro-wins
-
-## Growth philosophy
-
-**Loyal subscribers over viral one-offs.** The channel exists to **actually help people** — one concrete protocol per Short, not empty trend-chasing.
-
-- Prefer **series trust** (*The Minute Before*, recognizable hooks) over disposable shock hooks
-- Strong hooks are fine when the payoff **earns** them — no bait-and-switch
-- Reply like a human who cares; serious comments are not automation fodder
-- TikTok expansion is **planned later** — YouTube first until user says otherwise
-
-## Jenny course alignment
-
-Every Short: hook → momentum → payoff (02, 06). Mute-safe visuals + safe-zone captions (05). Relatability filter (07). Deep research runs before every draft. Subscriber value (09) over pure view spikes.
+- **Profile:** circle crop from center of banner eye (iris)
+- **Banner:** macro terrifying eye, 2560×1440, no text (eye is the logo)

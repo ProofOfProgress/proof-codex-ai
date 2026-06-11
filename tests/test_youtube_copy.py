@@ -28,7 +28,8 @@ def test_brand_loader_youtube_fields():
     brand = ChannelBrand()
     fields = brand.youtube_fields()
     assert fields.channel_name
-    assert "Soft Continuity" in fields.channel_name or fields.channel_name == "Soft Continuity"
+    assert fields.channel_name == "Don't Blink"
+    assert "VOLUME WARNING" in fields.description
 
 
 def test_parse_empty_copy():

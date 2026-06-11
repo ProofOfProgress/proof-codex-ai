@@ -51,11 +51,11 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-Soft Continuity niche v2: **The Minute Before** — one specific moment before life goes wrong, one concrete protocol. Draft 7 quality bar: specific stakes, **stick figure frames** (ChainsFR-style — figure **acts** each beat, **minimal** background/props per line, no locked couch), first-person voice, 6–8 beats, ~2–3s cuts per timestamp.
+**Don't Blink** — terrifying faceless horror Shorts (~30s). One impossible detail → tension → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No stick figures.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
 
 ## Production stack
 
-Gemini scripts, Resemble voice clone, Replicate FLUX + MiniMax I2V full-motion clips (VISUAL_STYLE=ai_video) (script timing fallback OK), **stick figure render** (`VISUAL_STYLE=stickfigure`), ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Do not switch to AI stills unless user explicitly asks. **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+Gemini horror scripts, Resemble voice (cold narrator), Replicate FLUX + MiniMax I2V motion clips per beat, final beat = scare + audio sting, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload (public + synthetic media disclosure). **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
 
 ## Browser
 

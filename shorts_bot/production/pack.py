@@ -149,13 +149,9 @@ def build_production_pack(
                 if clips_rendered < len(briefs):
                     image_note += f" ({clips_rendered}/{len(briefs)} clips)"
             else:
-                rendered = render_all_stickfigures(
-                    briefs,
-                    images_dir,
-                    visual_beats=beats,
-                    figure_x_offset=variety.figure_x_offset,
+                raise RuntimeError(
+                    f"I2V returned 0 clips for {len(briefs)} beats — no stick-figure fallback on Don't Blink."
                 )
-                image_note = " (I2V failed — stick figure fallback)"
         elif settings.visual_style == "ai" and settings.has_paid_images:
             rendered = render_all_ai_images(briefs, images_dir)
             image_note = f" via {settings.image_provider}"

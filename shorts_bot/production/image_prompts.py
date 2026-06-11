@@ -19,6 +19,14 @@ class ImageBrief:
 def _load_style_guide() -> str:
     from shorts_bot.config import settings
 
+    if settings.visual_style in ("ai_video", "ai", "hybrid", "ai_video_hook"):
+        path = Path("channel/brand/horror_visual_style.md")
+        if path.exists():
+            return path.read_text(encoding="utf-8").strip()
+        return (
+            "Terrifying faceless horror 9:16, cinematic, cold blue-black palette, "
+            "film grain, hallways mirrors shadows phones, no cosy aesthetic."
+        )
     if settings.visual_style in ("stickfigure",):
         path = Path("channel/brand/stick_figure_style.md")
         if path.exists():
@@ -84,21 +92,26 @@ def segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
     )
 
 
-def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
-    """Paid image generator prompt — Soft Continuity calm stills."""
+def horror_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+    """Paid image/I2V keyframe — Don't Blink horror."""
     style = _load_style_guide()
     scene = seg.text.strip() or topic
     return (
-        f"Calm faceless self-help still frame: {scene}. "
-        f"Channel topic: {topic}. "
-        "Mood: cosy quiet home, warm lamp glow, rainy window, mug or blanket, minimal composition. "
-        "One symbolic element max (thin ring, faint glow, silhouette). "
-        "Palette: cream #F5EFE6, sage #9DB8A0, terracotta #C9A08A, lamp glow #F2D98A. "
-        "No human faces, no celebrity likeness, no horror, no robots. "
+        f"Terrifying faceless horror still frame: {scene}. "
+        f"Story: {topic}. "
+        "Mood: uncanny, dread, something is wrong, cinematic horror movie still. "
+        "Setting: dark hallway, mirror, phone screen, empty room, security cam POV, shadows. "
+        "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
+        "Silhouettes only — no full face until scare beat. No gore, no blood. "
         f"{framing_notes_for_prompt()} "
-        "vertical 9:16 still image, no text, no watermark, faceless, soft continuity aesthetic. "
-        f"Style notes: {style[:400]}"
+        "vertical 9:16 still image, no text, no watermark, photorealistic horror, terrifying. "
+        f"Style: {style[:400]}"
     )
+
+
+def ai_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+    """Paid image generator prompt — horror default for Don't Blink."""
+    return horror_segment_to_prompt(seg, topic=topic)
 
 
 def build_image_briefs(
@@ -124,11 +137,10 @@ def build_image_briefs(
         stem = label_from_seconds(seg.start_seconds)
         from shorts_bot.config import settings
 
-        prompt_fn = (
-            ai_segment_to_prompt
-            if settings.visual_style in ("ai", "ai_video", "hybrid", "ai_video_hook")
-            else segment_to_prompt
-        )
+        if settings.visual_style in ("ai", "ai_video", "hybrid", "ai_video_hook"):
+            prompt_fn = horror_segment_to_prompt
+        else:
+            prompt_fn = segment_to_prompt
         briefs.append(
             ImageBrief(
                 start_seconds=seg.start_seconds,
