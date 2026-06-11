@@ -13,7 +13,7 @@ def test_ai_video_config_defaults():
     fields = Settings.model_fields
     assert fields["visual_style"].default == "ai_video"
     assert fields["replicate_video_model"].default == "minimax/video-01"
-    assert fields["ai_video_max_beats"].default == 6
+    assert fields["ai_video_max_beats"].default == 10
 
 
 def test_manifest_video_clips_mode_detected(tmp_path):
