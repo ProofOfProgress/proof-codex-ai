@@ -163,10 +163,15 @@
 
 ---
 
+## Round 2 applied (2026-06-11 later)
+
+See `data/research/APPLIED_RESEARCH_ROUND_2.md` — scare pillars, post-upload hooks, category 24, strict false-calm, draft #4 knock prep, merge `main` into PR branch.
+
 ## Wake-up checklist
 
+- [x] Video #1 uploaded  
 - [ ] Pin CTA comment in Studio on Video #1  
 - [ ] Studio rename → **Don't Blink**  
 - [ ] Watch retention at 20s + final 3s after 48h  
-- [ ] Run draft #3 pipeline when 20h cooldown clear  
-- [ ] Merge PR #23  
+- [ ] Draft #3 finish + upload when cooldown clear  
+- [ ] Merge PR #23 (conflicts resolved on branch)  
