@@ -94,6 +94,16 @@ def build_ops_status_markdown() -> str:
             lines.append("- **Blocked:** " + "; ".join(report.issues))
         if report.warnings:
             lines.append("- Warnings: " + "; ".join(report.warnings))
+        recent = memory.recent_uploads(hours=48)
+        if recent:
+            last = recent[0]
+            last_at = datetime.fromisoformat(str(last["uploaded_at"]).replace("Z", "+00:00"))
+            hours_ago = (datetime.now(timezone.utc) - last_at).total_seconds() / 3600
+            wait = max(0.0, float(settings.min_hours_between_uploads) - hours_ago)
+            lines.append(
+                f"- Last valid upload: draft #{last.get('draft_id')} "
+                f"({hours_ago:.1f}h ago) — ~{wait:.1f}h until cooldown clear"
+            )
     else:
         lines.append("- No draft sample for guard check")
 

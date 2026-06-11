@@ -191,6 +191,27 @@ Return JSON with keys:
                 "False calm: static chat screen",
                 "Screen morphs to your face screaming full frame",
             ]
+        elif "photo" in lower or "timestamp" in lower or "next week" in lower:
+            hook = "The photo timestamp says next Tuesday — you took it tonight."
+            script = (
+                f"{hook} "
+                "You opened the gallery. The room in the shot was your kitchen, lights off. "
+                "You told yourself the clock was wrong. You checked the calendar on the fridge — today. "
+                "You zoomed in. Your own back was in the frame, facing the stove. "
+                "You were not in the kitchen. You heard a shutter click behind you. "
+                "You turned. The phone in your hand showed a new photo — taken from inside the closet."
+            )
+            help_angle = "Wrong time — future timestamp on fresh photo; false calm clock glitch; closet POV scare."
+            visual_beats = [
+                "Phone gallery: photo thumbnail, timestamp next Tuesday overlay",
+                "Kitchen dark in photo, you in bedroom POV",
+                "Fridge calendar today — mismatch",
+                "Zoom: your back in frame facing stove",
+                "Shutter click sound cue — hallway still",
+                "False calm: static phone screen",
+                "New photo notification — taken from closet angle",
+                "Closet POV fills frame toward your face",
+            ]
         elif "knock" in lower or "closet" in lower:
             hook = "The knock came from inside the closet you never open."
             script = (

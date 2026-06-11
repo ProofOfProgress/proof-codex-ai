@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass
 
 from shorts_bot.config import settings
-from shorts_bot.production.jenny_checks import check_jenny_voice
+from shorts_bot.production.jenny_checks import HORROR_SCRIPT_RULES, check_jenny_voice, jenny_retention_guidance
 from shorts_bot.production.scene_plan import ai_likelihood_score
 
 
@@ -22,24 +22,25 @@ class ScriptFinalizeResult:
     message: str
 
 
-_HUMANIZE_PROMPT = """Rewrite this faceless YouTube Short using Jenny Hoyos course rules + personal creator voice.
+_HUMANIZE_PROMPT = """Rewrite this Don't Blink horror YouTube Short script.
 
-VOICE: Real person making faceless videos — SAME struggles as viewer, sharing what helped THEM.
-- First person: I, my, I used to, this helped me
-- Singular "you" — never "hey guys"
-- Contractions, mixed sentence lengths
+{horror_rules}
 
-JENNY STRUCTURE:
-- Hook ASAP — curiosity + reason to watch to end
-- Every line moves toward payoff; but/so momentum
-- Payoff = best beat, then stop (concrete action — NOT "you're still here. good.")
-- 3-5 mute-safe visual beats implied in script
+{retention}
 
 Rules:
+- Keep second-person immersive voice (you/your) — NOT first-person vlog (I/my)
 - No AI words: delve, tapestry, furthermore, unlock, navigate
-- Keep same advice — don't add steps
-- Return JSON only: {"hook": "...", "script": "...", "help_angle": "..."}
+- Keep same scare story beats — don't add steps or explain the ending
+- Return JSON only: {{"hook": "...", "script": "...", "help_angle": "..."}}
 """
+
+
+def _humanize_system_prompt(topic: str) -> str:
+    return _HUMANIZE_PROMPT.format(
+        horror_rules=HORROR_SCRIPT_RULES.strip(),
+        retention=jenny_retention_guidance(topic),
+    )
 
 
 def _rule_humanize(text: str) -> str:
@@ -54,6 +55,13 @@ def _rule_humanize(text: str) -> str:
         "you are": "you're",
         "cannot": "can't",
         "will not": "won't",
+        "I live alone": "you live alone",
+        "I pulled up": "you pulled up",
+        "I tried to tell myself": "you told yourself",
+        "My security camera": "Your security camera",
+        "my security camera": "your security camera",
+        "My heart": "Your chest",
+        "my heart": "your chest",
     }
     for a, b in swaps.items():
         t = t.replace(a, b)
@@ -73,7 +81,7 @@ def _llm_humanize(topic: str, hook: str, script: str, help_angle: str) -> dict[s
         r = backend.client.chat.completions.create(
             model=backend.model,
             messages=[
-                {"role": "system", "content": _HUMANIZE_PROMPT},
+                {"role": "system", "content": _humanize_system_prompt(topic)},
                 {"role": "user", "content": payload},
             ],
             response_format={"type": "json_object"},

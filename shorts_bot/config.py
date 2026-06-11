@@ -187,6 +187,7 @@ class Settings(BaseSettings):
     ypp_safe_mode: bool = True
     max_uploads_per_24h: int = 1
     min_hours_between_uploads: float = 20.0
+    upload_guard_void_video_ids: list[str] = ["JIkMhPH0l6o"]  # erroneous non-horror upload
     topic_cooldown_days: int = 7
     hook_cooldown_days: int = 14
     max_script_overlap_ratio: float = 0.65

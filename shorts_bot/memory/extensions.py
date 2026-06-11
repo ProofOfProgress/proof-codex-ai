@@ -190,6 +190,17 @@ class MemoryExtensions:
                 conn.execute("ALTER TABLE upload_events ADD COLUMN active_rules_json TEXT")
             except Exception:
                 pass
+            try:
+                conn.execute(
+                    "ALTER TABLE upload_events ADD COLUMN voided INTEGER NOT NULL DEFAULT 0"
+                )
+            except Exception:
+                pass
+            for vid in settings.upload_guard_void_video_ids:
+                conn.execute(
+                    "UPDATE upload_events SET voided = 1 WHERE video_id = ? AND voided = 0",
+                    (vid,),
+                )
 
     def save_analytics(self, video_label: str, metrics: dict[str, Any]) -> None:
         """Upsert — latest metrics per video replace older rows."""
@@ -783,28 +794,56 @@ class MemoryExtensions:
                 ),
             )
 
-    def recent_uploads(self, *, hours: int = 24) -> list[dict[str, Any]]:
+    def void_upload_events(
+        self,
+        *,
+        video_id: str | None = None,
+        draft_id: int | None = None,
+    ) -> int:
+        """Mark mistaken uploads so upload_guard ignores them."""
+        clauses: list[str] = []
+        params: list[Any] = []
+        if video_id:
+            clauses.append("video_id = ?")
+            params.append(video_id)
+        if draft_id is not None:
+            clauses.append("draft_id = ?")
+            params.append(draft_id)
+        if not clauses:
+            return 0
+        where = " OR ".join(clauses)
+        with self._conn() as conn:
+            cur = conn.execute(
+                f"UPDATE upload_events SET voided = 1 WHERE ({where}) AND voided = 0",
+                params,
+            )
+        return int(cur.rowcount)
+
+    def recent_uploads(self, *, hours: int = 24, include_voided: bool = False) -> list[dict[str, Any]]:
         cutoff = (
             datetime.now(timezone.utc) - timedelta(hours=hours)
         ).isoformat()
+        void_clause = "" if include_voided else "AND (voided IS NULL OR voided = 0)"
         with self._conn() as conn:
             rows = conn.execute(
-                """
+                f"""
                 SELECT draft_id, topic, hook, title, video_id, uploaded_at, active_rules_json
                 FROM upload_events
-                WHERE uploaded_at >= ?
+                WHERE uploaded_at >= ? {void_clause}
                 ORDER BY id DESC
                 """,
                 (cutoff,),
             ).fetchall()
         return [dict(r) for r in rows]
 
-    def recent_upload_scripts(self, *, limit: int = 5) -> list[dict[str, Any]]:
+    def recent_upload_scripts(self, *, limit: int = 5, include_voided: bool = False) -> list[dict[str, Any]]:
+        void_clause = "" if include_voided else "WHERE (voided IS NULL OR voided = 0)"
         with self._conn() as conn:
             rows = conn.execute(
-                """
+                f"""
                 SELECT draft_id, topic, hook, script, title, uploaded_at
                 FROM upload_events
+                {void_clause}
                 ORDER BY id DESC
                 LIMIT ?
                 """,
@@ -819,6 +858,7 @@ class MemoryExtensions:
                 """
                 SELECT 1 FROM upload_events
                 WHERE lower(topic) = lower(?) AND uploaded_at >= ?
+                  AND (voided IS NULL OR voided = 0)
                 LIMIT 1
                 """,
                 (topic.strip(), cutoff),
@@ -834,6 +874,7 @@ class MemoryExtensions:
                 """
                 SELECT 1 FROM upload_events
                 WHERE lower(hook) = lower(?) AND uploaded_at >= ?
+                  AND (voided IS NULL OR voided = 0)
                 LIMIT 1
                 """,
                 (hook.strip()[:120], cutoff),

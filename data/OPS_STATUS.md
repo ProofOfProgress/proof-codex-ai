@@ -1,6 +1,6 @@
 # Don't Blink — ops status
 
-_Generated 2026-06-11 07:44 UTC_
+_Generated 2026-06-11 07:57 UTC_
 
 ## Video #1 (LIVE)
 - **URL:** https://youtube.com/shorts/-21Yc_xTcMY
@@ -8,17 +8,18 @@ _Generated 2026-06-11 07:44 UTC_
 
 ## Production queue (approved)
 - **#2** the mirror reflection blinked one second after you did — ✓ final_short.mp4; upload meta ✓
-- **#3** your security camera flagged motion — you live alone — 3 I2V clips; upload meta ✓
+- **#3** your security camera flagged motion — you live alone — 6 I2V clips; upload meta ✓
 - **#4** the knock came from inside the closet you never open — 0 I2V clips; upload meta ✓
 - **#5** the last text showed delivered — but their phone was off — 0 I2V clips; upload meta ✓
+- **#6** the photo timestamp is from next week — 0 I2V clips; upload meta ✓
 
 ## Next action
 - **Run pipeline:** `python3 -m shorts_bot.production.queue_cli --run-next --no-upload` (draft #3)
 - **Sequential only** — one Replicate I2V job at a time (429 avoidance)
 
 ## Upload guard
-- **Blocked:** max 1 upload(s) per 24h (already 2) — spam-farm signal
-- Warnings: same scare pillar (Wrong place) as draft #1 — rotate reflection/knock/glitch/cam per LAUNCH_QUALITY
+- **Blocked:** max 1 upload(s) per 24h (already 1) — spam-farm signal
+- Last valid upload: draft #2 (0.6h ago) — ~19.4h until cooldown clear
 
 ## YouTube auth
 - Credentials: ✓

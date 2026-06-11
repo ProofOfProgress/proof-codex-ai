@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from shorts_bot.drafts.meta import visual_beat_for_segment
 from shorts_bot.production.framing import framing_notes_for_prompt
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
@@ -46,12 +47,19 @@ TIMESTAMPED SCRIPT:
 """
 
 
-def horror_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
+def horror_segment_to_prompt(
+    seg: TranscriptSegment,
+    *,
+    topic: str,
+    visual_beat: str | None = None,
+) -> str:
     """Paid image/I2V keyframe — Don't Blink horror."""
     style = _load_style_guide()
     scene = seg.text.strip() or topic
+    beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
     return (
         f"Terrifying faceless horror still frame: {scene}. "
+        f"{beat_line}"
         f"Story: {topic}. "
         "Mood: uncanny, dread, something is wrong, cinematic horror movie still. "
         "Setting: dark hallway, mirror, phone screen, empty room, security cam POV, shadows. "
@@ -72,6 +80,7 @@ def build_image_briefs(
     *,
     topic: str,
     total_duration: float | None = None,
+    visual_beats: list[str] | None = None,
 ) -> list[ImageBrief]:
     if not segments:
         return []
@@ -94,7 +103,11 @@ def build_image_briefs(
                 end_seconds=end,
                 filename_stem=stem,
                 spoken_text=seg.text,
-                prompt=horror_segment_to_prompt(seg, topic=topic),
+                prompt=horror_segment_to_prompt(
+                    seg,
+                    topic=topic,
+                    visual_beat=visual_beat_for_segment(visual_beats, i, len(segments)),
+                ),
             )
         )
     return briefs

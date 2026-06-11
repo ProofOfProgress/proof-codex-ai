@@ -98,8 +98,13 @@ def build_production_pack(
             "with lines like '0:07 your words...'"
         )
 
-    briefs = build_image_briefs(segments, topic=draft.topic, total_duration=audio_duration)
     beats = visual_beats_for_draft(draft_id)
+    briefs = build_image_briefs(
+        segments,
+        topic=draft.topic,
+        total_duration=audio_duration,
+        visual_beats=beats or None,
+    )
     root.mkdir(parents=True, exist_ok=True)
     prompts_dir = root / "prompts"
     images_dir = root / "images"
@@ -118,6 +123,7 @@ def build_production_pack(
         topic=draft.topic,
         total_duration=audio_duration,
         hybrid_hook=hybrid_hook,
+        visual_beats=beats or None,
     )
 
     (root / "VOICEOVER_SCRIPT.txt").write_text(

@@ -108,24 +108,27 @@ def _topic_hashtags(topic: str) -> list[str]:
     return tags[:3]
 
 
+def _normalize_horror_hook(hook: str, topic: str) -> str:
+    """Prefer second-person hook line for descriptions."""
+    line = (hook or topic).strip()
+    line = re.sub(r"\bMy\b", "Your", line)
+    line = re.sub(r"\bmy\b", "your", line)
+    line = re.sub(r"\bI live alone\b", "you live alone", line, flags=re.I)
+    line = re.sub(r"\bI\b", "you", line)
+    return line.strip()
+
+
 def _description_from_research(topic: str, hook: str, research) -> str:
-    hook_line = hook.strip() if hook else topic.strip()
+    hook_line = _normalize_horror_hook(hook, topic)
     topic_tags = _topic_hashtags(topic)
     base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
     hashtags = " ".join(base_hashtags[:5])
-
-    extra = ""
-    if getattr(research, "competitor_gap", None):
-        gap = str(research.competitor_gap).strip()
-        if gap and len(gap) < 200:
-            extra = f"\n{gap}\n"
 
     return (
         f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
         f"{hook_line}\n\n"
         f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"One impossible detail → tension → scare at the end. Watch the whole thing.\n"
-        f"{extra}\n"
+        f"One impossible detail → tension → scare at the end. Watch the whole thing.\n\n"
         f"AI motion visuals · synthetic media disclosed\n\n"
         f"What should the next story be? One sentence in the comments.\n\n"
         f"{hashtags}"
@@ -176,7 +179,7 @@ def _safe_title(topic: str, hook: str) -> str:
 
 
 def _safe_description(topic: str, hook: str) -> str:
-    hook_line = hook.strip() if hook else topic.strip()
+    hook_line = _normalize_horror_hook(hook, topic)
     hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
     return (
         f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"

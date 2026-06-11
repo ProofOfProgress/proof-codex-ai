@@ -49,9 +49,15 @@ def write_video_prompt_pack(
     topic: str,
     total_duration: float | None = None,
     hybrid_hook: bool = False,
+    visual_beats: list[str] | None = None,
 ) -> dict:
     """Write video_prompts/*.txt + video_prompts.json + AI_VIDEO_HOOK.md into pack_dir."""
-    briefs = build_video_prompt_briefs(segments, topic=topic, total_duration=total_duration)
+    briefs = build_video_prompt_briefs(
+        segments,
+        topic=topic,
+        total_duration=total_duration,
+        visual_beats=visual_beats,
+    )
     vp_dir = pack_dir / "video_prompts"
     vp_dir.mkdir(parents=True, exist_ok=True)
 

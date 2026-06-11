@@ -230,10 +230,20 @@ def _score_template(template: VideoTemplate, text: str) -> int:
     return sum(1 for kw in template.keywords if kw in lower)
 
 
-def match_template(*, topic: str, spoken_text: str = "") -> VideoTemplate:
+def match_template(
+    *,
+    topic: str,
+    spoken_text: str = "",
+    segment_index: int | None = None,
+) -> VideoTemplate:
     """Pick best template for topic + segment line."""
     combined = f"{topic} {spoken_text}".strip()
-    scored = [(t, _score_template(t, combined)) for t in templates()]
+    pool = templates()
+    if segment_index == 0:
+        hooks = [t for t in pool if t.role == "hook"]
+        if hooks:
+            pool = hooks
+    scored = [(t, _score_template(t, combined)) for t in pool]
     scored.sort(key=lambda x: (-x[1], x[0].id))
     if scored[0][1] > 0:
         return scored[0][0]
@@ -275,17 +285,24 @@ def segment_to_video_prompt(
     template: VideoTemplate | None = None,
     continuity_in: str | None = None,
     clip_index: int = 0,
+    visual_beat: str | None = None,
 ) -> str:
     """Build one I2V/T2V clip prompt using the 5-part framework."""
-    tmpl = template or match_template(topic=topic, spoken_text=seg.text)
+    tmpl = template or match_template(
+        topic=topic, spoken_text=seg.text, segment_index=clip_index
+    )
     scene_line = seg.text.strip() or topic
     continuity = ""
     if continuity_in:
         continuity = f"CONTINUITY IN: {continuity_in}. "
+    shot_dir = ""
+    if visual_beat:
+        shot_dir = f"SHOT DIRECTION (approved beat): {visual_beat}. "
 
     parts = [
         visual_dna(),
         continuity,
+        shot_dir,
         f"SUBJECT: {tmpl.subject}. ",
         f"ACTION: {tmpl.action} — beat: {scene_line}. ",
         f"CAMERA: {tmpl.camera}. {framing_notes_for_prompt()} ",
@@ -303,6 +320,7 @@ def build_video_prompt_briefs(
     *,
     topic: str,
     total_duration: float | None = None,
+    visual_beats: list[str] | None = None,
 ) -> list[VideoPromptBrief]:
     """One video prompt per AV segment, with END STATE → CONTINUITY IN chaining."""
     if not segments:
@@ -321,18 +339,22 @@ def build_video_prompt_briefs(
         else:
             end = seg.start_seconds + 5.0
 
-        tmpl = match_template(topic=topic, spoken_text=seg.text)
+        tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=i)
         if i == len(segments) - 1 and tmpl.role != "jumpscare":
             jumpscare = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
             if jumpscare:
                 tmpl = jumpscare
 
+        from shorts_bot.drafts.meta import visual_beat_for_segment
+
+        beat_hint = visual_beat_for_segment(visual_beats, i, len(segments))
         prompt = segment_to_video_prompt(
             seg,
             topic=topic,
             template=tmpl,
             continuity_in=prev_end_state,
             clip_index=i,
+            visual_beat=beat_hint,
         )
         stem = label_from_seconds(seg.start_seconds)
         duration = min(max(end - seg.start_seconds, 2.5), 8.0)

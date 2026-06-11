@@ -28,7 +28,11 @@ def list_approved(store: MemoryStore) -> list[Draft]:
 
 def _production_status(draft_id: int) -> dict[str, str | int | bool]:
     pack = _pack_dir(draft_id)
-    clips = list((pack / "clips").glob("*.mp4")) if (pack / "clips").is_dir() else []
+    clip_files = (
+        [p for p in (pack / "clips").glob("*.mp4") if p.stat().st_size > 10_000]
+        if (pack / "clips").is_dir()
+        else []
+    )
     final = pack / "final_short.mp4"
     state_path = pack / "pipeline_state.json"
     steps = ""
@@ -37,9 +41,20 @@ def _production_status(draft_id: int) -> dict[str, str | int | bool]:
 
         data = json.loads(state_path.read_text(encoding="utf-8"))
         steps = ", ".join(f"{k}={v}" for k, v in (data.get("steps") or {}).items())
+    segment_count = 0
+    manifest = pack / "manifest.json"
+    if manifest.exists():
+        import json
+
+        try:
+            segment_count = len(json.loads(manifest.read_text(encoding="utf-8")).get("segments") or [])
+        except json.JSONDecodeError:
+            segment_count = 0
+    target_clips = segment_count or int(getattr(settings, "ai_video_max_beats", 10))
     return {
         "pack_exists": pack.is_dir(),
-        "clips": len(clips),
+        "clips": len(clip_files),
+        "clip_target": target_clips,
         "has_final": final.exists() and final.stat().st_size > 50_000,
         "has_upload_meta": (pack / "UPLOAD_READY.md").exists(),
         "steps": steps or "not started",
@@ -54,7 +69,7 @@ def print_queue(store: MemoryStore) -> None:
     table = Table(title="Approved production queue (sequential)")
     table.add_column("ID")
     table.add_column("Topic")
-    table.add_column("Clips")
+    table.add_column("I2V")
     table.add_column("Final")
     table.add_column("Upload meta")
     table.add_column("Pipeline")
@@ -63,7 +78,7 @@ def print_queue(store: MemoryStore) -> None:
         table.add_row(
             str(d.id),
             (d.topic or "")[:48],
-            str(st["clips"]),
+            f"{st['clips']}/{st['clip_target']}",
             "✓" if st["has_final"] else "—",
             "✓" if st["has_upload_meta"] else "—",
             str(st["steps"]),
@@ -131,10 +146,21 @@ def main() -> None:
     parser.add_argument("--run-next", action="store_true", help="Run finish_cli for next incomplete draft")
     parser.add_argument("--upload", action="store_true", help="Upload after render (with --run)")
     parser.add_argument("--no-resume", action="store_true", help="Full rebuild (with --run)")
+    parser.add_argument(
+        "--repair-draft",
+        type=int,
+        metavar="DRAFT_ID",
+        help="Fix first-person drift; reset pipeline from humanize",
+    )
     args = parser.parse_args()
 
     store = MemoryStore(settings.database_path)
 
+    if args.repair_draft is not None:
+        from shorts_bot.production.horror_repair import repair_draft_horror_voice
+
+        console.print(f"[green]{repair_draft_horror_voice(store, args.repair_draft)}[/green]")
+        return
     if args.list:
         print_queue(store)
         return

@@ -5,10 +5,10 @@
 | Day | Pillar | Topic | Draft | Status |
 |-----|--------|-------|-------|--------|
 | 1 | Wrong reflection | Mirror blinked one second after you | #2 | **LIVE** |
-| 2 | Wrong place | Security cam motion — you live alone | #3 | Pipeline |
+| 2 | Wrong place | Security cam motion — you live alone | #3 | Pipeline (repaired VO) |
 | 3 | Wrong sound | Knock from inside closet | #4 | Pending |
 | 4 | Wrong text | Last text delivered — phone was off | #5 | Prep |
-| 5 | Wrong time | Photo timestamp from next week | — | Queue |
+| 5 | Wrong time | Photo timestamp from next week | #6 | Approved |
 | 6 | Wrong place | GPS says home — driveway empty | — | Queue |
 | 7 | Wrong reflection | Reflection didn't put phone down | — | Queue |
 
