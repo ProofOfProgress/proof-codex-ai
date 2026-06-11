@@ -567,8 +567,9 @@ class BotOperations:
                     f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
                 )
             series = fields.series or "Don't Blink"
-            need_browser_text = not api.name_updated and not api.description_updated and (name or desc)
-            if need_browser_text and settings.browser_enabled:
+            need_studio_name = bool(name) and not api.name_updated
+            need_studio_desc = bool(desc) and not api.description_updated
+            if (need_studio_name or need_studio_desc) and settings.browser_enabled:
                 try:
                     from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
 
@@ -576,9 +577,17 @@ class BotOperations:
                         profile_dir=settings.browser_profile_dir,
                         headless=True,
                     )
-                    studio = browser.apply(channel_name=name, description=desc)
+                    studio = browser.apply(
+                        channel_name=name if need_studio_name else None,
+                        description=desc if need_studio_desc else None,
+                    )
                     if studio.name_updated:
                         msg += "\n\nDisplay name set via Studio browser."
+                    elif need_studio_name:
+                        msg += (
+                            f"\n\nDisplay name not changed in Studio "
+                            f"(target: {name!r} — may be taken or rate-limited; try Never Blink / Dont Look Away)."
+                        )
                     if studio.description_updated:
                         msg += "\n\nDescription set via Studio browser."
                 except Exception as studio_exc:

@@ -17,7 +17,7 @@
 
 **Handle:** `@alphabeta0-c1m` (unchanged)  
 **Display name target:** Don't Blink  
-**YouTube note (2026-06-11):** Studio rejected "Don't Blink" as taken/unavailable; name-change rate-limited 24h. Description, banner, and profile picture are live. Retry alternate names after cooldown (e.g. Never Blink, Dont Look Away).
+**YouTube note:** Display name **cannot** be changed via YouTube Data API (Google returns `channelTitleUpdateForbidden` — API silently keeps the old title). Description + banner update via API; **name must be set in YouTube Studio** (Customization → Basic info). Studio previously rejected **"Don't Blink"** as taken/unavailable. Alternates: **Never Blink**, **Dont Look Away**, **Don't Blink Shorts**. You can change the name **twice per 14 days**.
 
 ## Tone
 

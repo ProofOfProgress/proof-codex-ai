@@ -27,8 +27,9 @@ def main() -> None:
     console.print(
         Panel(
             "[bold]Apply Channel Branding (API)[/bold]\n\n"
-            "Updates name + description + banner without opening a browser.\n"
-            "Profile picture: upload channel/brand/assets/profile.png manually in Studio.",
+            "Updates description + banner via API; display name via Studio browser fallback.\n"
+            "(YouTube API cannot rename channels — Studio only.)\n"
+            "Profile picture: Studio upload when browser profile is logged in.",
             border_style="blue",
         )
     )

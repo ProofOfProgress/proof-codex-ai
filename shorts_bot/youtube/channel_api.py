@@ -56,11 +56,12 @@ def update_channel_text(
         branding = (items[0].get("brandingSettings") if items else {}) or {}
         channel_block = dict(branding.get("channel") or {})
 
+        # YouTube forbids changing display name via API (channelTitleUpdateForbidden).
+        # Omit title so description/keywords updates still work; name needs Studio.
+        current_title = (channel_block.get("title") or "").strip()
+        requested_name = (channel_name or "").strip()
         name_ok = False
         desc_ok = False
-        if channel_name:
-            channel_block["title"] = channel_name[:100]
-            name_ok = True
         if description:
             channel_block["description"] = description[:1000]
             desc_ok = True
@@ -71,13 +72,22 @@ def update_channel_text(
         ).execute()
 
         parts = []
-        if name_ok:
-            parts.append("name")
         if desc_ok:
             parts.append("description")
+        name_note = ""
+        if requested_name and requested_name != current_title:
+            name_note = (
+                f" Display name still '{current_title}' — YouTube API cannot rename channels; "
+                f"use Studio to set '{requested_name}' (or an alternate if taken)."
+            )
+        elif requested_name and requested_name == current_title:
+            name_ok = True
+            parts.append("name (unchanged)")
+
+        msg = f"Channel {' + '.join(parts)} updated via API." if parts else "No API fields updated."
         return ChannelApiResult(
-            ok=True,
-            message=f"Channel {' + '.join(parts)} updated via API.",
+            ok=bool(parts),
+            message=(msg + name_note).strip(),
             channel_id=cid,
             name_updated=name_ok,
             description_updated=desc_ok,
