@@ -19,7 +19,7 @@ class ImageBrief:
 def _load_style_guide() -> str:
     from shorts_bot.config import settings
 
-    if settings.visual_style == "stickfigure":
+    if settings.visual_style in ("stickfigure",):
         path = Path("channel/brand/stick_figure_style.md")
         if path.exists():
             return path.read_text(encoding="utf-8").strip()
@@ -40,7 +40,7 @@ def build_master_prompt(*, channel_topic: str = "Soft Continuity self-help Short
     format_line = (
         "Every prompt: ChainsFR-style stick figure ACTING the line, warm cosy home background, "
         "speech bubble only for quoted dialogue."
-        if settings.visual_style == "stickfigure"
+        if settings.visual_style in ("stickfigure",)
         else 'Every prompt must end with: "vertical 9:16 still image, no text, no watermark, faceless."'
     )
     return f"""You are generating frame images for a faceless YouTube Short on channel "{channel_topic}".
@@ -124,7 +124,11 @@ def build_image_briefs(
         stem = label_from_seconds(seg.start_seconds)
         from shorts_bot.config import settings
 
-        prompt_fn = ai_segment_to_prompt if settings.visual_style == "ai" else segment_to_prompt
+        prompt_fn = (
+            ai_segment_to_prompt
+            if settings.visual_style in ("ai", "ai_video", "hybrid", "ai_video_hook")
+            else segment_to_prompt
+        )
         briefs.append(
             ImageBrief(
                 start_seconds=seg.start_seconds,

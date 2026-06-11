@@ -105,8 +105,10 @@ def build_production_pack(
     root.mkdir(parents=True, exist_ok=True)
     prompts_dir = root / "prompts"
     images_dir = root / "images"
+    clips_dir = root / "clips"
     prompts_dir.mkdir(exist_ok=True)
     images_dir.mkdir(exist_ok=True)
+    clips_dir.mkdir(exist_ok=True)
 
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
@@ -126,8 +128,35 @@ def build_production_pack(
     )
 
     image_note = ""
+    render_mode = "slideshow"
+    clips_rendered = 0
+    rendered = 0
     if render_images:
-        if settings.visual_style == "ai" and settings.has_paid_images:
+        if settings.visual_style == "ai_video" and settings.has_paid_images:
+            from shorts_bot.production.render_ai_video import render_all_ai_video_clips
+
+            clips_rendered = render_all_ai_video_clips(
+                briefs,
+                segments,
+                topic=draft.topic,
+                images_dir=images_dir,
+                clips_dir=clips_dir,
+            )
+            if clips_rendered > 0:
+                rendered = clips_rendered
+                render_mode = "video_clips"
+                image_note = f" via Replicate I2V ({settings.replicate_video_model})"
+                if clips_rendered < len(briefs):
+                    image_note += f" ({clips_rendered}/{len(briefs)} clips)"
+            else:
+                rendered = render_all_stickfigures(
+                    briefs,
+                    images_dir,
+                    visual_beats=beats,
+                    figure_x_offset=variety.figure_x_offset,
+                )
+                image_note = " (I2V failed — stick figure fallback)"
+        elif settings.visual_style == "ai" and settings.has_paid_images:
             rendered = render_all_ai_images(briefs, images_dir)
             image_note = f" via {settings.image_provider}"
             if rendered < len(briefs):
@@ -173,15 +202,18 @@ def build_production_pack(
         "variety": variety.summary(),
         "visual_beats": beats,
         "visual_style": settings.visual_style,
+        "render_mode": render_mode,
         "hybrid_ai_hook": hybrid_hook,
         "video_prompts": f"video_prompts.json ({len(video_payload.get('clips', []))} clips)",
         "image_count": len(briefs),
         "images_rendered": rendered,
+        "clips_rendered": clips_rendered,
         "segments": [
             {
                 "start_seconds": b.start_seconds,
                 "end_seconds": b.end_seconds,
                 "filename": f"{b.filename_stem}.png",
+                "clip_filename": f"{b.filename_stem}.mp4",
                 "spoken_text": b.spoken_text,
                 "prompt_file": f"prompts/{b.filename_stem}.txt",
             }
@@ -215,7 +247,10 @@ def build_production_pack(
         f"Folder: {root}."
     )
     if rendered:
-        msg += f" Rendered {rendered} still PNGs in images/{image_note}."
+        if render_mode == "video_clips":
+            msg += f" Rendered {rendered} motion clips in clips/{image_note}."
+        else:
+            msg += f" Rendered {rendered} still PNGs in images/{image_note}."
     else:
         msg += " Open prompts/ or run with render_images=True."
 

@@ -15,4 +15,4 @@ def test_upload_title_not_clickbait():
 
     pkg = build_upload_package("cant sleep at 3am", "Stop scrolling", draft_id=6)
     assert "stop scrolling" not in pkg.title.lower()
-    assert pkg.visibility == "unlisted"
+    assert pkg.visibility == "public"

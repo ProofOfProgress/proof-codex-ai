@@ -150,6 +150,87 @@ def _render_motion_clips(
     return silent_video
 
 
+
+def _trim_scale_clip(
+    src: Path,
+    dest: Path,
+    *,
+    duration: float,
+    width: int,
+    height: int,
+) -> None:
+    vf = f"scale={width}:{height}:flags=lanczos,format=yuv420p"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(src.resolve()),
+            "-t",
+            f"{duration:.4f}",
+            "-vf",
+            vf,
+            "-an",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "fast",
+            "-pix_fmt",
+            "yuv420p",
+            str(dest),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def _render_from_video_clips(
+    clips_dir: Path,
+    segments: list[dict],
+    durations: list[float],
+    *,
+    tmp_dir: Path,
+    width: int,
+    height: int,
+) -> Path:
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    clip_paths: list[Path] = []
+    for i, (seg, dur) in enumerate(zip(segments, durations)):
+        stem = Path(seg["filename"]).stem
+        src = clips_dir / f"{stem}.mp4"
+        if not src.exists():
+            raise FileNotFoundError(f"Missing motion clip: {src}")
+        clip = tmp_dir / f"clip_{i:03d}.mp4"
+        _trim_scale_clip(src, clip, duration=dur, width=width, height=height)
+        clip_paths.append(clip)
+    concat_path = tmp_dir / "_clips_concat.txt"
+    lines = ["ffconcat version 1.0"]
+    for clip in clip_paths:
+        lines.append(f"file '{clip.resolve()}'")
+    concat_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    silent_video = tmp_dir / "_video_silent.mp4"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_path),
+            "-c",
+            "copy",
+            str(silent_video),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return silent_video
+
+
 def render_short_video(
     pack_dir: Path,
     *,
@@ -191,6 +272,59 @@ def render_short_video(
     )
 
     from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
+
+    render_mode = manifest.get("render_mode") or "slideshow"
+    if render_mode == "video_clips":
+        clips_dir = pack_dir / "clips"
+        silent = _render_from_video_clips(
+            clips_dir,
+            segments,
+            durations,
+            tmp_dir=pack_dir / "_motion_clips",
+            width=FRAME_WIDTH,
+            height=FRAME_HEIGHT,
+        )
+        video_input = ["-i", str(silent)]
+        vf_parts: list[str] = []
+        if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+            vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
+        vf = ",".join(vf_parts) if vf_parts else None
+        cmd = ["ffmpeg", "-y", *video_input, "-i", str(audio_path)]
+        if vf:
+            cmd.extend(["-vf", vf])
+        cmd.extend(
+            [
+                "-c:v",
+                "libx264",
+                "-preset",
+                settings.video_preset,
+                "-crf",
+                str(settings.video_crf),
+                "-pix_fmt",
+                "yuv420p",
+                "-c:a",
+                "aac",
+                "-b:a",
+                f"{settings.video_audio_bitrate_k}k",
+                "-ar",
+                "48000",
+                "-movflags",
+                "+faststart",
+                "-t",
+                f"{audio_duration:.3f}",
+                str(out_path),
+            ]
+        )
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        return RenderedVideo(
+            draft_id=draft_id,
+            output_path=out_path,
+            duration_seconds=audio_duration,
+            message=(
+                f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920, AI video clips). "
+                f"Captions: ffmpeg ASS burn-in + captions.srt for YouTube."
+            ),
+        )
 
     use_motion = settings.video_ken_burns and zoom_motion in ("in", "out")
     if use_motion:

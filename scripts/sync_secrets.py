@@ -34,6 +34,7 @@ SYNC_VARS = (
     "FAL_API_KEY",
     "IMAGE_PROVIDER",
     "VISUAL_STYLE",
+    "REPLICATE_VIDEO_MODEL",
 )
 
 # Sensible production defaults — written only when the key is absent from .env.
@@ -49,6 +50,8 @@ DEFAULT_ENV: dict[str, str] = {
     "AUTO_UPLOAD_YOUTUBE": "true",
     "REQUIRE_PAID_STACK": "true",
     "ALLOW_SCRIPT_TIMING_FALLBACK": "false",
+    "VISUAL_STYLE": "ai_video",
+    "REPLICATE_VIDEO_MODEL": "minimax/video-01",
 }
 
 PLACEHOLDER_FRAGMENTS = (

@@ -55,7 +55,7 @@ Soft Continuity niche v2: **The Minute Before** — one specific moment before l
 
 ## Production stack
 
-Gemini scripts, Resemble voice clone, TurboScribe when possible (script timing fallback OK), **stick figure render** (`VISUAL_STYLE=stickfigure`), ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Do not switch to AI stills unless user explicitly asks. **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+Gemini scripts, Resemble voice clone, Replicate FLUX + MiniMax I2V full-motion clips (VISUAL_STYLE=ai_video) (script timing fallback OK), **stick figure render** (`VISUAL_STYLE=stickfigure`), ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload. Do not switch to AI stills unless user explicitly asks. **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
 
 ## Browser
 

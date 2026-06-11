@@ -85,12 +85,16 @@ class Settings(BaseSettings):
     tts_voice: str = "en-US-BrianNeural"  # edge-tts fallback only
     tts_rate: str = "-5%"
     tts_pitch: str = "+2Hz"
-    visual_style: str = "stickfigure"  # stickfigure | hybrid | ai | calm_stills
+    visual_style: str = "ai_video"  # ai_video (I2V clips) | stickfigure | hybrid | ai (stills) | calm_stills
 
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
+    replicate_video_model: str = "minimax/video-01"  # I2V when VISUAL_STYLE=ai_video
+    ai_video_max_beats: int = 6  # cap Replicate I2V cost per Short
+    ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
+    ai_video_timeout_sec: int = 600  # per-clip Replicate poll timeout
     fal_api_key: str | None = None
     fal_image_model: str = "fal-ai/flux/schnell"
     image_aspect_ratio: str = "9:16"

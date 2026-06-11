@@ -1,8 +1,9 @@
-"""Replicate FLUX image generation (pay-per-image)."""
+"""Replicate FLUX images + MiniMax/Hailuo I2V clips (pay-per-run)."""
 
 from __future__ import annotations
 
 import json
+import mimetypes
 import time
 import urllib.error
 import urllib.request
@@ -77,12 +78,58 @@ def _download_url(url: str, dest: Path) -> None:
         dest.write_bytes(resp.read())
 
 
+def _multipart_file_body(path: Path) -> tuple[bytes, str]:
+    """Build multipart/form-data body for Replicate POST /v1/files."""
+    boundary = "shortsbot" + str(int(time.time() * 1000))
+    filename = path.name
+    mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+    file_bytes = path.read_bytes()
+    parts: list[bytes] = [
+        (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="content"; filename="{filename}"\r\n'
+            f"Content-Type: {mime}\r\n\r\n"
+        ).encode("utf-8"),
+        file_bytes,
+        b"\r\n",
+        f"--{boundary}--\r\n".encode("utf-8"),
+    ]
+    return b"".join(parts), f"multipart/form-data; boundary={boundary}"
+
+
+def upload_replicate_file(path: Path, *, token: str) -> str:
+    if not path.exists():
+        raise FileNotFoundError(path)
+    body, content_type = _multipart_file_body(path)
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": content_type,
+        "User-Agent": "shorts-bot/1.0",
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/files",
+        data=body,
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        body_text = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Replicate file upload {exc.code}: {body_text[:400]}") from exc
+    get_url = (payload.get("urls") or {}).get("get")
+    if not get_url:
+        raise RuntimeError(f"Replicate file upload missing urls.get: {payload}")
+    return str(get_url)
+
+
 def generate_replicate_image(
     prompt: str,
     out_path: Path,
     *,
     token: str,
-    model: str = "black-forest-labs/flux-schnell",
+    model: str = "[REDACTED]",
     aspect_ratio: str = "9:16",
 ) -> str:
     """Run Replicate model and save first output image to out_path."""
@@ -119,7 +166,49 @@ def generate_replicate_image(
     return f"replicate/{model}"
 
 
-def probe_replicate(token: str, model: str = "black-forest-labs/flux-schnell") -> tuple[bool, str]:
+def generate_replicate_i2v(
+    prompt: str,
+    image_path: Path,
+    out_path: Path,
+    *,
+    token: str,
+    model: str = "minimax/video-01",
+    timeout_sec: int = 600,
+) -> str:
+    """Image-to-video clip (first frame = image, prompt = motion)."""
+    if "/" not in model:
+        raise ValueError(f"Invalid Replicate video model slug: {model}")
+
+    image_url = upload_replicate_file(image_path, token=token)
+    owner, name = model.split("/", 1)
+    url = f"{API_BASE}/models/{owner}/{name}/predictions"
+    body = {
+        "input": {
+            "prompt": prompt,
+            "first_frame_image": image_url,
+            "prompt_optimizer": True,
+        }
+    }
+    created = _request("POST", url, token=token, payload=body)
+    pred_id = created.get("id")
+    if not pred_id:
+        raise RuntimeError(f"Replicate video returned no prediction id: {created}")
+
+    result = _poll_prediction(pred_id, token=token, timeout_sec=timeout_sec)
+    output = result.get("output")
+    if not output:
+        raise RuntimeError(f"Replicate video empty output: {result}")
+
+    video_url = output if isinstance(output, str) else (output[0] if isinstance(output, list) else None)
+    if not isinstance(video_url, str):
+        raise RuntimeError(f"Unexpected Replicate video output: {type(output)}")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    _download_url(video_url, out_path)
+    return f"replicate/{model}"
+
+
+def probe_replicate(token: str, model: str = "[REDACTED]") -> tuple[bool, str]:
     try:
         owner, name = model.split("/", 1)
         url = f"{API_BASE}/models/{owner}/{name}"
