@@ -448,6 +448,9 @@ def finish_draft_pipeline(
                     messages.append(f"Analytics: {sync_msg[:180]}")
                 from shorts_bot.learning.reflect import vision_qc_snapshot
 
+                from shorts_bot.production.scare_pillar import pillar_label, scare_pillar_for_topic
+
+                pillar = scare_pillar_for_topic(draft.topic)
                 record_upload(
                     mem,
                     draft_id=draft_id,
@@ -457,12 +460,14 @@ def finish_draft_pipeline(
                     title=package.title,
                     video_id=up.video_id,
                     extra_snapshot={
+                        "scare_pillar": pillar,
+                        "scare_pillar_label": pillar_label(pillar),
                         "vision_qc": vision_qc_snapshot(
                             score=vision.score,
                             passed=vision.passed,
                             issues=vision.issues,
                             warnings=vision.warnings,
-                        )
+                        ),
                     },
                 )
                 if settings.auto_publish_hours > 0 and package.visibility == "unlisted":

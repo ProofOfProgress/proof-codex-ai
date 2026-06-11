@@ -26,7 +26,10 @@ class ChannelBrand:
         if self.identity_path.exists():
             text = self.identity_path.read_text(encoding="utf-8")
             return text[:2500]
-        return "Channel: helpful faceless Shorts. Subtle warm oracle tone. No slop."
+        return (
+            "Channel: Don't Blink — terrifying faceless horror Shorts (~30s). "
+            "Jumpscare at the end. Watch the whole thing."
+        )
 
     def youtube_copy(self) -> str:
         if self.copy_path.exists():

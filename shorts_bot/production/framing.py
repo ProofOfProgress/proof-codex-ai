@@ -68,11 +68,15 @@ def framing_notes_for_prompt() -> str:
     )
 
 
-def stick_framing_notes_for_prompt() -> str:
-    """ChainsFR format — character acts the beat; minimal set dressing per timestamp."""
+def horror_framing_notes_for_prompt() -> str:
+    """Don't Blink — cinematic horror composition per beat."""
     return (
-        "Stick figure ACTING the spoken line — place in upper-middle (not bottom half), "
-        "slightly left of center to avoid right-side like/comment rail. "
-        "MS-Paint-simple line art, warm cream #F5EFE6, cosy domestic lamp/window, soft black outlines. "
-        "Bottom 40% clear for burned captions + YouTube Shorts UI."
+        "Cinematic horror 9:16 — subject in upper 55%, harsh contrast, deep shadows, "
+        "cold blue or night-vision green; faceless silhouettes until final scare beat. "
+        "Bottom 40% clear for captions + Shorts UI. No cosy warm lamp, no cream palette."
     )
+
+
+def stick_framing_notes_for_prompt() -> str:
+    """Legacy stick-figure notes — Don't Blink uses horror_framing_notes_for_prompt instead."""
+    return horror_framing_notes_for_prompt()
