@@ -99,27 +99,28 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
 
 
-def build_subtitles_from_manifest(
+def build_subtitles_from_voice_segments(
     segments: list[dict],
     *,
     audio_duration: float,
     caption_y_offset: int = 0,
-    script: str | None = None,
 ) -> tuple[str, str]:
-    """Return (srt_content, ass_content) timed to scaled audio."""
+    """
+    Return (srt, ass) from voice-timed caption rows.
+
+    Rows are independent of visual clip cuts — ASS floats on top at render.
+    """
     scale = _timeline_scale(segments, audio_duration)
-    caption_lines = caption_text_for_segments(segments, script=script)
 
     srt_lines: list[str] = []
     ass_events: list[str] = []
     idx = 1
-
     margin_tag = ass_force_margin_override(y_offset=caption_y_offset)
 
-    for seg, raw in zip(segments, caption_lines):
-        start = seg["start_seconds"] * scale
-        end = max(start + 0.08, seg["end_seconds"] * scale)
-        raw = raw.strip()
+    for seg in segments:
+        start = float(seg["start_seconds"]) * scale
+        end = max(start + 0.08, float(seg["end_seconds"]) * scale)
+        raw = str(seg.get("spoken_text", "")).strip()
         if not raw:
             continue
 
@@ -144,28 +145,48 @@ def build_subtitles_from_manifest(
     return srt, ass
 
 
-def write_subtitle_files(
-    pack_dir: Path,
+def build_subtitles_from_manifest(
     segments: list[dict],
-    audio_duration: float,
     *,
+    audio_duration: float,
     caption_y_offset: int = 0,
     script: str | None = None,
-) -> Path:
-    if script is None:
-        manifest_path = pack_dir / "manifest.json"
-        if manifest_path.exists():
-            try:
-                import json
-
-                script = json.loads(manifest_path.read_text(encoding="utf-8")).get("script")
-            except (json.JSONDecodeError, OSError):
-                script = None
-    srt, ass = build_subtitles_from_manifest(
+) -> tuple[str, str]:
+    """Legacy: visual manifest segments (prefer build_subtitles_from_voice_segments)."""
+    if script:
+        caption_lines = caption_text_for_segments(segments, script=script)
+        voice_rows = [
+            {
+                "start_seconds": seg["start_seconds"],
+                "end_seconds": seg["end_seconds"],
+                "spoken_text": line,
+            }
+            for seg, line in zip(segments, caption_lines)
+        ]
+        return build_subtitles_from_voice_segments(
+            voice_rows,
+            audio_duration=audio_duration,
+            caption_y_offset=caption_y_offset,
+        )
+    return build_subtitles_from_voice_segments(
         segments,
         audio_duration=audio_duration,
         caption_y_offset=caption_y_offset,
-        script=script,
+    )
+
+
+def write_subtitle_files(
+    pack_dir: Path,
+    caption_segments: list[dict],
+    audio_duration: float,
+    *,
+    caption_y_offset: int = 0,
+) -> Path:
+    """Write SRT + ASS from voice-timed caption rows (floats on video at render)."""
+    srt, ass = build_subtitles_from_voice_segments(
+        caption_segments,
+        audio_duration=audio_duration,
+        caption_y_offset=caption_y_offset,
     )
     (pack_dir / "captions.srt").write_text(srt, encoding="utf-8")
     ass_path = pack_dir / "subtitles.ass"

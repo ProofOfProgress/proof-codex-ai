@@ -542,12 +542,31 @@ def render_short_video(
     out_path = pack_dir / output_name
 
     from shorts_bot.config import settings
+    from shorts_bot.production.caption_timing import resolve_caption_segments
     from shorts_bot.production.captions import burn_captions_via_ffmpeg
     from shorts_bot.production.subtitles import ffmpeg_subtitles_filter, write_subtitle_files
 
+    caption_segments = resolve_caption_segments(
+        pack_dir=pack_dir,
+        script=str(manifest.get("script") or ""),
+        audio_duration=audio_duration,
+    )
+    if not caption_segments:
+        caption_segments = [
+            {
+                "start_seconds": s["start_seconds"],
+                "end_seconds": s["end_seconds"],
+                "spoken_text": s.get("spoken_text", ""),
+            }
+            for s in segments
+        ]
+    (pack_dir / "caption_segments.json").write_text(
+        __import__("json").dumps(caption_segments, indent=2),
+        encoding="utf-8",
+    )
     ass_path = write_subtitle_files(
         pack_dir,
-        segments,
+        caption_segments,
         audio_duration,
         caption_y_offset=caption_y_offset,
     )
