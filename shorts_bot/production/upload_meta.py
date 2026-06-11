@@ -71,7 +71,7 @@ def build_upload_package(
         f"Niche: {NICHE_NAME}",
         "🔊 Volume warning on finale-scare drafts only (suspense-replay drafts skip it)",
         "YPP: max 1 Short per 24h — upload_guard enforces",
-        "Script is second-person horror micro-story — impossible hook in line 1",
+        "Script is second-person scary story — strong hook in line 1",
         "Title front-loads hook keyword (first 40 chars); VO speaks hook in first 3s",
         "3-5 hashtags in description (first 3 show above title)",
         "5-8 backend tags in Studio — horror/jumpscare/topic-specific",
@@ -149,7 +149,7 @@ def _description_from_research(topic: str, hook: str, research, *, draft_id: int
     lines = [vol, hook_line] if vol.strip() else [hook_line]
     lines.extend(
         [
-            f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
+            f"Don't Blink — scary horror Shorts (~30s). "
             f"{scare_line} Watch the whole thing.",
             "AI motion visuals · synthetic media disclosed",
             "What should the next story be? One sentence in the comments.",
@@ -193,7 +193,7 @@ def _tags_from_research(topic: str, research) -> list[str]:
 
 
 def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
-    """Front-load impossible hook; volume emoji only on finale-scare drafts."""
+    """Front-load hook line; volume emoji only on finale-scare drafts."""
     vol_prefix = ""
     if draft_id and _volume_warning_for_draft(draft_id).strip():
         vol_prefix = "🔊 "
@@ -221,7 +221,7 @@ def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
     lines.extend(
         [
             sanitize_description_text(
-                f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
+                f"Don't Blink — scary horror Shorts (~30s). "
                 f"{tease} Watch the whole thing."
             ),
             "AI motion visuals · synthetic media disclosed",

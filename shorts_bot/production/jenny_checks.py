@@ -21,7 +21,7 @@ _FIRST_PERSON = re.compile(
 def jenny_retention_guidance(topic: str) -> str:
     """Hook/retention rules adapted for Don't Blink horror (not cosy self-help)."""
     return f"""Topic: {topic}
-- Hook line 1 = impossible detail (not "scary story #N")
+- Hook line 1 = something clearly wrong (not "scary story #N")
 - Start video immediately — no warm-up, no channel intro
 - Every beat adds a worse wrong detail (but/so cause-effect)
 - False calm beat before final scare — quiet VO bait
@@ -50,7 +50,7 @@ VOICE — immersive second-person horror (Jenny 02 + 06 adapted):
 - No "hey guys" / plural audience
 
 STRUCTURE (Jenny 02 + 06):
-- Hook ASAP — impossible detail + reason to watch to end
+- Hook ASAP — clear wrong detail + reason to watch to end
 - Every line moves toward payoff. Cut filler.
 - Cause-and-effect: but / so chaining between beats
 - False calm beat before final scare
@@ -77,9 +77,9 @@ def check_jenny_voice(script: str, hook: str) -> list[str]:
     if re.search(r"\b(hey guys|everyone|people|folks)\b", combined, re.I):
         issues.append("Plural audience — use singular 'you'.")
     if script.lower().startswith(("in this video", "today we", "let's talk about", "welcome back")):
-        issues.append("Weak opener — start the video ASAP with the impossible hook.")
+        issues.append("Weak opener — start the video ASAP with the hook.")
     if re.search(r"\b(scary story\s*#?\d+|episode\s*\d+)\b", combined, re.I):
-        issues.append("Series numbering — launch week hooks must be standalone impossible details.")
+        issues.append("Series numbering — launch week hooks must stand on their own.")
     if "subscribe" in script.lower() and script.lower().rfind("subscribe") > len(script) * 0.85:
         issues.append("CTA may be after payoff — move subscribe ask before resolution.")
     return issues

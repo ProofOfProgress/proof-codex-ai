@@ -289,8 +289,9 @@ def _gemini_review(
             "6) NONSENSICAL ELEMENTS — story logic breaks visible on screen (empty hallway then figure "
             "with no transition sense, wrong room, etc).\n"
             "7) JUMPSCARE — visible lunge motion vs audio sting timing.\n\n"
-            "Return ONLY JSON: score, concept_score, production_score, summary, av_sync, "
-            "vo_visual_match, subtitle_sync, jumpscare, captions, visuals, "
+            "Return ONLY JSON. All score fields are integers 0-100 (not 1-10): "
+            "score, concept_score, production_score, jumpscare, captions, visuals, "
+            "vo_visual_match, subtitle_sync, summary, av_sync, "
             "visual_glitches (string[]), framing_issues (string[]), "
             "things_that_shouldnt_be_there (string[]), nonsensical_elements (string[]), "
             "weird_frames (string[]), fixes (string[])."
@@ -337,6 +338,18 @@ def _gemini_review(
         raise RuntimeError(f"Gemini returned non-JSON: {raw[:400]}") from exc
 
 
+def _parse_score_field(val: Any) -> float:
+    """Normalize Gemini scores to 0-100."""
+    if isinstance(val, (int, float)):
+        v = float(val)
+    else:
+        m = re.search(r"([\d.]+)", str(val))
+        v = float(m.group(1)) if m else 0.0
+    if 0 < v <= 10:
+        return v * 10.0
+    return v
+
+
 def _review_from_data(
     data: dict[str, Any],
     *,
@@ -345,14 +358,14 @@ def _review_from_data(
     deep: bool,
 ) -> ProductionReview:
     return ProductionReview(
-        score=float(data.get("score", 0)),
-        concept_score=float(data.get("concept_score", 0)),
-        production_score=float(data.get("production_score", 0)),
+        score=_parse_score_field(data.get("score", 0)),
+        concept_score=_parse_score_field(data.get("concept_score", 0)),
+        production_score=_parse_score_field(data.get("production_score", 0)),
         summary=str(data.get("summary", "")),
         av_sync=str(data.get("av_sync", "")),
-        jumpscare=str(data.get("jumpscare", "")),
-        captions=str(data.get("captions", "")),
-        visuals=str(data.get("visuals", "")),
+        jumpscare=str(_parse_score_field(data.get("jumpscare", 0))),
+        captions=str(_parse_score_field(data.get("captions", 0))),
+        visuals=str(_parse_score_field(data.get("visuals", 0))),
         weird_frames=[str(x) for x in (data.get("weird_frames") or [])],
         fixes=[str(x) for x in (data.get("fixes") or [])],
         frame_times=times,

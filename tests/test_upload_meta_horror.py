@@ -1,4 +1,5 @@
 from shorts_bot.production.description_copy import (
+    FINALE_VOLUME_WARNING,
     description_is_safe,
     sanitize_description_text,
 )
@@ -16,7 +17,7 @@ def test_description_uses_normalized_hook():
     assert "competitor" not in desc.lower()
 
 
-def test_description_never_spoils_jumpscare():
+def test_description_uses_plain_language():
     for draft_id in range(1, 12):
         desc = _safe_description(
             "security camera motion",
@@ -24,12 +25,36 @@ def test_description_never_spoils_jumpscare():
             draft_id=draft_id,
         )
         assert description_is_safe(desc), desc
-        assert "jumpscare" not in desc.lower()
+        lower = desc.lower()
+        assert "impossible detail" not in lower
+        assert "micro-story" not in lower
+        assert "terrifying faceless" not in lower
 
 
-def test_sanitize_strips_legacy_volume_warning():
-    raw = "🔊 VOLUME WARNING — jumpscare near the end. Headphones advised."
+def test_finale_description_says_jumpscare():
+    desc = _safe_description(
+        "security camera motion",
+        "Your security camera flagged motion at 3:12 AM.",
+        draft_id=1,
+    )
+    assert "jumpscare" in desc.lower()
+
+
+def test_sanitize_upgrades_legacy_copy():
+    raw = "🔊 VOLUME WARNING — loud moment at the end. Headphones advised."
     clean = sanitize_description_text(raw)
-    assert "jumpscare" not in clean.lower()
-    assert "end" in clean.lower()
+    assert "jumpscare" in clean.lower()
+    assert "loud moment" not in clean.lower()
     assert description_is_safe(clean)
+
+
+def test_sanitize_strips_impossible_detail_tease():
+    raw = "One impossible detail → tension → watch to the end."
+    clean = sanitize_description_text(raw)
+    assert "impossible detail" not in clean.lower()
+    assert description_is_safe(clean)
+
+
+def test_volume_warning_plain_wording():
+    assert "jumpscare" in FINALE_VOLUME_WARNING.lower()
+    assert "impossible" not in FINALE_VOLUME_WARNING.lower()

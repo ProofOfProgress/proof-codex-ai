@@ -13,6 +13,7 @@ OverlayKind = Literal[
     "cctv_hud",
     "message_bubble",
     "motion_chip",
+    "phone_feed",
 ]
 
 
@@ -24,6 +25,7 @@ class ScreenTextOverlay:
     tertiary: str = ""
     time_label: str = ""
     accent: str = "#FF3B30"  # iOS alert red
+    feed_state: str = ""  # phone_feed: empty | figure_closer
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -79,19 +81,31 @@ def infer_overlay_from_beat(
             accent="#FF453A",
         )
 
-    if any(k in lower for k in ("refresh", "figure closer", "closer in frame")):
+    if any(k in lower for k in ("refresh", "figure closer", "closer in frame", "tall figure")):
         return ScreenTextOverlay(
-            kind="motion_chip",
-            primary="MOTION",
+            kind="phone_feed",
+            primary=_topic_camera_label(topic),
             secondary=time_lbl,
-            accent="#FFCC00",
+            tertiary="MOTION",
+            feed_state="figure_closer",
+            accent="#39FF14",
         )
 
-    if any(k in lower for k in ("timestamp", "live feed", "security cam", "cctv", "night vision")):
+    if any(k in lower for k in ("live feed", "hallway empty", "empty hallway", "empty hold")):
+        return ScreenTextOverlay(
+            kind="phone_feed",
+            primary=_topic_camera_label(topic),
+            secondary=time_lbl,
+            tertiary="LIVE",
+            feed_state="empty",
+            accent="#39FF14",
+        )
+
+    if any(k in lower for k in ("timestamp", "security cam", "cctv", "night vision")):
         cam = _topic_camera_label(topic)
         return ScreenTextOverlay(
             kind="cctv_hud",
-            primary="● REC",
+            primary="REC",
             secondary=time_lbl,
             tertiary=cam.upper(),
             accent="#39FF14",
@@ -117,6 +131,15 @@ def infer_overlay_from_beat(
             secondary="Tap detected",
             time_label=time_lbl,
             accent="#FF9F0A",
+        )
+
+    if any(k in lower for k in ("figure at bed", "bed foot", "staring into")):
+        return ScreenTextOverlay(
+            kind="cctv_hud",
+            primary="REC",
+            secondary=time_lbl,
+            tertiary="BEDROOM CAM",
+            accent="#39FF14",
         )
 
     return None

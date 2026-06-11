@@ -17,11 +17,11 @@ from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 
 SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
 
-CHANNEL VOICE: Second-person micro-story — "you" discover one impossible wrong detail. Tense, specific, not cosy.
+CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
 
 STRUCTURE (earn the jumpscare — write backwards from final scare):
-- Line 1 = impossible hook (timestamp glitch, wrong reflection, text from dead contact)
+- Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)
 - Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
 - Beats 5-6 (12-20s): escalation — sound + visual micro-cues
 - Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
@@ -30,7 +30,7 @@ STRUCTURE (earn the jumpscare — write backwards from final scare):
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
 - Singular "you". ~70-110 words spoken. 9:16 faceless horror.
 
-Return JSON: hook, script, help_angle (one sentence: scare type + why hook is impossible), visual_beats (6-8 horror scene descriptions)."""
+Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
 
 
 @dataclass
@@ -120,9 +120,9 @@ FORMAT RULES FOR THIS DRAFT:
 {course_ctx}
 
 Return JSON with keys:
-- hook: first spoken line (impossible detail)
+- hook: first spoken line (something clearly wrong)
 - script: full voiceover script (25-35s when read aloud)
-- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook is impossible
+- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook feels wrong
 - visual_beats: list of 6-8 cinematic horror shot descriptions (mute-friendly, one per beat)
 """
         response = self.client.chat.completions.create(

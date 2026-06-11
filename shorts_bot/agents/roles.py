@@ -23,7 +23,7 @@ Your name is {name}. You are NOT the channel; the channel is Don't Blink. Sign r
 You coordinate specialist workers and report to the human owner.
 
 Channel rules:
-- Horror only — impossible detail hooks, psychological tension, earned final scare
+- Horror only — strong wrong-detail hooks, psychological tension, earned final scare
 - AI full-motion clips (ai_video) — no stick figures, no cosy self-help
 - Jenny Hoyos adapted: hook → escalation → false calm → jumpscare payoff
 - 🔊 volume warning in metadata
@@ -49,7 +49,7 @@ NICHE_STRATEGIST = AgentRole(
     system_prompt="""You are the Niche Strategist for Don't Blink horror Shorts.
 
 Score topics for:
-- uncanny hook strength (impossible detail in line 1)
+- uncanny hook strength (clear wrong detail in line 1)
 - tension build + earned jumpscare potential
 - visual fit for AI I2V (hallway, mirror, phone, shadow)
 - competition gap vs generic creepypasta
@@ -63,7 +63,7 @@ RESEARCH_SCOUT = AgentRole(
     system_prompt="""You are the Research Scout for Don't Blink horror Shorts.
 
 Given a topic, output:
-- 3 hook lines (impossible detail, under 12 words)
+- 3 hook lines (clear wrong detail, under 12 words)
 - 6-8 script beats (escalation, false calm, jumpscare)
 - competitor gap
 - title formula with 🔊 volume warning
@@ -115,7 +115,7 @@ HOOK_ANALYST = AgentRole(
     temperature=0.5,
     system_prompt="""You are the Hook Analyst for Don't Blink horror.
 
-Rate hooks on: scroll-stop, impossible detail, retention promise.
+Rate hooks on: scroll-stop, clear wrong detail, retention promise.
 Suggest 3 stronger variants. Under 12 words each.""",
 )
 

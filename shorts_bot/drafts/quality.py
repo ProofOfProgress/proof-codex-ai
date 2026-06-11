@@ -110,10 +110,10 @@ def run_quality_checks(
         warnings.append(f"Script may be long for a horror Short ({word_count} words). Keep under ~35s.")
 
     if len(hook.strip()) < 12:
-        issues.append("Hook is too weak — need a specific impossible detail in line 1.")
+        issues.append("Hook is too weak — need something clearly wrong in line 1.")
 
     if len(help_angle.strip()) < 20:
-        issues.append("Scare angle is vague. Name scare type (reflection/knock/glitch/lunge) and the impossible hook.")
+        issues.append("Scare angle is vague. Name scare type (reflection/knock/glitch/lunge) and the hook.")
 
     lowered = script.lower()
     hook_lower = hook.lower()
@@ -128,7 +128,7 @@ def run_quality_checks(
 
     for phrase in GENERIC_CREEPY_PHRASES:
         if phrase in lowered:
-            warnings.append(f"Generic horror framing: '{phrase}' — swap for a specific impossible detail.")
+            warnings.append(f"Generic horror framing: '{phrase}' — swap for a specific wrong detail.")
 
     if re.search(r"\b(i used to|this helped me|my therapist|same loop every night)\b", lowered):
         issues.append("Self-help first-person voice — use second-person 'you' horror micro-story.")
@@ -168,7 +168,7 @@ def run_quality_checks(
     )
     if not any(c in hook_lower for c in impossible_cues):
         warnings.append(
-            "Hook may lack an impossible detail — lead with timestamp/reflection/text/knock wrongness."
+            "Hook may lack a clear wrong detail — lead with timestamp/reflection/text/knock wrongness."
         )
 
     if not any(c in lowered for c in FALSE_CALM_CUES):

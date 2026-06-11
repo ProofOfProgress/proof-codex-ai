@@ -17,10 +17,10 @@ def _offline_reply(comment: str) -> str:
     if re.search(r"\b(thank|thanks|helped|useful|needed this|appreciate)\b", lower):
         return "Glad it landed — watch the whole thing on the next one too."
     if re.search(r"\b(love|great|awesome|perfect|amazing)\b", lower):
-        return "Means a lot — more impossible-detail horror coming."
+        return "Means a lot — more scary stories coming."
     if "?" in comment and len(comment) < 120:
         return (
-            "Short answer: rewatch the hook frame — the wrong detail is the clue. "
+            "Short answer: rewatch the start — the weird part is the clue. "
             "If it's heavier than fiction, reach someone you trust offline too."
         )
     return (
@@ -45,7 +45,7 @@ Video: {video_title[:120] or "a Short"}
 Rules:
 - Max 220 characters
 - Tense but human horror-creator voice — not therapist, not crisis counselor
-- If they suggest a topic, say you'll queue it for the next Don't Blink micro-story
+- If they suggest a topic, say you'll queue it for the next Don't Blink Short
 - Do NOT paste the channel tagline ("{tagline}") — it sounds robotic in comments
 - NEVER spoil the video: no jumpscare, scare at the end, volume warning, headphones, or loud ending
 - No links, no medical advice, no "as an AI"

@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-# Never spoil payoff in public comments — volume warning belongs in title/description only.
+# Pinned/CTA comments: simple story ideas only — no ending spoilers.
 CTA_NO_SPOILER_RULE = (
     "Do not mention jumpscare, scare at the end, loud ending, headphones, or volume in comments."
 )
 
 DEFAULT_CTA = (
-    "What should the next impossible detail be? One sentence — I read every comment."
+    "What scary story should we do next? Write one sentence. I read every comment."
 )
 
 _ALTERNATE_CTAS = (
-    "One sentence: what wrong detail should Don't Blink cover next?",
-    "What did you catch on the second watch? One line — I read these.",
-    "Drop the next story idea in one sentence. I queue the best ones.",
+    "What story should we make next? One sentence.",
+    "What did you spot the second time you watched? One line.",
+    "Drop your next story idea in one sentence.",
 )
 
 
@@ -39,6 +39,7 @@ def _cta_is_safe(text: str) -> bool:
         "headphones",
         "loud ending",
         "turn your volume",
+        "impossible detail",
     )
     return not any(b in lower for b in banned)
 

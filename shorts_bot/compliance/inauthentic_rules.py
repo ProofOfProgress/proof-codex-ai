@@ -90,7 +90,7 @@ def risk_signals_for_script(script: str, hook: str, title: str) -> list[str]:
     if not has_you and not has_i:
         risks.append("missing personal voice (inauthentic lecture risk)")
     elif has_you and not has_i and len(script.split()) < 40:
-        risks.append("thin second-person template — add specific impossible detail beats")
+        risks.append("thin second-person template — add specific wrong-detail beats")
     if len(script.split()) < 35:
         risks.append("script too short — thin template risk")
     for pat in TITLE_SPAM_PATTERNS:

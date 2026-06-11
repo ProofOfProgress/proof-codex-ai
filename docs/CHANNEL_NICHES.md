@@ -4,7 +4,7 @@
 
 ## Positioning
 
-One impossible detail → tension → earned scare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
+Short scary story → tension builds → jumpscare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
 
 ## Scare pillars (rotate)
 

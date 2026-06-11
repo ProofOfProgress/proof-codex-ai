@@ -1,50 +1,63 @@
-"""Public-facing upload copy — no jumpscare spoilers in descriptions."""
+"""Public-facing upload copy — plain 5th–8th grade language."""
 
 from __future__ import annotations
 
 import re
 
-# Finale drafts: hint at end payoff without saying "jumpscare".
 FINALE_VOLUME_WARNING = (
-    "🔊 VOLUME WARNING — loud moment at the end. Headphones advised."
+    "🔊 VOLUME WARNING — jumpscare at the end. Use headphones."
 )
 
 FINALE_STORY_TEASE = (
-    "One impossible detail → tension → watch to the end."
+    "Scary stories in about 30 seconds. Watch to the end."
 )
 
 SUSPENSE_STORY_TEASE = (
-    "One impossible detail → tension → replay to catch what you missed."
+    "Scary stories in about 30 seconds. Watch twice if you missed something."
 )
 
-_DESCRIPTION_SPOILERS = (
-    "jumpscare",
-    "jump scare",
-    "jumpscare near the end",
-    "jumpscare at the end",
-    "scare at the end",
-    "scare near the end",
+# Channel copy should never use jargon like this.
+_BANNED_PUBLIC_PHRASES = (
+    "impossible detail",
+    "micro-story",
+    "micro-stories",
+    "payoff",
+    "terrifying faceless",
 )
 
 
 def description_is_safe(text: str) -> bool:
     lower = (text or "").lower()
-    return not any(phrase in lower for phrase in _DESCRIPTION_SPOILERS)
+    return not any(phrase in lower for phrase in _BANNED_PUBLIC_PHRASES)
 
 
 def sanitize_description_text(text: str) -> str:
-    """Strip/replace spoiler phrases in titles, descriptions, volume lines."""
+    """Normalize legacy copy to plain wording — jumpscare is fine to say out loud."""
     if not text:
         return text
     out = text
     replacements = [
-        (r"jumpscare\s+near\s+the\s+end", "loud moment at the end"),
-        (r"jumpscare\s+at\s+the\s+end", "something at the end"),
-        (r"jump\s+scare\s+near\s+the\s+end", "loud moment at the end"),
-        (r"scare\s+at\s+the\s+end", "payoff at the end"),
-        (r"scare\s+near\s+the\s+end", "moment at the end"),
-        (r"\bjumpscare\b", "payoff"),
-        (r"\bjump\s+scare\b", "payoff"),
+        (
+            r"one\s+impossible\s+detail\s*→\s*tension\s*→\s*watch\s+to\s+the\s+end\.?",
+            FINALE_STORY_TEASE,
+        ),
+        (
+            r"one\s+impossible\s+detail\s*→\s*tension\s*→\s*replay\s+to\s+catch\s+what\s+you\s+missed\.?",
+            SUSPENSE_STORY_TEASE,
+        ),
+        (r"impossible\s+detail", "something wrong"),
+        (r"loud\s+moment\s+at\s+the\s+end", "jumpscare at the end"),
+        (r"jumpscare\s+near\s+the\s+end", "jumpscare at the end"),
+        (r"jump\s+scare\s+near\s+the\s+end", "jumpscare at the end"),
+        (r"scare\s+at\s+the\s+end", "jumpscare at the end"),
+        (r"scare\s+near\s+the\s+end", "jumpscare at the end"),
+        (r"payoff\s+at\s+the\s+end", "jumpscare at the end"),
+        (r"\bpayoff\b", "jumpscare"),
+        (
+            r"terrifying\s+faceless\s+horror\s+micro-stories",
+            "scary horror Shorts",
+        ),
+        (r"headphones\s+advised", "use headphones"),
     ]
     for pattern, repl in replacements:
         out = re.sub(pattern, repl, out, flags=re.IGNORECASE)
