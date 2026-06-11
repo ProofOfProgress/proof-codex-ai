@@ -6,7 +6,8 @@
 - **North star:** autonomous money-making channel. **Current focus:** **100% automation** + **better videos** (hooks, sync, vision QC, analytics learning). Top 4 only in `data/PRIORITIES.md`.
 - **Deprioritize** refactors, docs-for-docs-sake, and features that do not advance autopilot or revenue.
 - **Top 4 only:** see `data/PRIORITIES.md` — work only on those four until reassessed; update the file when priorities shift.
-- **Do it yourself:** external setup (Google Cloud OAuth, YouTube `auth_cli`, provider dashboards) — use **browser + terminal first**; only ask the owner when the agent session is blocked (wrong account, 2FA, payment). See `data/operating_rules_seed.md` → “Cloud agents — do it yourself first”.
+- **Do it yourself:** external setup (Google Cloud OAuth, YouTube `auth_cli`, provider dashboards) — use **browser + terminal first**; only ask the owner when blocked (wrong account, 2FA, payment). See `data/operating_rules_seed.md` → “Cloud agents — do it yourself first”.
+- **Owner handoff:** if the owner must do something — drive the **browser to the exact screen** first, then they take over. No long manual doc dumps unless browser is unavailable.
 
 ## Cursor Cloud specific instructions
 

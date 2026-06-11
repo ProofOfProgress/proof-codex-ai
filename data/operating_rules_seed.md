@@ -19,6 +19,8 @@ When setup or fixes need an external dashboard (Google Cloud OAuth, YouTube cons
 4. Verify with `python3 -m shorts_bot.login_status` before telling the owner it’s done.
 5. Report to owner in plain English: what was completed, what file/token exists, what (if anything) still needs them.
 
+**When the owner must take over:** do **not** send long written tutorials. Use the **browser** to navigate as close as possible to the exact screen, form, or button they need — then stop and say “your turn” (one sentence on what to click). Owner takes control from there.
+
 **Lesson (2026-06):** YouTube `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` + `data/youtube_token.json` were completed by agent browser — owner should not be sent through manual OAuth docs unless the agent session truly cannot authenticate.
 
 ## North star — #1 priority (everything else is secondary)
