@@ -29,7 +29,16 @@
 
 **Channel brand:** **Peripheral** (display name). Merch tagline: *don't blink* under line-eye logo. Spec: `channel/brand/identity.md`.
 
-**Formats:** Shorts now; long-form later via **asset reuse** — `docs/CONTENT_FORMATS.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
+**Formats:** Shorts now; long-form via **asset reuse** — `docs/CONTENT_FORMATS.md`, `data/PRIORITY_LONG_FORM.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
+
+**Long-form (no new I2V):** stitch 3+ finished Shorts → 16:9 blur pillarbox; QC + chapters before upload.
+
+```bash
+python3 -m shorts_bot.production.winner_selection_cli --limit 3
+python3 -m shorts_bot.production.long_compilation_cli --draft-ids 2,3,1
+python3 -m shorts_bot.production.long_quality_cli --pack-dir data/production/long_compilation_001
+python3 -m shorts_bot.production.upload_long_cli --pack-dir data/production/long_compilation_001
+```
 
 **Visual grammar (default):** fullscreen **CCTV** for security-cam drafts — **no phone screens**. Time via **alarm clock** or REC OSD (`screen_text_phone_enabled=false`).
 
