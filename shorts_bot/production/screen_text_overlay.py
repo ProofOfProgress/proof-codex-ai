@@ -1,4 +1,4 @@
-"""Composited diegetic UI text — screen-only on I2V phone display (no fake bezel)."""
+"""Composited diegetic UI — fullscreen CCTV OSD + alarm clock (no phone screens)."""
 
 from __future__ import annotations
 
@@ -127,6 +127,10 @@ def _scrub_vf_chain(spec: ScreenTextOverlay | None, *, local: bool = False) -> s
 
 
 def _is_phone_overlay(spec: ScreenTextOverlay) -> bool:
+    from shorts_bot.production.screen_text_spec import phone_screens_enabled
+
+    if not phone_screens_enabled():
+        return False
     norm = normalize_overlay_spec(spec)
     return norm.kind in {"phone_feed", "message_bubble"}
 
@@ -162,6 +166,8 @@ def render_overlay_rgba(
         _draw_phone_device(draw, spec, width=width, height=height)
     elif spec.kind == "cctv_hud":
         _draw_cctv_hud(draw, spec, width=width, height=height)
+    elif spec.kind == "alarm_clock":
+        _draw_alarm_clock(draw, spec, width=width, height=height)
     elif spec.kind == "message_bubble":
         _draw_phone_message(draw, spec, width=width, height=height)
     elif spec.kind == "motion_chip":
@@ -528,6 +534,31 @@ def _draw_phone_message(draw, spec: ScreenTextOverlay, *, width: int, height: in
     for ln in lines:
         draw.text((sx + 28, ty), ln, fill="#FFFFFF", font=font)
         ty += line_h
+
+
+def _draw_alarm_clock(draw, spec: ScreenTextOverlay, *, width: int, height: int) -> None:
+    """Digital alarm clock on nightstand — bottom-right, above caption safe zone."""
+    time_txt = (spec.primary or spec.time_label or "3:12 AM").strip()
+    cx, cy, cw, ch = width - 320, height - 520, 260, 110
+    draw.rounded_rectangle(
+        [cx, cy, cx + cw, cy + ch],
+        radius=12,
+        fill=(12, 12, 14, 200),
+        outline=(80, 80, 88, 255),
+        width=3,
+    )
+    draw.rounded_rectangle(
+        [cx + 10, cy + 10, cx + cw - 10, cy + ch - 10],
+        radius=8,
+        fill=(4, 4, 6, 230),
+    )
+    font_lg = _font(42, bold=True)
+    font_sm = _font(18)
+    tw = time_txt.replace(" AM", "").replace(" PM", "")
+    draw.text((cx + 24, cy + 22), tw, fill="#FF453A", font=font_lg)
+    ampm = "AM" if "AM" in time_txt.upper() else ("PM" if "PM" in time_txt.upper() else spec.secondary or "")
+    if ampm:
+        draw.text((cx + cw - 56, cy + 38), ampm, fill="#FF6961", font=font_sm)
 
 
 def _draw_cctv_hud(draw, spec: ScreenTextOverlay, *, width: int, height: int) -> None:

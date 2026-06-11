@@ -7,7 +7,8 @@ All visuals live in **The Gap** — the same liminal alone-at-night apartment un
 - Film grain, harsh contrast, underexposed interiors
 
 ## Subjects (faceless)
-- Hallways, doors, mirrors, phone screens, security cam POV, empty beds, stairwells
+- Hallways, doors, mirrors, **fullscreen security cam POV**, alarm clocks, empty beds, stairwells
+- **No smartphones** — time via alarm clock or CCTV OSD (REC / 3:12 AM)
 - Silhouettes only — no identifiable faces until final scare beat
 - Eyes macro (channel brand motif)
 

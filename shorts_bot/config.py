@@ -109,9 +109,10 @@ class Settings(BaseSettings):
     replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
-    screen_text_overlay_enabled: bool = True  # composited phone/CCTV UI (not AI-generated glyphs)
-    screen_text_screen_only: bool = True  # UI inside I2V phone screen — no fake bezel overlay
-    screen_text_draw_phone_ui: bool = True  # in-screen UI; use blur-only scrub underneath
+    screen_text_overlay_enabled: bool = True  # composited CCTV / alarm-clock UI (not AI-generated glyphs)
+    screen_text_phone_enabled: bool = False  # no phone screens — fullscreen CCTV + alarm clock for time
+    screen_text_screen_only: bool = True  # legacy phone rect mode (off while screen_text_phone_enabled=false)
+    screen_text_draw_phone_ui: bool = True  # ignored when screen_text_phone_enabled=false
     jumpscare_auto_generate: bool = True  # render calls Replicate Hailuo if jumpscare_lunge.mp4 missing/stale
     jumpscare_clip_play_seconds: float = 2.6  # how long the scare motion plays in the final Short
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output

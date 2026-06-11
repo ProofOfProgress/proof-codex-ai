@@ -2,8 +2,11 @@ from shorts_bot.production.screen_text_spec import (
     extract_time_label,
     infer_overlay_from_beat,
     infer_overlay_from_spoken,
+    is_cctv_topic,
     overlays_for_segments,
+    phone_screens_enabled,
 )
+
 
 DRAFT_3_SEGMENTS = [
     {"spoken_text": "Your security camera flag motion at 3:12 AM."},
@@ -18,76 +21,66 @@ DRAFT_3_SEGMENTS = [
 ]
 
 
+def test_phone_screens_disabled_by_default():
+    assert phone_screens_enabled() is False
+
+
 def test_extract_time_from_hook():
     assert "3:12" in extract_time_label("", "Motion at 3:12 AM — you live alone")
 
 
-def test_phone_motion_beat_is_in_phone_feed():
+def test_cctv_topic_detection():
+    assert is_cctv_topic("your security camera flagged motion")
+    assert not is_cctv_topic("mirror blink reflection")
+
+
+def test_cctv_beat_is_hud_not_phone():
     ov = infer_overlay_from_beat(
-        "Phone screen: security app motion alert 3:12 AM, dark apartment",
+        "Fullscreen CCTV hallway night vision, motion alert",
         hook="Your security camera flagged motion at 3:12 AM",
         topic="security camera motion",
     )
     assert ov is not None
-    assert ov.kind == "phone_feed"
-    assert ov.feed_state == "motion_banner"
-    assert "3:12" in ov.time_label
+    assert ov.kind == "cctv_hud"
+    assert ov.primary == "REC"
+    assert "3:12" in ov.secondary
 
 
-def test_cctv_hud_from_live_feed_beat():
+def test_alarm_clock_from_nightstand_beat():
     ov = infer_overlay_from_beat(
-        "Live feed hallway empty — timestamp overlay",
-        hook="3:12 AM alert",
+        "POV door deadbolt, alarm clock on nightstand red digits 3:12 AM",
         topic="security camera",
     )
     assert ov is not None
-    assert ov.kind == "phone_feed"
-    assert ov.feed_state == "empty"
+    assert ov.kind == "alarm_clock"
 
 
-def test_message_bubble_from_delivered_beat():
-    ov = infer_overlay_from_beat(
-        "New message slides in: I can see you",
-        topic="text delivered phone off",
-        spoken_text="I can see you",
-    )
-    assert ov is not None
-    assert ov.kind == "message_bubble"
-    assert "see you" in ov.primary.lower()
-
-
-def test_spoken_overlay_draft3_segments():
+def test_spoken_overlay_draft3_no_phones():
     hook = "Your security camera flagged motion at 3:12 AM — you live alone."
     topic = "security camera motion"
     kinds = []
     for seg in DRAFT_3_SEGMENTS:
         ov = infer_overlay_from_spoken(seg["spoken_text"], hook=hook, topic=topic)
         kinds.append(ov.kind if ov else None)
-    assert kinds[0] is None  # hook hallway — no floating HUD overlay
-    assert kinds[1] == "phone_feed"
-    assert kinds[5] == "phone_feed"
-    specs = overlays_for_segments(
-        DRAFT_3_SEGMENTS,
-        visual_beats=["wrong"] * 8,
-        hook=hook,
-        topic=topic,
-    )
-    assert specs[1].feed_state == "empty"
-    assert specs[2] is not None and specs[2].feed_state == "empty"
-    assert specs[3] is not None and specs[3].feed_state == "figure_closer"
-    assert specs[5].feed_state == "live_audio"
-    assert specs[4] is None
-    assert specs[8] is None
+    assert kinds[0] == "alarm_clock"
+    assert kinds[1] == "cctv_hud"
+    assert kinds[3] == "cctv_hud"
+    assert kinds[3] and kinds[3] != "phone_feed"
+    assert kinds[4] == "alarm_clock"
+    assert kinds[5] == "cctv_hud"
+    assert kinds[6] == "cctv_hud"
+    assert kinds[8] is None
+    assert "phone_feed" not in kinds
 
 
-def test_overlays_for_segments_maps_beats():
+def test_overlays_for_segments_cctv_only():
     segments = [
         {"spoken_text": "You opened the app."},
         {"spoken_text": "The hallway was empty."},
     ]
     beats = [
-        "Phone screen: security app motion alert 3:12 AM",
-        "Live feed hallway empty — timestamp overlay",
+        "Fullscreen CCTV hallway POV night vision",
+        "Fullscreen CCTV empty hallway",
     ]
     specs = overlays_for_segments(
         segments,
@@ -95,5 +88,5 @@ def test_overlays_for_segments_maps_beats():
         hook="3:12 AM",
         topic="security camera",
     )
-    assert specs[0] is not None and specs[0].kind == "phone_feed"
-    assert specs[1] is not None and specs[1].kind == "phone_feed"
+    assert specs[0] is not None and specs[0].kind == "cctv_hud"
+    assert specs[1] is not None and specs[1].kind == "cctv_hud"

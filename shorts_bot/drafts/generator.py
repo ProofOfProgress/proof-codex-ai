@@ -167,13 +167,13 @@ Return JSON with keys:
             )
             help_angle = "Wrong place — security cam motion while alone; false calm glitch excuse; lens lunge scare."
             visual_beats = [
-                "Phone screen: security app motion alert 3:12 AM, dark apartment",
-                "Live feed hallway empty — timestamp overlay",
-                "Refresh: tall figure closer in frame, grainy night vision",
-                "POV checking door locks, chain still on",
-                "Speaker tap — camera LED flickers",
-                "False calm: empty hallway hold, quiet",
-                "Figure at bed foot staring into camera, night vision green",
+                "Fullscreen fixed CCTV hallway POV, night vision green, motion alert, distant silhouette, NO phone NO hands",
+                "Fullscreen CCTV hallway cam, empty corridor night vision, REC overlay added in post",
+                "Fullscreen CCTV hallway, tall figure closer in frame, grainy night vision, MOTION",
+                "POV door deadbolt close-up, alarm clock on nightstand glowing 3:12 AM, NO phone",
+                "Smart speaker nightstand, alarm clock LED visible, camera LED flicker, NO phone",
+                "False calm: fullscreen CCTV empty hallway hold, quiet",
+                "Fullscreen bedroom CCTV POV, figure at bed foot staring into lens, night vision green",
                 "Full-frame lunge into lens, screen glitch",
             ]
         elif "text" in lower or "delivered" in lower or "message" in lower:

@@ -25,7 +25,7 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — {WORLD_NAME} (Don't Blink world):
 {WORLD_TAGLINE}
 Laws: movement in the unwatched moment (blink, look away, refresh, mute); 3:12 AM is when systems glitch;
-phones/mirrors/cameras show truth delayed or wrong; you are alone at home tonight; faceless until final scare beat.
+CCTV/mirrors/recordings show truth delayed or wrong; no phone screens in analog lane; you are alone at home tonight; faceless until final scare beat.
 Setting: same liminal apartment grammar — narrow hallway, bathroom mirror, bedroom phone glow, security cam corner, closet you never open.
 Threat: the thing in the gap — never named in VO; advances when you stop watching; finale lunge from mirror/door/lens/screen.
 Not this world: cosy self-help, stick figures, gore, daytime crowds, generic creepypasta listicles.

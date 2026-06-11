@@ -71,9 +71,11 @@ def framing_notes_for_prompt() -> str:
 def screen_text_prompt_note() -> str:
     """Tell image/I2V models to leave UI areas blank — legible text is composited in post."""
     return (
-        "Phone screens and security cam HUD areas must be blank or softly blurred — "
-        "no letters, numbers, timestamps, or UI glyphs in the generated image; "
-        "readable UI text is added in post-production."
+        "NO smartphones, NO hands holding phones, NO phone screens. "
+        "Fullscreen CCTV / security cam POV only for surveillance beats. "
+        "Alarm clock faces and CCTV HUD areas blank or softly blurred — "
+        "no readable letters, numbers, or UI glyphs in the generated image; "
+        "REC timestamp and clock digits are added in post-production."
     )
 
 

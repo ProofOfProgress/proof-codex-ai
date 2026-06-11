@@ -576,13 +576,8 @@ def render_short_video(
     )
     from shorts_bot.production.variety import variety_for_draft
 
-    topic_lower = str(manifest.get("topic") or "").lower()
-    phone_topic = any(
-        k in topic_lower for k in ("security", "camera", "phone", "text", "message", "app")
-    )
     variety = variety_for_draft(draft_id)
-    phone_caption_lift = -88 if phone_topic else 0
-    effective_caption_y = caption_y_offset + variety.caption_y_offset + phone_caption_lift
+    effective_caption_y = caption_y_offset + variety.caption_y_offset
 
     ass_path = write_subtitle_files(
         pack_dir,

@@ -10,6 +10,17 @@ from shorts_bot.production.screen_text_overlay import (
 from shorts_bot.production.screen_text_spec import ScreenTextOverlay
 
 
+def test_alarm_clock_overlay_renders_pixels(tmp_path):
+    spec = ScreenTextOverlay(
+        kind="alarm_clock",
+        primary="3:12 AM",
+        secondary="AM",
+        time_label="3:12 AM",
+    )
+    img = render_overlay_rgba(spec)
+    assert img.getbbox() is not None
+
+
 def test_legacy_phone_alert_maps_to_in_phone_feed():
     spec = ScreenTextOverlay(
         kind="phone_alert",
