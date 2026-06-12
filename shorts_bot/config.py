@@ -183,8 +183,9 @@ class Settings(BaseSettings):
     assemblyai_speech_model: str = "universal"
     transcript_always_fresh: bool = False  # reuse transcript.txt on pipeline retry (saves API $)
 
-    # YouTube — API upload only (no Studio browser automation)
+    # YouTube — API upload preferred; Studio browser fallback when OAuth missing on VM
     youtube_upload_via_api: bool = True
+    youtube_studio_upload_fallback: bool = True
     youtube_declare_synthetic_media: bool = True  # status.containsSyntheticMedia on every upload (YouTube AI disclosure)
     youtube_category_id: str = "24"  # Entertainment — horror Shorts (not 22 self-help)
     post_upload_cta_comment: bool = True  # series engagement comment after API upload

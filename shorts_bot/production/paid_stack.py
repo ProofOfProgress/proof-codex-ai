@@ -32,7 +32,7 @@ def paid_stack_issues() -> list[str]:
             "Gemini vision QC needs GEMINI_API_KEY in Cursor secrets"
         )
 
-    if settings.auto_upload_youtube and settings.youtube_upload_via_api:
+    if settings.auto_upload_youtube and settings.youtube_upload_via_api and not settings.youtube_studio_upload_fallback:
         from shorts_bot.youtube.google_auth import credentials_configured, token_exists, upload_ready
 
         if not credentials_configured():
