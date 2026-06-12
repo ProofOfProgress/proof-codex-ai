@@ -61,6 +61,16 @@ def _lavfi_for_kind(kind: str, *, duration_hint: float = 0.2) -> str:
             "highpass=f=1800,lowpass=f=7500,volume=0.55,"
             "afade=t=in:st=0:d=0.003,afade=t=out:st=0.08:d=0.05"
         )
+    if kind == "metal_chug":
+        return (
+            "aevalsrc='0.55*sin(55*2*PI*t)*exp(-t*8)+0.35*sin(110*2*PI*t)*exp(-t*12)':"
+            "d=0.35:sample_rate=48000"
+        )
+    if kind == "metal_hit":
+        return (
+            "aevalsrc='if(lt(t,0.02),0.9*sin(80*2*PI*t)*exp(-t*45),"
+            "0.7*sin(220*2*PI*t)*exp(-(t-0.02)*35))':d=0.18:sample_rate=48000"
+        )
     return (
         f"anoisesrc=color=white:duration={d:.3f}:sample_rate=48000,"
         "highpass=f=1500,volume=0.2,afade=t=out:st=0.02:d=0.04"

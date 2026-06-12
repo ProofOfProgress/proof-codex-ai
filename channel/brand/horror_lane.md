@@ -19,7 +19,9 @@ Never wash the full frame in green on a POV shot.
 
 ## Lanes we do **not** pursue
 
-Creature features, occult rituals, folklore entities, gore slashers, cosmic exposition, daylight crowd horror, cosy aesthetic.
+Creature features, folklore entities, graphic slasher gore, **animal cruelty**, real religion mockery, daylight crowd horror, cosy aesthetic.
+
+**We DO pursue (tertiary texture):** industrial death-metal theatre — masks, warehouse pit, feather **symbolism** (see `metal_aesthetic.md`). Not live harm.
 
 ## Code
 

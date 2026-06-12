@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import re
 
+from shorts_bot.production.metal_aesthetic import script_animal_harm_issues
+
 # QA iteration uploads (same draft, build v1/v2/…) — classic spam-farm signal
 QA_ITERATION_TITLE_RE = re.compile(
     r"\(build\s+v\d+|\(v\d+\s+(sync|fixed|regen|scrub|ui|phone|screen|latest)\)",
@@ -86,6 +88,11 @@ def title_compliance_issues(title: str) -> list[str]:
 def research_topic_is_off_niche(topic_or_path: str) -> bool:
     lower = (topic_or_path or "").lower()
     return any(m in lower for m in OFF_NICHE_RESEARCH_MARKERS)
+
+
+def script_content_compliance_issues(*parts: str) -> list[str]:
+    """Block explicit animal-harm language that risks age restriction / strikes."""
+    return script_animal_harm_issues(*parts)
 
 
 def batch_upload_forbidden_message() -> str:

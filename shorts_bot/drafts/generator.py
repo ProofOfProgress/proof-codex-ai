@@ -13,6 +13,7 @@ from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
+from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_safe_ritual_rules
 from shorts_bot.production.world import world_lore_for_scripts
 
 
@@ -20,8 +21,12 @@ SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Peripheral (~25
 
 {world_lore_for_scripts()}
 
+{metal_aesthetic_compact()}
+{ypp_safe_ritual_rules()}
+
 CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
+Metal/ritual beats: theatrical masks, warehouse pit, feathers as SYMBOL — never narrate eating animals or graphic harm.
 
 STRUCTURE (earn the jumpscare — write backwards from final scare):
 - Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)

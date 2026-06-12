@@ -14,10 +14,10 @@ def test_primary_lane_is_analog():
     assert "Analog" in HORROR_LANE_LABEL
 
 
-def test_lane_compact_rejects_creature_occult():
+def test_lane_compact_rejects_creature_and_animal_cruelty():
     text = horror_lane_compact()
     assert "creature" in text.lower()
-    assert "occult" in text.lower()
+    assert "animal cruelty" in text.lower()
     assert "night-vision" in text.lower() or "night vision" in text.lower()
 
 

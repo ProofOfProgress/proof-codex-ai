@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 from shorts_bot.compliance.inauthentic_rules import risk_signals_for_script
 from shorts_bot.compliance.ypp_bans import (
     metadata_bait_issues,
+    script_content_compliance_issues,
     title_compliance_issues,
 )
 from shorts_bot.config import settings
@@ -88,6 +89,7 @@ def check_upload_allowed(
 
     issues.extend(title_compliance_issues(title))
     issues.extend(metadata_bait_issues(title, hook, script))
+    issues.extend(script_content_compliance_issues(hook, script))
 
     # Unlisted QA bypass disabled by default — every upload counts (Jul 2025 inauthentic policy)
     skip_cooldown = False

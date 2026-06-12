@@ -66,6 +66,16 @@ DEFAULT_TOPICS = [
     "you found a second set of teeth marks on the apple",
     "the car headlights behind you never passed — for twenty miles",
     "don't blink at the end — the thing in the hall moves when you do",
+    # Industrial metal theatre — symbolic bird/offering (YPP-safe topics)
+    "segment seven left feathers on the pit floor — the cage was empty",
+    "the beak mask was warm — you never took it off",
+    "the warehouse circle had one extra jumpsuit — your size",
+    "the blast beat dropped — every mask turned to you",
+    "the offering plate held feathers only — something crunched off-screen",
+    "mask number three was missing — yours was already on",
+    "the red strobe caught chain sway — the pit had no audience",
+    "they chant one syllable under the mask — then silence",
+    "the PERIPH patch on your jacket wasn't yours — it was stitched inside out",
 ]
 
 
