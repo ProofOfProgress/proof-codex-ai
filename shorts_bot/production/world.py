@@ -25,7 +25,8 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — {WORLD_NAME} (Peripheral anthology — optional shared mood):
 {WORLD_TAGLINE}
 Laws: movement in the unwatched moment (blink, look away, refresh, mute); 3:12 AM is when systems glitch;
-CCTV/mirrors/recordings show truth delayed or wrong; no phone screens in analog lane; you are alone at home tonight; faceless until final scare beat.
+CCTV/mirrors/recordings show truth delayed or wrong; no phone screens in analog lane; you are alone at home tonight.
+Eyes & masks: macro staring eye and metal/beak masks are brand heroes — visible in hook/mid-beats, not finale-only; finale escalates intensity.
 Setting: same liminal apartment grammar — narrow hallway, bathroom mirror, alarm clock nightstand, security cam corner, closet you never open.
 Threat: the thing in the gap — never named in VO; advances when you stop watching; finale lunge from mirror/door/lens/screen.
 Not this world: cosy self-help, stick figures, gore, daytime crowds, generic creepypasta listicles.
@@ -47,7 +48,8 @@ def world_visual_continuity() -> str:
         f"WORLD — {WORLD_NAME}: liminal alone-at-night apartment, narrow hallway into darkness, "
         "analog horror: cold blue-black POV rooms, night-vision green only on fullscreen CCTV; "
         "film grain, underexposed; CCTV/mirror/recordings as truth sources that lag reality; "
-        "3:12 AM motif when time appears; faceless silhouettes until final lunge; "
+        "3:12 AM motif when time appears; macro eyes and masks visible when story calls for it; "
+        "finale escalates — not silhouettes-only until lunge; "
         "same domestic grammar across uploads — not a new location every video."
     )
 

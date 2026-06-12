@@ -6,6 +6,7 @@ from pathlib import Path
 from shorts_bot.drafts.meta import visual_beat_for_segment
 from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
+from shorts_bot.production.visual_identity import face_eye_visibility_rules
 from shorts_bot.production.world import world_visual_continuity
 
 
@@ -66,7 +67,8 @@ def horror_segment_to_prompt(
         "Setting: dark hallway, mirror, fullscreen security cam POV, alarm clock nightstand, shadows. "
         f"{world_visual_continuity()} "
         "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
-        "Silhouettes only — no full face until scare beat. No gore, no blood. "
+        f"{face_eye_visibility_rules()} "
+        "No gore, no blood spray. "
         f"{framing_notes_for_prompt()} "
         f"{screen_text_prompt_note()} "
         "CRITICAL: zero smartphones, zero human hands, zero mobile devices in frame. "

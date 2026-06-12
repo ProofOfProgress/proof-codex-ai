@@ -28,7 +28,7 @@ Code: `shorts_bot/production/horror_lane.py`
 | **3:12 AM** | The hour the gap widens — motion alerts, impossible timestamps, texts that should not send. |
 | **Recordings lie late** | Screens and mirrors show truth one beat behind (or ahead). Trust the lag, not your eyes. |
 | **Alone tonight** | No crowds, no daylight errands — you are home, solo, after midnight. |
-| **Faceless until the hit** | Silhouettes, POV, night-vision boxes — identifiable face only on the final scare beat. |
+| **Eyes & masks forward** | Macro eye + masks can appear early; finale **escalates** — not silhouettes-only until the hit |
 
 ## The place (recurring set)
 

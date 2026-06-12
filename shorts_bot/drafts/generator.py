@@ -14,19 +14,24 @@ from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_safe_ritual_rules
+from shorts_bot.production.visual_identity import face_eye_visibility_rules
 from shorts_bot.production.world import world_lore_for_scripts
 
 
-SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Peripheral (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 seconds).
 
 {world_lore_for_scripts()}
 
 {metal_aesthetic_compact()}
 {ypp_safe_ritual_rules()}
+{face_eye_visibility_rules()}
 
 CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
 Metal/ritual beats: theatrical masks, warehouse pit, feathers as SYMBOL — never narrate eating animals or graphic harm.
+
+VISUAL BEATS: at least one beat must feature macro staring eye OR metal/beak mask facing camera — not saved for finale only.
+Mix hallways, mirrors, CCTV with visible eyes/masks when the story fits.
 
 STRUCTURE (earn the jumpscare — write backwards from final scare):
 - Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)
@@ -36,7 +41,7 @@ STRUCTURE (earn the jumpscare — write backwards from final scare):
 - JUMPSCARE ROULETTE: timing varies per video — place the scare line where the plan says (early / mid / late / double-tap fake+real). Viewer must NOT predict the hit.
 - Every script still needs ONE clear jumpscare cue (lunge, slam, lens fill) on the primary scare line — then STOP or brief dread coda, no explanation
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
-- Singular "you". ~70-110 words spoken. 9:16 faceless horror.
+- Singular "you". ~70-110 words spoken. 9:16 cinematic horror.
 
 Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
 
