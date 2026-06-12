@@ -32,6 +32,16 @@ Run: `bash scripts/slack-setup.sh`
 
 Guide: `docs/FOR_OWNER_SLACK_EMAIL.md`
 
+## Gmelius + Slack for Gmail (optional — browser, not bot SMTP)
+
+- [ ] Gmelius Chrome extension installed (Desktop Chrome)
+- [ ] Sign in Gmelius with ops Gmail (2FA on phone)
+- [ ] app.gmelius.com → Integrations → Slack → peripheralorg → `#peripheral-ops`
+- [ ] `/invite @gmelius` in channel if needed
+- [ ] [Slack for Gmail](https://workspace.google.com/marketplace/app/slack_for_gmail/533288507123) → Install (Gmail sidebar — **won’t** show under Slack Apps)
+
+Guide: `docs/FOR_OWNER_GMELIUS_GMAIL.md`
+
 ## Webhook (pipeline alerts — alternative)
 
 - [ ] Slack → Incoming Webhooks → add to `#peripheral-ops`
