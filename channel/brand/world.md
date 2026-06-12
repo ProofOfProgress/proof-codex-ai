@@ -1,6 +1,6 @@
-# Don't Blink — world bible (The Gap)
+# Peripheral — world bible (anthology)
 
-Every Short is a **different night in the same universe** — not a random scare template.
+Every Short is **one episode** in the same anthology — different mask, same **episode grammar** (Black Mirror compressed). See `channel/brand/black_mirror_format.md`.
 
 ## Horror lane (picked — do not drift)
 
@@ -8,67 +8,82 @@ Every Short is a **different night in the same universe** — not a random scare
 
 **Secondary: Psychological horror** — alone-at-night uncanny dread; you rationalize lag as glitch or tired eyes.
 
+**Tertiary: Industrial ritual metal** — warehouse pit, numbered masks, chains (symbolic — YPP-safe).
+
 | We are | We are not |
 |--------|------------|
-| Found-footage fullscreen CCTV grammar | Creature features, occult rituals, named folklore entities |
-| Liminal apartment + signal lag | Gore, slashers, daylight crowds, camping-trip horror |
+| Anthology episodes with twist + sting | Random jumpscare clips with no premise |
+| Found-footage / cinematic dread grammar | Creature features, named folklore gods, occult worship |
+| Implied body horror (sickness, wrong timestamps) | Graphic gore, animal harm on screen |
 | Cold blue-black rooms; green **only** on cam/feed | Full-frame green wash on every shot |
 
-Code: `shorts_bot/production/horror_lane.py`
+Code: `shorts_bot/production/horror_lane.py`, `shorts_bot/production/black_mirror_format.py`
 
 ## The world in one sentence
 
-**The Gap** is the beat between what you see and what your CCTV, mirror, or recording captured — and something uses that lag to get closer while you are alone at night.
+**Peripheral** is what happens when one rule of reality breaks — and you only notice when the recording, the village, or the mirror shows you the bill.
 
-## Core laws (never break on-camera)
+## Shared episode laws (never break on-camera)
 
 | Law | What it means for scripts & visuals |
 |-----|-------------------------------------|
-| **Don't blink** | Movement happens in the unwatched moment — reflection delays, feed refreshes, peripheral gaps. |
-| **3:12 AM** | The hour the gap widens — motion alerts, impossible timestamps, texts that should not send. |
-| **Recordings lie late** | Screens and mirrors show truth one beat behind (or ahead). Trust the lag, not your eyes. |
-| **Alone tonight** | No crowds, no daylight errands — you are home, solo, after midnight. |
-| **Eyes & masks forward** | Macro eye + masks can appear early; finale **escalates** — not silhouettes-only until the hit |
+| **One broken rule** | Hook = premise, not mood ("if you see the sign, you die — slowly") |
+| **Consequences escalate** | Each beat costs more — not the same scare repeated |
+| **Twist rewrites the hook** | Final spoken beat changes meaning of line 1 — then sting |
+| **Don't blink** | Movement in the unwatched moment — reflection delays, feed refreshes |
+| **3:12 AM** | When systems glitch — motion alerts, impossible timestamps |
+| **Eyes & masks forward** | Macro eye + masks visible when earned; finale **escalates** |
 
-## The place (recurring set)
+## Settings (rotate — same grammar)
 
-Not one GPS address — one **liminal apartment archetype** viewers recognize:
+### The Gap (apartment thread)
 
-- Narrow hallway that feels longer than it should (doors into darkness)
-- Bathroom mirror, cold tile, vanity bulb flicker
-- Alarm clock red LED on nightstand — only pinprick of warmth (still cold blue)
-- Security cam high corner: grainy green night vision, motion box on empty space
-- Closet you do not open; scratch marks on the **inside** of the door
+Liminal alone-at-night apartment viewers recognize:
+
+- Narrow hallway longer than it should be
+- Bathroom mirror, cold tile, vanity flicker
+- Security cam corner: grainy green night vision
+- Closet you do not open; scratches on the **inside**
+
+Threat: **the Lag** — never named in VO; advances when you look away, blink, mute, or refresh.
+
+### The village (curse thread)
+
+Fog-grey village at dusk — empty square, crooked signpost, one wrong symbol on a barn.
+
+**Rule:** see the sign or the thing on the sign → death is **guaranteed** — not instant.
+
+Aftermath (implied, YPP-safe): dawn sickness, endless vomiting, cannot keep food down, slow starvation. The monster is the **omen**, not a chase in daylight.
+
+Threat: **the Sign** — collective silence; everyone pretends not to know the rule until you break it.
+
+### The pit (metal thread)
+
+Warehouse circle, red strobe, numbered jumpsuits, beak masks warm on hooks.
+
+Threat: **the Segment** — theatrical, symbolic; feathers and chains, no real harm on screen.
 
 Palette everywhere: black `#0A0A0A`, cold blue `#1A2A3A`, crimson accent `#8B0000` on finale only.
 
-## The threat (same entity, different masks)
-
-Call it **the Lag** or **the thing in the gap** — never name it in VO.
-
-- It does not chase in daylight; it **advances when you look away, blink, mute, or refresh**
-- It wears the pillar of the week: wrong reflection, wrong place, wrong time, wrong sound, wrong text
-- Finale: full-frame lunge from mirror, closet, lens, or screen — earned, not random noise
-
 ## Story voice
 
-- Second-person **you**, present tense, one night, no backstory dump
-- Hook = one impossible domestic detail (timestamp, delivered text, motion alone)
-- False calm = you rationalize the gap ("glitch", "lag", "tired eyes") — bait the swipe
-- Stop on the scare line — no explanation after
+- Second-person **you**, present tense, one night / one morning — no backstory dump
+- Hook = **premise** (broken rule), not "something felt off"
+- False calm = in-world rationalization — glitch, superstition, tired eyes
+- Twist line → sting → **stop** — no explanation after
 
 ## What is NOT this world
 
 - Cosy self-help, stick figures, tea-on-couch rituals
 - Gore, real victims, child harm, crime reenactment
 - Generic "scary story #47" listicles
-- Bright daytime, offices, crowds, camping-trip slashers
+- Bright daytime crowds, camping-trip slashers
 
 ## Series recognition (why viewers binge)
 
-Viewers learn the **rules of The Gap**, not just "jumpscare at end":
+Viewers learn the **episode grammar**, not just "jumpscare at end":
 
-1. Same cold apartment grammar every upload
-2. 3:12 AM or lag language signals we're in-universe
-3. Pillars rotate — the **mask** changes, the **law** does not
-4. Completion matters — the hit lands on the beat you were told not to blink through
+1. Every upload = new **what-if** premise
+2. Twist recontextualizes the hook — comment-section debate
+3. Settings rotate — apartment / village / pit — same cold camera
+4. Completion matters — sting lands on the **new** truth

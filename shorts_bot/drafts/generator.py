@@ -21,6 +21,7 @@ from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_safe_ritual_rules
 from shorts_bot.production.visual_identity import face_eye_visibility_rules
+from shorts_bot.production.black_mirror_format import black_mirror_script_structure
 from shorts_bot.production.world import world_lore_for_scripts
 
 
@@ -32,21 +33,19 @@ SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 secon
 {ypp_safe_ritual_rules()}
 {face_eye_visibility_rules()}
 
-CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
+CHANNEL VOICE: Black Mirror micro-episode — second-person "you", clinical and precise. Line 1 = broken rule (premise).
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
 Metal/ritual beats: theatrical masks, warehouse pit, feathers as SYMBOL — never narrate eating animals or graphic harm.
+Village curse beats: sign/omen horror — slow sickness implied, never graphic vomiting on screen.
 
 VISUAL BEATS: at least one beat must feature macro staring eye OR metal/beak mask facing camera — not saved for finale only.
-Mix hallways, mirrors, CCTV with visible eyes/masks when the story fits.
+Mix hallways, mirrors, CCTV, village signpost, warehouse pit — visible eyes/masks when the story fits.
 
-STRUCTURE (earn the jumpscare — write backwards from final scare):
-- Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)
+{black_mirror_script_structure()}
+
+STING RULE: jumpscare lands on the TWIST truth (lunge, slam, lens fill, sign fill) — then STOP. No explanation after.
 - **NEW hook every video** — never paraphrase a previous upload or draft opening
-- Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
-- Beats 5-6 (12-20s): escalation — sound + visual micro-cues
-- Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
-- JUMPSCARE ROULETTE: timing varies per video — place the scare line where the plan says (early / mid / late / double-tap fake+real). Viewer must NOT predict the hit.
-- Every script still needs ONE clear jumpscare cue (lunge, slam, lens fill) on the primary scare line — then STOP or brief dread coda, no explanation
+JUMPSCARE ROULETTE: timing varies — viewer must NOT predict the hit, but the sting must still pay off the twist.
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
 - Singular "you". ~70-110 words spoken. 9:16 cinematic horror.
 

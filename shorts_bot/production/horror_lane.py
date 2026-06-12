@@ -50,8 +50,12 @@ def analog_color_rules() -> str:
 
 def horror_lane_for_qc() -> str:
     """Production review context — score analog consistency, not generic horror."""
+    from shorts_bot.production.black_mirror_format import black_mirror_for_qc
+    from shorts_bot.production.world import WORLD_NAME
+
     return (
-        f"Channel lane: {HORROR_LANE_LABEL} inside universe 'The Gap'. "
+        f"Channel lane: {HORROR_LANE_LABEL} inside Peripheral anthology ({WORLD_NAME} + village + pit). "
+        f"{black_mirror_for_qc()} "
         "Intentional night-vision green on fullscreen CCTV beats is correct; "
         "no phone screens expected. Alarm clock and REC OSD are composited in post. "
         "Penalize smartphones, hands holding phones, or fake app UI."

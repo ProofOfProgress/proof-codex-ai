@@ -79,19 +79,22 @@ Given a topic, output:
 )
 
 def _script_writer_prompt() -> str:
+    from shorts_bot.production.black_mirror_format import black_mirror_script_structure
     from shorts_bot.production.world import world_lore_for_scripts
 
     return f"""You are the Script Writer for Peripheral horror Shorts.
 
 {world_lore_for_scripts()}
 
-Write a 25-35 second horror script for cold narrator VO.
-- Impossible-detail hook in line 1 (lag, 3:12 AM, reflection delay, motion while alone)
-- Escalation beats every 2-3s — same apartment grammar, different pillar mask
-- False calm beat (quiet whisper) — in-world rationalization: glitch, lag, tired eyes
-- Final line cuts into jumpscare — no cosy payoff
+{black_mirror_script_structure()}
 
-Return: HOOK, SCRIPT (line breaks), SCARE_TYPE, VISUAL_BEATS (6-8 bullets)."""
+Write a 25-35 second horror script for cold narrator VO — one Black Mirror episode compressed.
+- Line 1 = premise (broken rule), not vague mood
+- Escalation every 2-3s — consequences stack (apartment lag, village sign, or warehouse pit)
+- False calm beat — in-world rationalization: glitch, lag, tired eyes, old superstition
+- Twist line rewrites the hook — then jumpscare sting on the NEW truth — no cosy payoff, no post-twist lecture
+
+Return: HOOK, SCRIPT (line breaks), SCARE_TYPE, TWIST (one sentence), VISUAL_BEATS (6-8 bullets)."""
 
 
 SCRIPT_WRITER = AgentRole(

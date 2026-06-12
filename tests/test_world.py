@@ -23,7 +23,8 @@ def test_world_rules_compact_mentions_gap_and_laws():
     assert WORLD_NAME in rules
     assert "3:12" in rules
     assert "blink" in rules.lower()
-    assert "alone" in rules.lower()
+    assert "Black Mirror" in rules
+    assert "twist" in rules.lower()
 
 
 def test_world_visual_continuity_in_i2v_dna():
@@ -40,6 +41,7 @@ def test_niche_positioning_includes_world():
 def test_generator_system_prompt_includes_world():
     assert WORLD_NAME in SYSTEM_PROMPT
     assert world_lore_for_scripts()[:40] in SYSTEM_PROMPT
+    assert "Black Mirror" in SYSTEM_PROMPT
 
 
 def test_image_prompt_includes_world():
