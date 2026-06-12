@@ -15,6 +15,7 @@ from shorts_bot.integrations.slack import (
     slack_setup_status,
 )
 from shorts_bot.web.app import app
+from tests.conftest import patch_slack_settings
 
 
 def test_has_slack_webhook_false_by_default(monkeypatch):
@@ -33,11 +34,7 @@ def test_has_slack_webhook_detects_valid_url(monkeypatch):
     assert has_slack_webhook()
 
 
-def test_post_slack_noop_without_url(monkeypatch):
-    monkeypatch.setattr(
-        "shorts_bot.integrations.slack.settings",
-        Settings(slack_webhook_url=None, slack_notify_enabled=True),
-    )
+def test_post_slack_noop_without_url(no_slack_config):
     assert not post_slack_message("hello")
 
 
@@ -49,12 +46,14 @@ def test_post_slack_sends_payload(mock_urlopen, monkeypatch):
     mock_resp.__exit__ = MagicMock(return_value=False)
     mock_urlopen.return_value = mock_resp
 
-    monkeypatch.setattr(
-        "shorts_bot.integrations.slack.settings",
-        Settings(
-            slack_webhook_url="https://hooks.slack.com/services/T/B/x",
-            slack_notify_enabled=True,
-        ),
+    patch_slack_settings(
+        monkeypatch,
+        slack_webhook_url="https://hooks.slack.com/services/T/B/x",
+        slack_channel_email=None,
+        gmail_smtp_user=None,
+        gmail_smtp_app_password=None,
+        slack_post_mode="auto",
+        slack_notify_enabled=True,
     )
     ok = post_slack_message("pipeline ok", event="daily")
     assert ok
@@ -86,13 +85,15 @@ def test_has_slack_bot_detects_token(monkeypatch):
 
 @patch("shorts_bot.integrations.slack._post_via_bot_token", return_value=(True, ""))
 def test_post_slack_prefers_bot(mock_bot, monkeypatch):
-    monkeypatch.setattr(
-        "shorts_bot.integrations.slack.settings",
-        Settings(
-            slack_bot_token="xoxb-test",
-            slack_channel_id="C0123456789",
-            slack_notify_enabled=True,
-        ),
+    patch_slack_settings(
+        monkeypatch,
+        slack_bot_token="xoxb-test",
+        slack_channel_id="C0123456789",
+        slack_channel_email=None,
+        gmail_smtp_user=None,
+        gmail_smtp_app_password=None,
+        slack_post_mode="auto",
+        slack_notify_enabled=True,
     )
     assert post_slack_message("hello")
     mock_bot.assert_called_once()
@@ -138,7 +139,7 @@ def test_slack_setup_status_shape():
     assert len(st["steps"]) >= 5
 
 
-def test_slack_test_api_missing_webhook():
+def test_slack_test_api_missing_webhook(no_slack_config):
     r = TestClient(app).post("/api/slack/test")
     assert r.status_code == 400
 

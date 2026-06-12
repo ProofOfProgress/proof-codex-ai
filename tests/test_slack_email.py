@@ -23,7 +23,7 @@ def _email_settings(**kwargs) -> Settings:
     return Settings(**base)
 
 
-def test_has_gmail_smtp():
+def test_has_gmail_smtp(no_slack_config):
     assert not has_gmail_smtp()
 
 

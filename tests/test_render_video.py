@@ -27,9 +27,11 @@ def test_scaled_durations_match_audio():
     assert abs(sum(durs) - 20.0) < 0.01
 
 
-def test_upload_title_not_clickbait():
+def test_upload_title_not_clickbait(monkeypatch):
+    from shorts_bot.config import settings as cfg
     from shorts_bot.production.upload_meta import build_upload_package
 
+    monkeypatch.setattr(cfg, "youtube_upload_visibility", "public")
     pkg = build_upload_package("cant sleep at 3am", "Stop scrolling", draft_id=6)
     assert "stop scrolling" not in pkg.title.lower()
     assert pkg.visibility == "public"
