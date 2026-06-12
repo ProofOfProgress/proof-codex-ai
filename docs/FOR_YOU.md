@@ -119,8 +119,12 @@ The bot uses Google's **official** YouTube Analytics API — not screen scraping
 
 The bot pulls real stats, scores your Shorts, and proposes up to 3 improvements per sync so sign-off stays easy.
 
-## Remote steering (optional)
+## Remote steering (Slack — ~10 min setup)
 
-For hands-off production from your phone, link **Slack + @cursor** — see **docs/SLACK_CURSOR_SETUP.md**.
+1. Run `bash scripts/slack-setup.sh` (prints exact steps)
+2. Link **@cursor** in Slack so you can message agents from your phone
+3. Add **SLACK_WEBHOOK_URL** so pipeline alerts land in `#peripheral-ops`
 
-The web UI at **http://localhost:8080** handles morning briefing, Yes/No decisions, and dev/coding queue approval.
+Plain English: **docs/FOR_OWNER_SLACK.md** · Web UI → **Slack** tab · Checklist: **data/SLACK_SETUP_CHECKLIST.md**
+
+The web UI at **http://localhost:8080** still handles Yes/No and morning briefing when you're at a desk.

@@ -1,52 +1,42 @@
-# Slack ↔ Cursor — setup for long study sessions
+# Slack ↔ Cursor — remote ops for Peripheral
 
-**Goal:** Message from Slack → Cloud Agent runs → replies in Slack (while you're away from the IDE).
+**Goal:** Run production from your phone — pipeline alerts in Slack, `@cursor` starts Cloud Agents, agents reply in thread.
 
-There are **two** official Slack integrations. Use **both** for the full loop.
+Use **three** pieces (all optional but together they're the full loop):
 
-| Integration | Direction | Use for |
-|-------------|-----------|---------|
-| **@cursor Slack app** | You → Agent → Slack thread | Start work, follow-ups, PR links, status |
-| **Slack MCP** | Agent → Slack (search/send) | Agent posts updates, reads threads while grinding |
+| Piece | Direction | Use for |
+|-------|-----------|---------|
+| **@cursor Slack app** | You → Agent → Slack thread | Start work, follow-ups, PR links |
+| **Slack MCP** | Agent → Slack (search/send) | Agent posts progress while grinding |
+| **Incoming webhook** | Bot → Slack channel | Pipeline failures, upload alerts |
+
+**Quick start:** `bash scripts/slack-setup.sh` prints the checklist.
 
 ---
 
 ## Part 1 — @cursor bot (main loop) — ~5 min
 
-This is the big one: **`@cursor fix X`** in Slack starts a Cloud Agent; it replies in the same thread.
+**`@cursor fix X`** in Slack starts a Cloud Agent; it replies in the same thread.
 
-### A. Workspace install (you or admin)
+### A. Workspace install
 
-1. Open [cursor.com/dashboard → Integrations → Slack](https://cursor.com/dashboard?tab=integrations)
-2. Click **Connect** → install **Cursor** into your Slack workspace
-3. Back in Cursor dashboard:
-   - Connect **GitHub** (repo: `ProofOfProgress/proof-codex-ai`)
-   - Set **default repository** to this repo
-   - Enable **usage-based pricing** (Cloud Agents are metered)
-   - Confirm **Cloud Agent privacy** settings (Legacy Privacy Mode blocks Cloud Agents)
+1. [cursor.com/dashboard → Integrations → Slack](https://cursor.com/dashboard?tab=integrations)
+2. **Connect** → install **Cursor** in your Slack workspace
+3. Connect **GitHub** → `ProofOfProgress/proof-codex-ai`
+4. Set **default repository** to this repo
+5. Enable **usage-based pricing** (Cloud Agents are metered)
+6. Confirm **Cloud Agent privacy** (Legacy Privacy Mode blocks Cloud Agents)
 
-### B. Link *your* Cursor account (required per user)
+### B. Link your Cursor account (required)
 
-1. In Slack, invite the Cursor app to a channel: `/invite @cursor`
-2. Mention: `@cursor help`
-3. Click **Link Account** when Slack prompts → OAuth to Cursor
-4. Repeat if you use Slack on phone — same account
+1. Create public channel `#peripheral-ops` (or `#dont-blink-ops` — set `SLACK_CHANNEL_NAME`)
+2. `/invite @cursor`
+3. `@cursor help` → **Link Account** → OAuth to Cursor
+4. `@cursor settings` → default repo `ProofOfProgress/proof-codex-ai`
 
-**Without this step, @cursor will not run agents for you.**
+**Without Link Account, @cursor will not run agents for you.**
 
-### C. Channel for Don't Blink / study sessions
-
-Create a public channel, e.g. `#dont-blink-ops` (public required for channel defaults).
-
-In that channel:
-
-```
-@cursor settings
-```
-
-Set **default repository** → `ProofOfProgress/proof-codex-ai` (or your fork).
-
-### D. Routing rule (optional, saves typing)
+### C. Routing rules (optional)
 
 Dashboard → **Cloud Agents** → **Routing rules**:
 
@@ -54,113 +44,111 @@ Dashboard → **Cloud Agents** → **Routing rules**:
 |---------|-------------|
 | `shorts` | `ProofOfProgress/proof-codex-ai` |
 | `dont-blink` | `ProofOfProgress/proof-codex-ai` |
-| `horror` | `ProofOfProgress/proof-codex-ai` |
+| `peripheral` | `ProofOfProgress/proof-codex-ai` |
 
-Then from Slack:
-
-```
-@cursor take 2h — research horror hooks and grind draft #2 to ai_video
-```
-
-### E. Commands you'll use at night / away from desk
+### D. Commands you'll use away from desk
 
 | Say in Slack | What happens |
 |--------------|----------------|
-| `@cursor [prompt]` | Start agent (or follow-up in existing thread) |
-| `@cursor agent [prompt]` | **New** agent in this thread (don't mix with old run) |
-| `@cursor list my agents` | See what's still running |
+| `@cursor [prompt]` | Start agent (or follow-up in thread you own) |
+| `@cursor agent [prompt]` | **New** agent in this thread |
+| `@cursor list my agents` | Running agents |
 | `@cursor settings` | Channel defaults |
-| ⋯ on agent message → **Add follow-up** | Steer without @cursor when multiple agents exist |
+| ⋯ → **Add follow-up** | Steer without @cursor |
 
-**Important:** Plain replies **without** `@cursor` do **not** trigger the agent. Always `@cursor` or use ⋯ Add follow-up.
+**Plain replies without `@cursor` do not trigger the agent.**
 
-### F. Long study session pattern
+### E. Night grind (copy/paste)
 
 ```
-@cursor agent take 2h on proof-codex-ai — deep research jumpscare Shorts SEO,
-finish mirror-blink video with ai_video I2V, commit and update PR. Report in thread every major step.
+@cursor agent take 2h on proof-codex-ai — deep research horror hooks,
+finish draft #3 CCTV Short (ai_video if owner approved), vision QC, upload meta.
+Commit + update PR. Post progress in this thread every major step.
 ```
-
-Agent will:
-- ⏳ react while running
-- Post updates in thread
-- ✅ + PR link when done
-- You can `@cursor add tests` next morning as follow-up
 
 ---
 
 ## Part 2 — Slack MCP (agent posts *to* Slack) — ~3 min
 
-Lets **AlphaBeta001 / Cloud Agents** search channels, read threads, and **send messages** from inside a run.
+Lets Cloud Agents search channels and send messages during a run.
 
-### A. Cursor Desktop (your machine)
+### Cursor Desktop
 
 1. [Cursor Marketplace → Slack](https://cursor.com/marketplace/slack) → **Add to Cursor**
-2. **Settings → MCP → Slack** → **Connect** → complete OAuth
-3. Slack **workspace admin** may need to **approve** the MCP app
+2. **Settings → MCP → Slack** → **Connect** → OAuth
+3. Slack workspace admin may need to **approve** the MCP app
 
-### B. Cloud Agent VM (this environment)
+### Cloud Agent VM
 
-Slack MCP shows **`needsAuth`** until you connect from Cursor:
+Cloud Agents use **dashboard MCP**, not repo `.cursor/mcp.json`.
 
-1. Same Cursor account → Dashboard → **Integrations** → enable **Slack MCP** for Cloud Agents
-2. Or per-run: [cursor.com/agents](https://cursor.com/agents) → MCP dropdown → enable Slack
+1. [cursor.com/dashboard → Integrations](https://cursor.com/dashboard?tab=integrations) → enable **Slack MCP** for Cloud Agents
+2. Or per run: [cursor.com/agents](https://cursor.com/agents) → MCP dropdown → Slack
 
-After auth, agents can call Slack tools (post to `#dont-blink-ops`, read your thread, etc.).
-
-### C. Repo MCP config (optional local hint)
-
-If you use project MCP config, hosted OAuth is preferred:
-
-```json
-{
-  "mcpServers": {
-    "slack": {
-      "url": "https://mcp.slack.com/mcp",
-      "auth": {
-        "CLIENT_ID": "3660753192626.8903469228982"
-      }
-    }
-  }
-}
-```
-
-Cloud Agents use **dashboard** MCP config, not only repo files.
+Local IDE hint (optional): copy `.cursor/mcp.json.example` → `~/.cursor/mcp.json` and Connect.
 
 ---
 
-## Part 3 — Automations (hands-off, optional)
+## Part 3 — Incoming webhook (pipeline alerts) — ~2 min
 
-Dashboard → **Cloud Agents** → **Automations**:
+The **Shorts Bot** posts automation failures and alerts to Slack without you opening the web UI.
 
-- **Trigger:** New message in `#dont-blink-ops` matching regex e.g. `grind|research|ship`
-- **Action:** Run agent + **Send to Slack** with summary
+### Setup
 
-Use when you want to post a normal message (no `@cursor`) and still kick work. Separate from `@cursor` mentions.
+1. Slack → **Apps** → **Incoming Webhooks** → **Add to Slack**
+2. Pick channel `#peripheral-ops` → **Allow**
+3. Copy webhook URL (`https://hooks.slack.com/services/...`)
+4. Add to **Cursor Secrets** as `SLACK_WEBHOOK_URL`
+5. Run `bash scripts/install.sh`
+6. Test:
+
+```bash
+python3 -m shorts_bot.integrations test
+```
+
+You should see: *"Peripheral bot connected. Pipeline alerts will post here."*
+
+### Config (`.env`)
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `SLACK_WEBHOOK_URL` | — | Incoming webhook URL |
+| `SLACK_NOTIFY_ENABLED` | `true` | Master switch for webhook posts |
+| `SLACK_CHANNEL_NAME` | `peripheral-ops` | Label in status/briefing only |
+| `SLACK_CURSOR_LINKED` | `true` | Set after @cursor Link Account |
+
+Alerts also land in `data/ALERTS.md` — Slack is the phone-friendly mirror.
+
+### Verify
+
+```bash
+python3 -m shorts_bot.integrations status
+curl http://localhost:8080/api/slack/status
+python3 -m shorts_bot.login_status   # Slack rows in table
+```
 
 ---
 
-## What works / what doesn't
+## Part 4 — Automations (hands-off, optional)
 
-| Works | Doesn't |
-|-------|---------|
-| `@cursor` starts Cloud Agent | Every Slack message auto-triggers agent |
-| Thread follow-ups with `@cursor` | Team uses @cursor without linking own account |
-| Agent replies + PR in thread | Private-channel automation triggers (public only) |
-| Slack MCP send/search when authed | Slack MCP in VM without your OAuth |
-| 2h work budgets via natural language | Guaranteed DM on every web-started agent |
+[cursor.com/automations](https://cursor.com/automations) — trigger agents without typing `@cursor` every time.
+
+Examples in **docs/SLACK_AUTOMATIONS.md**:
+
+- Keyword `grind` in `#dont-blink-ops` → run agent + post summary
+- Nightly cron → check `data/ALERTS.md` + report
+
+**Note:** Slack triggers only work on **public** channels today.
 
 ---
 
-## Quick test (after setup)
-
-In `#dont-blink-ops`:
+## Quick test (after Part 1)
 
 ```
-@cursor in proof-codex-ai, read docs/SLACK_CURSOR_SETUP.md and confirm Slack is wired. Reply with OK + what you can do from Slack.
+@cursor in proof-codex-ai, read docs/SLACK_CURSOR_SETUP.md and confirm Slack is wired. Reply OK + what you can do from Slack.
 ```
 
-You should see ⏳ → agent message → ✅.
+Expect: ⏳ → agent message → ✅.
 
 ---
 
@@ -169,10 +157,11 @@ You should see ⏳ → agent message → ✅.
 | Problem | Fix |
 |---------|-----|
 | "Link Account" loop | Dashboard → Cloud Agents → Unlink Slack → re-link |
-| Wrong repo | `@cursor settings` in channel or include `proof-codex-ai` in prompt |
-| Agent silent | Use `@cursor agent` for new thread; check `list my agents` |
-| MCP tools empty | Auth Slack MCP in Desktop + admin approve |
-| Upload blocked | Separate issue — `upload_guard` still 1/day unless you change `.env` |
+| Wrong repo | `@cursor settings` or include `proof-codex-ai` in prompt |
+| Agent silent | `@cursor agent` for new thread; `list my agents` |
+| MCP tools empty | Auth Slack MCP in Desktop + dashboard; admin approve |
+| Webhook test fails | Regenerate URL; check `SLACK_WEBHOOK_URL` in `.env` |
+| Cloud Agent ignores repo mcp.json | Expected — use dashboard MCP only |
 
 ---
 
@@ -180,4 +169,5 @@ You should see ⏳ → agent message → ✅.
 
 - [Cursor Slack integration](https://cursor.com/docs/integrations/slack)
 - [Cloud Agents](https://cursor.com/docs/cloud-agent)
+- [Automations](https://cursor.com/docs/cloud-agent/automations)
 - [Slack marketplace — Cursor](https://slack.com/marketplace/A08SKDT6QUW)

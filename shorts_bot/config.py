@@ -58,6 +58,22 @@ class Settings(BaseSettings):
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
+
+    # Slack — bot token (AlphaBeta001 app) and/or webhook; @cursor is separate (Cursor OAuth)
+    slack_bot_token: str | None = None  # xoxb-... from api.slack.com custom app
+    slack_channel_id: str | None = None  # C... for chat.postMessage
+    slack_webhook_url: str | None = None
+    slack_notify_enabled: bool = True
+    slack_channel_name: str = "peripheral-ops"
+    slack_bot_display_name: str = "AlphaBeta001"
+    slack_cursor_linked: bool = False  # set true after @cursor Link Account in Slack
+    slack_app_token: str | None = None  # xapp-... Socket Mode (autonomy bus)
+    slack_autonomy_enabled: bool = True  # [autonomy] self-talk bus via Socket Mode
+    slack_autonomy_owner_commands: bool = False  # also run plain human messages (no prefix)
+    slack_channel_email: str | None = None  # peripheral-ops@workspace.slack.com (Option A)
+    gmail_smtp_user: str | None = None  # sender Gmail for Slack email + alerts
+    gmail_smtp_app_password: str | None = None  # Google App Password (not login password)
+    slack_post_mode: str = "auto"  # auto | email | bot — auto tries bot, webhook, then email
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")

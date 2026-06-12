@@ -62,6 +62,14 @@ Stories can share mood (alone at night, uncanny domestic wrongness) without one 
 - Binge: completion rate > RPM
 - Comments: "I jumped" / volume warning = engagement signal
 
+## Merch audience (owner direction)
+
+**Peripheral** works as a **label**, not only a channel name — eye mark + *don't blink* + **PERIPH** shorthand.
+
+**TikTok Shop target:** horror-streetwear crossover; **bikers / night riders** fit peripheral vision + alone-at-night mood (patches, back print, helmet sticker). Content stays horror anthology; merch can speak to riders without every Short being “biker themed.”
+
+Research: `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`
+
 ## Brand assets
 
 - **Profile:** center crop of line eye mark

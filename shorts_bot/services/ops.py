@@ -41,6 +41,24 @@ from shorts_bot.web.deps import (
 from shorts_bot.youtube.google_auth import auth_status
 
 
+def _slack_bot_ready() -> bool:
+    from shorts_bot.integrations.slack import slack_can_post
+
+    return slack_can_post()
+
+
+def _slack_webhook_ready() -> bool:
+    from shorts_bot.integrations.slack import has_slack_webhook
+
+    return has_slack_webhook()
+
+
+def _slack_cursor_linked() -> bool:
+    from shorts_bot.integrations.slack import slack_cursor_linked
+
+    return slack_cursor_linked()
+
+
 class BotOperations:
     """Shared operations for web UI and CLI chat."""
 
@@ -276,6 +294,18 @@ class BotOperations:
                 "label": "YouTube sign-in (once)",
                 "done": bool(yt.get("token_saved")),
                 "action": "python3 -m shorts_bot.youtube.auth_cli",
+            },
+            {
+                "id": "slack_cursor",
+                "label": "Slack @cursor (remote agents)",
+                "done": _slack_cursor_linked(),
+                "action": "docs/FOR_OWNER_SLACK.md — ~10 min OAuth",
+            },
+            {
+                "id": "slack_bot",
+                "label": "Slack alerts (email, bot, or webhook)",
+                "done": _slack_bot_ready(),
+                "action": "docs/FOR_OWNER_SLACK_EMAIL.md (Option A) or FOR_OWNER_SLACK_BOT.md",
             },
         ]
         return items

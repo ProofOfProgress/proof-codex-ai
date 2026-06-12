@@ -66,6 +66,18 @@ python3 -m shorts_bot.production.upload_canonical_cli --draft-id 3 --video data/
 
 See `docs/YPP_ANTI_SHADOWBAN.md` and `shorts_bot/compliance/ypp_bans.py`.
 
+### Slack (remote ops)
+
+Owner OAuth required — agent cannot complete alone.
+
+```bash
+bash scripts/slack-setup.sh                    # print checklist
+python3 -m shorts_bot.integrations test        # after SLACK_WEBHOOK_URL set
+curl -s http://localhost:8080/api/slack/status
+```
+
+Docs: `docs/SLACK_CURSOR_SETUP.md`, `docs/SLACK_AUTOMATIONS.md`, `data/SLACK_SETUP_CHECKLIST.md`.
+
 ### Services
 
 Install: `bash scripts/install.sh`
@@ -91,7 +103,9 @@ Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversation
 
 **Chief Manager (AlphaBeta001):** `python3 -m shorts_bot.agents.cli` — you talk to **AlphaBeta001** only (not the channel name); research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research horror hooks` or `plan this week's hooks`. Web: `POST /api/manager/run`. Remote: Slack `@cursor`. See `docs/AGENT_MANAGER.md`. Override: `MANAGER_DISPLAY_NAME` in `.env`.
 
-**Slack ↔ Cursor (long sessions away from IDE):** Official path is `@cursor` in Slack → Cloud Agent → replies in thread. Setup: `docs/SLACK_CURSOR_SETUP.md`. Slack MCP (`needsAuth` until owner links in Cursor Desktop) lets agents post/read Slack during grinds. Suggested channel: `#dont-blink-ops`, default repo `proof-codex-ai`.
+**Slack ↔ Cursor (remote ops):** `@cursor agent …` in Slack starts Cloud Agents. **Option A (no bot token):** Gmail → `SLACK_CHANNEL_EMAIL` posts alerts to `#peripheral-ops` (`docs/FOR_OWNER_SLACK_EMAIL.md`). Or webhook `SLACK_WEBHOOK_URL` / bot token. Setup: `bash scripts/slack-setup.sh`, `docs/FOR_OWNER_SLACK.md`. Status: `GET /api/slack/status`, `python3 -m shorts_bot.integrations test`.
+
+**Slack autonomy bus:** AlphaBeta001 posts `[autonomy] <command>` in `#peripheral-ops`; Socket Mode listener (with web UI running) executes via `BotOperations.chat` and replies in-thread — self-talk for 24/7 ops without IDE. Secrets: `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID`, `SLACK_APP_TOKEN`. API: `POST /api/slack/autonomy`. CLI: `python3 -m shorts_bot.integrations autonomy status`. See `docs/SLACK_AUTONOMY.md`.
 
 ### Lint / test
 

@@ -32,6 +32,24 @@ HORROR_HOOK_RESEARCH_TOPICS: tuple[str, ...] = (
 )
 
 
+def user_excludes_cosy_topics(user_request: str) -> bool:
+    """Owner asked to skip self-help / minute-before cosy research."""
+    lower = (user_request or "").lower()
+    return any(
+        s in lower
+        for s in (
+            "not cosy",
+            "no cosy",
+            "not cozy",
+            "no cozy",
+            "not self-help",
+            "not self help",
+            "not minute before",
+            "no minute before",
+        )
+    )
+
+
 def user_wants_ai_video_research(user_request: str) -> bool:
     lower = (user_request or "").lower()
     signals = (
