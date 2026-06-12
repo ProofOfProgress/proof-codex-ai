@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AlphaBeta001 — Peripheral Operator</title>
+  <meta name="description" content="AlphaBeta001 Chief Manager — Peripheral horror Shorts." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav">
+      <div class="brand">Don't <span>Blink</span></div>
+      <div class="brand-tagline">Manager: {{ manager_name }}</div>
+      <div class="sub">Operator v{{ version }}</div>
+      <button class="nav-btn active" data-panel="chat" type="button">Chat</button>
+      <button class="nav-btn" data-panel="rewards" type="button">Rewards</button>
+      <button class="nav-btn" data-panel="learning" type="button">Learning</button>
+      <button class="nav-btn" data-panel="dev" type="button">Dev queue</button>
+      <button class="nav-btn" data-panel="slack" type="button">Slack</button>
+      <div class="badges">
+        <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% if chat_provider == 'gemini' %} (Gemini){% elif chat_provider == 'openai' %} (OpenAI){% endif %}{% else %}Chat offline{% endif %}</span>
+        <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
+          {% if youtube.ready %}YT ready{% elif youtube.credentials_configured %}YT sign-in{% else %}YT setup{% endif %}
+        </span>
+      </div>
+      <div class="setup-checklist">
+        <div class="setup-title">Setup (login only)</div>
+        {% for item in checklist %}
+        <div class="setup-row {% if item.done %}done{% endif %}">
+          <span class="setup-dot">{% if item.done %}✓{% else %}○{% endif %}</span>
+          <span>{{ item.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 id="panel-title">{{ manager_name }}</h1>
+        <div class="stats">
+          <div class="stat"><div class="label">Improvements</div><div class="value">{{ pending_count }}</div></div>
+          <div class="stat"><div class="label">Drafts</div><div class="value">{{ pending_drafts }}</div></div>
+          <div class="stat"><div class="label">Dev tasks</div><div class="value">{{ pending_dev }}</div></div>
+        </div>
+      </header>
+
+      <section id="panel-chat" class="panel active">
+        {% if not has_openai %}
+        <div style="margin:12px 24px 0;padding:12px 14px;border-radius:12px;background:#422006;border:1px solid #854d0e;font-size:.86rem;">
+          <strong>Offline chat.</strong> Add free <code>GEMINI_API_KEY</code> from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">AI Studio</a> — see <code>docs/CHAT_TONIGHT.md</code>. Offline commands still work: <code>draft topic</code>
+        </div>
+        {% endif %}
+        <div class="chat-messages" id="messages">
+          <div class="msg bot">{% if has_openai %}{{ manager_name }} here — Chief Manager for Peripheral horror Shorts. Ask for hooks, drafts, or research.{% else %}Offline. Try: <code>draft mirror blink</code> · <code>manager: score topics</code>{% endif %}</div>
+        </div>
+        <form class="composer" id="chat-form">
+          <input id="chat-input" type="text" placeholder="Talk to {{ manager_name }}..." autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+
+      <section id="panel-rewards" class="panel">
+        <div style="padding:20px 24px;overflow-y:auto;">
+          <div class="yt-panel">
+            <h3 style="margin:0 0 8px;">YouTube Analytics</h3>
+            <p style="color:var(--muted);font-size:.85rem;margin:0 0 10px;">Official API — sync after Google login tomorrow.</p>
+            <button class="btn" id="sync-btn" type="button" style="width:100%;">Sync YouTube Analytics</button>
+            <div class="sync-msg" id="sync-msg"></div>
+          </div>
+          <h3>Recent scores</h3>
+          {% for r in rewards %}
+          <div class="card reward-card">
+            <div class="reward-row">
+              <strong>{{ r.video_label }}</strong>
+              <span class="verdict-{{ r.verdict }}">{{ r.verdict }} · {{ r.score }}</span>
+            </div>
+            <p class="reward-reason">{{ r.reason }}</p>
+          </div>
+          {% else %}
+          <p class="empty">No scores yet — sync YouTube or upload a Short first.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="panel-learning" class="panel">
+        <div style="padding:20px 24px;overflow-y:auto;">
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Channel brand</h3>
+            <p style="font-size:.85rem;color:var(--muted);">Self-help + subtle oracle tone. Edit copy in <code>channel/brand/youtube_copy.txt</code></p>
+            <p style="font-size:.82rem;margin-bottom:10px;">Banner: <code>channel/brand/assets/banner.svg</code> · <code>docs/YOUTUBE_CHANNEL_SETUP.md</code></p>
+            <button class="btn" id="apply-brand-btn" type="button" style="width:100%;">Apply name &amp; description to YouTube</button>
+            <div class="sync-msg" id="brand-msg"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Video production (TurboScribe → still images)</h3>
+            <p style="font-size:.85rem;color:var(--muted);">Auto-make creates images + TTS voiceover. Optional: TurboScribe paste for tighter sync.</p>
+            <input id="produce-draft-id" type="number" min="1" placeholder="Draft ID" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
+            <textarea id="produce-transcript" rows="6" placeholder="0:00 First line&#10;0:07 Second line&#10;0:15 Third line" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.82rem;"></textarea>
+            <button class="btn" id="produce-auto-btn" type="button" style="width:100%;margin-bottom:8px;">Auto-make video (script → images)</button>
+            <button class="btn secondary" id="produce-btn" type="button" style="width:100%;">Build from TurboScribe paste</button>
+            <div class="sync-msg" id="produce-msg"></div>
+            <p style="font-size:.78rem;color:var(--muted);margin-top:8px;">Output: <code>data/production/draft_&lt;id&gt;/</code> · <code>docs/VIDEO_PRODUCTION.md</code></p>
+          </div>
+          <h3>Learned rules file</h3>
+          <button class="btn secondary" type="button" id="copy-learned" style="margin-bottom:8px;">Copy learned rules</button>
+          <div class="learned-box" id="learned-box">{{ learned_preview }}</div>
+          <h3 style="margin-top:18px;">Journal</h3>
+          {% for j in journal %}
+          <div class="card">
+            <div class="cat">{{ j.kind }} · {{ j.status }}</div>
+            <h3>{{ j.title }}</h3>
+            <p style="color:var(--muted);font-size:.78rem;">{{ j.reviewed_at }}</p>
+          </div>
+          {% else %}
+          <p class="empty">Approve improvements to build your learning journal.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="panel-slack" class="panel">
+        <div style="padding:20px 24px;overflow-y:auto;max-width:720px;">
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Slack — remote ops</h3>
+            <p style="font-size:.85rem;color:var(--muted);margin:0 0 12px;">
+              Message <strong>@cursor</strong> from your phone → Cloud Agent runs → replies in thread.
+              Webhook posts pipeline alerts to your channel.
+            </p>
+            <p style="font-size:.82rem;margin:0 0 12px;">Progress: <strong id="slack-progress">…</strong></p>
+            <div id="slack-steps" style="font-size:.84rem;"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Test webhook</h3>
+            <p style="font-size:.85rem;color:var(--muted);">After you add <code>SLACK_WEBHOOK_URL</code> to Cursor Secrets and run <code>bash scripts/install.sh</code>:</p>
+            <button class="btn" id="slack-test-btn" type="button" style="width:100%;margin-top:8px;">Send test message to Slack</button>
+            <div class="sync-msg" id="slack-test-msg"></div>
+          </div>
+          <div class="card">
+            <h3>Copy-paste test for @cursor</h3>
+            <textarea id="slack-test-prompt" rows="3" readonly style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.8rem;"></textarea>
+            <p style="font-size:.78rem;color:var(--muted);">Plain English guide: <code>docs/FOR_OWNER_SLACK.md</code></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-dev" class="panel">
+        <div style="padding:20px 24px;overflow-y:auto;">
+          <p class="empty" style="margin-bottom:12px;">Queue coding/dev work — approve before anything runs. Cloud agent picks up approved tasks.</p>
+          <form id="dev-form" class="card">
+            <h3>New dev request</h3>
+            <input id="dev-title" type="text" placeholder="Title (e.g. Polish web UI)" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
+            <textarea id="dev-desc" rows="3" placeholder="What should be built or changed?" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);"></textarea>
+            <button class="btn" type="submit">Queue for approval</button>
+          </form>
+          {% for t in dev_tasks %}
+          <div class="card dev-card" data-id="{{ t.id }}">
+            <h3>#{{ t.id }} — {{ t.title }}</h3>
+            <p>{{ t.description }}</p>
+            <div class="pros"><strong>Pros</strong><ul>{% for p in t.pros %}<li>{{ p }}</li>{% endfor %}</ul></div>
+            <div class="cons"><strong>Cons</strong><ul>{% for c in t.cons %}<li>{{ c }}</li>{% endfor %}</ul></div>
+            <div class="actions">
+              <button class="btn yes" onclick="decideDev({{ t.id }}, true)">Yes — build this</button>
+              <button class="btn no" onclick="decideDev({{ t.id }}, false)">No</button>
+            </div>
+          </div>
+          {% else %}
+          <p class="empty">No dev tasks queued.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar">
+      {% if first_improvement %}
+      <div class="hero-approval">
+        <div class="hero-label">Tap once to train the bot</div>
+        <h2>{{ first_improvement.title }}</h2>
+        <p>{{ first_improvement.description }}</p>
+        <div class="hero-actions">
+          <button class="btn hero-yes" onclick="decideImprovement({{ first_improvement.id }}, true)">✓ Yes — do this</button>
+          <button class="btn hero-no" onclick="decideImprovement({{ first_improvement.id }}, false)">✗ No</button>
+        </div>
+      </div>
+      {% endif %}
+      <h2 style="margin:0 0 10px;font-size:1rem;">{% if pending_count %}All approvals ({{ pending_count }}){% else %}Approve training{% endif %}</h2>
+      <div id="improvements">
+        {% for imp in improvements %}
+        <div class="card imp-card" data-id="{{ imp.id }}">
+          <div class="cat">{{ imp.category }}</div>
+          <h3>{{ imp.title }}</h3>
+          <p>{{ imp.description }}</p>
+          <div class="pros"><strong>Pros</strong><ul>{% for p in imp.pros %}<li>{{ p }}</li>{% endfor %}</ul></div>
+          <div class="cons"><strong>Cons</strong><ul>{% for c in imp.cons %}<li>{{ c }}</li>{% endfor %}</ul></div>
+          <div class="actions">
+            <button class="btn yes" onclick="decideImprovement({{ imp.id }}, true)">Yes</button>
+            <button class="btn no" onclick="decideImprovement({{ imp.id }}, false)">No</button>
+          </div>
+        </div>
+        {% else %}
+        <p class="empty">No pending improvements.</p>
+        {% endfor %}
+      </div>
+
+      <h2 style="margin:18px 0 10px;font-size:1rem;">Script drafts</h2>
+      {% for d in drafts %}
+      <div class="card draft-card" data-draft="{{ d.id }}">
+        <h3>#{{ d.id }} — {{ d.topic }}</h3>
+        <p><strong>Hook:</strong> {{ d.hook }}</p>
+        <div class="actions">
+          <button class="btn yes" onclick="decideDraft({{ d.id }}, true)">Yes</button>
+          <button class="btn no" onclick="decideDraft({{ d.id }}, false)">No</button>
+        </div>
+      </div>
+      {% else %}
+      <p class="empty">No pending drafts.</p>
+      {% endfor %}
+    </aside>
+  </div>
+  <script>window.__API_TOKEN__ = {{ api_token|tojson }};</script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

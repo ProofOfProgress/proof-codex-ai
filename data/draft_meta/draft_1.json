@@ -1,0 +1,20 @@
+{
+  "visual_beats": [
+    "POV bathroom mirror, cold blue light, your silhouette facing glass",
+    "Reflection eyes blink delayed \u2014 one frame wrong",
+    "Phone screen recording shows empty room while mirror still has figure",
+    "Reflection turned toward hallway door you have not opened yet",
+    "Hallway light dies \u2014 long dark corridor, slow drift",
+    "False calm: static mirror, quiet hold, empty frame",
+    "Full-frame face lunge from mirror surface toward camera"
+  ],
+  "jumpscare_plan": {
+    "profile": "finale",
+    "primary_segment_index": 3,
+    "decoy_segment_index": null,
+    "has_jumpscare": true,
+    "sting_start_ratio": 0.92,
+    "volume_warning": "\ud83d\udd0a VOLUME WARNING \u2014 jumpscare at the end. Use headphones.",
+    "creator_note": "Finale scare \u2014 lunge on last beat, sting ~2s before end."
+  }
+}

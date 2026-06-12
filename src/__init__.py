@@ -1,2 +1,0 @@
-"""Proof Codex AI modules"""
-

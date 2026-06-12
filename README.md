@@ -1,58 +1,126 @@
+# Shorts Bot
 
-# Proof Codex AI
+Jenny Hoyos–trained strategist for a faceless, human-approved YouTube Shorts channel.
 
-This repository powers the Proof Codex AI: an autonomous system designed to generate, enforce, and evolve the operational laws, systems, and protocols behind the Proof of Progress brand. It contains tools for managing the Proof Codex, automating content generation, and advising on YouTube Shorts strategy.
+The bot uses course files 01–09 (idea, hook, retention, visuals, editing, analytics) plus verbatim transcript rules. It helps you ideate, draft scripts, and learn from analytics. **North star:** 100% AI-automated Shorts channels that make money without ongoing human ops. **Today:** strong script + learning layer; **building next:** video render, upload, daily autopilot (see [docs/PRIORITIES.md](docs/PRIORITIES.md)). **Free-first stack:** CapCut, YouTube Audio Library, Canva free, Google Drive.
 
-## Key Guides
+**Don't code?** Read [docs/FOR_YOU.md](docs/FOR_YOU.md) — plain English on what the bot does and what you do once.
 
-- `Proof_AI_Advisor_Protocol.txt` — governs AI advisory logic.  
-- `Proof_Codex_3.0_Full_Master_Playbook.txt` — master operational ruleset.
+## Install
 
-## Mission
+```bash
+bash scripts/install.sh
+```
 
-Drive visible growth, suffering, and community loyalty through AI-executed Codex laws.
+## Quick start — web chat (recommended)
 
-## Status
+```bash
+python3 -m shorts_bot.web
+```
 
-This AI continuously evolves via task logs, commits, and Codex updates.
+Open **http://localhost:8080** — chat on the left, **Yes/No** approvals on the right.
 
-## Modules
+## CLI chat
 
-- **codex_task_parser.py**  
-  Parses task log files and produces Codex entries such as `[LAW:]` or `[SYSTEM:]` blocks.
+```bash
+cp .env.example .env   # add keys as needed (see docs/)
+bash scripts/start.sh     # web UI
+docs/RUN_AT_HOME.md    # complete home guide
+docs/QUICKSTART.md     # one-page start
+docs/MORNING.md        # wake-up checklist
+make test              # run tests
+python3 -m shorts_bot
+```
 
-- **codex_auto_updater.py**  
-  Appends parsed entries to the master Codex document automatically.
+## Modes
 
-- **data_scraper.py**  
-  Provides web scraping and search API helpers for gathering viewer psychology and Shorts algorithm data.
+| Mode | Requirement | What you get |
+|------|-------------|--------------|
+| **Full** | `OPENAI_API_KEY` in `.env` | Natural conversation + tool use |
+| **Offline** | No API key | Basic commands: `draft`, `pending`, `approve`, `reject`, `stats` |
 
-- **codex_validator.py**  
-  Validates entries to ensure they comply with Codex formatting rules.
+ChatGPT Pro is separate from the API. For automation and the conversational bot, use an [OpenAI API key](https://platform.openai.com/api-keys).
 
-- **codexadvisor.py**  
-  Analyzes channel metrics and comment trends to generate actionable recommendations backed by Codex laws.
+## Example conversation (full mode)
 
-  ### Usage
+```
+you> I want ideas for Shorts that help students focus
+bot> Here are three angles...
 
-  ```bash
-  python codexadvisor.py
+you> Draft one about the 2-minute reset trick
+bot> Created draft #1 — waiting for your approval.
 
-Reads metrics from data/metrics.json and comments from data/comments.json. Recommendations cite lines from Proof_AI_Advisor_Protocol.txt to justify each suggestion.
+you> Show pending
+you> Reject 1 — too generic, give a specific example
+bot> Got it. I'll avoid that pattern next time.
+```
 
-AutoTextGenerator Utility (src/autotextgenerator.py)
-Builds draft hooks, Codex updates, CTAs, pull-request summaries, README snippets, and metric reports. It consumes Codex laws, task logs, viewer metrics, and comment trends.
+## Offline commands
 
-Running
-Prepare an input JSON file:
+```
+help
+draft <topic>
+pending
+show <id>
+approve <id> [note]
+reject <id> <reason>
+stats
+feedback
+```
 
-{
-  "laws": ["Law #1 Hook <3s"],
-  "systems": ["Loop Trap"],
-  "metrics": {"views": 1000, "likes": 50, "comments": 10},
-  "task_logs": "Update hooks\nRefactor CTA",
-  "comment_trends": ["push harder"]
-}
+## Project layout
 
-Then execute:
-python3 -m src.autotextgenerator data.json --out drafts
+```
+shorts_bot/
+  bot/          # CLI + conversational agent
+  drafts/       # Script generation + anti-slop checks
+  approval/     # Human approval queue
+  memory/       # SQLite store for drafts and feedback
+data/           # Local database (gitignored)
+```
+
+## Codex (knowledge base)
+
+The knowledge base is called **Codex**. See `docs/CODEX.md`.
+
+```
+course/
+  files/01-09_*.md     # Codex strategist core (Jenny Hoyos 01–09)
+  verbatim/            # Word-for-word transcript rules
+  router_prompt.md     # Codex router instructions
+  free_services.md     # Free / free-tier tool stack
+```
+
+## Priorities (top 4 only)
+
+See **[docs/PRIORITIES.md](docs/PRIORITIES.md)** — ranked for money + full automation.
+
+| # | Building now | Status |
+|---|--------------|--------|
+| 1 | Video factory (script → voice → visuals → `.mp4`) | Not started |
+| 2 | YouTube upload API (no Studio clicks) | Not started |
+| 3 | Daily autopilot runner | Not started |
+| 4 | Remove human Yes/No gates (auto QC + publish) | Not started |
+
+## What works today
+
+| Step | Status |
+|------|--------|
+| Ideas + script drafts | Yes |
+| Quality checks + course routing | Yes |
+| Human approve / reject drafts | Yes (to be automated in #4) |
+| Analytics sync + reward learning | Yes |
+| Video render + upload + daily post | **No** |
+
+## Roadmap
+
+- [x] Talk to a bot
+- [x] Jenny Hoyos course integrated (files 01–09)
+- [x] Draft Short scripts with quality checks
+- [x] Approve / reject + feedback memory
+- [x] YouTube analytics sync + reward loop
+- [x] Free services reference (CapCut, YouTube Audio Library, etc.)
+- [ ] Video factory (TTS + visuals + render)
+- [ ] YouTube upload API + auto-publish
+- [ ] Daily autopilot (unattended loop)
+- [ ] Fully automated QC (no human gates)
