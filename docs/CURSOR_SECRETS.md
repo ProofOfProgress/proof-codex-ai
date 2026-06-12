@@ -56,10 +56,6 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `OPENAI_API_KEY` | Runtime Secret | API key (string, starts `sk-`) | `sk-________________________________` | Backup chat |
 | `OPENAI_MODEL` | Environment Variable | Model slug (string) | `gpt-4o-mini` | |
 | `ASSEMBLYAI_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | Skip unless `TRANSCRIPT_PROVIDER=assemblyai` |
-| `DISCORD_BOT_TOKEN` | Runtime Secret | Bot token (string) | `________________________________` | Discord Developer Portal |
-| `DISCORD_PUBLIC_KEY` | Runtime Secret | Hex string (64 chars) | `________________________________________________` | Discord app → General |
-| `DISCORD_OWNER_ID` | Environment Variable | Snowflake ID (numeric string, 17–20 digits) | `__________________` | `!myid` in Discord |
-| `DISCORD_NOTIFY_IDS` | Environment Variable | Comma-separated snowflake IDs | `__________________,__________________` | Extra DM targets |
 | `FAL_API_KEY` | Runtime Secret | API key (string) | `________________________________` | If `IMAGE_PROVIDER=fal` |
 | `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
 | `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |

@@ -11,7 +11,7 @@ python3 -m shorts_bot.youtube.brand_cli
 ```
 
 - Web UI → **Learning** → **Apply name & description to YouTube**
-- Discord: `!applybrand` or DM: `apply brand`
+- Web chat: `apply brand`
 - Chat/agent: `apply_channel_branding` tool
 
 Requires a saved YouTube login in `data/browser_profile` (same session as channel setup).

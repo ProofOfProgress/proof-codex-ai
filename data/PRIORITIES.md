@@ -34,7 +34,7 @@
 
 ## Backlog (not top 4 — do not distract)
 
-- Slack / mobile Cursor setup (useful remote control, not the pipeline)
+- Slack `@cursor` setup (remote steering — see docs/SLACK_CURSOR_SETUP.md)
 - Home PC My Machines, git/ZIP on Windows
 - Cursor API key injection, Enterprise pools, TikTok
 - CapCut operator, dev queue UI, refactors unless they block top 4

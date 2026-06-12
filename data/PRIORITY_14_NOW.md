@@ -73,7 +73,7 @@
 
 **Skipped:** Studio rename — browser/lockout not resolved this session.
 
-**Done:** Runtime code purged Soft Continuity in Discord, comments, CLIs.
+**Done:** Runtime code purged Soft Continuity in web chat, comments, CLIs.
 
 ---
 
@@ -155,7 +155,7 @@
 | CTA comment | ✅ Posted on video |
 | Draft #3 + research | ✅ Approved + `LAUNCH_VIDEO_02_SEO_HOOKS.md` |
 | Transcript stale fix | ✅ Code |
-| Brand purge (runtime) | ✅ comments, Discord, CLIs |
+| Brand purge (runtime) | ✅ comments, web chat, CLIs |
 | `ai_video_max_beats=10` | ✅ Config |
 | Studio rename | ⏭ Skipped |
 | Slack OAuth | ⏭ Skipped |

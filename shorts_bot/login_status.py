@@ -136,17 +136,14 @@ def _check_studio() -> ServiceStatus:
         )
 
 
-def _check_discord() -> ServiceStatus:
-    if not settings.has_discord:
-        return ServiceStatus(
-            "discord",
-            "Discord bot",
-            False,
-            "No bot token",
-            "docs/MORNING.md",
-        )
-    owner = settings.discord_owner_id or "(auto from DM)"
-    return ServiceStatus("discord", "Discord bot", True, f"Token set — owner {owner}")
+def _check_web_ui() -> ServiceStatus:
+    return ServiceStatus(
+        "web",
+        "Web UI",
+        True,
+        f"http://localhost:{settings.web_port}",
+        "python3 -m shorts_bot.web",
+    )
 
 
 def _check_browser_site(
@@ -381,7 +378,7 @@ def _check_playwright() -> ServiceStatus:
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
-        _check_discord(),
+        _check_web_ui(),
         _check_playwright(),
         _check_chat(),
         _check_resemble(),

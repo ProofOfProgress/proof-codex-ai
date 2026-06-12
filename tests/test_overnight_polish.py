@@ -1,22 +1,12 @@
 from pathlib import Path
 
 from shorts_bot.__version__ import __version__
-from shorts_bot.discord_bot.prefs import briefing_user_ids, remember_dm_user
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 
 
 def test_version_string():
     assert __version__
-
-
-def test_discord_prefs_remember(tmp_path: Path, monkeypatch):
-    import shorts_bot.discord_bot.prefs as prefs
-
-    monkeypatch.setattr(prefs, "PREFS_PATH", tmp_path / "discord_prefs.json")
-    remember_dm_user(987654321012345678)
-    ids = briefing_user_ids()
-    assert "987654321012345678" in ids
 
 
 def test_improvement_dedupe_by_title(tmp_path: Path):
@@ -49,3 +39,4 @@ def test_health_has_version():
     assert data["ok"] is True
     assert "version" in data
     assert "pending_improvements" in data
+    assert "discord" not in data

@@ -1,4 +1,4 @@
-"""Async background loops for web + Discord."""
+"""Async background loops for web UI autopilot."""
 
 from __future__ import annotations
 

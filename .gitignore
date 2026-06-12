@@ -14,7 +14,6 @@ data/youtube_token.json
 data/LEARNED.md
 data/MEMORY.md
 data/codex_index.json
-data/discord_prefs.json
 data/backups/
 *.log
 .DS_Store

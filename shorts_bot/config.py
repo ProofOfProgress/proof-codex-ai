@@ -62,18 +62,6 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
 
-    # Discord
-    discord_bot_token: str | None = None
-    discord_public_key: str | None = None
-    discord_owner_id: str | None = None
-    discord_notify_ids: str = ""
-    discord_command_prefix: str = "!"
-    discord_send_briefing_on_start: bool = True
-    discord_briefing_hour: int = 8
-    discord_briefing_minute: int = 30
-    discord_avatar_path: Path = Path("channel/brand/assets/discord_bot_avatar.png")
-    discord_set_avatar_on_start: bool = False  # run avatar_cli once; avoid rate limits on every restart
-
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
@@ -292,22 +280,5 @@ class Settings(BaseSettings):
         if "your" in key.lower() and "key" in key.lower():
             return False
         return len(key) >= 16 and len(voice) >= 8
-
-    @property
-    def has_discord(self) -> bool:
-        token = (self.discord_bot_token or "").strip()
-        return bool(token) and "your-bot-token" not in token.lower()
-
-    @property
-    def discord_notify_list(self) -> list[str]:
-        ids = []
-        if self.discord_owner_id:
-            ids.append(self.discord_owner_id.strip())
-        for part in (self.discord_notify_ids or "").split(","):
-            p = part.strip()
-            if p and p not in ids:
-                ids.append(p)
-        return ids
-
 
 settings = Settings()

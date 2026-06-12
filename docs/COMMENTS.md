@@ -25,7 +25,7 @@ comments pending      # list serious comments waiting
 sync                  # also runs comment pass after analytics
 ```
 
-Discord: `!comments` / `!comments pending`
+Web chat: `comments` / `comments pending`
 
 API: `POST /api/youtube/comments`, `GET /api/youtube/comments/pending`
 

@@ -46,7 +46,7 @@ What the pasted chat *claimed* vs what this repo *actually has*:
 | 6 | Multi-channel scaling (clone pipeline per niche) | Needs one channel printing first |
 | 7 | My Machines / `shorts-home` worker | Helps OAuth + heavy render on your PC; not a substitute for #1–#3 in code |
 | 8 | Cursor API orchestration (agents spawning agents) | Meta-dev; doesn’t post Shorts |
-| 9 | Discord / web UI polish | Nice; doesn’t post Shorts |
+| 9 | Web UI polish | Nice; doesn’t post Shorts |
 | 10 | Dev queue / self-coding automation | Engineering convenience; not revenue |
 | 11 | More documentation | Only if it unblocks #1–#4 |
 
@@ -54,7 +54,7 @@ What the pasted chat *claimed* vs what this repo *actually has*:
 
 - Pretending CapCut/upload/daily are “done” in docs when code isn’t there
 - Cursor API testing unless it runs the daily pipeline
-- UI glow-ups, extra Discord commands, dev-queue features
+- UI glow-ups, extra chat commands, dev-queue features
 - Asking you to do coding steps beyond one-time Google Allow + keeping a worker window open
 
 ---

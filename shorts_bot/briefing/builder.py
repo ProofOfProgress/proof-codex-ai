@@ -12,9 +12,8 @@ def build_morning_briefing() -> str:
         "**Good morning — Peripheral**",
         "_Peripheral — watch the whole thing. don't blink. 🔊 jumpscare on finale beats._",
         "",
-        f"• Web UI: http://localhost:{settings.web_port}",
-        f"• Chat: {'full (OpenAI)' if s['openai'] else 'offline — API key optional'}",
-        f"• Discord: {'connected' if s['discord'] else 'needs DISCORD_BOT_TOKEN'}",
+        f"• Web UI: http://localhost:{settings.web_port} (chat + approvals)",
+        f"• Chat: {'full' if s['openai'] else 'offline — add GEMINI_API_KEY or OPENAI_API_KEY'}",
         "",
         "**You only (login / payments):**",
     ]
@@ -36,7 +35,7 @@ def build_morning_briefing() -> str:
             "",
             "**Automated (no tap needed):**",
             f"• Analytics sync every {settings.auto_analytics_sync_interval_hours}h (safe improvements auto-Yes)",
-            f"• Daily Short at {settings.auto_daily_hour:02d}:{settings.auto_daily_minute:02d} UTC" if settings.auto_daily_enabled else "• Daily Short: manual `!daily`",
+            f"• Daily Short at {settings.auto_daily_hour:02d}:{settings.auto_daily_minute:02d} UTC" if settings.auto_daily_enabled else "• Daily Short: type `daily` in web chat",
             f"• Unlisted → public after {settings.auto_publish_hours}h" if settings.auto_publish_hours > 0 else "• Upload visibility: as configured",
             "• Light YouTube comments auto-reply; serious ones queued for you",
             "",
@@ -47,10 +46,10 @@ def build_morning_briefing() -> str:
             f"• Serious comments: {s.get('pending_comments', 0)} (`comments pending`)",
             "",
             "**Quick start:**",
-            "`bash scripts/start.sh`  — web",
-            "`python3 -m shorts_bot.discord_bot`  — Discord",
+            "`bash scripts/start.sh`  — web UI",
+            "`GET /api/briefing`  — this checklist as JSON/text",
             "",
-            "Discord: type normally in DM (no ! prefix) or `!help` in servers.",
+            "Remote steering: Slack `@cursor` (see docs/SLACK_CURSOR_SETUP.md).",
         ]
     )
     return "\n".join(lines)

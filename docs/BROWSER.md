@@ -1,7 +1,7 @@
 # Web browser control
 
 Soft Continuity uses **Playwright Chromium** with a saved profile at `data/browser_profile/`.  
-Both the **Discord bot** and the **AI strategist** can run browsers.
+The **web chat** and **AI strategist** can run browsers.
 
 ## Install
 
@@ -10,7 +10,7 @@ python3 -m playwright install chromium
 python3 -m shorts_bot.browser.cli status
 ```
 
-## Discord / chat commands
+## Web chat commands
 
 | Command | Action |
 |---------|--------|
@@ -19,8 +19,6 @@ python3 -m shorts_bot.browser.cli status
 | `browser open vidiq` | Visible browser on Desktop (15 min) |
 | `browser login youtube` | Open login tab — session saved to profile |
 | `browser status` | Playwright + profile check |
-
-Discord: `!browse`, `!browser open`, `!browser login`
 
 ## CLI
 
@@ -53,4 +51,4 @@ When HTTP fetch fails (Cloudflare, JS pages), deep research automatically retrie
 
 ## Site aliases
 
-`vidiq`, `youtube`, `studio`, `trends`, `turboscribe`, `google`, `capcut`, `discord`
+`vidiq`, `youtube`, `studio`, `trends`, `turboscribe`, `google`, `capcut`

@@ -1,4 +1,4 @@
-"""Record automation failures for operator visibility (Discord bot / web / file)."""
+"""Record automation failures for operator visibility (web / file)."""
 
 from __future__ import annotations
 

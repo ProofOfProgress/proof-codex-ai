@@ -25,7 +25,6 @@
         <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
           {% if youtube.ready %}YT ready{% elif youtube.credentials_configured %}YT sign-in{% else %}YT setup{% endif %}
         </span>
-        <span class="badge {% if has_discord %}ok{% else %}warn{% endif %}">{% if has_discord %}Discord on{% else %}Discord off{% endif %}</span>
       </div>
       <div class="setup-checklist">
         <div class="setup-title">Setup (login only)</div>
@@ -126,7 +125,7 @@
           <p class="empty" style="margin-bottom:12px;">Queue coding/dev work — approve before anything runs. Cloud agent picks up approved tasks.</p>
           <form id="dev-form" class="card">
             <h3>New dev request</h3>
-            <input id="dev-title" type="text" placeholder="Title (e.g. Polish Discord embeds)" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
+            <input id="dev-title" type="text" placeholder="Title (e.g. Polish web UI)" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);" />
             <textarea id="dev-desc" rows="3" placeholder="What should be built or changed?" style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);"></textarea>
             <button class="btn" type="submit">Queue for approval</button>
           </form>

@@ -1,18 +1,23 @@
-from shorts_bot.services.chat_router import is_sync_command, parse_dev_request
+from shorts_bot.services.chat_router import (
+    is_daily_command,
+    is_login_status_command,
+    parse_daily_topic,
+    parse_research_request,
+)
 
 
-def test_parse_dev_colon():
-    r = parse_dev_request("dev: Polish UI | add glow effects")
-    assert r == ("Polish UI", "add glow effects")
+def test_daily_commands():
+    assert is_daily_command("daily")
+    assert is_daily_command("run daily")
+    assert parse_daily_topic("daily the minute before a talk") == "the minute before a talk"
+    assert parse_daily_topic("daily") is None
 
 
-def test_parse_build_natural():
-    r = parse_dev_request("build a dark mode toggle")
-    assert r is not None
-    assert "dark mode" in r[0].lower() or "dark mode" in r[1].lower()
+def test_research_command():
+    assert parse_research_request("research hard conversation") == ("hard conversation", False)
+    assert parse_research_request("deep research hard conversation") == ("hard conversation", True)
 
 
-def test_sync_commands():
-    assert is_sync_command("sync")
-    assert is_sync_command("sync youtube")
-    assert not is_sync_command("syncopation")
+def test_login_status_command():
+    assert is_login_status_command("login status")
+    assert is_login_status_command("health")

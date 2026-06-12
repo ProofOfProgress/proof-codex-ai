@@ -106,7 +106,6 @@ async def home(request: Request) -> HTMLResponse:
             "manager_name": manager_name(),
             "has_openai": settings.has_full_chat,
             "chat_provider": settings.chat_provider,
-            "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
             "checklist": BotOperations().setup_checklist(),
             "first_improvement": pending_imps[0] if pending_imps else None,
@@ -136,7 +135,6 @@ async def health() -> dict:
         "openai": settings.has_full_chat,
         "chat_provider": settings.chat_provider,
         "gemini": settings.has_gemini,
-        "discord": settings.has_discord,
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
@@ -321,6 +319,14 @@ async def score_video(body: ScoreRequest) -> dict:
     }
 
 
+@app.get("/api/briefing")
+async def morning_briefing() -> dict:
+    from shorts_bot.briefing.builder import build_morning_briefing
+
+    text = build_morning_briefing()
+    return {"briefing": text}
+
+
 @app.get("/api/checklist")
 async def setup_checklist() -> dict:
     from shorts_bot.services.ops import BotOperations
@@ -341,7 +347,6 @@ async def status() -> dict:
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
-        "discord": settings.has_discord,
         "applied_training": memory.applied_improvements(),
         "youtube": auth_status(),
     }

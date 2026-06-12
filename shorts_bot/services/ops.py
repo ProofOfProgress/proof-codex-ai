@@ -42,7 +42,7 @@ from shorts_bot.youtube.google_auth import auth_status
 
 
 class BotOperations:
-    """Shared operations for web UI and Discord."""
+    """Shared operations for web UI and CLI chat."""
 
     def chat(self, message: str) -> str:
         text = message.strip()
@@ -162,7 +162,7 @@ class BotOperations:
 
     def _help_text(self) -> str:
         return (
-            "Shorts Bot commands (work in Discord DM without ! prefix too):\n"
+            "Shorts Bot commands (web chat or CLI):\n"
             "• draft <topic> — script draft\n"
             "• dev: <title> | <what to build> — coding task queue\n"
             "• build: polish the web UI — same as dev:\n"
@@ -254,10 +254,10 @@ class BotOperations:
         yt = auth_status()
         items = [
             {
-                "id": "discord",
-                "label": "Discord bot",
-                "done": settings.has_discord,
-                "action": "DISCORD_BOT_TOKEN in .env",
+                "id": "web",
+                "label": "Web UI running",
+                "done": True,
+                "action": f"python3 -m shorts_bot.web → http://localhost:{settings.web_port}",
             },
             {
                 "id": "chat",
@@ -288,7 +288,6 @@ class BotOperations:
             "openai": settings.has_full_chat,
             "chat_provider": settings.chat_provider,
             "gemini": settings.has_gemini,
-            "discord": settings.has_discord,
             "channel": store.channel_summary(),
             "stats": store.stats(),
             "pending_improvements": len(memory.list_improvements(status="pending")),

@@ -1,6 +1,6 @@
 # AlphaBeta001 — Chief Manager + specialist workers
 
-**Don't Blink** uses **AlphaBeta001** as the Chief Manager (the agent you talk to). AlphaBeta001 is not the YouTube channel — the channel is Don't Blink. The manager delegates to small **Gemini specialists** behind the scenes. Discord is optional — use **CLI** or **web UI**.
+**Peripheral** uses **AlphaBeta001** as the Chief Manager (the agent you talk to). AlphaBeta001 is not the YouTube channel. The manager delegates to small **Gemini specialists** behind the scenes. Talk via **web UI**, **CLI**, or **Slack `@cursor`**.
 
 ## Who talks to whom
 

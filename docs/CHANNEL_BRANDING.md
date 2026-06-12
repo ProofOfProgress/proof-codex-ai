@@ -10,7 +10,7 @@ python3 -m shorts_bot.brand.assets      # profile.png + banner.png
 python3 -m shorts_bot.youtube.brand_cli # name + description + banner via API
 ```
 
-Discord / chat: `apply brand` or `!applybrand`
+Web chat: `apply brand`
 
 ## Assets (auto-generated)
 

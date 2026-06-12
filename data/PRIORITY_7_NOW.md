@@ -154,7 +154,7 @@ YouTube targets **mass-produced template Shorts** (identical skeleton, keyword s
 3. **VO stamp:** `voiceover_stamp.json` — invalidate resume if provider/delivery changed.
 4. **Pack invalidation:** re-pack if `render_mode != video_clips` when `ai_video` required.
 5. **`finish_cli --no-resume`** for forced full rebuild.
-6. **`auto_daily`** must surface pipeline failures to Discord/Slack when wired.
+6. **`auto_daily`** must surface pipeline failures to web/Slack when wired.
 
 ---
 

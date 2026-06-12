@@ -22,16 +22,16 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 
 **Cloud agents** (Cursor) may run `python3 -m shorts_bot.codex search "…"` in terminal to pull passages without loading every file into context.
 
-**The owner does not use Codex ask/search** — no Discord command, no web button, no chat `codex ask`. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
+**The owner does not use Codex ask/search** — no public Codex button. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
 
 ## Owner — how to talk to the human
 
 The owner is **not a developer**. When explaining anything:
 
 - Use **plain English** — no jargon unless you define it in one simple sentence right after.
-- Say **what to do**, not how the code works: "Open Discord and type `!daily`" beats "invoke the pipeline module."
+- Say **what to do**, not how the code works: "Open http://localhost:8080 and type `daily`" beats "invoke the pipeline module."
 - One step at a time; assume they will not read terminal output or git diffs.
-- Cloud agents and the Discord bot must **do the technical work**; the owner approves money/risk steps only when truly necessary.
+- Cloud agents and the web autopilot must **do the technical work**; the owner approves money/risk steps only when truly necessary.
 
 ## Cloud agents — do it yourself first (browser + terminal)
 
@@ -83,11 +83,11 @@ Gemini horror scripts, Resemble voice (cold narrator), Replicate FLUX + MiniMax 
 
 ## Browser
 
-Discord bot and AI agent CAN run browsers: `browse <url>`, `browser open vidiq`, saved profile at data/browser_profile. Deep research uses browser fallback for JS/Cloudflare pages.
+Web UI chat and cloud agents CAN run browsers: `browse <url>`, `browser open vidiq`, saved profile at data/browser_profile. Deep research uses browser fallback for JS/Cloudflare pages.
 
 ## Channel accounts
 
-Primary Google/YouTube/Gemini: paypalacc4progress@gmail.com. Discord owner controls pipeline via bot commands.
+Primary Google/YouTube/Gemini: paypalacc4progress@gmail.com. Owner controls pipeline via web UI or Slack `@cursor`.
 
 ## Jenny course
 

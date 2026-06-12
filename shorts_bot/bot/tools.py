@@ -509,7 +509,7 @@ class ToolRunner:
             {
                 "id": task.id,
                 "title": task.title,
-                "message": "Dev task queued — human must approve in web UI or Discord.",
+                "message": "Dev task queued — human must approve in web UI.",
             }
         )
 

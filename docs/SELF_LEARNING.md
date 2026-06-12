@@ -18,7 +18,7 @@ See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 
 | Step | Automation |
 |------|------------|
-| **Analytics sync** | Every `AUTO_ANALYTICS_SYNC_INTERVAL_HOURS` (Discord + web background) |
+| **Analytics sync** | Every `AUTO_ANALYTICS_SYNC_INTERVAL_HOURS` (web background) |
 | **Hook/retention improvements** | Auto-approved when category is safe (no login/payment/niche pivot) |
 | **Daily Short** | `AUTO_DAILY_ENABLED` at `AUTO_DAILY_HOUR` UTC |
 | **Unlisted upload** | Flips to public after `AUTO_PUBLISH_HOURS` |
@@ -42,13 +42,13 @@ See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 3. **Repeat when relevant** — approved draft patterns
 4. **Recent video performance** — last 3 reward events
 
-**Daily autopilot** (`!daily`) now uses the same learning context as the web agent.
+**Daily autopilot** (`daily`) now uses the same learning context as the web agent.
 
 ## Commands
 
 - `sync` / **Sync YouTube Analytics** — score videos, propose improvements
 - Web sidebar **Yes/No** on improvements
-- `yes <id>` / `no <id>` in Discord
+- `yes <id>` / `no <id>` in web chat
 - Draft **Yes/No** — learns instantly
 
 ## Storage

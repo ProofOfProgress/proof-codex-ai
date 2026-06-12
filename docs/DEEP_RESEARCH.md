@@ -22,10 +22,10 @@ python3 -m shorts_bot.production.research_cli "the minute before a hard conversa
 python3 -m shorts_bot.production.research_cli --refresh   # re-browse web
 ```
 
-Discord / chat:
+Web chat:
 
 - `research <topic>` — cached if fresh
-- `deep research <topic>` / `!deepresearch <topic>` — force refresh
+- `deep research <topic>` — force refresh
 - `daily <topic>` — research is step 1 of autopilot
 
 ## What gets used downstream

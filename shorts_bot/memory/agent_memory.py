@@ -169,8 +169,8 @@ class AgentMemoryStore:
             ),
             (
                 "preference",
-                "Discord control",
-                "User controls pipeline via Discord: daily, research, apply brand, finish video.",
+                "Web control",
+                "User controls pipeline via web UI chat: daily, research, apply brand, finish video.",
             ),
             (
                 "operating_rule",

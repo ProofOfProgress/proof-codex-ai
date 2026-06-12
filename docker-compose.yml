@@ -9,15 +9,3 @@ services:
       - ./data:/app/data
       - ./course:/app/course
     restart: unless-stopped
-
-  discord:
-    build: .
-    command: python3 -m shorts_bot.discord_bot
-    env_file:
-      - .env
-    volumes:
-      - ./data:/app/data
-      - ./course:/app/course
-    restart: unless-stopped
-    depends_on:
-      - web

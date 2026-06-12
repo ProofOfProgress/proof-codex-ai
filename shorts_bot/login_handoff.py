@@ -19,7 +19,6 @@ SITES = {
     "vidiq": ("vidIQ keyword research", _SITE_URLS["vidiq"]),
     "trends": ("Google Trends", _SITE_URLS["trends"]),
     "capcut": ("CapCut web", _SITE_URLS["capcut"]),
-    "discord": ("Discord app", _SITE_URLS["discord"]),
 }
 
 
