@@ -39,6 +39,8 @@ python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.m
 
 Also: Discord `!codex <question>` · web `POST /api/codex/ask` · chat `codex ask <question>`. Agent tools: `ask_codex`, `search_codex`, `read_codex_file`. See `docs/CODEX.md`.
 
+**AlphaBeta001 (Chief Manager):** auto-queries Codex on strategy triggers before every synthesis (`shorts_bot/codex/context.py`). Operating rule in agent memory: **Query Codex first**.
+
 **Formats:** Shorts now; long-form via **asset reuse** — `docs/CONTENT_FORMATS.md`, `data/PRIORITY_LONG_FORM.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
 
 **Long-form (no new I2V):** stitch 3+ finished Shorts → 16:9 blur pillarbox; QC + chapters before upload.

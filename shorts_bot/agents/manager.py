@@ -145,10 +145,18 @@ class ChiefManager:
         if not self.runner.available:
             return self._offline_reply(user_request, session)
 
+        from shorts_bot.codex.context import codex_context_for_agent
+
         context = session.context_for_synthesis() if session else "No timed work session."
+        codex_block, codex_mode = codex_context_for_agent(user_request)
+        if codex_block:
+            context = f"{context}\n\n---\n{codex_block}"
+            log.info("Chief Manager Codex context mode=%s for request", codex_mode)
+
         task = (
             f"User said:\n{user_request}\n\n"
-            f"Write the final reply as {manager_name()}, Chief Manager (not as the channel)."
+            f"Write the final reply as {manager_name()}, Chief Manager (not as the channel).\n"
+            "Ground strategy/craft answers in the CODEX block above when present — cite file paths."
         )
 
         synthesis = self.runner.run(

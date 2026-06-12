@@ -39,6 +39,7 @@ class AgentMemoryStore:
         self._seed_if_empty()
         self._ensure_ypp_rules()
         self._ensure_mission_rules()
+        self._ensure_codex_rules()
 
     def _conn(self):
         return self.store._connect()
@@ -83,6 +84,25 @@ class AgentMemoryStore:
             category="operating_rule",
             title="YPP / inauthentic content",
             content=OPERATING_RULES_BLOCK.strip(),
+            source="seed",
+            pinned=True,
+        )
+
+    def _ensure_codex_rules(self) -> None:
+        """Idempotent — when to query Codex (Chief Manager + all agents)."""
+        mems = self.list_memories(limit=100)
+        if any("query codex" in m.title.lower() or "codex ask" in m.content.lower()[:60] for m in mems):
+            return
+        self.add_memory(
+            category="operating_rule",
+            title="Query Codex first",
+            content=(
+                "Before answering craft/strategy questions (hooks, suspense, retention, pacing, "
+                "jumpscare, scripts, visuals), query Codex: "
+                "`python3 -m shorts_bot.codex ask \"…\"` or tool ask_codex / codex ask in chat. "
+                "Chief Manager auto-injects Codex search on strategy triggers. "
+                "Skip for pure ops (upload, sync, render, approve, dev:). Cite source paths."
+            ),
             source="seed",
             pinned=True,
         )

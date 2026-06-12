@@ -16,6 +16,20 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 - **Also part of Codex context:** `channel/brand/`, `data/research/`, `data/LEARNED.md`, agent memory (`data/MEMORY.md`)
 - Code: `shorts_bot/codex/`, `docs/CODEX.md`
 
+### When agents must query Codex
+
+**AlphaBeta001 (Chief Manager), ShortsBotAgent, and cloud agents** should use Codex **before** improvising on:
+
+- Hooks, suspense, retention, pacing, payoff, jumpscare, horror psychology
+- Scripts, visuals, editing, music, CTAs, analytics
+- Any "how do I…" / "what makes…" craft question
+
+**Commands:** `python3 -m shorts_bot.codex ask "…"` · chat `codex ask …` · tools `ask_codex` / `search_codex`
+
+**Skip Codex for:** upload/sync/render/approve ops, `dev:` tasks, live competitor browse (use research underlings after Codex baseline).
+
+Chief Manager auto-injects Codex search into synthesis when the message matches craft/strategy triggers (`shorts_bot/codex/context.py`).
+
 ## Owner — how to talk to the human
 
 The owner is **not a developer**. When explaining anything:

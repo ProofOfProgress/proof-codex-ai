@@ -121,11 +121,18 @@ class ShortsBotAgent:
     def chat(self, user_message: str) -> str:
         self._refresh_system_prompt()
         self.store.save_chat("user", user_message)
+        from shorts_bot.codex.context import codex_context_for_agent
+
         guidance = self.router.build_guidance(user_message)
+        codex_block, _codex_mode = codex_context_for_agent(user_message)
+        context_parts = [guidance]
+        if codex_block:
+            context_parts.append(codex_block)
+        combined = "\n\n---\n\n".join(context_parts)
         augmented = (
             f"{user_message}\n\n"
-            f"[JENNY COURSE CONTEXT — use ONLY this + tools, no outside advice]\n"
-            f"{guidance}"
+            f"[CODEX CONTEXT — use ONLY this + tools, no outside advice]\n"
+            f"{combined}"
         )
         self.messages.append({"role": "user", "content": augmented})
 
