@@ -86,9 +86,27 @@ You should see a message in the channel: *Peripheral bot connected.*
 
 | Problem | Fix |
 |---------|-----|
-| @cursor ignores me | Did you **Link Account**? Not just install the app. |
+| Reply from **GitHub APP** + “Access denied… Copilot” | **Wrong bot.** That is GitHub Copilot in Slack, not Cursor. Use **`@cursor`** (Cursor app), not `@GitHub` / `@GitHub Copilot`. Install Cursor separately: [Integrations → Slack](https://cursor.com/dashboard?tab=integrations). |
+| Two apps in Slack | **Cursor** = Cloud Agents for this repo. **GitHub** = PR previews + optional Copilot agent (needs paid Copilot + org policy). They are not interchangeable. |
+| @cursor ignores me | Did you **Link Account** on `@cursor help`? Dashboard connect alone is not enough. |
 | Wrong repo | `@cursor settings` or say `proof-codex-ai` in the message |
 | Webhook test fails | Regenerate webhook URL; check Secret name is exactly `SLACK_WEBHOOK_URL` |
 | Checklist still shows ○ for @cursor | Add `SLACK_CURSOR_LINKED=true` to Secrets after Link Account |
+
+### Correct test message
+
+In `#peripheral-ops` (after `/invite @cursor`):
+
+```
+@cursor help
+```
+
+Then Link Account if prompted. Then:
+
+```
+@cursor agent in proof-codex-ai, reply OK
+```
+
+Do **not** use `@Cursor alphabeta` as the app name — `alphabeta` is just text in your prompt if needed.
 
 Full technical doc: `docs/SLACK_CURSOR_SETUP.md`
