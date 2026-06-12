@@ -1,4 +1,8 @@
 # Automation alerts
+- **2026-06-12 05:47 UTC** `auto_daily`: render failed
+  - timeout
+- **2026-06-12 05:46 UTC** `auto_daily`: render failed
+  - timeout
 - **2026-06-12 05:36 UTC** `auto_daily`: render failed
   - timeout
 - **2026-06-12 05:35 UTC** `auto_daily`: render failed

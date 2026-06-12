@@ -70,6 +70,10 @@ class Settings(BaseSettings):
     slack_app_token: str | None = None  # xapp-... Socket Mode (autonomy bus)
     slack_autonomy_enabled: bool = True  # [autonomy] self-talk bus via Socket Mode
     slack_autonomy_owner_commands: bool = False  # also run plain human messages (no prefix)
+    slack_channel_email: str | None = None  # peripheral-ops@workspace.slack.com (Option A)
+    gmail_smtp_user: str | None = None  # sender Gmail for Slack email + alerts
+    gmail_smtp_app_password: str | None = None  # Google App Password (not login password)
+    slack_post_mode: str = "auto"  # auto | email | bot — auto tries bot, webhook, then email
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")

@@ -63,12 +63,16 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `SLACK_BOT_TOKEN` | Runtime Secret | Bot token `xoxb-...` | `xoxb-...` | [api.slack.com/apps](https://api.slack.com/apps) → AlphaBeta001 app |
 | `SLACK_CHANNEL_ID` | Environment Variable | Channel ID `C...` | `C0123456789` | `#peripheral-ops` → channel details |
 | `SLACK_WEBHOOK_URL` | Runtime Secret | Incoming webhook URL (optional) | `https://hooks.slack.com/services/...` | Fallback if no bot token |
+| `SLACK_CHANNEL_EMAIL` | Environment Variable | Channel inbound email | `peripheral-ops@workspace.slack.com` | Option A — `docs/FOR_OWNER_SLACK_EMAIL.md` |
+| `GMAIL_SMTP_USER` | Runtime Secret | Gmail sender address | `paypalacc4progress@gmail.com` | With app password for Slack email |
+| `GMAIL_SMTP_APP_PASSWORD` | Runtime Secret | Google App Password | `16-char password` | Not your login password |
+| `SLACK_POST_MODE` | Environment Variable | `auto` \| `email` \| `bot` | `email` | Force Gmail path when set |
 | `SLACK_CURSOR_LINKED` | Environment Variable | `true` after Link Account | `true` | Set after `@cursor help` → Link Account in Slack |
 | `SLACK_APP_TOKEN` | Runtime Secret | Socket Mode `xapp-...` | `xapp-...` | Autonomy bus — `docs/SLACK_AUTONOMY.md` |
 | `SLACK_AUTONOMY_ENABLED` | Environment Variable | `true` / `false` | `true` | `[autonomy]` self-talk bus |
 | `SLACK_CHANNEL_NAME` | Environment Variable | Channel name (no #) | `peripheral-ops` | Optional label for status/briefing |
 
-**Slack:** AlphaBeta001 bot = `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` (`docs/FOR_OWNER_SLACK_BOT.md`). Autonomy bus adds `SLACK_APP_TOKEN` (`docs/SLACK_AUTONOMY.md`). `@cursor` = separate OAuth (`docs/FOR_OWNER_SLACK.md`).
+**Slack:** Option A email = `SLACK_CHANNEL_EMAIL` + `GMAIL_SMTP_*` (`docs/FOR_OWNER_SLACK_EMAIL.md`). Bot = `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` (`docs/FOR_OWNER_SLACK_BOT.md`). Autonomy bus adds `SLACK_APP_TOKEN` (`docs/SLACK_AUTONOMY.md`). `@cursor` = separate OAuth (`docs/FOR_OWNER_SLACK.md`).
 
 ---
 

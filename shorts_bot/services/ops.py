@@ -303,9 +303,9 @@ class BotOperations:
             },
             {
                 "id": "slack_bot",
-                "label": "Slack bot AlphaBeta001 (pipeline alerts)",
+                "label": "Slack alerts (email, bot, or webhook)",
                 "done": _slack_bot_ready(),
-                "action": "docs/FOR_OWNER_SLACK_BOT.md — SLACK_BOT_TOKEN + SLACK_CHANNEL_ID",
+                "action": "docs/FOR_OWNER_SLACK_EMAIL.md (Option A) or FOR_OWNER_SLACK_BOT.md",
             },
         ]
         return items

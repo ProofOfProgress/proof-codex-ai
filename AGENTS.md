@@ -103,7 +103,7 @@ Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversation
 
 **Chief Manager (AlphaBeta001):** `python3 -m shorts_bot.agents.cli` — you talk to **AlphaBeta001** only (not the channel name); research underlings work behind the scenes (`MANAGER_WORK_PRIORITY=research` by default). Say `take 1h to research horror hooks` or `plan this week's hooks`. Web: `POST /api/manager/run`. Remote: Slack `@cursor`. See `docs/AGENT_MANAGER.md`. Override: `MANAGER_DISPLAY_NAME` in `.env`.
 
-**Slack ↔ Cursor (remote ops):** `@cursor agent …` in Slack starts Cloud Agents; webhook `SLACK_WEBHOOK_URL` posts pipeline alerts to `#peripheral-ops`. Setup: `bash scripts/slack-setup.sh`, `docs/FOR_OWNER_SLACK.md`, automations in `docs/SLACK_AUTOMATIONS.md`. Slack MCP (`needsAuth` until owner OAuth) lets agents post/read during grinds. Status: `GET /api/slack/status`, `python3 -m shorts_bot.integrations test`.
+**Slack ↔ Cursor (remote ops):** `@cursor agent …` in Slack starts Cloud Agents. **Option A (no bot token):** Gmail → `SLACK_CHANNEL_EMAIL` posts alerts to `#peripheral-ops` (`docs/FOR_OWNER_SLACK_EMAIL.md`). Or webhook `SLACK_WEBHOOK_URL` / bot token. Setup: `bash scripts/slack-setup.sh`, `docs/FOR_OWNER_SLACK.md`. Status: `GET /api/slack/status`, `python3 -m shorts_bot.integrations test`.
 
 **Slack autonomy bus:** AlphaBeta001 posts `[autonomy] <command>` in `#peripheral-ops`; Socket Mode listener (with web UI running) executes via `BotOperations.chat` and replies in-thread — self-talk for 24/7 ops without IDE. Secrets: `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID`, `SLACK_APP_TOKEN`. API: `POST /api/slack/autonomy`. CLI: `python3 -m shorts_bot.integrations autonomy status`. See `docs/SLACK_AUTONOMY.md`.
 

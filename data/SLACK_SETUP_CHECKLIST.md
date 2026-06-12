@@ -21,7 +21,18 @@ Run: `bash scripts/slack-setup.sh`
 - [ ] Dashboard → Integrations → Slack MCP for Cloud Agents
 - [ ] Slack admin approves MCP if prompted
 
-## Webhook (pipeline alerts from bot)
+## Option A — Email into Slack (no bot token) **recommended if /invite fails**
+
+- [ ] `#peripheral-ops` → Integrations → **Email** → copy address
+- [ ] Google → App Password for ops Gmail
+- [ ] Cursor Secrets → `SLACK_CHANNEL_EMAIL`, `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD`
+- [ ] Optional: `SLACK_POST_MODE=email` to skip bot/webhook
+- [ ] `bash scripts/install.sh`
+- [ ] `python3 -m shorts_bot.integrations test` → email appears in channel
+
+Guide: `docs/FOR_OWNER_SLACK_EMAIL.md`
+
+## Webhook (pipeline alerts — alternative)
 
 - [ ] Slack → Incoming Webhooks → add to `#peripheral-ops`
 - [ ] Cursor Secrets → `SLACK_WEBHOOK_URL`

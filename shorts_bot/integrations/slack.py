@@ -35,7 +35,9 @@ def has_slack_bot() -> bool:
 
 
 def slack_can_post() -> bool:
-    return has_slack_bot() or has_slack_webhook()
+    from shorts_bot.integrations.slack_email import has_slack_email
+
+    return has_slack_bot() or has_slack_webhook() or has_slack_email()
 
 
 def slack_cursor_linked() -> bool:
@@ -48,7 +50,23 @@ def slack_setup_steps() -> list[dict[str, Any]]:
     webhook = has_slack_webhook()
     bot = has_slack_bot()
     cursor = slack_cursor_linked()
+    from shorts_bot.integrations.slack_email import has_slack_email
+
+    email = has_slack_email()
     return [
+        {
+            "id": "channel_email",
+            "phase": "email",
+            "label": "Option A: Gmail → channel email (no bot token)",
+            "done": email,
+            "url": None,
+            "detail": (
+                "#"
+                + ch
+                + " → Integrations → Email → copy address → "
+                "SLACK_CHANNEL_EMAIL + Gmail app password"
+            ),
+        },
         {
             "id": "bot_app",
             "phase": "bot",
@@ -101,7 +119,7 @@ def slack_setup_steps() -> list[dict[str, Any]]:
             "id": "webhook_test",
             "phase": "bot",
             "label": "Test post (web Slack tab or integrations test)",
-            "done": bot or webhook,
+            "done": bot or webhook or email,
             "url": None,
             "detail": "python3 -m shorts_bot.integrations test",
         },
@@ -130,7 +148,14 @@ def slack_setup_status() -> dict[str, Any]:
     cursor = slack_cursor_linked()
     steps = slack_setup_steps()
     done_count = sum(1 for s in steps if s["done"])
-    mode = "bot" if bot else ("webhook" if webhook else "none")
+    from shorts_bot.integrations.slack_email import has_slack_email, slack_email_status
+
+    email = has_slack_email()
+    mode = (
+        "bot"
+        if bot
+        else ("webhook" if webhook else ("email" if email else "none"))
+    )
     return {
         "mode": mode,
         "bot_configured": bot,
@@ -151,7 +176,9 @@ def slack_setup_status() -> dict[str, Any]:
         "setup_script": "bash scripts/slack-setup.sh",
         "steps": steps,
         "progress": f"{done_count}/{len(steps)}",
-        "ready": bot or webhook,
+        "ready": bot or webhook or email,
+        "email": slack_email_status(),
+        "post_mode": (settings.slack_post_mode or "auto").strip().lower(),
         "autonomy": slack_autonomy_status(),
         "test_prompt": (
             f"@cursor agent in proof-codex-ai — reply OK in #{settings.slack_channel_name}. "
@@ -265,27 +292,41 @@ def slack_autonomy_status() -> dict[str, Any]:
     }
 
 
+def _post_mode() -> str:
+    return (settings.slack_post_mode or "auto").strip().lower()
+
+
 def post_slack_message(
     text: str,
     *,
     blocks: list[dict[str, Any]] | None = None,
     event: str | None = None,
 ) -> bool:
-    """Post via bot token (preferred) or webhook."""
+    """Post via bot token, webhook, or Gmail → Slack channel email."""
+    from shorts_bot.integrations.slack_email import has_slack_email, post_slack_via_email
+
     if not settings.slack_notify_enabled:
         return False
 
     prefix = f"*[{event}]* " if event else ""
     full = f"{prefix}{text}"
+    mode = _post_mode()
 
-    if has_slack_bot():
+    if mode == "email":
+        return post_slack_via_email(full, event=event)
+
+    if mode != "email" and has_slack_bot():
         ok, err = _post_via_bot_token(full)
         if ok:
             return True
-        log.warning("Slack bot post failed: %s — trying webhook fallback", err)
+        log.warning("Slack bot post failed: %s — trying fallbacks", err)
 
-    if has_slack_webhook():
-        return _post_via_webhook(full, blocks=blocks)
+    if mode != "email" and has_slack_webhook():
+        if _post_via_webhook(full, blocks=blocks):
+            return True
+
+    if mode in ("auto", "email") and has_slack_email():
+        return post_slack_via_email(full, event=event)
 
     return False
 
@@ -294,8 +335,12 @@ def notify_automation_alert(event: str, message: str, *, detail: str = "") -> bo
     lines = [message]
     if detail:
         lines.append(f"```{detail[:800]}```")
-    if not has_slack_bot():
+    from shorts_bot.integrations.slack_email import has_slack_email
+
+    if not has_slack_bot() and not has_slack_email():
         lines.append("_Remote agents: `@cursor agent …` in Slack (needs Link Account in DM)._")
+    elif has_slack_email() and not has_slack_bot():
+        lines.append("_Posted via Gmail → Slack email. Reply in channel or `@cursor` for steering._")
     return post_slack_message("\n".join(lines), event=event)
 
 
@@ -306,14 +351,24 @@ def send_test_message() -> tuple[bool, str]:
         "Pipeline alerts and milestones post here.\n"
         "_First subscriber logged. don't blink._"
     )
+    from shorts_bot.integrations.slack_email import has_slack_email
+
     if not slack_can_post():
         return (
             False,
-            "Add SLACK_BOT_TOKEN + SLACK_CHANNEL_ID (see docs/FOR_OWNER_SLACK_BOT.md) "
-            "or SLACK_WEBHOOK_URL",
+            "Option A: SLACK_CHANNEL_EMAIL + GMAIL_SMTP_* (docs/FOR_OWNER_SLACK_EMAIL.md). "
+            "Or SLACK_BOT_TOKEN + SLACK_CHANNEL_ID, or SLACK_WEBHOOK_URL",
         )
     ok = post_slack_message(body, event="setup")
     if ok:
-        via = name if has_slack_bot() else "webhook"
-        return True, f"Posted as {via} → #{settings.slack_channel_name}"
-    return False, "Post failed — check bot is invited to channel and channel ID is correct"
+        if has_slack_bot():
+            via = name
+        elif has_slack_email() and _post_mode() in ("auto", "email"):
+            via = f"Gmail → #{settings.slack_channel_name} email"
+        else:
+            via = "webhook"
+        return True, f"Posted as {via}"
+    return False, (
+        "Post failed — check Gmail app password, Slack channel email address, "
+        "or bot invited to channel"
+    )

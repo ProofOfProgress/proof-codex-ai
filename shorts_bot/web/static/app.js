@@ -290,7 +290,7 @@ if (slackTestBtn && slackTestMsg) {
       if (res.ok) loadSlackPanel();
     } catch {
       slackTestMsg.className = 'sync-msg err';
-      slackTestMsg.textContent = 'Request failed — is SLACK_WEBHOOK_URL in .env?';
+      slackTestMsg.textContent = 'Request failed — check SLACK_CHANNEL_EMAIL + Gmail or SLACK_WEBHOOK_URL in .env';
     } finally {
       slackTestBtn.disabled = false;
     }
