@@ -90,6 +90,14 @@ def slack_setup_steps() -> list[dict[str, Any]]:
             "detail": "Only needed if you skip custom bot app.",
         },
         {
+            "id": "socket_mode",
+            "phase": "autonomy",
+            "label": "Socket Mode + SLACK_APP_TOKEN ([autonomy] self-talk bus)",
+            "done": slack_autonomy_status()["socket_ready"],
+            "url": SLACK_APPS_URL,
+            "detail": "Enable Socket Mode → App-Level Token xapp-… → subscribe message.channels + app_mention",
+        },
+        {
             "id": "webhook_test",
             "phase": "bot",
             "label": "Test post (web Slack tab or integrations test)",
@@ -144,6 +152,7 @@ def slack_setup_status() -> dict[str, Any]:
         "steps": steps,
         "progress": f"{done_count}/{len(steps)}",
         "ready": bot or webhook,
+        "autonomy": slack_autonomy_status(),
         "test_prompt": (
             f"@cursor agent in proof-codex-ai — reply OK in #{settings.slack_channel_name}. "
             f"(Or wait for {settings.slack_bot_display_name} bot test message.)"
@@ -151,10 +160,17 @@ def slack_setup_status() -> dict[str, Any]:
     }
 
 
-def _post_via_bot_token(text: str) -> tuple[bool, str]:
+def _post_via_bot_token(
+    text: str,
+    *,
+    thread_ts: str | None = None,
+) -> tuple[bool, str]:
     token = (settings.slack_bot_token or "").strip()
     channel = (settings.slack_channel_id or "").strip()
-    payload = json.dumps({"channel": channel, "text": text}).encode("utf-8")
+    body: dict[str, Any] = {"channel": channel, "text": text}
+    if thread_ts:
+        body["thread_ts"] = thread_ts
+    payload = json.dumps(body).encode("utf-8")
     req = urllib.request.Request(
         "https://slack.com/api/chat.postMessage",
         data=payload,
@@ -197,6 +213,56 @@ def _post_via_webhook(text: str, *, blocks: list[dict[str, Any]] | None = None) 
     except Exception as exc:  # noqa: BLE001
         log.warning("Slack webhook failed: %s", exc)
         return False
+
+
+def post_slack_thread(text: str, *, thread_ts: str | None = None) -> bool:
+    """Reply in a thread (or start a thread when thread_ts is the parent message ts)."""
+    if not settings.slack_notify_enabled or not has_slack_bot():
+        return False
+    ok, err = _post_via_bot_token(text, thread_ts=thread_ts)
+    if not ok:
+        log.warning("Slack thread post failed: %s", err)
+    return ok
+
+
+def fetch_bot_user_id() -> str | None:
+    """auth.test — cache bot user id for autonomy self-talk detection."""
+    token = (settings.slack_bot_token or "").strip()
+    if not token.startswith("xoxb-"):
+        return None
+    req = urllib.request.Request(
+        "https://slack.com/api/auth.test",
+        data=b"",
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Bearer {token}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = json.loads(resp.read().decode())
+        if body.get("ok"):
+            return str(body.get("user_id") or "") or None
+        log.warning("Slack auth.test failed: %s", body.get("error"))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Slack auth.test error: %s", exc)
+    return None
+
+
+def slack_autonomy_status() -> dict[str, Any]:
+    from shorts_bot.integrations.slack_autonomy import autonomy_enabled, _socket_ready
+
+    app = (settings.slack_app_token or "").strip()
+    return {
+        "enabled": bool(settings.slack_autonomy_enabled),
+        "socket_ready": _socket_ready(),
+        "active": autonomy_enabled(),
+        "app_token_set": app.startswith("xapp-"),
+        "owner_commands": bool(settings.slack_autonomy_owner_commands),
+        "prefix": "[autonomy]",
+        "doc": "docs/SLACK_AUTONOMY.md",
+    }
 
 
 def post_slack_message(

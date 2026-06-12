@@ -22,6 +22,7 @@ Use **both** if you can: bot = notifications; @cursor = start coding agents from
 2. Under **Bot Token Scopes**, add:
    - `chat:write` — post messages
    - `chat:write.public` — post to public channels without joining (optional but helpful)
+   - `channels:history` — read ops channel for autonomy bus (Socket Mode)
 3. Scroll up → **Install to Workspace** → **Allow**
 4. Copy **Bot User OAuth Token** (starts with `xoxb-`)
 
@@ -44,6 +45,7 @@ Add to **Cursor → Secrets** (not chat):
 |--------|---------|
 | `SLACK_BOT_TOKEN` | `xoxb-...` |
 | `SLACK_CHANNEL_ID` | `C0123456789` |
+| `SLACK_APP_TOKEN` | `xapp-...` (Socket Mode — see `docs/SLACK_AUTONOMY.md`) |
 
 Optional: keep `SLACK_WEBHOOK_URL` too — bot token is preferred when set.
 
@@ -68,6 +70,7 @@ Slack app → **Basic Information** → **Display Information** → upload eye l
 
 - Posts test message on `integrations test`
 - Posts pipeline alerts from `data/ALERTS.md` path (auto_daily failures, etc.)
+- **[Autonomy bus]** posts `[autonomy] <command>` and executes via Socket Mode — bot talks to itself (`docs/SLACK_AUTONOMY.md`)
 - Does **not** replace @cursor for starting Cloud Agents — that’s still Cursor’s app + Link Account
 
 ---

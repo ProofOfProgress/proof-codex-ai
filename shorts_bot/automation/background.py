@@ -113,9 +113,29 @@ async def comment_reply_loop(stop_event: asyncio.Event) -> None:
             pass
 
 
+def _start_slack_autonomy_bus() -> None:
+    try:
+        from shorts_bot.integrations.slack_socket import start_slack_socket_listener
+
+        if start_slack_socket_listener():
+            log.info("Slack [autonomy] self-talk bus started")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Slack autonomy bus failed to start: %s", exc)
+
+
+def _stop_slack_autonomy_bus() -> None:
+    try:
+        from shorts_bot.integrations.slack_socket import stop_slack_socket_listener
+
+        stop_slack_socket_listener()
+    except Exception as exc:  # noqa: BLE001
+        log.debug("Slack autonomy bus stop: %s", exc)
+
+
 async def start_background_automation() -> asyncio.Event:
     """Start automation tasks; returns stop event for shutdown."""
     stop = asyncio.Event()
+    await asyncio.to_thread(_start_slack_autonomy_bus)
     tasks = [
         asyncio.create_task(analytics_sync_loop(stop), name="analytics_sync"),
         asyncio.create_task(publish_queue_loop(stop), name="publish_queue"),

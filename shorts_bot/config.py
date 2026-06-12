@@ -67,6 +67,9 @@ class Settings(BaseSettings):
     slack_channel_name: str = "peripheral-ops"
     slack_bot_display_name: str = "AlphaBeta001"
     slack_cursor_linked: bool = False  # set true after @cursor Link Account in Slack
+    slack_app_token: str | None = None  # xapp-... Socket Mode (autonomy bus)
+    slack_autonomy_enabled: bool = True  # [autonomy] self-talk bus via Socket Mode
+    slack_autonomy_owner_commands: bool = False  # also run plain human messages (no prefix)
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")

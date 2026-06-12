@@ -35,6 +35,9 @@ async def lifespan(_app: FastAPI):
     stop = await start_background_automation()
     yield
     stop.set()
+    from shorts_bot.automation.background import _stop_slack_autonomy_bus
+
+    await asyncio.to_thread(_stop_slack_autonomy_bus)
     await asyncio.sleep(0.1)
 
 
@@ -339,6 +342,27 @@ async def slack_test_webhook() -> dict:
     from shorts_bot.integrations.slack import send_test_message
 
     ok, message = send_test_message()
+    if not ok:
+        raise HTTPException(status_code=400, detail=message)
+    return {"ok": True, "message": message}
+
+
+class SlackAutonomyRequest(BaseModel):
+    command: str = Field(..., min_length=1, max_length=2000)
+    note: str = ""
+    thread_ts: str | None = None
+
+
+@app.post("/api/slack/autonomy")
+async def slack_autonomy_enqueue(body: SlackAutonomyRequest) -> dict:
+    """Post [autonomy] command to Slack — Socket Mode listener executes it."""
+    from shorts_bot.integrations.slack_autonomy import post_autonomy_command
+
+    ok, message = post_autonomy_command(
+        body.command,
+        note=body.note,
+        thread_ts=body.thread_ts,
+    )
     if not ok:
         raise HTTPException(status_code=400, detail=message)
     return {"ok": True, "message": message}

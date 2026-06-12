@@ -105,6 +105,8 @@ Set `GEMINI_API_KEY` (free, preferred) or `OPENAI_API_KEY` for full conversation
 
 **Slack ↔ Cursor (remote ops):** `@cursor agent …` in Slack starts Cloud Agents; webhook `SLACK_WEBHOOK_URL` posts pipeline alerts to `#peripheral-ops`. Setup: `bash scripts/slack-setup.sh`, `docs/FOR_OWNER_SLACK.md`, automations in `docs/SLACK_AUTOMATIONS.md`. Slack MCP (`needsAuth` until owner OAuth) lets agents post/read during grinds. Status: `GET /api/slack/status`, `python3 -m shorts_bot.integrations test`.
 
+**Slack autonomy bus:** AlphaBeta001 posts `[autonomy] <command>` in `#peripheral-ops`; Socket Mode listener (with web UI running) executes via `BotOperations.chat` and replies in-thread — self-talk for 24/7 ops without IDE. Secrets: `SLACK_BOT_TOKEN`, `SLACK_CHANNEL_ID`, `SLACK_APP_TOKEN`. API: `POST /api/slack/autonomy`. CLI: `python3 -m shorts_bot.integrations autonomy status`. See `docs/SLACK_AUTONOMY.md`.
+
 ### Lint / test
 
 No linter configured. Smoke checks:
