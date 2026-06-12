@@ -18,9 +18,12 @@ Suggested channel: **#peripheral-ops** (public).
 
 ### Step 2 — Channel + link your account
 
-1. In Slack, create a **public** channel: `#peripheral-ops`
-2. Type: `/invite @cursor`
-3. Type: `@cursor help`
+1. In Slack, create a **public** channel: `#peripheral-ops` (you must be allowed to create channels)
+2. Add Cursor to the channel — **pick one** (if `/invite @cursor` says *Sorry, you can't perform this action*, use B or C):
+   - **A:** `/invite @cursor`
+   - **B:** Channel name (top) → **Integrations** tab → **Add an app** → search **Cursor** → Add
+   - **C:** Skip invite — in a **public** channel, type `@cursor help` (app may join on first mention if already installed workspace-wide)
+3. **Or use DM:** open a direct message with **Cursor** (Apps sidebar) → `@cursor help` — no channel invite needed
 4. Click **Link Account** when Slack asks (OAuth to Cursor — required)
 
 ### Step 3 — Default repo
