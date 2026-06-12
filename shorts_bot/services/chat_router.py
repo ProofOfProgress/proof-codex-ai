@@ -55,6 +55,19 @@ def is_help_command(message: str) -> bool:
     return message.strip().lower() in {"help", "/help", "commands", "?"}
 
 
+def parse_codex_request(message: str) -> tuple[str, str] | None:
+    """Return (mode, query) for codex ask/search — mode is 'ask' or 'search'."""
+    text = message.strip()
+    lower = text.lower()
+    if lower.startswith("codex ask "):
+        return "ask", text[10:].strip()
+    if lower.startswith("codex search "):
+        return "search", text[13:].strip()
+    if lower.startswith("ask codex "):
+        return "ask", text[10:].strip()
+    return None
+
+
 def parse_finish_request(message: str) -> int | None:
     lower = message.strip().lower()
     for prefix in ("finish video ", "finish short ", "render video ", "export video "):

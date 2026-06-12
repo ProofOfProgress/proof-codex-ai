@@ -61,6 +61,11 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class CodexAskRequest(BaseModel):
+    question: str
+    search_only: bool = False
+
+
 class ManagerRequest(BaseModel):
     message: str
     force_async: bool = False
@@ -142,6 +147,28 @@ async def health() -> dict:
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
         "youtube": auth_status(),
     }
+
+
+@app.post("/api/codex/ask")
+async def codex_ask(body: CodexAskRequest) -> dict:
+    """Search Codex and answer from retrieved passages (Gemini when key set)."""
+    if not body.question.strip():
+        raise HTTPException(400, "Empty question")
+    if len(body.question) > 4000:
+        raise HTTPException(400, "Question too long (max 4000 chars)")
+    try:
+        from shorts_bot.codex.ask import ask_codex
+
+        result = ask_codex(body.question.strip(), search_only=body.search_only)
+        return {
+            "answer": result.answer,
+            "sources": result.sources,
+            "router_lever": result.router_lever,
+            "router_files": result.router_files,
+            "mode": result.mode,
+        }
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(500, f"Codex error: {exc}") from exc
 
 
 @app.post("/api/chat")
