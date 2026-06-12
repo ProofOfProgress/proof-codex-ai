@@ -36,6 +36,8 @@ SYNC_VARS = (
     "GMAIL_SMTP_APP_PASSWORD",
     "SLACK_CURSOR_LINKED",
     "SLACK_CHANNEL_NAME",
+    "SLACK_APP_TOKEN",
+    "SLACK_AUTONOMY_ENABLED",
     "FAL_API_KEY",
     "IMAGE_PROVIDER",
     "VISUAL_STYLE",
@@ -58,6 +60,9 @@ DEFAULT_ENV: dict[str, str] = {
     "VISUAL_STYLE": "ai_video",
     "REPLICATE_VIDEO_MODEL": "minimax/video-01",
     "REPLICATE_VIDEO_MODEL_JUMPSCARE": "minimax/hailuo-2.3-fast",
+    "SLACK_POST_MODE": "email",
+    "SLACK_CHANNEL_NAME": "peripheral-ops",
+    "SLACK_NOTIFY_ENABLED": "true",
 }
 
 PLACEHOLDER_FRAGMENTS = (
