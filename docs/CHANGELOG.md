@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.5 — test suite green + quality fixes
+
+- Restored `user_excludes_cosy_topics` in research topic routing
+- Upload meta: research keywords prioritized in YouTube tags (not buried by horror defaults)
+- Tests aligned to caption safe zone (1260px), jumpscare config defaults, sting timing
+- Auto-production test uses hybrid stills path with mocked render (no I2V in CI)
+- Full suite: **343 passed**
+
 ## 0.6.4 — remove Discord
 
 - Removed `shorts_bot/discord_bot/` package and all Discord config/secrets

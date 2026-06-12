@@ -213,12 +213,6 @@ def _topic_backend_tags(topic: str) -> list[str]:
 def _tags_from_research(topic: str, research) -> list[str]:
     base: list[str] = []
     seen: set[str] = set()
-    for tag in _topic_backend_tags(topic) + list(HORROR_BACKEND_TAGS):
-        key = tag.lower()
-        if key in seen or len(tag) > 40:
-            continue
-        base.append(tag)
-        seen.add(key)
     for row in getattr(research, "keyword_insights", None) or []:
         kw = str(row.get("keyword", "")).strip().lower()
         if not kw or kw in seen or len(kw) > 40:
@@ -227,8 +221,14 @@ def _tags_from_research(topic: str, research) -> list[str]:
             kw = kw.lstrip("#")
         base.append(kw)
         seen.add(kw)
+    for tag in _topic_backend_tags(topic) + list(HORROR_BACKEND_TAGS):
         if len(base) >= 12:
             break
+        key = tag.lower()
+        if key in seen or len(tag) > 40:
+            continue
+        base.append(tag)
+        seen.add(key)
     return base[:12]
 
 

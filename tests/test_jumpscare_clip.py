@@ -19,8 +19,9 @@ def test_scare_play_and_setup_durations():
 def test_jumpscare_dedicated_clip_config_defaults():
     fields = Settings.model_fields
     assert fields["jumpscare_dedicated_clip"].default is True
-    assert fields["jumpscare_auto_generate"].default is True
-    assert fields["jumpscare_clip_play_seconds"].default == 2.2
+    # Off unless owner enables AI_VIDEO_GENERATION_ENABLED — prefer existing clips first
+    assert fields["jumpscare_auto_generate"].default is False
+    assert fields["jumpscare_clip_play_seconds"].default == 2.85
 
 
 def test_jumpscare_clip_is_valid_requires_hailuo_meta(tmp_path):
