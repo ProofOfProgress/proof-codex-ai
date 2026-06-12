@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-DEFAULT_OWNER_TZ = "America/New_York"
+DEFAULT_OWNER_TZ = "America/Los_Angeles"
 DEFAULT_OPS_TZ = "UTC"
 CLOCK_PATH = Path(__file__).resolve().parent.parent / "data" / "CLOCK.json"
 

@@ -29,7 +29,7 @@ Only `requests` and `beautifulsoup4` are required (for `codex/data_scraper.py`).
 Check the time before scheduling posts, daily autopilot, or time-sensitive replies:
 
 ```bash
-python3 -m src.clock              # human-readable UTC + owner local (America/New_York)
+python3 -m src.clock              # human-readable UTC + owner local (America/Los_Angeles)
 python3 -m src.clock --json       # machine-readable
 python3 -m src.clock --write      # refresh data/CLOCK.json snapshot
 bash scripts/clock.sh --json
