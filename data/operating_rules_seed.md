@@ -122,10 +122,12 @@ See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`
 - **Do NOT** end every Short with "you're still here. good." — tagline is channel metadata only; end on the concrete protocol
 - Jenny 07 + 09: relatability and subscriber value over pure view spikes
 
-## TikTok — planned, not yet
+## TikTok + TikTok Shop — owner approved (prep phase)
 
-User wants a **TikTok account for the bot** eventually (cross-post / second surface). **Do not build TikTok login, upload, or automation until the user explicitly says go.**
+User wants **TikTok + TikTok Shop** for Peripheral merch and second distribution surface. **Biker / streetwear** is a strong **merch identity** lane (PERIPH patches, eye mark) — not a full content pivot unless hooks test well.
 
-When ready: same help-first content, adapt captions/format for TikTok, avoid spam-farm cross-posting (YPP-style rules apply on every platform).
+**Do not build TikTok login/upload automation until:** TikTok account exists, Shop setup started, and user says **go** on automation.
 
-**Reminder for user:** set up TikTok account when timing is right — bot should nudge if asked about distribution, not before.
+**Do now:** planning doc `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`, manual cross-post winners (1/day max), Shop SKUs from brand assets.
+
+Subscriber count + daily post prompt live in **Cursor automations** (owner-configured).
