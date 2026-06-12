@@ -14,8 +14,10 @@ import re
 TITLE_SPAM_PATTERNS = [
     re.compile(r"^[A-Z\s!?0-9]{12,}$"),  # ALL CAPS shock titles
     re.compile(r"you won'?t believe", re.I),
-    re.compile(r"gone wrong|instant regret|watch till the end", re.I),
+    re.compile(r"gone wrong|instant regret|watch till the end|watch until the end", re.I),
     re.compile(r"#shorts\s*#shorts", re.I),
+    re.compile(r"#\w+"),  # any hashtag in title
+    re.compile(r"\(build\s+v\d+", re.I),  # QA iteration batch uploads
 ]
 
 SCRIPT_FARM_PHRASES = [
@@ -66,9 +68,11 @@ WHAT IS SAFE (Don't Blink / faceless creator channels):
 - Unlisted first → public after retention check (optional 24h)
 
 BOT ENFORCEMENT (upload_guard — set YPP_SAFE_MODE=false to override):
-- Blocks: spam-farm phrases, no personal voice (no you/I), >1 upload/24h, topic/hook cooldown, script overlap >65%
+- Blocks: spam-farm phrases, no personal voice (no you/I), >1 upload/24h, topic/hook cooldown, script overlap >50%
+- Blocks: QA batch uploads (upload_series_cli, build vN titles, allow_duplicate_draft)
+- Blocks: hashtags in titles, engagement-bait metadata, duplicate scare pillar back-to-back
 - auto_daily may render but **skips upload** when guard blocks
-- Never auto-publish 5+ Shorts/day
+- Never auto-publish 5+ Shorts/day; unlisted QA uploads count toward 24h cap
 
 HUMAN LAYER (counts as creative input for YPP):
 - Serious comments, risky improvement approvals, niche positioning decisions
@@ -90,12 +94,12 @@ def risk_signals_for_script(script: str, hook: str, title: str) -> list[str]:
     if not has_you and not has_i:
         risks.append("missing personal voice (inauthentic lecture risk)")
     elif has_you and not has_i and len(script.split()) < 40:
-        risks.append("thin second-person template — add specific impossible detail beats")
+        risks.append("thin second-person template — add specific wrong-detail beats")
     if len(script.split()) < 35:
         risks.append("script too short — thin template risk")
     for pat in TITLE_SPAM_PATTERNS:
         if pat.search(title):
             risks.append(f"spam title pattern: {pat.pattern[:40]}")
-    if title.count("#") > 4:
-        risks.append("title tag-stuffing")
+    if title.count("#") > 0:
+        risks.append("hashtags in title — tag-stuffing")
     return risks

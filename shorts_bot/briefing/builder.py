@@ -9,12 +9,11 @@ def build_morning_briefing() -> str:
     s = ops.status()
     yt = s["youtube"]
     lines = [
-        "**Good morning — Don't Blink**",
-        "_Don't Blink — watch the whole thing. 🔊 jumpscare at the end._",
+        "**Good morning — Peripheral**",
+        "_Peripheral — watch the whole thing. don't blink. 🔊 jumpscare on finale beats._",
         "",
-        f"• Web UI: http://localhost:{settings.web_port}",
-        f"• Chat: {'full (OpenAI)' if s['openai'] else 'offline — API key optional'}",
-        f"• Discord: {'connected' if s['discord'] else 'needs DISCORD_BOT_TOKEN'}",
+        f"• Web UI: http://localhost:{settings.web_port} (chat + approvals)",
+        f"• Chat: {'full' if s['openai'] else 'offline — add GEMINI_API_KEY or OPENAI_API_KEY'}",
         "",
         "**You only (login / payments):**",
     ]
@@ -36,7 +35,7 @@ def build_morning_briefing() -> str:
             "",
             "**Automated (no tap needed):**",
             f"• Analytics sync every {settings.auto_analytics_sync_interval_hours}h (safe improvements auto-Yes)",
-            f"• Daily Short at {settings.auto_daily_hour:02d}:{settings.auto_daily_minute:02d} UTC" if settings.auto_daily_enabled else "• Daily Short: manual `!daily`",
+            f"• Daily Short at {settings.auto_daily_hour:02d}:{settings.auto_daily_minute:02d} UTC" if settings.auto_daily_enabled else "• Daily Short: type `daily` in web chat",
             f"• Unlisted → public after {settings.auto_publish_hours}h" if settings.auto_publish_hours > 0 else "• Upload visibility: as configured",
             "• Light YouTube comments auto-reply; serious ones queued for you",
             "",
@@ -47,10 +46,23 @@ def build_morning_briefing() -> str:
             f"• Serious comments: {s.get('pending_comments', 0)} (`comments pending`)",
             "",
             "**Quick start:**",
-            "`bash scripts/start.sh`  — web",
-            "`python3 -m shorts_bot.discord_bot`  — Discord",
+            "`bash scripts/start.sh`  — web UI",
+            "`GET /api/briefing`  — this checklist as JSON/text",
             "",
-            "Discord: type normally in DM (no ! prefix) or `!help` in servers.",
+            "**Slack (remote):**",
+            "• `@cursor agent …` — start Cloud Agent from phone (docs/SLACK_CURSOR_SETUP.md)",
+            _slack_briefing_line(),
         ]
     )
     return "\n".join(lines)
+
+
+def _slack_briefing_line() -> str:
+    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
+
+    ch = settings.slack_channel_name
+    if has_slack_bot():
+        return f"• {settings.slack_bot_display_name} bot → #{ch} (live)"
+    if has_slack_webhook():
+        return f"• Pipeline alerts → #{ch} (webhook live)"
+    return "• Slack bot: docs/FOR_OWNER_SLACK_BOT.md (SLACK_BOT_TOKEN + SLACK_CHANNEL_ID)"

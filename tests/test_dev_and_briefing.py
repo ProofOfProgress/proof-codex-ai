@@ -42,11 +42,10 @@ def test_learned_file_append(tmp_path: Path):
 
 def test_morning_briefing_contains_essentials():
     text = build_morning_briefing()
-    assert "Don't Blink" in text
+    assert "Peripheral" in text
     assert "localhost" in text
     assert "TOMORROW" in text or "YouTube" in text
 
 
-def test_config_discord_public_key_property():
-    assert hasattr(settings, "discord_public_key")
-    assert hasattr(settings, "has_discord")
+def test_config_no_discord_settings():
+    assert not hasattr(settings, "has_discord")

@@ -136,17 +136,65 @@ def _check_studio() -> ServiceStatus:
         )
 
 
-def _check_discord() -> ServiceStatus:
-    if not settings.has_discord:
+def _check_web_ui() -> ServiceStatus:
+    return ServiceStatus(
+        "web",
+        "Web UI",
+        True,
+        f"http://localhost:{settings.web_port}",
+        "python3 -m shorts_bot.web",
+    )
+
+
+def _check_slack_webhook() -> ServiceStatus:
+    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
+
+    ch = settings.slack_channel_name
+    if has_slack_bot():
         return ServiceStatus(
-            "discord",
-            "Discord bot",
-            False,
-            "No bot token",
-            "docs/MORNING.md",
+            "slack_bot",
+            f"Slack bot ({settings.slack_bot_display_name})",
+            True,
+            f"#{ch} — bot token",
+            "python3 -m shorts_bot.integrations test",
         )
-    owner = settings.discord_owner_id or "(auto from DM)"
-    return ServiceStatus("discord", "Discord bot", True, f"Token set — owner {owner}")
+    if has_slack_webhook():
+        enabled = "on" if settings.slack_notify_enabled else "off"
+        return ServiceStatus(
+            "slack_webhook",
+            "Slack alerts (webhook)",
+            True,
+            f"#{ch} — notify {enabled}",
+            "python3 -m shorts_bot.integrations test",
+        )
+    return ServiceStatus(
+        "slack_bot",
+        f"Slack bot ({settings.slack_bot_display_name})",
+        False,
+        "SLACK_BOT_TOKEN + SLACK_CHANNEL_ID or webhook",
+        "docs/FOR_OWNER_SLACK_BOT.md",
+    )
+
+
+def _check_slack_cursor() -> ServiceStatus:
+    from shorts_bot.integrations.slack import slack_cursor_linked
+
+    if slack_cursor_linked():
+        ch = settings.slack_channel_name
+        return ServiceStatus(
+            "slack_cursor",
+            "Slack @cursor (Cloud Agents)",
+            True,
+            f"Linked — use #{ch}",
+            "docs/FOR_OWNER_SLACK.md",
+        )
+    return ServiceStatus(
+        "slack_cursor",
+        "Slack @cursor (Cloud Agents)",
+        False,
+        "Install app + Link Account — then SLACK_CURSOR_LINKED=true",
+        "docs/FOR_OWNER_SLACK.md",
+    )
 
 
 def _check_browser_site(
@@ -381,7 +429,9 @@ def _check_playwright() -> ServiceStatus:
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
-        _check_discord(),
+        _check_web_ui(),
+        _check_slack_cursor(),
+        _check_slack_webhook(),
         _check_playwright(),
         _check_chat(),
         _check_resemble(),

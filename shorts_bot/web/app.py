@@ -35,10 +35,13 @@ async def lifespan(_app: FastAPI):
     stop = await start_background_automation()
     yield
     stop.set()
+    from shorts_bot.automation.background import _stop_slack_autonomy_bus
+
+    await asyncio.to_thread(_stop_slack_autonomy_bus)
     await asyncio.sleep(0.1)
 
 
-app = FastAPI(title="Don't Blink Operator", version="0.7.0", lifespan=lifespan)
+app = FastAPI(title="Peripheral Operator", version="0.7.0", lifespan=lifespan)
 app.add_middleware(ApiTokenMiddleware)
 
 
@@ -106,7 +109,6 @@ async def home(request: Request) -> HTMLResponse:
             "manager_name": manager_name(),
             "has_openai": settings.has_full_chat,
             "chat_provider": settings.chat_provider,
-            "has_discord": settings.has_discord,
             "channel": store.channel_summary(),
             "checklist": BotOperations().setup_checklist(),
             "first_improvement": pending_imps[0] if pending_imps else None,
@@ -136,7 +138,6 @@ async def health() -> dict:
         "openai": settings.has_full_chat,
         "chat_provider": settings.chat_provider,
         "gemini": settings.has_gemini,
-        "discord": settings.has_discord,
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
@@ -321,6 +322,52 @@ async def score_video(body: ScoreRequest) -> dict:
     }
 
 
+@app.get("/api/briefing")
+async def morning_briefing() -> dict:
+    from shorts_bot.briefing.builder import build_morning_briefing
+
+    text = build_morning_briefing()
+    return {"briefing": text}
+
+
+@app.get("/api/slack/status")
+async def slack_status() -> dict:
+    from shorts_bot.integrations.slack import slack_setup_status
+
+    return slack_setup_status()
+
+
+@app.post("/api/slack/test")
+async def slack_test_webhook() -> dict:
+    from shorts_bot.integrations.slack import send_test_message
+
+    ok, message = send_test_message()
+    if not ok:
+        raise HTTPException(status_code=400, detail=message)
+    return {"ok": True, "message": message}
+
+
+class SlackAutonomyRequest(BaseModel):
+    command: str = Field(..., min_length=1, max_length=2000)
+    note: str = ""
+    thread_ts: str | None = None
+
+
+@app.post("/api/slack/autonomy")
+async def slack_autonomy_enqueue(body: SlackAutonomyRequest) -> dict:
+    """Post [autonomy] command to Slack — Socket Mode listener executes it."""
+    from shorts_bot.integrations.slack_autonomy import post_autonomy_command
+
+    ok, message = post_autonomy_command(
+        body.command,
+        note=body.note,
+        thread_ts=body.thread_ts,
+    )
+    if not ok:
+        raise HTTPException(status_code=400, detail=message)
+    return {"ok": True, "message": message}
+
+
 @app.get("/api/checklist")
 async def setup_checklist() -> dict:
     from shorts_bot.services.ops import BotOperations
@@ -341,7 +388,6 @@ async def status() -> dict:
         "pending_improvements": len(memory.list_improvements(status="pending")),
         "pending_drafts": len(store.list_drafts(status="pending")),
         "pending_dev": len(memory.list_dev_tasks(status="pending")),
-        "discord": settings.has_discord,
         "applied_training": memory.applied_improvements(),
         "youtube": auth_status(),
     }

@@ -41,8 +41,26 @@ from shorts_bot.web.deps import (
 from shorts_bot.youtube.google_auth import auth_status
 
 
+def _slack_bot_ready() -> bool:
+    from shorts_bot.integrations.slack import slack_can_post
+
+    return slack_can_post()
+
+
+def _slack_webhook_ready() -> bool:
+    from shorts_bot.integrations.slack import has_slack_webhook
+
+    return has_slack_webhook()
+
+
+def _slack_cursor_linked() -> bool:
+    from shorts_bot.integrations.slack import slack_cursor_linked
+
+    return slack_cursor_linked()
+
+
 class BotOperations:
-    """Shared operations for web UI and Discord."""
+    """Shared operations for web UI and CLI chat."""
 
     def chat(self, message: str) -> str:
         text = message.strip()
@@ -162,7 +180,7 @@ class BotOperations:
 
     def _help_text(self) -> str:
         return (
-            "Shorts Bot commands (work in Discord DM without ! prefix too):\n"
+            "Shorts Bot commands (web chat or CLI):\n"
             "• draft <topic> — script draft\n"
             "• dev: <title> | <what to build> — coding task queue\n"
             "• build: polish the web UI — same as dev:\n"
@@ -254,10 +272,10 @@ class BotOperations:
         yt = auth_status()
         items = [
             {
-                "id": "discord",
-                "label": "Discord bot",
-                "done": settings.has_discord,
-                "action": "DISCORD_BOT_TOKEN in .env",
+                "id": "web",
+                "label": "Web UI running",
+                "done": True,
+                "action": f"python3 -m shorts_bot.web → http://localhost:{settings.web_port}",
             },
             {
                 "id": "chat",
@@ -277,6 +295,18 @@ class BotOperations:
                 "done": bool(yt.get("token_saved")),
                 "action": "python3 -m shorts_bot.youtube.auth_cli",
             },
+            {
+                "id": "slack_cursor",
+                "label": "Slack @cursor (remote agents)",
+                "done": _slack_cursor_linked(),
+                "action": "docs/FOR_OWNER_SLACK.md — ~10 min OAuth",
+            },
+            {
+                "id": "slack_bot",
+                "label": "Slack alerts (email, bot, or webhook)",
+                "done": _slack_bot_ready(),
+                "action": "docs/FOR_OWNER_SLACK_EMAIL.md (Option A) or FOR_OWNER_SLACK_BOT.md",
+            },
         ]
         return items
 
@@ -288,7 +318,6 @@ class BotOperations:
             "openai": settings.has_full_chat,
             "chat_provider": settings.chat_provider,
             "gemini": settings.has_gemini,
-            "discord": settings.has_discord,
             "channel": store.channel_summary(),
             "stats": store.stats(),
             "pending_improvements": len(memory.list_improvements(status="pending")),
@@ -531,9 +560,11 @@ class BotOperations:
         profile, banner = ensure_brand_assets()
 
         try:
+            keywords = fields.keywords if use_brand_file else None
             api = apply_brand_from_files(
                 channel_name=name or None,
                 description=desc or None,
+                keywords=keywords or None,
                 banner_path=banner if banner.exists() else BANNER_PATH,
             )
             msg = api.message
@@ -566,7 +597,7 @@ class BotOperations:
                 msg += (
                     f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
                 )
-            series = fields.series or "Don't Blink"
+            series = fields.series or "Peripheral"
             need_studio_name = bool(name) and not api.name_updated
             need_studio_desc = bool(desc) and not api.description_updated
             if (need_studio_name or need_studio_desc) and settings.browser_enabled:

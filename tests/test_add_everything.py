@@ -2,7 +2,6 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from shorts_bot.discord_bot.prefs import briefing_user_ids, remember_dm_user
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.services.ops import BotOperations
@@ -13,7 +12,15 @@ def test_checklist_api():
     r = TestClient(app).get("/api/checklist")
     assert r.status_code == 200
     items = r.json()["items"]
-    assert any(i["id"] == "discord" for i in items)
+    assert any(i["id"] == "web" for i in items)
+    assert not any(i["id"] == "discord" for i in items)
+
+
+def test_briefing_api():
+    r = TestClient(app).get("/api/briefing")
+    assert r.status_code == 200
+    assert "briefing" in r.json()
+    assert "Peripheral" in r.json()["briefing"]
 
 
 def test_ops_dev_chat_routing():
@@ -25,18 +32,6 @@ def test_ops_dev_chat_routing():
 def test_ops_pending_command():
     msg = BotOperations().chat("pending")
     assert "caught up" in msg.lower() or "yes" in msg.lower()
-
-
-def test_multi_dm_users_briefing(tmp_path: Path, monkeypatch):
-    import shorts_bot.discord_bot.prefs as prefs
-
-    monkeypatch.setattr(prefs, "PREFS_PATH", tmp_path / "p.json")
-    monkeypatch.setattr(prefs.settings, "discord_owner_id", None)
-    monkeypatch.setattr(prefs.settings, "discord_notify_ids", "")
-    remember_dm_user(111)
-    remember_dm_user(222)
-    ids = briefing_user_ids()
-    assert "111" in ids and "222" in ids
 
 
 def test_dev_task_dedupe(tmp_path: Path):

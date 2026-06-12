@@ -239,6 +239,82 @@ def reflect_after_sync(
     return result
 
 
+def reflect_after_production_review(
+    memory: MemoryExtensions,
+    *,
+    draft_id: int,
+    topic: str,
+    score: float,
+    production_score: float,
+    fixes: list[str] | None = None,
+    phone_ui_issues: list[str] | None = None,
+    visual_glitches: list[str] | None = None,
+) -> str | None:
+    """Gemini deep QC → episodic memory + durable production rules."""
+    if not settings.self_training_enabled:
+        return None
+
+    issues = (phone_ui_issues or [])[:3] + (visual_glitches or [])[:2]
+    note = "; ".join(issues)[:400] or (fixes or [""])[0][:200]
+    if not note and score >= 85:
+        return None
+
+    key = f"production:draft-{draft_id}"
+    prev = memory.get_training_config(key) or ""
+    merged = f"{prev}; {note}" if prev and note else (note or prev)
+    if merged:
+        memory.set_training_config(key, merged[:500])
+
+    if phone_ui_issues:
+        phone_key = "avoid:phone-ui-overlay"
+        phone_note = "Use screen-only UI inside I2V phone display — never frame-level bezel overlays."
+        memory.set_training_config(phone_key, phone_note)
+        memory.bump_rule_confidence(
+            rule_key=phone_key,
+            rule_text=phone_note,
+            positive=not phone_ui_issues,
+            verdict="reward" if not phone_ui_issues else "punish",
+        )
+
+    verdict = "reward" if score >= 85 and production_score >= 80 else "punish"
+    ep_score = (score - 50) / 50.0 if score else -0.5
+    reflection = (
+        f"Gemini production QC draft #{draft_id} «{topic[:50]}» "
+        f"score {score:.0f}/100 (production {production_score:.0f}): {note[:240]}. "
+        + (
+            "Pattern worth repeating."
+            if verdict == "reward"
+            else "Fix phone UI alignment, VO/visual sync, and jumpscare sting before next upload."
+        )
+    )
+    snapshot = memory.active_rules_snapshot()
+    snapshot["production_qc"] = {
+        "draft_id": draft_id,
+        "score": round(score, 1),
+        "production_score": round(production_score, 1),
+        "fixes": (fixes or [])[:4],
+    }
+    memory.record_learning_episode(
+        episode_type="production_qc",
+        video_label=topic[:120],
+        verdict=verdict,
+        score=ep_score,
+        reflection=reflection,
+        active_rules_json=json.dumps(snapshot),
+    )
+    for fix in (fixes or [])[:3]:
+        if not fix:
+            continue
+        rule_key = f"fix:{_slug(fix)[:40]}"
+        memory.bump_rule_confidence(
+            rule_key=rule_key,
+            rule_text=fix[:400],
+            positive=score >= 80,
+            verdict=verdict,
+        )
+    return reflection
+
+
 def consolidate_draft_feedback(
     memory: MemoryExtensions,
     *,

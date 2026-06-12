@@ -9,7 +9,7 @@ from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.image_prompts import build_image_briefs, build_master_prompt
 from shorts_bot.production.render_ai_images import render_all_ai_images
 from shorts_bot.drafts.meta import visual_beats_for_draft
-from shorts_bot.production.segment_sync import resolve_segments
+from shorts_bot.production.segment_sync import normalize_transcript_segments, resolve_segments
 from shorts_bot.production.variety import variety_for_draft
 from shorts_bot.production.video_prompt_pack import write_video_prompt_pack
 
@@ -45,9 +45,12 @@ def _capcut_instructions(briefs: list, topic: str) -> str:
     lines.extend(
         [
             "",
-            "4. Add captions (optional — TurboScribe SRT also works).",
-            "5. Music: YouTube Audio Library, duck under voice.",
-            "6. Export 1080×1920 H.264 → YouTube Short.",
+            "4. **SFX:** follow `CAPCUT_SFX.md` — separate audio lane, VO loudest.",
+            "5. Add captions (optional — TurboScribe SRT also works).",
+            "6. Music: YouTube Audio Library, duck under voice (-12dB or keyframes).",
+            "7. Export 1080×1920 H.264 → YouTube Short.",
+            "",
+            "CapCut horror workflow: `channel/brand/capcut_horror_sfx.md`",
         ]
     )
     return "\n".join(lines)
@@ -84,6 +87,8 @@ def build_production_pack(
         turboscribe_text=turboscribe_text if turboscribe_text.strip() else "",
         audio_duration=audio_duration,
     )
+    if audio_duration and audio_duration > 0:
+        segments = normalize_transcript_segments(segments, audio_duration)
     from shorts_bot.production.paid_stack import ensure_turboscribe_segments
 
     ensure_turboscribe_segments(sync_source)
@@ -98,8 +103,13 @@ def build_production_pack(
             "with lines like '0:07 your words...'"
         )
 
-    briefs = build_image_briefs(segments, topic=draft.topic, total_duration=audio_duration)
     beats = visual_beats_for_draft(draft_id)
+    briefs = build_image_briefs(
+        segments,
+        topic=draft.topic,
+        total_duration=audio_duration,
+        visual_beats=beats or None,
+    )
     root.mkdir(parents=True, exist_ok=True)
     prompts_dir = root / "prompts"
     images_dir = root / "images"
@@ -111,6 +121,11 @@ def build_production_pack(
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 
+    from shorts_bot.production.jumpscare_timing import persist_plan, plan_for_draft
+
+    scare_plan = plan_for_draft(draft_id, len(segments))
+    persist_plan(draft_id, scare_plan)
+
     hybrid_hook = settings.visual_style in ("hybrid", "ai_video", "ai_video_hook")
     video_payload = write_video_prompt_pack(
         root,
@@ -118,6 +133,8 @@ def build_production_pack(
         topic=draft.topic,
         total_duration=audio_duration,
         hybrid_hook=hybrid_hook,
+        visual_beats=beats or None,
+        jumpscare_plan=scare_plan,
     )
 
     (root / "VOICEOVER_SCRIPT.txt").write_text(
@@ -133,12 +150,16 @@ def build_production_pack(
         if settings.visual_style == "ai_video" and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
+            priority = [scare_plan.primary_segment_index]
+            if scare_plan.decoy_segment_index is not None:
+                priority.append(scare_plan.decoy_segment_index)
             clips_rendered = render_all_ai_video_clips(
                 briefs,
                 segments,
                 topic=draft.topic,
                 images_dir=images_dir,
                 clips_dir=clips_dir,
+                priority_indices=priority,
             )
             if clips_rendered > 0:
                 rendered = clips_rendered
@@ -169,6 +190,7 @@ def build_production_pack(
         "workflow": sync_source,
         "variety": variety.summary(),
         "visual_beats": beats,
+        "jumpscare_plan": scare_plan.to_dict(),
         "visual_style": settings.visual_style,
         "render_mode": render_mode,
         "hybrid_ai_hook": hybrid_hook,
@@ -197,16 +219,35 @@ def build_production_pack(
         encoding="utf-8",
     )
     (root / "CAPCUT_TIMELINE.md").write_text(_capcut_instructions(briefs, draft.topic), encoding="utf-8")
+
+    from shorts_bot.production.capcut_sfx import build_capcut_sfx_markdown
+
+    (root / "CAPCUT_SFX.md").write_text(
+        build_capcut_sfx_markdown(
+            [
+                {
+                    "start_seconds": b.start_seconds,
+                    "spoken_text": b.spoken_text,
+                }
+                for b in briefs
+            ],
+            topic=draft.topic,
+            jumpscare_plan=scare_plan.to_dict(),
+            audio_duration=audio_duration,
+        ),
+        encoding="utf-8",
+    )
     (root / "README.txt").write_text(
         "Don't Blink horror production pack\n\n"
         "1. Record voiceover from script in manifest.json\n"
         "2. Transcript sync via Gemini audio timestamps\n"
         "3. AI motion clips: clips/ (VISUAL_STYLE=ai_video)\n"
         "4. video_prompts/ for I2V motion prompts per beat\n"
-        "5. Save PNGs to images/ named like 00.07.png\n"
-        "6. Follow CAPCUT_TIMELINE.md\n"
-        "7. captions.srt — upload to YouTube for extra subtitle track\n"
-        "8. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
+        "5. CAPCUT_SFX.md — per-beat sound effects for CapCut\n"
+        "6. Save PNGs to images/ named like 00.07.png\n"
+        "7. Follow CAPCUT_TIMELINE.md + channel/brand/capcut_horror_sfx.md\n"
+        "8. captions.srt — upload to YouTube for extra subtitle track\n"
+        "9. Captions: ffmpeg ASS burn-in at render (Jenny 05 safe zone) + captions.srt\n",
         encoding="utf-8",
     )
 

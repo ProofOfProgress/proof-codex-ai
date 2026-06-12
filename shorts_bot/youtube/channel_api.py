@@ -43,9 +43,10 @@ def update_channel_text(
     *,
     channel_name: str | None = None,
     description: str | None = None,
+    keywords: str | None = None,
 ) -> ChannelApiResult:
-    """Set display name + description through brandingSettings.channel (needs force-ssl scope)."""
-    if not channel_name and not description:
+    """Set display name + description + keywords through brandingSettings.channel (force-ssl)."""
+    if not channel_name and not description and not keywords:
         return ChannelApiResult(False, "Nothing to update.")
 
     try:
@@ -62,9 +63,13 @@ def update_channel_text(
         requested_name = (channel_name or "").strip()
         name_ok = False
         desc_ok = False
+        kw_ok = False
         if description:
             channel_block["description"] = description[:1000]
             desc_ok = True
+        if keywords:
+            channel_block["keywords"] = keywords[:500]
+            kw_ok = True
 
         yt.channels().update(
             part="brandingSettings",
@@ -74,6 +79,8 @@ def update_channel_text(
         parts = []
         if desc_ok:
             parts.append("description")
+        if kw_ok:
+            parts.append("keywords")
         name_note = ""
         if requested_name and requested_name != current_title:
             name_note = (
@@ -125,12 +132,17 @@ def apply_brand_from_files(
     *,
     channel_name: str | None = None,
     description: str | None = None,
+    keywords: str | None = None,
     banner_path: Path | None = None,
 ) -> ChannelApiResult:
     """API brand apply — banner (upload scope) + text (force-ssl scope). Partial OK."""
     text = (
-        update_channel_text(channel_name=channel_name, description=description)
-        if channel_name or description
+        update_channel_text(
+            channel_name=channel_name,
+            description=description,
+            keywords=keywords,
+        )
+        if channel_name or description or keywords
         else ChannelApiResult(True, "No text fields to update.")
     )
     banner = (

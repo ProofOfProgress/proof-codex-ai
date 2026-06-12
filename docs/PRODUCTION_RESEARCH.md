@@ -153,7 +153,7 @@ Failures in daily autopilot write to:
 - `data/ALERTS.md` (last ~40 events)
 - `channel_state.last_automation_alert` in SQLite
 
-Check: read `data/ALERTS.md` after being away, or `!status` in Discord.
+Check: read `data/ALERTS.md` after being away, or `status` in web chat.
 
 ---
 

@@ -182,13 +182,15 @@ def generate_replicate_i2v(
     image_url = upload_replicate_file(image_path, token=token)
     owner, name = model.split("/", 1)
     url = f"{API_BASE}/models/{owner}/{name}/predictions"
-    body = {
-        "input": {
-            "prompt": prompt,
-            "first_frame_image": image_url,
-            "prompt_optimizer": True,
-        }
+    body_input: dict = {
+        "prompt": prompt,
+        "first_frame_image": image_url,
+        "prompt_optimizer": True,
     }
+    if "hailuo" in model.lower():
+        body_input["duration"] = 6
+        body_input["resolution"] = "768p"
+    body = {"input": body_input}
     created = _request("POST", url, token=token, payload=body)
     pred_id = created.get("id")
     if not pred_id:

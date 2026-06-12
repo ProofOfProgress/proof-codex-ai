@@ -1,24 +1,28 @@
-# CapCut template — Soft Continuity
+# CapCut template — Don't Blink horror
+
+> **Superseded for SFX detail:** use `capcut_horror_sfx.md` + per-pack `CAPCUT_SFX.md`.
 
 ## New project defaults
 
-- Ratio: 9:16
-- Length: 28–42 seconds
-- FPS: 30
+- Ratio: **9:16**
+- Length: **25–35 seconds**
+- FPS: **30**
 
 ## Layers (top to bottom)
 
-1. **Hook text** (0:00–0:02) — Fraunces or bold serif, `#F2F5FA`, center, slight scale-in
-2. **B-roll** — warm lamp / rain on window / hands on mug / knit blanket / soft couch (Pexels — cosy domestic)
-3. **Body captions** — Inter Medium, `#F2F5FA`, **Jenny 05 safe zone** (~320px above bottom — above Shorts title overlay), word-by-word
-4. **Oracle line** — same font, `#8EB8FF`, 0.5s hold before payoff
-5. **End card** (last 2s) — thin ring SVG + "you're still here. good." small text
+1. **Video** — I2V clips per `CAPCUT_TIMELINE.md` (or import `final_short.mp4`)
+2. **Voiceover** — `voiceover.mp3`, locked at 0:00
+3. **SFX lane** — per `CAPCUT_SFX.md` (diegetic cues + finale stinger only on finale drafts)
+4. **Captions** — burn-in from ffmpeg OR CapCut import `captions.srt` — **Jenny 05 safe zone** (~320px above bottom)
+5. **Ambience/music** (optional) — YouTube Audio Library, horror drone at low level
 
-## Audio
+## Audio rules
 
-- VO: calm, slightly slower than typical Shorts
-- Music: YouTube Audio Library — ambient, no drops
-- Duck music -12dB under voice
+- **VO first** — always clearest element
+- **SFX under VO** except finale stinger (0.2–0.3s peak)
+- **False calm** — strip SFX layers (silence = contrast)
+- **Duck music** under speech (auto-duck or volume keyframes)
+- Research: `data/research/HORROR_SOUND_EFFECTS_RESEARCH.md`
 
 ## Export
 

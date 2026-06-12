@@ -1,4 +1,4 @@
-"""Jenny Hoyos course constraints for faceless personal Shorts."""
+"""Jenny Hoyos retention rules adapted for Don't Blink horror Shorts."""
 
 from __future__ import annotations
 
@@ -8,6 +8,10 @@ from shorts_bot.course.loader import CourseKnowledgeBase
 from shorts_bot.config import settings
 
 
+_SECOND_PERSON = re.compile(
+    r"\b(you|you're|you've|you'd|your|yours)\b",
+    re.I,
+)
 _FIRST_PERSON = re.compile(
     r"\b(i|i'm|i've|i'd|my|me|same here|i used to|honestly|look)\b",
     re.I,
@@ -17,7 +21,7 @@ _FIRST_PERSON = re.compile(
 def jenny_retention_guidance(topic: str) -> str:
     """Hook/retention rules adapted for Don't Blink horror (not cosy self-help)."""
     return f"""Topic: {topic}
-- Hook line 1 = impossible detail (not "scary story #N")
+- Hook line 1 = something clearly wrong (not "scary story #N")
 - Start video immediately — no warm-up, no channel intro
 - Every beat adds a worse wrong detail (but/so cause-effect)
 - False calm beat before final scare — quiet VO bait
@@ -39,39 +43,43 @@ def jenny_draft_guidance(topic: str) -> str:
     return f"JENNY COURSE (enforce hook→momentum→payoff, mute-safe visuals, singular you):\n{guidance}\n"
 
 
-JENNY_SCRIPT_RULES = """
-VOICE — real faceless creator (Jenny 07 + 09):
-- First person: "I", "my", "I used to…", "this helped me"
-- Same struggles as viewer — not guru on a pedestal
-- Singular "you" — one person talking to one person
-- Share what actually helped YOU, not lecture mode
+HORROR_SCRIPT_RULES = """
+VOICE — immersive second-person horror (Jenny 02 + 06 adapted):
+- Singular "you" — viewer is inside the scene
+- Contractions, mixed sentence lengths; no lecture mode
+- No "hey guys" / plural audience
 
 STRUCTURE (Jenny 02 + 06):
-- Hook = shock/curiosity + reason to stay to the end. Start IMMEDIATELY.
+- Hook ASAP — clear wrong detail + reason to watch to end
 - Every line moves toward payoff. Cut filler.
 - Cause-and-effect: but / so chaining between beats
-- Payoff = best beat, then STOP (no doom linger)
+- False calm beat before final scare
+- Payoff = jumpscare cue, then STOP (no doom linger)
 - If subscribe CTA: BEFORE payoff, never only after
 
 VISUALS (Jenny 05):
-- 3-5 mute-safe beats — stick figures ACTING the advice (ChainsFR-style, off-white frames)
+- 3-10 mute-safe beats — horror shots acting the wrong detail
 - Subtitles on screen for key lines (spoken_text per segment)
-- Framing: subject in upper 60%; captions above YouTube Shorts title overlay (safe zone)
+- Framing: subject in upper 60%; captions above YouTube Shorts title overlay
 - Review on mute before upload — story must read without audio
-
-ANTI-SLOP (verbatim):
-- No forced relatability, no trend copy-paste, no generic motivation spam
 """
+
+# Legacy alias — cosy rules kept for course tooling only.
+JENNY_SCRIPT_RULES = HORROR_SCRIPT_RULES
 
 
 def check_jenny_voice(script: str, hook: str) -> list[str]:
+    """Runtime lint for Don't Blink horror scripts (second-person immersive)."""
     issues: list[str] = []
-    if not _FIRST_PERSON.search(script) and not _FIRST_PERSON.search(hook):
-        issues.append("Missing first-person voice — sound like a creator sharing their struggle.")
-    if re.search(r"\b(hey guys|everyone|people|folks)\b", script, re.I):
-        issues.append("Plural audience — Jenny wants singular 'you'.")
-    if script.lower().startswith(("in this video", "today we", "let's talk about")):
-        issues.append("Weak opener — Jenny: start the video ASAP.")
+    combined = f"{hook}\n{script}"
+    if not _SECOND_PERSON.search(combined):
+        issues.append("Missing second-person voice — horror Shorts put the viewer in the scene (you/your).")
+    if re.search(r"\b(hey guys|everyone|people|folks)\b", combined, re.I):
+        issues.append("Plural audience — use singular 'you'.")
+    if script.lower().startswith(("in this video", "today we", "let's talk about", "welcome back")):
+        issues.append("Weak opener — start the video ASAP with the hook.")
+    if re.search(r"\b(scary story\s*#?\d+|episode\s*\d+)\b", combined, re.I):
+        issues.append("Series numbering — launch week hooks must stand on their own.")
     if "subscribe" in script.lower() and script.lower().rfind("subscribe") > len(script) * 0.85:
-        issues.append("CTA may be after payoff — move subscribe ask before resolution (file 09).")
+        issues.append("CTA may be after payoff — move subscribe ask before resolution.")
     return issues

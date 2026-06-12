@@ -24,7 +24,7 @@ Open **http://localhost:8080** — chat on the left, **Yes/No** approvals on the
 
 ```bash
 cp .env.example .env   # add keys as needed (see docs/)
-bash scripts/run-all.sh   # web + Discord
+bash scripts/start.sh     # web UI
 docs/RUN_AT_HOME.md    # complete home guide
 docs/QUICKSTART.md     # one-page start
 docs/MORNING.md        # wake-up checklist
@@ -79,13 +79,15 @@ shorts_bot/
 data/           # Local database (gitignored)
 ```
 
-## Course knowledge base
+## Codex (knowledge base)
+
+The knowledge base is called **Codex**. See `docs/CODEX.md`.
 
 ```
 course/
-  files/01-09_*.md     # Structured retrieval (ChatGPT-organized)
+  files/01-09_*.md     # Codex strategist core (Jenny Hoyos 01–09)
   verbatim/            # Word-for-word transcript rules
-  router_prompt.md     # Jenny strategist instructions
+  router_prompt.md     # Codex router instructions
   free_services.md     # Free / free-tier tool stack
 ```
 

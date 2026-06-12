@@ -1,4 +1,4 @@
-"""Record automation failures for operator visibility (Discord bot / web / file)."""
+"""Record automation failures for operator visibility (web / file)."""
 
 from __future__ import annotations
 
@@ -42,3 +42,10 @@ def record_automation_alert(event: str, message: str, *, detail: str = "") -> No
         log.debug("Could not write alert to channel_state: %s", exc)
 
     log.warning("AUTOMATION ALERT [%s]: %s", event, message)
+
+    try:
+        from shorts_bot.integrations.slack import notify_automation_alert
+
+        notify_automation_alert(event, message, detail=detail)
+    except Exception as exc:  # noqa: BLE001
+        log.debug("Slack notify skipped: %s", exc)

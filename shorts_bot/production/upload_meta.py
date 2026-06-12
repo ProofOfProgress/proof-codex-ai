@@ -1,4 +1,4 @@
-"""YouTube upload metadata — Don't Blink horror Shorts SEO."""
+"""YouTube upload metadata — Peripheral horror Shorts SEO."""
 
 from __future__ import annotations
 
@@ -7,15 +7,18 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
+HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#ScaryStories", "#Creepy")
+HORROR_HASHTAGS_JUMPSCARE = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
 HORROR_BACKEND_TAGS = [
     "horror shorts",
     "jumpscare",
     "scary stories",
     "creepy",
     "psychological horror",
+    "analog horror",
+    "found footage",
     "faceless horror",
-    "dont blink",
+    "peripheral horror",
     "horror story",
     "short horror",
     "scary short",
@@ -31,6 +34,17 @@ class UploadPackage:
     checklist: list[str]
 
 
+def _volume_warning_for_draft(draft_id: int) -> str:
+    from shorts_bot.production.description_copy import volume_warning_for_plan
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    plan = load_plan_for_draft(draft_id, 8)
+    return volume_warning_for_plan(
+        has_jumpscare=plan.has_jumpscare,
+        raw_warning=plan.volume_warning,
+    )
+
+
 def build_upload_package(
     topic: str,
     hook: str,
@@ -42,8 +56,14 @@ def build_upload_package(
     from shorts_bot.config import settings
     from shorts_bot.production.niche import NICHE_NAME
 
-    title = _title_from_research(topic, hook, research) if research else _safe_title(topic, hook)
-    description = _description_from_research(topic, hook, research) if research else _safe_description(topic, hook)
+    title = (
+        _title_from_research(topic, hook, research)
+        if research
+        else _safe_title(topic, hook, draft_id=draft_id)
+    )
+    description = _description_from_research(
+        topic, hook, research, draft_id=draft_id
+    ) if research else _safe_description(topic, hook, draft_id=draft_id)
     tags = _tags_from_research(topic, research) if research else list(HORROR_BACKEND_TAGS)
     visibility = settings.youtube_upload_visibility
     if visibility not in ("public", "unlisted", "private"):
@@ -52,9 +72,9 @@ def build_upload_package(
     checklist = [
         f"Visibility: {visibility}",
         f"Niche: {NICHE_NAME}",
-        "🔊 Volume warning in title + description (jumpscare at end)",
+        "🔊 Volume warning on finale-scare drafts only (suspense-replay drafts skip it)",
         "YPP: max 1 Short per 24h — upload_guard enforces",
-        "Script is second-person horror micro-story — impossible hook in line 1",
+        "Script is second-person scary story — strong hook in line 1",
         "Title front-loads hook keyword (first 40 chars); VO speaks hook in first 3s",
         "3-5 hashtags in description (first 3 show above title)",
         "5-8 backend tags in Studio — horror/jumpscare/topic-specific",
@@ -81,60 +101,118 @@ def _title_from_research(topic: str, hook: str, research) -> str:
 
 
 def _clean_title_formula(formula: str) -> str:
-    """Strip hashtags and legacy prefixes; keep 🔊 volume warning."""
+    """Strip hashtags and legacy prefixes; keep 🔊 volume warning when appropriate."""
+    from shorts_bot.compliance.ypp_bans import RESEARCH_TITLE_BLOCK_RE
+
     t = re.sub(r"#\w+", "", formula).strip()
     t = re.sub(r"\s+", " ", t)
     t = re.sub(r"^VOLUME WARNING:\s*", "", t, flags=re.I).strip()
-    if t and not t.startswith("🔊"):
-        t = f"🔊 {t}"
+    for pat in RESEARCH_TITLE_BLOCK_RE:
+        if pat.search(t):
+            return ""
+    if len(t) > 12 and sum(1 for c in t if c.isupper()) > len(t) * 0.55:
+        return ""
     return t.strip()
 
 
+def _phones_in_upload_meta() -> bool:
+    from shorts_bot.config import settings
+
+    return bool(settings.screen_text_phone_enabled)
+
+
 def _topic_hashtags(topic: str) -> list[str]:
+    from shorts_bot.production.screen_text_spec import is_cctv_topic
+
     lower = topic.lower()
     tags: list[str] = []
     if "mirror" in lower or "reflection" in lower or "blink" in lower:
         tags.extend(["#MirrorHorror", "#Reflection"])
-    if "security" in lower or "camera" in lower or "motion" in lower:
-        tags.extend(["#SecurityCamera", "#FoundFootage"])
+    if is_cctv_topic(topic) or any(k in lower for k in ("security", "camera", "motion", "cctv")):
+        tags.extend(["#AnalogHorror", "#SecurityCamera", "#FoundFootage"])
     if "text" in lower or "message" in lower or "delivered" in lower:
-        tags.extend(["#WrongText", "#PhoneHorror"])
+        if _phones_in_upload_meta():
+            tags.extend(["#WrongText", "#PhoneHorror"])
+        else:
+            tags.append("#AnalogHorror")
     if "knock" in lower or "closet" in lower or "door" in lower:
         tags.extend(["#KnockHorror", "#HomeAlone"])
-    if "security" in lower or "camera" in lower or "motion" in lower:
-        tags.extend(["#SecurityCamera", "#FoundFootage"])
     if "alone" in lower:
         tags.append("#HomeAlone")
-    return tags[:3]
+    # dedupe while preserving order
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for tag in tags:
+        if tag not in seen:
+            ordered.append(tag)
+            seen.add(tag)
+    return ordered[:3]
 
 
-def _description_from_research(topic: str, hook: str, research) -> str:
-    hook_line = hook.strip() if hook else topic.strip()
+def _normalize_horror_hook(hook: str, topic: str) -> str:
+    """Prefer second-person hook line for descriptions."""
+    line = (hook or topic).strip()
+    line = re.sub(r"\bMy\b", "Your", line)
+    line = re.sub(r"\bmy\b", "your", line)
+    line = re.sub(r"\bI live alone\b", "you live alone", line, flags=re.I)
+    line = re.sub(r"\bI\b", "you", line)
+    return line.strip()
+
+
+def _description_from_research(topic: str, hook: str, research, *, draft_id: int = 0) -> str:
+    from shorts_bot.production.description_copy import story_tease_line
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    hook_line = _normalize_horror_hook(hook, topic)
     topic_tags = _topic_hashtags(topic)
-    base_hashtags = list(HORROR_HASHTAGS) + [t for t in topic_tags if t not in HORROR_HASHTAGS]
+    vol = _volume_warning_for_draft(draft_id) if draft_id else ""
+    has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    tag_base = HORROR_HASHTAGS_JUMPSCARE if has_js else HORROR_HASHTAGS
+    base_hashtags = list(tag_base) + [t for t in topic_tags if t not in tag_base]
     hashtags = " ".join(base_hashtags[:5])
-
-    extra = ""
-    if getattr(research, "competitor_gap", None):
-        gap = str(research.competitor_gap).strip()
-        if gap and len(gap) < 200:
-            extra = f"\n{gap}\n"
-
-    return (
-        f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
-        f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"One impossible detail → tension → scare at the end. Watch the whole thing.\n"
-        f"{extra}\n"
-        f"AI motion visuals · synthetic media disclosed\n\n"
-        f"What should the next story be? One sentence in the comments.\n\n"
-        f"{hashtags}"
+    scare_line = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
+    lines = [vol, hook_line] if vol.strip() else [hook_line]
+    lines.extend(
+        [
+            f"Peripheral — scary horror Shorts (~30s). {scare_line}\n\ndon't blink.",
+            "AI motion visuals · synthetic media disclosed",
+            "What should the next story be? One sentence in the comments.",
+            hashtags,
+        ]
     )
+    from shorts_bot.production.description_copy import sanitize_description_text
+
+    return sanitize_description_text("\n\n".join(lines))
+
+
+def _topic_backend_tags(topic: str) -> list[str]:
+    """Topic-specific Studio tags — merged before generic horror defaults."""
+    lower = topic.lower()
+    tags: list[str] = []
+    if "mirror" in lower:
+        tags.append("mirror horror")
+    if "blink" in lower:
+        tags.append("wrong reflection")
+    if any(k in lower for k in ("security", "camera", "motion", "cctv")):
+        tags.extend(
+            [
+                "security camera horror",
+                "surveillance horror",
+                "night vision",
+                "home alone",
+            ]
+        )
+    if any(k in lower for k in ("text", "message", "delivered")):
+        if _phones_in_upload_meta():
+            tags.extend(["phone horror", "wrong text"])
+        else:
+            tags.extend(["analog horror", "wrong text"])
+    return tags
 
 
 def _tags_from_research(topic: str, research) -> list[str]:
-    base = list(HORROR_BACKEND_TAGS)
-    seen = {t.lower() for t in base}
+    base: list[str] = []
+    seen: set[str] = set()
     for row in getattr(research, "keyword_insights", None) or []:
         kw = str(row.get("keyword", "")).strip().lower()
         if not kw or kw in seen or len(kw) > 40:
@@ -143,49 +221,56 @@ def _tags_from_research(topic: str, research) -> list[str]:
             kw = kw.lstrip("#")
         base.append(kw)
         seen.add(kw)
+    for tag in _topic_backend_tags(topic) + list(HORROR_BACKEND_TAGS):
         if len(base) >= 12:
             break
-    lower = topic.lower()
-    if "mirror" in lower and "mirror horror" not in seen:
-        base.append("mirror horror")
-    if "blink" in lower and "wrong reflection" not in seen:
-        base.append("wrong reflection")
-    if any(k in lower for k in ("security", "camera", "motion", "cctv")):
-        for tag in ("security camera horror", "night vision", "home alone"):
-            if tag not in seen:
-                base.append(tag)
-                seen.add(tag)
-    if any(k in lower for k in ("text", "message", "delivered")):
-        for tag in ("phone horror", "wrong text"):
-            if tag not in seen:
-                base.append(tag)
-                seen.add(tag)
+        key = tag.lower()
+        if key in seen or len(tag) > 40:
+            continue
+        base.append(tag)
+        seen.add(key)
     return base[:12]
 
 
-def _safe_title(topic: str, hook: str) -> str:
-    """Front-load impossible hook; volume warning for horror."""
+def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
+    """Front-load hook line; volume emoji only on finale-scare drafts."""
+    vol_prefix = ""
+    if draft_id and _volume_warning_for_draft(draft_id).strip():
+        vol_prefix = "🔊 "
     slop_hooks = ("stop scrolling", "hey guys", "you won't believe")
     if hook and len(hook) < 85 and not any(s in hook.lower() for s in slop_hooks):
         clean = hook.strip()
-        if not clean.upper().startswith("🔊"):
-            return f"🔊 {clean}"[:100]
-        return clean[:100]
+        if clean.upper().startswith("🔊"):
+            clean = clean.lstrip("🔊").strip()
+        return f"{vol_prefix}{clean}"[:100]
     t = topic.strip()
-    return f"🔊 {t[:80]} — watch the whole thing"[:100]
+    return f"{vol_prefix}{t[:95]}"[:100]
 
 
-def _safe_description(topic: str, hook: str) -> str:
-    hook_line = hook.strip() if hook else topic.strip()
-    hashtags = " ".join(list(HORROR_HASHTAGS)[:5])
-    return (
-        f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
-        f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"Watch the whole thing.\n\n"
-        f"AI motion visuals · synthetic media disclosed\n\n"
-        f"{hashtags}"
+def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
+    hook_line = _normalize_horror_hook(hook, topic)
+    from shorts_bot.production.jumpscare_timing import load_plan_for_draft
+
+    vol = _volume_warning_for_draft(draft_id) if draft_id else ""
+    has_js = load_plan_for_draft(draft_id, 8).has_jumpscare if draft_id else True
+    tag_base = HORROR_HASHTAGS_JUMPSCARE if has_js else HORROR_HASHTAGS
+    hashtags = " ".join(list(tag_base)[:5])
+    from shorts_bot.production.description_copy import story_tease_line, sanitize_description_text
+    tease = story_tease_line(has_jumpscare=has_js and bool(vol.strip()))
+    lines = [vol, hook_line] if vol.strip() else [hook_line]
+    lines.extend(
+        [
+            sanitize_description_text(
+                f"Peripheral — scary horror Shorts (~30s). "
+                f"{tease} Watch the whole thing.\n\ndon't blink."
+            ),
+            "AI motion visuals · synthetic media disclosed",
+            hashtags,
+        ]
     )
+    from shorts_bot.production.description_copy import sanitize_description_text
+
+    return sanitize_description_text("\n\n".join(lines))
 
 
 def write_upload_files(pack_dir: Path, package: UploadPackage, *, draft_id: int) -> Path:

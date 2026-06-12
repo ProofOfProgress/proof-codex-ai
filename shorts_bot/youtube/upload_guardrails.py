@@ -6,6 +6,7 @@ import re
 from dataclasses import dataclass
 
 from shorts_bot.compliance.upload_guard import check_upload_allowed
+from shorts_bot.compliance.ypp_bans import is_qa_iteration_title
 from shorts_bot.config import settings
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
@@ -31,6 +32,7 @@ def uploads_for_draft(memory: MemoryExtensions, draft_id: int) -> list[dict]:
             SELECT draft_id, topic, hook, title, video_id, uploaded_at
             FROM upload_events
             WHERE draft_id = ?
+              AND (voided IS NULL OR voided = 0)
             ORDER BY id DESC
             """,
             (draft_id,),
@@ -71,11 +73,28 @@ def preflight_upload(
     script: str,
     title: str,
     allow_duplicate_draft: bool = False,
+    visibility: str = "public",
 ) -> UploadPreflight:
     """
     Run YPP guard + duplicate draft/title checks before any upload path (API or Studio).
     """
     existing_ids: list[str] = []
+
+    if settings.ypp_safe_mode and allow_duplicate_draft:
+        return UploadPreflight(
+            False,
+            "allow_duplicate_draft is BANNED under YPP_SAFE_MODE — same draft re-uploads "
+            "are inauthentic mass-production signals. Use private local preview instead.",
+            existing_ids,
+        )
+
+    if settings.ypp_safe_mode and settings.ypp_block_qa_iteration_titles and is_qa_iteration_title(title):
+        return UploadPreflight(
+            False,
+            f"Title looks like a QA iteration build ({title[:60]}…). "
+            "Not allowed on channel under YPP inauthentic-content policy.",
+            existing_ids,
+        )
 
     if settings.block_duplicate_draft_upload and not allow_duplicate_draft:
         prior = uploads_for_draft(memory, draft_id)
@@ -115,6 +134,7 @@ def preflight_upload(
         hook=hook,
         script=script,
         title=title,
+        visibility=visibility,
     )
     if not compliance.allowed:
         return UploadPreflight(False, compliance.summary(), existing_ids)

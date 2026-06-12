@@ -240,13 +240,72 @@ async function refreshStats() {
 }
 setInterval(refreshStats, 45000);
 
-const titles = { chat: 'Strategist chat', rewards: 'Rewards & analytics', learning: 'Learning journal', dev: 'Dev queue' };
+const titles = {
+  chat: 'Strategist chat',
+  rewards: 'Rewards & analytics',
+  learning: 'Learning journal',
+  dev: 'Dev queue',
+  slack: 'Slack setup',
+};
+
+async function loadSlackPanel() {
+  const stepsEl = document.getElementById('slack-steps');
+  const progressEl = document.getElementById('slack-progress');
+  const promptEl = document.getElementById('slack-test-prompt');
+  if (!stepsEl) return;
+  try {
+    const res = await fetch('/api/slack/status');
+    const data = await res.json();
+    if (progressEl) progressEl.textContent = data.progress || '—';
+    if (promptEl && data.test_prompt) promptEl.value = data.test_prompt;
+    const steps = data.steps || [];
+    stepsEl.innerHTML = steps
+      .map(
+        (s) => `
+      <div class="setup-row ${s.done ? 'done' : ''}" style="margin:6px 0;">
+        <span class="setup-dot">${s.done ? '✓' : '○'}</span>
+        <span><strong>${s.label}</strong>
+        ${s.url ? ` — <a href="${s.url}" target="_blank" rel="noopener" style="color:var(--accent);">open</a>` : ''}
+        <br><span style="color:var(--muted);font-size:.78rem;">${s.detail || ''}</span></span>
+      </div>`
+      )
+      .join('');
+  } catch {
+    stepsEl.textContent = 'Could not load Slack status.';
+  }
+}
+
+const slackTestBtn = document.getElementById('slack-test-btn');
+const slackTestMsg = document.getElementById('slack-test-msg');
+if (slackTestBtn && slackTestMsg) {
+  slackTestBtn.addEventListener('click', async () => {
+    slackTestBtn.disabled = true;
+    slackTestMsg.className = 'sync-msg';
+    slackTestMsg.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/slack/test', { method: 'POST', headers: apiHeaders() });
+      const data = await res.json();
+      slackTestMsg.className = 'sync-msg ' + (res.ok ? 'ok' : 'err');
+      slackTestMsg.textContent = res.ok ? data.message : (data.detail || 'Failed');
+      if (res.ok) loadSlackPanel();
+    } catch {
+      slackTestMsg.className = 'sync-msg err';
+      slackTestMsg.textContent = 'Request failed — check SLACK_CHANNEL_EMAIL + Gmail or SLACK_WEBHOOK_URL in .env';
+    } finally {
+      slackTestBtn.disabled = false;
+    }
+  });
+}
+
 document.querySelectorAll('.nav-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     const t = document.getElementById('panel-title');
     if (t) t.textContent = titles[btn.dataset.panel] || 'Shorts Bot';
+    if (btn.dataset.panel === 'slack') loadSlackPanel();
   });
 });
+
+loadSlackPanel();
 
 window.decideImprovement = decideImprovement;
 window.decideDraft = decideDraft;

@@ -19,7 +19,6 @@ This is the **Soft Continuity** version of the faceless Shorts pipeline from the
 
 Bot estimates timestamps from the approved script and **renders still PNGs** locally.
 
-**Discord:** `!makevideo 6`  
 **Web:** Learning → draft ID → **Auto-make video**  
 **Chat:** `make video 6`
 
@@ -31,14 +30,14 @@ Output: `data/production/draft_6/images/*.png` + `VOICEOVER_SCRIPT.txt` + `CAPCU
 
 ## Bot commands (TurboScribe path — tighter sync)
 
-**Discord**
+**Web** — Learning tab → draft ID + paste transcript → **Build production pack**
+
+**Chat**
 ```
-!produce 5 | 0:00 Imagine waking up at 2 a.m.
+produce 5 | 0:00 Imagine waking up at 2 a.m.
 0:07 and not reaching for your phone.
 0:15 Just absolute darkness.
 ```
-
-**Web** — Learning tab → draft ID + paste transcript → **Build production pack**
 
 **CLI**
 ```bash

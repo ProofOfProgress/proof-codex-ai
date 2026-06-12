@@ -9,6 +9,7 @@ When you say **deep research** or `research <topic>`, the bot does **not** only 
 5. **Browser** (optional) — headless fetch when pages block HTTP (`browse trends`)
 6. **Jenny Hoyos course** — hook, framing, retention rules in the synthesis prompt
 7. **LLM synthesis** — merges everything into cached `data/research/<topic>.json`
+8. **Credible sources** — Tier A/B required for scare/audio/psychology claims (peer-reviewed, academic film-sound, expert institutions); Tier C for CapCut workflow only. See `data/research/HORROR_SOUND_EFFECTS_RESEARCH.md` §1.
 
 vidIQ is **off by default** (paid). Use Trends + browser instead.
 
@@ -21,10 +22,10 @@ python3 -m shorts_bot.production.research_cli "the minute before a hard conversa
 python3 -m shorts_bot.production.research_cli --refresh   # re-browse web
 ```
 
-Discord / chat:
+Web chat:
 
 - `research <topic>` — cached if fresh
-- `deep research <topic>` / `!deepresearch <topic>` — force refresh
+- `deep research <topic>` — force refresh
 - `daily <topic>` — research is step 1 of autopilot
 
 ## What gets used downstream

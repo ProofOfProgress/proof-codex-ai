@@ -2,21 +2,62 @@
 
 from __future__ import annotations
 
+# Pinned/CTA comments: simple story ideas only — no ending spoilers.
+CTA_NO_SPOILER_RULE = (
+    "Do not mention jumpscare, scare at the end, loud ending, headphones, or volume in comments."
+)
+
 DEFAULT_CTA = (
-    "What should the next impossible detail be? One sentence — I read every comment. "
-    "🔊 jumpscare at the end."
+    "What scary story should we do next? Write one sentence. I read every comment."
+)
+
+_ALTERNATE_CTAS = (
+    "What story should we make next? One sentence.",
+    "What did you spot the second time you watched? One line.",
+    "Drop your next story idea in one sentence.",
 )
 
 
-def post_upload_cta_comment(video_id: str, *, text: str | None = None) -> str | None:
+def pick_cta_comment(*, draft_id: int = 0) -> str:
+    """Rotate engagement CTAs — never spoil the scare."""
+    if draft_id <= 0:
+        return DEFAULT_CTA
+    return _ALTERNATE_CTAS[draft_id % len(_ALTERNATE_CTAS)]
+
+
+def _cta_is_safe(text: str) -> bool:
+    lower = text.lower()
+    banned = (
+        "jumpscare",
+        "jump scare",
+        "scare at the end",
+        "at the end",
+        "near the end",
+        "last second",
+        "last 3",
+        "volume warning",
+        "headphones",
+        "loud ending",
+        "turn your volume",
+        "impossible detail",
+    )
+    return not any(b in lower for b in banned)
+
+
+def post_upload_cta_comment(
+    video_id: str,
+    *,
+    text: str | None = None,
+    draft_id: int = 0,
+) -> str | None:
     """Post series CTA as top-level comment. Returns comment thread id or None."""
     from shorts_bot.youtube.comment_client import comments_ready
 
     if not comments_ready():
         return None
-    body_text = (text or DEFAULT_CTA).strip()
-    if not body_text:
-        return None
+    body_text = (text or pick_cta_comment(draft_id=draft_id)).strip()
+    if not body_text or not _cta_is_safe(body_text):
+        body_text = DEFAULT_CTA
     try:
         from shorts_bot.youtube.google_auth import load_credentials_for_upload
         from googleapiclient.discovery import build
@@ -45,7 +86,9 @@ def sync_analytics_after_upload() -> str:
         from shorts_bot.training.proposer import ImprovementProposer
         from shorts_bot.youtube.sync import AnalyticsSync
 
-        mem = MemoryExtensions(MemoryStore())
+        from shorts_bot.config import settings
+
+        mem = MemoryExtensions(MemoryStore(settings.database_path))
         result = AnalyticsSync(mem, ImprovementProposer(mem)).run(days=28, max_videos=15)
         return result.message
     except Exception as exc:

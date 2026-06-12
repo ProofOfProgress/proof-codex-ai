@@ -1,4 +1,4 @@
-"""Playwright browser automation — shared by Discord bot, agent tools, and deep research."""
+"""Playwright browser automation — shared by agent tools and deep research."""
 
 from shorts_bot.browser.session import (
     BrowseResult,

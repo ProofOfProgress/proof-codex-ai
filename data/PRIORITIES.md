@@ -34,9 +34,10 @@
 
 ## Backlog (not top 4 — do not distract)
 
-- Slack / mobile Cursor setup (useful remote control, not the pipeline)
+- Slack setup in progress — `bash scripts/slack-setup.sh`, docs/SLACK_CURSOR_SETUP.md (owner OAuth)
 - Home PC My Machines, git/ZIP on Windows
-- Cursor API key injection, Enterprise pools, TikTok
+- TikTok account + TikTok Shop (owner setup) — see `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`; bot automation after account + explicit go
+- Cursor API key injection, Enterprise pools
 - CapCut operator, dev queue UI, refactors unless they block top 4
 
 ---

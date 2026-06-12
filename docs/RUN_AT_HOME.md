@@ -19,7 +19,6 @@ bash scripts/run-all.sh
 | Service | URL / access |
 |---------|----------------|
 | Web dashboard | http://localhost:8080 |
-| Discord | DM the bot or `!help` in server |
 
 ## 3. Channel brand: Soft Continuity
 
@@ -33,16 +32,16 @@ bash scripts/run-all.sh
 | Step | Who | Notes |
 |------|-----|--------|
 | Ideas + script draft | Bot | Jenny course + your niche |
-| Approve / reject draft | You | Web **Yes/No** or Discord |
+| Approve / reject draft | You | Web **Yes/No** |
 | CapCut edit + export | Bot | Uses `channel/brand/capcut_style.md` |
 | Upload to YouTube | Bot | Always **Private** first |
 | **Private → Public** | **You** | Only manual step per video (~30 sec) |
-| Sync analytics + learn | Bot | Web **Sync** or `!sync`; you Yes/No improvements |
+| Sync analytics + learn | Bot | Web **Sync**; you Yes/No improvements |
 
 ## 5. What works immediately (no login)
 
-- Discord chat in DM (type normally, no `!`)
-- `!draft sleep tips` — script drafts
+- Web chat at http://localhost:8080 (type normally)
+- `draft sleep tips` — script drafts
 - `dev: polish UI | make cards glow` — coding task queue
 - Web **Yes/No** approvals (improvements, drafts, dev)
 - Reward learning loop (after you have video data)
@@ -52,41 +51,27 @@ bash scripts/run-all.sh
 
 | Step | Time | Doc |
 |------|------|-----|
-| Discord bot token | done if bot replies | docs/MORNING.md |
 | Google API keys | ~10 min | docs/TOMORROW.md |
 | YouTube OAuth once | ~2 min | `python3 -m shorts_bot.youtube.auth_cli` |
 | OpenAI API key (optional) | ~2 min | docs/CHAT_TONIGHT.md |
 
-## 7. Discord — text you + others
+## 7. Morning briefing
 
-Anyone who **DMs the bot** is auto-remembered for morning messages.
+Open **http://localhost:8080** or `GET /api/briefing` for the daily checklist.
 
-To add more people without them DMing first:
-
-```
-DISCORD_NOTIFY_IDS=123456789012345678,987654321098765432
-```
-
-Morning briefing runs at **8:30** (change in `.env`):
-
-```
-DISCORD_BRIEFING_HOUR=8
-DISCORD_BRIEFING_MINUTE=30
-```
-
-Manual ping: `!notify` in Discord.
+Optional: link **Slack + @cursor** for remote steering — see **docs/SLACK_CURSOR_SETUP.md**.
 
 ## 8. Self-learning flow
 
 1. Bot uploads approved Shorts as **Private** (or you flip older uploads to Public when ready)
-2. After Google login: tap **Sync YouTube Analytics** (web) or `!sync` (Discord)
+2. After Google login: tap **Sync YouTube Analytics** (web)
 3. Bot scores videos → proposes up to **3 improvements** with pros/cons
-4. Tap **Yes** or **No** (one tap, web or `!yes 3` / `!no 3`)
+4. Tap **Yes** or **No** (one tap on web, or `yes 3` / `no 3` in chat)
 5. Approved rules → `data/LEARNED.md` + better future drafts
 
 ## 9. Dev / coding requests
 
-**Discord DM:** `build: add export button for drafts`
+**Web chat:** `build: add export button for drafts`
 
 **Web:** Dev queue panel → describe → Yes to approve
 

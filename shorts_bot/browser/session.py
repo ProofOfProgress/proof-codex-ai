@@ -19,7 +19,6 @@ _SITE_URLS = {
     "google": "https://accounts.google.com/signin",
     "trends": "https://trends.google.com/trends/explore",
     "capcut": "https://www.capcut.com/my-edit",
-    "discord": "https://discord.com/login",
 }
 
 
@@ -204,7 +203,7 @@ def open_browser_for_human(
 
 
 def spawn_visible_browser(url_or_site: str, *, minutes: int | None = None) -> str:
-    """Background visible browser (non-blocking for Discord)."""
+    """Background visible browser (non-blocking for chat handlers)."""
     import subprocess
     import sys
 

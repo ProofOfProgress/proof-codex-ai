@@ -46,6 +46,7 @@ def synthesize_horror_edge(
     out_path: Path,
     *,
     voice: str | None = None,
+    scare_indices: set[int] | None = None,
 ) -> tuple[str, str]:
     """One edge call per sentence with dread/lunge prosody; concat to one MP3."""
     voice = voice or EDGE_HORROR_VOICE
@@ -57,7 +58,9 @@ def synthesize_horror_edge(
     total = len(sentences)
     try:
         for i, sentence in enumerate(sentences):
-            rate, pitch = edge_horror_prosody(sentence, index=i, total=total)
+            rate, pitch = edge_horror_prosody(
+                sentence, index=i, total=total, scare_indices=scare_indices
+            )
             part = tmp / f"line_{i:02d}.mp3"
             synthesize_edge(sentence, part, voice=voice, rate=rate, pitch=pitch)
             parts.append(part)

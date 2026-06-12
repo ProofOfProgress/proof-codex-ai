@@ -7,7 +7,7 @@ Almost everything is automated. **The only step you do per video** is flip it fr
 ### The bot handles (automatic)
 
 1. Short ideas and script drafts (Jenny Hoyos course rules)
-2. Your **Yes / No** on drafts and self-improvements (web or Discord)
+2. Your **Yes / No** on drafts and self-improvements (web UI)
 3. CapCut edit from approved script (template + export)
 4. Upload to YouTube as **Private** (title, description, Shorts format)
 5. Analytics sync, scoring, and up to 3 improvement proposals per sync
@@ -119,10 +119,12 @@ The bot uses Google's **official** YouTube Analytics API — not screen scraping
 
 The bot pulls real stats, scores your Shorts, and proposes up to 3 improvements per sync so sign-off stays easy.
 
-## Discord (talk from your phone)
+## Remote steering (Slack — ~10 min setup)
 
-Your **public key** is saved. You still need the **bot token** once — see **docs/MORNING.md**.
+1. Run `bash scripts/slack-setup.sh` (prints exact steps)
+2. Link **@cursor** in Slack so you can message agents from your phone
+3. Add **SLACK_WEBHOOK_URL** so pipeline alerts land in `#peripheral-ops`
 
-Then run `bash scripts/run-all.sh` and message the bot `!help`.
+Plain English: **docs/FOR_OWNER_SLACK.md** · Web UI → **Slack** tab · Checklist: **data/SLACK_SETUP_CHECKLIST.md**
 
-It can DM you a morning briefing, take Yes/No decisions, and queue dev/coding work for approval.
+The web UI at **http://localhost:8080** still handles Yes/No and morning briefing when you're at a desk.

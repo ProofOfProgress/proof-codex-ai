@@ -13,7 +13,7 @@ data/screenshots/
 data/youtube_token.json
 data/LEARNED.md
 data/MEMORY.md
-data/discord_prefs.json
+data/codex_index.json
 data/backups/
 *.log
 .DS_Store

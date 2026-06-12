@@ -1,13 +1,37 @@
 # Operating rules seed — imported on first run
 
+## Video generation — owner pause (2026-06)
+
+**Do not call Replicate I2V / FLUX / Hailuo** unless the owner explicitly asks for new clips.
+
+- Default: `AI_VIDEO_GENERATION_ENABLED=false` — improve code, overlays, captions, metadata, tests
+- **OK without owner ask:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (assemble existing clips)
+- **Blocked:** `regen_clips_cli`, `render_jumpscare_cli --force`, full pack I2V regen
+
+## Codex — knowledge base name
+
+The project's knowledge base is called **Codex** (not "course KB", "knowledge base", or "Jenny files" in owner-facing replies).
+
+- **Codex core:** `course/files/` 01–09 + `course/verbatim/`
+- **Also part of Codex context:** `channel/brand/`, `data/research/`, `data/LEARNED.md`, agent memory (`data/MEMORY.md`)
+- Code: `shorts_bot/codex/`, `docs/CODEX.md`
+
+### Codex query — internal agents only (NOT for the owner)
+
+**AlphaBeta001 (Chief Manager)** auto-injects Codex BM25 search before replying on craft/strategy questions — hooks, suspense, retention, pacing, horror psychology, scripts, visuals. Code: `shorts_bot/codex/context.py`.
+
+**Cloud agents** (Cursor) may run `python3 -m shorts_bot.codex search "…"` in terminal to pull passages without loading every file into context.
+
+**The owner does not use Codex ask/search** — no public Codex button. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
+
 ## Owner — how to talk to the human
 
 The owner is **not a developer**. When explaining anything:
 
 - Use **plain English** — no jargon unless you define it in one simple sentence right after.
-- Say **what to do**, not how the code works: "Open Discord and type `!daily`" beats "invoke the pipeline module."
+- Say **what to do**, not how the code works: "Open http://localhost:8080 and type `daily`" beats "invoke the pipeline module."
 - One step at a time; assume they will not read terminal output or git diffs.
-- Cloud agents and the Discord bot must **do the technical work**; the owner approves money/risk steps only when truly necessary.
+- Cloud agents and the web autopilot must **do the technical work**; the owner approves money/risk steps only when truly necessary.
 
 ## Cloud agents — do it yourself first (browser + terminal)
 
@@ -51,7 +75,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Don't Blink** — terrifying faceless horror Shorts (~30s). One impossible detail → tension → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Peripheral** — scary horror Shorts (~30s). Merch tagline: *don't blink*. Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
 
 ## Production stack
 
@@ -59,11 +83,11 @@ Gemini horror scripts, Resemble voice (cold narrator), Replicate FLUX + MiniMax 
 
 ## Browser
 
-Discord bot and AI agent CAN run browsers: `browse <url>`, `browser open vidiq`, saved profile at data/browser_profile. Deep research uses browser fallback for JS/Cloudflare pages.
+Web UI chat and cloud agents CAN run browsers: `browse <url>`, `browser open vidiq`, saved profile at data/browser_profile. Deep research uses browser fallback for JS/Cloudflare pages.
 
 ## Channel accounts
 
-Primary Google/YouTube/Gemini: paypalacc4progress@gmail.com. Discord owner controls pipeline via bot commands.
+Primary Google/YouTube/Gemini: paypalacc4progress@gmail.com. Owner controls pipeline via web UI or Slack `@cursor`.
 
 ## Jenny course
 
@@ -98,10 +122,12 @@ See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`
 - **Do NOT** end every Short with "you're still here. good." — tagline is channel metadata only; end on the concrete protocol
 - Jenny 07 + 09: relatability and subscriber value over pure view spikes
 
-## TikTok — planned, not yet
+## TikTok + TikTok Shop — owner approved (prep phase)
 
-User wants a **TikTok account for the bot** eventually (cross-post / second surface). **Do not build TikTok login, upload, or automation until the user explicitly says go.**
+User wants **TikTok + TikTok Shop** for Peripheral merch and second distribution surface. **Biker / streetwear** is a strong **merch identity** lane (PERIPH patches, eye mark) — not a full content pivot unless hooks test well.
 
-When ready: same help-first content, adapt captions/format for TikTok, avoid spam-farm cross-posting (YPP-style rules apply on every platform).
+**Do not build TikTok login/upload automation until:** TikTok account exists, Shop setup started, and user says **go** on automation.
 
-**Reminder for user:** set up TikTok account when timing is right — bot should nudge if asked about distribution, not before.
+**Do now:** planning doc `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`, manual cross-post winners (1/day max), Shop SKUs from brand assets.
+
+Subscriber count + daily post prompt live in **Cursor automations** (owner-configured).

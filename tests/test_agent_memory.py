@@ -66,10 +66,10 @@ def test_ops_remember_flow(tmp_path: Path, monkeypatch):
     deps._agent = None
 
     ops = BotOperations()
-    saved = ops.remember_agent_memory("Prefer Discord for pipeline control", category="preference")
+    saved = ops.remember_agent_memory("Prefer web UI for pipeline control", category="preference")
     assert "Saved memory" in saved
     listed = ops.list_agent_memory()
-    assert "Discord" in listed
+    assert "web UI" in listed
     forget_id = int(saved.split("#")[1].split()[0])
     forgot = ops.forget_agent_memory(forget_id)
     assert "Forgot" in forgot

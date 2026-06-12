@@ -39,6 +39,7 @@ class AgentMemoryStore:
         self._seed_if_empty()
         self._ensure_ypp_rules()
         self._ensure_mission_rules()
+        self._ensure_codex_rules()
 
     def _conn(self):
         return self.store._connect()
@@ -83,6 +84,27 @@ class AgentMemoryStore:
             category="operating_rule",
             title="YPP / inauthentic content",
             content=OPERATING_RULES_BLOCK.strip(),
+            source="seed",
+            pinned=True,
+        )
+
+    def _ensure_codex_rules(self) -> None:
+        """Idempotent — when to query Codex (Chief Manager + all agents)."""
+        mems = self.list_memories(limit=100)
+        if any(
+            "codex" in m.title.lower() and ("internal" in m.content.lower() or "query codex" in m.title.lower())
+            for m in mems
+        ):
+            return
+        self.add_memory(
+            category="operating_rule",
+            title="Codex — AlphaBeta001 internal only",
+            content=(
+                "Codex search is for AlphaBeta001 (Chief Manager) and cloud agents only — "
+                "NOT a feature for the owner. Manager auto-injects BM25 passages on strategy "
+                "questions (hooks, suspense, retention, pacing). Owner never types codex commands. "
+                "Cloud agents: python3 -m shorts_bot.codex search \"…\" when working in repo."
+            ),
             source="seed",
             pinned=True,
         )
@@ -147,8 +169,8 @@ class AgentMemoryStore:
             ),
             (
                 "preference",
-                "Discord control",
-                "User controls pipeline via Discord: daily, research, apply brand, finish video.",
+                "Web control",
+                "User controls pipeline via web UI chat: daily, research, apply brand, finish video.",
             ),
             (
                 "operating_rule",

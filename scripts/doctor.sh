@@ -66,26 +66,8 @@ else
   note "No GEMINI_API_KEY or OPENAI_API_KEY — offline mode still works"
 fi
 
-# Discord
-if [ -f .env ] && grep -qE '^DISCORD_PUBLIC_KEY=[a-f0-9]{32,}' .env 2>/dev/null; then
-  pass "DISCORD_PUBLIC_KEY set"
-else
-  note "DISCORD_PUBLIC_KEY not set"
-fi
-
-if [ -f .env ] && grep -qE '^DISCORD_BOT_TOKEN=.+' .env 2>/dev/null && ! grep -qi 'your-bot-token' .env 2>/dev/null; then
-  pass "DISCORD_BOT_TOKEN set"
-else
-  note "DISCORD_BOT_TOKEN not set — see docs/MORNING.md"
-fi
-
-if [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=[0-9]{15,}' .env 2>/dev/null; then
-  pass "DISCORD_OWNER_ID set (for DMs)"
-elif [ -f .env ] && grep -qE '^DISCORD_OWNER_ID=.+' .env 2>/dev/null; then
-  bad "DISCORD_OWNER_ID looks like a username — must be numeric (Developer Mode → Copy User ID)"
-else
-  note "DISCORD_OWNER_ID not set — briefing DMs need your numeric user ID"
-fi
+# Web UI
+pass "Web UI: python3 -m shorts_bot.web → http://localhost:8080"
 
 # Tests
 echo ""

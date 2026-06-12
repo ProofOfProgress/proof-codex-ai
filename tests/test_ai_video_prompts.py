@@ -18,9 +18,23 @@ def test_visual_dna_has_palette_and_safe_zone():
 
 def test_templates_count_and_mirror_match():
     all_t = templates()
-    assert len(all_t) == 10
+    assert len(all_t) >= 8
     m = match_template(topic="the mirror reflection blinked after you did")
     assert m.id == "mirror_blink"
+
+
+def test_phone_templates_omitted_when_phones_disabled():
+    from shorts_bot.config import settings
+
+    assert not settings.screen_text_phone_enabled
+    ids = {t.id for t in templates()}
+    assert "wrong_text_delivered" not in ids
+    assert "face_unlock_wrong" not in ids
+    m = match_template(
+        topic="text delivered phone off",
+        spoken_text="message delivered while phone was powered off",
+    )
+    assert m.id != "wrong_text_delivered"
 
 
 def test_segment_prompt_includes_framework_parts():
@@ -65,3 +79,17 @@ def test_final_segment_uses_jumpscare_template():
     ]
     briefs = build_video_prompt_briefs(segs, topic="knock closet", total_duration=12.0)
     assert briefs[-1].template_id == "jumpscare_lunge"
+
+
+def test_suspense_replay_skips_jumpscare_on_finale():
+    from shorts_bot.production.jumpscare_timing import plan_for_draft
+
+    segs = [
+        TranscriptSegment(0.0, "You heard a knock.", "00.00"),
+        TranscriptSegment(5.0, "Something was still watching.", "00.05"),
+    ]
+    plan = plan_for_draft(3, len(segs))
+    briefs = build_video_prompt_briefs(
+        segs, topic="knock closet", total_duration=12.0, jumpscare_plan=plan
+    )
+    assert briefs[-1].template_id == "suspense_replay_hold"

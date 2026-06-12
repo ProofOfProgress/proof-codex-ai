@@ -12,14 +12,13 @@ Soft Continuity remembers **operating rules**, **preferences**, and **facts** ac
 
 1. **Strategist chat** — injected into the system prompt; recent chat history is restored on startup
 2. **Draft generation** — operating rules included in draft context
-3. **Discord / web chat** — same `BotOperations.chat()` router
+3. **Web chat** — same `BotOperations.chat()` router
 
 ## Commands
 
 | Where | Command | Action |
 |-------|---------|--------|
-| Discord DM / chat | `remember <text>` | Save a fact or rule |
-| Discord | `!remember <text>` | Same |
+| Web chat | `remember <text>` | Save a fact or rule |
 | Any | `operating rule: <text>` | Save as operating_rule category |
 | Any | `memory` / `rules` | List saved memories |
 | Any | `forget <id>` | Delete by id |
