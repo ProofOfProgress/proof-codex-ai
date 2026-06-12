@@ -60,11 +60,13 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
 | `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |
 | `TAVILY_API_KEY` | Runtime Secret | API key (string, starts `tvly-`) | `tvly-____________________________` | Deep web research |
-| `SLACK_WEBHOOK_URL` | Runtime Secret | Incoming webhook URL | `https://hooks.slack.com/services/...` | Slack → Incoming Webhooks → `#peripheral-ops` |
+| `SLACK_BOT_TOKEN` | Runtime Secret | Bot token `xoxb-...` | `xoxb-...` | [api.slack.com/apps](https://api.slack.com/apps) → AlphaBeta001 app |
+| `SLACK_CHANNEL_ID` | Environment Variable | Channel ID `C...` | `C0123456789` | `#peripheral-ops` → channel details |
+| `SLACK_WEBHOOK_URL` | Runtime Secret | Incoming webhook URL (optional) | `https://hooks.slack.com/services/...` | Fallback if no bot token |
 | `SLACK_CURSOR_LINKED` | Environment Variable | `true` after Link Account | `true` | Set after `@cursor help` → Link Account in Slack |
 | `SLACK_CHANNEL_NAME` | Environment Variable | Channel name (no #) | `peripheral-ops` | Optional label for status/briefing |
 
-`@cursor` OAuth is in [Cursor Integrations](https://cursor.com/dashboard?tab=integrations). Plain English: `docs/FOR_OWNER_SLACK.md`.
+**Slack:** AlphaBeta001 bot = `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` (`docs/FOR_OWNER_SLACK_BOT.md`). `@cursor` = separate OAuth (`docs/FOR_OWNER_SLACK.md`).
 
 ---
 

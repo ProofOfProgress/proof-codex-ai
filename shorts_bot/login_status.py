@@ -147,10 +147,18 @@ def _check_web_ui() -> ServiceStatus:
 
 
 def _check_slack_webhook() -> ServiceStatus:
-    from shorts_bot.integrations.slack import has_slack_webhook
+    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
 
+    ch = settings.slack_channel_name
+    if has_slack_bot():
+        return ServiceStatus(
+            "slack_bot",
+            f"Slack bot ({settings.slack_bot_display_name})",
+            True,
+            f"#{ch} — bot token",
+            "python3 -m shorts_bot.integrations test",
+        )
     if has_slack_webhook():
-        ch = settings.slack_channel_name
         enabled = "on" if settings.slack_notify_enabled else "off"
         return ServiceStatus(
             "slack_webhook",
@@ -160,11 +168,11 @@ def _check_slack_webhook() -> ServiceStatus:
             "python3 -m shorts_bot.integrations test",
         )
     return ServiceStatus(
-        "slack_webhook",
-        "Slack alerts (webhook)",
+        "slack_bot",
+        f"Slack bot ({settings.slack_bot_display_name})",
         False,
-        "SLACK_WEBHOOK_URL not set",
-        "docs/SLACK_CURSOR_SETUP.md Part 3",
+        "SLACK_BOT_TOKEN + SLACK_CHANNEL_ID or webhook",
+        "docs/FOR_OWNER_SLACK_BOT.md",
     )
 
 

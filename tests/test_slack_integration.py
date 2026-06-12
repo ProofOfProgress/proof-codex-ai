@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from shorts_bot.automation.alerts import record_automation_alert
 from shorts_bot.config import Settings
 from shorts_bot.integrations.slack import (
+    has_slack_bot,
     has_slack_webhook,
     notify_automation_alert,
     post_slack_message,
@@ -72,6 +73,31 @@ def test_slack_status_api():
     assert data["checklist"] == "data/SLACK_SETUP_CHECKLIST.md"
 
 
+def test_has_slack_bot_detects_token(monkeypatch):
+    monkeypatch.setattr(
+        "shorts_bot.integrations.slack.settings",
+        Settings(
+            slack_bot_token="xoxb-test-token",
+            slack_channel_id="C0123456789",
+        ),
+    )
+    assert has_slack_bot()
+
+
+@patch("shorts_bot.integrations.slack._post_via_bot_token", return_value=(True, ""))
+def test_post_slack_prefers_bot(mock_bot, monkeypatch):
+    monkeypatch.setattr(
+        "shorts_bot.integrations.slack.settings",
+        Settings(
+            slack_bot_token="xoxb-test",
+            slack_channel_id="C0123456789",
+            slack_notify_enabled=True,
+        ),
+    )
+    assert post_slack_message("hello")
+    mock_bot.assert_called_once()
+
+
 def test_checklist_includes_slack(monkeypatch):
     monkeypatch.setattr(
         "shorts_bot.integrations.slack.settings",
@@ -80,7 +106,7 @@ def test_checklist_includes_slack(monkeypatch):
     r = TestClient(app).get("/api/checklist")
     ids = {i["id"] for i in r.json()["items"]}
     assert "slack_cursor" in ids
-    assert "slack_webhook" in ids
+    assert "slack_bot" in ids
 
 
 @patch("shorts_bot.integrations.slack.notify_automation_alert", return_value=True)
@@ -107,6 +133,7 @@ def test_notify_automation_alert_includes_steering_hint(monkeypatch):
 def test_slack_setup_status_shape():
     st = slack_setup_status()
     assert st["channel_suggestion"] == "peripheral-ops"
+    assert st["bot_display_name"] == "AlphaBeta001"
     assert "steps" in st
     assert len(st["steps"]) >= 5
 

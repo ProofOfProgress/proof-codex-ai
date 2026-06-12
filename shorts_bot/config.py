@@ -59,10 +59,13 @@ class Settings(BaseSettings):
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
 
-    # Slack — incoming webhook posts pipeline alerts; @cursor is separate (Cursor dashboard OAuth)
+    # Slack — bot token (AlphaBeta001 app) and/or webhook; @cursor is separate (Cursor OAuth)
+    slack_bot_token: str | None = None  # xoxb-... from api.slack.com custom app
+    slack_channel_id: str | None = None  # C... for chat.postMessage
     slack_webhook_url: str | None = None
     slack_notify_enabled: bool = True
     slack_channel_name: str = "peripheral-ops"
+    slack_bot_display_name: str = "AlphaBeta001"
     slack_cursor_linked: bool = False  # set true after @cursor Link Account in Slack
     google_client_id: str | None = None
     google_client_secret: str | None = None

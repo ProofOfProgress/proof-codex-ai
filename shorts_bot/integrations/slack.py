@@ -1,4 +1,4 @@
-"""Slack incoming webhook — pipeline alerts + setup status for @cursor."""
+"""Slack — AlphaBeta001 bot token and/or webhook; @cursor is separate."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 CURSOR_INTEGRATIONS_URL = "https://cursor.com/dashboard?tab=integrations"
 CURSOR_AUTOMATIONS_URL = "https://cursor.com/automations"
 SLACK_MCP_MARKETPLACE_URL = "https://cursor.com/marketplace/slack"
+SLACK_APPS_URL = "https://api.slack.com/apps"
 
 
 def has_slack_webhook() -> bool:
@@ -25,6 +26,18 @@ def has_slack_webhook() -> bool:
     return "your-webhook" not in lower and "placeholder" not in lower
 
 
+def has_slack_bot() -> bool:
+    token = (settings.slack_bot_token or "").strip()
+    channel = (settings.slack_channel_id or "").strip()
+    if not token.startswith("xoxb-") or not channel.startswith("C"):
+        return False
+    return "your" not in token.lower() and "placeholder" not in token.lower()
+
+
+def slack_can_post() -> bool:
+    return has_slack_bot() or has_slack_webhook()
+
+
 def slack_cursor_linked() -> bool:
     return bool(settings.slack_cursor_linked)
 
@@ -33,61 +46,54 @@ def slack_setup_steps() -> list[dict[str, Any]]:
     """Ordered checklist for web UI and owner walkthrough."""
     ch = settings.slack_channel_name
     webhook = has_slack_webhook()
+    bot = has_slack_bot()
     cursor = slack_cursor_linked()
     return [
         {
+            "id": "bot_app",
+            "phase": "bot",
+            "label": "Create AlphaBeta001 Slack app (your bot)",
+            "done": bot,
+            "url": SLACK_APPS_URL,
+            "detail": "api.slack.com → Create app → chat:write → Install → add to #" + ch,
+        },
+        {
+            "id": "bot_secrets",
+            "phase": "bot",
+            "label": "Secrets: SLACK_BOT_TOKEN + SLACK_CHANNEL_ID",
+            "done": bot,
+            "url": None,
+            "detail": "See docs/FOR_OWNER_SLACK_BOT.md — then bash scripts/install.sh",
+        },
+        {
             "id": "cursor_install",
             "phase": "@cursor",
-            "label": "Install Cursor app in Slack",
+            "label": "Install Cursor app in Slack (optional — remote agents)",
             "done": cursor,
             "url": CURSOR_INTEGRATIONS_URL,
-            "detail": "Dashboard → Integrations → Slack → Connect. Connect GitHub repo proof-codex-ai.",
+            "detail": "Separate from AlphaBeta001 bot. DM Cursor → @cursor help → Link Account.",
         },
         {
-            "id": "cursor_channel",
+            "id": "cursor_link",
             "phase": "@cursor",
-            "label": f"Create #{ch} and /invite @cursor",
+            "label": "Link Account in DM with Cursor (not just add to channel)",
             "done": cursor,
             "url": None,
-            "detail": "Public channel required. Then type: @cursor help → Link Account (OAuth).",
-        },
-        {
-            "id": "cursor_defaults",
-            "phase": "@cursor",
-            "label": "@cursor settings → default repo proof-codex-ai",
-            "done": cursor,
-            "url": None,
-            "detail": "Optional routing keywords: shorts, peripheral, dont-blink.",
-        },
-        {
-            "id": "cursor_test",
-            "phase": "@cursor",
-            "label": "Test @cursor in Slack",
-            "done": cursor,
-            "url": None,
-            "detail": "@cursor agent in proof-codex-ai, read docs/SLACK_CURSOR_SETUP.md and reply OK",
+            "detail": "Apps → Cursor → @cursor help → Link Account. Set SLACK_CURSOR_LINKED=true after.",
         },
         {
             "id": "webhook_create",
             "phase": "webhook",
-            "label": f"Incoming Webhook → #{ch}",
+            "label": f"Incoming Webhook (optional if bot token set)",
             "done": webhook,
             "url": "https://api.slack.com/messaging/webhooks",
-            "detail": "Slack → Apps → Incoming Webhooks → Add. Copy the https://hooks.slack.com/... URL.",
-        },
-        {
-            "id": "webhook_secret",
-            "phase": "webhook",
-            "label": "Add SLACK_WEBHOOK_URL to Cursor Secrets",
-            "done": webhook,
-            "url": CURSOR_INTEGRATIONS_URL,
-            "detail": "Then run: bash scripts/install.sh",
+            "detail": "Only needed if you skip custom bot app.",
         },
         {
             "id": "webhook_test",
-            "phase": "webhook",
-            "label": "Test webhook (button below or CLI)",
-            "done": webhook,
+            "phase": "bot",
+            "label": "Test post (web Slack tab or integrations test)",
+            "done": bot or webhook,
             "url": None,
             "detail": "python3 -m shorts_bot.integrations test",
         },
@@ -97,7 +103,7 @@ def slack_setup_steps() -> list[dict[str, Any]]:
             "label": "Slack MCP in Cursor Desktop (optional)",
             "done": False,
             "url": SLACK_MCP_MARKETPLACE_URL,
-            "detail": "Lets agents post progress while grinding. Enable for Cloud Agents in dashboard too.",
+            "detail": "Agents post progress while grinding.",
         },
         {
             "id": "automations",
@@ -105,25 +111,31 @@ def slack_setup_steps() -> list[dict[str, Any]]:
             "label": "Cursor automations (subscriber count, daily post)",
             "done": False,
             "url": CURSOR_AUTOMATIONS_URL,
-            "detail": "Owner-configured — subscriber milestones + daily grind prompts.",
+            "detail": "Owner-configured in dashboard.",
         },
     ]
 
 
 def slack_setup_status() -> dict[str, Any]:
     webhook = has_slack_webhook()
+    bot = has_slack_bot()
     cursor = slack_cursor_linked()
     steps = slack_setup_steps()
     done_count = sum(1 for s in steps if s["done"])
+    mode = "bot" if bot else ("webhook" if webhook else "none")
     return {
+        "mode": mode,
+        "bot_configured": bot,
+        "bot_display_name": settings.slack_bot_display_name,
         "webhook_configured": webhook,
-        "webhook_enabled": settings.slack_notify_enabled and webhook,
+        "webhook_enabled": settings.slack_notify_enabled and slack_can_post(),
         "cursor_linked": cursor,
         "cursor_app": {
             "configured": cursor,
-            "note": "Set SLACK_CURSOR_LINKED=true in Cursor Secrets after @cursor Link Account.",
+            "note": "@cursor is NOT the AlphaBeta001 bot — Link Account in DM with Cursor app.",
             "doc": "docs/SLACK_CURSOR_SETUP.md",
             "owner_guide": "docs/FOR_OWNER_SLACK.md",
+            "bot_guide": "docs/FOR_OWNER_SLACK_BOT.md",
             "dashboard": CURSOR_INTEGRATIONS_URL,
         },
         "channel_suggestion": settings.slack_channel_name,
@@ -131,33 +143,44 @@ def slack_setup_status() -> dict[str, Any]:
         "setup_script": "bash scripts/slack-setup.sh",
         "steps": steps,
         "progress": f"{done_count}/{len(steps)}",
-        "ready": webhook and cursor,
+        "ready": bot or webhook,
         "test_prompt": (
-            f"@cursor agent in proof-codex-ai — Peripheral Slack is live. "
-            f"Read docs/SLACK_CURSOR_SETUP.md and reply OK in #{settings.slack_channel_name}."
+            f"@cursor agent in proof-codex-ai — reply OK in #{settings.slack_channel_name}. "
+            f"(Or wait for {settings.slack_bot_display_name} bot test message.)"
         ),
     }
 
 
-def post_slack_message(
-    text: str,
-    *,
-    blocks: list[dict[str, Any]] | None = None,
-    event: str | None = None,
-) -> bool:
-    """
-    Post to Slack incoming webhook. Returns True on 200.
-    No-op when webhook missing or slack_notify_enabled=false.
-    """
-    if not settings.slack_notify_enabled or not has_slack_webhook():
-        return False
+def _post_via_bot_token(text: str) -> tuple[bool, str]:
+    token = (settings.slack_bot_token or "").strip()
+    channel = (settings.slack_channel_id or "").strip()
+    payload = json.dumps({"channel": channel, "text": text}).encode("utf-8")
+    req = urllib.request.Request(
+        "https://slack.com/api/chat.postMessage",
+        data=payload,
+        headers={
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": f"Bearer {token}",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = json.loads(resp.read().decode())
+        if body.get("ok"):
+            return True, ""
+        return False, str(body.get("error", "unknown_error"))
+    except urllib.error.HTTPError as exc:
+        return False, f"HTTP {exc.code}"
+    except Exception as exc:  # noqa: BLE001
+        return False, str(exc)
 
+
+def _post_via_webhook(text: str, *, blocks: list[dict[str, Any]] | None = None) -> bool:
     url = (settings.slack_webhook_url or "").strip()
-    prefix = f"*[{event}]* " if event else ""
-    payload: dict[str, Any] = {"text": f"{prefix}{text}"}
+    payload: dict[str, Any] = {"text": text}
     if blocks:
         payload["blocks"] = blocks
-
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         url,
@@ -176,25 +199,55 @@ def post_slack_message(
         return False
 
 
+def post_slack_message(
+    text: str,
+    *,
+    blocks: list[dict[str, Any]] | None = None,
+    event: str | None = None,
+) -> bool:
+    """Post via bot token (preferred) or webhook."""
+    if not settings.slack_notify_enabled:
+        return False
+
+    prefix = f"*[{event}]* " if event else ""
+    full = f"{prefix}{text}"
+
+    if has_slack_bot():
+        ok, err = _post_via_bot_token(full)
+        if ok:
+            return True
+        log.warning("Slack bot post failed: %s — trying webhook fallback", err)
+
+    if has_slack_webhook():
+        return _post_via_webhook(full, blocks=blocks)
+
+    return False
+
+
 def notify_automation_alert(event: str, message: str, *, detail: str = "") -> bool:
-    """Format pipeline alert for Slack."""
     lines = [message]
     if detail:
         lines.append(f"```{detail[:800]}```")
-    lines.append("_Steer from phone: `@cursor agent …` in Slack — see docs/SLACK_CURSOR_SETUP.md_")
+    if not has_slack_bot():
+        lines.append("_Remote agents: `@cursor agent …` in Slack (needs Link Account in DM)._")
     return post_slack_message("\n".join(lines), event=event)
 
 
 def send_test_message() -> tuple[bool, str]:
-    """Ping webhook — for CLI and web test button."""
-    if not has_slack_webhook():
-        return False, "SLACK_WEBHOOK_URL missing — add Incoming Webhook URL to Cursor Secrets"
-    ok = post_slack_message(
-        "🎉 *Peripheral* bot connected to Slack.\n"
-        "Pipeline alerts will post here. First subscriber energy — let's go.\n"
-        "Start agents: `@cursor agent take 1h on proof-codex-ai — …`",
-        event="setup",
+    name = settings.slack_bot_display_name
+    body = (
+        f"👁 *{name}* online — Peripheral ops bot.\n"
+        "Pipeline alerts and milestones post here.\n"
+        "_First subscriber logged. don't blink._"
     )
+    if not slack_can_post():
+        return (
+            False,
+            "Add SLACK_BOT_TOKEN + SLACK_CHANNEL_ID (see docs/FOR_OWNER_SLACK_BOT.md) "
+            "or SLACK_WEBHOOK_URL",
+        )
+    ok = post_slack_message(body, event="setup")
     if ok:
-        return True, f"Posted test message to #{settings.slack_channel_name}"
-    return False, "Webhook request failed — regenerate URL in Slack app settings"
+        via = name if has_slack_bot() else "webhook"
+        return True, f"Posted as {via} → #{settings.slack_channel_name}"
+    return False, "Post failed — check bot is invited to channel and channel ID is correct"

@@ -89,6 +89,7 @@ You should see a message in the channel: *Peripheral bot connected.*
 
 | Problem | Fix |
 |---------|-----|
+| `/invite @cursor` → *Sorry, you can't perform this action* | Slack permissions — not Cursor. **Fix:** (1) Install Cursor from [dashboard Integrations](https://cursor.com/dashboard?tab=integrations) first. (2) Use channel **Integrations → Add app → Cursor**. (3) Or DM Cursor directly. (4) Ask **workspace owner** to install/approve the app or let members add apps to channels. |
 | Reply from **GitHub APP** + “Access denied… Copilot” | **Wrong bot.** That is GitHub Copilot in Slack, not Cursor. Use **`@cursor`** (Cursor app), not `@GitHub` / `@GitHub Copilot`. Install Cursor separately: [Integrations → Slack](https://cursor.com/dashboard?tab=integrations). |
 | Two apps in Slack | **Cursor** = Cloud Agents for this repo. **GitHub** = PR previews + optional Copilot agent (needs paid Copilot + org policy). They are not interchangeable. |
 | @cursor ignores me | Did you **Link Account** on `@cursor help`? Dashboard connect alone is not enough. |

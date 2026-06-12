@@ -58,9 +58,11 @@ def build_morning_briefing() -> str:
 
 
 def _slack_briefing_line() -> str:
-    from shorts_bot.integrations.slack import has_slack_webhook
+    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
 
+    ch = settings.slack_channel_name
+    if has_slack_bot():
+        return f"• {settings.slack_bot_display_name} bot → #{ch} (live)"
     if has_slack_webhook():
-        ch = settings.slack_channel_name
         return f"• Pipeline alerts → #{ch} (webhook live)"
-    return "• Add SLACK_WEBHOOK_URL for pipeline alerts in Slack (Part 3 of setup doc)"
+    return "• Slack bot: docs/FOR_OWNER_SLACK_BOT.md (SLACK_BOT_TOKEN + SLACK_CHANNEL_ID)"

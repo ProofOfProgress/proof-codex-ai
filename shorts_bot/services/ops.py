@@ -41,6 +41,12 @@ from shorts_bot.web.deps import (
 from shorts_bot.youtube.google_auth import auth_status
 
 
+def _slack_bot_ready() -> bool:
+    from shorts_bot.integrations.slack import slack_can_post
+
+    return slack_can_post()
+
+
 def _slack_webhook_ready() -> bool:
     from shorts_bot.integrations.slack import has_slack_webhook
 
@@ -296,10 +302,10 @@ class BotOperations:
                 "action": "docs/FOR_OWNER_SLACK.md — ~10 min OAuth",
             },
             {
-                "id": "slack_webhook",
-                "label": "Slack webhook (pipeline alerts)",
-                "done": _slack_webhook_ready(),
-                "action": "docs/SLACK_CURSOR_SETUP.md Part 3 — SLACK_WEBHOOK_URL in Cursor Secrets",
+                "id": "slack_bot",
+                "label": "Slack bot AlphaBeta001 (pipeline alerts)",
+                "done": _slack_bot_ready(),
+                "action": "docs/FOR_OWNER_SLACK_BOT.md — SLACK_BOT_TOKEN + SLACK_CHANNEL_ID",
             },
         ]
         return items
