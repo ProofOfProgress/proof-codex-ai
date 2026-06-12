@@ -24,6 +24,19 @@ pip install -r requirements.txt
 
 Only `requests` and `beautifulsoup4` are required (for `codex/data_scraper.py`). The advisor CLI and autotextgenerator use stdlib only at runtime, but importing `codex` pulls in the scraper dependencies.
 
+### Agent clock
+
+Check the time before scheduling posts, daily autopilot, or time-sensitive replies:
+
+```bash
+python3 -m src.clock              # human-readable UTC + owner local (America/Los_Angeles)
+python3 -m src.clock --json       # machine-readable
+python3 -m src.clock --write      # refresh data/CLOCK.json snapshot
+bash scripts/clock.sh --json
+```
+
+Override timezones: `OWNER_TIMEZONE=America/Chicago OPS_TIMEZONE=UTC python3 -m src.clock`
+
 ### Running the application
 
 **Codex Advisor** (works out of the box with bundled sample data):
@@ -45,6 +58,7 @@ This repo has **no configured linter** (no ruff/flake8/mypy) and **no test suite
 ```bash
 python3 -m compileall -q .
 python3 -c "from codex import CodexTaskParser, DataScraper; from src.autotextgenerator import AutoTextGenerator"
+python3 -m src.clock --json
 python3 codexadvisor.py
 ```
 
