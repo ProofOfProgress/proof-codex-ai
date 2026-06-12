@@ -42,7 +42,11 @@ def uploads_for_draft(memory: MemoryExtensions, draft_id: int) -> list[dict]:
 
 def channel_videos_matching_title(title: str) -> list[str]:
     """Return video IDs on channel with same normalized title (YouTube API readonly)."""
+    from shorts_bot.youtube.google_auth import credentials_configured, token_exists
     from shorts_bot.youtube.channel_videos import list_channel_videos
+
+    if not credentials_configured() or not token_exists():
+        return []
 
     target = _normalize_title(title)
     if not target:

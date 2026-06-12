@@ -474,7 +474,14 @@ def _run_pipeline_locked(
             from shorts_bot.youtube.upload import upload_short
             from shorts_bot.youtube.upload_guardrails import preflight_upload
 
-            if settings.youtube_upload_via_api and not upload_ready():
+            api_ready = upload_ready()
+            use_studio = (
+                settings.youtube_studio_upload_fallback
+                and settings.youtube_upload_via_api
+                and not api_ready
+            )
+
+            if settings.youtube_upload_via_api and not api_ready and not use_studio:
                 messages.append(
                     "Upload blocked — YouTube token missing API upload scope. "
                     "Run once at home: python3 -m shorts_bot.youtube.auth_cli "
@@ -485,20 +492,22 @@ def _run_pipeline_locked(
             mem = MemoryExtensions(store)
             from shorts_bot.compliance.upload_guard import record_upload
 
-            pre = preflight_upload(
-                store,
-                mem,
-                draft_id=draft_id,
-                topic=draft.topic,
-                hook=draft.hook,
-                script=draft.script,
-                title=package.title,
-            )
-            if not pre.allowed:
-                messages.append(f"Upload blocked — {pre.message}")
-                do_upload = False
+            if do_upload:
+                pre = preflight_upload(
+                    store,
+                    mem,
+                    draft_id=draft_id,
+                    topic=draft.topic,
+                    hook=draft.hook,
+                    script=draft.script,
+                    title=package.title,
+                    visibility=package.visibility,
+                )
+                if not pre.allowed:
+                    messages.append(f"Upload blocked — {pre.message}")
+                    do_upload = False
 
-        if do_upload:
+        if do_upload and upload_ready():
             try:
                 up = upload_short(
                     video.output_path,
@@ -558,7 +567,24 @@ def _run_pipeline_locked(
                 state.mark("upload")
                 save_state(pack_dir, state)
             except Exception as exc:
-                messages.append(f"YouTube upload failed: {exc}")
+                messages.append(f"YouTube API upload failed: {exc}")
+                state.mark("upload", status="failed")
+                save_state(pack_dir, state)
+        elif do_upload and settings.youtube_studio_upload_fallback:
+            from shorts_bot.youtube.studio_upload import upload_pack_via_studio
+
+            messages.append("API upload unavailable — trying YouTube Studio browser upload…")
+            try:
+                studio = upload_pack_via_studio(pack_dir, headless=True)
+                messages.append(studio.message)
+                if studio.ok and studio.video_url:
+                    upload_url = studio.video_url
+                    state.mark("upload")
+                else:
+                    state.mark("upload", status="failed")
+                save_state(pack_dir, state)
+            except Exception as exc:
+                messages.append(f"Studio upload failed: {exc}")
                 state.mark("upload", status="failed")
                 save_state(pack_dir, state)
 
