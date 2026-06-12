@@ -52,6 +52,7 @@ DEFAULT_ENV: dict[str, str] = {
     "ALLOW_SCRIPT_TIMING_FALLBACK": "false",
     "VISUAL_STYLE": "ai_video",
     "REPLICATE_VIDEO_MODEL": "minimax/video-01",
+    "REPLICATE_VIDEO_MODEL_JUMPSCARE": "minimax/hailuo-2.3-fast",
 }
 
 PLACEHOLDER_FRAGMENTS = (

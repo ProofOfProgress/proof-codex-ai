@@ -110,12 +110,60 @@ def finish_draft_pipeline(
 
     ensure_paid_stack_ready()
 
+    from shorts_bot.production.pipeline_lock import pipeline_lock
+
     draft = store.get_draft(draft_id)
     pack_dir = settings.data_dir / "production" / f"draft_{draft_id}"
     pack_dir.mkdir(parents=True, exist_ok=True)
+
+    with pipeline_lock(draft_id):
+        return _run_pipeline_locked(
+            store,
+            draft_id,
+            draft=draft,
+            pack_dir=pack_dir,
+            upload_youtube=upload_youtube,
+            resume=resume,
+        )
+
+
+def _run_pipeline_locked(
+    store: MemoryStore,
+    draft_id: int,
+    *,
+    draft,
+    pack_dir: Path,
+    upload_youtube: bool | None,
+    resume: bool,
+) -> PipelineResult:
+    import time
+
+    from shorts_bot.production.horror_guard import (
+        ensure_horror_voice_before_pipeline,
+        guard_after_humanize,
+    )
+    from shorts_bot.production.pipeline_integrity import (
+        clear_render_artifacts,
+        content_stamp_stale,
+        write_content_stamp,
+    )
+
     state = load_state(pack_dir, draft_id)
     messages: list[str] = []
     timings: dict[str, float] = {}
+
+    pre = ensure_horror_voice_before_pipeline(
+        store,
+        draft_id,
+        hook=draft.hook,
+        script=draft.script,
+        help_angle=draft.help_angle,
+        topic=draft.topic,
+    )
+    if pre.repaired:
+        messages.append(pre.message)
+        draft = store.get_draft(draft_id)
+        resume = False
 
     def _step(name: str):
         return time.perf_counter()
@@ -162,22 +210,48 @@ def finish_draft_pipeline(
         messages.append("Resume: skipped humanize (checkpoint)")
     else:
         finalized = finalize_script(draft.topic, draft.hook, draft.script, draft.help_angle)
-        store.update_draft_content(
+        guarded = guard_after_humanize(
+            store,
             draft_id,
             hook=finalized.hook,
             script=finalized.script,
             help_angle=finalized.help_angle,
+            topic=draft.topic,
+        )
+        store.update_draft_content(
+            draft_id,
+            hook=guarded.hook,
+            script=guarded.script,
+            help_angle=guarded.help_angle,
             quality_notes=f"AI score {finalized.final_ai_score}/100 after {finalized.passes} passes",
         )
-        messages.append(finalized.message)
+        msg = finalized.message
+        if guarded.repaired:
+            msg = f"{msg} | {guarded.message}"
+            for step in ("voiceover", "transcript", "pack", "render", "vision_qc"):
+                state.steps.pop(step, None)
+            save_state(pack_dir, state)
+        messages.append(msg)
         log_path = pack_dir / "ai_detect_log.txt"
         log_path.write_text(
-            finalized.message + "\nscores: " + str(finalized.scores_log) + "\n",
+            msg + "\nscores: " + str(finalized.scores_log) + "\n",
             encoding="utf-8",
         )
         state.mark("humanize")
         save_state(pack_dir, state)
     draft = store.get_draft(draft_id)
+    stamp_was_stale = content_stamp_stale(pack_dir, hook=draft.hook, script=draft.script)
+    clips_dir = pack_dir / "clips"
+    if stamp_was_stale and clips_dir.is_dir() and any(clips_dir.glob("*.mp4")):
+        cleared = clear_render_artifacts(pack_dir)
+        if cleared:
+            messages.append(
+                f"Stale I2V artifacts cleared ({len(cleared)} files) — script/content changed"
+            )
+            for step in ("voiceover", "transcript", "pack", "render", "vision_qc"):
+                state.steps.pop(step, None)
+            save_state(pack_dir, state)
+    write_content_stamp(pack_dir, hook=draft.hook, script=draft.script)
     _write_voice_script(pack_dir, draft.hook, draft.script)
     _end("humanize", t0)
 
@@ -438,7 +512,7 @@ def finish_draft_pipeline(
                 if settings.post_upload_cta_comment:
                     from shorts_bot.youtube.post_upload import post_upload_cta_comment
 
-                    cta_id = post_upload_cta_comment(up.video_id)
+                    cta_id = post_upload_cta_comment(up.video_id, draft_id=draft_id)
                     if cta_id:
                         messages.append(f"Post-upload CTA comment posted ({cta_id[:16]}…)")
                 if settings.post_upload_analytics_sync:

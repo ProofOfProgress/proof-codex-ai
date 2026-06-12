@@ -8,8 +8,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-from shorts_bot.production.framing import framing_notes_for_prompt
+from shorts_bot.production.framing import framing_notes_for_prompt, screen_text_prompt_note
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
+from shorts_bot.production.horror_lane import analog_color_rules, horror_lane_compact
+from shorts_bot.production.world import world_visual_continuity
 
 ModelHint = Literal["kling", "runway", "veo", "pika", "luma", "hailuo", "auto"]
 
@@ -54,8 +56,11 @@ def visual_dna() -> str:
         "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
         "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
         "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
-        "Faceless until scare beat: silhouettes, POV, phone screens, hallway depth — no identifiable faces until final lunge. "
-        "Motion: slow dread drift or locked static; final beat may snap fast toward camera."
+        "Faceless until scare beat: silhouettes, CCTV POV, hallway depth — no phones, no identifiable faces until final lunge. "
+        "Motion: slow dread drift or locked static; final beat may snap fast toward camera. "
+        f"{world_visual_continuity()} "
+        f"{analog_color_rules()} "
+        f"{horror_lane_compact()}"
     )
 
 
@@ -63,12 +68,23 @@ def negative_block() -> str:
     return (
         "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
         "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
+        "no smartphone, no mobile phone, no hands holding phone, no phone screen, no UI bezel, "
         "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood"
     )
 
 
-def templates() -> list[VideoTemplate]:
-    """Ten production templates — Don't Blink horror Short beats."""
+PHONE_TEMPLATE_IDS = frozenset(
+    {
+        "wrong_text_delivered",
+        "photo_corner_figure",
+        "muted_call_breath",
+        "face_unlock_wrong",
+    }
+)
+
+
+def _all_templates() -> list[VideoTemplate]:
+    """Full template pool — includes phone beats when lane allows them."""
     return [
         VideoTemplate(
             id="mirror_blink",
@@ -183,6 +199,20 @@ def templates() -> list[VideoTemplate]:
             role="false_calm",
         ),
         VideoTemplate(
+            id="suspense_replay_hold",
+            name="Suspense into replay",
+            keywords=("watch", "again", "wait", "freeze", "staring", "hold", "replay"),
+            subject="Same dread frame as prior beat — wrong detail barely visible, no lunge",
+            action="Locked hold, micro shadow drift, tension peaks then hard stop — no scare payoff",
+            camera="Slow 2% zoom out, static dread, 9:16 — cut invites Shorts replay",
+            environment="Black crush, cold blue, film grain, underexposed",
+            style="Unresolved horror, replay bait, photoreal, no jumpscare",
+            end_state="Frame holds on wrong detail — viewer replays to catch it",
+            duration_seconds=5.0,
+            model_hint="runway",
+            role="false_calm",
+        ),
+        VideoTemplate(
             id="face_unlock_wrong",
             name="Face unlock without looking",
             keywords=("face unlock", "unlock", "looking", "screen", "selfie"),
@@ -194,6 +224,20 @@ def templates() -> list[VideoTemplate]:
             end_state="Screen shows face you are not making",
             duration_seconds=3.5,
             model_hint="kling",
+            role="escalation",
+        ),
+        VideoTemplate(
+            id="jumpscare_tease",
+            name="Fake scare tease",
+            keywords=("shudder", "flinch", "almost", "something moved", "flicker"),
+            subject="Dark hallway or mirror edge — shape barely visible",
+            action="Brief snap toward camera then freeze — false scare, not full lunge",
+            camera="Quick 0.5s push-in then hard stop, 9:16",
+            environment="Black crush, cold blue, grain",
+            style="Decoy scare tease, photoreal horror",
+            end_state="Frame holds on empty space — bait for real scare later",
+            duration_seconds=2.5,
+            model_hint="hailuo",
             role="escalation",
         ),
         VideoTemplate(
@@ -225,15 +269,35 @@ def templates() -> list[VideoTemplate]:
     ]
 
 
+def templates() -> list[VideoTemplate]:
+    """Active templates — phone beats omitted when screen_text_phone_enabled=false."""
+    pool = _all_templates()
+    from shorts_bot.production.screen_text_spec import phone_screens_enabled
+
+    if phone_screens_enabled():
+        return pool
+    return [t for t in pool if t.id not in PHONE_TEMPLATE_IDS]
+
+
 def _score_template(template: VideoTemplate, text: str) -> int:
     lower = text.lower()
     return sum(1 for kw in template.keywords if kw in lower)
 
 
-def match_template(*, topic: str, spoken_text: str = "") -> VideoTemplate:
+def match_template(
+    *,
+    topic: str,
+    spoken_text: str = "",
+    segment_index: int | None = None,
+) -> VideoTemplate:
     """Pick best template for topic + segment line."""
     combined = f"{topic} {spoken_text}".strip()
-    scored = [(t, _score_template(t, combined)) for t in templates()]
+    pool = templates()
+    if segment_index == 0:
+        hooks = [t for t in pool if t.role == "hook"]
+        if hooks:
+            pool = hooks
+    scored = [(t, _score_template(t, combined)) for t in pool]
     scored.sort(key=lambda x: (-x[1], x[0].id))
     if scored[0][1] > 0:
         return scored[0][0]
@@ -243,7 +307,7 @@ def match_template(*, topic: str, spoken_text: str = "") -> VideoTemplate:
         id="derived_horror",
         name=f"Derived horror — {scene[:40]}",
         keywords=(),
-        subject="Dark hallway, mirror, phone screen, or closet — faceless POV",
+        subject="Dark hallway, mirror, fullscreen CCTV, or closet — faceless POV, no phones",
         action=f"Slow uncanny motion then wrong detail: {scene}",
         camera="Slow push-in or locked static, horror framing, 9:16",
         environment="Black and cold blue, film grain, liminal empty room",
@@ -275,20 +339,27 @@ def segment_to_video_prompt(
     template: VideoTemplate | None = None,
     continuity_in: str | None = None,
     clip_index: int = 0,
+    visual_beat: str | None = None,
 ) -> str:
     """Build one I2V/T2V clip prompt using the 5-part framework."""
-    tmpl = template or match_template(topic=topic, spoken_text=seg.text)
+    tmpl = template or match_template(
+        topic=topic, spoken_text=seg.text, segment_index=clip_index
+    )
     scene_line = seg.text.strip() or topic
     continuity = ""
     if continuity_in:
         continuity = f"CONTINUITY IN: {continuity_in}. "
+    shot_dir = ""
+    if visual_beat:
+        shot_dir = f"SHOT DIRECTION (approved beat): {visual_beat}. "
 
     parts = [
         visual_dna(),
         continuity,
+        shot_dir,
         f"SUBJECT: {tmpl.subject}. ",
         f"ACTION: {tmpl.action} — beat: {scene_line}. ",
-        f"CAMERA: {tmpl.camera}. {framing_notes_for_prompt()} ",
+        f"CAMERA: {tmpl.camera}. {framing_notes_for_prompt()} {screen_text_prompt_note()} ",
         f"ENVIRONMENT: {tmpl.environment}. ",
         f"STYLE: {tmpl.style}. ",
         f"END STATE: {tmpl.end_state}. ",
@@ -303,6 +374,8 @@ def build_video_prompt_briefs(
     *,
     topic: str,
     total_duration: float | None = None,
+    visual_beats: list[str] | None = None,
+    jumpscare_plan=None,
 ) -> list[VideoPromptBrief]:
     """One video prompt per AV segment, with END STATE → CONTINUITY IN chaining."""
     if not segments:
@@ -321,18 +394,32 @@ def build_video_prompt_briefs(
         else:
             end = seg.start_seconds + 5.0
 
-        tmpl = match_template(topic=topic, spoken_text=seg.text)
-        if i == len(segments) - 1 and tmpl.role != "jumpscare":
+        tmpl = match_template(topic=topic, spoken_text=seg.text, segment_index=i)
+        if jumpscare_plan is not None:
+            primary = int(jumpscare_plan.primary_segment_index)
+            profile = getattr(jumpscare_plan, "profile", "finale")
+            has_js = getattr(jumpscare_plan, "has_jumpscare", profile != "suspense_replay")
+            lunge = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
+            replay_hold = next((t for t in templates() if t.id == "suspense_replay_hold"), None)
+            if profile == "suspense_replay" and i == len(segments) - 1 and replay_hold:
+                tmpl = replay_hold
+            elif has_js and i == primary and lunge:
+                tmpl = lunge
+        elif i == len(segments) - 1 and tmpl.role != "jumpscare":
             jumpscare = next((t for t in templates() if t.id == "jumpscare_lunge"), None)
             if jumpscare:
                 tmpl = jumpscare
 
+        from shorts_bot.drafts.meta import visual_beat_for_segment
+
+        beat_hint = visual_beat_for_segment(visual_beats, i, len(segments))
         prompt = segment_to_video_prompt(
             seg,
             topic=topic,
             template=tmpl,
             continuity_in=prev_end_state,
             clip_index=i,
+            visual_beat=beat_hint,
         )
         stem = label_from_seconds(seg.start_seconds)
         duration = min(max(end - seg.start_seconds, 2.5), 8.0)

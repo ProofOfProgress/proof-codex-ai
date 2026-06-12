@@ -114,10 +114,21 @@ Sources used: {", ".join(self.research_sources) or "llm+course"}
         return self.draft_context()[:max_chars]
 
 
+_CREDIBLE_SOURCES_BLOCK = """
+CREDIBLE SOURCES (mandatory — cite in quality_notes / web_sources):
+- Tier A: peer-reviewed journals (Frontiers, PMC, Brill), academic film-sound theses, DOI papers
+- Tier B: expert institutions (The Conversation, university research), established film-sound scholarship (Kerins, Chion, Redfern)
+- Tier C: practitioner craft (CapCut guides, sound-design educators) — workflow only, not psychology claims
+- REJECT: using random listicles or TikTok tips as sole evidence for scare mechanics
+- Horror audio: prioritize ASE/startle-reflex literature + integrated soundtrack studies (music + SFX + silence)
+See: data/research/HORROR_SOUND_EFFECTS_RESEARCH.md
+"""
+
 _RESEARCH_PROMPT = """You are a YouTube Shorts production researcher for faceless HORROR channel Don't Blink.
 
 Your job: DEEP RESEARCH on terrifying micro-stories (~30s, jumpscare at end). Use web data, competitors, keyword signals.
 Cross-check Jenny hook/retention rules. Ground answers in horror psychology (prediction error, tension, earned scares).
+""" + _CREDIBLE_SOURCES_BLOCK + """
 
 NICHE POSITIONING:
 {niche_block}
@@ -138,7 +149,7 @@ GOOGLE TRENDS:
 {trends_context}
 
 JENNY HOYOS (adapt for horror):
-- 02: hook in first line, start with impossible detail
+- 02: hook in first line, start with something clearly wrong
 - 05: captions above Shorts UI safe zone
 - 06: cause-effect beats, payoff = jumpscare at end
 - 07: retention via false calm before scare
@@ -149,13 +160,13 @@ Return JSON only:
 {{
   "viewer_moment": "the uncanny second before reality breaks",
   "emotional_stakes": "what the viewer fears losing (safety, control, sanity)",
-  "hook_angles": ["3 hooks — impossible detail, under 12 words each"],
+  "hook_angles": ["3 hooks — clear wrong detail, under 12 words each"],
   "script_beats": ["6-8 beats: hook, escalation, micro-cues, false calm, jumpscare, linger"],
   "visual_framing": "AI I2V horror clips — hallway/mirror/phone; final beat full-frame scare; Jenny 05 captions",
   "competitor_gap": "what horror Shorts miss — cite competitor/web patterns",
-  "title_formula": "🔊 VOLUME WARNING style title + impossible detail + #horror #shorts",
+  "title_formula": "🔊 VOLUME WARNING style title + hook line + #horror #shorts",
   "jenny_citations": ["Jenny 05", "Jenny 06"],
-  "quality_notes": "tension + earned scare; avoid cosy/self-help tone and stick figures",
+  "quality_notes": "tension + earned scare; cite Tier A/B sources for any audio/scare claims; avoid cosy tone",
   "recommended_path": "pipeline: research → draft → ai_video pack → render → upload — one paragraph",
   "suggested_tags": ["8-12 horror YouTube backend tags — horror shorts, jumpscare, topic-specific"],
   "suggested_hashtags": ["3-5 description hashtags — #Horror #HorrorShorts #Jumpscare + topic-specific"],
@@ -358,11 +369,11 @@ def _offline_research(topic: str, *, external: dict | None = None) -> Production
         emotional_stakes="They'll say something they'll regret or shut down completely.",
         hook_angles=[
             f"You blinked — {topic} one second later.",
-            f"The impossible detail: {topic}.",
+            f"Something is wrong: {topic}.",
             f"Watch the mirror. {topic}.",
         ],
         script_beats=[
-            "Hook — impossible detail in line 1",
+            "Hook — something clearly wrong in line 1",
             "Escalation — each beat adds worse wrongness",
             "Micro-cue — sound/visual fracture",
             "False calm — quiet VO, bait the swipe",

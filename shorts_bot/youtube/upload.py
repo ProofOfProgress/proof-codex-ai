@@ -16,15 +16,15 @@ class UploadResult:
     message: str
 
 
-def upload_short(
+def _upload_mp4(
     video_path: Path,
     *,
     title: str,
     description: str,
     tags: list[str],
-    visibility: str = "unlisted",
+    visibility: str,
+    url_template: str,
 ) -> UploadResult:
-    """Upload MP4 as YouTube Short. Requires youtube.upload OAuth scope."""
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload
 
@@ -67,11 +67,49 @@ def upload_short(
         if status:
             pass
     vid = response["id"]
-    url = f"https://youtube.com/shorts/{vid}"
+    url = url_template.format(vid=vid)
     return UploadResult(
         video_id=vid,
         video_url=url,
         message=f"Uploaded to YouTube ({visibility}): {url}",
+    )
+
+
+def upload_short(
+    video_path: Path,
+    *,
+    title: str,
+    description: str,
+    tags: list[str],
+    visibility: str = "unlisted",
+) -> UploadResult:
+    """Upload MP4 as YouTube Short. Requires youtube.upload OAuth scope."""
+    return _upload_mp4(
+        video_path,
+        title=title,
+        description=description,
+        tags=tags,
+        visibility=visibility,
+        url_template="https://youtube.com/shorts/{vid}",
+    )
+
+
+def upload_video(
+    video_path: Path,
+    *,
+    title: str,
+    description: str,
+    tags: list[str],
+    visibility: str = "unlisted",
+) -> UploadResult:
+    """Upload MP4 as standard long-form video (16:9). Same API as Shorts."""
+    return _upload_mp4(
+        video_path,
+        title=title,
+        description=description,
+        tags=tags,
+        visibility=visibility,
+        url_template="https://youtube.com/watch?v={vid}",
     )
 
 

@@ -1,15 +1,21 @@
-"""Niche — Don't Blink (faceless horror Shorts, end jumpscare)."""
+"""Niche — Peripheral (faceless horror Shorts, end jumpscare)."""
 
 from __future__ import annotations
 
-NICHE_NAME = "Don't Blink"
+from shorts_bot.production.world import WORLD_NAME, world_rules_compact
+
+NICHE_NAME = "Peripheral"
 NICHE_TAGLINE = "Watch the whole thing."
 
-NICHE_POSITIONING = """
-Don't Blink — **terrifying faceless horror Shorts** (~30 seconds).
+NICHE_POSITIONING = f"""
+Peripheral — **faceless horror Shorts** (~30 seconds). Anthology dread — watched, stalked, almost in frame.
+Optional texture in **{WORLD_NAME}** when stories share mood; rotate scare pillars, not one template.
 
-Every video: one micro-story → tension builds → **loud visual jumpscare in the last 3 seconds**.
-AI full-motion clips only (no stick figures). Faceless — eyes, hallways, phones, shadows, never cosy self-help.
+Every video: another alone-at-night night in one liminal apartment → tension builds → **jumpscare in the last 3 seconds**.
+AI full-motion clips only (no stick figures). Faceless — eyes, hallways, CCTV, shadows, never cosy self-help.
+Merch tagline: *don't blink* — not the channel name.
+
+{world_rules_compact()}
 
 Pillars (rotate):
 1. **Wrong place** — empty room, locked door, hallway that wasn't there yesterday
@@ -19,7 +25,7 @@ Pillars (rotate):
 5. **Wrong text** — last message from a deleted contact, autocorrect to something impossible
 
 Format rules:
-- Hook in line 1 (impossible detail, not "scary story #12")
+- Hook in line 1 (something clearly wrong — timestamp, reflection, text, knock — not "scary story #12")
 - 6–8 beats, cut every 2–3s, visual change each beat
 - Beat 6–7: false calm (quiet VO, slow motion) — bait the swipe
 - Final beat: full-frame scare + audio sting (🔊 volume warning in title/description)
@@ -65,7 +71,7 @@ DEFAULT_TOPICS = [
 
 def quality_lessons() -> str:
     return (
-        "Better: impossible hook in line 1, 6–8 paced beats, false calm before scare, "
+        "Better: strong wrong-detail hook in line 1, 6–8 paced beats, false calm before scare, "
         "AI motion clips synced to VO, jumpscare on final beat with audio sting. "
         "Worse: generic 'scary story', cosy self-help tone, stick figures, 60s slow build, "
         "same scare every upload. Always: 🔊 volume warning, captions in Jenny 05 safe zone, "

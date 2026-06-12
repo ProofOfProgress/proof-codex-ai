@@ -45,4 +45,4 @@ def test_upload_warns_same_pillar(tmp_path, monkeypatch):
         script=script.replace("blinked later", "blinked again"),
         title="Mirror 2",
     )
-    assert any("scare pillar" in w for w in report.warnings)
+    assert any("scare pillar" in i for i in report.issues)

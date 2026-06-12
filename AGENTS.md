@@ -19,13 +19,53 @@
 
 **User:** Not a coder — explain in plain English, one step at a time.
 
+**Long jobs (Replicate I2V, regen, QC):** always run in the **background** and do other work in parallel (docs, tests, commits, prompt fixes). Never sit idle waiting on shell — poll every 1–2 min.
+
+**Video generation (owner rule):** `AI_VIDEO_GENERATION_ENABLED=false` by default — **no new Replicate I2V/FLUX** unless owner asks. Keep improving code, overlays, captions, upload meta, tests. **Render-only OK:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (runs pack health first). **Pre-flight:** `python3 -m shorts_bot.production.pack_health_cli --draft-id N`.
+
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for **Don't Blink** horror Shorts. Course KB in `course/files/` (01–09). **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. Applied learnings: `data/research/APPLIED_RESEARCH_ROUND_2.md`.
+**Shorts Bot** — Jenny Hoyos strategist CLI for **Peripheral** horror Shorts (merch tagline: *don't blink*). Knowledge base: **Codex** (`course/files/` 01–09, research, brand, learned rules). See `docs/CODEX.md`. **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. Applied learnings: `data/research/APPLIED_RESEARCH_ROUND_2.md`.
 
-**Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).
+**Channel brand:** **Peripheral** (display name). Merch tagline: *don't blink* under line-eye logo. Spec: `channel/brand/identity.md`.
+
+**Codex Q&A:** Search + Gemini over the full knowledge base (not just course 01–09):
+
+```bash
+python3 -m shorts_bot.codex ask "how do I build suspense in my horror short?"
+python3 -m shorts_bot.codex search suspense retention   # manual ranked passages
+python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md
+```
+
+Agent tools: `ask_codex`, `search_codex`, `read_codex_file`. See `docs/CODEX.md`.
+
+**Formats:** Shorts now; long-form via **asset reuse** — `docs/CONTENT_FORMATS.md`, `data/PRIORITY_LONG_FORM.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
+
+**Long-form (no new I2V):** stitch 3+ finished Shorts → 16:9 blur pillarbox; QC + chapters before upload.
+
+```bash
+python3 -m shorts_bot.production.winner_selection_cli --limit 3
+python3 -m shorts_bot.production.long_compilation_cli --draft-ids 2,3,1
+python3 -m shorts_bot.production.long_quality_cli --pack-dir data/production/long_compilation_001
+python3 -m shorts_bot.production.upload_long_cli --pack-dir data/production/long_compilation_001
+```
+
+**Visual grammar (default):** fullscreen **CCTV** for security-cam drafts — **no phone screens**. Time via **alarm clock** or REC OSD (`screen_text_phone_enabled=false`).
+
+**Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. **Universe:** all Shorts live in **The Gap** (`channel/brand/world.md`, `shorts_bot/production/world.py`) — same alone-at-night apartment, lag between reality and recordings, 3:12 AM glitch hour. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).
 
 **Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
+
+**QA previews (YPP-safe):** Compare renders **locally** (`final_short_vN.mp4`). Do **not** upload `(build vN …)` iterations to YouTube under `YPP_SAFE_MODE` — batch QA uploads are **banned** (Jul 2025 inauthentic-content policy). One public/unlisted upload per draft max; 1 Short / 24h.
+
+```bash
+# Local render only — no YouTube upload for iteration builds
+python3 -m shorts_bot.production.render_jumpscare_cli --draft-id 3 --render
+# Single owner-approved upload (no build suffix, no --allow-duplicate-draft):
+python3 -m shorts_bot.production.upload_canonical_cli --draft-id 3 --video data/production/draft_3/final_short_v21_cctv.mp4
+```
+
+See `docs/YPP_ANTI_SHADOWBAN.md` and `shorts_bot/compliance/ypp_bans.py`.
 
 ### Services
 
@@ -78,9 +118,9 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 **Browser:** Playwright Chromium + `data/browser_profile/`. Discord/chat: `browse <url>`, `browser open vidiq`. Agent tools: `browse_web`, `open_browser`. `python3 -m shorts_bot.browser.cli status`. See `docs/BROWSER.md`.
 
-### Course
+### Codex (knowledge base)
 
-Jenny Hoyos course is in `course/`. Router picks files 01–09 per user message. Offline: `course <question>` and `free tools` commands.
+**Codex** is the knowledge base name — Jenny strategist files in `course/files/` (01–09). Router picks files per user message. Offline: `course <question>` and `free tools` commands. See `docs/CODEX.md`.
 
 ### Reward & self-training
 

@@ -49,16 +49,35 @@ Seeded from `data/operating_rules_seed.md` and `shorts_bot/compliance/inauthenti
 **Blocks upload when:**
 
 - Spam-farm phrase in script/hook
-- No first-person voice in script (`I`, `my`, `me`, etc.)
+- No personal voice in script (need immersive `you` or lived-experience `I` — not lecture mode)
 - Already hit `MAX_UPLOADS_PER_24H` (default: 1)
 - Less than `MIN_HOURS_BETWEEN_UPLOADS` since last upload (default: 20h)
 - Same topic within `TOPIC_COOLDOWN_DAYS` (default: 7)
 - Same hook within `HOOK_COOLDOWN_DAYS` (default: 14)
-- Script Jaccard overlap ≥ `MAX_SCRIPT_OVERLAP_RATIO` (default: 65%) vs recent upload
+- Script Jaccard overlap ≥ `MAX_SCRIPT_OVERLAP_RATIO` (default: 50%) vs recent upload
+- **QA iteration titles** `(build vN …)` — mass same-topic uploads
+- **`allow_duplicate_draft`** — re-uploading same draft_id (banned under YPP_SAFE_MODE)
+- **`upload_series_cli`** — batch upload of all builds (banned unless `YPP_ALLOW_BATCH_SERIES_UPLOAD=true`)
+- Hashtags in titles, engagement-bait metadata ("you won't believe", "watch till the end")
+- Same scare pillar as previous upload (must rotate reflection / knock / cam / text)
+- Duplicate approved draft topic (template repetition)
 
-**Warnings only:** thin script, spammy title patterns, duplicate approved draft topic.
+**Unlisted QA uploads** count toward the 24h cap (`UNLISTED_QA_BYPASS_UPLOAD_COOLDOWN=false` by default).
 
 `auto_daily` calls the same pipeline — render may complete, upload skipped if guard blocks.
+
+### Hard-banned operations (`shorts_bot/compliance/ypp_bans.py`)
+
+| Operation | Why |
+|-----------|-----|
+| `upload_series_cli` (7 builds / 1 draft) | Mass-produced inauthentic signal |
+| `--allow-duplicate-draft` | Same script/topic flood |
+| `(build vN …)` in title | QA iteration spam on channel |
+| Hashtags in title | Tag-stuffing / misleading metadata |
+| `AUTO_UPLOAD_YOUTUBE=true` + `public` without review | No human editorial layer |
+| `auto_daily` + auto-approve to public | Factory channel at scale |
+
+Preview iterations **locally only** until one owner-approved upload passes guard.
 
 ### Human layer (counts as creative input)
 
@@ -80,10 +99,16 @@ MAX_UPLOADS_PER_24H=1
 MIN_HOURS_BETWEEN_UPLOADS=20
 TOPIC_COOLDOWN_DAYS=7
 HOOK_COOLDOWN_DAYS=14
-MAX_SCRIPT_OVERLAP_RATIO=0.65
+MAX_SCRIPT_OVERLAP_RATIO=0.50
+UNLISTED_QA_BYPASS_UPLOAD_COOLDOWN=false
+YPP_ALLOW_BATCH_SERIES_UPLOAD=false
+AUTO_APPROVE_DRAFTS=false
+AUTO_UPLOAD_YOUTUBE=false
+YOUTUBE_UPLOAD_VISIBILITY=unlisted
+AUTO_DAILY_ENABLED=false
 ```
 
-Set `YPP_SAFE_MODE=false` only when you intentionally override (e.g. manual burst upload with user approval).
+Set `YPP_SAFE_MODE=false` only when you intentionally override (e.g. non-monetized test channel with owner approval). Never disable on a channel applying for or maintaining YPP.
 
 ## If YPP rejects or demonetizes
 

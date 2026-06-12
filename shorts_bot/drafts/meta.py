@@ -35,3 +35,17 @@ def save_draft_meta(draft_id: int, **fields) -> dict:
 def visual_beats_for_draft(draft_id: int) -> list[str]:
     beats = load_draft_meta(draft_id).get("visual_beats") or []
     return [str(b).strip() for b in beats if str(b).strip()]
+
+
+def visual_beat_for_segment(
+    visual_beats: list[str] | None,
+    index: int,
+    total_segments: int,
+) -> str | None:
+    """Map segment index to approved visual beat (handles beat/segment count mismatch)."""
+    if not visual_beats:
+        return None
+    if total_segments <= 1:
+        return visual_beats[0]
+    pos = round(index / (total_segments - 1) * (len(visual_beats) - 1))
+    return visual_beats[min(max(pos, 0), len(visual_beats) - 1)]

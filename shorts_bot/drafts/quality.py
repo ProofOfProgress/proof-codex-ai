@@ -110,10 +110,10 @@ def run_quality_checks(
         warnings.append(f"Script may be long for a horror Short ({word_count} words). Keep under ~35s.")
 
     if len(hook.strip()) < 12:
-        issues.append("Hook is too weak — need a specific impossible detail in line 1.")
+        issues.append("Hook is too weak — need something clearly wrong in line 1.")
 
     if len(help_angle.strip()) < 20:
-        issues.append("Scare angle is vague. Name scare type (reflection/knock/glitch/lunge) and the impossible hook.")
+        issues.append("Scare angle is vague. Name scare type (reflection/knock/glitch/lunge) and the hook.")
 
     lowered = script.lower()
     hook_lower = hook.lower()
@@ -128,10 +128,19 @@ def run_quality_checks(
 
     for phrase in GENERIC_CREEPY_PHRASES:
         if phrase in lowered:
-            warnings.append(f"Generic horror framing: '{phrase}' — swap for a specific impossible detail.")
+            warnings.append(f"Generic horror framing: '{phrase}' — swap for a specific wrong detail.")
 
     if re.search(r"\b(i used to|this helped me|my therapist|same loop every night)\b", lowered):
         issues.append("Self-help first-person voice — use second-person 'you' horror micro-story.")
+
+    from shorts_bot.config import settings
+    from shorts_bot.production.jenny_checks import check_jenny_voice
+
+    for issue in check_jenny_voice(script, hook):
+        if settings.pipeline_block_voice_drift:
+            issues.append(issue)
+        else:
+            warnings.append(issue)
 
     if not re.search(r"\byou\b", lowered):
         warnings.append("Missing singular 'you' — Don't Blink scripts are second-person micro-stories.")
@@ -159,21 +168,18 @@ def run_quality_checks(
     )
     if not any(c in hook_lower for c in impossible_cues):
         warnings.append(
-            "Hook may lack an impossible detail — lead with timestamp/reflection/text/knock wrongness."
+            "Hook may lack a clear wrong detail — lead with timestamp/reflection/text/knock wrongness."
         )
 
     if not any(c in lowered for c in FALSE_CALM_CUES):
         msg = "No false-calm beat detected — add a quiet 'maybe it was nothing' moment before the scare."
-        from shorts_bot.config import settings
-
         if settings.launch_quality_strict:
             issues.append(msg)
         else:
             warnings.append(msg)
 
-    tail = lowered[-120:]
-    if not any(c in tail for c in JUMPSCARE_CUES):
-        warnings.append("Final lines may not cue a jumpscare — end on a visual scare trigger.")
+    if not any(c in lowered for c in JUMPSCARE_CUES):
+        warnings.append("Script may not cue a jumpscare — include lunge/turn/face/scream trigger on scare line.")
 
     if not re.search(r"[.!?]", script):
         warnings.append("Script has no sentence endings. Add clearer pacing.")

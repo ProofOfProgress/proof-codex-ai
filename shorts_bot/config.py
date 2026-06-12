@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     google_trends_timeframe: str = "today 3-m"
     research_cache_days: int = 7  # 0 = never expire cached deep research
     course_dir: Path = Path("course")
+    # Codex search + ask (BM25 over markdown; Gemini answers when key set)
+    codex_search_max_chunks: int = 8
+    codex_max_context_chars: int = 12000
     browser_profile_dir: Path = Path("data/browser_profile")
     browser_screenshot_dir: Path = Path("data/screenshots")
     browser_enabled: bool = True
@@ -49,8 +52,8 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "Don't Blink"
-    channel_series_name: str = "Don't Blink"
+    youtube_channel_name: str = "Peripheral"
+    channel_series_name: str = "Peripheral"
     channel_tagline: str = "Watch the whole thing."
     web_host: str = "127.0.0.1"
     web_port: int = 8080
@@ -91,6 +94,8 @@ class Settings(BaseSettings):
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
+    # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
+    content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
 
     @field_validator("visual_style", mode="before")
     @classmethod
@@ -101,11 +106,26 @@ class Settings(BaseSettings):
             return "ai_video"
         return s
 
+    # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
+    ai_video_generation_enabled: bool = False
+
     # Paid image generation (Replicate FLUX or Fal.ai)
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
-    replicate_video_model: str = "minimax/video-01"  # I2V when VISUAL_STYLE=ai_video
+    replicate_video_model: str = "minimax/video-01"  # I2V default / escalation beats
+    replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
+    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
+    jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
+    screen_text_overlay_enabled: bool = True  # composited CCTV / alarm-clock UI (not AI-generated glyphs)
+    screen_text_phone_enabled: bool = False  # no phone screens — fullscreen CCTV + alarm clock for time
+    screen_text_screen_only: bool = True  # legacy phone rect mode (off while screen_text_phone_enabled=false)
+    screen_text_draw_phone_ui: bool = True  # ignored when screen_text_phone_enabled=false
+    jumpscare_auto_generate: bool = False  # requires ai_video_generation_enabled + existing clip preferred
+    jumpscare_clip_play_seconds: float = 2.85  # how long the scare motion plays in the final Short
+    jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
+    jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
+    jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off
     ai_video_max_beats: int = 10  # cap Replicate I2V cost per Short (launch week: full beats)
     ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
     ai_video_timeout_sec: int = 600  # per-clip Replicate poll timeout
@@ -119,7 +139,7 @@ class Settings(BaseSettings):
     burn_in_subtitles: bool = True  # legacy alias — True when caption_mode=ffmpeg
 
     # ffmpeg export — Shorts quality (see docs/SHORTS_ALIGNMENT.md)
-    video_crf: int = 18
+    video_crf: int = 16
     video_preset: str = "slow"
     video_audio_bitrate_k: int = 192
     video_ken_burns: bool = False  # subtle zoom per segment (slower render)
@@ -127,11 +147,15 @@ class Settings(BaseSettings):
     video_max_duration_seconds: float = 58.0
     video_qc_blocks_upload: bool = True
 
-    # Jumpscare audio sting — layered on final seconds of voiceover at render
-    jumpscare_sting_enabled: bool = True
+    # Horror SFX — agent-mixed procedural cues + finale stinger at render (replaces raw noise sting)
+    horror_sfx_enabled: bool = True
+    # Legacy white-noise sting (off when horror_sfx_enabled)
+    jumpscare_sting_enabled: bool = False
     jumpscare_sting_seconds: float = 2.5
     jumpscare_sting_gain: float = 2.2
     jumpscare_sting_mix: float = 0.9
+    # Unlisted QA uploads skip 24h cooldown (owner preview / SFX validation)
+    unlisted_qa_bypass_upload_cooldown: bool = False  # YPP: unlisted QA uploads count toward 24h cap
 
     # Gemini vision QC — sparse frames, one batched call (see vision_qc.py)
     vision_qc_enabled: bool = True
@@ -162,11 +186,14 @@ class Settings(BaseSettings):
     post_upload_cta_comment: bool = True  # series engagement comment after API upload
     post_upload_analytics_sync: bool = True
     launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
+    pipeline_exclusive_lock: bool = True  # one finish_cli / Replicate job at a time
+    pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
+    pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail
 
-    # Autopilot — fully AI pipeline, no human approval
-    auto_approve_drafts: bool = True
-    auto_upload_youtube: bool = True
-    youtube_upload_visibility: str = "public"  # owner approved auto-public (no pre-review)
+    # Autopilot — YPP-safe defaults: human review before public monetized uploads
+    auto_approve_drafts: bool = False
+    auto_upload_youtube: bool = False
+    youtube_upload_visibility: str = "unlisted"  # public only after manual Studio review
 
     # Automation — reduce manual sync / Yes-No / publish steps (login & payments still manual)
     auto_analytics_sync: bool = True
@@ -176,7 +203,7 @@ class Settings(BaseSettings):
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
     self_training_enabled: bool = True
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
-    auto_daily_enabled: bool = True
+    auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
@@ -187,9 +214,12 @@ class Settings(BaseSettings):
     ypp_safe_mode: bool = True
     max_uploads_per_24h: int = 1
     min_hours_between_uploads: float = 20.0
+    upload_guard_void_video_ids: list[str] = ["JIkMhPH0l6o"]  # erroneous non-horror upload
     topic_cooldown_days: int = 7
     hook_cooldown_days: int = 14
-    max_script_overlap_ratio: float = 0.65
+    max_script_overlap_ratio: float = 0.50
+    ypp_allow_batch_series_upload: bool = False  # upload_series_cli — banned for monetized channels
+    ypp_block_qa_iteration_titles: bool = True  # block titles like "(build v9 ...)"
     block_duplicate_draft_upload: bool = True  # same draft_id → one upload only
     block_duplicate_title_upload: bool = True  # same title already on channel → block
 
@@ -197,7 +227,7 @@ class Settings(BaseSettings):
     auto_reply_comments: bool = True
     auto_comment_sync: bool = True
     comment_fetch_max: int = 40
-    comment_max_auto_per_run: int = 8
+    comment_max_auto_per_run: int = 3  # scale auto-replies = inauthentic engagement signal
 
     @property
     def has_openai(self) -> bool:

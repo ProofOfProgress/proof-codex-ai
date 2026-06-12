@@ -121,17 +121,33 @@ def generate_voiceover(
         settings.allow_free_tts_fallback and not settings.has_resemble
     ) or (settings.allow_free_tts_fallback and provider_name != "resemble")
 
+    scare_indices: set[int] | None = None
+    if use_horror and draft_id is not None:
+        from shorts_bot.production.jumpscare_timing import load_plan_for_draft, scare_sentence_indices
+        from shorts_bot.production.tts.horror_voice import _split_sentences
+
+        plan = load_plan_for_draft(draft_id, 10)
+        sentences = _split_sentences(spoken)
+        scare_indices = scare_sentence_indices(plan, len(sentences))
+        import json
+
+        (pack_dir / "jumpscare_plan.json").write_text(
+            json.dumps(plan.to_dict(), indent=2),
+            encoding="utf-8",
+        )
+
     if use_horror and use_edge:
         from shorts_bot.production.tts.edge_horror import synthesize_horror_edge
 
         (pack_dir / "voiceover_delivery.txt").write_text(
-            f"horror edge pacing ({len(spoken.split())} words)\n{spoken}",
+            f"horror edge pacing ({len(spoken.split())} words) scare_idx={scare_indices}\n{spoken}",
             encoding="utf-8",
         )
         provider, detail = synthesize_horror_edge(
             spoken,
             out_path,
             voice=voice or settings.tts_voice,
+            scare_indices=scare_indices,
         )
     else:
         tts_input = spoken
@@ -139,7 +155,9 @@ def generate_voiceover(
             from shorts_bot.production.tts.horror_voice import prepare_horror_resemble_ssml
 
             prompt = (settings.resemble_horror_prompt or "").strip() or None
-            tts_input = prepare_horror_resemble_ssml(spoken, prompt=prompt)
+            tts_input = prepare_horror_resemble_ssml(
+                spoken, prompt=prompt, scare_indices=scare_indices
+            )
             (pack_dir / "voiceover_ssml.txt").write_text(tts_input, encoding="utf-8")
 
         provider, detail = synthesize_speech(

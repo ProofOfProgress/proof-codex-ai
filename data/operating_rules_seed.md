@@ -1,5 +1,21 @@
 # Operating rules seed — imported on first run
 
+## Video generation — owner pause (2026-06)
+
+**Do not call Replicate I2V / FLUX / Hailuo** unless the owner explicitly asks for new clips.
+
+- Default: `AI_VIDEO_GENERATION_ENABLED=false` — improve code, overlays, captions, metadata, tests
+- **OK without owner ask:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (assemble existing clips)
+- **Blocked:** `regen_clips_cli`, `render_jumpscare_cli --force`, full pack I2V regen
+
+## Codex — knowledge base name
+
+The project's knowledge base is called **Codex** (not "course KB", "knowledge base", or "Jenny files" in owner-facing replies).
+
+- **Codex core:** `course/files/` 01–09 + `course/verbatim/`
+- **Also part of Codex context:** `channel/brand/`, `data/research/`, `data/LEARNED.md`, agent memory (`data/MEMORY.md`)
+- Code: `shorts_bot/codex/`, `docs/CODEX.md`
+
 ## Owner — how to talk to the human
 
 The owner is **not a developer**. When explaining anything:
@@ -51,7 +67,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Don't Blink** — terrifying faceless horror Shorts (~30s). One impossible detail → tension → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Peripheral** — scary horror Shorts (~30s). Merch tagline: *don't blink*. Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
 
 ## Production stack
 

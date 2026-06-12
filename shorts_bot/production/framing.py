@@ -24,7 +24,7 @@ ACTION_ZONE_BOTTOM_PX = 1080
 ACTION_CENTER_X_RATIO = 0.42
 
 # Captions — lower-middle, above Shorts title/like rail (not flush to bottom)
-CAPTION_BOTTOM_MARGIN_PX = 400
+CAPTION_BOTTOM_MARGIN_PX = 660
 CAPTION_ANCHOR_Y_PX = FRAME_HEIGHT - CAPTION_BOTTOM_MARGIN_PX
 CAPTION_SIDE_MARGIN_PX = 90
 CAPTION_FONT_SIZE = 36
@@ -68,11 +68,25 @@ def framing_notes_for_prompt() -> str:
     )
 
 
-def horror_framing_notes_for_prompt() -> str:
-    """Don't Blink — cinematic horror composition per beat."""
+def screen_text_prompt_note() -> str:
+    """Tell image/I2V models to leave UI areas blank — legible text is composited in post."""
     return (
-        "Cinematic horror 9:16 — subject in upper 55%, harsh contrast, deep shadows, "
-        "cold blue or night-vision green; faceless silhouettes until final scare beat. "
+        "NO smartphones, NO hands holding phones, NO phone screens. "
+        "Fullscreen CCTV / security cam POV only for surveillance beats. "
+        "Alarm clock faces and CCTV HUD areas blank or softly blurred — "
+        "no readable letters, numbers, or UI glyphs in the generated image; "
+        "REC timestamp and clock digits are added in post-production."
+    )
+
+
+def horror_framing_notes_for_prompt() -> str:
+    """Don't Blink — analog horror composition per beat."""
+    from shorts_bot.production.horror_lane import analog_color_rules
+
+    return (
+        "Analog horror 9:16 — subject in upper 55%, harsh contrast, deep shadows, "
+        "faceless silhouettes until final scare beat. "
+        f"{analog_color_rules()} "
         "Bottom 40% clear for captions + Shorts UI. No cosy warm lamp, no cream palette."
     )
 

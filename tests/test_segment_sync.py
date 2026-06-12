@@ -1,5 +1,10 @@
 from shorts_bot.production.script_segments import segments_from_script
-from shorts_bot.production.segment_sync import merge_segments_for_visual_cuts, resolve_segments
+from shorts_bot.production.segment_sync import (
+    merge_segments_for_visual_cuts,
+    normalize_segment_timeline,
+    normalize_transcript_segments,
+    resolve_segments,
+)
 from shorts_bot.production.turboscribe_parser import TranscriptSegment
 
 
@@ -22,6 +27,27 @@ def test_resolve_segments_script_duration(tmp_path):
     segments, source = resolve_segments(script=script, pack_dir=pack, audio_duration=30.0)
     assert source == "script_duration"
     assert len(segments) >= 3
+
+
+def test_normalize_segment_timeline_shifts_and_scales():
+    """Draft #3 bug: first segment at 1.0s, manifest end 33.384, audio 27.4s."""
+    segments = [
+        {"start_seconds": 1.0, "end_seconds": 5.0, "spoken_text": "line one"},
+        {"start_seconds": 5.0, "end_seconds": 33.384, "spoken_text": "line two"},
+    ]
+    normed = normalize_segment_timeline(segments, 27.4)
+    assert abs(normed[0]["start_seconds"] - 0.0) < 0.01
+    assert abs(normed[-1]["end_seconds"] - 27.4) < 0.05
+
+
+def test_normalize_transcript_segments():
+    segs = [
+        TranscriptSegment(1.0, "hook", "00.01"),
+        TranscriptSegment(28.384, "scare", "00.28"),
+    ]
+    normed = normalize_transcript_segments(segs, 27.4)
+    assert normed[0].start_seconds < 0.5
+    assert normed[-1].start_seconds < 27.4
 
 
 def test_resolve_segments_turboscribe_text():

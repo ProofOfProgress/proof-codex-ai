@@ -13,23 +13,27 @@ from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
+from shorts_bot.production.world import world_lore_for_scripts
 
 
-SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write faceless YouTube horror Shorts for Peripheral (~25-35 seconds).
 
-CHANNEL VOICE: Second-person micro-story — "you" discover one impossible wrong detail. Tense, specific, not cosy.
+{world_lore_for_scripts()}
+
+CHANNEL VOICE: Second-person scary story — "you" notice something that should not be real. Tense, specific, not cosy.
 No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
 
 STRUCTURE (earn the jumpscare — write backwards from final scare):
-- Line 1 = impossible hook (timestamp glitch, wrong reflection, text from dead contact)
+- Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)
 - Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
 - Beats 5-6 (12-20s): escalation — sound + visual micro-cues
 - Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
-- Final line (26-30s): jumpscare cue (lunge, slam, lens fill) — then STOP, no explanation
+- JUMPSCARE ROULETTE: timing varies per video — place the scare line where the plan says (early / mid / late / double-tap fake+real). Viewer must NOT predict the hit.
+- Every script still needs ONE clear jumpscare cue (lunge, slam, lens fill) on the primary scare line — then STOP or brief dread coda, no explanation
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
 - Singular "you". ~70-110 words spoken. 9:16 faceless horror.
 
-Return JSON: hook, script, help_angle (one sentence: scare type + why hook is impossible), visual_beats (6-8 horror scene descriptions)."""
+Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
 
 
 @dataclass
@@ -80,7 +84,7 @@ class DraftGenerator:
         return "\n\n".join(parts) if parts else "No approval history yet."
 
     def _horror_course_context(self, topic: str) -> str:
-        base = f"HORROR FORMAT (Don't Blink):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+        base = f"HORROR FORMAT (Peripheral):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
         if self.router:
             from shorts_bot.production.jenny_checks import jenny_retention_guidance
 
@@ -108,7 +112,7 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Don't Blink — terrifying faceless horror, jumpscare at end):
+CHANNEL BRAND (Peripheral — terrifying faceless horror, jumpscare at end):
 {self.brand.draft_instructions()[:1800]}
 
 ENDING RULE: Final spoken line cues the jumpscare, then STOP. No explanation after the scare.
@@ -119,9 +123,9 @@ FORMAT RULES FOR THIS DRAFT:
 {course_ctx}
 
 Return JSON with keys:
-- hook: first spoken line (impossible detail)
+- hook: first spoken line (something clearly wrong)
 - script: full voiceover script (25-35s when read aloud)
-- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook is impossible
+- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook feels wrong
 - visual_beats: list of 6-8 cinematic horror shot descriptions (mute-friendly, one per beat)
 """
         response = self.client.chat.completions.create(
@@ -163,13 +167,13 @@ Return JSON with keys:
             )
             help_angle = "Wrong place — security cam motion while alone; false calm glitch excuse; lens lunge scare."
             visual_beats = [
-                "Phone screen: security app motion alert 3:12 AM, dark apartment",
-                "Live feed hallway empty — timestamp overlay",
-                "Refresh: tall figure closer in frame, grainy night vision",
-                "POV checking door locks, chain still on",
-                "Speaker tap — camera LED flickers",
-                "False calm: empty hallway hold, quiet",
-                "Figure at bed foot staring into camera, night vision green",
+                "Fullscreen fixed CCTV hallway POV, night vision green, motion alert, distant silhouette, NO phone NO hands",
+                "Fullscreen CCTV hallway cam, empty corridor night vision, REC overlay added in post",
+                "Fullscreen CCTV hallway, tall figure closer in frame, grainy night vision, MOTION",
+                "POV door deadbolt close-up, alarm clock on nightstand glowing 3:12 AM, NO phone",
+                "Smart speaker nightstand, alarm clock LED visible, camera LED flicker, NO phone",
+                "False calm: fullscreen CCTV empty hallway hold, quiet",
+                "Fullscreen bedroom CCTV POV, figure at bed foot staring into lens, night vision green",
                 "Full-frame lunge into lens, screen glitch",
             ]
         elif "text" in lower or "delivered" in lower or "message" in lower:
@@ -190,6 +194,27 @@ Return JSON with keys:
                 "Phone glows in dark hallway on its own",
                 "False calm: static chat screen",
                 "Screen morphs to your face screaming full frame",
+            ]
+        elif "photo" in lower or "timestamp" in lower or "next week" in lower:
+            hook = "The photo timestamp says next Tuesday — you took it tonight."
+            script = (
+                f"{hook} "
+                "You opened the gallery. The room in the shot was your kitchen, lights off. "
+                "You told yourself the clock was wrong. You checked the calendar on the fridge — today. "
+                "You zoomed in. Your own back was in the frame, facing the stove. "
+                "You were not in the kitchen. You heard a shutter click behind you. "
+                "You turned. The phone in your hand showed a new photo — taken from inside the closet."
+            )
+            help_angle = "Wrong time — future timestamp on fresh photo; false calm clock glitch; closet POV scare."
+            visual_beats = [
+                "Phone gallery: photo thumbnail, timestamp next Tuesday overlay",
+                "Kitchen dark in photo, you in bedroom POV",
+                "Fridge calendar today — mismatch",
+                "Zoom: your back in frame facing stove",
+                "Shutter click sound cue — hallway still",
+                "False calm: static phone screen",
+                "New photo notification — taken from closet angle",
+                "Closet POV fills frame toward your face",
             ]
         elif "knock" in lower or "closet" in lower:
             hook = "The knock came from inside the closet you never open."
