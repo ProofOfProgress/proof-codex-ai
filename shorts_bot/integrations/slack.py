@@ -369,6 +369,7 @@ def send_test_message() -> tuple[bool, str]:
             via = "webhook"
         return True, f"Posted as {via}"
     return False, (
-        "Post failed — check Gmail app password, Slack channel email address, "
-        "or bot invited to channel"
+        "Post failed — check Gmail app password or Slack channel email. "
+        "If Gmail Sent shows OK but Slack is empty: delete & regenerate channel "
+        "email in Slack Integrations, update SLACK_CHANNEL_EMAIL, re-run install.sh"
     )

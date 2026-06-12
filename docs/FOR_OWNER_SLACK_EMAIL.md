@@ -69,9 +69,13 @@ Subject line = short summary. Body = full text.
 | Symptom | Fix |
 |---------|-----|
 | Gmail auth failed | Use **App Password**, not your normal Gmail password |
-| Nothing in Slack | Confirm `SLACK_CHANNEL_EMAIL` matches Integrations → Email exactly |
+| **Gmail Sent ✓ but nothing in Slack** | Old channel address is broken — `#peripheral-ops` → Integrations → **Delete Address** → **Get Email Address** → update `SLACK_CHANNEL_EMAIL` in Cursor Secrets → `bash scripts/install.sh` |
+| Nothing in Slack (first setup) | Confirm `SLACK_CHANNEL_EMAIL` matches Integrations → Email **exactly** (copy button) |
+| Workspace domain allowlist | Business+ only — add `gmail.com` or disable allowlist (Settings → Restrict who can send emails) |
 | Still asks for bot token | Set `SLACK_POST_MODE=email` and re-run `install.sh` |
 | Message looks ugly | Expected — email format. Upgrade to bot token later if you want polish |
+
+**You do NOT need a Gmail app inside Slack** for Option A — native “Send emails to this channel” is enough. The Slack for Gmail add-on is a different path (manual forward from inbox).
 
 ---
 

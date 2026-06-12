@@ -77,4 +77,10 @@ def post_slack_via_email(
     )
     if not ok:
         log.warning("Slack email post failed: %s", err)
+    else:
+        log.info(
+            "Gmail SMTP accepted message to %s — if Slack channel stays empty, "
+            "regenerate channel email (docs/FOR_OWNER_SLACK_EMAIL.md)",
+            _slack_email_address()[:40],
+        )
     return ok
