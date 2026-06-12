@@ -14,7 +14,7 @@ CODEX_COURSE_ROOT = Path("course")
 CODEX_BLURB = (
     "Codex is the project's knowledge base — Jenny Hoyos strategist files (01–09), "
     "brand/world docs, horror research, and self-learned rules. "
-    "Agents route questions through Codex; do not call it 'course KB' in owner-facing copy."
+    "Search + ask: `python3 -m shorts_bot.codex ask \"your question\"`"
 )
 
 
@@ -23,4 +23,10 @@ def load_codex(course_dir: Path | None = None) -> CourseKnowledgeBase:
     return CourseKnowledgeBase(course_dir or CODEX_COURSE_ROOT)
 
 
-__all__ = ["CODEX_NAME", "CODEX_BLURB", "CODEX_COURSE_ROOT", "CourseKnowledgeBase", "load_codex"]
+__all__ = [
+    "CODEX_NAME",
+    "CODEX_BLURB",
+    "CODEX_COURSE_ROOT",
+    "CourseKnowledgeBase",
+    "load_codex",
+]
