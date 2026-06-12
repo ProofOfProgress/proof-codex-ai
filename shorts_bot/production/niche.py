@@ -8,16 +8,14 @@ NICHE_NAME = "Peripheral"
 NICHE_TAGLINE = "Watch the whole thing."
 
 NICHE_POSITIONING = f"""
-Peripheral — **faceless horror Shorts** (~30 seconds). Anthology dread — watched, stalked, almost in frame.
-Optional texture in **{WORLD_NAME}** when stories share mood; rotate scare pillars, not one template.
-
-Every video: another alone-at-night night in one liminal apartment → tension builds → **jumpscare in the last 3 seconds**.
-AI full-motion clips only (no stick figures). Faceless — eyes, hallways, CCTV, shadows, never cosy self-help.
+Peripheral — **faceless horror Shorts** (~30 seconds). Each upload = **one Black Mirror episode** compressed: premise → escalation → twist → sting.
+Anthology — rotate settings ({WORLD_NAME} apartment, village curse-sign, warehouse pit); same episode grammar, different mask.
+AI full-motion clips only (no stick figures). Eyes, hallways, CCTV, masks — never cosy self-help.
 Merch tagline: *don't blink* — not the channel name.
 
 {world_rules_compact()}
 
-Pillars (rotate):
+Episode pillars (rotate):
 1. **Wrong place** — empty room, locked door, hallway that wasn't there yesterday
 2. **Wrong time** — timestamp glitch, photo taken after death, 3am notification
 3. **Wrong reflection** — mirror, window, phone screen shows someone else
@@ -25,14 +23,14 @@ Pillars (rotate):
 5. **Wrong text** — last message from a deleted contact, autocorrect to something impossible
 
 Format rules:
-- Hook in line 1 (something clearly wrong — timestamp, reflection, text, knock — not "scary story #12")
-- 6–8 beats, cut every 2–3s, visual change each beat
-- Beat 6–7: false calm (quiet VO, slow motion) — bait the swipe
-- Final beat: full-frame scare + audio sting (🔊 volume warning in title/description)
-- 25–35s total length — not 60s slow burn
+- Hook in line 1 = **premise** (broken rule — not vague mood)
+- 6–8 beats, cut every 2–3s, visual change each beat; consequences escalate
+- Beat 6–7: false calm (quiet VO) — bait the swipe
+- Twist line rewrites the hook — then full-frame sting + audio (🔊 volume warning)
+- 25–35s total length — not 60s slow burn; **no explanation after the sting**
 
-What works: specific uncanny detail, earned scare, varied scare types (face lunge / reflection / door slam / glitch morph).
-What fails: generic creepypasta listicles, gore, real victims, cosy aesthetic, stick figures, slow slideshow.
+What works: Black Mirror "what-if", twist that recontextualizes hook, earned sting, village/apartment/pit rotation.
+What fails: random noise scares, generic creepypasta listicles, gore, real victims, cosy aesthetic, stick figures.
 """
 
 DEFAULT_TOPICS = [
@@ -76,6 +74,14 @@ DEFAULT_TOPICS = [
     "the red strobe caught chain sway — the pit had no audience",
     "they chant one syllable under the mask — then silence",
     "the PERIPH patch on your jacket wasn't yours — it was stitched inside out",
+    # Village curse-sign thread (Black Mirror rule horror — YPP-safe implied sickness)
+    "the village sign showed your name — everyone else looked away",
+    "you saw the thing on the barn door — by morning you couldn't keep water down",
+    "grandma said never stare at the signpost — you counted three seconds too long",
+    "the fog lifted and the square was empty — except the symbol only you could see",
+    "every villager brought you soup — none of them would meet your eyes",
+    "the doctor said your stomach was fine — you hadn't eaten in nine days",
+    "you filmed the sign to prove it wasn't real — the playback showed you already watching",
 ]
 
 

@@ -40,11 +40,13 @@ Stories can share mood (alone at night, uncanny domestic wrongness) without one 
 
 ## Tone
 
+**North star feel:** each Short = **one Black Mirror episode** (~30s) — cold premise, escalating consequences, twist that rewrites the hook, then sting. See `channel/brand/black_mirror_format.md`.
+
 | Do | Don't |
 |----|-------|
-| Specific uncanny hooks | Generic creepypasta listicles |
-| Earned scare — setup → silence → hit | Random loud noise |
-| Rotate scare pillars | Same monster every video |
+| "What-if" premise in line 1 | Generic creepypasta listicles |
+| Twist → earned sting | Random loud noise |
+| Rotate settings (apartment / village / pit) | Same monster every video |
 | 🔊 Volume warning on finale-scare drafts | Surprise-report bait |
 | **Eyes, masks, CCTV, hallways** — visible when earned | Gore, real victims, child harm |
 
