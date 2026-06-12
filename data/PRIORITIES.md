@@ -34,7 +34,7 @@
 
 ## Backlog (not top 4 — do not distract)
 
-- Slack `@cursor` setup (remote steering — see docs/SLACK_CURSOR_SETUP.md)
+- Slack setup in progress — `bash scripts/slack-setup.sh`, docs/SLACK_CURSOR_SETUP.md (owner OAuth)
 - Home PC My Machines, git/ZIP on Windows
 - Cursor API key injection, Enterprise pools, TikTok
 - CapCut operator, dev queue UI, refactors unless they block top 4

@@ -146,6 +146,38 @@ def _check_web_ui() -> ServiceStatus:
     )
 
 
+def _check_slack_webhook() -> ServiceStatus:
+    from shorts_bot.integrations.slack import has_slack_webhook
+
+    if has_slack_webhook():
+        ch = settings.slack_channel_name
+        enabled = "on" if settings.slack_notify_enabled else "off"
+        return ServiceStatus(
+            "slack_webhook",
+            "Slack alerts (webhook)",
+            True,
+            f"#{ch} — notify {enabled}",
+            "python3 -m shorts_bot.integrations test",
+        )
+    return ServiceStatus(
+        "slack_webhook",
+        "Slack alerts (webhook)",
+        False,
+        "SLACK_WEBHOOK_URL not set",
+        "docs/SLACK_CURSOR_SETUP.md Part 3",
+    )
+
+
+def _check_slack_cursor() -> ServiceStatus:
+    return ServiceStatus(
+        "slack_cursor",
+        "Slack @cursor (Cloud Agents)",
+        False,
+        "Owner OAuth — install app + Link Account in Slack",
+        "https://cursor.com/dashboard?tab=integrations",
+    )
+
+
 def _check_browser_site(
     id_: str,
     label: str,
@@ -379,6 +411,8 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
         _check_web_ui(),
+        _check_slack_cursor(),
+        _check_slack_webhook(),
         _check_playwright(),
         _check_chat(),
         _check_resemble(),

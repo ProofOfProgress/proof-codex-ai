@@ -49,7 +49,18 @@ def build_morning_briefing() -> str:
             "`bash scripts/start.sh`  — web UI",
             "`GET /api/briefing`  — this checklist as JSON/text",
             "",
-            "Remote steering: Slack `@cursor` (see docs/SLACK_CURSOR_SETUP.md).",
+            "**Slack (remote):**",
+            "• `@cursor agent …` — start Cloud Agent from phone (docs/SLACK_CURSOR_SETUP.md)",
+            _slack_briefing_line(),
         ]
     )
     return "\n".join(lines)
+
+
+def _slack_briefing_line() -> str:
+    from shorts_bot.integrations.slack import has_slack_webhook
+
+    if has_slack_webhook():
+        ch = settings.slack_channel_name
+        return f"• Pipeline alerts → #{ch} (webhook live)"
+    return "• Add SLACK_WEBHOOK_URL for pipeline alerts in Slack (Part 3 of setup doc)"

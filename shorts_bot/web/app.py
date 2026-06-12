@@ -327,6 +327,13 @@ async def morning_briefing() -> dict:
     return {"briefing": text}
 
 
+@app.get("/api/slack/status")
+async def slack_status() -> dict:
+    from shorts_bot.integrations.slack import slack_setup_status
+
+    return slack_setup_status()
+
+
 @app.get("/api/checklist")
 async def setup_checklist() -> dict:
     from shorts_bot.services.ops import BotOperations

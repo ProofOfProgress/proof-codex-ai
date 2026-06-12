@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
+
+    # Slack — incoming webhook posts pipeline alerts; @cursor is separate (Cursor dashboard OAuth)
+    slack_webhook_url: str | None = None
+    slack_notify_enabled: bool = True
+    slack_channel_name: str = "dont-blink-ops"
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")

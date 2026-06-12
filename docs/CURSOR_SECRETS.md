@@ -60,6 +60,9 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
 | `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |
 | `TAVILY_API_KEY` | Runtime Secret | API key (string, starts `tvly-`) | `tvly-____________________________` | Deep web research |
+| `SLACK_WEBHOOK_URL` | Runtime Secret | Incoming webhook URL | `https://hooks.slack.com/services/...` | Slack app → Incoming Webhooks → `#dont-blink-ops` |
+
+`@cursor` Slack app is **not** a secret — OAuth in [Cursor Integrations](https://cursor.com/dashboard?tab=integrations). See `docs/SLACK_CURSOR_SETUP.md`.
 
 ---
 
