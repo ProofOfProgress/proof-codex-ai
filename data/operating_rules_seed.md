@@ -16,19 +16,13 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 - **Also part of Codex context:** `channel/brand/`, `data/research/`, `data/LEARNED.md`, agent memory (`data/MEMORY.md`)
 - Code: `shorts_bot/codex/`, `docs/CODEX.md`
 
-### When agents must query Codex
+### Codex query — internal agents only (NOT for the owner)
 
-**AlphaBeta001 (Chief Manager), ShortsBotAgent, and cloud agents** should use Codex **before** improvising on:
+**AlphaBeta001 (Chief Manager)** auto-injects Codex BM25 search before replying on craft/strategy questions — hooks, suspense, retention, pacing, horror psychology, scripts, visuals. Code: `shorts_bot/codex/context.py`.
 
-- Hooks, suspense, retention, pacing, payoff, jumpscare, horror psychology
-- Scripts, visuals, editing, music, CTAs, analytics
-- Any "how do I…" / "what makes…" craft question
+**Cloud agents** (Cursor) may run `python3 -m shorts_bot.codex search "…"` in terminal to pull passages without loading every file into context.
 
-**Commands:** `python3 -m shorts_bot.codex ask "…"` · chat `codex ask …` · tools `ask_codex` / `search_codex`
-
-**Skip Codex for:** upload/sync/render/approve ops, `dev:` tasks, live competitor browse (use research underlings after Codex baseline).
-
-Chief Manager auto-injects Codex search into synthesis when the message matches craft/strategy triggers (`shorts_bot/codex/context.py`).
+**The owner does not use Codex ask/search** — no Discord command, no web button, no chat `codex ask`. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
 
 ## Owner — how to talk to the human
 

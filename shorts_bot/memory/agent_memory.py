@@ -91,17 +91,19 @@ class AgentMemoryStore:
     def _ensure_codex_rules(self) -> None:
         """Idempotent — when to query Codex (Chief Manager + all agents)."""
         mems = self.list_memories(limit=100)
-        if any("query codex" in m.title.lower() or "codex ask" in m.content.lower()[:60] for m in mems):
+        if any(
+            "codex" in m.title.lower() and ("internal" in m.content.lower() or "query codex" in m.title.lower())
+            for m in mems
+        ):
             return
         self.add_memory(
             category="operating_rule",
-            title="Query Codex first",
+            title="Codex — AlphaBeta001 internal only",
             content=(
-                "Before answering craft/strategy questions (hooks, suspense, retention, pacing, "
-                "jumpscare, scripts, visuals), query Codex: "
-                "`python3 -m shorts_bot.codex ask \"…\"` or tool ask_codex / codex ask in chat. "
-                "Chief Manager auto-injects Codex search on strategy triggers. "
-                "Skip for pure ops (upload, sync, render, approve, dev:). Cite source paths."
+                "Codex search is for AlphaBeta001 (Chief Manager) and cloud agents only — "
+                "NOT a feature for the owner. Manager auto-injects BM25 passages on strategy "
+                "questions (hooks, suspense, retention, pacing). Owner never types codex commands. "
+                "Cloud agents: python3 -m shorts_bot.codex search \"…\" when working in repo."
             ),
             source="seed",
             pinned=True,

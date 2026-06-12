@@ -145,10 +145,10 @@ class ChiefManager:
         if not self.runner.available:
             return self._offline_reply(user_request, session)
 
-        from shorts_bot.codex.context import codex_context_for_agent
+        from shorts_bot.codex.context import codex_context_for_manager
 
         context = session.context_for_synthesis() if session else "No timed work session."
-        codex_block, codex_mode = codex_context_for_agent(user_request)
+        codex_block, codex_mode = codex_context_for_manager(user_request)
         if codex_block:
             context = f"{context}\n\n---\n{codex_block}"
             log.info("Chief Manager Codex context mode=%s for request", codex_mode)

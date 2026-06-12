@@ -47,20 +47,6 @@ def test_codex_index_builds_from_repo():
     assert any(p.startswith("data/research/") for p in paths)
 
 
-def test_parse_codex_request():
-    from shorts_bot.services.chat_router import parse_codex_request
-
-    assert parse_codex_request("codex ask how build suspense") == (
-        "ask",
-        "how build suspense",
-    )
-    assert parse_codex_request("codex search retention hook") == (
-        "search",
-        "retention hook",
-    )
-    assert parse_codex_request("draft mirror horror") is None
-
-
 def test_ask_codex_search_only():
     from shorts_bot.codex.ask import ask_codex
 

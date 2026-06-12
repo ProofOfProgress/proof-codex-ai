@@ -14,7 +14,7 @@ CODEX_COURSE_ROOT = Path("course")
 CODEX_BLURB = (
     "Codex is the project's knowledge base — Jenny Hoyos strategist files (01–09), "
     "brand/world docs, horror research, and self-learned rules. "
-    "Search + ask: `python3 -m shorts_bot.codex ask \"your question\"`"
+    "BM25 search is internal: AlphaBeta001 + cloud agents only (not owner-facing)."
 )
 
 

@@ -29,17 +29,14 @@
 
 **Channel brand:** **Peripheral** (display name). Merch tagline: *don't blink* under line-eye logo. Spec: `channel/brand/identity.md`.
 
-**Codex Q&A:** Search + Gemini over the full knowledge base (not just course 01–09). **Use this first** for strategy questions (hooks, suspense, retention, horror pacing) instead of reading every file.
+**Codex search (agents only — NOT for the owner):** Reduces context load. **AlphaBeta001** auto-injects BM25 passages on strategy questions (`shorts_bot/codex/context.py`). **Cloud agents:** use search in terminal instead of reading every file:
 
 ```bash
-python3 -m shorts_bot.codex ask "how do I build suspense in my horror short?"
-python3 -m shorts_bot.codex search suspense retention   # manual ranked passages
-python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md
+python3 -m shorts_bot.codex search "suspense retention horror short"
+python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md  # if you need one file
 ```
 
-Also: Discord `!codex <question>` · web `POST /api/codex/ask` · chat `codex ask <question>`. Agent tools: `ask_codex`, `search_codex`, `read_codex_file`. See `docs/CODEX.md`.
-
-**AlphaBeta001 (Chief Manager):** auto-queries Codex on strategy triggers before every synthesis (`shorts_bot/codex/context.py`). Operating rule in agent memory: **Query Codex first**.
+No owner-facing `!codex`, web API, or chat command. Owner talks to AlphaBeta001; AlphaBeta001 reads Codex. See `docs/CODEX.md`.
 
 **Formats:** Shorts now; long-form via **asset reuse** — `docs/CONTENT_FORMATS.md`, `data/PRIORITY_LONG_FORM.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
 

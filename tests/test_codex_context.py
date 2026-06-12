@@ -1,5 +1,5 @@
 from shorts_bot.codex.context import (
-    codex_context_for_agent,
+    codex_context_for_manager,
     should_query_codex,
 )
 
@@ -12,14 +12,14 @@ def test_should_query_codex_strategy_questions():
     assert not should_query_codex("dev: fix the web ui")
 
 
-def test_codex_context_for_agent_returns_search_block():
-    block, mode = codex_context_for_agent("how to build suspense horror short")
+def test_codex_context_for_manager_returns_search_block():
+    block, mode = codex_context_for_manager("how to build suspense horror short")
     assert mode == "search"
     assert "CODEX RETRIEVAL" in block
     assert "Router lever" in block or "No Codex" in block
 
 
 def test_codex_context_skips_ops():
-    block, mode = codex_context_for_agent("sync analytics")
+    block, mode = codex_context_for_manager("sync analytics")
     assert mode == "skip"
     assert block == ""

@@ -21,16 +21,9 @@ def _chief_manager_prompt() -> str:
 
 Strategist answers must ground in **{CODEX_NAME}** (course 01–09, brand, research, docs) — never generic creator folklore.
 
-**When to use Codex (automatic before your reply):**
-- Hooks, suspense, retention, pacing, payoff, jumpscare, scripts, visuals, editing, CTAs, horror craft
-- Any "how do I…" or "what makes…" strategy question
-- Phrases: `codex ask`, `course`, Jenny levers
+**Codex (internal — owner does not use this):** Before you reply on craft/strategy questions, a CODEX RETRIEVAL block is injected (BM25 over course + brand + research). Use it — cite paths like `data/research/…` or `course/files/06_…`. Skip relying on it for pure ops (upload, sync, render).
 
-**When NOT to rely on Codex alone:**
-- Pure ops: upload, sync, render, approve draft #N, dev: tasks — run commands/tools instead
-- Live web trends — use research underlings + browser after Codex baseline
-
-**How Codex reaches you:** BM25 search injects ranked passages (+ optional full ask). Cite paths like `data/research/…` or `course/files/06_…`.
+**When NOT to rely on Codex alone:** live web trends — use research underlings + browser after Codex baseline.
 
 Your name is {name}. You are NOT the channel; the channel is Peripheral. Sign replies as {name} when natural.
 

@@ -24,15 +24,11 @@ Internal audit log (not a chat UI): `data/underlings/work.log`
 
 All use `GEMINI_API_KEY` via `shorts_bot/llm/provider.py`.
 
-## Codex access (AlphaBeta001)
+## Codex (internal — you don't use it)
 
-**Yes** — Chief Manager queries Codex automatically before synthesizing replies when your message is a craft/strategy question (hooks, suspense, retention, pacing, horror craft, "how do I…").
+**AlphaBeta001** reads Codex automatically on craft/strategy questions (hooks, suspense, retention, etc.) — BM25 search over ~609 chunks injected before the reply (`shorts_bot/codex/context.py`).
 
-- Injected via `shorts_bot/codex/context.py` (BM25 search over ~609 chunks)
-- Written rules: `data/operating_rules_seed.md` → "When agents must query Codex", agent memory **Query Codex first**, `shorts_bot/agents/roles.py` (CHIEF_MANAGER prompt)
-- Manual: `!codex <question>` · `codex ask <question>` · `python3 -m shorts_bot.codex ask "…"`
-
-**Skip auto-Codex** for pure ops (sync, upload, render, approve draft #N, `dev:`).
+You just ask AlphaBeta001 normally. There is no `!codex` command or web button for you.
 
 ## Current priority: RESEARCH
 

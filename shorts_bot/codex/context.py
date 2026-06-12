@@ -1,4 +1,4 @@
-"""Codex context blocks for agents — search-first, optional full ask."""
+"""Codex context for AlphaBeta001 (Chief Manager) only — not owner-facing."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def should_query_codex(message: str) -> bool:
     if not text:
         return False
     lower = text.lower()
-    if lower.startswith(("codex ", "ask codex", "course ")):
+    if lower.startswith("course "):
         return True
     # Skip pure ops commands
     ops_prefixes = (
@@ -58,7 +58,7 @@ def format_search_hits(question: str, *, limit: int | None = None) -> str:
     """BM25 passages + router lever — no extra LLM call."""
     hits = search_codex(question, limit=limit or settings.codex_search_max_chunks)
     if not hits:
-        return "No Codex passages matched. Try broader keywords or `python3 -m shorts_bot.codex list`."
+        return "No Codex passages matched for this query."
 
     kb = CourseKnowledgeBase(settings.course_dir)
     route = CourseRouter(kb).route(question)
@@ -81,13 +81,13 @@ def format_search_hits(question: str, *, limit: int | None = None) -> str:
     return "\n".join(lines).strip()
 
 
-def codex_context_for_agent(
+def codex_context_for_manager(
     question: str,
     *,
     full_ask: bool = False,
 ) -> tuple[str, str]:
     """
-    Return (context_block, mode) for injection into agent prompts.
+    Return (context_block, mode) for Chief Manager synthesis only.
     mode: search | ask | skip
     """
     if not should_query_codex(question):

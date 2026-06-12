@@ -47,7 +47,7 @@ def build_system_prompt(
     learning_section = f"\n\n{learning_block}\n" if learning_block else ""
     return f"""{router}
 
-KNOWLEDGE BASE: **{CODEX_NAME}** (course 01–09, brand, research, docs). Use **ask_codex** for full-corpus Q&A with citations; **get_course_guidance** for Jenny lever routing only. No outside creator folklore.
+KNOWLEDGE BASE: **{CODEX_NAME}** (course 01–09 + verbatim). Use **get_course_guidance** for lever routing. No outside creator folklore.
 
 {RESPONSE_FORMAT}
 {memory_section}{learning_section}
@@ -121,18 +121,11 @@ class ShortsBotAgent:
     def chat(self, user_message: str) -> str:
         self._refresh_system_prompt()
         self.store.save_chat("user", user_message)
-        from shorts_bot.codex.context import codex_context_for_agent
-
         guidance = self.router.build_guidance(user_message)
-        codex_block, _codex_mode = codex_context_for_agent(user_message)
-        context_parts = [guidance]
-        if codex_block:
-            context_parts.append(codex_block)
-        combined = "\n\n---\n\n".join(context_parts)
         augmented = (
             f"{user_message}\n\n"
-            f"[CODEX CONTEXT — use ONLY this + tools, no outside advice]\n"
-            f"{combined}"
+            f"[JENNY COURSE CONTEXT — use ONLY this + tools, no outside advice]\n"
+            f"{guidance}"
         )
         self.messages.append({"role": "user", "content": augmented})
 
@@ -204,8 +197,6 @@ class ShortsBotAgent:
                 "- remember <fact> / memory / forget <id>\n"
                 "- browse <url> / browser open vidiq\n"
                 "- course <question>  (Jenny course routing)\n"
-                "- codex ask <question>  (search all Codex + answer if Gemini key set)\n"
-                "- codex search <query>  (ranked passages only)\n"
                 "- free tools\n"
                 "- setup channel <name>  (opens browser for YouTube — you may need phone code once)\n"
                 "- apply brand  (updates channel name + description in Studio from youtube_copy.txt)\n"
@@ -248,23 +239,6 @@ class ShortsBotAgent:
                 f"Files: {', '.join(route.files)}\n\n"
                 f"{self.router.build_guidance(query)[:3000]}"
             )
-        if text.startswith("codex ask "):
-            from shorts_bot.codex.ask import ask_codex
-
-            question = user_message[10:].strip()
-            return ask_codex(question).answer
-        if text.startswith("codex search "):
-            from shorts_bot.codex.ask import search_codex
-
-            query = user_message[13:].strip()
-            hits = search_codex(query)
-            if not hits:
-                return "No Codex hits. Try: suspense, retention, hook, jumpscare."
-            lines = [f"Codex search ({len(hits)} hits):"]
-            for h in hits:
-                lines.append(f"- [{h.score:.2f}] {h.chunk.citation}")
-                lines.append(f"  {h.chunk.text[:200].replace(chr(10), ' ')}…")
-            return "\n".join(lines)
         if text.startswith("draft "):
             topic = user_message[6:].strip()
             result = self.tool_runner.run("create_draft", {"topic": topic})

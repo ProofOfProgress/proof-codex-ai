@@ -23,7 +23,6 @@ from shorts_bot.services.chat_router import (
     parse_research_request,
     parse_voice_request,
     parse_produce_request,
-    parse_codex_request,
 )
 from shorts_bot.memory.agent_memory import (
     is_memory_list_request,
@@ -52,12 +51,6 @@ class BotOperations:
 
         if is_help_command(text):
             return self._help_text()
-        codex_req = parse_codex_request(text)
-        if codex_req is not None:
-            mode, query = codex_req
-            if not query:
-                return "Usage: codex ask <question>  or  codex search <keywords>"
-            return self.run_codex_ask(query, search_only=(mode == "search"))
         browse = parse_browse_request(text)
         if browse is not None:
             target, visible = browse
@@ -193,19 +186,11 @@ class BotOperations:
             "• browse <url> — headless browser, return page text\n"
             "• browser open <url|trends|youtube> — visible Desktop browser\n"
             "• browser login youtube — open login tab (saved session)\n"
-            "• codex ask <question> — search knowledge base + Gemini answer with sources\n"
-            "• codex search <keywords> — ranked passages only (no LLM)\n"
             "• Or chat normally (Gemini/OpenAI)\n"
             "• AlphaBeta001 (Chief Manager): prefix manager: or say take 30m / [1h] before your request\n"
             "  Example: take an hour to score horror hooks and draft the best one\n"
             "• CLI: python3 -m shorts_bot.agents.cli"
         )
-
-    def run_codex_ask(self, question: str, *, search_only: bool = False) -> str:
-        from shorts_bot.codex.ask import ask_codex
-
-        result = ask_codex(question.strip(), search_only=search_only)
-        return result.answer
 
     def browser_status_text(self) -> str:
         from shorts_bot.browser.session import is_playwright_ready

@@ -224,25 +224,9 @@ class ShortsCog(commands.Cog):
             "`!browse <url>` · `!browser open vidiq` · `!browser login youtube`\n\n"
             "**Memory:** `!remember <rule>` · `!memory` · `!forget <id>`\n"
             "**Approvals:** `!pending` · `!yes` / `!no` · `!draftyes` / `!draftno`\n"
-            "`!codex <question>` — ask Codex (hooks, suspense, retention, horror)\n"
             "`!status` · `!sync` · `!briefing` · `!ping` · `!myid`\n"
             "Slash: `/daily` `/status` `/draft` `/pending` `/briefing`"
         )
-
-    @commands.command(name="codex")
-    async def codex_cmd(self, ctx: commands.Context, *, question: str) -> None:
-        """Ask the Codex knowledge base (search + Gemini answer)."""
-        await self._remember(ctx)
-        if not question.strip():
-            await ctx.reply("Usage: `!codex how do I build suspense in a horror short?`")
-            return
-        await ctx.typing()
-        try:
-            reply = await asyncio.to_thread(self.ops.run_codex_ask, question.strip())
-            await self._reply_ops(ctx, reply)
-        except Exception:
-            log.exception("Codex ask failed")
-            await ctx.reply("Codex ask failed — try `codex search <keywords>` in DM.")
 
     @commands.command(name="remember")
     async def remember_cmd(self, ctx: commands.Context, *, text: str) -> None:

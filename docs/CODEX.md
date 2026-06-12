@@ -9,32 +9,26 @@
 | **Strategist core** | `course/files/01–09_*.md` | Jenny Hoyos retention, hooks, visuals, payoff |
 | **Verbatim rules** | `course/verbatim/` | Non-negotiable transcript constraints |
 | **Router** | `course/router_prompt.md` | How to pick files 01–09 per question |
-| **Brand & world** | `channel/brand/` | Don't Blink identity, **The Gap**, analog horror lane |
+| **Brand & world** | `channel/brand/` | Peripheral identity, **The Gap**, analog horror lane |
 | **Research** | `data/research/` | Horror psychology, SEO, applied learnings |
 | **Learned rules** | `data/LEARNED.md` | Auto-approved improvements from reward sync |
 | **Agent memory** | `data/MEMORY.md` + SQLite | Owner operating rules, preferences, facts |
 
 ## Code
 
-- `shorts_bot/codex/` — search index, ask (Gemini + citations), CLI
+- `shorts_bot/codex/` — BM25 index + search (agent-internal)
 - `shorts_bot/course/loader.py` — `CourseKnowledgeBase` loads Codex files 01–09
-- `shorts_bot/course/router.py` — routes messages to the right Codex files (lever 01–09)
+- `shorts_bot/course/router.py` — routes messages to the right Codex files
 
-## Ask Codex (search + optional Gemini)
+## Who uses Codex search
 
-Two ways to use the same knowledge — pick what fits:
+| Who | How |
+|-----|-----|
+| **AlphaBeta001** (Chief Manager) | Auto — BM25 passages injected before every strategy reply (`codex/context.py`) |
+| **Cloud agents** (Cursor) | `python3 -m shorts_bot.codex search "…"` in terminal when working |
+| **Owner** | Does **not** use Codex directly — ask AlphaBeta001 or chat normally |
 
-| Mode | When | Command |
-|------|------|---------|
-| **Ask** | Plain-English question, want an answer with sources | `python3 -m shorts_bot.codex ask "how do I build suspense in my horror short?"` |
-| **Search** | You want ranked passages to read yourself | `python3 -m shorts_bot.codex search suspense retention` |
-| **Read** | Open one file in full | `python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md` |
-| **List** | See what is indexed | `python3 -m shorts_bot.codex list` |
-
-- **Search base:** BM25 over chunked markdown (course, brand, research, docs, LEARNED/MEMORY when present). Cache: `data/codex_index.json`.
-- **LLM:** Gemini (or OpenAI) synthesizes an answer **only from retrieved passages** + router context. Without an API key, `ask` falls back to search-only.
-- **Chat tools:** `ask_codex`, `search_codex`, `read_codex_file` (same as CLI from Discord/web agent).
-- **Manual routing still works:** `course <question>` or `get_course_guidance` for Jenny files 01–09 only.
+There is no owner-facing `!codex`, web button, or chat command. That keeps context load off the human and on the agent.
 
 ## Owner-facing language
 

@@ -117,60 +117,6 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     {
         "type": "function",
         "function": {
-            "name": "ask_codex",
-            "description": (
-                "Search the full Codex knowledge base (course, brand, horror research, docs) "
-                "and return a Gemini-grounded answer with source citations. "
-                "Use for strategy questions like hooks, suspense, retention, horror pacing."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "question": {"type": "string", "description": "Question to answer from Codex."},
-                    "search_only": {
-                        "type": "boolean",
-                        "description": "If true, return ranked passages only (no LLM synthesis).",
-                    },
-                },
-                "required": ["question"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "search_codex",
-            "description": "BM25 search over Codex markdown — manual retrieval with paths and previews.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string"},
-                    "limit": {"type": "integer", "description": "Max passages (default 8)."},
-                },
-                "required": ["query"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "read_codex_file",
-            "description": "Read a Codex source file by repo path (manual deep dive).",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "path": {
-                        "type": "string",
-                        "description": "Relative path e.g. data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md",
-                    },
-                },
-                "required": ["path"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "list_free_tools",
             "description": "List free and free-tier services for editing, music, design, and storage.",
             "parameters": {"type": "object", "properties": {}},
@@ -395,9 +341,6 @@ class ToolRunner:
             "get_learned_feedback": self._get_learned_feedback,
             "get_stats": self._get_stats,
             "get_course_guidance": self._get_course_guidance,
-            "ask_codex": self._ask_codex,
-            "search_codex": self._search_codex,
-            "read_codex_file": self._read_codex_file,
             "list_free_tools": self._list_free_tools,
             "apply_channel_branding": self._apply_channel_branding,
             "prepare_video_production": self._prepare_video_production,
@@ -514,58 +457,6 @@ class ToolRunner:
                 "guidance": self.router.build_guidance(query),
             }
         )
-
-    def _ask_codex(self, args: dict[str, Any]) -> str:
-        from shorts_bot.codex.ask import ask_codex
-
-        question = str(args.get("question", "")).strip()
-        if not question:
-            return json.dumps({"error": "question required"})
-        result = ask_codex(question, search_only=bool(args.get("search_only")))
-        return json.dumps(
-            {
-                "answer": result.answer,
-                "sources": result.sources,
-                "router_lever": result.router_lever,
-                "router_files": result.router_files,
-                "mode": result.mode,
-            }
-        )
-
-    def _search_codex(self, args: dict[str, Any]) -> str:
-        from shorts_bot.codex.ask import search_codex
-
-        query = str(args.get("query", "")).strip()
-        limit = int(args.get("limit") or 8)
-        hits = search_codex(query, limit=limit)
-        return json.dumps(
-            {
-                "hits": [
-                    {
-                        "score": round(h.score, 3),
-                        "path": h.chunk.source_path,
-                        "section": h.chunk.section,
-                        "layer": h.chunk.layer,
-                        "preview": h.chunk.text[:500],
-                        "citation": h.chunk.citation,
-                    }
-                    for h in hits
-                ],
-                "count": len(hits),
-            }
-        )
-
-    def _read_codex_file(self, args: dict[str, Any]) -> str:
-        from shorts_bot.codex.index import CodexIndex
-
-        path = str(args.get("path", "")).strip()
-        if not path:
-            return json.dumps({"error": "path required"})
-        try:
-            text = CodexIndex.build().read_source(path)
-        except (FileNotFoundError, ValueError) as exc:
-            return json.dumps({"error": str(exc)})
-        return json.dumps({"path": path, "content": text[:8000]})
 
     def _list_free_tools(self, _args: dict[str, Any]) -> str:
         if self.router is None:
