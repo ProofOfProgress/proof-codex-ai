@@ -29,7 +29,7 @@ Use **three** pieces (all optional but together they're the full loop):
 
 ### B. Link your Cursor account (required)
 
-1. Create public channel `#dont-blink-ops`
+1. Create public channel `#peripheral-ops` (or `#dont-blink-ops` — set `SLACK_CHANNEL_NAME`)
 2. `/invite @cursor`
 3. `@cursor help` → **Link Account** → OAuth to Cursor
 4. `@cursor settings` → default repo `ProofOfProgress/proof-codex-ai`
@@ -96,7 +96,7 @@ The **Shorts Bot** posts automation failures and alerts to Slack without you ope
 ### Setup
 
 1. Slack → **Apps** → **Incoming Webhooks** → **Add to Slack**
-2. Pick channel `#dont-blink-ops` → **Allow**
+2. Pick channel `#peripheral-ops` → **Allow**
 3. Copy webhook URL (`https://hooks.slack.com/services/...`)
 4. Add to **Cursor Secrets** as `SLACK_WEBHOOK_URL`
 5. Run `bash scripts/install.sh`
@@ -114,7 +114,8 @@ You should see: *"Peripheral bot connected. Pipeline alerts will post here."*
 |----------|---------|---------|
 | `SLACK_WEBHOOK_URL` | — | Incoming webhook URL |
 | `SLACK_NOTIFY_ENABLED` | `true` | Master switch for webhook posts |
-| `SLACK_CHANNEL_NAME` | `dont-blink-ops` | Label in status/briefing only |
+| `SLACK_CHANNEL_NAME` | `peripheral-ops` | Label in status/briefing only |
+| `SLACK_CURSOR_LINKED` | `true` | Set after @cursor Link Account |
 
 Alerts also land in `data/ALERTS.md` — Slack is the phone-friendly mirror.
 

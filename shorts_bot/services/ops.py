@@ -47,6 +47,12 @@ def _slack_webhook_ready() -> bool:
     return has_slack_webhook()
 
 
+def _slack_cursor_linked() -> bool:
+    from shorts_bot.integrations.slack import slack_cursor_linked
+
+    return slack_cursor_linked()
+
+
 class BotOperations:
     """Shared operations for web UI and CLI chat."""
 
@@ -286,8 +292,8 @@ class BotOperations:
             {
                 "id": "slack_cursor",
                 "label": "Slack @cursor (remote agents)",
-                "done": False,
-                "action": "docs/SLACK_CURSOR_SETUP.md — ~10 min OAuth",
+                "done": _slack_cursor_linked(),
+                "action": "docs/FOR_OWNER_SLACK.md — ~10 min OAuth",
             },
             {
                 "id": "slack_webhook",

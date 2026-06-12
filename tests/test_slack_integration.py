@@ -106,4 +106,18 @@ def test_notify_automation_alert_includes_steering_hint(monkeypatch):
 
 def test_slack_setup_status_shape():
     st = slack_setup_status()
-    assert st["channel_suggestion"] == "dont-blink-ops"
+    assert st["channel_suggestion"] == "peripheral-ops"
+    assert "steps" in st
+    assert len(st["steps"]) >= 5
+
+
+def test_slack_test_api_missing_webhook():
+    r = TestClient(app).post("/api/slack/test")
+    assert r.status_code == 400
+
+
+@patch("shorts_bot.integrations.slack.send_test_message", return_value=(True, "OK"))
+def test_slack_test_api_ok(mock_send):
+    r = TestClient(app).post("/api/slack/test")
+    assert r.status_code == 200
+    assert r.json()["ok"] is True

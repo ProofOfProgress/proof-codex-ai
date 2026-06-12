@@ -20,6 +20,7 @@
       <button class="nav-btn" data-panel="rewards" type="button">Rewards</button>
       <button class="nav-btn" data-panel="learning" type="button">Learning</button>
       <button class="nav-btn" data-panel="dev" type="button">Dev queue</button>
+      <button class="nav-btn" data-panel="slack" type="button">Slack</button>
       <div class="badges">
         <span class="badge {% if has_openai %}ok{% else %}warn{% endif %}">{% if has_openai %}Chat full{% if chat_provider == 'gemini' %} (Gemini){% elif chat_provider == 'openai' %} (OpenAI){% endif %}{% else %}Chat offline{% endif %}</span>
         <span class="badge {% if youtube.ready %}ok{% elif youtube.credentials_configured %}warn{% else %}off{% endif %}">
@@ -117,6 +118,31 @@
           {% else %}
           <p class="empty">Approve improvements to build your learning journal.</p>
           {% endfor %}
+        </div>
+      </section>
+
+      <section id="panel-slack" class="panel">
+        <div style="padding:20px 24px;overflow-y:auto;max-width:720px;">
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Slack — remote ops</h3>
+            <p style="font-size:.85rem;color:var(--muted);margin:0 0 12px;">
+              Message <strong>@cursor</strong> from your phone → Cloud Agent runs → replies in thread.
+              Webhook posts pipeline alerts to your channel.
+            </p>
+            <p style="font-size:.82rem;margin:0 0 12px;">Progress: <strong id="slack-progress">…</strong></p>
+            <div id="slack-steps" style="font-size:.84rem;"></div>
+          </div>
+          <div class="card" style="margin-bottom:14px;">
+            <h3>Test webhook</h3>
+            <p style="font-size:.85rem;color:var(--muted);">After you add <code>SLACK_WEBHOOK_URL</code> to Cursor Secrets and run <code>bash scripts/install.sh</code>:</p>
+            <button class="btn" id="slack-test-btn" type="button" style="width:100%;margin-top:8px;">Send test message to Slack</button>
+            <div class="sync-msg" id="slack-test-msg"></div>
+          </div>
+          <div class="card">
+            <h3>Copy-paste test for @cursor</h3>
+            <textarea id="slack-test-prompt" rows="3" readonly style="width:100%;margin:8px 0;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:.8rem;"></textarea>
+            <p style="font-size:.78rem;color:var(--muted);">Plain English guide: <code>docs/FOR_OWNER_SLACK.md</code></p>
+          </div>
         </div>
       </section>
 

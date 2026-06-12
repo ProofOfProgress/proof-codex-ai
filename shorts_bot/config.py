@@ -62,7 +62,8 @@ class Settings(BaseSettings):
     # Slack — incoming webhook posts pipeline alerts; @cursor is separate (Cursor dashboard OAuth)
     slack_webhook_url: str | None = None
     slack_notify_enabled: bool = True
-    slack_channel_name: str = "dont-blink-ops"
+    slack_channel_name: str = "peripheral-ops"
+    slack_cursor_linked: bool = False  # set true after @cursor Link Account in Slack
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")

@@ -169,12 +169,23 @@ def _check_slack_webhook() -> ServiceStatus:
 
 
 def _check_slack_cursor() -> ServiceStatus:
+    from shorts_bot.integrations.slack import slack_cursor_linked
+
+    if slack_cursor_linked():
+        ch = settings.slack_channel_name
+        return ServiceStatus(
+            "slack_cursor",
+            "Slack @cursor (Cloud Agents)",
+            True,
+            f"Linked — use #{ch}",
+            "docs/FOR_OWNER_SLACK.md",
+        )
     return ServiceStatus(
         "slack_cursor",
         "Slack @cursor (Cloud Agents)",
         False,
-        "Owner OAuth — install app + Link Account in Slack",
-        "https://cursor.com/dashboard?tab=integrations",
+        "Install app + Link Account — then SLACK_CURSOR_LINKED=true",
+        "docs/FOR_OWNER_SLACK.md",
     )
 
 

@@ -8,11 +8,12 @@ Run: `bash scripts/slack-setup.sh`
 
 - [ ] Install Cursor Slack app — [dashboard Integrations](https://cursor.com/dashboard?tab=integrations)
 - [ ] Connect GitHub → `ProofOfProgress/proof-codex-ai`
-- [ ] Create `#dont-blink-ops` (public) → `/invite @cursor`
+- [ ] Create `#peripheral-ops` (public) → `/invite @cursor`
 - [ ] `@cursor help` → **Link Account** (OAuth)
 - [ ] `@cursor settings` → default repo `proof-codex-ai`
-- [ ] Routing rules: `shorts` / `dont-blink` / `peripheral` → same repo
-- [ ] Test: `@cursor read docs/SLACK_CURSOR_SETUP.md and reply OK`
+- [ ] Cursor Secrets → `SLACK_CURSOR_LINKED=true` → `bash scripts/install.sh`
+- [ ] Routing rules: `shorts` / `peripheral` / `dont-blink` → same repo
+- [ ] Test: `@cursor read docs/FOR_OWNER_SLACK.md and reply OK`
 
 ## Slack MCP (agents post while working)
 
@@ -22,7 +23,7 @@ Run: `bash scripts/slack-setup.sh`
 
 ## Webhook (pipeline alerts from bot)
 
-- [ ] Slack → Incoming Webhooks → add to `#dont-blink-ops`
+- [ ] Slack → Incoming Webhooks → add to `#peripheral-ops`
 - [ ] Cursor Secrets → `SLACK_WEBHOOK_URL`
 - [ ] `bash scripts/install.sh`
 - [ ] `python3 -m shorts_bot.integrations test` → message in channel

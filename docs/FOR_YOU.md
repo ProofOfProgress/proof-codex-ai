@@ -123,8 +123,8 @@ The bot pulls real stats, scores your Shorts, and proposes up to 3 improvements 
 
 1. Run `bash scripts/slack-setup.sh` (prints exact steps)
 2. Link **@cursor** in Slack so you can message agents from your phone
-3. Add **SLACK_WEBHOOK_URL** so pipeline alerts land in `#dont-blink-ops`
+3. Add **SLACK_WEBHOOK_URL** so pipeline alerts land in `#peripheral-ops`
 
-Full guide: **docs/SLACK_CURSOR_SETUP.md** · Checklist: **data/SLACK_SETUP_CHECKLIST.md**
+Plain English: **docs/FOR_OWNER_SLACK.md** · Web UI → **Slack** tab · Checklist: **data/SLACK_SETUP_CHECKLIST.md**
 
 The web UI at **http://localhost:8080** still handles Yes/No and morning briefing when you're at a desk.

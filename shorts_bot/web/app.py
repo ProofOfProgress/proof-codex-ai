@@ -334,6 +334,16 @@ async def slack_status() -> dict:
     return slack_setup_status()
 
 
+@app.post("/api/slack/test")
+async def slack_test_webhook() -> dict:
+    from shorts_bot.integrations.slack import send_test_message
+
+    ok, message = send_test_message()
+    if not ok:
+        raise HTTPException(status_code=400, detail=message)
+    return {"ok": True, "message": message}
+
+
 @app.get("/api/checklist")
 async def setup_checklist() -> dict:
     from shorts_bot.services.ops import BotOperations
