@@ -6,11 +6,17 @@ All visuals live in **The Gap** — the same liminal alone-at-night apartment un
 - Black `#0A0A0A`, cold blue `#1A2A3A`, deep crimson `#8B0000`, sickly green `#3D5C3A` (sparingly)
 - Film grain, harsh contrast, underexposed interiors
 
-## Subjects (faceless)
-- Hallways, doors, mirrors, **fullscreen security cam POV**, alarm clocks, empty beds, stairwells
-- **No smartphones** — time via alarm clock or CCTV OSD (REC / 3:12 AM)
-- Silhouettes only — no identifiable faces until final scare beat
-- Eyes macro (channel brand motif)
+## Subjects & visibility (owner direction — NOT silhouettes-only)
+
+**Sets:** hallways, doors, mirrors, **fullscreen security cam POV**, alarm clocks, empty beds, stairwells, warehouse pit (metal beats)
+
+**No smartphones** in analog lane — time via alarm clock or CCTV OSD (REC / 3:12 AM)
+
+**Eyes & masks — show them:**
+- **Macro staring eye** = channel logo — hook, mid-beat, or finale (not finale-only)
+- **Metal / beak / numbered masks** — face camera directly; mask is the face
+- **Analog scenes** — mix POV, silhouette, partial face in shadow, visible wrong eyes in mirror/CCTV
+- **Final beat** = intensity spike (lunge, iris fill, mask close-up) — not the first time viewers see a face
 
 ## Motion (I2V)
 - Slow drift down hallway → sudden lunge on final beat

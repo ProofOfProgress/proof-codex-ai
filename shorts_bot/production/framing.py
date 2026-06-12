@@ -80,12 +80,13 @@ def screen_text_prompt_note() -> str:
 
 
 def horror_framing_notes_for_prompt() -> str:
-    """Don't Blink — analog horror composition per beat."""
+    """Peripheral — analog horror composition per beat."""
     from shorts_bot.production.horror_lane import analog_color_rules
+    from shorts_bot.production.visual_identity import face_eye_visibility_rules
 
     return (
-        "Analog horror 9:16 — subject in upper 55%, harsh contrast, deep shadows, "
-        "faceless silhouettes until final scare beat. "
+        "Analog horror 9:16 — subject in upper 55%, harsh contrast, deep shadows. "
+        f"{face_eye_visibility_rules()} "
         f"{analog_color_rules()} "
         "Bottom 40% clear for captions + Shorts UI. No cosy warm lamp, no cream palette."
     )

@@ -1,6 +1,6 @@
 # Channel identity — Peripheral
 
-> **Faceless horror Shorts** (~30s) — jumpscare at the end. **Brand:** Peripheral · **Tagline on merch:** don't blink
+> **Horror Shorts** (~30s) — jumpscare at the end. **Brand:** Peripheral · **Tagline on merch:** don't blink
 
 ## One-line pitch
 
@@ -46,7 +46,7 @@ Stories can share mood (alone at night, uncanny domestic wrongness) without one 
 | Earned scare — setup → silence → hit | Random loud noise |
 | Rotate scare pillars | Same monster every video |
 | 🔊 Volume warning on finale-scare drafts | Surprise-report bait |
-| Faceless — shadows, eyes, hallways, CCTV | Gore, real victims, child harm |
+| **Eyes, masks, CCTV, hallways** — visible when earned | Gore, real victims, child harm |
 
 ## Visual system
 
