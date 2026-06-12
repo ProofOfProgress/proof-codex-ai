@@ -68,6 +68,8 @@ Stories can share mood (alone at night, uncanny domestic wrongness) without one 
 
 **TikTok Shop target:** horror-streetwear crossover; **bikers / night riders** fit peripheral vision + alone-at-night mood (patches, back print, helmet sticker). Content stays horror anthology; merch can speak to riders without every Short being “biker themed.”
 
+**Industrial death-metal layer (owner direction):** Slipknot-adjacent **theatre** — numbered masks, warehouse pit, chains, red strobe. “Bird head” = **beak mask + feathers on stage**, never real animal harm on screen. Full rules: `channel/brand/metal_aesthetic.md`.
+
 Research: `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`
 
 ## Brand assets

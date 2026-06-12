@@ -51,7 +51,7 @@ class VideoPromptBrief:
 def visual_dna() -> str:
     """Paste unchanged into every clip prompt."""
     return (
-        "VISUAL DNA — Don't Blink horror: "
+        "VISUAL DNA — Peripheral horror: "
         "Style: cinematic photoreal horror still, film grain, harsh contrast, underexposed — not illustration, not anime. "
         "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
         "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
@@ -65,11 +65,14 @@ def visual_dna() -> str:
 
 
 def negative_block() -> str:
+    from shorts_bot.production.metal_aesthetic import metal_negative_prompt_extra
+
     return (
         "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
         "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
         "no smartphone, no mobile phone, no hands holding phone, no phone screen, no UI bezel, "
-        "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood"
+        "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood, "
+        f"{metal_negative_prompt_extra()}"
     )
 
 

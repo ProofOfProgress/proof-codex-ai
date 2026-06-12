@@ -17,9 +17,14 @@ All visuals live in **The Gap** — the same liminal alone-at-night apartment un
 - Subtle wrongness: reflection delayed, door opening by itself
 - Final beat: fast motion toward camera, full frame
 
+## Industrial metal theatre (when script calls for it)
+- Warehouse concrete, fog, chain sway, red strobe — numbered metal masks, black jumpsuit
+- **Bird/offering symbolism:** beak mask, feathers on collar or floor, empty cage — **never live bird or eating on screen**
+- See `channel/brand/metal_aesthetic.md` — YPP-safe, not 18+
+
 ## Never
 - Stick figures, cosy lamp, couch, tea, cream palette
-- Gore, blood spray, real crime victims
+- Gore, blood spray, real crime victims, **animal cruelty, live birds harmed**
 - Text baked into image
 
 ## Caption safe zone
