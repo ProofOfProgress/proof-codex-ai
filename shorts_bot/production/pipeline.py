@@ -475,19 +475,23 @@ def _run_pipeline_locked(
             from shorts_bot.youtube.upload_guardrails import preflight_upload
 
             api_ready = upload_ready()
-            use_studio = (
+            use_studio_upload = (
                 settings.youtube_studio_upload_fallback
                 and settings.youtube_upload_via_api
                 and not api_ready
             )
 
-            if settings.youtube_upload_via_api and not api_ready and not use_studio:
+            if settings.youtube_upload_via_api and not api_ready and not use_studio_upload:
                 messages.append(
                     "Upload blocked — YouTube token missing API upload scope. "
                     "Run once at home: python3 -m shorts_bot.youtube.auth_cli "
                     "(Google sign-in in your browser, not Playwright)"
                 )
                 do_upload = False
+            elif use_studio_upload:
+                messages.append(
+                    "YouTube API not ready — uploading via Studio browser (saved profile)."
+                )
 
             mem = MemoryExtensions(store)
             from shorts_bot.compliance.upload_guard import record_upload
@@ -507,24 +511,45 @@ def _run_pipeline_locked(
                     messages.append(f"Upload blocked — {pre.message}")
                     do_upload = False
 
-        if do_upload and upload_ready():
+        if do_upload:
             try:
-                up = upload_short(
-                    video.output_path,
-                    title=package.title,
-                    description=package.description,
-                    tags=package.tags,
-                    visibility=package.visibility,
-                )
-                upload_url = up.video_url
-                messages.append(up.message)
-                if settings.post_upload_cta_comment:
+                if use_studio_upload:
+                    import os
+
+                    from shorts_bot.youtube.studio_upload import upload_via_studio
+
+                    has_display = bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+                    studio = upload_via_studio(
+                        video.output_path,
+                        title=package.title,
+                        description=package.description,
+                        visibility=package.visibility,
+                        pack_dir=pack_dir,
+                        headless=not has_display,
+                    )
+                    if not studio.ok:
+                        raise RuntimeError(studio.message)
+                    up_video_id = studio.video_id
+                    upload_url = studio.video_url
+                    messages.append(studio.message)
+                else:
+                    up = upload_short(
+                        video.output_path,
+                        title=package.title,
+                        description=package.description,
+                        tags=package.tags,
+                        visibility=package.visibility,
+                    )
+                    up_video_id = up.video_id
+                    upload_url = up.video_url
+                    messages.append(up.message)
+                if settings.post_upload_cta_comment and not use_studio_upload:
                     from shorts_bot.youtube.post_upload import post_upload_cta_comment
 
-                    cta_id = post_upload_cta_comment(up.video_id, draft_id=draft_id)
+                    cta_id = post_upload_cta_comment(up_video_id, draft_id=draft_id)
                     if cta_id:
                         messages.append(f"Post-upload CTA comment posted ({cta_id[:16]}…)")
-                if settings.post_upload_analytics_sync:
+                if settings.post_upload_analytics_sync and not use_studio_upload:
                     from shorts_bot.youtube.post_upload import sync_analytics_after_upload
 
                     sync_msg = sync_analytics_after_upload()
@@ -541,7 +566,7 @@ def _run_pipeline_locked(
                     hook=draft.hook,
                     script=draft.script,
                     title=package.title,
-                    video_id=up.video_id,
+                    video_id=up_video_id,
                     extra_snapshot={
                         "scare_pillar": pillar,
                         "scare_pillar_label": pillar_label(pillar),
@@ -555,36 +580,19 @@ def _run_pipeline_locked(
                 )
                 if settings.auto_publish_hours > 0 and package.visibility == "unlisted":
                     mem.schedule_publish(
-                        video_id=up.video_id,
+                        video_id=up_video_id,
                         draft_id=draft_id,
                         visibility="unlisted",
                         publish_after_hours=settings.auto_publish_hours,
                     )
                     messages.append(
                         f"Scheduled public publish in {settings.auto_publish_hours}h "
-                        f"(video {up.video_id})"
+                        f"(video {up_video_id})"
                     )
                 state.mark("upload")
                 save_state(pack_dir, state)
             except Exception as exc:
-                messages.append(f"YouTube API upload failed: {exc}")
-                state.mark("upload", status="failed")
-                save_state(pack_dir, state)
-        elif do_upload and settings.youtube_studio_upload_fallback:
-            from shorts_bot.youtube.studio_upload import upload_pack_via_studio
-
-            messages.append("API upload unavailable — trying YouTube Studio browser upload…")
-            try:
-                studio = upload_pack_via_studio(pack_dir, headless=True)
-                messages.append(studio.message)
-                if studio.ok and studio.video_url:
-                    upload_url = studio.video_url
-                    state.mark("upload")
-                else:
-                    state.mark("upload", status="failed")
-                save_state(pack_dir, state)
-            except Exception as exc:
-                messages.append(f"Studio upload failed: {exc}")
+                messages.append(f"YouTube upload failed: {exc}")
                 state.mark("upload", status="failed")
                 save_state(pack_dir, state)
 

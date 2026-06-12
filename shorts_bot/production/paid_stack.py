@@ -35,19 +35,26 @@ def paid_stack_issues() -> list[str]:
     if settings.auto_upload_youtube and settings.youtube_upload_via_api and not settings.youtube_studio_upload_fallback:
         from shorts_bot.youtube.google_auth import credentials_configured, token_exists, upload_ready
 
-        if not credentials_configured():
-            issues.append(
-                "YouTube API upload needs GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET in Cursor secrets"
-            )
-        elif not token_exists():
-            issues.append(
-                "YouTube upload: run once — python3 -m shorts_bot.youtube.auth_cli "
-                "(Google sign-in, not Playwright)"
-            )
-        elif not upload_ready():
-            issues.append(
-                "YouTube token missing upload scope — re-run: python3 -m shorts_bot.youtube.auth_cli"
-            )
+        api_ready = (
+            credentials_configured() and token_exists() and upload_ready()
+        )
+        if not api_ready:
+            if settings.browser_enabled:
+                # Pipeline falls back to YouTube Studio browser upload (saved profile).
+                pass
+            elif not credentials_configured():
+                issues.append(
+                    "YouTube API upload needs GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET in Cursor secrets"
+                )
+            elif not token_exists():
+                issues.append(
+                    "YouTube upload: run once — python3 -m shorts_bot.youtube.auth_cli "
+                    "(Google sign-in, not Playwright)"
+                )
+            else:
+                issues.append(
+                    "YouTube token missing upload scope — re-run: python3 -m shorts_bot.youtube.auth_cli"
+                )
 
     return issues
 
