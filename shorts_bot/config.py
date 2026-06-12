@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     google_trends_timeframe: str = "today 3-m"
     research_cache_days: int = 7  # 0 = never expire cached deep research
     course_dir: Path = Path("course")
+    # Codex search + ask (BM25 over markdown; Gemini answers when key set)
+    codex_search_max_chunks: int = 8
+    codex_max_context_chars: int = 12000
     browser_profile_dir: Path = Path("data/browser_profile")
     browser_screenshot_dir: Path = Path("data/screenshots")
     browser_enabled: bool = True
