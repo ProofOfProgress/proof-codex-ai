@@ -65,12 +65,28 @@ def user_wants_horror_hook_research(user_request: str) -> bool:
         for s in (
             "horror hook",
             "jumpscare",
+            "peripheral",
             "don't blink",
-            "dont blink",
             "scare type",
             "competitor horror",
             "mirror horror",
             "security cam",
+        )
+    )
+
+
+def user_excludes_cosy_topics(user_request: str) -> bool:
+    lower = (user_request or "").lower()
+    return any(
+        s in lower
+        for s in (
+            "not cosy",
+            "no cosy",
+            "not cozy",
+            "no cozy",
+            "horror only",
+            "not self-help",
+            "twisted only",
         )
     )
 
@@ -105,9 +121,9 @@ def ai_video_context_block() -> str:
             "9:16, faceless until final lunge, caption-safe lower third empty."
         )
 
-    return f"""RESEARCH MODE: AI VIDEO PROMPTING for Don't Blink horror Shorts.
+    return f"""RESEARCH MODE: AI VIDEO PROMPTING for PERIPHERAL horror Shorts.
 
-Channel: Don't Blink — faceless ~30s horror micro-stories, jumpscare in last 3 seconds.
+Channel: PERIPHERAL — twisted ~30s horror micro-chapters, scare at the periphery, implied gore only.
 
 Focus research on:
 - I2V dread drift + final lunge (MiniMax, Kling, Replicate)

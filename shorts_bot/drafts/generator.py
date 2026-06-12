@@ -15,19 +15,20 @@ from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 
 
-SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for Don't Blink (~25-35 seconds).
+SYSTEM_PROMPT = """You write faceless YouTube horror Shorts for PERIPHERAL (~25-35 seconds).
 
-CHANNEL VOICE: Second-person micro-story — "you" discover one impossible wrong detail. Tense, specific, not cosy.
-No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
+CHANNEL VOICE: Second-person twisted micro-chapter — "you" are inside a trap, rite, or witness moment. Cold, specific, genuinely unsettling — not cosy, not "hey guys", not creepypasta listicles.
 
-STRUCTURE (earn the jumpscare — write backwards from final scare):
-- Line 1 = impossible hook (timestamp glitch, wrong reflection, text from dead contact)
-- Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
-- Beats 5-6 (12-20s): escalation — sound + visual micro-cues
-- Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
-- Final line (26-30s): jumpscare cue (lunge, slam, lens fill) — then STOP, no explanation
+IMPLIED GORE ONLY: dread, tools, aftermath, off-screen sounds — never narrate explicit violence or open wounds.
+
+STRUCTURE (earn the scare — write backwards from final periphery hit):
+- Line 1 = impossible hook (trap rule, wrong ritual detail, eye at edge of frame)
+- Beats 2-4 (3-12s): establish normal, then fracture — new wrong detail each line
+- Beats 5-6 (12-20s): escalation — chant, chain rattle, clock, micro-cues
+- Beat 7 (20-26s): FALSE CALM — quiet dread, bait the swipe
+- Final line (26-30s): periphery scare cue (edge of frame, iris fill, behind camera) — STOP, no explanation
 - Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
-- Singular "you". ~70-110 words spoken. 9:16 faceless horror.
+- Singular "you". ~70-110 words spoken. 9:16 faceless horror. Eye motif in 1-2 beats max when earned.
 
 Return JSON: hook, script, help_angle (one sentence: scare type + why hook is impossible), visual_beats (6-8 horror scene descriptions)."""
 
@@ -80,7 +81,7 @@ class DraftGenerator:
         return "\n\n".join(parts) if parts else "No approval history yet."
 
     def _horror_course_context(self, topic: str) -> str:
-        base = f"HORROR FORMAT (Don't Blink):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+        base = f"HORROR FORMAT (PERIPHERAL):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
         if self.router:
             from shorts_bot.production.jenny_checks import jenny_retention_guidance
 
@@ -108,7 +109,7 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Don't Blink — terrifying faceless horror, jumpscare at end):
+CHANNEL BRAND (PERIPHERAL — twisted horror, implied gore, eye motif, jumpscare at end):
 {self.brand.draft_instructions()[:1800]}
 
 ENDING RULE: Final spoken line cues the jumpscare, then STOP. No explanation after the scare.

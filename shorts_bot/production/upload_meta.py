@@ -123,8 +123,8 @@ def _description_from_research(topic: str, hook: str, research) -> str:
     return (
         f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
         f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"One impossible detail → tension → scare at the end. Watch the whole thing.\n"
+        f"PERIPHERAL — twisted horror micro-chapters (~30s). "
+        f"One impossible detail → tension → scare at the edge. You're already in it.\n"
         f"{extra}\n"
         f"AI motion visuals · synthetic media disclosed\n\n"
         f"What should the next story be? One sentence in the comments.\n\n"
@@ -172,7 +172,7 @@ def _safe_title(topic: str, hook: str) -> str:
             return f"🔊 {clean}"[:100]
         return clean[:100]
     t = topic.strip()
-    return f"🔊 {t[:80]} — watch the whole thing"[:100]
+    return f"🔊 {t[:80]} — you're already in it"[:100]
 
 
 def _safe_description(topic: str, hook: str) -> str:
@@ -181,8 +181,8 @@ def _safe_description(topic: str, hook: str) -> str:
     return (
         f"🔊 VOLUME WARNING — jumpscare in the last 3 seconds. Headphones advised.\n\n"
         f"{hook_line}\n\n"
-        f"Don't Blink — terrifying faceless horror micro-stories (~30s). "
-        f"Watch the whole thing.\n\n"
+        f"PERIPHERAL — twisted horror micro-chapters (~30s). "
+        f"You're already in it.\n\n"
         f"AI motion visuals · synthetic media disclosed\n\n"
         f"{hashtags}"
     )

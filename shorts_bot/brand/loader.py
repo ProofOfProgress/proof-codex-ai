@@ -27,8 +27,8 @@ class ChannelBrand:
             text = self.identity_path.read_text(encoding="utf-8")
             return text[:2500]
         return (
-            "Channel: Don't Blink — terrifying faceless horror Shorts (~30s). "
-            "Jumpscare at the end. Watch the whole thing."
+            "Channel: PERIPHERAL — twisted faceless horror Shorts (~30s). "
+            "Implied gore only. Scare at the periphery. You're already in it."
         )
 
     def youtube_copy(self) -> str:

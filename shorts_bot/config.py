@@ -49,9 +49,9 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "Don't Blink"
-    channel_series_name: str = "Don't Blink"
-    channel_tagline: str = "Watch the whole thing."
+    youtube_channel_name: str = "PERIPHERAL"
+    channel_series_name: str = "PERIPHERAL"
+    channel_tagline: str = "You're already in it."
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes

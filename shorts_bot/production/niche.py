@@ -1,73 +1,77 @@
-"""Niche — Don't Blink (faceless horror Shorts, end jumpscare)."""
+"""Niche — PERIPHERAL (twisted serialized horror Shorts, implied gore, eye brand)."""
 
 from __future__ import annotations
 
-NICHE_NAME = "Don't Blink"
-NICHE_TAGLINE = "Watch the whole thing."
+NICHE_NAME = "PERIPHERAL"
+NICHE_TAGLINE = "You're already in it."
 
 NICHE_POSITIONING = """
-Don't Blink — **terrifying faceless horror Shorts** (~30 seconds).
+PERIPHERAL — **twisted faceless horror Shorts** (~30 seconds). Serialized world: traps, rites, witnesses.
 
-Every video: one micro-story → tension builds → **loud visual jumpscare in the last 3 seconds**.
-AI full-motion clips only (no stick figures). Faceless — eyes, hallways, phones, shadows, never cosy self-help.
+Every video: one micro-chapter → tension builds → **scare in the last 3 seconds** (often at the edge of frame — the periphery).
+Brand: **one huge freaky eye** staring at the viewer. Future merch: biker/raw streetwear × sacred eye contrast.
 
 Pillars (rotate):
-1. **Wrong place** — empty room, locked door, hallway that wasn't there yesterday
-2. **Wrong time** — timestamp glitch, photo taken after death, 3am notification
-3. **Wrong reflection** — mirror, window, phone screen shows someone else
-4. **Wrong sound** — knock when alone, breathing on a muted call, footsteps upstairs
-5. **Wrong text** — last message from a deleted contact, autocorrect to something impossible
+1. **The test** — impossible choice, clock running, early Saw-style psychological trap (original, not copy)
+2. **The rite** — fog forest, stone circle, hooded figures, low chant — **offering implied, never shown**
+3. **The witness** — found footage, security cam, you weren't meant to see this
+4. **The periphery** — wrong detail at edge of frame; macro eye in hook or finale when earned
+5. **The Architect** — calm voice, symbols, gloved hands — never full face reveal
 
 Format rules:
-- Hook in line 1 (impossible detail, not "scary story #12")
+- Hook in line 1 (impossible rule, not "scary story #12")
 - 6–8 beats, cut every 2–3s, visual change each beat
-- Beat 6–7: false calm (quiet VO, slow motion) — bait the swipe
-- Final beat: full-frame scare + audio sting (🔊 volume warning in title/description)
-- 25–35s total length — not 60s slow burn
+- Beat 6–7: false calm — bait the swipe
+- Final beat: periphery scare + audio sting (🔊 volume warning in title/description)
+- 25–35s total — not 60s slow burn
 
-What works: specific uncanny detail, earned scare, varied scare types (face lunge / reflection / door slam / glitch morph).
-What fails: generic creepypasta listicles, gore, real victims, cosy aesthetic, stick figures, slow slideshow.
+Implied gore (YPP-safe, actually scarier):
+- Show anticipation, tools, terror faces, aftermath, off-screen sound
+- Never show the act, open wounds, or step-by-step harm
+
+What works: specific twisted detail, earned dread, varied scare types, genuine authenticity — not edgy slop.
+What fails: generic creepypasta, explicit gore, cosy aesthetic, stick figures, real victim stories, AI listicle tone.
 """
 
 DEFAULT_TOPICS = [
-    "the last text showed delivered — but their phone was off",
-    "you took a photo of your room — someone was in the corner",
-    "the knock came from inside the closet you never open",
-    "your security camera flagged motion — you live alone",
-    "the mirror reflection blinked one second after you did",
-    "voicemail from your own number — timestamp tomorrow",
-    "the hallway was three steps longer than yesterday",
-    "every light in the house turned on — you didn't touch a switch",
-    "the baby monitor picked up a second heartbeat",
-    "your face unlock worked — but you weren't looking at the phone",
-    "the GPS says you're home — the camera shows an empty driveway",
-    "you muted the call — the breathing didn't stop",
-    "the door was locked from the inside — the key is still in your pocket",
-    "the photo timestamp is from next week",
-    "something sat on the edge of your bed — the sheets are still cold",
-    "the elevator stopped on a floor that doesn't exist",
-    "your smart speaker answered a question you didn't ask",
-    "the scratch marks on the door are on the inside",
-    "you woke up with sand in your bed — you don't live near a beach",
-    "the figure in the window waved before you looked up",
-    "the lullaby played from the empty nursery",
-    "your reflection didn't put the phone down when you did",
-    "the emergency alert was for your exact address — wrong date",
-    "you heard your voice calling from the basement",
-    "the family photo has one more person than you remember",
-    "the scarecrow faces your window every morning — closer than yesterday",
-    "the static on the TV formed a face for one frame",
-    "you found a second set of teeth marks on the apple",
-    "the car headlights behind you never passed — for twenty miles",
-    "don't blink at the end — the thing in the hall moves when you do",
+    "the ritual takes thirty seconds — you're on second twenty-nine",
+    "they blood-eagle the willing — he wasn't willing",
+    "the Architect left you a choice — you already picked wrong",
+    "the forest circle had one extra hood — it wasn't there yesterday",
+    "your reflection blinked — the eye in the mirror didn't",
+    "the chain was already around your wrist when you woke up",
+    "the chant stopped — but the breathing behind you didn't",
+    "security cam flagged motion — the room was empty except the eye on the wall",
+    "the offering bowl was full — nothing living had entered the circle",
+    "the test said one person walks out — the door only opens inward",
+    "you found the mask in your bag — you never wore it",
+    "the stone had fresh grooves — the tool was still in your hand",
+    "the whisper knew your name — the hoods never turned around",
+    "the countdown hit zero — the lights came on and you were in the circle",
+    "the hook in the ceiling was new — the chair was already warm",
+    "every figure faced the center — one was facing you",
+    "the tape said watch the edge of the frame — something moved there",
+    "the forest path ended at a door — the door was your front door",
+    "the eye painted on the basement wall — it wasn't dry",
+    "the rite required silence — your scream was the offering",
+    "the biker patch showed the eye — you don't own a jacket",
+    "the Architect's voice: you're already in it — the video started ten seconds ago",
+    "the snow was red around the circle — no footprints led in or out",
+    "the trap was simple — don't blink at the eye in the corner",
+    "the final rule: look away — the eye is in your peripheral vision right now",
+    "the hooded figures knelt — the empty spot was shaped like you",
+    "the industrial chain rattled — you were the only one in the room",
+    "the symbol carved in the table — your finger was bleeding",
+    "the forest fog parted — something with one huge eye was watching",
+    "don't look at the center — PERIPHERAL sees you when you look away",
 ]
 
 
 def quality_lessons() -> str:
     return (
-        "Better: impossible hook in line 1, 6–8 paced beats, false calm before scare, "
-        "AI motion clips synced to VO, jumpscare on final beat with audio sting. "
-        "Worse: generic 'scary story', cosy self-help tone, stick figures, 60s slow build, "
-        "same scare every upload. Always: 🔊 volume warning, captions in Jenny 05 safe zone, "
-        "declare synthetic media, rotate scare types."
+        "Better: impossible hook line 1, 6–8 paced beats, false calm before scare, "
+        "implied gore only, AI motion synced to VO, periphery scare on final beat with audio sting. "
+        "Worse: generic 'scary story', explicit gore, cosy tone, stick figures, AI slop listicles. "
+        "Always: 🔊 volume warning, eye motif when earned, biker-industrial palette, "
+        "declare synthetic media, rotate series pillars."
     )

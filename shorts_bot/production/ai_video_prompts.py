@@ -49,13 +49,14 @@ class VideoPromptBrief:
 def visual_dna() -> str:
     """Paste unchanged into every clip prompt."""
     return (
-        "VISUAL DNA — Don't Blink horror: "
-        "Style: cinematic photoreal horror still, film grain, harsh contrast, underexposed — not illustration, not anime. "
-        "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
-        "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
-        "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
-        "Faceless until scare beat: silhouettes, POV, phone screens, hallway depth — no identifiable faces until final lunge. "
-        "Motion: slow dread drift or locked static; final beat may snap fast toward camera."
+        "VISUAL DNA — PERIPHERAL horror: "
+        "Style: cinematic photoreal horror, film grain, harsh contrast, underexposed — not illustration, not anime. "
+        "Palette: black #0A0A0A, bone white #E8E4DC, cold steel #4A5568, dried blood #6B0F1A accents only. "
+        "Brand: one huge freaky eye staring at camera when earned; biker-industrial texture (leather, chain, rust). "
+        "Lighting: single harsh source, fog, fire flicker in rites, deep shadows. "
+        "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions. "
+        "Implied gore only: ritual tools, hooded silhouettes, aftermath — no explicit wounds or blood spray. "
+        "Motion: slow dread drift; scare often at edge of frame (periphery) or iris fill on final beat."
     )
 
 
@@ -63,7 +64,8 @@ def negative_block() -> str:
     return (
         "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
         "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
-        "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood"
+        "morphing textures, extra fingers, explicit gore, blood spray, open wounds, torture shown on screen, "
+        "office fluorescent, cheerful mood"
     )
 
 

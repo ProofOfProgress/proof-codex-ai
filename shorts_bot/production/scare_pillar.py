@@ -1,38 +1,36 @@
-"""Don't Blink scare pillar classification — rotate types across uploads (YPP + retention)."""
+"""PERIPHERAL scare pillar classification — rotate types across uploads."""
 
 from __future__ import annotations
 
 PILLARS = (
-    "wrong_reflection",
-    "wrong_place",
-    "wrong_time",
-    "wrong_sound",
-    "wrong_text",
+    "the_test",
+    "the_rite",
+    "the_witness",
+    "the_periphery",
+    "the_architect",
 )
 
 
 def scare_pillar_for_topic(topic: str) -> str:
     lower = (topic or "").lower()
-    if any(k in lower for k in ("mirror", "reflection", "blink", "window wave")):
-        return "wrong_reflection"
-    if any(k in lower for k in ("security", "camera", "cctv", "motion", "ring", "footage")):
-        return "wrong_place"
-    if any(k in lower for k in ("text", "message", "autocorrect", "notification", "contact", "delivered")):
-        return "wrong_text"
-    if any(k in lower for k in ("timestamp", "tomorrow", "yesterday", "3am", "photo", "future")):
-        return "wrong_time"
-    if any(k in lower for k in ("knock", "closet", "breath", "footstep", "muted", "scratch")):
-        return "wrong_sound"
-    if any(k in lower for k in ("hallway", "door", "room", "elevator", "bed")):
-        return "wrong_place"
-    return "wrong_place"
+    if any(k in lower for k in ("architect", "choice", "test", "trap", "tape", "countdown", "chain")):
+        return "the_test"
+    if any(k in lower for k in ("rite", "ritual", "chant", "circle", "forest", "hood", "offering", "blood-eagle", "eagle")):
+        return "the_rite"
+    if any(k in lower for k in ("security", "camera", "cctv", "footage", "witness", "cam")):
+        return "the_witness"
+    if any(k in lower for k in ("eye", "peripheral", "periphery", "frame", "blink", "reflection", "mirror")):
+        return "the_periphery"
+    if any(k in lower for k in ("architect", "voice", "symbol", "carved", "rule")):
+        return "the_architect"
+    return "the_test"
 
 
 def pillar_label(pillar: str) -> str:
     return {
-        "wrong_reflection": "Wrong reflection",
-        "wrong_place": "Wrong place",
-        "wrong_time": "Wrong time",
-        "wrong_sound": "Wrong sound",
-        "wrong_text": "Wrong text",
+        "the_test": "The test",
+        "the_rite": "The rite",
+        "the_witness": "The witness",
+        "the_periphery": "The periphery",
+        "the_architect": "The Architect",
     }.get(pillar, pillar)

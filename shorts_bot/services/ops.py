@@ -496,7 +496,7 @@ class BotOperations:
     def login_status_text(self) -> str:
         from shorts_bot.login_status import full_status
 
-        lines = ["**Don't Blink — service status**"]
+        lines = ["**PERIPHERAL — service status**"]
         for row in full_status(include_studio=False):
             mark = "✓" if row["ready"] else "✗"
             lines.append(f"{mark} **{row['label']}** — {row['detail'][:100]}")
@@ -566,7 +566,7 @@ class BotOperations:
                 msg += (
                     f"\n\nProfile: upload `{profile}` in Studio → Customization → Branding."
                 )
-            series = fields.series or "Don't Blink"
+            series = fields.series or "PERIPHERAL"
             need_studio_name = bool(name) and not api.name_updated
             need_studio_desc = bool(desc) and not api.description_updated
             if (need_studio_name or need_studio_desc) and settings.browser_enabled:

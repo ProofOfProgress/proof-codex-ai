@@ -12,4 +12,4 @@ def manager_name() -> str:
 
 def manager_intro_line() -> str:
     """One line for CLI/web — manager vs channel."""
-    return f"{manager_name()} — Chief Manager for Don't Blink"
+    return f"{manager_name()} — Chief Manager for PERIPHERAL"

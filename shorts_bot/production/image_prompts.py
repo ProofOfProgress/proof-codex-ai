@@ -26,7 +26,7 @@ def _load_style_guide() -> str:
     )
 
 
-def build_master_prompt(*, channel_topic: str = "Don't Blink horror Short") -> str:
+def build_master_prompt(*, channel_topic: str = "PERIPHERAL horror Short") -> str:
     style = _load_style_guide()
     return f"""You are generating horror keyframe images for faceless YouTube Short "{channel_topic}".
 
@@ -36,7 +36,7 @@ RULES (critical):
 3. Each image covers only the words from that timestamp until the next timestamp.
 4. Output prompts as JSON array: [{{"timestamp": "00.07", "prompt": "..."}}]
 
-STYLE (Don't Blink — terrifying, not cosy):
+STYLE (PERIPHERAL — twisted, implied gore, eye motif, biker-industrial edge):
 {style[:2000]}
 
 Every prompt must end with: "vertical 9:16 still image, no text, no watermark, photorealistic horror."
@@ -47,16 +47,16 @@ TIMESTAMPED SCRIPT:
 
 
 def horror_segment_to_prompt(seg: TranscriptSegment, *, topic: str) -> str:
-    """Paid image/I2V keyframe — Don't Blink horror."""
+    """Paid image/I2V keyframe — PERIPHERAL horror."""
     style = _load_style_guide()
     scene = seg.text.strip() or topic
     return (
-        f"Terrifying faceless horror still frame: {scene}. "
+        f"Twisted PERIPHERAL horror still frame: {scene}. "
         f"Story: {topic}. "
-        "Mood: uncanny, dread, something is wrong, cinematic horror movie still. "
-        "Setting: dark hallway, mirror, phone screen, empty room, security cam POV, shadows. "
-        "Palette: black, cold blue, deep crimson, film grain, harsh contrast. "
-        "Silhouettes only — no full face until scare beat. No gore, no blood. "
+        "Mood: psychological trap, ritual dread, something at edge of frame, cinematic horror. "
+        "Setting: fog forest stone circle, industrial basement, hooded silhouettes, macro freaky eye when earned. "
+        "Palette: black, bone white, cold steel, dried blood accent, film grain, harsh contrast, biker-industrial texture. "
+        "Silhouettes only — implied gore never explicit: tools, chains, aftermath, no open wounds. "
         f"{framing_notes_for_prompt()} "
         "vertical 9:16 still image, no text, no watermark, photorealistic horror, terrifying. "
         f"Style: {style[:400]}"

@@ -1,18 +1,18 @@
-# Brand voice — inject into all drafts
+# Brand voice — PERIPHERAL (inject into all drafts)
 
-**Channel acts like a real faceless creator** — same struggles as the viewer, sharing what helped *them*.
+**Channel voice:** cold second-person witness inside a trap or rite. You are **in** the story — not a YouTuber narrating.
 
 When writing hooks and scripts:
 
-1. **First person always** — "I used to…", "this helped me at 3am", "I still catch myself…"
-2. **Jenny: singular you** — one person to one person, not "hey guys"
-3. **Help first** — viewer leaves with one concrete action that worked for you
-4. **Hook ASAP** — shock/curiosity + promise of payoff (files 02, 06)
-5. **Momentum** — every line advances; but/so cause-and-effect
-6. **Payoff then stop** — best beat last, end within one beat
-7. **Mute-safe** — stick figure acts out advice; **subtitles on key lines**
-8. **One subtle knowing line max** — seasoning, not the meal (optional mid-script; never a tacked-on outro)
-9. **No AI words** — bot, algorithm, ChatGPT, simulation, glitch
-10. **End on the protocol** — last line = concrete relief or "try this tonight" tied to the moment. **Do NOT** end voiceover with the channel tagline.
+1. **Singular "you" always** — one person, one impossible situation
+2. **Specific over generic** — "the chain was already around your wrist" not "something scary happened"
+3. **Twisted but earned** — early Saw psychological dread, not shock for shock's sake
+4. **Implied gore only** — describe dread, tools, aftermath; **never** narrate explicit violence
+5. **Hook line 1** — impossible rule or wrong detail; stop the scroll
+6. **False calm beat** — quiet line before the hit; bait the swipe
+7. **Final beat** — periphery scare (edge of frame, behind camera, eye) then STOP — no explanation
+8. **Mute-safe** — each visual beat reads without audio
+9. **No AI slop** — no "scary story #12", creepypasta listicles, "hey guys", cosy self-help
+10. **No real religion mockery** — fictional cult/rite only; Norse *vibe* (chant, forest, stone) not real faith attacks
 
-Channel tagline (`you're still here. good.`) is for **description / banner / pinned comment only** — not spoken in every Short. It reads weird as a repeated video ending.
+Tagline (`You're already in it.`) is for **description / banner / pinned comment** — not spoken every Short unless it lands as a cold final line.

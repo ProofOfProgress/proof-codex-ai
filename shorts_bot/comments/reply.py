@@ -13,11 +13,11 @@ from shorts_bot.llm.provider import get_llm_backend
 def _offline_reply(comment: str) -> str:
     lower = comment.lower()
     if TOPIC_REQUEST.search(comment):
-        return "Good one — I'll queue this for a future Don't Blink Short."
+        return "Good one — I'll queue this for a future PERIPHERAL chapter."
     if re.search(r"\b(thank|thanks|helped|useful|needed this|appreciate)\b", lower):
-        return "Glad it landed — watch the whole thing on the next one too."
+        return "Glad it landed — you're already in it on the next one too."
     if re.search(r"\b(love|great|awesome|perfect|amazing)\b", lower):
-        return "Means a lot — more impossible-detail horror coming."
+        return "Means a lot — more twisted PERIPHERAL chapters coming."
     if "?" in comment and len(comment) < 120:
         return (
             "Short answer: rewatch the hook frame — the wrong detail is the clue. "
@@ -29,13 +29,13 @@ def _offline_reply(comment: str) -> str:
 
 
 def generate_reply(comment: str, *, video_title: str = "") -> str:
-    """Don't Blink channel owner reply — max ~280 chars."""
+    """PERIPHERAL channel owner reply — max ~280 chars."""
     backend = get_llm_backend()
     if backend is None:
         return _offline_reply(comment)[:280]
 
     brand = ChannelBrand()
-    channel = settings.youtube_channel_name or "Don't Blink"
+    channel = settings.youtube_channel_name or "PERIPHERAL"
     tagline = brand.youtube_fields().tagline or settings.channel_tagline
     prompt = f"""Write ONE YouTube comment reply as {channel} channel owner.
 
@@ -45,7 +45,7 @@ Video: {video_title[:120] or "a Short"}
 Rules:
 - Max 220 characters
 - Tense but human horror-creator voice — not therapist, not crisis counselor
-- If they suggest a topic, say you'll queue it for the next Don't Blink micro-story
+- If they suggest a topic, say you'll queue it for the next PERIPHERAL chapter
 - Do NOT paste the channel tagline ("{tagline}") — it sounds robotic in comments
 - No links, no medical advice, no "as an AI"
 - Plain text only

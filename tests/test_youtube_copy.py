@@ -28,7 +28,7 @@ def test_brand_loader_youtube_fields():
     brand = ChannelBrand()
     fields = brand.youtube_fields()
     assert fields.channel_name
-    assert fields.channel_name == "Don't Blink"
+    assert fields.channel_name == "PERIPHERAL"
     assert "VOLUME WARNING" in fields.description
 
 

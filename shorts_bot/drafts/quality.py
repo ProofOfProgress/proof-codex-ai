@@ -134,7 +134,7 @@ def run_quality_checks(
         issues.append("Self-help first-person voice — use second-person 'you' horror micro-story.")
 
     if not re.search(r"\byou\b", lowered):
-        warnings.append("Missing singular 'you' — Don't Blink scripts are second-person micro-stories.")
+        warnings.append("Missing singular 'you' — PERIPHERAL scripts are second-person twisted micro-chapters.")
 
     impossible_cues = (
         "blink",

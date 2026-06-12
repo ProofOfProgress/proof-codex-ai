@@ -4,10 +4,10 @@ from shorts_bot.production.scare_pillar import scare_pillar_for_topic
 
 
 def test_scare_pillar_classification():
-    assert scare_pillar_for_topic("mirror reflection blinked") == "wrong_reflection"
-    assert scare_pillar_for_topic("security camera flagged motion") == "wrong_place"
-    assert scare_pillar_for_topic("knock from inside closet") == "wrong_sound"
-    assert scare_pillar_for_topic("last text showed delivered") == "wrong_text"
+    assert scare_pillar_for_topic("mirror reflection blinked") == "the_periphery"
+    assert scare_pillar_for_topic("security camera flagged motion") == "the_witness"
+    assert scare_pillar_for_topic("knock from inside closet") == "the_test"
+    assert scare_pillar_for_topic("forest ritual chant circle") == "the_rite"
 
 
 def test_upload_warns_same_pillar(tmp_path, monkeypatch):

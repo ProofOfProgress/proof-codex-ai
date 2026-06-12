@@ -51,7 +51,7 @@ def next_topic(store: MemoryStore) -> str:
         chosen = pool[index % len(pool)]
 
     store.set_channel_state(_state_path(), str(index + 1))
-    store.set_channel_state("niche_version", "dont_blink_horror_v1")
+    store.set_channel_state("niche_version", "peripheral_v1")
     pillar = scare_pillar_for_topic(chosen)
     store.set_channel_state(
         "last_topic_pick",

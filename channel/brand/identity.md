@@ -1,49 +1,63 @@
-# Channel identity — Don't Blink
+# Channel identity — PERIPHERAL
 
-> **Terrifying faceless horror Shorts** — ~30s micro-stories, **jumpscare at the end**.
+> **Twisted serialized horror Shorts** — ~30s traps and rites. **Implied gore only.** The eye sees everything.
 
 ## One-line pitch
 
-**Faceless horror Shorts that hit you in the last 3 seconds — if you blink, you miss it.**
+**Something is watching from the edge of the frame — and you're already in the test.**
+
+## Brand layers
+
+| Layer | What it is |
+|-------|------------|
+| **Logo** | One **huge freaky eye** — macro iris, bloodshot, staring straight into camera. High contrast. That's the channel. |
+| **Merch (future)** | **Biker clothing** — black denim, chain stitch, patch with the eye. Raw, worn, not mall-goth. Contrast: sacred eye on streetwear. |
+| **Content** | Early-Saw psychological traps + Norse-forest ritual dread. **Show anticipation and aftermath — never the act.** |
+| **Tone** | Genuinely fucked up. Not edgy for edginess. Specific, cold, earned. No cosy horror, no AI slop listicles. |
 
 ## Niche
 
-| Old (Soft Continuity) | New (Don't Blink) |
-|-----------------------|-------------------|
-| Cosy self-help protocols | Impossible-detail horror micro-stories |
-| Stick figures on couch | AI full-motion cinematic clips |
-| 60s calm payoff | 25–35s → **jumpscare payoff** |
-| "you're still here. good." | "Watch the whole thing." |
+**PERIPHERAL** — faceless ~30s horror micro-chapters in one twisted world.
 
-**Handle:** `@alphabeta0-c1m` (unchanged)  
-**Display name target:** Don't Blink  
-**YouTube note:** Display name **cannot** be changed via YouTube Data API (Google returns `channelTitleUpdateForbidden` — API silently keeps the old title). Description + banner update via API; **name must be set in YouTube Studio** (Customization → Basic info). Studio previously rejected **"Don't Blink"** as taken/unavailable. Alternates: **Never Blink**, **Dont Look Away**, **Don't Blink Shorts**. You can change the name **twice per 14 days**.
+Every video:
+- Hook in line 1 — impossible rule or wrong detail
+- 6–8 beats, cut every 2–3s, visual change each beat
+- Beat 6–7: false calm — bait the swipe
+- Final beat: scare at the **periphery** (edge of frame, behind camera, in the iris) + audio sting
+- 25–35s total — not slow burn
 
-## Tone
+**Implied gore rule (non-negotiable):**
+- OK: chains, ritual tools, terror faces, aftermath, off-screen sound, blood on snow *without* showing wounds
+- Never: explicit violence, open wounds, step-by-step torture, real victims, child harm
 
-| Do | Don't |
-|----|-------|
-| Specific uncanny hooks (timestamp, reflection, text) | Generic "scary story #47" |
-| Earned scare — setup → silence → hit | Random loud noise with no story |
-| Rotate scare types each upload | Same monster every video |
-| 🔊 Volume warning in description/title | Surprise-report bait |
-| Faceless — shadows, eyes, hallways, phones | Gore, real victims, child harm |
+**Series pillars (rotate):**
+1. **The test** — choice with no good outcome (early Saw energy, original traps)
+2. **The rite** — forest/stone circle, chanting, offering implied not shown
+3. **The witness** — found footage, you weren't supposed to see this
+4. **The periphery** — horror lives at edge of frame; eye motif; something behind the lens
+5. **The Architect** — calm voice, symbols, hands only — never full reveal
 
 ## Visual system
 
 - **Format:** `VISUAL_STYLE=ai_video` — FLUX still → I2V motion per beat
-- **Palette:** black, cold blue, deep crimson, film grain, harsh contrast
-- **No stick figures**
-- **Final beat:** full-frame lunge / face / glitch — synced audio sting
-- **Captions:** ffmpeg ASS, Jenny 05 safe zone
+- **Palette:** black, bone white, cold steel, dried-blood crimson accent, harsh single light
+- **Eye motif:** macro iris in hook or final beat when it serves the story — not every frame
+- **Biker edge:** industrial rust, leather texture, chain, fog forest, basement concrete — not cosy
+- **Captions:** ffmpeg ASS, bottom safe zone
 
 ## Growth
 
-- Series recognition: viewers learn **the scare is always at the end**
-- Binge: "one more" loop — completion rate matters more than RPM
-- Comments: "I jumped" / "volume warning" = engagement signal
+- Viewers learn: **PERIPHERAL** = twisted 30s chapter + scare at end
+- Binge the series for lore; eye logo = instant recognition
+- Merch path: eye patch on black hoodie, chain detail, no gore on clothing — just unease
+
+## YouTube
+
+- **Display name:** PERIPHERAL (set in Studio — API cannot rename channel title)
+- **Handle:** `@alphabeta0-c1m` (unchanged until redirect)
 
 ## Brand assets
 
-- **Profile:** circle crop from center of banner eye (iris)
-- **Banner:** macro terrifying eye, 2560×1440, no text (eye is the logo)
+- **Profile:** crop center of macro eye (iris fills circle)
+- **Banner:** full-width freaky eye staring at viewer, 2560×1440, minimal text
+- **Pinned:** volume warning + "you're in the test"

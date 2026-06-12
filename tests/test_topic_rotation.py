@@ -30,4 +30,4 @@ def test_next_topic_skips_mirror_after_mirror_upload(tmp_path, monkeypatch):
     )
 
     chosen = next_topic(store)
-    assert scare_pillar_for_topic(chosen) != "wrong_reflection"
+    assert scare_pillar_for_topic(chosen) != "the_periphery"
