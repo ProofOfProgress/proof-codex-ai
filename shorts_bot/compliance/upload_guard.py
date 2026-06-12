@@ -124,6 +124,14 @@ def check_upload_allowed(
         hook_key = hook.strip().lower()[:120]
         if memory.hook_uploaded_within_days(hook_key, days=settings.hook_cooldown_days):
             issues.append(f"hook too similar to recent upload (within {settings.hook_cooldown_days} days)")
+        from shorts_bot.drafts.hook_novelty import CHANNEL_KNOWN_HOOKS, hook_similarity
+
+        for banned in list(CHANNEL_KNOWN_HOOKS) + [
+            str(r.get("hook") or "") for r in memory.recent_upload_scripts(limit=8)
+        ]:
+            if banned.strip() and hook_similarity(hook, banned) >= 0.55:
+                issues.append(f"hook recycles channel opening — must be a new idea")
+                break
 
         script_tokens = _token_set(script)
         for prev in memory.recent_upload_scripts(limit=5):

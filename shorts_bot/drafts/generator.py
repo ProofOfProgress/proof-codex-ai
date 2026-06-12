@@ -8,6 +8,12 @@ from openai import OpenAI
 from shorts_bot.brand.loader import ChannelBrand
 from shorts_bot.config import settings
 from shorts_bot.course.router import CourseRouter
+from shorts_bot.drafts.hook_novelty import (
+    check_hook_novelty,
+    collect_recent_hooks,
+    format_banned_hooks_block,
+    hook_similarity,
+)
 from shorts_bot.drafts.quality import QualityReport, run_quality_checks
 from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
@@ -35,6 +41,7 @@ Mix hallways, mirrors, CCTV with visible eyes/masks when the story fits.
 
 STRUCTURE (earn the jumpscare — write backwards from final scare):
 - Line 1 = hook (timestamp glitch, wrong reflection, text from dead contact)
+- **NEW hook every video** — never paraphrase a previous upload or draft opening
 - Beats 2-4 (3-12s): establish normal, then fracture it — new wrong detail each line
 - Beats 5-6 (12-20s): escalation — sound + visual micro-cues
 - Beat 7 (20-26s): FALSE CALM — "you told yourself it was nothing" / quiet dread, bait the swipe
@@ -74,6 +81,9 @@ class DraftGenerator:
         self.memory = memory
         self.agent_memory = agent_memory
         self.brand = brand or ChannelBrand()
+
+    def _recent_hooks(self) -> list[str]:
+        return collect_recent_hooks(self.store, self.memory)
 
     def _feedback_context(self) -> str:
         rejections = self.store.rejection_summary()[:8]
@@ -116,6 +126,10 @@ class DraftGenerator:
         research_block = ""
         if research is not None:
             research_block = f"\n{research.draft_context()}\n"
+
+        banned = format_banned_hooks_block(self._recent_hooks())
+        if banned:
+            research_block += f"\n{banned}\n"
 
         user_prompt = f"""Topic: {topic}
 Optional angle: {angle or "none"}
@@ -246,30 +260,105 @@ Return JSON with keys:
                 "Hand reaches from closet slit",
                 "Full-body lunge into hallway toward camera",
             ]
-        else:
-            hook = "You blinked at the mirror — your reflection blinked one second later."
+        elif "hallway" in lower and ("longer" in lower or "step" in lower):
+            hook = "You counted the hallway tiles — there were three more than last night."
             script = (
                 f"{hook} "
-                "You stepped closer and the glass stayed still, but the eyes in it didn't. "
-                "You raised your phone to record proof and the screen showed an empty bathroom. "
-                "You looked up — the reflection was already facing the door behind you. "
-                "The hallway light flickered off. "
-                "You told yourself it was a lag, a trick of tired eyes. "
-                "You turned to leave. "
-                f"{(angle or 'The thing in the mirror opened its mouth the moment you looked away')}."
+                "You walked it twice to be sure. The apartment felt the same size on the blueprint. "
+                "You told yourself you were tired. At the far end, a door you never installed stood half-open. "
+                "Cold air pushed out from a room that should be brick wall. "
+                "You stepped back. The hallway stretched again while you watched. "
+                "Something at the new end leaned into the light. Then it ran the whole length toward you."
             )
-            help_angle = (
-                f"Wrong-reflection jumpscare — impossible timing on {topic} hooks viewers who trust mirrors."
-            )
+            help_angle = "Wrong place — hallway grows overnight; false calm miscount; spatial lunge scare."
             visual_beats = [
-                "POV bathroom mirror, cold blue light, your silhouette facing glass",
-                "Reflection eyes blink delayed — one frame wrong",
-                "Phone screen recording shows empty room while mirror still has figure",
-                "Reflection turned toward hallway door you have not opened yet",
-                "Hallway light dies — long dark corridor, slow drift",
-                "False calm: static mirror, quiet hold, empty frame",
-                "Full-frame face lunge from mirror surface toward camera",
+                "POV counting floor tiles in narrow apartment hallway, dim bulb",
+                "Blueprint on table shows shorter hall — mismatch",
+                "Impossible door at end of hall, half-open, cold haze",
+                "Hallway visibly longer in single continuous shot",
+                "False calm: empty stretched corridor hold",
+                "Figure at far end leans into light",
+                "Full sprint lunge down hallway toward camera",
             ]
+        elif "basement" in lower or ("voice" in lower and "calling" in lower):
+            hook = "Your own voice called your name from the basement — you hadn't gone down yet."
+            script = (
+                f"{hook} "
+                "You stood at the top of the stairs. The bulb down there had been dead for months. "
+                "You told yourself it was a recording. The voice said come down, exactly like you speak. "
+                "You heard wet footsteps climbing toward you in the dark. "
+                "You slammed the door. The handle turned from the other side. "
+                "The voice whispered through the keyhole — already in the kitchen behind you."
+            )
+            help_angle = "Wrong sound — self-voice from sealed basement; false calm recording excuse; behind-you scare."
+            visual_beats = [
+                "Top of basement stairs, dead bulb, dark below",
+                "Voice waveform on dusty recorder — your cadence",
+                "Footsteps on wooden stairs in pitch black",
+                "Door slam POV, trembling hand on knob",
+                "False calm: silent closed door",
+                "Kitchen over-shoulder — figure behind you in reflection of microwave door",
+                "Face lunge from behind into lens",
+            ]
+        elif "mirror" in lower or "reflection" in lower or "blink" in lower:
+            hook = "Your reflection waved before you moved your hand."
+            script = (
+                f"{hook} "
+                "You froze in the bathroom. The glass showed you still, arm raised without you raising it. "
+                "You told yourself it was latency on the cheap mirror. You switched off the light. "
+                "The reflection stayed lit in the dark. It mouthed your name with your voice. "
+                "You backed into the hallway. The mirror slid across the wall on its own. "
+                "It filled the doorway. Then the glass shattered outward at your face."
+            )
+            help_angle = "Wrong reflection — independent wave; false calm latency; glass lunge scare."
+            visual_beats = [
+                "Bathroom mirror, your still body, reflection arm raised early",
+                "Lights off — reflection still illuminated",
+                "Reflection mouths name — sync wrong",
+                "Mirror slides along wall toward hallway",
+                "False calm: cracked still frame",
+                "Glass shatters toward camera full frame",
+            ]
+        elif "bed" in lower or "sheets" in lower or "sat on" in lower:
+            hook = "The dip in your mattress was still warm — you sleep alone."
+            script = (
+                f"{hook} "
+                "You hadn't gotten into bed yet. You told yourself the heating was uneven. "
+                "You pulled back the sheet. Four long indents, like fingers, pressed through the foam. "
+                "You heard breathing from the closet you keep empty. "
+                "You stepped back. The blankets lifted as if someone stood up under them. "
+                "A shape rose at full height. It lunged across the room."
+            )
+            help_angle = "Wrong place — warm indent without guest; false calm heating; bedsheet lunge scare."
+            visual_beats = [
+                "Mattress indent close-up, steam-warm glow",
+                "Finger-shaped depressions in foam",
+                "Empty closet door breathing fog",
+                "Blankets lift vertical silhouette",
+                "False calm: sheets settle",
+                "Full-body lunge from bed toward camera",
+            ]
+        elif "elevator" in lower or "floor" in lower and "exist" in lower:
+            hook = "The elevator opened on a floor that isn't on the panel."
+            script = (
+                f"{hook} "
+                "You live on four. The display read B. You told yourself maintenance added a level. "
+                "The hall outside was your building, but every door was numbered backward. "
+                "Your apartment label hung on the wrong side. You heard your keys jingle behind you. "
+                "You turned. Another you walked out of your unit smiling. "
+                "It sprinted down the impossible hall and tackled the lens."
+            )
+            help_angle = "Wrong place — impossible floor; false calm maintenance; doppelgänger lunge scare."
+            visual_beats = [
+                "Elevator doors open on unlabeled floor B",
+                "Hallway identical but reversed door numbers",
+                "Your door on wrong wall",
+                "Doppelgänger exits your unit with your keys",
+                "False calm: empty reversed hall",
+                "Sprint tackle into camera",
+            ]
+        else:
+            hook, script, help_angle, visual_beats = self._offline_fallback_for_topic(topic, angle)
         quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
         return GeneratedDraft(
             topic=topic,
@@ -280,8 +369,136 @@ Return JSON with keys:
             visual_beats=visual_beats,
         )
 
+    def _offline_fallback_for_topic(
+        self, topic: str, angle: str | None
+    ) -> tuple[str, str, str, list[str]]:
+        """Topic-tied offline fallback — never default to mirror-blink recycle."""
+        lower = topic.lower()
+        recent = self._recent_hooks()
+        candidates: list[tuple[str, str, str, list[str]]] = []
+
+        def add(hook: str, script: str, help_angle: str, beats: list[str]) -> None:
+            if check_hook_novelty(hook, recent).novel:
+                candidates.append((hook, script, help_angle, beats))
+
+        if "monitor" in lower or "heartbeat" in lower:
+            add(
+                "The baby monitor showed an empty crib — the audio had two heartbeats.",
+                (
+                    "The baby monitor showed an empty crib — the audio had two heartbeats. "
+                    "You told yourself interference. The waveform synced perfectly — yours and another. "
+                    "You muted the speaker. The second beat kept counting in the room. "
+                    "You looked at the crib on screen. A small hand pressed the lens from inside. "
+                    "Then the monitor face filled with teeth."
+                ),
+                "Wrong sound — dual heartbeat on empty crib; false calm interference; monitor lunge.",
+                [
+                    "Baby monitor split screen: empty crib, dual heartbeat graph",
+                    "Mute button — second pulse audible in room",
+                    "Hand on monitor lens from inside crib feed",
+                    "False calm: static crib view",
+                    "Monitor screen teeth lunge full frame",
+                ],
+            )
+        if "speaker" in lower or "smart" in lower:
+            add(
+                "Your smart speaker answered a question you never asked.",
+                (
+                    "Your smart speaker answered a question you never asked. "
+                    "It quoted your childhood address — out loud, in your mother's voice. "
+                    "You unplugged it. The LED stayed on. "
+                    "It whispered from inside the wall. "
+                    "You tore the outlet plate. Something smiled in the wiring. "
+                    "It lunged through the drywall at your face."
+                ),
+                "Wrong sound — unprompted answer; false calm unplug; wall lunge scare.",
+                [
+                    "Smart speaker glowing, wrong LED pulse",
+                    "Unplugged cord — LED still on",
+                    "Voice from inside wall cavity",
+                    "Outlet plate torn — face in wires",
+                    "Drywall burst lunge toward camera",
+                ],
+            )
+        if "teeth" in lower or "apple" in lower:
+            add(
+                "There were bite marks on the apple — from the inside.",
+                (
+                    "There were bite marks on the apple — from the inside. "
+                    "You hadn't cut it open. You told yourself it was bruising. "
+                    "The skin pushed outward like something chewed from within. "
+                    "You dropped it. The apple rolled and split on its own. "
+                    "Something small crawled out smiling. It leapt at the lens."
+                ),
+                "Wrong place — impossible interior bite; false calm bruise; creature lunge.",
+                [
+                    "Apple on counter, outward teeth impressions",
+                    "Skin bulges from inside",
+                    "Apple splits rolling on tile",
+                    "Small figure crawls out",
+                    "Leap lunge to camera",
+                ],
+            )
+
+        add(
+            f"The {topic.split('—')[0].strip().rstrip('.')} — and then the lights died.",
+            (
+                f"You noticed {topic.rstrip('.')}. "
+                "You told yourself there was a rational explanation. "
+                "Every screen in the apartment refreshed with the same timestamp — one that hasn't happened yet. "
+                "You heard movement in the room you just left. "
+                "You turned back. The doorway held something that learned your posture. "
+                "It charged the moment you exhaled."
+            ),
+            f"Anthology dread tied to topic — false calm rationalization; doorway lunge on {topic}.",
+            [
+                f"Establishing shot: {topic[:60]}, liminal apartment",
+                "All screens same impossible timestamp",
+                "Doorway silhouette mirrors your stance",
+                "False calm: hold on empty room",
+                "Charge lunge through doorway",
+            ],
+        )
+
+        for hook, script, help_angle, beats in candidates:
+            return hook, script, help_angle, beats
+
+        # Last resort: topic-embedded hook (still not mirror-blink template).
+        hook = f"{topic[0].upper()}{topic[1:80].rstrip('.')} — you weren't supposed to notice yet."
+        script = (
+            f"{hook} "
+            "You froze. You told yourself you were overtired. "
+            "The detail got worse the longer you stared. "
+            "You reached for your phone and the camera showed the room without you in it. "
+            "You looked up. Whatever you noticed was already beside you. "
+            "It lunged when you blinked."
+        )
+        return (
+            hook,
+            script,
+            f"Topic-native hook — earned lunge on {topic}.",
+            [
+                f"Wide shot establishing: {topic[:50]}",
+                "Detail worsens — slow push in",
+                "Phone camera shows empty room",
+                "Entity beside you over-shoulder",
+                "Lunge on blink",
+            ],
+        )
+
     def create_and_store(self, topic: str, angle: str | None = None, *, research=None) -> Draft:
-        generated = self.generate(topic, angle, research=research)
+        recent = self._recent_hooks()
+        generated: GeneratedDraft | None = None
+        for attempt in range(5):
+            candidate = self.generate(topic, angle, research=research)
+            report = check_hook_novelty(candidate.hook, recent)
+            if report.novel:
+                generated = candidate
+                break
+            # Offline/LLM recycled a hook — nudge angle and retry.
+            angle = f"Fresh hook required (attempt {attempt + 2}): {report.reason}"
+        if generated is None:
+            generated = self.generate(topic, angle, research=research)
         notes = generated.quality.summary()
         if self.router:
             route = self.router.route(topic)

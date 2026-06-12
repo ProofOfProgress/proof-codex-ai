@@ -65,21 +65,23 @@ def test_upload_blocked_no_first_person(tmp_path: Path, monkeypatch):
 def test_horror_second_person_allowed(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(settings, "ypp_safe_mode", True)
     store, mem = _mem(tmp_path)
+    hook = "Your own voice called your name from the basement — you hadn't gone down yet."
     script = (
-        "You blinked at the mirror and your reflection blinked one second later. "
-        "You blinked again, staring. It didn't blink. You turned away, telling yourself "
-        "it was just tired eyes. Then you heard scraping from the bathroom. You looked back. "
-        "Your reflection was smiling, but you weren't. It raised a hand, tapping the glass. "
-        "It mouthed Mine. Then it lunged."
+        f"{hook} "
+        "You stood at the top of the stairs. The bulb down there had been dead for months. "
+        "You told yourself it was a recording. The voice said come down, exactly like you speak. "
+        "You heard wet footsteps climbing toward you in the dark. "
+        "You slammed the door. The handle turned from the other side. "
+        "The voice whispered through the keyhole — already in the kitchen behind you."
     )
     report = check_upload_allowed(
         store,
         mem,
         draft_id=3,
-        topic="mirror reflection blink",
-        hook="You blinked — your reflection blinked one second later",
+        topic="you heard your voice calling from the basement",
+        hook=hook,
         script=script,
-        title="🔊 You blinked — your reflection blinked one second later",
+        title="🔊 Voice from the basement — you live alone",
     )
     assert report.allowed
 
