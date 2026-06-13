@@ -97,29 +97,12 @@ def _video_url_from_task(data: dict) -> str:
 
 
 def probe_kling_official(access_key: str, secret_key: str) -> tuple[bool, str]:
-    """Lightweight auth check — list/query without starting a full generation."""
+    """Auth check only — JWT generation, no API generation (saves credits)."""
     if not access_key.strip() or not secret_key.strip():
         return False, "KLING_ACCESS_KEY and KLING_SECRET_KEY required"
     try:
         _jwt_token(access_key.strip(), secret_key.strip())
-        # POST with minimal invalid body often returns 400 if auth OK vs 401 if bad
-        url = f"{API_BASE}/videos/text2video"
-        try:
-            _request(
-                "POST",
-                url,
-                access_key=access_key.strip(),
-                secret_key=secret_key.strip(),
-                payload={"model_name": "kling-v2-6", "prompt": "test", "duration": "5"},
-            )
-        except RuntimeError as exc:
-            msg = str(exc)
-            if "401" in msg or "403" in msg or "Unauthenticated" in msg:
-                return False, msg[:200]
-            if "400" in msg or "invalid" in msg.lower() or "parameter" in msg.lower():
-                return True, "Kling official API credentials accepted"
-            return True, "Kling JWT generated; API reachable"
-        return True, "Kling official API credentials accepted"
+        return True, "Kling JWT OK (no test video — saves API credits)"
     except Exception as exc:
         return False, str(exc)[:200]
 
@@ -143,7 +126,9 @@ def generate_kling_official_video(
     """Text or image-to-video via official Kling API."""
     access_key = access_key.strip()
     secret_key = secret_key.strip()
-    dur = str(max(3, min(15, int(duration))))
+    dur = str(max(5, min(10, int(duration))))
+    if int(duration) > 10:
+        dur = "10"
 
     if start_image_path and start_image_path.exists():
         import base64
@@ -177,7 +162,10 @@ def generate_kling_official_video(
         body["multi_shot"] = True
         body["shot_type"] = "customize"
         body["multi_prompt"] = [
-            {"prompt": str(s.get("prompt") or ""), "duration": str(int(s.get("duration") or 5))}
+            {
+                "prompt": str(s.get("prompt") or ""),
+                "duration": str(min(10, max(1, int(s.get("duration") or 5)))),
+            }
             for s in multi_prompt
         ]
 
