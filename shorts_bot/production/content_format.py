@@ -38,10 +38,10 @@ PROFILES: dict[ContentFormatId, ContentFormatProfile] = {
         label="Short (~30s)",
         aspect_ratio="9:16",
         target_duration_seconds=(25.0, 40.0),
-        max_i2v_beats=10,
+        max_i2v_beats=2,
         visual_style="ai_video",
         reuse_short_clips=False,
-        description="Launch Short — full motion when generation enabled; discovery feed.",
+        description="Launch Short — Kling 2×15s native audio (default) or legacy I2V.",
     ),
     "short_hybrid": ContentFormatProfile(
         id="short_hybrid",

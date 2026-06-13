@@ -1,0 +1,161 @@
+"""Kling 3.0 Short renderer — 2×15s clips, native dialogue audio, one stitch."""
+
+from __future__ import annotations
+
+import json
+import re
+import time
+from pathlib import Path
+
+from shorts_bot.config import settings
+from shorts_bot.production.ai_video_guard import require_ai_video_generation
+from shorts_bot.production.images.replicate import generate_replicate_kling_video
+
+_KLING_NEGATIVE = (
+    "on-screen text, subtitles, captions, watermark, logo, cartoon, anime, "
+    "CCTV overlay, phone screen UI, cheerful, bright daylight, narrator voiceover"
+)
+
+_KLING_VISUAL_PREFIX = (
+    "9:16 vertical cinematic horror. The Village — Eye worship cult, dream invasion, "
+    "uncanny villagers, cold night. First-person POV. Photoreal, shallow depth of field. "
+    "No on-screen text or readable signs."
+)
+
+
+def split_script_parts(hook: str, script: str, *, parts: int = 2) -> list[str]:
+    """Split screenplay into N parts for Kling generations (~15s each)."""
+    text = f"{hook.strip()} {script.strip()}".strip()
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    if not sentences:
+        return [text] * parts if text else [""] * parts
+    if len(sentences) <= parts:
+        out = sentences + [sentences[-1]] * (parts - len(sentences))
+        return out[:parts]
+    chunk = max(1, len(sentences) // parts)
+    result: list[str] = []
+    for i in range(parts):
+        start = i * chunk
+        end = len(sentences) if i == parts - 1 else min(len(sentences), (i + 1) * chunk)
+        result.append(" ".join(sentences[start:end]))
+    return result
+
+
+def build_kling_prompt(
+    topic: str,
+    script_part: str,
+    *,
+    part_index: int,
+    total_parts: int,
+) -> str:
+    role = (
+        "opening hook and wrong-village setup"
+        if part_index == 0
+        else "escalation, dream invasion, perception break, final sting"
+    )
+    return (
+        f"{_KLING_VISUAL_PREFIX}\n"
+        f"Topic: {topic}. Part {part_index + 1}/{total_parts} — {role}.\n"
+        f"First-person horror. Character voices only — put spoken lines in quotes. "
+        f"No faceless narrator.\n"
+        f"Scene: {script_part}\n"
+        f"Sound: wind, wood creak, distant ritual murmur, low horror drone."
+    )
+
+
+def build_kling_multi_prompt(script_part: str, *, total_seconds: int) -> list[dict]:
+    """Up to 3 internal shots within one 15s Kling generation."""
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", script_part) if s.strip()]
+    if len(sentences) < 3:
+        return [{"prompt": script_part, "duration": total_seconds}]
+    third = max(1, len(sentences) // 3)
+    groups = [
+        " ".join(sentences[:third]),
+        " ".join(sentences[third : 2 * third]),
+        " ".join(sentences[2 * third :]),
+    ]
+    per = max(1, total_seconds // 3)
+    remainder = total_seconds - per * 2
+    return [
+        {"prompt": groups[0], "duration": per},
+        {"prompt": groups[1], "duration": per},
+        {"prompt": groups[2], "duration": remainder},
+    ]
+
+
+def kling_clip_paths(clips_dir: Path, count: int | None = None) -> list[Path]:
+    n = count if count is not None else settings.kling_clips_per_short
+    return [clips_dir / f"kling_part_{i + 1:02d}.mp4" for i in range(n)]
+
+
+def render_kling_clips(
+    *,
+    topic: str,
+    hook: str,
+    script: str,
+    clips_dir: Path,
+    reference_image: Path | None = None,
+) -> int:
+    """Generate Kling clips (default 2×15s). Returns count written."""
+    require_ai_video_generation(action="render_kling_clips")
+    token = (settings.replicate_api_token or "").strip()
+    if not token:
+        raise RuntimeError("Kling requires REPLICATE_API_TOKEN in Cursor secrets.")
+
+    clips_dir.mkdir(parents=True, exist_ok=True)
+    parts = split_script_parts(hook, script, parts=settings.kling_clips_per_short)
+    pace = max(0.0, float(settings.ai_video_pace_sec))
+    rendered = 0
+    ref_image = reference_image
+
+    for i, part in enumerate(parts):
+        dest = clips_dir / f"kling_part_{i + 1:02d}.mp4"
+        if dest.exists() and dest.stat().st_size > 10_000:
+            rendered += 1
+            ref_image = dest
+            continue
+        if pace and i > 0:
+            time.sleep(pace)
+
+        prompt = build_kling_prompt(topic, part, part_index=i, total_parts=len(parts))
+        multi = (
+            build_kling_multi_prompt(part, total_seconds=settings.kling_clip_seconds)
+            if settings.kling_multi_shot
+            else None
+        )
+        try:
+            generate_replicate_kling_video(
+                prompt,
+                dest,
+                token=token,
+                model=settings.kling_model,
+                duration=settings.kling_clip_seconds,
+                aspect_ratio=settings.kling_aspect_ratio,
+                mode=settings.kling_mode,
+                generate_audio=settings.kling_generate_audio,
+                multi_prompt=multi,
+                start_image_path=ref_image if i > 0 and ref_image else None,
+                negative_prompt=_KLING_NEGATIVE,
+                timeout_sec=settings.ai_video_timeout_sec,
+            )
+            rendered += 1
+            ref_image = dest
+        except Exception as exc:
+            err = dest.with_suffix(".error.txt")
+            err.write_text(str(exc), encoding="utf-8")
+            raise
+
+    spec = {
+        "backend": "kling",
+        "model": settings.kling_model,
+        "clips": [
+            {
+                "file": p.name,
+                "prompt": build_kling_prompt(topic, parts[i], part_index=i, total_parts=len(parts)),
+                "script_part": parts[i],
+            }
+            for i, p in enumerate(kling_clip_paths(clips_dir, len(parts)))
+        ],
+    }
+    (clips_dir / "kling_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
+    return rendered

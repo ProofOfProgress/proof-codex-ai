@@ -491,6 +491,41 @@ def _render_from_video_clips(
     return silent_video
 
 
+def _concat_kling_clips(clips_dir: Path, tmp_dir: Path) -> Path:
+    """Join kling_part_*.mp4 in order — keeps native Kling audio."""
+    clips = sorted(clips_dir.glob("kling_part_*.mp4"))
+    if not clips:
+        raise FileNotFoundError(f"No Kling clips in {clips_dir}")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    concat_path = tmp_dir / "_kling_concat.txt"
+    lines = ["ffconcat version 1.0"]
+    for clip in clips:
+        if clip.stat().st_size < 5000:
+            raise FileNotFoundError(f"Kling clip too small or missing: {clip}")
+        lines.append(f"file '{clip.resolve()}'")
+    concat_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out_path = tmp_dir / "_kling_merged.mp4"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_path),
+            "-c",
+            "copy",
+            str(out_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return out_path
+
+
 def render_short_video(
     pack_dir: Path,
     *,
@@ -510,12 +545,40 @@ def render_short_video(
     if not segments:
         raise ValueError("Manifest has no segments.")
 
+    from shorts_bot.config import settings
+
     audio_path = pack_dir / audio_name
-    if not audio_path.exists():
+    kling_mode = (manifest.get("render_mode") or "") == "kling_clips"
+    kling_merged: Path | None = None
+    if kling_mode:
+        clips_dir = pack_dir / "clips"
+        kling_merged = _concat_kling_clips(clips_dir, tmp_dir=pack_dir / "_kling_tmp")
+        audio_duration = _probe_duration(kling_merged)
+        kling_audio = pack_dir / "_kling_audio.mp3"
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(kling_merged),
+                "-vn",
+                "-acodec",
+                "libmp3lame",
+                "-b:a",
+                f"{settings.video_audio_bitrate_k}k",
+                str(kling_audio),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        audio_path = kling_audio
+    elif not audio_path.exists():
         raise FileNotFoundError(f"No audio at {audio_path}")
+    else:
+        audio_duration = _probe_duration(audio_path)
 
     images_dir = pack_dir / "images"
-    audio_duration = _probe_duration(audio_path)
 
     from shorts_bot.production.segment_sync import normalize_segment_timeline
 
@@ -537,7 +600,6 @@ def render_short_video(
         plan.primary_segment_index if plan.has_jumpscare else None
     )
     suspense_replay = plan.profile == "suspense_replay"
-    from shorts_bot.config import settings
 
     if settings.horror_sfx_enabled:
         from shorts_bot.production.horror_sfx_mix import apply_horror_sfx_to_pack_audio
@@ -565,7 +627,6 @@ def render_short_video(
 
     out_path = pack_dir / output_name
 
-    from shorts_bot.config import settings
     from shorts_bot.production.caption_timing import resolve_caption_segments
     from shorts_bot.production.captions import burn_captions_via_ffmpeg
     from shorts_bot.production.subtitles import ffmpeg_subtitles_filter, write_subtitle_files
@@ -603,6 +664,56 @@ def render_short_video(
     from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
 
     render_mode = manifest.get("render_mode") or "slideshow"
+    if render_mode == "kling_clips":
+        if kling_merged is None:
+            kling_merged = _concat_kling_clips(
+                pack_dir / "clips", tmp_dir=pack_dir / "_kling_tmp"
+            )
+        vf_parts: list[str] = []
+        if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+            vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
+        vf = ",".join(vf_parts) if vf_parts else None
+        cmd = ["ffmpeg", "-y", "-i", str(kling_merged), "-i", str(audio_path)]
+        if vf:
+            cmd.extend(["-vf", vf])
+        cmd.extend(
+            [
+                "-map",
+                "0:v:0",
+                "-map",
+                "1:a:0",
+                "-c:v",
+                "libx264",
+                "-preset",
+                settings.video_preset,
+                "-crf",
+                str(settings.video_crf),
+                "-pix_fmt",
+                "yuv420p",
+                "-c:a",
+                "aac",
+                "-b:a",
+                f"{settings.video_audio_bitrate_k}k",
+                "-ar",
+                "48000",
+                "-movflags",
+                "+faststart",
+                "-t",
+                f"{audio_duration:.3f}",
+                str(out_path),
+            ]
+        )
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        return RenderedVideo(
+            draft_id=draft_id,
+            output_path=out_path,
+            duration_seconds=audio_duration,
+            message=(
+                f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920, Kling 2×15s). "
+                f"Native dialogue + horror SFX + ASS captions."
+            ),
+        )
+
     if render_mode == "video_clips":
         clips_dir = pack_dir / "clips"
         if (

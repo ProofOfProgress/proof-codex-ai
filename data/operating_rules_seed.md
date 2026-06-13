@@ -75,11 +75,13 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Peripheral** — scary horror Shorts (~30s). Merch tagline: *don't blink*. Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Peripheral** — first-person horror Shorts (~30s). Merch tagline: *don't blink*. **The Village** — Eye worship, dream invasion. Character voices on screen (Kling native audio). Payoff sting at end. Hook in line 1. 🔊 volume warning in description.
 
 ## Production stack
 
-Gemini horror scripts, Resemble voice (cold narrator), Replicate FLUX + MiniMax I2V motion clips per beat, final beat = scare + audio sting, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload (public + synthetic media disclosure). **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+**Video (locked in 2026-06):** Kling 3.0 on Replicate — **2×15s clips**, native lip-sync dialogue, **one stitch**. No narrator TTS when `VIDEO_BACKEND=kling`. See `docs/KLING_VIDEO_PIPELINE.md`.
+
+Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 
 ## Browser
 

@@ -147,7 +147,27 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.visual_style == "ai_video" and settings.has_paid_images:
+        if settings.uses_kling_video and settings.has_paid_images:
+            from shorts_bot.production.render_kling import render_kling_clips
+
+            clips_rendered = render_kling_clips(
+                topic=draft.topic,
+                hook=draft.hook,
+                script=draft.script,
+                clips_dir=clips_dir,
+            )
+            if clips_rendered > 0:
+                rendered = clips_rendered
+                render_mode = "kling_clips"
+                image_note = (
+                    f" via Kling 3.0 ({settings.kling_model}, "
+                    f"{clips_rendered}×{settings.kling_clip_seconds}s, native audio)"
+                )
+            else:
+                raise RuntimeError(
+                    f"Kling returned 0 clips — expected {settings.kling_clips_per_short}."
+                )
+        elif settings.visual_style == "ai_video" and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
             priority = [scare_plan.primary_segment_index]
@@ -192,6 +212,7 @@ def build_production_pack(
         "visual_beats": beats,
         "jumpscare_plan": scare_plan.to_dict(),
         "visual_style": settings.visual_style,
+        "video_backend": settings.video_backend,
         "render_mode": render_mode,
         "hybrid_ai_hook": hybrid_hook,
         "video_prompts": f"video_prompts.json ({len(video_payload.get('clips', []))} clips)",

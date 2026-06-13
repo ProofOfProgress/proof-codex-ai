@@ -117,9 +117,19 @@ class Settings(BaseSettings):
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
-    replicate_video_model: str = "minimax/video-01"  # I2V default / escalation beats
-    replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
-    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
+    # Video backend — kling (2×15s native audio) | legacy_i2v (MiniMax/Hailuo per-beat)
+    video_backend: str = "kling"
+    kling_model: str = "kwaivgi/kling-v3-video"
+    kling_clip_seconds: int = 15  # max 15 per generation
+    kling_clips_per_short: int = 2  # ~30s total, one stitch
+    kling_generate_audio: bool = True  # lip-sync dialogue + ambient in one pass
+    kling_skip_narrator_tts: bool = True  # no Resemble when Kling carries voices
+    kling_mode: str = "pro"  # pro=1080p | standard=720p
+    kling_aspect_ratio: str = "9:16"
+    kling_multi_shot: bool = True  # multi_prompt inside each 15s clip
+    replicate_video_model: str = "minimax/video-01"  # legacy I2V default
+    replicate_video_model_hook: str = "minimax/video-01"
+    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
     screen_text_overlay_enabled: bool = True  # composited CCTV / alarm-clock UI (not AI-generated glyphs)
     screen_text_phone_enabled: bool = False  # no phone screens — fullscreen CCTV + alarm clock for time
@@ -130,7 +140,7 @@ class Settings(BaseSettings):
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off
-    ai_video_max_beats: int = 10  # cap Replicate I2V cost per Short (launch week: full beats)
+    ai_video_max_beats: int = 2  # Kling lock-in: 2 clips; legacy_i2v may raise to 10
     ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
     ai_video_timeout_sec: int = 600  # per-clip Replicate poll timeout
     fal_api_key: str | None = None
@@ -288,6 +298,18 @@ class Settings(BaseSettings):
         if "your" in key.lower() and "key" in key.lower():
             return False
         return len(key) >= 16
+
+    @property
+    def uses_kling_video(self) -> bool:
+        return (self.video_backend or "").strip().lower() == "kling"
+
+    @property
+    def uses_kling_native_audio(self) -> bool:
+        return (
+            self.uses_kling_video
+            and bool(self.kling_generate_audio)
+            and bool(self.kling_skip_narrator_tts)
+        )
 
     @property
     def has_resemble(self) -> bool:

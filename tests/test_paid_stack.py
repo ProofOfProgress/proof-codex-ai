@@ -13,6 +13,7 @@ def test_paid_stack_issues_when_resemble_missing(monkeypatch):
     fake = Settings(
         require_paid_stack=True,
         allow_free_tts_fallback=False,
+        video_backend="legacy_i2v",
         resemble_api_key=None,
         resemble_voice_uuid=None,
         gemini_api_key="a" * 24,
@@ -22,6 +23,26 @@ def test_paid_stack_issues_when_resemble_missing(monkeypatch):
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
     issues = paid_stack_issues()
     assert any("Resemble" in i for i in issues)
+
+
+def test_paid_stack_skips_resemble_when_kling_native_audio(monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(
+        require_paid_stack=True,
+        allow_free_tts_fallback=False,
+        video_backend="kling",
+        kling_generate_audio=True,
+        kling_skip_narrator_tts=True,
+        resemble_api_key=None,
+        resemble_voice_uuid=None,
+        gemini_api_key="a" * 24,
+        vision_qc_enabled=False,
+        auto_upload_youtube=False,
+    )
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    issues = paid_stack_issues()
+    assert not any("Resemble" in i for i in issues)
 
 
 def test_ensure_turboscribe_blocks_script_fallback(monkeypatch):
@@ -40,9 +61,27 @@ def test_ensure_resemble_blocks_without_keys(monkeypatch):
         require_paid_stack=True,
         tts_provider="resemble",
         allow_free_tts_fallback=False,
+        video_backend="legacy_i2v",
         resemble_api_key=None,
         resemble_voice_uuid=None,
     )
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
     with pytest.raises(RuntimeError, match="Resemble"):
         ensure_resemble_voice()
+
+
+def test_ensure_resemble_skipped_for_kling(monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(
+        require_paid_stack=True,
+        tts_provider="resemble",
+        allow_free_tts_fallback=False,
+        video_backend="kling",
+        kling_generate_audio=True,
+        kling_skip_narrator_tts=True,
+        resemble_api_key=None,
+        resemble_voice_uuid=None,
+    )
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    ensure_resemble_voice()
