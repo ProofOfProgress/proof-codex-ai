@@ -327,18 +327,14 @@ def upload_via_studio(
 
     from playwright.sync_api import sync_playwright
 
+    from shorts_bot.browser.stealth import launch_stealth_context
+
     use_headless = settings.browser_headless if headless is None else headless
     profile = settings.browser_profile_dir
     profile.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(
-            user_data_dir=str(profile),
-            headless=use_headless,
-            user_agent=CHROME_UA,
-            viewport={"width": 1400, "height": 900},
-            accept_downloads=True,
-        )
+        ctx = launch_stealth_context(p, headless=use_headless, profile_dir=profile)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
             status = open_studio(page)
