@@ -152,12 +152,10 @@ def _read_channel_name(page) -> str | None:
 def check_studio(profile_dir: Path, *, headless: bool = True) -> StudioStatus:
     from playwright.sync_api import sync_playwright
 
+    from shorts_bot.browser.stealth import launch_stealth_context
+
     with sync_playwright() as p:
-        ctx = p.chromium.launch_persistent_context(
-            user_data_dir=str(profile_dir),
-            headless=headless,
-            user_agent=CHROME_UA,
-        )
+        ctx = launch_stealth_context(p, headless=headless, profile_dir=profile_dir)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         try:
             return open_studio(page)

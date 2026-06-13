@@ -95,19 +95,14 @@ def _login_hint(body: str) -> str | None:
 def _launch_context(*, headless: bool | None = None):
     from playwright.sync_api import sync_playwright
 
+    from shorts_bot.browser.stealth import launch_stealth_context
+
     use_headless = settings.browser_headless if headless is None else headless
     if not use_headless and not _has_display():
         use_headless = True
 
-    settings.browser_profile_dir.mkdir(parents=True, exist_ok=True)
     pw = sync_playwright().start()
-    context = pw.chromium.launch_persistent_context(
-        user_data_dir=str(settings.browser_profile_dir),
-        headless=use_headless,
-        viewport={"width": 1400, "height": 900},
-        accept_downloads=True,
-        args=[] if use_headless else ["--start-maximized"],
-    )
+    context = launch_stealth_context(pw, headless=use_headless)
     return pw, context
 
 

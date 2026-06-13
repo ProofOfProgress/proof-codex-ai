@@ -8,6 +8,7 @@ import time
 from rich.console import Console
 
 from shorts_bot.browser.session import _SITE_URLS
+from shorts_bot.browser.stealth import launch_stealth_context
 from shorts_bot.config import settings
 
 console = Console()
@@ -31,17 +32,13 @@ def open_sites(keys: list[str], *, wait_minutes: int = 15) -> None:
     console.print(
         "[bold green]Opening browser on your Desktop...[/bold green]\n"
         f"Sites: {', '.join(labels)}\n"
-        "[yellow]In Cursor: click the Desktop tab to sign in.[/yellow]\n"
+        "[yellow]In Cursor: click the Desktop tab. Sign in to Google first, then YouTube Studio.[/yellow]\n"
+        "[dim]If Google says 'browser not secure', close this window and run again — stealth mode is on.[/dim]\n"
         f"Window stays open {wait_minutes} minutes.\n"
     )
 
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(settings.browser_profile_dir),
-            headless=False,
-            viewport={"width": 1280, "height": 900},
-            args=["--start-maximized", "--disable-blink-features=AutomationControlled"],
-        )
+        context = launch_stealth_context(p, headless=False)
         page = context.pages[0] if context.pages else context.new_page()
         for i, url in enumerate(urls):
             if i == 0:
@@ -67,16 +64,16 @@ def main() -> None:
     parser.add_argument(
         "--all-remaining",
         action="store_true",
-        help="Open TurboScribe + CapCut (optional human steps)",
+        help="Open Google + YouTube Studio for channel login",
     )
     args = parser.parse_args()
 
     if args.only:
         keys = args.only
     elif args.all_remaining:
-        keys = ["turboscribe", "capcut"]
+        keys = ["google", "youtube"]
     else:
-        keys = ["youtube", "turboscribe", "capcut"]
+        keys = ["google", "youtube"]
 
     open_sites(keys, wait_minutes=args.minutes)
 
