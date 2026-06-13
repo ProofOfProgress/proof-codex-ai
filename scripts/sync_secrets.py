@@ -74,7 +74,7 @@ DEFAULT_ENV: dict[str, str] = {
     "REQUIRE_PAID_STACK": "true",
     "ALLOW_SCRIPT_TIMING_FALLBACK": "false",
     "VISUAL_STYLE": "ai_video",
-    "VIDEO_BACKEND": "kling",
+    "VIDEO_BACKEND": "blender",
     "KLING_PROVIDER": "official",
     "AI_VIDEO_GENERATION_ENABLED": "false",
     "KLING_MODEL": "kling-v2-6",

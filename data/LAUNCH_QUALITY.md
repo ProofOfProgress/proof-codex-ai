@@ -19,7 +19,7 @@ Goal: **maximize completion rate + jumpscare payoff** on a zero-video channel.
 
 ## Visual bar (Kling — default)
 
-- `VIDEO_BACKEND=kling` — Kling 3.0 **3×10s**, native ambient audio + post horror SFX
+- `VIDEO_BACKEND=blender` — Blender 3D **3×10s**, post ambient + horror SFX (launch videos 1–3: no talk/subtitles)
 - `VISUAL_STYLE=ai_video` — required for motion path
 - **Videos 1–3 (launch):** no talking, no burned-in subtitles — ambient + SFX only
 - **Video 4+:** dialogue in script → Kling lip sync; subtitles burned in post

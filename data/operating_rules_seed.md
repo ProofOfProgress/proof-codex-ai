@@ -26,11 +26,11 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 
 ## Owner — beat sheet before every video (2026-06)
 
-**Before spending Kling credits or uploading**, explain **in detail what happens in the video with timestamps** (0:00–0:30). Owner must approve the beat sheet first.
+**Before spending render time or uploading**, explain **in detail what happens in the video with timestamps** (0:00–0:30). Owner must approve the beat sheet first.
 
 - File: `data/production/draft_N/VIDEO_BEAT_SHEET.md`
 - Meta flag: `beat_sheet_approved: true` in `data/draft_meta/draft_N.json`
-- Pipeline blocks Kling when `require_beat_sheet_approval=true` and not approved
+- Pipeline blocks video gen when `require_beat_sheet_approval=true` and not approved
 - No talking/subtitles on launch videos 1–3; SFX listed per timestamp
 
 
@@ -87,7 +87,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Production stack
 
-**Video (locked in 2026-06):** Kling 3.0 on Replicate — **2×15s clips**, native lip-sync dialogue, **one stitch**. No narrator TTS when `VIDEO_BACKEND=kling`. See `docs/KLING_VIDEO_PIPELINE.md`.
+**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`.
 
 Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 

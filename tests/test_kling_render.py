@@ -55,7 +55,7 @@ def test_kling_config_defaults():
     from shorts_bot.config import Settings
 
     fields = Settings.model_fields
-    assert fields["video_backend"].default == "kling"
+    assert fields["video_backend"].default == "blender"
     assert fields["kling_provider"].default == "official"
     assert fields["kling_model"].default == "kling-v2-6"
     assert fields["kling_clips_per_short"].default == 3

@@ -117,8 +117,8 @@ class Settings(BaseSettings):
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
-    # Video backend — kling (2×15s native audio) | legacy_i2v (MiniMax/Hailuo per-beat)
-    video_backend: str = "kling"
+    # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
+    video_backend: str = "blender"
     kling_provider: str = "official"  # official | replicate | fal
     kling_access_key: str | None = None
     kling_secret_key: str | None = None
