@@ -41,34 +41,65 @@ def _secret_real(value: str | None) -> bool:
     return not any(p in lower for p in _PLACEHOLDER_FRAGMENTS)
 
 
+def _token_file_oauth_fields() -> tuple[str | None, str | None]:
+    path = token_path()
+    if not path.exists():
+        return None, None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None, None
+    if not isinstance(data, dict):
+        return None, None
+    return data.get("client_id"), data.get("client_secret")
+
+
+def effective_google_client_id() -> str | None:
+    if _secret_real(settings.google_client_id):
+        return (settings.google_client_id or "").strip()
+    cid, _ = _token_file_oauth_fields()
+    return cid.strip() if _secret_real(cid) else None
+
+
+def effective_google_client_secret() -> str | None:
+    if _secret_real(settings.google_client_secret):
+        return (settings.google_client_secret or "").strip()
+    _, sec = _token_file_oauth_fields()
+    return sec.strip() if _secret_real(sec) else None
+
+
 def credentials_configured() -> bool:
-    return _secret_real(settings.google_client_id) and _secret_real(settings.google_client_secret)
+    return bool(effective_google_client_id() and effective_google_client_secret())
 
 
 def credentials_status_message() -> str:
     """Plain-English hint for login_status / auth_cli."""
-    cid_env = os.environ.get("GOOGLE_CLIENT_ID")
-    sec_env = os.environ.get("GOOGLE_CLIENT_SECRET")
-    cid_file = (settings.google_client_id or "").strip()
-    sec_file = (settings.google_client_secret or "").strip()
-
     if credentials_configured():
+        cid_env = os.environ.get("GOOGLE_CLIENT_ID")
+        sec_env = os.environ.get("GOOGLE_CLIENT_SECRET")
+        if not (_secret_real(cid_env) and _secret_real(sec_env)):
+            _, sec_t = _token_file_oauth_fields()
+            if _secret_real(_token_file_oauth_fields()[0]) and _secret_real(sec_t):
+                return "Google OAuth keys OK (from youtube_token.json)"
         return "Google OAuth app keys OK"
 
+    try:
+        from shorts_bot.cloud_secrets import youtube_secrets_message
+
+        cloud_msg = youtube_secrets_message()
+        if cloud_msg:
+            return cloud_msg
+    except Exception:
+        pass
+
+    cid_env = os.environ.get("GOOGLE_CLIENT_ID")
+    sec_env = os.environ.get("GOOGLE_CLIENT_SECRET")
     if _secret_real(cid_env) and _secret_real(sec_env):
         return "Keys in environment but not .env — run: bash scripts/install.sh"
 
-    if (_secret_real(cid_file) or _secret_real(sec_file)) and not (_secret_real(cid_env) and _secret_real(sec_env)):
-        return "Keys look set in .env"
-
-    if (cid_file or sec_file) and not credentials_configured():
-        return (
-            "GOOGLE_CLIENT_ID/SECRET still placeholder in .env — add them to "
-            "Cursor → Cloud Agent → Secrets (not only IDE secrets), then bash scripts/install.sh"
-        )
     return (
         "GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET missing on this VM — "
-        "Cursor → Cloud Agent → Secrets → add both → bash scripts/install.sh"
+        "Cloud Agent → Secrets, or add YOUTUBE_TOKEN_JSON from home PC auth_cli"
     )
 
 
@@ -88,10 +119,14 @@ def import_token_json(raw: str) -> dict:
 
 
 def _client_config() -> dict:
+    cid = effective_google_client_id()
+    sec = effective_google_client_secret()
+    if not cid or not sec:
+        raise RuntimeError(credentials_status_message())
     return {
         "installed": {
-            "client_id": settings.google_client_id,
-            "client_secret": settings.google_client_secret,
+            "client_id": cid,
+            "client_secret": sec,
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
             "redirect_uris": [OAUTH_REDIRECT_URI, "http://localhost:8090/"],

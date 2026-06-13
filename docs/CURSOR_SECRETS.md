@@ -4,7 +4,13 @@ Add these in **Cursor → Cloud Agent → Secrets** (the **Cloud Agent** panel f
 
 On the VM, `bash scripts/install.sh` runs `scripts/sync_secrets.py` and copies them into `.env`.
 
-**Check:** after install, `grep GOOGLE_CLIENT .env` must **not** show `your-client-id`. If it still does, keys are in the wrong place or named wrong.
+**Check:** after install, `grep GOOGLE_CLIENT .env` must **not** show `your-client-id`. If it still does, run:
+
+```bash
+python3 -m shorts_bot.cloud_secrets
+```
+
+That shows which secret **names** Cursor sends to this cloud VM. If `GOOGLE_CLIENT_ID` says **In agent list: no**, the keys were saved somewhere else (wrong name, wrong agent, or IDE-only).
 
 **Do not paste real values in chat or commit them to git.**
 
