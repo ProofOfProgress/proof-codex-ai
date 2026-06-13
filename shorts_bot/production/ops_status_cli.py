@@ -77,7 +77,13 @@ def build_ops_status_markdown() -> str:
         ]
     )
 
-    sample = store.get_draft(nid or 3)
+    sample = None
+    if nid:
+        sample = store.get_draft(nid)
+    else:
+        approved = list_approved(store)
+        if approved:
+            sample = approved[0]
     if sample:
         report = check_upload_allowed(
             store,
