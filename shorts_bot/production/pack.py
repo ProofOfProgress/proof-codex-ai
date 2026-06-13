@@ -156,13 +156,21 @@ def build_production_pack(
                 script=draft.script,
                 clips_dir=clips_dir,
                 draft_id=draft_id,
+                force_regen=settings.kling_force_regen,
             )
             if clips_rendered > 0:
                 rendered = clips_rendered
                 render_mode = "kling_clips"
+                from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+                audio_note = (
+                    "silent video + post SFX"
+                    if is_silent_launch_draft(draft_id)
+                    else "native audio"
+                )
                 image_note = (
-                    f" via Kling 3.0 ({settings.kling_model}, "
-                    f"{clips_rendered}×{settings.kling_clip_seconds}s, native audio)"
+                    f" via Kling ({settings.kling_model}, "
+                    f"{clips_rendered}×{settings.kling_clip_seconds}s, {settings.kling_mode}, {audio_note})"
                 )
             else:
                 raise RuntimeError(

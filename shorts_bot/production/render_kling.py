@@ -1,4 +1,4 @@
-"""Kling 3.0 Short renderer — 2×15s clips, native dialogue audio, one stitch."""
+"""Kling Short renderer — multi-clip stitch, launch-silent or dialogue modes."""
 
 from __future__ import annotations
 
@@ -12,21 +12,24 @@ from shorts_bot.production.ai_video_guard import require_ai_video_generation
 
 _KLING_NEGATIVE = (
     "on-screen text, subtitles, captions, watermark, logo, cartoon, anime, "
-    "CCTV overlay, phone screen UI, cheerful, bright daylight, narrator voiceover"
+    "CCTV overlay, phone screen UI, cheerful, bright daylight, narrator voiceover, "
+    "static photo, slideshow, frozen frame, talking, speech"
 )
 
-_KLING_VISUAL_PREFIX = (
-    "9:16 vertical cinematic horror. Foggy rural American town at night — wet two-lane road, "
-    "streetlight pools, abandoned gas station, pine fog, crooked church steeple distant. "
-    "Eye worship cult undertones, uncanny villagers, dream invasion. "
-    "Real human protagonist (Elliot) in reflections/peripheral when shown. "
-    "First-person POV. Photoreal, SCP flash-photo documentary aesthetic, shallow depth of field. "
-    "No on-screen text or readable signs."
+_KLING_RURAL_PREFIX = (
+    "9:16 vertical cinematic horror MOVIE — constant motion, handheld POV, never static. "
+    "Foggy rural American town at night — wet two-lane road, abandoned gas station, pine fog. "
+    "Photoreal, shallow depth of field, SCP documentary dread, theatrical horror film energy."
+)
+
+_FORM2_ENTITY = (
+    "Form 2 rural anomaly — too tall, wrong joints, elongated limbs, SCP flash-photo wrongness, "
+    "uncanny humanoid, not a normal villager"
 )
 
 
 def split_script_parts(hook: str, script: str, *, parts: int = 2) -> list[str]:
-    """Split screenplay into N parts for Kling generations (~15s each)."""
+    """Split screenplay into N parts for Kling generations."""
     text = f"{hook.strip()} {script.strip()}".strip()
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
     if not sentences:
@@ -57,32 +60,105 @@ def build_kling_prompt(
     )
 
     silent = is_silent_launch_draft(draft_id)
-    role = (
-        "opening hook — impossible visual in the fog"
-        if part_index == 0
-        else "escalation, rural anomaly, perception break, final sting"
-    )
     if silent:
+        roles = [
+            (
+                "OPEN — handheld POV pushes down foggy rural road. Sodium streetlight FLICKERS "
+                f"strobing orange. Between flickers: {_FORM2_ENTITY} glimpsed at road edge. "
+                "Camera never stops moving — drift, breathe, step forward."
+            ),
+            (
+                "ESCALATION — streetlight flicker faster. Entity TELEPORTS closer each time light dies — "
+                "only moves in darkness. Stands at gas pumps, dead center, waves slowly with broken creepy "
+                "wrist. Light OFF: entity jumps forward. Light ON: closer. Handheld orbit."
+            ),
+            (
+                "FINALE — entity fills frame center, waves creepily directly at camera. Flicker sync: "
+                "frozen in light, moves in black. Final flicker blackout then LUNGE at lens. "
+                "Movie sting energy."
+            ),
+        ]
+        role = roles[min(part_index, len(roles) - 1)]
         return (
-            f"{_KLING_VISUAL_PREFIX}\n"
-            f"Topic: {topic}. Part {part_index + 1}/{total_parts} — {role}.\n"
+            f"{_KLING_RURAL_PREFIX}\n"
             f"{silent_launch_kling_rules()}\n"
-            f"First-person POV horror — visual actions only (no quoted speech).\n"
-            f"Scene actions: {script_part}\n"
-            f"Sound: wind, wet gravel, breathing, distant ritual murmur, low horror drone only."
+            f"Part {part_index + 1}/{total_parts} — {role}\n"
+            f"Visual beats: {script_part}\n"
+            f"NO AUDIO FROM CHARACTERS — video silent; wind/SFX added in post."
         )
     return (
-        f"{_KLING_VISUAL_PREFIX}\n"
-        f"Topic: {topic}. Part {part_index + 1}/{total_parts} — {role}.\n"
-        f"First-person horror. Character voices only — put spoken lines in quotes. "
-        f"No faceless narrator.\n"
+        f"{_KLING_RURAL_PREFIX}\n"
+        f"Topic: {topic}. Part {part_index + 1}/{total_parts}.\n"
+        f"First-person horror. Character voices only — spoken lines in quotes. No narrator.\n"
         f"Scene: {script_part}\n"
-        f"Sound: wind, wood creak, distant ritual murmur, low horror drone."
+        f"Sound: wind, wood creak, distant murmur, low horror drone."
     )
 
 
-def build_kling_multi_prompt(script_part: str, *, total_seconds: int) -> list[dict]:
-    """Up to 3 internal shots within one 15s Kling generation."""
+def build_kling_multi_prompt(
+    script_part: str,
+    *,
+    total_seconds: int,
+    part_index: int = 0,
+    draft_id: int | None = None,
+) -> list[dict]:
+    """Motion-heavy internal cuts — 3 shots per clip for silent launch."""
+    from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+    per = max(3, total_seconds // 3)
+    remainder = max(1, total_seconds - per * 2)
+
+    if is_silent_launch_draft(draft_id):
+        silent_shots = [
+            [
+                (
+                    f"Handheld POV walking forward on wet rural road, camera sway, "
+                    f"flickering streetlight strobes — {_FORM2_ENTITY} flash-visible in fog"
+                ),
+                (
+                    "Camera pushes faster, light flickers OFF then ON — entity closer each pulse, "
+                    "jerky unnatural movement between frames"
+                ),
+                (
+                    f"Close approach to gas station, entity silhouette waves one wrong arm, "
+                    "continuous handheld motion"
+                ),
+            ],
+            [
+                (
+                    f"Entity stands center frame at pumps, slow creepy wave, broken joints, "
+                    "streetlight flicker strobing — entity frozen in light"
+                ),
+                (
+                    "Light dies — entity teleports three meters closer in darkness — light returns, "
+                    "handheld camera pulls back then pushes in"
+                ),
+                (
+                    f"Orbiting handheld around {_FORM2_ENTITY}, wave continues, fog swirls, "
+                    "never static"
+                ),
+            ],
+            [
+                (
+                    f"{_FORM2_ENTITY} fills frame, waves directly at camera, flicker sync — "
+                    "only moves when light off"
+                ),
+                (
+                    "Streetlight dies long beat — entity lunges forward in black — light snaps ON "
+                    "inches from lens"
+                ),
+                (
+                    "Final lunge at camera, motion blur, horror movie jump scare, handheld shake"
+                ),
+            ],
+        ]
+        shots = silent_shots[min(part_index, 2)]
+        return [
+            {"prompt": shots[0], "duration": per},
+            {"prompt": shots[1], "duration": per},
+            {"prompt": shots[2], "duration": remainder},
+        ]
+
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", script_part) if s.strip()]
     if len(sentences) < 3:
         return [{"prompt": script_part, "duration": total_seconds}]
@@ -92,8 +168,6 @@ def build_kling_multi_prompt(script_part: str, *, total_seconds: int) -> list[di
         " ".join(sentences[third : 2 * third]),
         " ".join(sentences[2 * third :]),
     ]
-    per = max(1, total_seconds // 3)
-    remainder = total_seconds - per * 2
     return [
         {"prompt": groups[0], "duration": per},
         {"prompt": groups[1], "duration": per},
@@ -142,8 +216,9 @@ def render_kling_clips(
     clips_dir: Path,
     reference_image: Path | None = None,
     draft_id: int | None = None,
+    force_regen: bool = False,
 ) -> int:
-    """Generate Kling clips (default 2×15s). Returns count written."""
+    """Generate Kling clips. Returns count written."""
     require_ai_video_generation(action="render_kling_clips")
     from shorts_bot.production.launch_phase import (
         kling_extra_negative_for_draft,
@@ -162,7 +237,12 @@ def render_kling_clips(
 
     for i, part in enumerate(parts):
         dest = clips_dir / f"kling_part_{i + 1:02d}.mp4"
-        if dest.exists() and dest.stat().st_size > 10_000:
+        if (
+            not force_regen
+            and dest.exists()
+            and dest.stat().st_size > 10_000
+            and not dest.with_suffix(".error.txt").exists()
+        ):
             rendered += 1
             ref_image = dest
             continue
@@ -173,7 +253,12 @@ def render_kling_clips(
             topic, part, part_index=i, total_parts=len(parts), draft_id=draft_id
         )
         multi = (
-            build_kling_multi_prompt(part, total_seconds=settings.kling_clip_seconds)
+            build_kling_multi_prompt(
+                part,
+                total_seconds=settings.kling_clip_seconds,
+                part_index=i,
+                draft_id=draft_id,
+            )
             if settings.kling_multi_shot
             else None
         )
@@ -188,7 +273,8 @@ def render_kling_clips(
                     raise RuntimeError(
                         "Kling official selected but KLING_ACCESS_KEY / KLING_SECRET_KEY missing."
                     )
-                mode = "pro" if settings.kling_mode.strip().lower() == "pro" else "std"
+                mode_raw = (settings.kling_mode or "std").strip().lower()
+                mode = "pro" if mode_raw in {"pro", "1080p"} else "std"
                 generate_kling_official_video(
                     prompt,
                     dest,
@@ -229,6 +315,7 @@ def render_kling_clips(
                 )
             rendered += 1
             ref_image = dest
+            dest.with_suffix(".error.txt").unlink(missing_ok=True)
         except Exception as exc:
             err = dest.with_suffix(".error.txt")
             err.write_text(str(exc), encoding="utf-8")
@@ -238,6 +325,9 @@ def render_kling_clips(
         "backend": "kling",
         "provider": provider if settings.has_kling_official else "replicate",
         "model": settings.kling_model,
+        "mode": settings.kling_mode,
+        "sound": generate_audio,
+        "draft_id": draft_id,
         "clips": [
             {
                 "file": p.name,

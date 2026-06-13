@@ -127,9 +127,10 @@ class Settings(BaseSettings):
     kling_clips_per_short: int = 3  # 3×10s ≈ 30s Short (one stitch between clips)
     kling_generate_audio: bool = True  # lip-sync dialogue + ambient in one pass
     kling_skip_narrator_tts: bool = True  # no Resemble when Kling carries voices
-    kling_mode: str = "pro"  # pro=1080p | standard=720p
+    kling_mode: str = "std"  # std=720p | pro=1080p
     kling_aspect_ratio: str = "9:16"
-    kling_multi_shot: bool = True  # multi_prompt inside each 15s clip
+    kling_multi_shot: bool = True  # multi_prompt inside each clip
+    kling_force_regen: bool = False  # ignore cached kling_part_*.mp4
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"

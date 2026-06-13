@@ -1,12 +1,18 @@
 {
   "visual_beats": [
-    "Close-up on a person's eyes in a mirror, then their eyes blink.",
-    "The reflection in the mirror blinks a full second later than the person.",
-    "The person blinks again, eyes wide, staring intently at the mirror. The reflection remains still, unblinking.",
-    "The person turns their head away from the mirror, eyes looking down in disbelief and fear.",
-    "A slow, ominous scraping sound is heard. The person glances back towards the mirror.",
-    "The reflection in the mirror is now smiling unnaturally, while the person's face is frozen in fear.",
-    "The reflection slowly raises a hand to the mirror's surface, tapping it from the inside.",
-    "The reflection's mouth moves, mouthing the word 'Mine' directly at the viewer, before lunging forward to smash through the glass."
-  ]
+    "Establishing shot: village eye dream worship, liminal apartment",
+    "All screens same impossible timestamp",
+    "Doorway silhouette mirrors your stance",
+    "False calm: hold on empty room",
+    "Charge lunge through doorway"
+  ],
+  "jumpscare_plan": {
+    "profile": "finale",
+    "primary_segment_index": 18,
+    "decoy_segment_index": null,
+    "has_jumpscare": true,
+    "sting_start_ratio": 0.92,
+    "volume_warning": "\ud83d\udd0a VOLUME WARNING \u2014 jumpscare at the end. Use headphones.",
+    "creator_note": "Finale scare \u2014 lunge on last beat, sting ~2s before end."
+  }
 }

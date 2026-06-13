@@ -555,22 +555,14 @@ def render_short_video(
         kling_merged = _concat_kling_clips(clips_dir, tmp_dir=pack_dir / "_kling_tmp")
         audio_duration = _probe_duration(kling_merged)
         kling_audio = pack_dir / "_kling_audio.mp3"
-        subprocess.run(
-            [
-                "ffmpeg",
-                "-y",
-                "-i",
-                str(kling_merged),
-                "-vn",
-                "-acodec",
-                "libmp3lame",
-                "-b:a",
-                f"{settings.video_audio_bitrate_k}k",
-                str(kling_audio),
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
+        from shorts_bot.production.silent_launch_audio import extract_or_build_kling_audio
+
+        extract_or_build_kling_audio(
+            kling_merged,
+            kling_audio,
+            draft_id=draft_id,
+            duration=audio_duration,
+            bitrate_k=settings.video_audio_bitrate_k,
         )
         audio_path = kling_audio
     elif not audio_path.exists():
@@ -610,6 +602,7 @@ def render_short_video(
             plan,
             audio_path,
             audio_duration=audio_duration,
+            draft_id=draft_id,
         )
         if audio_path.name == "_voiceover_sfx.mp3":
             audio_duration = _probe_duration(audio_path)

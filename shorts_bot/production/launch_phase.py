@@ -25,7 +25,9 @@ def should_burn_subtitles(draft_id: int | None) -> bool:
 
 
 def kling_sound_enabled_for_draft(draft_id: int | None) -> bool:
-    """Kling native sound track — ambient/diegetic. Speech blocked via prompt on silent launch."""
+    """Silent launch: Kling video only (sound off) — zero lip-sync/speech risk; SFX in post."""
+    if is_silent_launch_draft(draft_id):
+        return False
     return bool(settings.kling_generate_audio)
 
 
@@ -57,9 +59,10 @@ LAUNCH PHASE (videos 1–3 — no talking, no subtitles):
 
 def silent_launch_kling_rules() -> str:
     return (
-        "NO SPOKEN DIALOGUE — no lip sync, no mouth talking, no whispered words. "
-        "Visual storytelling only. "
-        "Audio: ambient wind, wet gravel, breathing, wood creak, distant murmur, horror drone — no human speech."
+        "ABSOLUTELY NO HUMAN SPEECH — no dialogue, no lip sync, no mouth movement, no whispering, "
+        "no voiceover, no talking. MUTE all human voices. "
+        "Cinematic MOVIE motion — constant camera movement, handheld drift, never a static slideshow. "
+        "Characters may gesture but never speak."
     )
 
 
@@ -68,7 +71,8 @@ def kling_extra_negative_for_draft(draft_id: int | None) -> str:
         return ""
     return (
         ", spoken dialogue, talking, speech, lip sync, mouth talking, human voice speaking, "
-        "whispering words, narrator voiceover"
+        "whispering words, narrator voiceover, open mouth speaking, conversation, subtitles, "
+        "static photo, slideshow, frozen frame, still image"
     )
 
 
