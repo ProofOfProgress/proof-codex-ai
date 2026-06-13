@@ -207,7 +207,18 @@ def _run_pipeline_locked(
 
     # --- Humanize ---
     t0 = _step("humanize")
-    if resume and state.is_done("humanize") and (pack_dir / "ai_detect_log.txt").exists():
+    from shorts_bot.drafts.meta import load_draft_meta
+    from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+    meta = load_draft_meta(draft_id)
+    skip_humanize = bool(meta.get("beat_sheet_approved")) and is_silent_launch_draft(draft_id)
+    if skip_humanize:
+        messages.append(
+            "Skipped humanize — owner-approved beat sheet (launch phase visual script locked)."
+        )
+        state.mark("humanize")
+        save_state(pack_dir, state)
+    elif resume and state.is_done("humanize") and (pack_dir / "ai_detect_log.txt").exists():
         messages.append("Resume: skipped humanize (checkpoint)")
     else:
         finalized = finalize_script(draft.topic, draft.hook, draft.script, draft.help_angle)
