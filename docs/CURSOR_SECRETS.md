@@ -55,7 +55,10 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `WEB_API_TOKEN` | Runtime Secret | Random token (string, 32+ chars, you generate) | `sc________________________________` | Locks mutating `/api/*` on web UI |
 | `RESEMBLE_PROJECT_UUID` | Runtime Secret | UUID (string) | `________-____-____-____-____________` | Optional Resemble project |
 | `TTS_PROVIDER` | Environment Variable | Enum: `resemble` \| `edge` | `resemble` | Voice backend |
-| `REPLICATE_API_TOKEN` | Runtime Secret | API token (string, starts `r8_`) | `r8________________________________` | Only if `VISUAL_STYLE=ai` |
+| `REPLICATE_API_TOKEN` | Runtime Secret | API token (string, starts `r8_`) | `r8________________________________` | **Required for Kling** — https://replicate.com/account/api-tokens |
+| `AI_VIDEO_GENERATION_ENABLED` | Environment Variable | `true` \| `false` | `true` | **Must be `true`** for Kling to run (costs ~2 Replicate calls per Short) |
+| `VIDEO_BACKEND` | Environment Variable | `kling` \| `legacy_i2v` | `kling` | Default Kling 2×15s path |
+| `VISUAL_STYLE` | Environment Variable | `ai_video` \| `hybrid` | `ai_video` | Use `ai_video` (not legacy `ai`) |
 
 ---
 
