@@ -14,3 +14,34 @@ def test_auth_status_upload_ready_flag(monkeypatch, tmp_path):
     assert st["credentials_configured"]
     assert not st["token_saved"]
     assert not st["upload_ready"]
+
+
+def test_credentials_status_placeholder(monkeypatch):
+    from shorts_bot.config import Settings
+    from shorts_bot.youtube import google_auth
+
+    fake = Settings(
+        google_client_id="your-client-id.apps.googleusercontent.com",
+        google_client_secret="your-client-secret",
+    )
+    monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
+    monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("GOOGLE_CLIENT_SECRET", raising=False)
+
+    msg = google_auth.credentials_status_message()
+    assert "placeholder" in msg.lower() or "Cloud Agent" in msg
+
+
+def test_import_token_json(tmp_path, monkeypatch):
+    from shorts_bot.config import Settings
+    from shorts_bot.youtube import google_auth
+
+    token = tmp_path / "youtube_token.json"
+    fake = Settings(youtube_token_path=token)
+    monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
+
+    raw = '{"token": "abc", "refresh_token": "xyz"}'
+    result = google_auth.import_token_json(raw)
+    assert result["ok"]
+    assert token.exists()
+    assert "refresh_token" in token.read_text()

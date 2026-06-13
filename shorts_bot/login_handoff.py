@@ -29,11 +29,18 @@ def open_sites(keys: list[str], *, wait_minutes: int = 15) -> None:
     urls = [SITES[k][1] for k in keys if k in SITES]
     labels = [SITES[k][0] for k in keys if k in SITES]
 
+    if any(k in keys for k in ("google", "youtube")):
+        console.print(
+            "[bold yellow]YouTube uploads use API OAuth — NOT this browser.[/bold yellow]\n"
+            "Run: [cyan]python3 -m shorts_bot.youtube.auth_cli connect[/cyan]\n"
+            "(Opens trusted Chrome for Google — Playwright often gets 'browser not secure'.)\n"
+            "Phone/home PC: [cyan]python3 -m shorts_bot.youtube.auth_cli url[/cyan]\n"
+        )
     console.print(
         "[bold green]Opening browser on your Desktop...[/bold green]\n"
         f"Sites: {', '.join(labels)}\n"
-        "[yellow]In Cursor: click the Desktop tab. Sign in to Google first, then YouTube Studio.[/yellow]\n"
-        "[dim]If Google says 'browser not secure', close this window and run again — stealth mode is on.[/dim]\n"
+        "[yellow]In Cursor: click the Desktop tab.[/yellow]\n"
+        "[dim]Google may block bot browsers — use auth_cli for YouTube API upload instead.[/dim]\n"
         f"Window stays open {wait_minutes} minutes.\n"
     )
 

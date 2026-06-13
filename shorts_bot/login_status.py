@@ -305,16 +305,16 @@ def _check_youtube_upload() -> ServiceStatus:
             "youtube_upload",
             "YouTube API upload",
             False,
-            "GOOGLE_CLIENT_ID/SECRET missing",
-            "Add to Cursor secrets — bash scripts/install.sh",
+            auth_status().get("credentials_message", "GOOGLE_CLIENT_ID/SECRET missing"),
+            "Cursor → Cloud Agent → Secrets → GOOGLE_* → bash scripts/install.sh",
         )
     if not st["token_saved"]:
         return ServiceStatus(
             "youtube_upload",
             "YouTube API upload",
             False,
-            "OAuth not run yet",
-            "python3 -m shorts_bot.youtube.auth_cli",
+            "OAuth token missing — use API connect (not Studio browser)",
+            "python3 -m shorts_bot.youtube.auth_cli connect",
         )
     if st.get("needs_upload_reauth"):
         return ServiceStatus(
