@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import re
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -120,6 +121,23 @@ def _upsert(lines: list[str], key: str, value: str) -> list[str]:
     return out
 
 
+def _sync_youtube_token(*, quiet: bool) -> bool:
+    raw = os.environ.get("YOUTUBE_TOKEN_JSON")
+    if not raw or len(raw.strip()) < 40:
+        return False
+    try:
+        from shorts_bot.youtube.google_auth import import_token_json
+
+        import_token_json(raw.strip())
+        if not quiet:
+            print("  synced YouTube token → data/youtube_token.json")
+        return True
+    except (ValueError, json.JSONDecodeError) as exc:
+        if not quiet:
+            print(f"  YOUTUBE_TOKEN_JSON invalid: {exc}")
+        return False
+
+
 def sync(*, quiet: bool = False) -> list[str]:
     """Return list of keys written to .env."""
     _ensure_env_file()
@@ -145,6 +163,9 @@ def sync(*, quiet: bool = False) -> list[str]:
             print(f"  synced to .env: {', '.join(written)}")
     elif not quiet:
         print("  no secrets in environment to sync")
+
+    if _sync_youtube_token(quiet=quiet):
+        written.append("YOUTUBE_TOKEN_JSON → data/youtube_token.json")
 
     return written
 

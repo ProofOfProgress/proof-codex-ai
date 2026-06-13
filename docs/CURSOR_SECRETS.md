@@ -1,7 +1,10 @@
 # Cursor secrets checklist
 
-Add these in **Cursor → Cloud Agent → Secrets** (or workspace secrets).  
+Add these in **Cursor → Cloud Agent → Secrets** (the **Cloud Agent** panel for this VM — **not** only Cursor IDE → Settings → Secrets).
+
 On the VM, `bash scripts/install.sh` runs `scripts/sync_secrets.py` and copies them into `.env`.
+
+**Check:** after install, `grep GOOGLE_CLIENT .env` must **not** show `your-client-id`. If it still does, keys are in the wrong place or named wrong.
 
 **Do not paste real values in chat or commit them to git.**
 
@@ -25,6 +28,7 @@ On the VM, `bash scripts/install.sh` runs `scripts/sync_secrets.py` and copies t
 | `RESEMBLE_VOICE_UUID` | Runtime Secret | UUID (string) | `________-____-____-____-____________` | Resemble → your voice clone |
 | `GOOGLE_CLIENT_ID` | Runtime Secret | OAuth client ID (string, ends `.apps.googleusercontent.com`) | `__________.apps.googleusercontent.com` | Google Cloud Console → OAuth (Desktop) |
 | `GOOGLE_CLIENT_SECRET` | Runtime Secret | OAuth client secret (string, often `GOCSPX-…`) | `GOCSPX-________________________` | Same OAuth client |
+| `YOUTUBE_TOKEN_JSON` | Runtime Secret | Full JSON from `data/youtube_token.json` (paste entire file) | `{"token": "...", "refresh_token": "..."}` | Optional — skip OAuth on VM if you auth on home PC first |
 
 ---
 

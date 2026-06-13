@@ -22,30 +22,52 @@ Two things must exist before the bot can upload or pull stats:
 
 ### Add keys to Cursor (recommended)
 
-1. Cursor → your Cloud Agent → **Secrets**  
+1. Cursor → your **Cloud Agent** → **Secrets** (not only IDE settings)  
 2. Add:
    - `GOOGLE_CLIENT_ID` = (paste Client ID)  
    - `GOOGLE_CLIENT_SECRET` = (paste Client secret)  
-3. On the machine that runs the bot: `bash scripts/install.sh` (Windows: use Git Bash or WSL if you have it)
+3. On the machine that runs the bot: `bash scripts/install.sh`  
+4. Check: `grep GOOGLE_CLIENT .env` must **not** say `your-client-id`
 
 **Or** on your PC only: paste into `.env` in the project folder (same two lines as `.env.example`).
 
 ---
 
-## Part B — Sign in once (2 minutes, on your PC)
+## Part B — Sign in once (2 minutes)
 
-Must run where **Chrome can open** and you're logged into your **channel Google account** (`paypalacc4progress@gmail.com`).
+**Do not use Playwright / YouTube Studio browser for this** — Google often says “This browser or app may not be secure.” Use **API OAuth** instead.
 
-**Windows PowerShell** (in `proof-codex-ai` folder):
+### Option 1 — Same machine (Desktop tab or home PC)
 
-```powershell
-python -m shorts_bot.youtube.auth_cli
+```bash
+python3 -m shorts_bot.youtube.auth_cli connect
 ```
 
-If `python` fails, try `py -m shorts_bot.youtube.auth_cli`.
+- Browser opens in **real Chrome** (Cursor Desktop tab on cloud VM) → pick channel Google account → **Allow**
+- If no browser: copy the `http://127.0.0.1:8090` link from the terminal into Chrome
 
-- Browser opens → pick your channel Google account → **Allow**  
-- If no browser: copy the `http://localhost:8090` link from the terminal into Chrome  
+### Option 2 — Phone or home PC (cloud VM can’t open Chrome)
+
+On the VM:
+
+```bash
+python3 -m shorts_bot.youtube.auth_cli url
+```
+
+1. Open the printed URL on your **phone or home PC** (Safari/Chrome — not the bot browser)
+2. Sign in → Allow
+3. Copy the **full redirect URL** from the address bar (`http://127.0.0.1:8090/?code=...`)
+4. On the VM:
+
+```bash
+python3 -m shorts_bot.youtube.auth_cli url --complete 'PASTE_FULL_URL_HERE'
+```
+
+### Option 3 — Auth at home, paste token to cloud
+
+1. On home PC: run `auth_cli connect` → get `data/youtube_token.json`
+2. Cursor → **Cloud Agent → Secrets** → add `YOUTUBE_TOKEN_JSON` = entire file contents
+3. On VM: `bash scripts/install.sh`
 
 **Success:** file exists at `data/youtube_token.json`
 
@@ -53,8 +75,8 @@ If `python` fails, try `py -m shorts_bot.youtube.auth_cli`.
 
 ## Part C — Check it worked
 
-```powershell
-python -m shorts_bot.login_status
+```bash
+python3 -m shorts_bot.login_status
 ```
 
 You want green checkmarks on **YouTube Analytics API** and **YouTube API upload**.
@@ -67,6 +89,8 @@ If you posted from another copy of the project, copy that machine’s file:
 
 `data/youtube_token.json` → same path in your current `proof-codex-ai` folder.
 
+Or add the file contents as Cursor secret `YOUTUBE_TOKEN_JSON` and run `bash scripts/install.sh`.
+
 No new sign-in needed if the token is still valid.
 
 ---
@@ -75,7 +99,8 @@ No new sign-in needed if the token is still valid.
 
 | Message | Fix |
 |---------|-----|
-| Missing GOOGLE_CLIENT_ID | Part A not done — keys still placeholder |
-| OAuth token missing | Part B — run `auth_cli` on your PC |
-| Upload scope missing | Run `auth_cli` again (it asks for consent again) |
-| Cloud VM can’t upload | Token must live on the machine that uploads — use home PC or copy `youtube_token.json` |
+| Missing GOOGLE_CLIENT_ID / still placeholder | Keys in **IDE secrets** don’t reach the cloud VM — use **Cloud Agent → Secrets**, then `bash scripts/install.sh` |
+| “Browser not secure” (Google) | Stop using Playwright/Studio login — use `auth_cli connect` or `auth_cli url` (Part B) |
+| OAuth token missing | Part B — run `auth_cli connect` or paste token via `YOUTUBE_TOKEN_JSON` secret |
+| Upload scope missing | Run `auth_cli connect` again (consent prompt) |
+| Cloud VM can’t upload | Token must be on the VM — `YOUTUBE_TOKEN_JSON` secret or complete `auth_cli url` flow |
