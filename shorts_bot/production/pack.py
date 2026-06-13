@@ -118,6 +118,37 @@ def build_production_pack(
     images_dir.mkdir(exist_ok=True)
     clips_dir.mkdir(exist_ok=True)
 
+    from shorts_bot.production.video_beat_sheet import (
+        ensure_beat_sheet,
+        launch_rules_blurb,
+        load_beat_sheet,
+        write_beat_sheet_files,
+    )
+    from shorts_bot.drafts.meta import load_draft_meta
+
+    beat_sheet = ensure_beat_sheet(
+        draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        script=draft.script if isinstance(draft.script, str) else str(draft.script),
+    )
+    write_beat_sheet_files(
+        root,
+        draft_id=draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        beats=beat_sheet,
+        rules=launch_rules_blurb(draft_id),
+    )
+    meta = load_draft_meta(draft_id)
+    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+        raise RuntimeError(
+            f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
+            f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
+            f"beat_sheet_approved=true in data/draft_meta/draft_{draft_id}.json or tell the agent "
+            f"'approve beat sheet for draft {draft_id}'."
+        )
+
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 

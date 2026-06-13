@@ -252,16 +252,28 @@ def render_kling_clips(
         prompt = build_kling_prompt(
             topic, part, part_index=i, total_parts=len(parts), draft_id=draft_id
         )
-        multi = (
-            build_kling_multi_prompt(
-                part,
-                total_seconds=settings.kling_clip_seconds,
-                part_index=i,
-                draft_id=draft_id,
+        multi = None
+        if settings.kling_multi_shot:
+            from shorts_bot.production.video_beat_sheet import (
+                beats_for_kling_clip,
+                load_beat_sheet,
             )
-            if settings.kling_multi_shot
-            else None
-        )
+
+            sheet = load_beat_sheet(draft_id) if draft_id else []
+            if sheet:
+                multi = beats_for_kling_clip(
+                    sheet,
+                    i,
+                    clip_seconds=settings.kling_clip_seconds,
+                    clips_per_short=settings.kling_clips_per_short,
+                )
+            if not multi:
+                multi = build_kling_multi_prompt(
+                    part,
+                    total_seconds=settings.kling_clip_seconds,
+                    part_index=i,
+                    draft_id=draft_id,
+                )
         try:
             start_still = None
             if i > 0 and ref_image:

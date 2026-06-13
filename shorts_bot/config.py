@@ -207,6 +207,8 @@ class Settings(BaseSettings):
     post_upload_analytics_sync: bool = True
     launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
     launch_silent_video_count: int = 3  # first N Shorts: no talking, no subtitles; SFX/ambient OK
+    require_beat_sheet_before_video: bool = True  # write VIDEO_BEAT_SHEET.md before Kling
+    require_beat_sheet_approval: bool = True  # block Kling/upload until owner approves beat sheet
     pipeline_exclusive_lock: bool = True  # one finish_cli / Replicate job at a time
     pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
     pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail

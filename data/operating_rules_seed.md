@@ -24,7 +24,15 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 
 **The owner does not use Codex ask/search** — no public Codex button. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
 
-## Owner — how to talk to the human
+## Owner — beat sheet before every video (2026-06)
+
+**Before spending Kling credits or uploading**, explain **in detail what happens in the video with timestamps** (0:00–0:30). Owner must approve the beat sheet first.
+
+- File: `data/production/draft_N/VIDEO_BEAT_SHEET.md`
+- Meta flag: `beat_sheet_approved: true` in `data/draft_meta/draft_N.json`
+- Pipeline blocks Kling when `require_beat_sheet_approval=true` and not approved
+- No talking/subtitles on launch videos 1–3; SFX listed per timestamp
+
 
 The owner is **not a developer**. When explaining anything:
 
