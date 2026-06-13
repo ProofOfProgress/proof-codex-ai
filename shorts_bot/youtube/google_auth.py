@@ -200,6 +200,8 @@ def oauth_complete_redirect(authorization_response: str) -> dict:
             "ok": False,
             "message": "No pending OAuth — run: python3 -m shorts_bot.youtube.auth_cli url",
         }
+    # Google desktop OAuth uses http://127.0.0.1 callback — allowed for local dev only.
+    os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
     flow = _make_flow()
     flow.redirect_uri = pending["redirect_uri"]
     flow.code_verifier = pending["code_verifier"]
@@ -207,8 +209,7 @@ def oauth_complete_redirect(authorization_response: str) -> dict:
         flow.fetch_token(authorization_response=authorization_response.strip())
     except Exception as exc:
         return {"ok": False, "message": f"OAuth failed: {exc}"}
-    finally:
-        _clear_pending_oauth_flow()
+    _clear_pending_oauth_flow()
     save_credentials(flow.credentials, scopes=UPLOAD_SCOPES)
     return {
         "ok": True,
