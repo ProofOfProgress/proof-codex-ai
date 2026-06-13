@@ -49,7 +49,11 @@ def _manifest_needs_repack(manifest_path: Path) -> bool:
         return True
     if settings.visual_style != "ai_video":
         return False
-    expected_mode = "kling_clips" if settings.uses_kling_video else "video_clips"
+    expected_mode = (
+        "blender_clips"
+        if settings.uses_blender_video
+        else ("kling_clips" if settings.uses_kling_video else "video_clips")
+    )
     if manifest.get("render_mode") != expected_mode:
         return True
     if int(manifest.get("clips_rendered") or 0) < 1:
@@ -374,6 +378,7 @@ def _run_pipeline_locked(
         settings.require_paid_stack
         and not settings.allow_script_timing_fallback
         and not settings.uses_kling_native_audio
+        and not settings.uses_blender_video
     ):
         if not turboscribe_text.strip() and not (pack_dir / "turboscribe_transcript.txt").exists():
             raise RuntimeError(

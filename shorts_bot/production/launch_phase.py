@@ -32,15 +32,19 @@ def kling_sound_enabled_for_draft(draft_id: int | None) -> bool:
 
 
 def skip_narrator_tts(draft_id: int | None) -> bool:
-    """Skip Resemble / edge TTS — Kling carries voices, or silent launch has none."""
+    """Skip Resemble / edge TTS — Kling carries voices, Blender is silent, or launch has none."""
     if is_silent_launch_draft(draft_id):
+        return True
+    if settings.uses_blender_video:
         return True
     return settings.uses_kling_native_audio
 
 
 def skip_transcript_sync(draft_id: int | None) -> bool:
-    """Skip Gemini transcript when Kling native audio or silent launch (no captions)."""
+    """Skip Gemini transcript when Kling native audio, Blender, or silent launch."""
     if is_silent_launch_draft(draft_id):
+        return True
+    if settings.uses_blender_video:
         return True
     return settings.uses_kling_native_audio
 

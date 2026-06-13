@@ -131,6 +131,11 @@ class Settings(BaseSettings):
     kling_aspect_ratio: str = "9:16"
     kling_multi_shot: bool = True  # multi_prompt inside each clip
     kling_force_regen: bool = False  # ignore cached kling_part_*.mp4
+    # Blender 3D — local EEVEE renders (no API credits)
+    blender_clips_per_short: int = 3
+    blender_clip_seconds: float = 10.0
+    blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
+    blender_force_regen: bool = False
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
@@ -315,6 +320,10 @@ class Settings(BaseSettings):
     @property
     def uses_kling_video(self) -> bool:
         return (self.video_backend or "").strip().lower() == "kling"
+
+    @property
+    def uses_blender_video(self) -> bool:
+        return (self.video_backend or "").strip().lower() == "blender"
 
     @property
     def uses_kling_native_audio(self) -> bool:

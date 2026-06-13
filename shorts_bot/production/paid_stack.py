@@ -15,7 +15,7 @@ def paid_stack_issues() -> list[str]:
         return issues
 
     if settings.tts_provider.strip().lower() == "resemble" or not settings.allow_free_tts_fallback:
-        if not settings.has_resemble and not settings.uses_kling_native_audio:
+        if not settings.has_resemble and not settings.uses_kling_native_audio and not settings.uses_blender_video:
             issues.append(
                 "Resemble voice clone missing — set RESEMBLE_API_KEY + RESEMBLE_VOICE_UUID "
                 "in Cursor secrets (sync_secrets writes .env). "
@@ -87,7 +87,7 @@ def ensure_turboscribe_segments(sync_source: str) -> None:
     """Block script-timing fallbacks when transcript timestamps are required."""
     from shorts_bot.config import settings
 
-    if settings.allow_script_timing_fallback or settings.uses_kling_native_audio:
+    if settings.allow_script_timing_fallback or settings.uses_kling_native_audio or settings.uses_blender_video:
         return
     if sync_source in _SCRIPT_FALLBACK_SOURCES:
         raise RuntimeError(

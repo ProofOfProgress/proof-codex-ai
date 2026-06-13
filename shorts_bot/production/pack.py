@@ -178,7 +178,27 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_kling_video and settings.has_kling_official:
+        if settings.uses_blender_video:
+            from shorts_bot.production.render_blender import render_blender_clips
+
+            clips_rendered = render_blender_clips(
+                clips_dir=clips_dir,
+                draft_id=draft_id,
+                pack_dir=root,
+                force_regen=settings.blender_force_regen,
+            )
+            if clips_rendered > 0:
+                rendered = clips_rendered
+                render_mode = "blender_clips"
+                image_note = (
+                    f" via Blender 3D EEVEE ({clips_rendered}×{settings.blender_clip_seconds}s, "
+                    f"{settings.blender_samples} samples, silent + post SFX)"
+                )
+            else:
+                raise RuntimeError(
+                    f"Blender returned 0 clips — expected {settings.blender_clips_per_short}."
+                )
+        elif settings.uses_kling_video and settings.has_kling_official:
             from shorts_bot.production.render_kling import render_kling_clips
 
             clips_rendered = render_kling_clips(
