@@ -155,6 +155,7 @@ def build_production_pack(
                 hook=draft.hook,
                 script=draft.script,
                 clips_dir=clips_dir,
+                draft_id=draft_id,
             )
             if clips_rendered > 0:
                 rendered = clips_rendered

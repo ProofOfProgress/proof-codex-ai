@@ -123,8 +123,8 @@ class Settings(BaseSettings):
     kling_access_key: str | None = None
     kling_secret_key: str | None = None
     kling_model: str = "kling-v2-6"  # official API model_name; replicate uses kwaivgi/kling-v3-video
-    kling_clip_seconds: int = 15  # max 15 per generation
-    kling_clips_per_short: int = 2  # ~30s total, one stitch
+    kling_clip_seconds: int = 10  # official v2.6 API: 5 or 10; use 10 for longer beats
+    kling_clips_per_short: int = 3  # 3×10s ≈ 30s Short (one stitch between clips)
     kling_generate_audio: bool = True  # lip-sync dialogue + ambient in one pass
     kling_skip_narrator_tts: bool = True  # no Resemble when Kling carries voices
     kling_mode: str = "pro"  # pro=1080p | standard=720p
@@ -205,6 +205,7 @@ class Settings(BaseSettings):
     post_upload_cta_comment: bool = True  # series engagement comment after API upload
     post_upload_analytics_sync: bool = True
     launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
+    launch_silent_video_count: int = 3  # first N Shorts: no talking, no subtitles; SFX/ambient OK
     pipeline_exclusive_lock: bool = True  # one finish_cli / Replicate job at a time
     pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
     pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail

@@ -628,8 +628,10 @@ def render_short_video(
     out_path = pack_dir / output_name
 
     from shorts_bot.production.caption_timing import resolve_caption_segments
-    from shorts_bot.production.captions import burn_captions_via_ffmpeg
+    from shorts_bot.production.launch_phase import is_silent_launch_draft, should_burn_subtitles
     from shorts_bot.production.subtitles import ffmpeg_subtitles_filter, write_subtitle_files
+
+    burn_captions = should_burn_subtitles(draft_id)
 
     caption_segments = resolve_caption_segments(
         pack_dir=pack_dir,
@@ -670,7 +672,7 @@ def render_short_video(
                 pack_dir / "clips", tmp_dir=pack_dir / "_kling_tmp"
             )
         vf_parts: list[str] = []
-        if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+        if burn_captions:
             vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
         vf = ",".join(vf_parts) if vf_parts else None
         cmd = ["ffmpeg", "-y", "-i", str(kling_merged), "-i", str(audio_path)]
@@ -704,13 +706,18 @@ def render_short_video(
             ]
         )
         subprocess.run(cmd, check=True, capture_output=True, text=True)
+        kling_note = (
+            "ambient + horror SFX, no dialogue, no captions"
+            if is_silent_launch_draft(draft_id)
+            else "native dialogue + horror SFX + ASS captions"
+        )
         return RenderedVideo(
             draft_id=draft_id,
             output_path=out_path,
             duration_seconds=audio_duration,
             message=(
-                f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920, Kling 2×15s). "
-                f"Native dialogue + horror SFX + ASS captions."
+                f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920, Kling clips). "
+                f"{kling_note}."
             ),
         )
 
@@ -753,7 +760,7 @@ def render_short_video(
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []
-        if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+        if burn_captions:
             vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
         vf = ",".join(vf_parts) if vf_parts else None
         cmd = ["ffmpeg", "-y", *video_input, "-i", str(audio_path)]
@@ -813,7 +820,7 @@ def render_short_video(
     vf_parts: list[str] = []
     if not use_motion:
         vf_parts.extend([f"scale={FRAME_WIDTH}:{FRAME_HEIGHT}:flags=lanczos", "format=yuv420p"])
-    if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+    if burn_captions:
         vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
     vf = ",".join(vf_parts) if vf_parts else None
 

@@ -53,6 +53,15 @@ JUMPSCARE ROULETTE: timing varies — sting pays off twist.
 Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
 
 
+def _system_prompt(store: MemoryStore | None = None, *, draft_id: int | None = None) -> str:
+    from shorts_bot.production.launch_phase import silent_launch_script_rules, would_be_silent_launch
+
+    prompt = SYSTEM_PROMPT
+    if would_be_silent_launch(store, draft_id=draft_id):
+        prompt += silent_launch_script_rules()
+    return prompt
+
+
 @dataclass
 class GeneratedDraft:
     topic: str
@@ -188,7 +197,7 @@ Return JSON with keys:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": _system_prompt(self.store)},
                 {"role": "user", "content": user_prompt},
             ],
             response_format={"type": "json_object"},

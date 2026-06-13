@@ -16,8 +16,11 @@ _KLING_NEGATIVE = (
 )
 
 _KLING_VISUAL_PREFIX = (
-    "9:16 vertical cinematic horror. The Village — Eye worship cult, dream invasion, "
-    "uncanny villagers, cold night. First-person POV. Photoreal, shallow depth of field. "
+    "9:16 vertical cinematic horror. Foggy rural American town at night — wet two-lane road, "
+    "streetlight pools, abandoned gas station, pine fog, crooked church steeple distant. "
+    "Eye worship cult undertones, uncanny villagers, dream invasion. "
+    "Real human protagonist (Elliot) in reflections/peripheral when shown. "
+    "First-person POV. Photoreal, SCP flash-photo documentary aesthetic, shallow depth of field. "
     "No on-screen text or readable signs."
 )
 
@@ -46,12 +49,28 @@ def build_kling_prompt(
     *,
     part_index: int,
     total_parts: int,
+    draft_id: int | None = None,
 ) -> str:
-    role = (
-        "opening hook and wrong-village setup"
-        if part_index == 0
-        else "escalation, dream invasion, perception break, final sting"
+    from shorts_bot.production.launch_phase import (
+        is_silent_launch_draft,
+        silent_launch_kling_rules,
     )
+
+    silent = is_silent_launch_draft(draft_id)
+    role = (
+        "opening hook — impossible visual in the fog"
+        if part_index == 0
+        else "escalation, rural anomaly, perception break, final sting"
+    )
+    if silent:
+        return (
+            f"{_KLING_VISUAL_PREFIX}\n"
+            f"Topic: {topic}. Part {part_index + 1}/{total_parts} — {role}.\n"
+            f"{silent_launch_kling_rules()}\n"
+            f"First-person POV horror — visual actions only (no quoted speech).\n"
+            f"Scene actions: {script_part}\n"
+            f"Sound: wind, wet gravel, breathing, distant ritual murmur, low horror drone only."
+        )
     return (
         f"{_KLING_VISUAL_PREFIX}\n"
         f"Topic: {topic}. Part {part_index + 1}/{total_parts} — {role}.\n"
@@ -122,10 +141,18 @@ def render_kling_clips(
     script: str,
     clips_dir: Path,
     reference_image: Path | None = None,
+    draft_id: int | None = None,
 ) -> int:
     """Generate Kling clips (default 2×15s). Returns count written."""
     require_ai_video_generation(action="render_kling_clips")
+    from shorts_bot.production.launch_phase import (
+        kling_extra_negative_for_draft,
+        kling_sound_enabled_for_draft,
+    )
+
     provider = (settings.kling_provider or "official").strip().lower()
+    generate_audio = kling_sound_enabled_for_draft(draft_id)
+    negative = _KLING_NEGATIVE + kling_extra_negative_for_draft(draft_id)
 
     clips_dir.mkdir(parents=True, exist_ok=True)
     parts = split_script_parts(hook, script, parts=settings.kling_clips_per_short)
@@ -142,7 +169,9 @@ def render_kling_clips(
         if pace and i > 0:
             time.sleep(pace)
 
-        prompt = build_kling_prompt(topic, part, part_index=i, total_parts=len(parts))
+        prompt = build_kling_prompt(
+            topic, part, part_index=i, total_parts=len(parts), draft_id=draft_id
+        )
         multi = (
             build_kling_multi_prompt(part, total_seconds=settings.kling_clip_seconds)
             if settings.kling_multi_shot
@@ -169,8 +198,8 @@ def render_kling_clips(
                     duration=settings.kling_clip_seconds,
                     aspect_ratio=settings.kling_aspect_ratio,
                     mode=mode,
-                    sound=settings.kling_generate_audio,
-                    negative_prompt=_KLING_NEGATIVE,
+                    sound=generate_audio,
+                    negative_prompt=negative,
                     multi_prompt=multi,
                     start_image_path=start_still,
                     timeout_sec=settings.ai_video_timeout_sec,
@@ -192,10 +221,10 @@ def render_kling_clips(
                     duration=settings.kling_clip_seconds,
                     aspect_ratio=settings.kling_aspect_ratio,
                     mode=settings.kling_mode,
-                    generate_audio=settings.kling_generate_audio,
+                    generate_audio=generate_audio,
                     multi_prompt=multi,
                     start_image_path=start_still,
-                    negative_prompt=_KLING_NEGATIVE,
+                    negative_prompt=negative,
                     timeout_sec=settings.ai_video_timeout_sec,
                 )
             rendered += 1
@@ -212,7 +241,9 @@ def render_kling_clips(
         "clips": [
             {
                 "file": p.name,
-                "prompt": build_kling_prompt(topic, parts[i], part_index=i, total_parts=len(parts)),
+                "prompt": build_kling_prompt(
+                    topic, parts[i], part_index=i, total_parts=len(parts), draft_id=draft_id
+                ),
                 "script_part": parts[i],
             }
             for i, p in enumerate(kling_clip_paths(clips_dir, len(parts)))

@@ -281,10 +281,17 @@ def _run_pipeline_locked(
     # --- Voiceover (skip when Kling carries native character audio) ---
     t0 = _step("voiceover")
     vo_path = pack_dir / "voiceover.mp3"
-    if settings.uses_kling_native_audio:
-        messages.append(
-            "Skipped narrator TTS — Kling native audio (character voices in video clips)."
-        )
+    from shorts_bot.production.launch_phase import is_silent_launch_draft, skip_narrator_tts
+
+    if skip_narrator_tts(draft_id):
+        if is_silent_launch_draft(draft_id):
+            messages.append(
+                "Skipped narrator TTS — launch phase (videos 1–3): ambient + SFX only, no talking."
+            )
+        else:
+            messages.append(
+                "Skipped narrator TTS — Kling native audio (character voices in video clips)."
+            )
         state.mark("voiceover")
         save_state(pack_dir, state)
         _end("voiceover", t0)
@@ -311,8 +318,15 @@ def _run_pipeline_locked(
     # --- Transcript sync (AssemblyAI API) ---
     t0 = _step("transcript")
     turboscribe_text = ""
-    if settings.uses_kling_native_audio:
-        messages.append("Skipped transcript sync — caption timing from script (Kling mode).")
+    from shorts_bot.production.launch_phase import skip_transcript_sync
+
+    if skip_transcript_sync(draft_id):
+        if is_silent_launch_draft(draft_id):
+            messages.append(
+                "Skipped transcript sync — launch phase: no subtitles on videos 1–3."
+            )
+        else:
+            messages.append("Skipped transcript sync — caption timing from script (Kling mode).")
         state.mark("transcript")
         save_state(pack_dir, state)
         _end("transcript", t0)

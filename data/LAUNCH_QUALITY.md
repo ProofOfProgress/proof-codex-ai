@@ -19,15 +19,16 @@ Goal: **maximize completion rate + jumpscare payoff** on a zero-video channel.
 
 ## Visual bar (Kling — default)
 
-- `VIDEO_BACKEND=kling` — Kling 3.0 **2×15s**, native character audio
+- `VIDEO_BACKEND=kling` — Kling 3.0 **3×10s**, native ambient audio + post horror SFX
 - `VISUAL_STYLE=ai_video` — required for motion path
-- Dialogue in script → Kling lip sync; **subtitles burned in post**
+- **Videos 1–3 (launch):** no talking, no burned-in subtitles — ambient + SFX only
+- **Video 4+:** dialogue in script → Kling lip sync; subtitles burned in post
 - `vision_qc_min_score` default **7.5**
 
 ## Audio bar
 
-- **Kling mode:** character voices in clip (no Resemble narrator)
-- **Legacy mode:** Resemble VO — tense delivery
+- **Launch (videos 1–3):** wind, footsteps, creaks, ritual murmur, horror sting — **no human speech**
+- **After launch:** Kling character voices in clip (no Resemble narrator)
 - `horror_sfx_enabled=true` — procedural SFX + finale stinger at render
 - Title + description: **🔊 volume warning**
 

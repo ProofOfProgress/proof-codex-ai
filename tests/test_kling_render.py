@@ -58,7 +58,7 @@ def test_kling_config_defaults():
     assert fields["video_backend"].default == "kling"
     assert fields["kling_provider"].default == "official"
     assert fields["kling_model"].default == "kling-v2-6"
-    assert fields["kling_clips_per_short"].default == 2
+    assert fields["kling_clips_per_short"].default == 3
     assert fields["kling_generate_audio"].default is True
     assert fields["kling_skip_narrator_tts"].default is True
     assert fields["ai_video_max_beats"].default == 2
