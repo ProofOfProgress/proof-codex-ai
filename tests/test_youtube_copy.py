@@ -29,9 +29,8 @@ def test_brand_loader_youtube_fields():
     fields = brand.youtube_fields()
     assert fields.channel_name
     assert fields.channel_name == "Peripheral"
-    assert "jumpscare" in fields.description.lower()
-    assert fields.description.startswith("Faceless horror Shorts")
     assert "horror shorts" in fields.keywords.lower()
+    assert "jumpscare" in fields.keywords.lower()
 
 
 def test_parse_empty_copy():

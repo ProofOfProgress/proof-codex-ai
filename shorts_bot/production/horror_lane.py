@@ -1,62 +1,57 @@
-"""Don't Blink horror subgenre lane — one clear type, enforced in prompts + QC."""
+"""Peripheral horror subgenre lane — village Eye worship."""
 
 from __future__ import annotations
 
-# Primary lane: degraded recordings, fullscreen CCTV, night vision, alarm clock, signal lag
-HORROR_LANE_PRIMARY = "analog_horror"
-HORROR_LANE_LABEL = "Analog horror"
+HORROR_LANE_PRIMARY = "village_cult_horror"
+HORROR_LANE_LABEL = "Village cult / Eye worship"
 
-# Secondary flavor — uncanny alone-at-night dread, not creature gore
-HORROR_LANE_SECONDARY = "psychological_horror"
+HORROR_LANE_SECONDARY = "dream_invasion"
 
-# Lanes we explicitly do NOT pursue (keeps channel identity sharp)
 HORROR_LANES_REJECTED = (
+    "analog_cctv_spam",
+    "apartment_glitch_horror",
+    "faceless_narrator_pov",
     "creature_horror",
     "folk_horror",
-    "folklore_horror",
-    "urban_fantasy",
     "slasher_gore",
     "cosmic_horror",
     "real_world_religion_mockery",
     "animal_cruelty",
 )
 
-# Theatrical industrial ritual (masks, warehouse pit) is OK — not real-world occult worship
-HORROR_LANE_TERTIARY = "industrial_ritual_metal"
+HORROR_LANE_TERTIARY = "uncanny_perception_break"
 
 
 def horror_lane_compact() -> str:
     """Inject into script + agent prompts."""
     from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact
 
-    return f"""HORROR LANE — {HORROR_LANE_LABEL} (primary) + psychological (secondary) + industrial ritual metal (tertiary texture):
-Analog: fullscreen night-vision CCTV, VHS grain, timestamp glitches, alarm clock at 3:12 AM, degraded signal, liminal apartment.
-Psychological: alone-at-night uncanny — you rationalize lag as glitch/tired eyes; earned dread, not jump-scare spam.
-Industrial metal theatre (when topic fits): numbered masks, warehouse pit, chains, red strobe — theatrical symbolism only.
+    return f"""HORROR LANE — {HORROR_LANE_LABEL} (primary) + dream invasion (secondary) + uncanny perception break (tertiary):
+Village: fog dusk, villagers worship the Eye, ritual symbols, silent complicity, outsiders break rules.
+Dream: Eye true form tortures victims; they remember on waking (metal taste, gasp).
+Waking: uncanny almost-human villagers — twitchy, wrong speech, shape-shifting energy; Eye breaks perception.
 {metal_aesthetic_compact()}
-Color grammar: night-vision green on fullscreen fixed CCTV POV; no smartphones. POV room shots stay cold blue-black (#1A2A3A).
-Never: creature features, real folklore entities, animal cruelty, graphic gore, daylight crowds, cosy aesthetic.
-Rejected lanes: {", ".join(HORROR_LANES_REJECTED)}."""
+Color: fog grey, cold blue-black (#1A2A3A), crimson accent on finale only; dream Eye macro fills frame.
+Never: security cameras, apartment glitch, 3:12 AM spam, smartphones, faceless narrator, cosy aesthetic.
+Rejected: {", ".join(HORROR_LANES_REJECTED)}."""
 
 
 def analog_color_rules() -> str:
-    """I2V / image prompt fragment — fixes Gemini 'random green tint' failures."""
+    """Legacy hook — village palette only (no analog CCTV)."""
     return (
-        "ANALOG COLOR RULE: night-vision green grain ONLY on full-frame fixed CCTV/wall cam POV — "
-        "no smartphones, no hands holding phones. POV room shots (locks, speaker) stay cold blue-black. "
-        "Match prior clip palette when chained."
+        "COLOR RULE: fog-grey village exteriors, cold blue-black interiors, bone white fog; "
+        "crimson accent sparingly on ritual/finale; dream sequences may push surreal contrast; "
+        "no night-vision green CCTV wash."
     )
 
 
 def horror_lane_for_qc() -> str:
-    """Production review context — score analog consistency, not generic horror."""
+    """Production review context."""
     from shorts_bot.production.black_mirror_format import black_mirror_for_qc
-    from shorts_bot.production.world import WORLD_NAME
 
     return (
-        f"Channel lane: {HORROR_LANE_LABEL} inside Peripheral anthology ({WORLD_NAME} + village + pit). "
+        f"Channel lane: {HORROR_LANE_LABEL} inside Peripheral (The Village). "
         f"{black_mirror_for_qc()} "
-        "Intentional night-vision green on fullscreen CCTV beats is correct; "
-        "no phone screens expected. Alarm clock and REC OSD are composited in post. "
-        "Penalize smartphones, hands holding phones, or fake app UI."
+        "Score village worship, Eye dream imagery, uncanny humans — not CCTV/analog glitch. "
+        "Penalize security cam UI, apartment hallway spam, off-screen narrator mismatch."
     )

@@ -2,7 +2,7 @@
 
 **Vibe:** Slipknot-adjacent **theatre** — masks, jumpsuits, warehouse pit, red strobe, chains. Not a documentary of harm.
 
-**Merch crossover:** same eye mark + **PERIPH** patches on black denim / jumpsuit cuts — label energy, not cosplay only.
+**Merch crossover:** same eye mark on **solid white hoodie** + black denim — label energy, not cosplay only.
 
 ---
 

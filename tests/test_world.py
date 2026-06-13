@@ -18,46 +18,45 @@ def test_world_doc_exists():
     assert world_doc_path().exists()
 
 
-def test_world_rules_compact_mentions_gap_and_laws():
+def test_world_rules_compact_mentions_village_and_eye():
     rules = world_rules_compact()
-    assert WORLD_NAME in rules
-    assert "3:12" in rules
-    assert "blink" in rules.lower()
-    assert "Black Mirror" in rules
+    assert "village" in rules.lower()
+    assert "Eye" in rules
+    assert "worship" in rules.lower()
     assert "twist" in rules.lower()
 
 
 def test_world_visual_continuity_in_i2v_dna():
     dna = visual_dna()
-    assert WORLD_NAME in dna
+    assert "Peripheral" in dna
     assert world_visual_continuity() in dna
 
 
 def test_niche_positioning_includes_world():
     assert WORLD_NAME in NICHE_POSITIONING
-    assert "liminal" in NICHE_POSITIONING.lower()
+    assert "worship" in NICHE_POSITIONING.lower()
 
 
 def test_generator_system_prompt_includes_world():
-    assert WORLD_NAME in SYSTEM_PROMPT
+    assert "Eye" in SYSTEM_PROMPT
+    assert "worship" in SYSTEM_PROMPT.lower()
     assert world_lore_for_scripts()[:40] in SYSTEM_PROMPT
-    assert "Black Mirror" in SYSTEM_PROMPT
 
 
 def test_image_prompt_includes_world():
-    seg = TranscriptSegment(0.0, "Motion flagged at 3:12 AM.", "00.00")
-    prompt = horror_segment_to_prompt(seg, topic="security cam alone")
-    assert WORLD_NAME in prompt
+    seg = TranscriptSegment(0.0, "I saw them praying to the Eye.", "00.00")
+    prompt = horror_segment_to_prompt(seg, topic="village worship")
+    assert "Peripheral" in prompt or WORLD_NAME in prompt
 
 
 def test_brand_loader_includes_world_bible():
     brand = ChannelBrand()
     instructions = brand.draft_instructions()
     assert "WORLD BIBLE" in instructions
-    assert "Gap" in instructions or WORLD_NAME in instructions
+    assert "Eye" in instructions or WORLD_NAME in instructions
 
 
 def test_world_motifs_non_empty():
     motifs = world_motifs()
-    assert "3:12" in motifs
-    assert "mirror" in motifs
+    assert "eye" in motifs
+    assert "village" in motifs

@@ -1,8 +1,4 @@
-"""Peripheral shared universe — anthology episode grammar.
-
-Every Short is a self-contained Black Mirror-style episode in rotating settings.
-Inject into scripts, I2V prompts, and brand context so scares feel connected.
-"""
+"""Peripheral shared universe — village Eye worship."""
 
 from __future__ import annotations
 
@@ -14,8 +10,8 @@ from shorts_bot.production.black_mirror_format import (
 )
 from shorts_bot.production.horror_lane import HORROR_LANE_LABEL, horror_lane_compact
 
-WORLD_NAME = "The Gap"
-WORLD_TAGLINE = "One rule breaks — the recording shows you the bill."
+WORLD_NAME = "The Village"
+WORLD_TAGLINE = "They worship the Eye — it finds you in your dreams."
 
 _WORLD_DOC = Path("channel/brand/world.md")
 
@@ -26,15 +22,14 @@ def world_doc_path() -> Path:
 
 def world_rules_compact() -> str:
     """Short rules block for prompts (scripts + agents)."""
-    return f"""UNIVERSE — Peripheral anthology (Black Mirror episode feel, ~30s each):
+    return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: one broken rule in hook; consequences escalate each beat; twist rewrites line 1; finale sting on the NEW truth — then stop.
-Movement in unwatched moments (blink, look away, refresh); 3:12 AM glitch hour; recordings lag reality.
-Eyes & masks: macro staring eye and metal/beak masks are brand heroes — visible when earned; finale escalates.
-Settings (rotate): The Gap (liminal apartment), village curse-sign (see it → slow death — implied sickness only), warehouse pit (masks/chains).
-Threats never named in VO: the Lag, the Sign, the Segment — different masks, same episode grammar.
-Not this world: cosy self-help, stick figures, gore, generic creepypasta listicles.
+Laws: first-person I; character voices on screen only (no narrator); victims remember dreams; Eye true form in dreams; villagers worship the Eye; uncanny human wrongness when awake.
+Twist rewrites hook; finale sting on NEW truth — then stop.
+Settings: fog village (primary) — square, signpost, barn symbols, ritual candles. No apartment/CCTV/glitch hour.
+Threat: the Eye — true form (macro eye), dream torturer, perception breaker. Villagers complicit in worship.
+Not this world: security cameras, The Gap apartment, 3:12 AM glitch spam, faceless second-person narrator, cosy self-help.
 {horror_lane_compact()}"""
 
 
@@ -44,59 +39,45 @@ def world_lore_for_scripts() -> str:
 
 {black_mirror_script_structure()}
 
-Write each Short as a standalone anthology episode — premise → escalation → twist → sting.
-Prefer hooks that state the broken rule (village sign, timestamp, delivered-while-off, warm mask you never removed).
-False calm must be in-world rationalization: glitch, lag, tired eyes, old village superstition — not comedy, not therapy."""
+Write each Short as first-person screenplay — CHARACTER lines only, victim speaks as I.
+Dream Shorts must include waking beat where victim remembers the Eye.
+Village Shorts: worship, silence, wrong villagers, ritual symbols — outsiders break the rule."""
 
 
 def world_visual_continuity() -> str:
-    """Paste into every I2V / image prompt after visual DNA."""
+    """Paste into every video / image prompt after visual DNA."""
     return (
-        f"WORLD — Peripheral anthology ({WORLD_NAME} apartment thread): Black Mirror episode cinematography — clinical, cold, precise; "
-        "rotate settings — liminal apartment (hallway, mirror, CCTV), fog village square (signpost, barn symbol), "
-        "or warehouse pit (masks, chains, red strobe); film grain, underexposed; "
-        "CCTV/mirror/recordings as truth sources that lag reality; 3:12 AM when time appears; "
-        "macro eyes and masks visible when story calls for it; finale sting on twist truth — "
-        "same episode grammar across uploads, not one location every video."
+        "WORLD — Peripheral fog village: dusk, bone fog, crooked signpost, barn Eye symbols, "
+        "villagers with averted eyes and ritual candles; dream sequences — surreal rooms, "
+        "macro freaky Eye filling ceiling or mirror; waking — uncanny almost-human villagers, "
+        "twitchy rabies-wrong movement; solid white and cold blue-black palette; "
+        "cinematic horror — no CCTV green, no smartphones, no apartment hallway spam."
     )
 
 
 def world_motifs() -> tuple[str, ...]:
     """Recurring in-universe tokens for topic/QC checks."""
     return (
-        "3:12",
-        "3:12 am",
-        "3am",
-        "3 am",
-        "blink",
-        "reflection",
-        "mirror",
-        "security",
-        "camera",
-        "motion",
-        "delivered",
-        "timestamp",
-        "hallway",
-        "closet",
-        "knock",
-        "muted",
-        "lag",
-        "glitch",
-        "feed",
-        "night vision",
-        "alone",
-        "sign",
+        "eye",
+        "the eye",
         "village",
-        "vomit",
-        "sickness",
+        "villager",
+        "worship",
+        "ritual",
+        "dream",
+        "remembered",
+        "sign",
+        "signpost",
+        "barn",
+        "fog",
+        "candle",
         "omen",
         "curse",
+        "uncanny",
         "premise",
         "twist",
-        "rule",
-        "warehouse",
-        "mask",
-        "pit",
+        "don't blink",
+        "peripheral",
     )
 
 
