@@ -1,3 +1,6 @@
+import json
+from types import SimpleNamespace
+
 from shorts_bot.config import settings
 from shorts_bot.production.script_humanize import finalize_script
 
@@ -31,3 +34,54 @@ def test_finalize_script_passes_when_score_at_or_below_threshold():
     r = finalize_script("village sign", hook, script, "countdown twist", max_passes=1, threshold=5)
     assert r.final_ai_score <= 5
     assert r.passed is True
+
+
+def test_finalize_script_flattens_structured_llm_script(monkeypatch):
+    import shorts_bot.production.script_humanize as sh
+
+    payload = {
+        "hook": "Your security camera flagged motion. It's 3:12 AM, and you live alone.",
+        "script": [
+            {
+                "spoken_text": "You open the app, but the hallway's completely empty.",
+                "visual_cue": "Phone screen close-up",
+            },
+            {
+                "spoken_text": "The live view updates. It's standing at the foot of your bed.",
+                "visual_cue": "Bedroom CCTV",
+            },
+        ],
+        "help_angle": "Security camera lunge scare.",
+    }
+
+    class FakeCompletions:
+        def create(self, **_kwargs):
+            message = SimpleNamespace(content=json.dumps(payload))
+            return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+
+    fake_backend = SimpleNamespace(
+        model="fake-model",
+        client=SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions())),
+    )
+
+    monkeypatch.setattr(
+        "shorts_bot.llm.provider.get_llm_backend",
+        lambda: fake_backend,
+    )
+    monkeypatch.setattr(sh, "ai_likelihood_score", lambda _text: 100)
+    monkeypatch.setattr(sh, "check_jenny_voice", lambda _script, _hook: [])
+
+    r = finalize_script(
+        "security camera",
+        "Your security camera flagged motion.",
+        "Furthermore, this script needs a rewrite.",
+        "Security camera lunge scare.",
+        max_passes=1,
+        threshold=5,
+    )
+
+    assert r.script == (
+        "You open the app, but the hallway's completely empty. "
+        "The live view updates. It's standing at the foot of your bed."
+    )
+    assert "visual_cue" not in r.script

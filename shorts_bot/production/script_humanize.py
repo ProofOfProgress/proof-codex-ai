@@ -81,6 +81,34 @@ def _rule_humanize(text: str) -> str:
     return t
 
 
+def _coerce_spoken_script(value) -> str:
+    """Accept LLM mistakes like [{"spoken_text": "..."}] but keep VO plain text only."""
+    if isinstance(value, list):
+        parts = []
+        for item in value:
+            if isinstance(item, dict):
+                spoken = item.get("spoken_text") or item.get("text") or item.get("line")
+                if spoken:
+                    parts.append(str(spoken).strip())
+            elif item:
+                parts.append(str(item).strip())
+        return _rule_humanize(" ".join(p for p in parts if p))
+    if isinstance(value, dict):
+        for key in ("script", "spoken_text", "text", "line"):
+            if key in value:
+                return _coerce_spoken_script(value[key])
+        return ""
+    text = str(value or "").strip()
+    if text.startswith(("[", "{")):
+        try:
+            parsed = json.loads(text)
+        except json.JSONDecodeError:
+            return _rule_humanize(text)
+        coerced = _coerce_spoken_script(parsed)
+        return coerced or _rule_humanize(text)
+    return _rule_humanize(text)
+
+
 def _llm_humanize(topic: str, hook: str, script: str, help_angle: str) -> dict[str, str] | None:
     from shorts_bot.llm.provider import get_llm_backend
 
@@ -100,10 +128,11 @@ def _llm_humanize(topic: str, hook: str, script: str, help_angle: str) -> dict[s
             max_tokens=800,
         )
         data = json.loads(r.choices[0].message.content or "{}")
-        if data.get("hook") and data.get("script"):
+        clean_script = _coerce_spoken_script(data.get("script"))
+        if data.get("hook") and clean_script:
             return {
                 "hook": str(data["hook"]).strip(),
-                "script": str(data["script"]).strip(),
+                "script": clean_script,
                 "help_angle": str(data.get("help_angle", help_angle)).strip(),
             }
     except Exception:
