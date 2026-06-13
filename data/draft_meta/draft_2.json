@@ -8,7 +8,7 @@
   ],
   "jumpscare_plan": {
     "profile": "finale",
-    "primary_segment_index": 18,
+    "primary_segment_index": 13,
     "decoy_segment_index": null,
     "has_jumpscare": true,
     "sting_start_ratio": 0.92,
@@ -19,66 +19,74 @@
     {
       "start_sec": 0.0,
       "end_sec": 3.5,
-      "visual": "POV car stops on wet rural road, fog, gas station ahead",
-      "camera": "Handheld push",
-      "audio_sfx": "Engine tick, wind"
+      "visual": "POV from driver's seat \u2014 car rolls to stop on wet two-lane road. Pine fog, abandoned gas station ahead. Headlights cut through mist.",
+      "camera": "Handheld micro-shake inside car, then push forward out the windshield",
+      "audio_sfx": "Engine tick, wind, low drone",
+      "notes": "Clip 1 \u2014 establish rural dread"
     },
     {
       "start_sec": 3.5,
       "end_sec": 7.0,
-      "visual": "Walk toward pumps, streetlight FLICKERS, Form 2 silhouette at tree line",
-      "camera": "Forward walk",
-      "audio_sfx": "Flicker buzz"
+      "visual": "Step out \u2014 camera at chest height, walking toward pumps. Sodium streetlight FLICKERS orange. In the dark flash: Form 2 silhouette \u2014 too tall, wrong shoulders \u2014 at tree line.",
+      "camera": "Forward walk, never static, slight sway",
+      "audio_sfx": "Gravel crunch, electric flicker buzz",
+      "notes": "Entity only visible when light dies"
     },
     {
       "start_sec": 7.0,
       "end_sec": 10.0,
-      "visual": "Light OFF \u2014 entity teleports closer",
-      "camera": "Breath wobble",
-      "audio_sfx": "Footstep thud"
+      "visual": "Light snaps OFF longer. Entity teleports one hop closer at road edge. Light ON \u2014 empty road for half a second \u2014 then shape still there, closer than before.",
+      "camera": "Quick forward push, breath-cam wobble",
+      "audio_sfx": "Flicker pop, footstep thud (wrong rhythm)",
+      "notes": "End clip 1"
     },
     {
       "start_sec": 10.0,
       "end_sec": 13.5,
-      "visual": "Form 2 dead center at pumps, frozen in light",
-      "camera": "Orbit drift",
-      "audio_sfx": "Electric hum"
+      "visual": "Gas station pumps pass in foreground. Flicker rate doubles. Form 2 stands dead center between pumps \u2014 frozen while light is on.",
+      "camera": "Orbit drift left, handheld horror movie",
+      "audio_sfx": "Electric hum, wind gust",
+      "notes": "Clip 2 \u2014 escalation"
     },
     {
       "start_sec": 13.5,
       "end_sec": 17.0,
-      "visual": "Slow creepy wave, broken wrist \u2014 jumps closer on flicker OFF",
-      "camera": "Push in",
-      "audio_sfx": "Creak"
+      "visual": "Entity raises one arm \u2014 slow creepy wave, wrist bent backward. Light OFF: entity jumps three meters forward in darkness. Light ON: now at pump #2, still waving.",
+      "camera": "Push in, slight dutch tilt",
+      "audio_sfx": "Creak, flicker, wet metal drip",
+      "notes": "Wave is uncanny \u2014 not friendly"
     },
     {
       "start_sec": 17.0,
       "end_sec": 20.0,
-      "visual": "Entity steps forward every flicker, gaining ground",
-      "camera": "Pull back fails",
-      "audio_sfx": "Rapid flicker"
+      "visual": "Camera tries to pull back \u2014 entity mirrors retreat by stepping forward each time light dies. Closer every flicker cycle.",
+      "camera": "Backward drift, entity wins distance",
+      "audio_sfx": "Rapid flicker bursts, breathing room tone",
+      "notes": "End clip 2"
     },
     {
       "start_sec": 20.0,
       "end_sec": 24.0,
-      "visual": "Entity fills frame, wave inches from camera",
-      "camera": "Handheld tremor",
-      "audio_sfx": "Hum drops"
+      "visual": "Entity fills center frame \u2014 head too high, joints wrong. Slow wave inches from camera. Face wrong but human-ish. Flicker sync: motion ONLY in black frames.",
+      "camera": "Locked POV but handheld tremor",
+      "audio_sfx": "Hum drops out, single footstep",
+      "notes": "Clip 3 \u2014 finale setup"
     },
     {
       "start_sec": 24.0,
       "end_sec": 27.0,
-      "visual": "JUMPSCARE BUILD: total blackout \u2014 entity EXPLODES toward lens",
-      "camera": "Violent snap",
-      "audio_sfx": "Silence then static"
+      "visual": "Streetlight dies completely for two seconds. Entity lunges from arm's length to lens distance in the dark.",
+      "camera": "Violent forward snap on light return",
+      "audio_sfx": "Silence beat then static burst",
+      "notes": "False calm broken"
     },
     {
       "start_sec": 27.0,
       "end_sec": 30.0,
-      "visual": "FINALE JUMPSCARE: face fills frame, maximum lunge impact, motion blur, HARD STOP",
-      "camera": "Impact rush",
-      "audio_sfx": "Horror stinger LOUD",
-      "notes": "JUMPSCARE \u2014 must land"
+      "visual": "Final flicker \u2014 entity face fills frame, still mid-wave \u2014 CUT lunge with motion blur toward camera. Hard stop.",
+      "camera": "Impact rush, horror movie sting frame",
+      "audio_sfx": "Horror stinger + noise hit (post)",
+      "notes": "End \u2014 no dialogue, no subtitles"
     }
   ],
   "beat_sheet_approved": true

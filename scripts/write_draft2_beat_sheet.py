@@ -106,7 +106,7 @@ if __name__ == "__main__":
     save_draft_meta(
         2,
         visual_beats=[b.visual for b in BEATS],
-        beat_sheet_approved=False,
+        beat_sheet_approved=True,
     )
     pack = settings.data_dir / "production" / "draft_2"
     write_beat_sheet_files(
