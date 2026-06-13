@@ -21,6 +21,8 @@ def test_duplicate_title_check_fails_closed(tmp_path, monkeypatch):
         "shorts_bot.youtube.channel_videos.list_channel_videos",
         boom,
     )
+    monkeypatch.setattr("shorts_bot.youtube.google_auth.credentials_configured", lambda: True)
+    monkeypatch.setattr("shorts_bot.youtube.google_auth.token_exists", lambda: True)
     fake = Settings(
         database_path=db,
         block_duplicate_title_upload=True,
