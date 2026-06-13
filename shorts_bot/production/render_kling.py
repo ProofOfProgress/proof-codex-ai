@@ -87,6 +87,34 @@ def kling_clip_paths(clips_dir: Path, count: int | None = None) -> list[Path]:
     return [clips_dir / f"kling_part_{i + 1:02d}.mp4" for i in range(n)]
 
 
+def _reference_still_from_clip(video_path: Path, clips_dir: Path) -> Path | None:
+    """Last frame of prior Kling clip — official API needs an image, not MP4."""
+    import subprocess
+
+    if not video_path.exists() or video_path.stat().st_size < 5000:
+        return None
+    still = clips_dir / f"{video_path.stem}_last.png"
+    if still.exists() and still.stat().st_size > 1000:
+        return still
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-sseof",
+            "-0.05",
+            "-i",
+            str(video_path),
+            "-vframes",
+            "1",
+            str(still),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return still if still.exists() else None
+
+
 def render_kling_clips(
     *,
     topic: str,
@@ -121,6 +149,9 @@ def render_kling_clips(
             else None
         )
         try:
+            start_still = None
+            if i > 0 and ref_image:
+                start_still = _reference_still_from_clip(ref_image, clips_dir)
             if provider == "official" or settings.has_kling_official:
                 from shorts_bot.production.images.kling_official import generate_kling_official_video
 
@@ -141,7 +172,7 @@ def render_kling_clips(
                     sound=settings.kling_generate_audio,
                     negative_prompt=_KLING_NEGATIVE,
                     multi_prompt=multi,
-                    start_image_path=ref_image if i > 0 and ref_image else None,
+                    start_image_path=start_still,
                     timeout_sec=settings.ai_video_timeout_sec,
                 )
             else:
@@ -163,7 +194,7 @@ def render_kling_clips(
                     mode=settings.kling_mode,
                     generate_audio=settings.kling_generate_audio,
                     multi_prompt=multi,
-                    start_image_path=ref_image if i > 0 and ref_image else None,
+                    start_image_path=start_still,
                     negative_prompt=_KLING_NEGATIVE,
                     timeout_sec=settings.ai_video_timeout_sec,
                 )
