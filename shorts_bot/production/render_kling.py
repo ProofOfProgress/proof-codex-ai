@@ -9,7 +9,6 @@ from pathlib import Path
 
 from shorts_bot.config import settings
 from shorts_bot.production.ai_video_guard import require_ai_video_generation
-from shorts_bot.production.images.replicate import generate_replicate_kling_video
 
 _KLING_NEGATIVE = (
     "on-screen text, subtitles, captions, watermark, logo, cartoon, anime, "
@@ -98,9 +97,7 @@ def render_kling_clips(
 ) -> int:
     """Generate Kling clips (default 2×15s). Returns count written."""
     require_ai_video_generation(action="render_kling_clips")
-    token = (settings.replicate_api_token or "").strip()
-    if not token:
-        raise RuntimeError("Kling requires REPLICATE_API_TOKEN in Cursor secrets.")
+    provider = (settings.kling_provider or "official").strip().lower()
 
     clips_dir.mkdir(parents=True, exist_ok=True)
     parts = split_script_parts(hook, script, parts=settings.kling_clips_per_short)
@@ -124,20 +121,52 @@ def render_kling_clips(
             else None
         )
         try:
-            generate_replicate_kling_video(
-                prompt,
-                dest,
-                token=token,
-                model=settings.kling_model,
-                duration=settings.kling_clip_seconds,
-                aspect_ratio=settings.kling_aspect_ratio,
-                mode=settings.kling_mode,
-                generate_audio=settings.kling_generate_audio,
-                multi_prompt=multi,
-                start_image_path=ref_image if i > 0 and ref_image else None,
-                negative_prompt=_KLING_NEGATIVE,
-                timeout_sec=settings.ai_video_timeout_sec,
-            )
+            if provider == "official" or settings.has_kling_official:
+                from shorts_bot.production.images.kling_official import generate_kling_official_video
+
+                if not settings.has_kling_official:
+                    raise RuntimeError(
+                        "Kling official selected but KLING_ACCESS_KEY / KLING_SECRET_KEY missing."
+                    )
+                mode = "pro" if settings.kling_mode.strip().lower() == "pro" else "std"
+                generate_kling_official_video(
+                    prompt,
+                    dest,
+                    access_key=settings.kling_access_key or "",
+                    secret_key=settings.kling_secret_key or "",
+                    model_name=settings.kling_model,
+                    duration=settings.kling_clip_seconds,
+                    aspect_ratio=settings.kling_aspect_ratio,
+                    mode=mode,
+                    sound=settings.kling_generate_audio,
+                    negative_prompt=_KLING_NEGATIVE,
+                    multi_prompt=multi,
+                    start_image_path=ref_image if i > 0 and ref_image else None,
+                    timeout_sec=settings.ai_video_timeout_sec,
+                )
+            else:
+                token = (settings.replicate_api_token or "").strip()
+                if not token:
+                    raise RuntimeError(
+                        "Kling via Replicate requires REPLICATE_API_TOKEN, or set "
+                        "KLING_PROVIDER=official with Kling dev keys."
+                    )
+                from shorts_bot.production.images.replicate import generate_replicate_kling_video
+
+                generate_replicate_kling_video(
+                    prompt,
+                    dest,
+                    token=token,
+                    model=settings.kling_model,
+                    duration=settings.kling_clip_seconds,
+                    aspect_ratio=settings.kling_aspect_ratio,
+                    mode=settings.kling_mode,
+                    generate_audio=settings.kling_generate_audio,
+                    multi_prompt=multi,
+                    start_image_path=ref_image if i > 0 and ref_image else None,
+                    negative_prompt=_KLING_NEGATIVE,
+                    timeout_sec=settings.ai_video_timeout_sec,
+                )
             rendered += 1
             ref_image = dest
         except Exception as exc:
@@ -147,6 +176,7 @@ def render_kling_clips(
 
     spec = {
         "backend": "kling",
+        "provider": provider if settings.has_kling_official else "replicate",
         "model": settings.kling_model,
         "clips": [
             {

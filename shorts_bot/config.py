@@ -119,7 +119,10 @@ class Settings(BaseSettings):
     replicate_image_model: str = "black-forest-labs/flux-schnell"
     # Video backend — kling (2×15s native audio) | legacy_i2v (MiniMax/Hailuo per-beat)
     video_backend: str = "kling"
-    kling_model: str = "kwaivgi/kling-v3-video"
+    kling_provider: str = "official"  # official | replicate | fal
+    kling_access_key: str | None = None
+    kling_secret_key: str | None = None
+    kling_model: str = "kling-v2-6"  # official API model_name; replicate uses kwaivgi/kling-v3-video
     kling_clip_seconds: int = 15  # max 15 per generation
     kling_clips_per_short: int = 2  # ~30s total, one stitch
     kling_generate_audio: bool = True  # lip-sync dialogue + ambient in one pass
@@ -298,6 +301,12 @@ class Settings(BaseSettings):
         if "your" in key.lower() and "key" in key.lower():
             return False
         return len(key) >= 16
+
+    @property
+    def has_kling_official(self) -> bool:
+        ak = (self.kling_access_key or "").strip()
+        sk = (self.kling_secret_key or "").strip()
+        return len(ak) >= 8 and len(sk) >= 8 and "your" not in ak.lower()
 
     @property
     def uses_kling_video(self) -> bool:

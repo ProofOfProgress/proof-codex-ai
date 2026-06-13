@@ -147,7 +147,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_kling_video and settings.has_paid_images:
+        if settings.uses_kling_video and settings.has_kling_official:
             from shorts_bot.production.render_kling import render_kling_clips
 
             clips_rendered = render_kling_clips(
@@ -167,6 +167,10 @@ def build_production_pack(
                 raise RuntimeError(
                     f"Kling returned 0 clips — expected {settings.kling_clips_per_short}."
                 )
+        elif settings.uses_kling_video:
+            raise RuntimeError(
+                "Kling video requires KLING_ACCESS_KEY + KLING_SECRET_KEY in Cursor secrets."
+            )
         elif settings.visual_style == "ai_video" and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 

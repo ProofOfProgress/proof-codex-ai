@@ -57,8 +57,10 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `TTS_PROVIDER` | Environment Variable | Enum: `resemble` \| `edge` | `resemble` | Voice backend |
 | `REPLICATE_API_TOKEN` | Runtime Secret | API token (string, starts `r8_`) | `r8________________________________` | **Required for Kling** — https://replicate.com/account/api-tokens |
 | `AI_VIDEO_GENERATION_ENABLED` | Environment Variable | `true` \| `false` | `true` | **Must be `true`** for Kling to run (costs ~2 Replicate calls per Short) |
-| `VIDEO_BACKEND` | Environment Variable | `kling` \| `legacy_i2v` | `kling` | Default Kling 2×15s path |
-| `VISUAL_STYLE` | Environment Variable | `ai_video` \| `hybrid` | `ai_video` | Use `ai_video` (not legacy `ai`) |
+| `KLING_ACCESS_KEY` | Runtime Secret | Access key from Kling dev console | `A4mn…` | https://app.klingai.com/global/dev → API Keys |
+| `KLING_SECRET_KEY` | Runtime Secret | Secret key (shown once at create) | `RGbK…` | Same — **never paste in chat** |
+| `KLING_PROVIDER` | Environment Variable | `official` \| `replicate` | `official` | Use `official` with your Kling subscription API |
+| `KLING_MODEL` | Environment Variable | Official model slug | `kling-v2-6` | Native audio + 15s on v2.6+ |
 
 ---
 
