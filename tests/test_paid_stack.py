@@ -70,7 +70,17 @@ def test_ensure_resemble_blocks_without_keys(monkeypatch):
         ensure_resemble_voice()
 
 
-def test_ensure_resemble_skipped_for_kling(monkeypatch):
+def test_ensure_turboscribe_skipped_for_kling_native(monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(
+        allow_script_timing_fallback=False,
+        video_backend="kling",
+        kling_generate_audio=True,
+        kling_skip_narrator_tts=True,
+    )
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    ensure_turboscribe_segments("script_estimate")
     from shorts_bot.config import Settings
 
     fake = Settings(
