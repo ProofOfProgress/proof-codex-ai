@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import pickle
 from pathlib import Path
 
 from shorts_bot.config import settings
@@ -18,7 +17,7 @@ UPLOAD_SCOPES = SCOPES + [
 ]
 
 OAUTH_REDIRECT_URI = "http://127.0.0.1:8090/"
-OAUTH_FLOW_PICKLE = Path("data/oauth_flow.pickle")
+OAUTH_FLOW_STATE = Path("data/oauth_flow.json")
 
 _PLACEHOLDER_FRAGMENTS = (
     "your-client-id",
@@ -134,12 +133,12 @@ def _client_config() -> dict:
     }
 
 
-def _make_flow():
+def _make_flow(*, state: str | None = None):
     from google_auth_oauthlib.flow import InstalledAppFlow
 
     if not credentials_configured():
         raise RuntimeError(credentials_status_message())
-    return InstalledAppFlow.from_client_config(_client_config(), UPLOAD_SCOPES)
+    return InstalledAppFlow.from_client_config(_client_config(), UPLOAD_SCOPES, state=state)
 
 
 def oauth_authorization_url() -> str:
@@ -154,26 +153,34 @@ def oauth_authorization_url() -> str:
         include_granted_scopes="true",
         prompt="consent",
     )
-    OAUTH_FLOW_PICKLE.parent.mkdir(parents=True, exist_ok=True)
-    OAUTH_FLOW_PICKLE.write_bytes(pickle.dumps(flow))
+    OAUTH_FLOW_STATE.parent.mkdir(parents=True, exist_ok=True)
+    OAUTH_FLOW_STATE.write_text(
+        json.dumps({"state": _state, "redirect_uri": OAUTH_REDIRECT_URI}, indent=2),
+        encoding="utf-8",
+    )
     return auth_url
 
 
 def oauth_complete_redirect(authorization_response: str) -> dict:
     """Paste full redirect URL after Google sign-in (http://127.0.0.1:8090/?code=...)."""
-    if not OAUTH_FLOW_PICKLE.exists():
+    if not OAUTH_FLOW_STATE.exists():
         return {
             "ok": False,
             "message": "No pending OAuth — run: python3 -m shorts_bot.youtube.auth_cli url",
         }
-    flow = pickle.loads(OAUTH_FLOW_PICKLE.read_bytes())
+    try:
+        pending = json.loads(OAUTH_FLOW_STATE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        pending = {}
+    flow = _make_flow(state=pending.get("state"))
+    flow.redirect_uri = pending.get("redirect_uri") or OAUTH_REDIRECT_URI
     try:
         flow.fetch_token(authorization_response=authorization_response.strip())
     except Exception as exc:
         return {"ok": False, "message": f"OAuth failed: {exc}"}
     finally:
         try:
-            OAUTH_FLOW_PICKLE.unlink(missing_ok=True)
+            OAUTH_FLOW_STATE.unlink(missing_ok=True)
         except OSError:
             pass
     save_credentials(flow.credentials, scopes=UPLOAD_SCOPES)
