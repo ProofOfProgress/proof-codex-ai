@@ -393,8 +393,22 @@ def _render_from_video_clips(
             prev_clip = None
             if i > 0:
                 prev = segments[i - 1]
-                prev_still = images_dir / prev["filename"]
-                prev_clip = clips_dir / f"{Path(prev['filename']).stem}.mp4"
+                prev_stem = Path(prev["filename"]).stem
+                prev_still_path = images_dir / prev["filename"]
+                prev_clip_path = clips_dir / f"{prev_stem}.mp4"
+                if prev_still_path.exists():
+                    prev_still = prev_still_path
+                else:
+                    prev_still = _nearest_still_image(images_dir, prev_stem)
+                if prev_clip_path.exists() and prev_clip_path.stat().st_size > 5000:
+                    prev_clip = prev_clip_path
+                else:
+                    for j in range(i - 1, -1, -1):
+                        back_stem = Path(segments[j]["filename"]).stem
+                        back_clip = clips_dir / f"{back_stem}.mp4"
+                        if back_clip.exists() and back_clip.stat().st_size > 5000:
+                            prev_clip = back_clip
+                            break
             compose_finale_jumpscare_segment(
                 jumpscare_src=scare_src,
                 dest=clip,
