@@ -50,6 +50,11 @@ else
   note "GOOGLE_CLIENT_SECRET not set — see docs/TOMORROW.md"
 fi
 
+echo ""
+echo "==> Cloud Agent secret audit (YouTube)..."
+python3 -m shorts_bot.cloud_secrets 2>/dev/null || true
+echo ""
+
 # YouTube token
 if [ -f data/youtube_token.json ]; then
   pass "YouTube OAuth token saved"

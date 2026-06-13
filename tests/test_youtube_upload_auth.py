@@ -27,9 +27,35 @@ def test_credentials_status_placeholder(monkeypatch):
     monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
     monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
     monkeypatch.delenv("GOOGLE_CLIENT_SECRET", raising=False)
+    monkeypatch.setenv(
+        "CLOUD_AGENT_ALL_SECRET_NAMES",
+        "GEMINI_API_KEY,RESEMBLE_API_KEY",
+    )
+    monkeypatch.setenv("CLOUD_AGENT_INJECTED_SECRET_NAMES", "GEMINI_API_KEY")
 
     msg = google_auth.credentials_status_message()
-    assert "placeholder" in msg.lower() or "Cloud Agent" in msg
+    assert "NOT sending" in msg or "not in this agent" in msg
+
+
+def test_credentials_from_token_file(monkeypatch, tmp_path):
+    from shorts_bot.config import Settings
+    from shorts_bot.youtube import google_auth
+
+    token = tmp_path / "youtube_token.json"
+    token.write_text(
+        '{"token":"t","refresh_token":"r","client_id":"123.apps.googleusercontent.com",'
+        '"client_secret":"GOCSPX-real-secret"}',
+        encoding="utf-8",
+    )
+    fake = Settings(
+        google_client_id="your-client-id.apps.googleusercontent.com",
+        google_client_secret="your-client-secret",
+        youtube_token_path=token,
+    )
+    monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
+
+    assert google_auth.credentials_configured()
+    assert "youtube_token.json" in google_auth.credentials_status_message()
 
 
 def test_import_token_json(tmp_path, monkeypatch):
