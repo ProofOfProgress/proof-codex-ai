@@ -62,6 +62,15 @@ def render_blender_clips(
         "BLENDER_SAMPLES": str(settings.blender_samples),
         "BLENDER_CLIP_SECONDS": str(settings.blender_clip_seconds),
     }
+    if settings.blender_creature_model:
+        env["BLENDER_CREATURE_MODEL"] = settings.blender_creature_model
+    if settings.blender_creature_scale != 1.0:
+        env["BLENDER_CREATURE_SCALE"] = str(settings.blender_creature_scale)
+    from shorts_bot.production.blender.creature_paths import resolve_creature_model
+
+    creature = resolve_creature_model(settings.blender_creature_model)
+    if creature:
+        env["BLENDER_CREATURE_MODEL"] = str(creature.resolve())
     proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-3000:]

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -112,6 +113,99 @@ def _build_form2(location=(0, -12, 0)) -> bpy.types.Object:
     part("Leg_R", (0.35, 0, 0.9), (0.14, 0.14, 1.8))
     rig.scale = (1.0, 1.0, 1.35)  # too tall
     return rig
+
+
+def _import_mesh_file(path: Path) -> list:
+    ext = path.suffix.lower()
+    before = {o.name for o in bpy.data.objects}
+    if ext == ".fbx":
+        bpy.ops.import_scene.fbx(filepath=str(path))
+    elif ext in (".glb", ".gltf"):
+        bpy.ops.import_scene.gltf(filepath=str(path))
+    elif ext == ".obj":
+        bpy.ops.wm.obj_import(filepath=str(path))
+    elif ext == ".dae":
+        bpy.ops.wm.collada_import(filepath=str(path))
+    else:
+        raise ValueError(f"Unsupported creature model format: {ext}")
+    return [o for o in bpy.data.objects if o.name not in before and o.type in {"MESH", "ARMATURE", "EMPTY"}]
+
+
+def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
+    """Peripheral Form 2 pass — darker, taller, wet-night horror."""
+    if profile == "form2_rural":
+        rig.scale = Vector((1.05, 1.05, 1.38)) * float(os.environ.get("BLENDER_CREATURE_SCALE", "1.0"))
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat or not mat.use_nodes:
+                continue
+            bsdf = mat.node_tree.nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            col = bsdf.inputs["Base Color"].default_value
+            bsdf.inputs["Base Color"].default_value = (
+                col[0] * 0.35,
+                col[1] * 0.32,
+                col[2] * 0.30,
+                1.0,
+            )
+            bsdf.inputs["Roughness"].default_value = max(
+                float(bsdf.inputs["Roughness"].default_value), 0.72
+            )
+            spec = bsdf.inputs.get("Specular IOR Level") or bsdf.inputs.get("Specular")
+            if spec:
+                spec.default_value = 0.18
+
+
+def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Object:
+    imported = _import_mesh_file(path)
+    if not imported:
+        raise RuntimeError(f"Import produced no objects: {path}")
+    rig = bpy.data.objects.new("Form2Rig", None)
+    bpy.context.collection.objects.link(rig)
+    rig.location = Vector(location)
+    for obj in imported:
+        if obj.parent is None:
+            obj.parent = rig
+    _tweak_imported_creature(rig)
+    return rig
+
+
+def _build_creature(location=(0, -12, 0)) -> bpy.types.Object:
+    model_path = os.environ.get("BLENDER_CREATURE_MODEL", "").strip()
+    if model_path:
+        p = Path(model_path)
+        if p.is_file():
+            return _build_creature_from_file(p, location=location)
+    # Default slot — channel/assets/creatures/scp_096/*
+    workspace = Path(os.environ.get("WORKSPACE_ROOT", "/workspace"))
+    try:
+        sys.path.insert(0, str(workspace))
+        from shorts_bot.production.blender.creature_paths import resolve_creature_model
+
+        hit = resolve_creature_model()
+        if hit:
+            return _build_creature_from_file(hit, location=location)
+    except Exception as exc:
+        print(f"Creature model lookup failed ({exc}) — using procedural Form 2")
+    return _build_form2(location=location)
+
+
+def _finalize_clip_output(expected: Path) -> Path:
+    """Blender FFMPEG animation writes stem0001-0240.mp4 — rename to stem.mp4."""
+    if expected.is_file() and expected.stat().st_size > 5000:
+        return expected
+    matches = sorted(expected.parent.glob(f"{expected.stem}*.mp4"))
+    if not matches:
+        raise FileNotFoundError(f"No Blender video output for {expected}")
+    src = matches[-1]
+    if src != expected:
+        expected.unlink(missing_ok=True)
+        src.rename(expected)
+    return expected
 
 
 def _setup_camera() -> bpy.types.Object:
@@ -250,7 +344,7 @@ def build_scene(*, samples: int = 32) -> dict:
     _add_ground_and_road()
     _add_gas_station()
     pole_empty, lamp = _add_streetlight()
-    form2 = _build_form2()
+    form2 = _build_creature()
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_fog_and_trees()
@@ -279,6 +373,7 @@ def render_clip(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
+    _finalize_clip_output(out_path)
     print(f"Rendered {out_path}")
 
 
