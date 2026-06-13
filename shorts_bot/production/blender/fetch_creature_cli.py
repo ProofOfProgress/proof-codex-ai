@@ -1,50 +1,18 @@
-"""Where to get SCP-096 (Shy Guy) mesh + how to install for Blender renders."""
+"""Where to get SCP-096 (Shy Guy) mesh + auto-download for Blender renders."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import zipfile
 from pathlib import Path
 
 from rich.console import Console
-from rich.panel import Panel
 
 from shorts_bot.production.blender.creature_paths import SCP096_DIR, creature_model_status
+from shorts_bot.production.blender.download_creature import ensure_scp096_model
 
 console = Console()
-
-SKETCHFAB_SCP096 = "https://sketchfab.com/3d-models/scp-096-7074212c3ba54d0d959c48c55b8fefce"
-MODELS_RESOURCE = "https://models.spriters-resource.com/pc_computer/scpsecretlaboratory/asset/356546/"
-
-
-def print_install_guide() -> None:
-    console.print(
-        Panel(
-            "\n".join(
-                [
-                    "[bold]SCP-096 → Peripheral Form 2[/bold]",
-                    "",
-                    "1. Download a free model (CC license — fan art, not Nintendo Shy Guy):",
-                    f"   • Sketchfab: {SKETCHFAB_SCP096}",
-                    f"   • Or Models Resource (FBX + textures): {MODELS_RESOURCE}",
-                    "",
-                    "2. Export / pick [cyan]FBX[/cyan] or [cyan]GLB[/cyan] (best for Blender).",
-                    "",
-                    f"3. Put files here:\n   [green]{SCP096_DIR}/[/green]",
-                    "   Name mesh: scp_096.fbx (or .glb / .obj)",
-                    "   Keep texture PNGs in the same folder.",
-                    "",
-                    "4. Preview:",
-                    "   python3 -m shorts_bot.production.blender.render_cli --draft-id 2 --preview",
-                    "",
-                    "Pipeline auto-tweaks: darker skin, taller scale, rural Form 2 look.",
-                    "Set BLENDER_CREATURE_MODEL=/path/to/file.fbx to override.",
-                ]
-            ),
-            title="Install creature model",
-        )
-    )
-
 
 def install_from_zip(zip_path: Path) -> Path | None:
     """Unpack zip; copy scp_096.fbx (+ textures) into channel/assets/creatures/scp_096/."""
@@ -60,9 +28,11 @@ def install_from_zip(zip_path: Path) -> Path | None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="SCP-096 creature model install helper")
+    parser = argparse.ArgumentParser(description="SCP-096 creature model — auto-download + install")
     parser.add_argument("--status", action="store_true", help="Show whether model file exists")
-    parser.add_argument("--from-zip", type=Path, help="Unpack Models Resource / Sketchfab zip")
+    parser.add_argument("--download", action="store_true", help="Download SCP-096 from GitHub (default action)")
+    parser.add_argument("--force", action="store_true", help="Re-download and re-convert")
+    parser.add_argument("--from-zip", type=Path, help="Unpack manual zip into creature folder")
     args = parser.parse_args()
 
     if args.from_zip:
@@ -71,17 +41,13 @@ def main() -> None:
         return
 
     if args.status:
-        import json
-
         console.print(json.dumps(creature_model_status(), indent=2))
         return
 
-    print_install_guide()
-    status = creature_model_status()
-    if status["resolved"]:
-        console.print(f"\n[green]Model ready:[/green] {status['resolved']}")
-    else:
-        console.print(f"\n[yellow]No model yet[/yellow] — drop FBX/GLB in {SCP096_DIR}")
+    # Default: auto-download (no owner file handoff)
+    if not args.status and not args.from_zip:
+        path = ensure_scp096_model(force=args.force)
+        console.print(f"[green]Ready:[/green] {path}")
 
 
 if __name__ == "__main__":

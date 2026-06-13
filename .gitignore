@@ -15,5 +15,12 @@ data/LEARNED.md
 data/MEMORY.md
 data/codex_index.json
 data/backups/
+# Creature meshes — auto-downloaded on first Blender render (see download_creature.py)
+channel/assets/creatures/**/*.b3d
+channel/assets/creatures/**/*.fbx
+channel/assets/creatures/**/*.glb
+channel/assets/creatures/**/*.obj
+channel/assets/creatures/**/*.png
+!channel/assets/creatures/**/ATTRIBUTION.txt
 *.log
 .DS_Store

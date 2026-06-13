@@ -42,6 +42,13 @@ def render_blender_clips(
         console.print(f"[green]Blender clips cached ({count}) — skip regen[/green]")
         return count
 
+    from shorts_bot.production.blender.download_creature import ensure_scp096_model
+
+    try:
+        ensure_scp096_model(force=force_regen)
+    except Exception as exc:
+        console.print(f"[yellow]Creature auto-download skipped: {exc}[/yellow]")
+
     cmd = [
         "blender",
         "--background",

@@ -7,12 +7,13 @@ from pathlib import Path
 DEFAULT_CREATURE_DIR = Path("channel/assets/creatures")
 SCP096_DIR = DEFAULT_CREATURE_DIR / "scp_096"
 SCP096_CANDIDATES = (
-    SCP096_DIR / "scp_096.fbx",
     SCP096_DIR / "scp_096.glb",
+    SCP096_DIR / "scp_096.fbx",
     SCP096_DIR / "scp_096.obj",
     SCP096_DIR / "scp_096.dae",
-    DEFAULT_CREATURE_DIR / "scp_096.fbx",
+    SCP096_DIR / "scp_096.b3d",
     DEFAULT_CREATURE_DIR / "scp_096.glb",
+    DEFAULT_CREATURE_DIR / "scp_096.fbx",
 )
 
 
@@ -27,6 +28,8 @@ def resolve_creature_model(explicit: str | Path | None = None) -> Path | None:
                 hit = p / name
                 if hit.is_file():
                     return hit
+            return None
+        return None
     for candidate in SCP096_CANDIDATES:
         if candidate.is_file():
             return candidate

@@ -134,7 +134,8 @@ def _import_mesh_file(path: Path) -> list:
 def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
     """Peripheral Form 2 pass — darker, taller, wet-night horror."""
     if profile == "form2_rural":
-        rig.scale = Vector((1.05, 1.05, 1.38)) * float(os.environ.get("BLENDER_CREATURE_SCALE", "1.0"))
+        extra = float(os.environ.get("BLENDER_CREATURE_SCALE", "1.0"))
+        rig.scale = Vector(rig.scale) * Vector((1.05, 1.05, 1.15)) * extra
     for obj in rig.children_recursive:
         if obj.type != "MESH":
             continue
@@ -160,6 +161,29 @@ def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rur
                 spec.default_value = 0.18
 
 
+def _mesh_world_height(rig: bpy.types.Object) -> float:
+    zmin, zmax = 1e9, -1e9
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for corner in obj.bound_box:
+            world = obj.matrix_world @ Vector(corner)
+            zmin = min(zmin, world.z)
+            zmax = max(zmax, world.z)
+    return max(0.01, zmax - zmin)
+
+
+def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float = 2.45) -> None:
+    """SCP-096 lore height ~2.38m — scale import to match scene."""
+    bpy.context.view_layer.update()
+    h = _mesh_world_height(rig)
+    if h > 0.05:
+        factor = target_height / h
+        rig.scale = Vector((factor, factor, factor))
+    rig.rotation_euler = (math.radians(90), 0, math.radians(180))
+    bpy.context.view_layer.update()
+
+
 def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Object:
     imported = _import_mesh_file(path)
     if not imported:
@@ -170,6 +194,7 @@ def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Obj
     for obj in imported:
         if obj.parent is None:
             obj.parent = rig
+    _normalize_creature_rig(rig)
     _tweak_imported_creature(rig)
     return rig
 
