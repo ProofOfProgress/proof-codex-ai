@@ -136,8 +136,9 @@ class Settings(BaseSettings):
     fal_api_key: str | None = None
     fal_image_model: str = "fal-ai/flux/schnell"
     image_aspect_ratio: str = "9:16"
-    ai_detect_max_passes: int = 5
-    ai_detect_threshold: int = 35
+    ai_detect_max_passes: int = 10
+    ai_detect_threshold: int = 5  # 0–100 heuristic; target ≤5 ≈ under 5% AI likelihood
+    ai_detect_blocks_render: bool = True
     # Captions: ffmpeg (default) burns ASS during MP4 render; frame bakes into each PNG
     caption_mode: str = "ffmpeg"  # ffmpeg | frame
     burn_in_subtitles: bool = True  # legacy alias — True when caption_mode=ffmpeg

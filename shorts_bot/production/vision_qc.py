@@ -127,7 +127,7 @@ def pick_frame_times(duration: float, pack_dir: Path, *, max_frames: int) -> lis
 
     picked: list[float] = []
     for t in sorted(candidates):
-        t = min(max(0.3, t), max(0.3, duration - 0.2))
+        t = min(max(0.3, t), max(0.3, duration - 0.5))
         if not picked or abs(t - picked[-1]) >= 1.2:
             picked.append(round(t, 2))
         if len(picked) >= max_frames:
@@ -301,13 +301,25 @@ def run_vision_qc(
     frames: list[tuple[float, Path]] = []
     for i, t in enumerate(times):
         path = frames_dir / f"qc_{i:02d}_{t:.1f}s.jpg"
-        _extract_frame(
-            video_path,
-            t,
-            path,
-            width=settings.vision_qc_frame_width,
-            quality=settings.vision_qc_jpeg_quality,
-        )
+        try:
+            _extract_frame(
+                video_path,
+                t,
+                path,
+                width=settings.vision_qc_frame_width,
+                quality=settings.vision_qc_jpeg_quality,
+            )
+        except subprocess.CalledProcessError:
+            # Last-frame extract often fails at exact duration — step back slightly
+            fallback_t = max(0.3, min(t - 1.0, duration - 0.8))
+            _extract_frame(
+                video_path,
+                fallback_t,
+                path,
+                width=settings.vision_qc_frame_width,
+                quality=settings.vision_qc_jpeg_quality,
+            )
+            t = fallback_t
         frames.append((t, path))
 
     local_issues, local_warnings, local_ok = _local_frame_checks([p for _, p in frames])

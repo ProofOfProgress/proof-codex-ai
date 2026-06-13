@@ -76,7 +76,7 @@ Jenny rules enforced: hook ASAP → momentum → payoff, singular you, mute-safe
 
 ## Script rule — AI detector passes (required)
 
-Before `finish video`, the bot runs the script through an **AI likelihood detector up to 5 times** and humanizes until score ≤ 35.
+Before `finish video`, the bot runs the script through an **AI likelihood detector** (up to 10 passes) and humanizes until score **≤ 5** (~under 5% AI likelihood). Render is blocked if the score stays above 5.
 
 Log: `data/production/draft_<id>/ai_detect_log.txt`
 

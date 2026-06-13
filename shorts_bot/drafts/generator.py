@@ -23,6 +23,7 @@ from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_s
 from shorts_bot.production.visual_identity import face_eye_visibility_rules
 from shorts_bot.production.black_mirror_format import black_mirror_script_structure
 from shorts_bot.production.world import world_lore_for_scripts
+from shorts_bot.production.script_humanize import finalize_script
 
 
 SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 seconds).
@@ -110,6 +111,39 @@ class DraftGenerator:
             base += f"\n\nRETENTION (Jenny-adapted for horror):\n{jenny_retention_guidance(topic)}"
         return base
 
+    def _apply_ai_detection(
+        self,
+        topic: str,
+        hook: str,
+        script: str,
+        help_angle: str,
+        *,
+        visual_beats: list[str] | None = None,
+    ) -> GeneratedDraft:
+        """Run AI detector loop until score ≤ threshold (~under 5% AI)."""
+        finalized = finalize_script(topic, hook, script, help_angle)
+        quality = run_quality_checks(
+            topic=topic,
+            script=finalized.script,
+            hook=finalized.hook,
+            help_angle=finalized.help_angle,
+        )
+        if not finalized.passed:
+            quality = QualityReport(
+                passed=False,
+                issues=list(quality.issues)
+                + [f"AI detector score {finalized.final_ai_score}/100 — need ≤{settings.ai_detect_threshold}"],
+                warnings=quality.warnings,
+            )
+        return GeneratedDraft(
+            topic=topic,
+            hook=finalized.hook,
+            script=finalized.script,
+            help_angle=finalized.help_angle,
+            quality=quality,
+            visual_beats=visual_beats,
+        )
+
     def generate(
         self,
         topic: str,
@@ -166,14 +200,8 @@ Return JSON with keys:
         help_angle = str(payload.get("help_angle", "")).strip()
         beats_raw = payload.get("visual_beats") or []
         visual_beats = [str(b).strip() for b in beats_raw if str(b).strip()][:8]
-        quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
-        return GeneratedDraft(
-            topic=topic,
-            hook=hook,
-            script=script,
-            help_angle=help_angle,
-            quality=quality,
-            visual_beats=visual_beats or None,
+        return self._apply_ai_detection(
+            topic, hook, script, help_angle, visual_beats=visual_beats or None
         )
 
     def _generate_offline(self, topic: str, angle: str | None) -> GeneratedDraft:
@@ -358,14 +386,8 @@ Return JSON with keys:
             ]
         else:
             hook, script, help_angle, visual_beats = self._offline_fallback_for_topic(topic, angle)
-        quality = run_quality_checks(topic=topic, script=script, hook=hook, help_angle=help_angle)
-        return GeneratedDraft(
-            topic=topic,
-            hook=hook,
-            script=script,
-            help_angle=help_angle,
-            quality=quality,
-            visual_beats=visual_beats,
+        return self._apply_ai_detection(
+            topic, hook, script, help_angle, visual_beats=visual_beats
         )
 
     def _offline_fallback_for_topic(

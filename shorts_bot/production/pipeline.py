@@ -210,6 +210,28 @@ def _run_pipeline_locked(
         messages.append("Resume: skipped humanize (checkpoint)")
     else:
         finalized = finalize_script(draft.topic, draft.hook, draft.script, draft.help_angle)
+        if settings.ai_detect_blocks_render and not finalized.passed:
+            msg = f"Pipeline blocked — AI detector: {finalized.message}"
+            messages.append(msg)
+            state.mark("humanize", status="blocked")
+            save_state(pack_dir, state)
+            log_path = pack_dir / "ai_detect_log.txt"
+            log_path.write_text(
+                finalized.message + "\nscores: " + str(finalized.scores_log) + "\n",
+                encoding="utf-8",
+            )
+            report = _write_pipeline_report(pack_dir, draft_id, messages, timings)
+            return PipelineResult(
+                draft_id,
+                pack_dir,
+                messages,
+                None,
+                None,
+                report,
+                timings,
+                success=False,
+                qc_passed=False,
+            )
         guarded = guard_after_humanize(
             store,
             draft_id,
