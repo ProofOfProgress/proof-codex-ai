@@ -13,7 +13,7 @@ from shorts_bot.production.ai_video_guard import require_ai_video_generation
 _KLING_NEGATIVE = (
     "on-screen text, subtitles, captions, watermark, logo, cartoon, anime, "
     "CCTV overlay, phone screen UI, cheerful, bright daylight, narrator voiceover, "
-    "static photo, slideshow, frozen frame, talking, speech"
+    "static photo, slideshow, frozen frame, talking, speech, gentle, calm, slow fade out"
 )
 
 _KLING_RURAL_PREFIX = (
@@ -73,9 +73,10 @@ def build_kling_prompt(
                 "wrist. Light OFF: entity jumps forward. Light ON: closer. Handheld orbit."
             ),
             (
-                "FINALE — entity fills frame center, waves creepily directly at camera. Flicker sync: "
-                "frozen in light, moves in black. Final flicker blackout then LUNGE at lens. "
-                "Movie sting energy."
+                "FINALE — JUMPSCARE PAYOFF: entity fills frame center, waves creepily at camera. "
+                "Flicker sync: frozen in light, moves in black. "
+                "MANDATORY FINAL 2 SECONDS: streetlight total blackout — entity LUNGES full speed into lens, "
+                "face filling frame, motion blur, horror movie jump scare impact. Hard cut. Maximum intensity."
             ),
         ]
         role = roles[min(part_index, len(roles) - 1)]
@@ -140,15 +141,16 @@ def build_kling_multi_prompt(
             ],
             [
                 (
-                    f"{_FORM2_ENTITY} fills frame, waves directly at camera, flicker sync — "
+                    f"{_FORM2_ENTITY} fills frame, waves at camera, flicker sync — "
                     "only moves when light off"
                 ),
                 (
-                    "Streetlight dies long beat — entity lunges forward in black — light snaps ON "
-                    "inches from lens"
+                    "JUMPSCARE SETUP: streetlight dies — entity EXPLODES toward camera at full speed "
+                    "in total darkness, violent forward rush"
                 ),
                 (
-                    "Final lunge at camera, motion blur, horror movie jump scare, handheld shake"
+                    "FINALE JUMPSCARE: entity face fills entire frame inches from lens, motion blur, "
+                    "maximum horror jump scare lunge impact, hard cut, handheld shake"
                 ),
             ],
         ]
