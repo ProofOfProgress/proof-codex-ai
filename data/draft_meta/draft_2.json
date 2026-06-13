@@ -1,12 +1,93 @@
 {
   "visual_beats": [
-    "Close-up on a person's eyes in a mirror, then their eyes blink.",
-    "The reflection in the mirror blinks a full second later than the person.",
-    "The person blinks again, eyes wide, staring intently at the mirror. The reflection remains still, unblinking.",
-    "The person turns their head away from the mirror, eyes looking down in disbelief and fear.",
-    "A slow, ominous scraping sound is heard. The person glances back towards the mirror.",
-    "The reflection in the mirror is now smiling unnaturally, while the person's face is frozen in fear.",
-    "The reflection slowly raises a hand to the mirror's surface, tapping it from the inside.",
-    "The reflection's mouth moves, mouthing the word 'Mine' directly at the viewer, before lunging forward to smash through the glass."
-  ]
+    "Establishing shot: village eye dream worship, liminal apartment",
+    "All screens same impossible timestamp",
+    "Doorway silhouette mirrors your stance",
+    "False calm: hold on empty room",
+    "Charge lunge through doorway"
+  ],
+  "jumpscare_plan": {
+    "profile": "finale",
+    "primary_segment_index": 13,
+    "decoy_segment_index": null,
+    "has_jumpscare": true,
+    "sting_start_ratio": 0.92,
+    "volume_warning": "\ud83d\udd0a VOLUME WARNING \u2014 jumpscare at the end. Use headphones.",
+    "creator_note": "Finale scare \u2014 lunge on last beat, sting ~2s before end."
+  },
+  "beat_sheet": [
+    {
+      "start_sec": 0.0,
+      "end_sec": 3.5,
+      "visual": "POV from driver's seat \u2014 car rolls to stop on wet two-lane road. Pine fog, abandoned gas station ahead. Headlights cut through mist.",
+      "camera": "Handheld micro-shake inside car, then push forward out the windshield",
+      "audio_sfx": "Engine tick, wind, low drone",
+      "notes": "Clip 1 \u2014 establish rural dread"
+    },
+    {
+      "start_sec": 3.5,
+      "end_sec": 7.0,
+      "visual": "Step out \u2014 camera at chest height, walking toward pumps. Sodium streetlight FLICKERS orange. In the dark flash: Form 2 silhouette \u2014 too tall, wrong shoulders \u2014 at tree line.",
+      "camera": "Forward walk, never static, slight sway",
+      "audio_sfx": "Gravel crunch, electric flicker buzz",
+      "notes": "Entity only visible when light dies"
+    },
+    {
+      "start_sec": 7.0,
+      "end_sec": 10.0,
+      "visual": "Light snaps OFF longer. Entity teleports one hop closer at road edge. Light ON \u2014 empty road for half a second \u2014 then shape still there, closer than before.",
+      "camera": "Quick forward push, breath-cam wobble",
+      "audio_sfx": "Flicker pop, footstep thud (wrong rhythm)",
+      "notes": "End clip 1"
+    },
+    {
+      "start_sec": 10.0,
+      "end_sec": 13.5,
+      "visual": "Gas station pumps pass in foreground. Flicker rate doubles. Form 2 stands dead center between pumps \u2014 frozen while light is on.",
+      "camera": "Orbit drift left, handheld horror movie",
+      "audio_sfx": "Electric hum, wind gust",
+      "notes": "Clip 2 \u2014 escalation"
+    },
+    {
+      "start_sec": 13.5,
+      "end_sec": 17.0,
+      "visual": "Entity raises one arm \u2014 slow creepy wave, wrist bent backward. Light OFF: entity jumps three meters forward in darkness. Light ON: now at pump #2, still waving.",
+      "camera": "Push in, slight dutch tilt",
+      "audio_sfx": "Creak, flicker, wet metal drip",
+      "notes": "Wave is uncanny \u2014 not friendly"
+    },
+    {
+      "start_sec": 17.0,
+      "end_sec": 20.0,
+      "visual": "Camera tries to pull back \u2014 entity mirrors retreat by stepping forward each time light dies. Closer every flicker cycle.",
+      "camera": "Backward drift, entity wins distance",
+      "audio_sfx": "Rapid flicker bursts, breathing room tone",
+      "notes": "End clip 2"
+    },
+    {
+      "start_sec": 20.0,
+      "end_sec": 24.0,
+      "visual": "Entity fills center frame \u2014 head too high, joints wrong. Slow wave inches from camera. Face wrong but human-ish. Flicker sync: motion ONLY in black frames.",
+      "camera": "Locked POV but handheld tremor",
+      "audio_sfx": "Hum drops out, single footstep",
+      "notes": "Clip 3 \u2014 finale setup"
+    },
+    {
+      "start_sec": 24.0,
+      "end_sec": 27.0,
+      "visual": "Streetlight dies completely for two seconds. Entity lunges from arm's length to lens distance in the dark.",
+      "camera": "Violent forward snap on light return",
+      "audio_sfx": "Silence beat then static burst",
+      "notes": "False calm broken"
+    },
+    {
+      "start_sec": 27.0,
+      "end_sec": 30.0,
+      "visual": "Final flicker \u2014 entity face fills frame, still mid-wave \u2014 CUT lunge with motion blur toward camera. Hard stop.",
+      "camera": "Impact rush, horror movie sting frame",
+      "audio_sfx": "Horror stinger + noise hit (post)",
+      "notes": "End \u2014 no dialogue, no subtitles"
+    }
+  ],
+  "beat_sheet_approved": true
 }

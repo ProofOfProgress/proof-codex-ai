@@ -38,7 +38,7 @@ class PipelineResult:
 
 
 def _manifest_needs_repack(manifest_path: Path) -> bool:
-    """Re-pack when visual style requires I2V but checkpoint used slideshow."""
+    """Re-pack when visual style requires motion but checkpoint used slideshow."""
     from shorts_bot.config import settings
 
     if not manifest_path.exists():
@@ -49,7 +49,12 @@ def _manifest_needs_repack(manifest_path: Path) -> bool:
         return True
     if settings.visual_style != "ai_video":
         return False
-    if manifest.get("render_mode") != "video_clips":
+    expected_mode = (
+        "blender_clips"
+        if settings.uses_blender_video
+        else ("kling_clips" if settings.uses_kling_video else "video_clips")
+    )
+    if manifest.get("render_mode") != expected_mode:
         return True
     if int(manifest.get("clips_rendered") or 0) < 1:
         return True
@@ -206,7 +211,18 @@ def _run_pipeline_locked(
 
     # --- Humanize ---
     t0 = _step("humanize")
-    if resume and state.is_done("humanize") and (pack_dir / "ai_detect_log.txt").exists():
+    from shorts_bot.drafts.meta import load_draft_meta
+    from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+    meta = load_draft_meta(draft_id)
+    skip_humanize = bool(meta.get("beat_sheet_approved")) and is_silent_launch_draft(draft_id)
+    if skip_humanize:
+        messages.append(
+            "Skipped humanize — owner-approved beat sheet (launch phase visual script locked)."
+        )
+        state.mark("humanize")
+        save_state(pack_dir, state)
+    elif resume and state.is_done("humanize") and (pack_dir / "ai_detect_log.txt").exists():
         messages.append("Resume: skipped humanize (checkpoint)")
     else:
         finalized = finalize_script(draft.topic, draft.hook, draft.script, draft.help_angle)
@@ -277,60 +293,93 @@ def _run_pipeline_locked(
     _write_voice_script(pack_dir, draft.hook, draft.script)
     _end("humanize", t0)
 
-    # --- Voiceover ---
+    # --- Voiceover (skip when Kling carries native character audio) ---
     t0 = _step("voiceover")
     vo_path = pack_dir / "voiceover.mp3"
-    from shorts_bot.production.voiceover import voiceover_checkpoint_stale
+    from shorts_bot.production.launch_phase import is_silent_launch_draft, skip_narrator_tts
 
-    vo_stale = voiceover_checkpoint_stale(pack_dir, draft.script)
-    if vo_stale and state.is_done("voiceover"):
-        messages.append("Voiceover checkpoint stale — regenerating (provider/delivery/script changed)")
-        for step in ("transcript", "pack", "render", "vision_qc"):
-            state.steps.pop(step, None)
-        for stale in ("transcript.txt", "turboscribe_transcript.txt"):
-            (pack_dir / stale).unlink(missing_ok=True)
-        save_state(pack_dir, state)
-    if resume and state.is_done("voiceover") and vo_path.exists() and not vo_stale:
-        messages.append("Resume: skipped voiceover (voiceover.mp3 exists)")
-    else:
-        vo = generate_voiceover(pack_dir, draft_id=draft_id, script_text=draft.script)
-        messages.append(vo.message)
+    if skip_narrator_tts(draft_id):
+        if is_silent_launch_draft(draft_id):
+            messages.append(
+                "Skipped narrator TTS — launch phase (videos 1–3): ambient + SFX only, no talking."
+            )
+        else:
+            messages.append(
+                "Skipped narrator TTS — Kling native audio (character voices in video clips)."
+            )
         state.mark("voiceover")
         save_state(pack_dir, state)
-    _end("voiceover", t0)
+        _end("voiceover", t0)
+    else:
+        from shorts_bot.production.voiceover import voiceover_checkpoint_stale
+
+        vo_stale = voiceover_checkpoint_stale(pack_dir, draft.script)
+        if vo_stale and state.is_done("voiceover"):
+            messages.append("Voiceover checkpoint stale — regenerating (provider/delivery/script changed)")
+            for step in ("transcript", "pack", "render", "vision_qc"):
+                state.steps.pop(step, None)
+            for stale in ("transcript.txt", "turboscribe_transcript.txt"):
+                (pack_dir / stale).unlink(missing_ok=True)
+            save_state(pack_dir, state)
+        if resume and state.is_done("voiceover") and vo_path.exists() and not vo_stale:
+            messages.append("Resume: skipped voiceover (voiceover.mp3 exists)")
+        else:
+            vo = generate_voiceover(pack_dir, draft_id=draft_id, script_text=draft.script)
+            messages.append(vo.message)
+            state.mark("voiceover")
+            save_state(pack_dir, state)
+        _end("voiceover", t0)
 
     # --- Transcript sync (AssemblyAI API) ---
     t0 = _step("transcript")
     turboscribe_text = ""
-    from shorts_bot.production.transcript_sync import transcribe_audio
+    from shorts_bot.production.launch_phase import skip_transcript_sync
 
-    cached_paths = [pack_dir / "transcript.txt", pack_dir / "turboscribe_transcript.txt"]
-    cached_hit = next((p for p in cached_paths if p.exists()), None)
-    if resume and state.is_done("transcript") and cached_hit:
-        turboscribe_text = cached_hit.read_text(encoding="utf-8").strip()
-        messages.append(f"Resume: using cached {cached_hit.name}")
-    else:
-        try:
-            ts = transcribe_audio(vo_path)
-            turboscribe_text = ts.transcript_text
-            messages.append(ts.message)
-            state.mark("transcript")
-        except Exception as exc:
-            if settings.require_paid_stack and not settings.allow_script_timing_fallback:
-                state.mark("transcript", status="failed")
-                save_state(pack_dir, state)
-                raise RuntimeError(
-                    f"Gemini transcript sync required but failed: {exc}. "
-                    "Check GEMINI_API_KEY in Cursor secrets (bash scripts/install.sh)."
-                ) from exc
-            messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
-            state.mark("transcript", status="failed")
+    if skip_transcript_sync(draft_id):
+        if is_silent_launch_draft(draft_id):
+            messages.append(
+                "Skipped transcript sync — launch phase: no subtitles on videos 1–3."
+            )
+        else:
+            messages.append("Skipped transcript sync — caption timing from script (Kling mode).")
+        state.mark("transcript")
         save_state(pack_dir, state)
-    _end("transcript", t0)
+        _end("transcript", t0)
+    else:
+        from shorts_bot.production.transcript_sync import transcribe_audio
+
+        cached_paths = [pack_dir / "transcript.txt", pack_dir / "turboscribe_transcript.txt"]
+        cached_hit = next((p for p in cached_paths if p.exists()), None)
+        if resume and state.is_done("transcript") and cached_hit:
+            turboscribe_text = cached_hit.read_text(encoding="utf-8").strip()
+            messages.append(f"Resume: using cached {cached_hit.name}")
+        else:
+            try:
+                ts = transcribe_audio(vo_path)
+                turboscribe_text = ts.transcript_text
+                messages.append(ts.message)
+                state.mark("transcript")
+            except Exception as exc:
+                if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+                    state.mark("transcript", status="failed")
+                    save_state(pack_dir, state)
+                    raise RuntimeError(
+                        f"Gemini transcript sync required but failed: {exc}. "
+                        "Check GEMINI_API_KEY in Cursor secrets (bash scripts/install.sh)."
+                    ) from exc
+                messages.append(f"Transcript sync failed ({exc}) — falling back to script timing.")
+                state.mark("transcript", status="failed")
+            save_state(pack_dir, state)
+        _end("transcript", t0)
 
     # --- Pack ---
     t0 = _step("pack")
-    if settings.require_paid_stack and not settings.allow_script_timing_fallback:
+    if (
+        settings.require_paid_stack
+        and not settings.allow_script_timing_fallback
+        and not settings.uses_kling_native_audio
+        and not settings.uses_blender_video
+    ):
         if not turboscribe_text.strip() and not (pack_dir / "turboscribe_transcript.txt").exists():
             raise RuntimeError(
                 "Transcript missing — video cannot be built without word-level timestamps. "

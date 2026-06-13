@@ -34,23 +34,32 @@ SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 secon
 {ypp_safe_ritual_rules()}
 {face_eye_visibility_rules()}
 
-CHANNEL VOICE: Black Mirror micro-episode — second-person "you", clinical and precise. Line 1 = broken rule (premise).
-No self-help, no first-person therapy, no "hey guys", no creepypasta listicles.
-Metal/ritual beats: theatrical masks, warehouse pit, feathers as SYMBOL — never narrate eating animals or graphic harm.
-Village curse beats: sign/omen horror — slow sickness implied, never graphic vomiting on screen.
+CHANNEL VOICE: First-person nightmare screenplay — victim speaks as **I**; other characters speak in scene.
+**No off-screen narrator.** Dialogue only (character voices). Line 1 = broken rule / premise.
+Village: fog dusk, villagers **worship the Eye**; dream Shorts: Eye true form tortures; waking: uncanny wrong-humans.
+Villagers complicit — silent, ritual candles, averted eyes. Victims **remember dreams** on waking beats.
 
-VISUAL BEATS: at least one beat must feature macro staring eye OR metal/beak mask facing camera — not saved for finale only.
-Mix hallways, mirrors, CCTV, village signpost, warehouse pit — visible eyes/masks when the story fits.
+VISUAL BEATS: macro Eye in dreams; uncanny villagers; worship rituals; fog square; barn symbols — variety, no template.
+No security cameras, no apartment glitch, no 3:12 AM spam, no smartphones.
 
 {black_mirror_script_structure()}
 
-STING RULE: jumpscare lands on the TWIST truth (lunge, slam, lens fill, sign fill) — then STOP. No explanation after.
-- **NEW hook every video** — never paraphrase a previous upload or draft opening
-JUMPSCARE ROULETTE: timing varies — viewer must NOT predict the hit, but the sting must still pay off the twist.
-- Mute-safe: 6-8 visual_beats (one cinematic horror shot per beat, AI full-motion)
-- Singular "you". ~70-110 words spoken. 9:16 cinematic horror.
+STING RULE: jumpscare or Eye reveal lands on the TWIST truth — then STOP. No explanation after.
+- **NEW hook every video** — never paraphrase a previous upload opening
+JUMPSCARE ROULETTE: timing varies — sting pays off twist.
+- Subtitles: all dialogue must be caption-friendly (short lines)
+- First person **I**. ~70-110 words dialogue. 9:16 cinematic horror. Screenplay format.
 
 Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
+
+
+def _system_prompt(store: MemoryStore | None = None, *, draft_id: int | None = None) -> str:
+    from shorts_bot.production.launch_phase import silent_launch_script_rules, would_be_silent_launch
+
+    prompt = SYSTEM_PROMPT
+    if would_be_silent_launch(store, draft_id=draft_id):
+        prompt += silent_launch_script_rules()
+    return prompt
 
 
 @dataclass
@@ -188,7 +197,7 @@ Return JSON with keys:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": _system_prompt(self.store)},
                 {"role": "user", "content": user_prompt},
             ],
             response_format={"type": "json_object"},

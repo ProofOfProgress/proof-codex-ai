@@ -50,6 +50,15 @@ def _lavfi_for_kind(kind: str, *, duration_hint: float = 0.2) -> str:
             f"anoisesrc=color=white:duration={min(d, 0.15):.3f}:sample_rate=48000,"
             "bandpass=f=1200:w=800,volume=0.35,afade=t=out:st=0.05:d=0.06"
         )
+    if kind == "light_flicker":
+        return (
+            "aevalsrc='0.5*sin(120*2*PI*t)*exp(-t*25)+0.35*sin(60*2*PI*t)*exp(-t*18)':"
+            "d=0.08:sample_rate=48000"
+        )
+    if kind == "electric_hum":
+        return (
+            f"aevalsrc='0.12*sin(2*PI*60*t)+0.06*sin(2*PI*120*t)':d={min(d, 0.35):.3f}:sample_rate=48000"
+        )
     if kind == "stinger":
         return (
             "aevalsrc='if(lt(t,0.015),0.95*sin(440*2*PI*t)*exp(-t*65),"
@@ -92,8 +101,11 @@ def build_sfx_cues(
     plan: JumpscarePlan,
     *,
     audio_duration: float,
+    draft_id: int | None = None,
 ) -> list[SfxCue]:
     """Map manifest segments → timed SFX cues (research-backed beat map)."""
+    from shorts_bot.production.launch_phase import is_silent_launch_draft
+
     total = len(segments)
     has_js = plan.has_jumpscare
     cues: list[SfxCue] = []
@@ -106,12 +118,19 @@ def build_sfx_cues(
         if phase == "escalation" and i % 2 == 0:
             kind = "footstep"
         if phase == "hook":
-            kind = "cam_alert"
+            kind = "static_burst" if is_silent_launch_draft(draft_id) else "cam_alert"
         start = float(seg.get("start_seconds", 0))
-        # Lead visual by ~2 frames
         start = max(0.0, start - 0.05)
         gain = 0.55 if phase == "hook" else 0.42
         cues.append(SfxCue(start_seconds=start, kind=kind, gain=gain))
+
+    # Launch phase: streetlight flicker + electric hum (no speech — SFX only)
+    if is_silent_launch_draft(draft_id):
+        t = 0.8
+        while t < max(0.0, audio_duration - 1.5):
+            cues.append(SfxCue(start_seconds=t, kind="light_flicker", gain=0.45))
+            cues.append(SfxCue(start_seconds=t + 0.04, kind="electric_hum", gain=0.22))
+            t += 2.1
 
     if has_js:
         sting_at = sting_start_seconds(plan, segments=segments, total_duration=audio_duration)
@@ -184,9 +203,12 @@ def apply_horror_sfx_to_pack_audio(
     voiceover_path: Path,
     *,
     audio_duration: float,
+    draft_id: int | None = None,
 ) -> Path:
     """Build cues from segments + plan, mix into VO."""
-    cues = build_sfx_cues(segments, plan, audio_duration=audio_duration)
+    cues = build_sfx_cues(
+        segments, plan, audio_duration=audio_duration, draft_id=draft_id
+    )
     (pack_dir / "sfx_cues.json").write_text(
         __import__("json").dumps(
             [{"start": c.start_seconds, "kind": c.kind, "gain": c.gain} for c in cues],

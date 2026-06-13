@@ -1,89 +1,76 @@
-# Peripheral — world bible (anthology)
+# Peripheral — world bible
 
-Every Short is **one episode** in the same anthology — different mask, same **episode grammar** (Black Mirror compressed). See `channel/brand/black_mirror_format.md`.
+Every Short is **one episode** in the same world — fog village, the **Eye**, and what it does to people who remember the dreams.
 
-## Horror lane (picked — do not drift)
+## Horror lane (locked)
 
-**Primary: Analog horror** — night-vision CCTV, security-app feeds, VHS grain, timestamp glitches, degraded signal at 3:12 AM.
+**Primary: Village cult horror** — fog-grey village at dusk; villagers **worship the Eye**; outsiders break.
 
-**Secondary: Psychological horror** — alone-at-night uncanny dread; you rationalize lag as glitch or tired eyes.
+**Secondary: Dream invasion** — true form of the Eye tortures you in sleep; you **remember** when you wake.
 
-**Tertiary: Industrial ritual metal** — warehouse pit, numbered masks, chains (symbolic — YPP-safe).
+**Tertiary: Perception break** — rabies-uncanny wrong-humans; reality feels unreliable after the Eye touches you.
 
 | We are | We are not |
 |--------|------------|
-| Anthology episodes with twist + sting | Random jumpscare clips with no premise |
-| Found-footage / cinematic dread grammar | Creature features, named folklore gods, occult worship |
-| Implied body horror (sickness, wrong timestamps) | Graphic gore, animal harm on screen |
-| Cold blue-black rooms; green **only** on cam/feed | Full-frame green wash on every shot |
+| First-person nightmare Shorts (~30s) | Faceless narrator CCTV clips |
+| Villagers + Eye worship lore | Apartment glitch / security-cam spam |
+| Uncanny humans + dream true form (Eye) | Generic Slender clone with no brand |
+| Implied body horror, YPP-safe | Graphic gore, animal harm, child harm |
 
-Code: `shorts_bot/production/horror_lane.py`, `shorts_bot/production/black_mirror_format.py`
+Code: `shorts_bot/production/horror_lane.py`, `channel/brand/identity.md`
 
 ## The world in one sentence
 
-**Peripheral** is what happens when one rule of reality breaks — and you only notice when the recording, the village, or the mirror shows you the bill.
+**Peripheral** is a village that worships the Eye — it hunts you in dreams, fucks with your head when you wake, and never fully shows itself until you're ready to break.
 
-## Shared episode laws (never break on-camera)
+## The Eye (true form)
 
-| Law | What it means for scripts & visuals |
-|-----|-------------------------------------|
-| **One broken rule** | Hook = premise, not mood ("if you see the sign, you die — slowly") |
-| **Consequences escalate** | Each beat costs more — not the same scare repeated |
-| **Twist rewrites the hook** | Final spoken beat changes meaning of line 1 — then sting |
-| **Don't blink** | Movement in the unwatched moment — reflection delays, feed refreshes |
-| **3:12 AM** | When systems glitch — motion alerts, impossible timestamps |
-| **Eyes & masks forward** | Macro eye + masks visible when earned; finale **escalates** |
+- **True form:** giant freaky **Eye** — macro iris, wrong pupil, fills sky/mirror/dream ceiling
+- **Dreams:** tortures victims there; they **remember** on waking (metal taste, gasp, sweat)
+- **Waking:** breaks perception — paranoid, schizophrenic **energy** (entity causes it; not mocking mental illness)
+- **Human form:** shape-shifting uncanny villager — almost human, **rabies-wrong** (twitch, stare, wrong speech)
+- **Visibility:** not every Short — tease on covers; full Eye mainly in **dream** episodes
 
-## Settings (rotate — same grammar)
+## The village
 
-### The Gap (apartment thread)
+- Fog-grey square at dusk, crooked signpost, barn symbols, empty windows with **candles for the Eye**
+- **Villagers worship the Eye** — silent complicity, ritual glances, soup offered with averted eyes
+- Outsiders who **see too much** get the dream, then the sickness, then the village pretends nothing happened
+- **No smartphones, no security apps, no apartment glitch hour** — this is folk-nightmare, not analog CCTV
 
-Liminal alone-at-night apartment viewers recognize:
+## Episode laws
 
-- Narrow hallway longer than it should be
-- Bathroom mirror, cold tile, vanity flicker
-- Security cam corner: grainy green night vision
-- Closet you do not open; scratches on the **inside**
-
-Threat: **the Lag** — never named in VO; advances when you look away, blink, mute, or refresh.
-
-### The village (curse thread)
-
-Fog-grey village at dusk — empty square, crooked signpost, one wrong symbol on a barn.
-
-**Rule:** see the sign or the thing on the sign → death is **guaranteed** — not instant.
-
-Aftermath (implied, YPP-safe): dawn sickness, endless vomiting, cannot keep food down, slow starvation. The monster is the **omen**, not a chase in daylight.
-
-Threat: **the Sign** — collective silence; everyone pretends not to know the rule until you break it.
-
-### The pit (metal thread)
-
-Warehouse circle, red strobe, numbered jumpsuits, beak masks warm on hooks.
-
-Threat: **the Segment** — theatrical, symbolic; feathers and chains, no real harm on screen.
-
-Palette everywhere: black `#0A0A0A`, cold blue `#1A2A3A`, crimson accent `#8B0000` on finale only.
+| Law | Scripts & visuals |
+|-----|-------------------|
+| **First person** | Victim speaks as **I** — no off-screen narrator |
+| **Character voices only** | On-screen speech (Sora-synced); subtitles burned in post |
+| **Remember the dream** | Waking beat after dream Shorts — "I remembered the Eye" |
+| **One broken rule** | Hook = premise (worship, name on sign, ritual you weren't meant to see) |
+| **Twist → sting** | Final beat rewrites hook — then stop |
+| **Don't blink** | Merch tagline — movement in peripheral vision, Eye at frame edge |
 
 ## Story voice
 
-- Second-person **you**, present tense, one night / one morning — no backstory dump
-- Hook = **premise** (broken rule), not "something felt off"
-- False calm = in-world rationalization — glitch, superstition, tired eyes
-- Twist line → sting → **stop** — no explanation after
+- **First person I**, present tense — ragged, breaking, unreliable after the Eye
+- Other characters speak **in scene** (whispered villager, dream voice, wrong neighbor)
+- False calm = rationalization failing — "maybe it was just a dream" — then wrong detail returns
+- Twist → sting → **stop** — no explanation after
+
+## Merch
+
+- **Solid white hoodie** — huge line-eye on back, *don't blink* underneath
+- Brand name **PERIPHERAL** only — no abbreviations on garments
 
 ## What is NOT this world
 
-- Cosy self-help, stick figures, tea-on-couch rituals
-- Gore, real victims, child harm, crime reenactment
-- Generic "scary story #47" listicles
-- Bright daytime crowds, camping-trip slashers
+- The Gap apartment, 3:12 AM glitch hour, security cameras, phone motion alerts
+- Faceless second-person narrator Shorts
+- Cosy self-help, stick figures, generic creepypasta listicles
+- Bright daytime crowds, camping slashers, real-world religion mockery
 
-## Series recognition (why viewers binge)
+## Why viewers binge
 
-Viewers learn the **episode grammar**, not just "jumpscare at end":
-
-1. Every upload = new **what-if** premise
-2. Twist recontextualizes the hook — comment-section debate
-3. Settings rotate — apartment / village / pit — same cold camera
-4. Completion matters — sting lands on the **new** truth
+1. **Who is the Eye?** — true form in dreams; villagers know
+2. **Will they show it again?** — rare full reveals
+3. **Same village grammar** — worship, silence, wrong humans, dream residue
+4. **First-person break** — you feel the schizophrenia-energy, not told about it

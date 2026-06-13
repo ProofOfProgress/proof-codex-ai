@@ -15,10 +15,11 @@ def paid_stack_issues() -> list[str]:
         return issues
 
     if settings.tts_provider.strip().lower() == "resemble" or not settings.allow_free_tts_fallback:
-        if not settings.has_resemble:
+        if not settings.has_resemble and not settings.uses_kling_native_audio and not settings.uses_blender_video:
             issues.append(
                 "Resemble voice clone missing — set RESEMBLE_API_KEY + RESEMBLE_VOICE_UUID "
-                "in Cursor secrets (sync_secrets writes .env)"
+                "in Cursor secrets (sync_secrets writes .env). "
+                "Or use VIDEO_BACKEND=kling with KLING_SKIP_NARRATOR_TTS=true."
             )
 
     if not settings.allow_script_timing_fallback and not settings.has_gemini and not settings.has_assemblyai:
@@ -68,6 +69,8 @@ def ensure_paid_stack_ready() -> None:
 
 def ensure_resemble_voice() -> None:
     """Block edge-tts when Resemble is required."""
+    if settings.uses_kling_native_audio:
+        return
     if settings.allow_free_tts_fallback and settings.tts_provider.strip().lower() == "edge":
         return
     if not settings.require_paid_stack and settings.tts_provider.strip().lower() != "resemble":
@@ -82,7 +85,9 @@ def ensure_resemble_voice() -> None:
 
 def ensure_turboscribe_segments(sync_source: str) -> None:
     """Block script-timing fallbacks when transcript timestamps are required."""
-    if settings.allow_script_timing_fallback:
+    from shorts_bot.config import settings
+
+    if settings.allow_script_timing_fallback or settings.uses_kling_native_audio or settings.uses_blender_video:
         return
     if sync_source in _SCRIPT_FALLBACK_SOURCES:
         raise RuntimeError(

@@ -17,17 +17,19 @@ Goal: **maximize completion rate + jumpscare payoff** on a zero-video channel.
 - Final line cues visual scare — no tagline outro
 - `run_quality_checks` must pass before render
 
-## Visual bar (ai_video)
+## Visual bar (Kling — default)
 
-- `VISUAL_STYLE=ai_video` — FLUX still → MiniMax I2V per beat
-- Horror templates in `ai_video_prompts.py` — no cream/cosy DNA
-- Final segment forced to `jumpscare_lunge` template
-- `vision_qc_min_score` default **7.5** (set `8.0` in `.env` for launch week)
+- `VIDEO_BACKEND=blender` — Blender 3D **3×10s**, post ambient + horror SFX (launch videos 1–3: no talk/subtitles)
+- `VISUAL_STYLE=ai_video` — required for motion path
+- **Videos 1–3 (launch):** no talking, no burned-in subtitles — ambient + SFX only
+- **Video 4+:** dialogue in script → Kling lip sync; subtitles burned in post
+- `vision_qc_min_score` default **7.5**
 
 ## Audio bar
 
-- Resemble VO — tense second-person delivery
-- `jumpscare_sting_enabled=true` — synthetic sting on last ~2.5s at render
+- **Launch (videos 1–3):** wind, footsteps, creaks, ritual murmur, horror sting — **no human speech**
+- **After launch:** Kling character voices in clip (no Resemble narrator)
+- `horror_sfx_enabled=true` — procedural SFX + finale stinger at render
 - Title + description: **🔊 volume warning**
 
 ## Upload checklist

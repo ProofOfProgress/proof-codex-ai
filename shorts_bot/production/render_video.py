@@ -393,8 +393,22 @@ def _render_from_video_clips(
             prev_clip = None
             if i > 0:
                 prev = segments[i - 1]
-                prev_still = images_dir / prev["filename"]
-                prev_clip = clips_dir / f"{Path(prev['filename']).stem}.mp4"
+                prev_stem = Path(prev["filename"]).stem
+                prev_still_path = images_dir / prev["filename"]
+                prev_clip_path = clips_dir / f"{prev_stem}.mp4"
+                if prev_still_path.exists():
+                    prev_still = prev_still_path
+                else:
+                    prev_still = _nearest_still_image(images_dir, prev_stem)
+                if prev_clip_path.exists() and prev_clip_path.stat().st_size > 5000:
+                    prev_clip = prev_clip_path
+                else:
+                    for j in range(i - 1, -1, -1):
+                        back_stem = Path(segments[j]["filename"]).stem
+                        back_clip = clips_dir / f"{back_stem}.mp4"
+                        if back_clip.exists() and back_clip.stat().st_size > 5000:
+                            prev_clip = back_clip
+                            break
             compose_finale_jumpscare_segment(
                 jumpscare_src=scare_src,
                 dest=clip,
@@ -477,6 +491,76 @@ def _render_from_video_clips(
     return silent_video
 
 
+def _concat_blender_clips(clips_dir: Path, tmp_dir: Path) -> Path:
+    """Join blender_part_*.mp4 in order — video only (SFX added in post)."""
+    clips = sorted(clips_dir.glob("blender_part_*.mp4"))
+    if not clips:
+        raise FileNotFoundError(f"No Blender clips in {clips_dir}")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    concat_path = tmp_dir / "_blender_concat.txt"
+    lines = ["ffconcat version 1.0"]
+    for clip in clips:
+        if clip.stat().st_size < 5000:
+            raise FileNotFoundError(f"Blender clip too small or missing: {clip}")
+        lines.append(f"file '{clip.resolve()}'")
+    concat_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out_path = tmp_dir / "_blender_merged.mp4"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_path),
+            "-c",
+            "copy",
+            str(out_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return out_path
+
+
+def _concat_kling_clips(clips_dir: Path, tmp_dir: Path) -> Path:
+    """Join kling_part_*.mp4 in order — keeps native Kling audio."""
+    clips = sorted(clips_dir.glob("kling_part_*.mp4"))
+    if not clips:
+        raise FileNotFoundError(f"No Kling clips in {clips_dir}")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    concat_path = tmp_dir / "_kling_concat.txt"
+    lines = ["ffconcat version 1.0"]
+    for clip in clips:
+        if clip.stat().st_size < 5000:
+            raise FileNotFoundError(f"Kling clip too small or missing: {clip}")
+        lines.append(f"file '{clip.resolve()}'")
+    concat_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    out_path = tmp_dir / "_kling_merged.mp4"
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_path),
+            "-c",
+            "copy",
+            str(out_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return out_path
+
+
 def render_short_video(
     pack_dir: Path,
     *,
@@ -496,12 +580,47 @@ def render_short_video(
     if not segments:
         raise ValueError("Manifest has no segments.")
 
+    from shorts_bot.config import settings
+
     audio_path = pack_dir / audio_name
-    if not audio_path.exists():
+    render_mode = manifest.get("render_mode") or "slideshow"
+    kling_mode = render_mode == "kling_clips"
+    blender_mode = render_mode == "blender_clips"
+    merged_clips: Path | None = None
+    if kling_mode:
+        clips_dir = pack_dir / "clips"
+        merged_clips = _concat_kling_clips(clips_dir, tmp_dir=pack_dir / "_kling_tmp")
+        audio_duration = _probe_duration(merged_clips)
+        kling_audio = pack_dir / "_kling_audio.mp3"
+        from shorts_bot.production.silent_launch_audio import extract_or_build_kling_audio
+
+        extract_or_build_kling_audio(
+            merged_clips,
+            kling_audio,
+            draft_id=draft_id,
+            duration=audio_duration,
+            bitrate_k=settings.video_audio_bitrate_k,
+        )
+        audio_path = kling_audio
+    elif blender_mode:
+        clips_dir = pack_dir / "clips"
+        merged_clips = _concat_blender_clips(clips_dir, tmp_dir=pack_dir / "_blender_tmp")
+        audio_duration = _probe_duration(merged_clips)
+        blender_audio = pack_dir / "_blender_audio.mp3"
+        from shorts_bot.production.silent_launch_audio import create_launch_ambient_bed
+
+        create_launch_ambient_bed(
+            audio_duration,
+            blender_audio,
+            bitrate_k=settings.video_audio_bitrate_k,
+        )
+        audio_path = blender_audio
+    elif not audio_path.exists():
         raise FileNotFoundError(f"No audio at {audio_path}")
+    else:
+        audio_duration = _probe_duration(audio_path)
 
     images_dir = pack_dir / "images"
-    audio_duration = _probe_duration(audio_path)
 
     from shorts_bot.production.segment_sync import normalize_segment_timeline
 
@@ -523,7 +642,6 @@ def render_short_video(
         plan.primary_segment_index if plan.has_jumpscare else None
     )
     suspense_replay = plan.profile == "suspense_replay"
-    from shorts_bot.config import settings
 
     if settings.horror_sfx_enabled:
         from shorts_bot.production.horror_sfx_mix import apply_horror_sfx_to_pack_audio
@@ -534,6 +652,7 @@ def render_short_video(
             plan,
             audio_path,
             audio_duration=audio_duration,
+            draft_id=draft_id,
         )
         if audio_path.name == "_voiceover_sfx.mp3":
             audio_duration = _probe_duration(audio_path)
@@ -551,10 +670,11 @@ def render_short_video(
 
     out_path = pack_dir / output_name
 
-    from shorts_bot.config import settings
     from shorts_bot.production.caption_timing import resolve_caption_segments
-    from shorts_bot.production.captions import burn_captions_via_ffmpeg
+    from shorts_bot.production.launch_phase import is_silent_launch_draft, should_burn_subtitles
     from shorts_bot.production.subtitles import ffmpeg_subtitles_filter, write_subtitle_files
+
+    burn_captions = should_burn_subtitles(draft_id)
 
     caption_segments = resolve_caption_segments(
         pack_dir=pack_dir,
@@ -589,6 +709,68 @@ def render_short_video(
     from shorts_bot.production.framing import FRAME_HEIGHT, FRAME_WIDTH
 
     render_mode = manifest.get("render_mode") or "slideshow"
+    if render_mode in ("kling_clips", "blender_clips"):
+        if merged_clips is None:
+            clips_dir = pack_dir / "clips"
+            if render_mode == "kling_clips":
+                merged_clips = _concat_kling_clips(clips_dir, tmp_dir=pack_dir / "_kling_tmp")
+            else:
+                merged_clips = _concat_blender_clips(clips_dir, tmp_dir=pack_dir / "_blender_tmp")
+        vf_parts: list[str] = []
+        if burn_captions:
+            vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
+        vf = ",".join(vf_parts) if vf_parts else None
+        cmd = ["ffmpeg", "-y", "-i", str(merged_clips), "-i", str(audio_path)]
+        if vf:
+            cmd.extend(["-vf", vf])
+        cmd.extend(
+            [
+                "-map",
+                "0:v:0",
+                "-map",
+                "1:a:0",
+                "-c:v",
+                "libx264",
+                "-preset",
+                settings.video_preset,
+                "-crf",
+                str(settings.video_crf),
+                "-pix_fmt",
+                "yuv420p",
+                "-c:a",
+                "aac",
+                "-b:a",
+                f"{settings.video_audio_bitrate_k}k",
+                "-ar",
+                "48000",
+                "-movflags",
+                "+faststart",
+                "-t",
+                f"{audio_duration:.3f}",
+                str(out_path),
+            ]
+        )
+        subprocess.run(cmd, check=True, capture_output=True, text=True)
+        backend_label = "Kling" if render_mode == "kling_clips" else "Blender 3D"
+        clip_note = (
+            "ambient + horror SFX, no dialogue, no captions"
+            if is_silent_launch_draft(draft_id)
+            else (
+                "native dialogue + horror SFX + ASS captions"
+                if render_mode == "kling_clips"
+                else "ambient + horror SFX + ASS captions"
+            )
+        )
+        return RenderedVideo(
+            draft_id=draft_id,
+            output_path=out_path,
+            duration_seconds=audio_duration,
+            message=(
+                f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920, {backend_label} clips). "
+                f"{clip_note}."
+            ),
+        )
+
     if render_mode == "video_clips":
         clips_dir = pack_dir / "clips"
         if (
@@ -628,7 +810,7 @@ def render_short_video(
         )
         video_input = ["-i", str(silent)]
         vf_parts: list[str] = []
-        if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+        if burn_captions:
             vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
         vf = ",".join(vf_parts) if vf_parts else None
         cmd = ["ffmpeg", "-y", *video_input, "-i", str(audio_path)]
@@ -688,7 +870,7 @@ def render_short_video(
     vf_parts: list[str] = []
     if not use_motion:
         vf_parts.extend([f"scale={FRAME_WIDTH}:{FRAME_HEIGHT}:flags=lanczos", "format=yuv420p"])
-    if burn_captions_via_ffmpeg() or settings.burn_in_subtitles:
+    if burn_captions:
         vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
     vf = ",".join(vf_parts) if vf_parts else None
 

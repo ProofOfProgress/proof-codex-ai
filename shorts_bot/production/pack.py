@@ -118,6 +118,37 @@ def build_production_pack(
     images_dir.mkdir(exist_ok=True)
     clips_dir.mkdir(exist_ok=True)
 
+    from shorts_bot.production.video_beat_sheet import (
+        ensure_beat_sheet,
+        launch_rules_blurb,
+        load_beat_sheet,
+        write_beat_sheet_files,
+    )
+    from shorts_bot.drafts.meta import load_draft_meta
+
+    beat_sheet = ensure_beat_sheet(
+        draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        script=draft.script if isinstance(draft.script, str) else str(draft.script),
+    )
+    write_beat_sheet_files(
+        root,
+        draft_id=draft_id,
+        topic=draft.topic,
+        hook=draft.hook,
+        beats=beat_sheet,
+        rules=launch_rules_blurb(draft_id),
+    )
+    meta = load_draft_meta(draft_id)
+    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+        raise RuntimeError(
+            f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
+            f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
+            f"beat_sheet_approved=true in data/draft_meta/draft_{draft_id}.json or tell the agent "
+            f"'approve beat sheet for draft {draft_id}'."
+        )
+
     for b in briefs:
         (prompts_dir / f"{b.filename_stem}.txt").write_text(b.prompt, encoding="utf-8")
 
@@ -147,7 +178,60 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.visual_style == "ai_video" and settings.has_paid_images:
+        if settings.uses_blender_video:
+            from shorts_bot.production.render_blender import render_blender_clips
+
+            clips_rendered = render_blender_clips(
+                clips_dir=clips_dir,
+                draft_id=draft_id,
+                pack_dir=root,
+                force_regen=settings.blender_force_regen,
+            )
+            if clips_rendered > 0:
+                rendered = clips_rendered
+                render_mode = "blender_clips"
+                image_note = (
+                    f" via Blender 3D EEVEE ({clips_rendered}×{settings.blender_clip_seconds}s, "
+                    f"{settings.blender_samples} samples, silent + post SFX)"
+                )
+            else:
+                raise RuntimeError(
+                    f"Blender returned 0 clips — expected {settings.blender_clips_per_short}."
+                )
+        elif settings.uses_kling_video and settings.has_kling_official:
+            from shorts_bot.production.render_kling import render_kling_clips
+
+            clips_rendered = render_kling_clips(
+                topic=draft.topic,
+                hook=draft.hook,
+                script=draft.script,
+                clips_dir=clips_dir,
+                draft_id=draft_id,
+                force_regen=settings.kling_force_regen,
+            )
+            if clips_rendered > 0:
+                rendered = clips_rendered
+                render_mode = "kling_clips"
+                from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+                audio_note = (
+                    "silent video + post SFX"
+                    if is_silent_launch_draft(draft_id)
+                    else "native audio"
+                )
+                image_note = (
+                    f" via Kling ({settings.kling_model}, "
+                    f"{clips_rendered}×{settings.kling_clip_seconds}s, {settings.kling_mode}, {audio_note})"
+                )
+            else:
+                raise RuntimeError(
+                    f"Kling returned 0 clips — expected {settings.kling_clips_per_short}."
+                )
+        elif settings.uses_kling_video:
+            raise RuntimeError(
+                "Kling video requires KLING_ACCESS_KEY + KLING_SECRET_KEY in Cursor secrets."
+            )
+        elif settings.visual_style == "ai_video" and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
             priority = [scare_plan.primary_segment_index]
@@ -192,6 +276,7 @@ def build_production_pack(
         "visual_beats": beats,
         "jumpscare_plan": scare_plan.to_dict(),
         "visual_style": settings.visual_style,
+        "video_backend": settings.video_backend,
         "render_mode": render_mode,
         "hybrid_ai_hook": hybrid_hook,
         "video_prompts": f"video_prompts.json ({len(video_payload.get('clips', []))} clips)",

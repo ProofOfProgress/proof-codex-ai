@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import pickle
 from pathlib import Path
 
 from shorts_bot.config import settings
@@ -18,7 +17,7 @@ UPLOAD_SCOPES = SCOPES + [
 ]
 
 OAUTH_REDIRECT_URI = "http://127.0.0.1:8090/"
-OAUTH_FLOW_PICKLE = Path("data/oauth_flow.pickle")
+OAUTH_FLOW_JSON = Path("data/oauth_flow.json")
 
 _PLACEHOLDER_FRAGMENTS = (
     "your-client-id",
@@ -142,6 +141,41 @@ def _make_flow():
     return InstalledAppFlow.from_client_config(_client_config(), UPLOAD_SCOPES)
 
 
+def _save_pending_oauth_flow(*, state: str, code_verifier: str) -> None:
+    OAUTH_FLOW_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OAUTH_FLOW_JSON.write_text(
+        json.dumps(
+            {
+                "state": state,
+                "code_verifier": code_verifier,
+                "redirect_uri": OAUTH_REDIRECT_URI,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def _load_pending_oauth_flow() -> dict | None:
+    if not OAUTH_FLOW_JSON.exists():
+        return None
+    try:
+        data = json.loads(OAUTH_FLOW_JSON.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    if not data.get("state") or not data.get("code_verifier"):
+        return None
+    return data
+
+
+def _clear_pending_oauth_flow() -> None:
+    try:
+        OAUTH_FLOW_JSON.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
 def oauth_authorization_url() -> str:
     """
     Start OAuth on a trusted device (phone / home PC).
@@ -149,33 +183,33 @@ def oauth_authorization_url() -> str:
     """
     flow = _make_flow()
     flow.redirect_uri = OAUTH_REDIRECT_URI
-    auth_url, _state = flow.authorization_url(
+    auth_url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
         prompt="consent",
     )
-    OAUTH_FLOW_PICKLE.parent.mkdir(parents=True, exist_ok=True)
-    OAUTH_FLOW_PICKLE.write_bytes(pickle.dumps(flow))
+    _save_pending_oauth_flow(state=state, code_verifier=flow.code_verifier)
     return auth_url
 
 
 def oauth_complete_redirect(authorization_response: str) -> dict:
     """Paste full redirect URL after Google sign-in (http://127.0.0.1:8090/?code=...)."""
-    if not OAUTH_FLOW_PICKLE.exists():
+    pending = _load_pending_oauth_flow()
+    if not pending:
         return {
             "ok": False,
             "message": "No pending OAuth — run: python3 -m shorts_bot.youtube.auth_cli url",
         }
-    flow = pickle.loads(OAUTH_FLOW_PICKLE.read_bytes())
+    # Google desktop OAuth uses http://127.0.0.1 callback — allowed for local dev only.
+    os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
+    flow = _make_flow()
+    flow.redirect_uri = pending["redirect_uri"]
+    flow.code_verifier = pending["code_verifier"]
     try:
         flow.fetch_token(authorization_response=authorization_response.strip())
     except Exception as exc:
         return {"ok": False, "message": f"OAuth failed: {exc}"}
-    finally:
-        try:
-            OAUTH_FLOW_PICKLE.unlink(missing_ok=True)
-        except OSError:
-            pass
+    _clear_pending_oauth_flow()
     save_credentials(flow.credentials, scopes=UPLOAD_SCOPES)
     return {
         "ok": True,

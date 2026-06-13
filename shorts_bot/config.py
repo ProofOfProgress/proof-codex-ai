@@ -117,9 +117,28 @@ class Settings(BaseSettings):
     image_provider: str = "replicate"  # replicate | fal
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
-    replicate_video_model: str = "minimax/video-01"  # I2V default / escalation beats
-    replicate_video_model_hook: str = "minimax/video-01"  # hook + security-cam motion
-    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"  # lunge / tease beats
+    # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
+    video_backend: str = "blender"
+    kling_provider: str = "official"  # official | replicate | fal
+    kling_access_key: str | None = None
+    kling_secret_key: str | None = None
+    kling_model: str = "kling-v2-6"  # official API model_name; replicate uses kwaivgi/kling-v3-video
+    kling_clip_seconds: int = 10  # official v2.6 API: 5 or 10; use 10 for longer beats
+    kling_clips_per_short: int = 3  # 3×10s ≈ 30s Short (one stitch between clips)
+    kling_generate_audio: bool = True  # lip-sync dialogue + ambient in one pass
+    kling_skip_narrator_tts: bool = True  # no Resemble when Kling carries voices
+    kling_mode: str = "std"  # std=720p | pro=1080p
+    kling_aspect_ratio: str = "9:16"
+    kling_multi_shot: bool = True  # multi_prompt inside each clip
+    kling_force_regen: bool = False  # ignore cached kling_part_*.mp4
+    # Blender 3D — local EEVEE renders (no API credits)
+    blender_clips_per_short: int = 3
+    blender_clip_seconds: float = 10.0
+    blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
+    blender_force_regen: bool = False
+    replicate_video_model: str = "minimax/video-01"  # legacy I2V default
+    replicate_video_model_hook: str = "minimax/video-01"
+    replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
     jumpscare_dedicated_clip: bool = True  # finale = setup hold + short Hailuo lunge (not slideshow zoom)
     screen_text_overlay_enabled: bool = True  # composited CCTV / alarm-clock UI (not AI-generated glyphs)
     screen_text_phone_enabled: bool = False  # no phone screens — fullscreen CCTV + alarm clock for time
@@ -130,7 +149,7 @@ class Settings(BaseSettings):
     jumpscare_i2v_tail_seconds: float = 2.4  # extract lunge from end of Hailuo output
     jumpscare_setup_min_seconds: float = 0.55  # min pre-scare hold — tighter lunge sync with VO
     jumpscare_visual_flash: bool = True  # ffmpeg zoom+flash when dedicated clip is off
-    ai_video_max_beats: int = 10  # cap Replicate I2V cost per Short (launch week: full beats)
+    ai_video_max_beats: int = 2  # Kling lock-in: 2 clips; legacy_i2v may raise to 10
     ai_video_pace_sec: float = 12.0  # delay between I2V jobs (429 guard)
     ai_video_timeout_sec: int = 600  # per-clip Replicate poll timeout
     fal_api_key: str | None = None
@@ -192,6 +211,9 @@ class Settings(BaseSettings):
     post_upload_cta_comment: bool = True  # series engagement comment after API upload
     post_upload_analytics_sync: bool = True
     launch_quality_strict: bool = True  # false-calm missing = quality issue, not warning
+    launch_silent_video_count: int = 3  # first N Shorts: no talking, no subtitles; SFX/ambient OK
+    require_beat_sheet_before_video: bool = True  # write VIDEO_BEAT_SHEET.md before Kling
+    require_beat_sheet_approval: bool = True  # block Kling/upload until owner approves beat sheet
     pipeline_exclusive_lock: bool = True  # one finish_cli / Replicate job at a time
     pipeline_auto_horror_repair: bool = True  # fix first-person drift before TTS/I2V
     pipeline_block_voice_drift: bool = True  # re-check after humanize; repair or fail
@@ -288,6 +310,28 @@ class Settings(BaseSettings):
         if "your" in key.lower() and "key" in key.lower():
             return False
         return len(key) >= 16
+
+    @property
+    def has_kling_official(self) -> bool:
+        ak = (self.kling_access_key or "").strip()
+        sk = (self.kling_secret_key or "").strip()
+        return len(ak) >= 8 and len(sk) >= 8 and "your" not in ak.lower()
+
+    @property
+    def uses_kling_video(self) -> bool:
+        return (self.video_backend or "").strip().lower() == "kling"
+
+    @property
+    def uses_blender_video(self) -> bool:
+        return (self.video_backend or "").strip().lower() == "blender"
+
+    @property
+    def uses_kling_native_audio(self) -> bool:
+        return (
+            self.uses_kling_video
+            and bool(self.kling_generate_audio)
+            and bool(self.kling_skip_narrator_tts)
+        )
 
     @property
     def has_resemble(self) -> bool:

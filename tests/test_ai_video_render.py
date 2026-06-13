@@ -14,7 +14,7 @@ def test_ai_video_config_defaults():
     assert fields["visual_style"].default == "ai_video"
     assert fields["replicate_video_model"].default == "minimax/video-01"
     assert fields["replicate_video_model_jumpscare"].default == "minimax/hailuo-2.3-fast"
-    assert fields["ai_video_max_beats"].default == 10
+    assert fields["ai_video_max_beats"].default == 2
 
 
 def test_replicate_i2v_model_routing():

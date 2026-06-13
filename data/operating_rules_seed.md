@@ -24,7 +24,15 @@ The project's knowledge base is called **Codex** (not "course KB", "knowledge ba
 
 **The owner does not use Codex ask/search** — no public Codex button. They talk to AlphaBeta001; AlphaBeta001 reads Codex behind the scenes.
 
-## Owner — how to talk to the human
+## Owner — beat sheet before every video (2026-06)
+
+**Before spending render time or uploading**, explain **in detail what happens in the video with timestamps** (0:00–0:30). Owner must approve the beat sheet first.
+
+- File: `data/production/draft_N/VIDEO_BEAT_SHEET.md`
+- Meta flag: `beat_sheet_approved: true` in `data/draft_meta/draft_N.json`
+- Pipeline blocks video gen when `require_beat_sheet_approval=true` and not approved
+- No talking/subtitles on launch videos 1–3; SFX listed per timestamp
+
 
 The owner is **not a developer**. When explaining anything:
 
@@ -75,11 +83,13 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Peripheral** — scary horror Shorts (~30s). Merch tagline: *don't blink*. Story gets creepy → **jumpscare in last 3 seconds**. AI full-motion only (`VISUAL_STYLE=ai_video`). **No AI horror motions.** 6–8 beats, hook in line 1, 🔊 volume warning in description.
+**Peripheral** — first-person horror Shorts (~30s). Merch tagline: *don't blink*. **The Village** — Eye worship, dream invasion. Character voices on screen (Kling native audio). Payoff sting at end. Hook in line 1. 🔊 volume warning in description.
 
 ## Production stack
 
-Gemini horror scripts, Resemble voice (cold narrator), Replicate FLUX + MiniMax I2V motion clips per beat, final beat = scare + audio sting, ffmpeg ASS captions (Jenny 05 safe zone), YouTube API upload (public + synthetic media disclosure). **Comments:** auto-reply thanks/topic requests; leave crisis, trauma, medical, long vents, and collab messages for the human (`comments pending`). Use API first; **use Playwright browser** when needed (vidIQ, Trends, logins, blocked pages).
+**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`.
+
+Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 
 ## Browser
 

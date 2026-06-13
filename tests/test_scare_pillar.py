@@ -4,10 +4,10 @@ from shorts_bot.production.scare_pillar import scare_pillar_for_topic
 
 
 def test_scare_pillar_classification():
-    assert scare_pillar_for_topic("mirror reflection blinked") == "wrong_reflection"
-    assert scare_pillar_for_topic("security camera flagged motion") == "wrong_place"
-    assert scare_pillar_for_topic("knock from inside closet") == "wrong_sound"
-    assert scare_pillar_for_topic("last text showed delivered") == "wrong_text"
+    assert scare_pillar_for_topic("I remembered the Eye in my dream") == "dream_invasion"
+    assert scare_pillar_for_topic("they worship the Eye in the barn") == "eye_worship"
+    assert scare_pillar_for_topic("the villager smiled with wrong teeth") == "wrong_villager"
+    assert scare_pillar_for_topic("the village sign showed my name") == "outsider_rule"
 
 
 def test_upload_warns_same_pillar(tmp_path, monkeypatch):
@@ -20,29 +20,26 @@ def test_upload_warns_same_pillar(tmp_path, monkeypatch):
     store = MemoryStore(tmp_path / "p.db")
     mem = MemoryExtensions(store)
     script = (
-        "You blinked at the mirror and your reflection blinked one second later. "
-        "You blinked again staring at the glass. It did not blink. "
-        "You turned away telling yourself it was just tired eyes and nothing moved. "
-        "You heard a soft scrape from behind the door. You looked back. "
-        "Your reflection was smiling but you were not. It raised a hand tapping the glass. "
-        "It mouthed Mine. Then it lunged at you."
+        "I dreamed the Eye filled the ceiling. I woke tasting metal. "
+        "I told myself it was just a nightmare. The villager brought soup anyway. "
+        "I remembered the Eye again when I blinked."
     )
     record_upload(
         mem,
         draft_id=2,
-        topic="mirror blink horror",
-        hook="You blinked",
+        topic="dream eye horror",
+        hook="I remembered the Eye",
         script=script,
-        title="Mirror",
+        title="Dream",
         video_id="v1",
     )
     report = check_upload_allowed(
         store,
         mem,
         draft_id=4,
-        topic="the mirror showed wrong reflection",
-        hook="Wrong reflection in mirror",
-        script=script.replace("blinked later", "blinked again"),
-        title="Mirror 2",
+        topic="I woke from another Eye dream",
+        hook="I remembered the Eye again",
+        script=script.replace("ceiling", "mirror"),
+        title="Dream 2",
     )
     assert any("scare pillar" in i for i in report.issues)

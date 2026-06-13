@@ -166,6 +166,61 @@ def generate_replicate_image(
     return f"replicate/{model}"
 
 
+def generate_replicate_kling_video(
+    prompt: str,
+    out_path: Path,
+    *,
+    token: str,
+    model: str = "kwaivgi/kling-v3-video",
+    duration: int = 15,
+    aspect_ratio: str = "9:16",
+    mode: str = "pro",
+    generate_audio: bool = True,
+    multi_prompt: list[dict] | None = None,
+    start_image_path: Path | None = None,
+    negative_prompt: str = "",
+    timeout_sec: int = 900,
+) -> str:
+    """Kling 3.0 text/image-to-video with optional native audio and multi-shot."""
+    if "/" not in model:
+        raise ValueError(f"Invalid Replicate Kling model slug: {model}")
+
+    owner, name = model.split("/", 1)
+    url = f"{API_BASE}/models/{owner}/{name}/predictions"
+    body_input: dict = {
+        "prompt": prompt,
+        "duration": max(3, min(15, int(duration))),
+        "aspect_ratio": aspect_ratio,
+        "mode": mode,
+        "generate_audio": bool(generate_audio),
+    }
+    if negative_prompt.strip():
+        body_input["negative_prompt"] = negative_prompt.strip()
+    if multi_prompt:
+        body_input["multi_prompt"] = multi_prompt
+    if start_image_path and start_image_path.exists():
+        body_input["start_image"] = upload_replicate_file(start_image_path, token=token)
+
+    body = {"input": body_input}
+    created = _request("POST", url, token=token, payload=body)
+    pred_id = created.get("id")
+    if not pred_id:
+        raise RuntimeError(f"Replicate Kling returned no prediction id: {created}")
+
+    result = _poll_prediction(pred_id, token=token, timeout_sec=timeout_sec)
+    output = result.get("output")
+    if not output:
+        raise RuntimeError(f"Replicate Kling empty output: {result}")
+
+    video_url = output if isinstance(output, str) else (output[0] if isinstance(output, list) else None)
+    if not isinstance(video_url, str):
+        raise RuntimeError(f"Unexpected Replicate Kling output: {type(output)}")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    _download_url(video_url, out_path)
+    return f"replicate/{model}"
+
+
 def generate_replicate_i2v(
     prompt: str,
     image_path: Path,
