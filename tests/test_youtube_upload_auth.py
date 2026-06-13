@@ -41,6 +41,9 @@ def test_credentials_from_token_file(monkeypatch, tmp_path):
     from shorts_bot.config import Settings
     from shorts_bot.youtube import google_auth
 
+    monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("GOOGLE_CLIENT_SECRET", raising=False)
+
     token = tmp_path / "youtube_token.json"
     token.write_text(
         '{"token":"t","refresh_token":"r","client_id":"123.apps.googleusercontent.com",'
