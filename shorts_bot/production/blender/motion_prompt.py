@@ -1,12 +1,11 @@
-"""Natural-language motion → armature pose keyframes for Blender clips.
+"""Motion for Blender clips — Proscenium FBX exports preferred over procedural fallback.
 
 Backends:
-  auto       — Gemini when API key set, else procedural
-  gemini     — LLM writes bone rotation keyframes from English prompt
-  procedural — built-in wave/lunge (no API)
-  kimodo     — NVIDIA text-to-motion (needs local NVIDIA GPU; stub until wired)
+  proscenium_fbx — use owner FBX from channel/assets/motion_exports/ (Proscenium addon)
+  procedural     — built-in wave/lunge until Proscenium export exists
+  kimodo         — NVIDIA text-to-motion (needs local NVIDIA GPU; stub until wired)
 
-Beat sheet lines like "slow creepy wave, wrist bent backward" drive the motion.
+Gemini/Cursor bone guessing is disabled — use Proscenium in Blender 5 (see docs/FOR_OWNER_PROSCENIUM.md).
 """
 
 from __future__ import annotations
@@ -165,12 +164,16 @@ def _kimodo_motion_keyframes(prompt: str, *, phase: str) -> list[dict[str, Any]]
 
 
 def resolve_backend() -> str:
-    raw = (settings.blender_motion_backend or "auto").strip().lower()
-    if raw == "auto":
-        if settings.has_gemini or settings.has_openai:
-            return "gemini"
+    raw = (settings.blender_motion_backend or "procedural").strip().lower()
+    if raw in ("auto", "gemini"):
         return "procedural"
     return raw
+
+
+def _proscenium_fbx_available(draft_id: int, phase: str) -> bool:
+    from shorts_bot.production.blender.motion_exports import resolve_motion_fbx
+
+    return resolve_motion_fbx(draft_id, phase) is not None
 
 
 def generate_motion_keyframes(
@@ -244,13 +247,26 @@ def prepare_motion_for_pack(
     force: bool = False,
     prompt_override: str | None = None,
 ) -> dict[str, Path]:
-    """Generate motion JSON files before Blender render (one per clip phase)."""
+    """Prepare motion sidecars before Blender render (Proscenium FBX marker or procedural JSON)."""
+    from shorts_bot.production.blender.motion_exports import resolve_motion_fbx
+
     pack_dir.mkdir(parents=True, exist_ok=True)
     written: dict[str, Path] = {}
     bk = resolve_backend()
 
     for phase in phases:
         out = motion_cache_path(pack_dir, phase)
+        fbx = resolve_motion_fbx(draft_id, phase)
+        if fbx and bk in ("proscenium_fbx", "proscenium", "auto", "procedural"):
+            payload = {
+                "phase": phase,
+                "backend": "proscenium_fbx",
+                "source_fbx": str(fbx),
+                "prompt": prompt_override or load_beat_prompt(draft_id, phase),
+            }
+            out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            written[phase] = out
+            continue
         if out.is_file() and not force:
             written[phase] = out
             continue

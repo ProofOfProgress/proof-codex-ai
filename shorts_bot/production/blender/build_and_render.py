@@ -525,6 +525,95 @@ def _apply_motion_keyframes(
         bpy.context.view_layer.objects.active = prev_active
 
 
+def _apply_proscenium_fbx(
+    armature: bpy.types.Object,
+    fbx_path: Path,
+    *,
+    frame_start: int,
+    frame_end: int,
+) -> bool:
+    """Import Proscenium/Mixamo FBX action onto the scene armature."""
+    if armature.type != "ARMATURE" or not fbx_path.is_file():
+        return False
+
+    before_objects = {o.name for o in bpy.data.objects}
+    before_actions = {a.name for a in bpy.data.actions}
+
+    try:
+        if fbx_path.suffix.lower() == ".blend":
+            with bpy.data.libraries.load(str(fbx_path), link=False) as (data_from, data_to):
+                if data_from.actions:
+                    data_to.actions = [data_from.actions[0]]
+            new_actions = [a for a in bpy.data.actions if a.name not in before_actions]
+            action = new_actions[0] if new_actions else None
+        else:
+            bpy.ops.import_scene.fbx(
+                filepath=str(fbx_path),
+                use_anim=True,
+                ignore_leaf_bones=False,
+                automatic_bone_orientation=False,
+            )
+            new_actions = [a for a in bpy.data.actions if a.name not in before_actions]
+            imported_armatures = [
+                o for o in bpy.data.objects
+                if o.name not in before_objects and o.type == "ARMATURE"
+            ]
+            action = new_actions[0] if new_actions else None
+            if not action and imported_armatures:
+                ia = imported_armatures[0]
+                if ia.animation_data and ia.animation_data.action:
+                    action = ia.animation_data.action
+            for obj in list(bpy.data.objects):
+                if obj.name not in before_objects:
+                    bpy.data.objects.remove(obj, do_unlink=True)
+    except Exception as exc:
+        print(f"Proscenium FBX import failed ({fbx_path}): {exc}")
+        return False
+
+    if not action:
+        print(f"No animation action in export: {fbx_path}")
+        return False
+
+    _clear_armature_animation(armature)
+    ad = armature.animation_data or armature.animation_data_create()
+    act_start = int(action.frame_range[0])
+    act_end = int(action.frame_range[1])
+    if act_end <= act_start:
+        act_end = act_start + int(10 * FPS)
+
+    track = ad.nla_tracks.new()
+    track.name = f"Proscenium_{fbx_path.stem}"
+    strip = track.strips.new(action.name, frame_start, action)
+    strip.action_frame_start = act_start
+    strip.action_frame_end = act_end
+    clip_frames = max(1, frame_end - frame_start)
+    action_frames = max(1, act_end - act_start)
+    strip.frame_end = frame_start + clip_frames
+    if action_frames != clip_frames:
+        strip.scale = clip_frames / action_frames
+    strip.blend_type = "REPLACE"
+    ad.use_nla = True
+    print(f"Applied Proscenium motion: {fbx_path.name} → {armature.name}")
+    return True
+
+
+def _resolve_proscenium_fbx(pack_dir: Path | None, phase: str) -> Path | None:
+    if not pack_dir:
+        return None
+    workspace = Path(os.environ.get("WORKSPACE_ROOT", "/workspace"))
+    try:
+        sys.path.insert(0, str(workspace))
+        from shorts_bot.production.blender.motion_exports import draft_id_from_pack, resolve_motion_fbx
+
+        draft_id = draft_id_from_pack(pack_dir)
+        if draft_id is None:
+            return None
+        return resolve_motion_fbx(draft_id, phase)
+    except Exception as exc:
+        print(f"Proscenium FBX lookup failed: {exc}")
+        return None
+
+
 def _play_creature_action(
     armature: bpy.types.Object,
     *,
@@ -533,10 +622,19 @@ def _play_creature_action(
     frame_end: int,
     pack_dir: Path | None = None,
 ) -> None:
-    """Motion from motion_{phase}.json (English prompt) or procedural/NLA fallback."""
+    """Motion from Proscenium FBX export, motion_{phase}.json, or procedural fallback."""
     _clear_armature_animation(armature)
 
-    if pack_dir:
+    backend = os.environ.get("BLENDER_MOTION_BACKEND", "").strip().lower()
+    prefer_fbx = backend in ("", "auto", "proscenium_fbx", "proscenium")
+    if prefer_fbx and pack_dir:
+        fbx = _resolve_proscenium_fbx(pack_dir, phase)
+        if fbx and _apply_proscenium_fbx(
+            armature, fbx, frame_start=frame_start, frame_end=frame_end
+        ):
+            return
+
+    if pack_dir and backend not in ("proscenium_fbx", "proscenium"):
         motion = _read_motion_json(pack_dir, phase)
         if motion:
             _apply_motion_keyframes(armature, motion, frame_start=frame_start, frame_end=frame_end)

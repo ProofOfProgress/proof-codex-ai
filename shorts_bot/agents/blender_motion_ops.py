@@ -1,6 +1,6 @@
-"""AlphaBeta001 / agent ops — English motion → Blender keyframes → cloud render.
+"""AlphaBeta001 / agent ops — Proscenium FBX motion + cloud Blender render.
 
-Owner PC never runs Blender. All work happens on the cloud VM.
+Owner PC never runs EEVEE. Motion: export FBX from Blender 5 + Proscenium addon.
 """
 
 from __future__ import annotations
@@ -26,7 +26,8 @@ def move_creature_from_prompt(
     phase: str = "wave",
     force: bool = True,
 ) -> dict:
-    """Turn English into motion_{phase}.json — Gemini when key set, else procedural."""
+    """Save procedural fallback motion JSON — real motion needs Proscenium FBX export."""
+    from shorts_bot.production.blender.motion_exports import resolve_motion_fbx
     from shorts_bot.production.blender.motion_prompt import (
         generate_motion_keyframes,
         load_beat_prompt,
@@ -35,6 +36,19 @@ def move_creature_from_prompt(
     )
 
     phase = phase if phase in PHASES else "wave"
+    fbx = resolve_motion_fbx(draft_id, phase)
+    if fbx:
+        return {
+            "ok": True,
+            "draft_id": draft_id,
+            "phase": phase,
+            "backend": "proscenium_fbx",
+            "motion_file": str(fbx),
+            "message": (
+                f"Proscenium export already on disk for draft #{draft_id} ({phase}): {fbx.name}. "
+                f"Run `blender render {draft_id}` — cloud will use that FBX, not Gemini."
+            ),
+        }
     text = (prompt or "").strip() or load_beat_prompt(draft_id, phase)
     payload = generate_motion_keyframes(text, phase=phase)
     out = motion_cache_path(pack_dir(draft_id), phase)
@@ -50,7 +64,8 @@ def move_creature_from_prompt(
         "motion_file": str(out),
         "message": (
             f"Motion saved for draft #{draft_id} ({phase}): {out.name} "
-            f"via {payload.get('backend')} — {len(payload.get('keyframes') or [])} keyframes."
+            f"via {payload.get('backend')} — {len(payload.get('keyframes') or [])} keyframes. "
+        f"For real animation export Proscenium FBX — see docs/FOR_OWNER_PROSCENIUM.md"
         ),
     }
 

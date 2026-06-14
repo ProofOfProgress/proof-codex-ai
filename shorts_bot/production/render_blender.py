@@ -68,6 +68,7 @@ def render_blender_clips(
         **__import__("os").environ,
         "BLENDER_SAMPLES": str(settings.blender_samples),
         "BLENDER_CLIP_SECONDS": str(settings.blender_clip_seconds),
+        "BLENDER_MOTION_BACKEND": settings.blender_motion_backend,
     }
     if settings.blender_creature_model:
         env["BLENDER_CREATURE_MODEL"] = settings.blender_creature_model
@@ -82,10 +83,16 @@ def render_blender_clips(
     from shorts_bot.production.blender.motion_prompt import prepare_motion_for_pack
 
     try:
+        from shorts_bot.production.blender.motion_exports import list_motion_exports
+
+        fbx_hits = list_motion_exports(draft_id)
+        if fbx_hits:
+            console.print(
+                f"[green]Proscenium FBX motion: {', '.join(f'{k}={v.name}' for k, v in fbx_hits.items())}[/green]"
+            )
         motion_paths = prepare_motion_for_pack(root, draft_id, force=force_regen)
         console.print(
-            f"[cyan]Motion prompts → {len(motion_paths)} clip keyframe files "
-            f"({settings.blender_motion_backend})[/cyan]"
+            f"[cyan]Motion sidecars → {len(motion_paths)} files ({settings.blender_motion_backend})[/cyan]"
         )
     except Exception as exc:
         console.print(f"[yellow]Motion prompt generation skipped: {exc}[/yellow]")
