@@ -53,6 +53,15 @@ def _mat(name: str, color: tuple[float, float, float, float], *, rough: float = 
     return m
 
 
+def _add_ground_pad() -> bpy.types.Object:
+    """Solid asphalt under imported FBX — closes void gaps at lot edges."""
+    bpy.ops.mesh.primitive_plane_add(size=140, location=(0, -6, -0.04))
+    pad = bpy.context.active_object
+    pad.name = "GroundPad"
+    pad.data.materials.append(_mat("AsphaltPad", (0.022, 0.022, 0.028, 1.0), rough=0.98))
+    return pad
+
+
 def _add_ground_and_road() -> None:
     bpy.ops.mesh.primitive_plane_add(size=80, location=(0, 0, 0))
     ground = bpy.context.active_object
@@ -1174,6 +1183,8 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
     if env is None:
         _add_ground_and_road()
         _add_gas_station()
+    else:
+        _add_ground_pad()
     pole_empty, lamp = _add_streetlight()
     form2: bpy.types.Object | None = None
     armature = None

@@ -102,6 +102,8 @@ class Settings(BaseSettings):
     content_format: str = "short_30"  # short_30 | short_hybrid | micro_jumpscare | long_* 
     micro_jumpscare_seconds: float = 3.0
     micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
+    micro_jumpscare_bed_gain: float = 0.85  # loud noise throughout (not whisper-quiet)
+    micro_jumpscare_roar_gain: float = 2.4  # creature roar at lunge
 
     @field_validator("visual_style", mode="before")
     @classmethod

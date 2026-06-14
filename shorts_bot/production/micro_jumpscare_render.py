@@ -1,4 +1,4 @@
-"""Assemble 3s micro-jumpscare Short — single Blender lunge + volume sting, no VO."""
+"""Assemble 3s micro-jumpscare Short — single Blender lunge + loud horror bed + creature roar."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.horror_sfx_mix import SfxCue, mix_horror_sfx_into_voiceover
 
 
 @dataclass
@@ -36,10 +35,53 @@ def _probe_duration(path: Path) -> float:
     return max(0.1, float(out))
 
 
-def _create_near_silent_bed(duration: float, dest: Path) -> Path:
-    """Whisper wind only — contrast for the sting."""
+def _create_micro_horror_audio(duration: float, roar_at: float, dest: Path) -> Path:
+    """
+    Loud horror throughout — industrial drone + static + sub rumble.
+    Creature roar layered at lunge (no weak TV-static stinger).
+    """
     dur = max(1.0, float(duration))
+    roar = min(max(0.2, roar_at), dur - 0.15)
+    bed = settings.micro_jumpscare_bed_gain
+    roar_gain = settings.micro_jumpscare_roar_gain
+    delay_ms = int(roar * 1000)
     dest.parent.mkdir(parents=True, exist_ok=True)
+
+    # Full-length bed layers + one-shot roar (multi-band monster scream)
+    drone = (
+        f"aevalsrc='{bed * 0.55}*sin(2*PI*43*t)+{bed * 0.38}*sin(2*PI*67*t)+"
+        f"{bed * 0.22}*sin(2*PI*91*t)':d={dur:.3f}:sample_rate=48000"
+    )
+    static = (
+        f"anoisesrc=color=white:duration={dur:.3f}:sample_rate=48000,"
+        f"bandpass=f=900:w=4200,volume={bed * 0.42},"
+        "afade=t=in:st=0:d=0.02"
+    )
+    rumble = (
+        f"anoisesrc=color=brown:duration={dur:.3f}:sample_rate=48000,"
+        f"lowpass=f=180,highpass=f=28,volume={bed * 0.65}"
+    )
+    # Roar: low growl + mid scream + noise burst (0.95s)
+    roar_src = (
+        "aevalsrc='"
+        f"(0.95*sin(48*2*PI*t)+0.85*sin(72*2*PI*t)+0.7*sin(96*2*PI*t))*"
+        "exp(-t*1.4)*(1+0.45*sin(11*2*PI*t))"
+        "':d=0.95:sample_rate=48000"
+    )
+    roar_noise = (
+        "anoisesrc=color=pink:duration=0.88:sample_rate=48000,"
+        "lowpass=f=1200,highpass=f=80,volume=0.75,"
+        "afade=t=in:st=0:d=0.01,afade=t=out:st=0.55:d=0.28"
+    )
+
+    filter_complex = (
+        "[0:a][1:a][2:a]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[bed];"
+        f"[3:a][4:a]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,"
+        f"volume={roar_gain:.2f}[roar];"
+        f"[roar]adelay={delay_ms}|{delay_ms}[roar_d];"
+        "[bed][roar_d]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[out]"
+    )
+
     subprocess.run(
         [
             "ffmpeg",
@@ -47,8 +89,27 @@ def _create_near_silent_bed(duration: float, dest: Path) -> Path:
             "-f",
             "lavfi",
             "-i",
-            f"anoisesrc=color=pink:duration={dur:.3f}:sample_rate=48000,"
-            "lowpass=f=320,highpass=f=40,volume=0.04",
+            drone,
+            "-f",
+            "lavfi",
+            "-i",
+            static,
+            "-f",
+            "lavfi",
+            "-i",
+            rumble,
+            "-f",
+            "lavfi",
+            "-i",
+            roar_src,
+            "-f",
+            "lavfi",
+            "-i",
+            roar_noise,
+            "-filter_complex",
+            filter_complex,
+            "-map",
+            "[out]",
             "-c:a",
             "libmp3lame",
             "-b:a",
@@ -69,31 +130,28 @@ def render_micro_jumpscare_final(
     clip_path: Path | None = None,
     output_name: str = "final_short.mp4",
 ) -> MicroJumpscareResult:
-    """Mux single lunge clip + loud horror sting → browser-playable Short."""
+    """Mux single lunge clip + loud horror bed + creature roar → browser-playable Short."""
     clips_dir = pack_dir / "clips"
     clip = clip_path or (clips_dir / "blender_part_01.mp4")
     if not clip.is_file() or clip.stat().st_size < 5000:
         raise FileNotFoundError(f"Micro jumpscare clip missing: {clip}")
 
     duration = _probe_duration(clip)
-    sting_at = min(
+    roar_at = min(
         max(0.25, settings.micro_jumpscare_sting_at),
         max(0.25, duration - 0.35),
     )
 
-    silent = pack_dir / "_micro_silent.mp3"
-    _create_near_silent_bed(duration, silent)
-    cues = [
-        SfxCue(start_seconds=sting_at, kind="stinger", gain=1.35),
-        SfxCue(start_seconds=sting_at + 0.006, kind="stinger_noise", gain=1.15),
-        SfxCue(start_seconds=sting_at + 0.018, kind="metal_hit", gain=1.05),
-    ]
-    audio_path = mix_horror_sfx_into_voiceover(
-        silent, cues, output_path=pack_dir / "_micro_stung.mp3"
-    )
+    audio_path = pack_dir / "_micro_horror.mp3"
+    _create_micro_horror_audio(duration, roar_at, audio_path)
     (pack_dir / "sfx_cues.json").write_text(
         json.dumps(
-            [{"start": c.start_seconds, "kind": c.kind, "gain": c.gain} for c in cues],
+            [
+                {"start": 0.0, "kind": "horror_bed_drone", "gain": settings.micro_jumpscare_bed_gain},
+                {"start": 0.0, "kind": "horror_bed_static", "gain": settings.micro_jumpscare_bed_gain},
+                {"start": 0.0, "kind": "horror_bed_rumble", "gain": settings.micro_jumpscare_bed_gain},
+                {"start": roar_at, "kind": "creature_roar", "gain": settings.micro_jumpscare_roar_gain},
+            ],
             indent=2,
         ),
         encoding="utf-8",
@@ -150,8 +208,9 @@ def render_micro_jumpscare_final(
             "clips_rendered": 1,
             "micro_jumpscare": {
                 "seconds": duration,
-                "sting_at": sting_at,
-                "volume_warning": "🔊 VOLUME WARNING — 3s jumpscare. Headphones.",
+                "roar_at": roar_at,
+                "motion_source": "mixamo",
+                "volume_warning": "🔊 VOLUME WARNING — loud 3s jumpscare + creature roar. Headphones.",
             },
         }
     )
@@ -165,7 +224,7 @@ def render_micro_jumpscare_final(
         {
             "title": "🔊 3-Second Jumpscare — Peripheral",
             "description": (
-                "🔊 VOLUME WARNING — sudden jumpscare in 3 seconds. Use headphones.\n\n"
+                "🔊 VOLUME WARNING — loud horror audio + creature roar. Use headphones.\n\n"
                 "Peripheral horror Shorts — don't blink.\n"
                 "#horror #jumpscare #shorts"
             ),
@@ -177,6 +236,9 @@ def render_micro_jumpscare_final(
     return MicroJumpscareResult(
         output_path=out_path,
         duration_seconds=duration,
-        sting_at=sting_at,
-        message=f"Micro jumpscare ready — {out_path.name} ({duration:.1f}s, sting @{sting_at:.2f}s)",
+        sting_at=roar_at,
+        message=(
+            f"Micro jumpscare ready — {out_path.name} ({duration:.1f}s, "
+            f"loud bed + roar @{roar_at:.2f}s)"
+        ),
     )
