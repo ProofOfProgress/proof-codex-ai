@@ -225,11 +225,22 @@ def _parse_vision_json(raw: str) -> dict[str, Any]:
     return json.loads(text)
 
 
+def _pack_uses_blender(pack_dir: Path) -> bool:
+    for rel in ("clips/blender_spec.json", "blender_spec.json"):
+        if (pack_dir / rel).is_file():
+            return True
+    clips = pack_dir / "clips"
+    if clips.is_dir() and any(clips.glob("blender_part_*.mp4")):
+        return True
+    return False
+
+
 def _gemini_vision_review(
     frames: list[tuple[float, Path]],
     *,
     topic: str,
     hook: str,
+    pack_dir: Path | None = None,
 ) -> dict[str, Any]:
     from shorts_bot.llm.provider import get_llm_backend
 
@@ -239,6 +250,18 @@ def _gemini_vision_review(
 
     model = (settings.gemini_vision_model or settings.gemini_model).strip()
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
+    blender_bar = ""
+    if pack_dir and _pack_uses_blender(pack_dir):
+        from shorts_bot.production.blender.gemini_blender_reference import (
+            gemini_blender_quality_prompt,
+        )
+
+        blender_bar = (
+            f"\n\n{gemini_blender_quality_prompt(scene=f'{topic[:80]} — {hook[:80]}')}\n"
+            "Blender EEVEE QC — FAIL pass=false if: grey untextured block-out, broken FBX import, "
+            "environment does not read (gas station/road/fog), creature not grounded in set, "
+            "viewport-test lighting, or quality far below LIGHTS ARE OFF finished Blender horror."
+        )
     prompt = (
         "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions). "
         f"Frames in order at: {labels}. Topic: {topic[:80]}. Hook: {hook[:100]}.\n"
@@ -246,6 +269,7 @@ def _gemini_vision_review(
         "hook_clear, captions_safe, horror_visible, no_cosy_aesthetic, scare_potential (bools). "
         "Fail pass=false if captions sit in bottom 25%, scene looks cosy/warm/self-help, stick figures, "
         "bright daylight cheer, hook frame lacks dread, or final-frame scare potential is weak."
+        f"{blender_bar}"
     )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
@@ -345,7 +369,7 @@ def run_vision_qc(
 
     if settings.has_gemini:
         try:
-            data = _gemini_vision_review(frames, topic=topic, hook=hook)
+            data = _gemini_vision_review(frames, topic=topic, hook=hook, pack_dir=pack_dir)
             score = float(data.get("score", 0))
             passed = bool(data.get("pass", score >= settings.vision_qc_min_score))
             issues.extend(str(x) for x in (data.get("issues") or []) if x)

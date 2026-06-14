@@ -1,0 +1,48 @@
+{
+  "passed": 7,
+  "total": 7,
+  "results": [
+    {
+      "part": "1",
+      "name": "five_cubes_loop",
+      "pass": true,
+      "detail": "count=5"
+    },
+    {
+      "part": "1",
+      "name": "material_function",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "2",
+      "name": "register_and_run_operator",
+      "pass": true,
+      "detail": "x=1.00"
+    },
+    {
+      "part": "3",
+      "name": "camera_keyframes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "linked_duplicate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "creature_collection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "camera_look_at_pumps",
+      "pass": true,
+      "detail": "dot=1.000"
+    }
+  ]
+}

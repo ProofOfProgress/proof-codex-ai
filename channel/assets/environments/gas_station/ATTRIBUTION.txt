@@ -1,0 +1,10 @@
+Gas station environment (PSX low-poly)
+Creator: Elbolilloduro
+Source: https://elbolilloduro.itch.io/gas-station
+Sketchfab: https://sketchfab.com/3d-models/gas-station-eeb913b90b4344ddbd7852f82a7ef160
+License: CC0 1.0 (public domain)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Used as Peripheral Form 2 rural gas-station backdrop in Blender EEVEE renders.
+
+Auto-fetch: python3 -m shorts_bot.production.blender.fetch_environment_cli

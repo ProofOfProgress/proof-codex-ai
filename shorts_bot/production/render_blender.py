@@ -42,6 +42,20 @@ def render_blender_clips(
         console.print(f"[green]Blender clips cached ({count}) — skip regen[/green]")
         return count
 
+    from shorts_bot.production.blender.download_creature import ensure_scp096_model
+
+    try:
+        ensure_scp096_model(force=force_regen)
+    except Exception as exc:
+        console.print(f"[yellow]Creature auto-download skipped: {exc}[/yellow]")
+
+    from shorts_bot.production.blender.download_environment import ensure_gas_station_environment
+
+    try:
+        ensure_gas_station_environment(force=force_regen)
+    except Exception as exc:
+        console.print(f"[yellow]Environment auto-download skipped: {exc}[/yellow]")
+
     cmd = [
         "blender",
         "--background",
@@ -61,7 +75,35 @@ def render_blender_clips(
         **__import__("os").environ,
         "BLENDER_SAMPLES": str(settings.blender_samples),
         "BLENDER_CLIP_SECONDS": str(settings.blender_clip_seconds),
+        "BLENDER_MOTION_BACKEND": settings.blender_motion_backend,
     }
+    if settings.blender_creature_model:
+        env["BLENDER_CREATURE_MODEL"] = settings.blender_creature_model
+    if settings.blender_creature_scale != 1.0:
+        env["BLENDER_CREATURE_SCALE"] = str(settings.blender_creature_scale)
+    from shorts_bot.production.blender.creature_paths import resolve_creature_model
+
+    creature = resolve_creature_model(settings.blender_creature_model)
+    if creature:
+        env["BLENDER_CREATURE_MODEL"] = str(creature.resolve())
+
+    from shorts_bot.production.blender.motion_prompt import prepare_motion_for_pack
+
+    try:
+        from shorts_bot.production.blender.motion_exports import list_motion_exports
+
+        fbx_hits = list_motion_exports(draft_id)
+        if fbx_hits:
+            console.print(
+                f"[green]Proscenium FBX motion: {', '.join(f'{k}={v.name}' for k, v in fbx_hits.items())}[/green]"
+            )
+        motion_paths = prepare_motion_for_pack(root, draft_id, force=force_regen)
+        console.print(
+            f"[cyan]Motion sidecars → {len(motion_paths)} files ({settings.blender_motion_backend})[/cyan]"
+        )
+    except Exception as exc:
+        console.print(f"[yellow]Motion prompt generation skipped: {exc}[/yellow]")
+
     proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-3000:]

@@ -22,6 +22,17 @@ def declare_synthetic_media(video_id: str, *, enabled: bool = True) -> str:
     return f"AI disclosure {label} for {video_id}"
 
 
+def delete_video(video_id: str) -> str:
+    from googleapiclient.discovery import build
+
+    creds = load_credentials_for_upload()
+    if not creds:
+        raise RuntimeError("YouTube upload scope required for delete")
+    youtube = build("youtube", "v3", credentials=creds)
+    youtube.videos().delete(id=video_id).execute()
+    return f"Deleted {video_id}"
+
+
 def update_video_visibility(video_id: str, visibility: str = "public") -> str:
     from googleapiclient.discovery import build
 

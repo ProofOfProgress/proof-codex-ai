@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
@@ -90,6 +91,286 @@ class DevRequest(BaseModel):
 class ProductionRequest(BaseModel):
     draft_id: int
     turboscribe_text: str = Field(min_length=10)
+
+
+def _draft_pack_dir(draft_id: int) -> Path:
+    return settings.data_dir / "production" / f"draft_{draft_id}"
+
+
+def _safe_pack_file(pack: Path, name: str) -> Path:
+    """Resolve a file inside a draft pack — blocks path traversal."""
+    clean = Path(name).name
+    if not clean or clean != name:
+        raise HTTPException(400, "Invalid file name")
+    path = (pack / clean).resolve()
+    if not str(path).startswith(str(pack.resolve())):
+        raise HTTPException(400, "Invalid path")
+    if not path.is_file():
+        raise HTTPException(404, "File not found")
+    return path
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _safe_creature_glb() -> Path | None:
+    from shorts_bot.production.blender.creature_paths import resolve_creature_model
+
+    hit = resolve_creature_model()
+    if hit and hit.suffix.lower() == ".glb" and hit.is_file():
+        return hit.resolve()
+    # Prefer glb next to fbx
+    if hit:
+        glb = hit.with_suffix(".glb")
+        if glb.is_file():
+            return glb.resolve()
+    root = _repo_root()
+    for candidate in (
+        root / "channel/assets/creatures/scp_096/scp_096.glb",
+        root / "channel/assets/creatures/scp_096.glb",
+    ):
+        if candidate.is_file():
+            return candidate.resolve()
+    return None
+
+
+@app.get("/workspace/draft/{draft_id}/creature.glb")
+async def workspace_creature_model(draft_id: int) -> FileResponse:
+    """Serve creature GLB for browser 3D workspace."""
+    path = _safe_creature_glb()
+    if not path:
+        raise HTTPException(404, "Creature GLB not found")
+    return FileResponse(path, media_type="model/gltf-binary")
+
+
+@app.get("/workspace/draft/{draft_id}", response_class=HTMLResponse)
+async def workspace_page(request: Request, draft_id: int) -> HTMLResponse:
+    pack = _draft_pack_dir(draft_id)
+    pack.mkdir(parents=True, exist_ok=True)
+    creature_url = f"/workspace/draft/{draft_id}/creature.glb"
+    if _safe_creature_glb() is None:
+        creature_url = ""
+    return TEMPLATES.TemplateResponse(
+        request,
+        "workspace.html",
+        {
+            "draft_id": draft_id,
+            "creature_url": creature_url,
+            "api_token": (settings.web_api_token or "").strip() or None,
+        },
+    )
+
+
+class SceneLayoutPatch(BaseModel):
+    creature: dict | None = None
+    camera: dict | None = None
+    environment: dict | None = None
+
+
+@app.get("/api/workspace/draft/{draft_id}/scene")
+async def get_scene_layout(draft_id: int) -> dict:
+    from shorts_bot.production.blender.scene_layout import load_scene_layout
+
+    pack = _draft_pack_dir(draft_id)
+    return load_scene_layout(pack, draft_id=draft_id)
+
+
+@app.get("/api/workspace/draft/{draft_id}/scene/default")
+async def get_scene_layout_default(draft_id: int) -> dict:
+    from shorts_bot.production.blender.scene_layout import DEFAULT_LAYOUT
+
+    return {**DEFAULT_LAYOUT, "draft_id": draft_id}
+
+
+@app.put("/api/workspace/draft/{draft_id}/scene")
+async def put_scene_layout(draft_id: int, body: SceneLayoutPatch) -> dict:
+    from shorts_bot.production.blender.scene_layout import (
+        load_scene_layout,
+        merge_layout_update,
+        save_scene_layout,
+    )
+
+    pack = _draft_pack_dir(draft_id)
+    pack.mkdir(parents=True, exist_ok=True)
+    existing = load_scene_layout(pack, draft_id=draft_id)
+    patch = body.model_dump(exclude_none=True)
+    merged = merge_layout_update(existing, patch)
+    merged["draft_id"] = draft_id
+    save_scene_layout(pack, merged, updated_by="owner")
+    return merged
+
+
+@app.websocket("/ws/workspace/{draft_id}")
+async def workspace_ws(websocket: WebSocket, draft_id: int) -> None:
+    from shorts_bot.production.blender.scene_layout import (
+        load_scene_layout,
+        merge_layout_update,
+        save_scene_layout,
+    )
+    from shorts_bot.web.workspace_hub import workspace_hub
+
+    expected = (settings.web_api_token or "").strip()
+    if expected:
+        token = websocket.query_params.get("token") or websocket.headers.get("x-api-token")
+        if token != expected:
+            await websocket.close(code=4401)
+            return
+
+    await workspace_hub.connect(draft_id, websocket)
+    pack = _draft_pack_dir(draft_id)
+    layout = load_scene_layout(pack, draft_id=draft_id)
+    await websocket.send_json({"type": "layout", "layout": layout})
+
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            try:
+                msg = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            mtype = msg.get("type")
+            if mtype in ("transform", "transform_live"):
+                patch = {
+                    k: msg[k]
+                    for k in ("creature", "camera", "environment")
+                    if isinstance(msg.get(k), dict)
+                }
+                if patch and mtype == "transform":
+                    existing = load_scene_layout(pack, draft_id=draft_id)
+                    merged = merge_layout_update(existing, patch)
+                    merged["draft_id"] = draft_id
+                    save_scene_layout(pack, merged, updated_by="workspace")
+                    layout = merged
+                await workspace_hub.broadcast(
+                    draft_id,
+                    {"type": mtype, **patch},
+                    skip=websocket,
+                )
+            elif mtype == "saved" and isinstance(msg.get("layout"), dict):
+                await workspace_hub.broadcast(draft_id, msg, skip=websocket)
+    except WebSocketDisconnect:
+        pass
+    finally:
+        await workspace_hub.disconnect(draft_id, websocket)
+
+
+@app.get("/preview/draft/{draft_id}/file/{filename}")
+async def preview_draft_file(draft_id: int, filename: str) -> FileResponse:
+    """Stream a pack video or image for in-browser preview."""
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4
+
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, "Draft pack not found")
+    path = _safe_pack_file(pack, filename)
+    if path.suffix.lower() == ".mp4" and not is_browser_playable_mp4(path):
+        raise HTTPException(409, "Video still rendering or corrupt — try another clip")
+    media = {
+        ".mp4": "video/mp4",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+    }
+    return FileResponse(
+        path,
+        media_type=media.get(path.suffix.lower(), "application/octet-stream"),
+        headers={"Accept-Ranges": "bytes", "Cache-Control": "no-cache"},
+    )
+
+
+@app.get("/preview/draft/{draft_id}/clips/{filename}")
+async def preview_draft_clip(draft_id: int, filename: str) -> FileResponse:
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4
+
+    pack = _draft_pack_dir(draft_id)
+    clips = pack / "clips"
+    if not clips.is_dir():
+        raise HTTPException(404, "Clips folder not found")
+    path = _safe_pack_file(clips, filename)
+    if not is_browser_playable_mp4(path):
+        raise HTTPException(409, "Clip still rendering — wait for render to finish")
+    return FileResponse(
+        path,
+        media_type="video/mp4",
+        headers={"Accept-Ranges": "bytes", "Cache-Control": "no-cache"},
+    )
+
+
+@app.get("/preview/draft/{draft_id}/frames/{filename}")
+async def preview_draft_frame(draft_id: int, filename: str) -> FileResponse:
+    pack = _draft_pack_dir(draft_id)
+    frames = pack / "preview_frames"
+    if not frames.is_dir():
+        raise HTTPException(404, "Preview frames not found")
+    path = _safe_pack_file(frames, filename)
+    return FileResponse(path, media_type="image/png")
+
+
+@app.get("/preview/draft/{draft_id}", response_class=HTMLResponse)
+async def preview_draft_page(request: Request, draft_id: int, file: str | None = None) -> HTMLResponse:
+    """Browser page to watch draft videos — Cursor cannot open .mp4 in the editor."""
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4, list_playable_clips
+
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, f"No production pack for draft {draft_id}")
+
+    import time
+    cache_bust = int(time.time())
+
+    videos: list[dict] = []
+    final = pack / "final_short.mp4"
+    if final.is_file() and is_browser_playable_mp4(final):
+        videos.append({
+            "name": "final_short.mp4",
+            "label": "Full Short (30s)",
+            "url": f"/preview/draft/{draft_id}/file/final_short.mp4?v={cache_bust}",
+        })
+    for clip in list_playable_clips(pack / "clips"):
+        videos.append({
+            "name": f"clips/{clip.name}",
+            "label": f"Clip — {clip.name}",
+            "url": f"/preview/draft/{draft_id}/clips/{clip.name}?v={cache_bust}",
+        })
+
+    selected = None
+    if file:
+        for v in videos:
+            if v["name"] == file or v["name"].endswith(f"/{file}") or v["name"] == f"clips/{file}":
+                selected = v
+                break
+    if selected is None and videos:
+        # Default: wave clip if present, else first playable
+        for v in videos:
+            if "wave" in v["name"] or "part_02" in v["name"]:
+                selected = v
+                break
+        if selected is None:
+            selected = videos[0]
+
+    frames_dir = pack / "preview_frames"
+    frames = []
+    if frames_dir.is_dir():
+        for img in sorted(frames_dir.glob("*.png")):
+            frames.append({"name": img.name, "url": f"/preview/draft/{draft_id}/frames/{img.name}"})
+
+    render_busy = any(
+        (pack / "clips").glob("blender_part_*0001-*.mp4")
+    ) if (pack / "clips").is_dir() else False
+
+    return TEMPLATES.TemplateResponse(
+        request,
+        "preview.html",
+        {
+            "draft_id": draft_id,
+            "videos": videos,
+            "selected": selected,
+            "frames": frames,
+            "render_busy": render_busy,
+        },
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -1,0 +1,66 @@
+{
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "module": "01_scene_graph",
+      "pass": true,
+      "detail": "objects=1"
+    },
+    {
+      "module": "02_materials",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "module": "03_pose_keyframes",
+      "pass": true,
+      "detail": "fcurves=3"
+    },
+    {
+      "module": "04_nla_strip",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "module": "05_eevee_probes",
+      "pass": true,
+      "detail": "grid=GRID cube=CUBEMAP"
+    },
+    {
+      "module": "06_camera_path",
+      "pass": "<bpy_struct, Action(\"CameraAction\") at 0x7f7f78832508>",
+      "detail": ""
+    },
+    {
+      "module": "07_headless_render",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "module": "08_creature_import",
+      "pass": true,
+      "detail": "armature=Armature"
+    },
+    {
+      "module": "09_texture_relink",
+      "pass": true,
+      "detail": "spotlight_Emissor.png 1x1"
+    },
+    {
+      "module": "10_shader_nodes",
+      "pass": true,
+      "detail": "Fuel_pump.png"
+    },
+    {
+      "module": "11_fbx_environment",
+      "pass": true,
+      "detail": "meshes=960"
+    },
+    {
+      "module": "12_lamp_keyframes",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

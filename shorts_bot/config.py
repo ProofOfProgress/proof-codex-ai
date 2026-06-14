@@ -136,6 +136,10 @@ class Settings(BaseSettings):
     blender_clip_seconds: float = 10.0
     blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
     blender_force_regen: bool = False
+    blender_creature_model: str | None = None  # FBX/GLB/OBJ — default slot channel/assets/creatures/scp_096/
+    blender_creature_scale: float = 1.0  # extra uniform scale after import
+    blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx | kimodo — NOT gemini (use Proscenium addon)
+    blender_animation_tool: str = "proscenium"  # proscenium | kimodo | mixamo — see docs/FOR_OWNER_PROSCENIUM.md
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
