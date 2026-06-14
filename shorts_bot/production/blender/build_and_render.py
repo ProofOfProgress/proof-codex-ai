@@ -615,11 +615,25 @@ def _camera_point_at_rule_thirds(
     cam.data.shift_y = (0.5 - frame_line) * 0.58
 
 
+def _creature_face_target(
+    form2: bpy.types.Object,
+    armature: bpy.types.Object | None = None,
+) -> tuple[float, float, float]:
+    """World position of face/head — for gaze and framing."""
+    if armature and armature.type == "ARMATURE":
+        bpy.context.view_layer.update()
+        pb = armature.pose.bones.get("head")
+        if pb:
+            w = armature.matrix_world @ pb.head
+            return (float(w.x), float(w.y), float(w.z))
+    loc = form2.location
+    head_z = float(loc.z) + 1.52 * float(form2.scale.z)
+    return (float(loc.x), float(loc.y), head_z)
+
+
 def _creature_eye_target(form2: bpy.types.Object) -> tuple[float, float, float]:
     """Approximate eye height for SCP-096 / Form 2 rig."""
-    loc = form2.location
-    head_z = float(loc.z) + 2.05 * float(form2.scale.z)
-    return (float(loc.x), float(loc.y), head_z)
+    return _creature_face_target(form2)
 
 
 def _camera_point_at(cam: bpy.types.Object, target: tuple[float, float, float]) -> None:
@@ -849,12 +863,24 @@ def _apply_motion_keyframes(
         bpy.context.view_layer.objects.active = prev_active
 
 
+def _lunge_action_trim() -> tuple[int, int] | None:
+    """Mixamo strip window — attack/roar frames land on lunge peak."""
+    raw = os.environ.get("BLENDER_LUNGE_ACTION_TRIM", "78,140").strip()
+    if not raw or raw.lower() in ("0", "none", "off", "full"):
+        return None
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    if len(parts) != 2:
+        return None
+    return int(parts[0]), int(parts[1])
+
+
 def _apply_proscenium_fbx(
     armature: bpy.types.Object,
     fbx_path: Path,
     *,
     frame_start: int,
     frame_end: int,
+    action_trim: tuple[int, int] | None = None,
 ) -> bool:
     """Import Proscenium/Mixamo FBX action onto the scene armature."""
     if armature.type != "ARMATURE" or not fbx_path.is_file():
@@ -902,6 +928,9 @@ def _apply_proscenium_fbx(
     ad = armature.animation_data or armature.animation_data_create()
     act_start = int(action.frame_range[0])
     act_end = int(action.frame_range[1])
+    if action_trim:
+        act_start = max(act_start, int(action_trim[0]))
+        act_end = min(act_end, int(action_trim[1]))
     if act_end <= act_start:
         act_end = act_start + int(10 * FPS)
 
@@ -953,8 +982,13 @@ def _play_creature_action(
     prefer_fbx = backend in ("", "auto", "proscenium_fbx", "proscenium")
     if prefer_fbx and pack_dir:
         fbx = _resolve_proscenium_fbx(pack_dir, phase)
+        trim = _lunge_action_trim() if phase == "lunge" else None
         if fbx and _apply_proscenium_fbx(
-            armature, fbx, frame_start=frame_start, frame_end=frame_end
+            armature,
+            fbx,
+            frame_start=frame_start,
+            frame_end=frame_end,
+            action_trim=trim,
         ):
             return
 
@@ -1081,7 +1115,7 @@ def _apply_lunge_gaze_correction(
     """Tilt head/neck up toward camera at lunge peak — counter Mixamo forward lean."""
     if armature.type != "ARMATURE":
         return
-    eye = Vector(_creature_eye_target(form2))
+    eye = Vector(_creature_face_target(form2, armature))
     delta = Vector(cam.location) - eye
     horiz = math.sqrt(delta.x ** 2 + delta.y ** 2)
     # Positive X euler = look up (rig convention used in _pose_wave_or_lunge lunge keys).
@@ -1113,6 +1147,42 @@ def _apply_lunge_gaze_correction(
         _key_bone("ripcage", (rp, 0, 0), fr)
         _key_bone("neck", (np, 0, 0), fr)
         _key_bone("head", (hp, 0, 0), fr)
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    if prev_active:
+        bpy.context.view_layer.objects.active = prev_active
+
+
+def _apply_lunge_mouth_open(
+    armature: bpy.types.Object,
+    *,
+    bait_f: int,
+    frame_end: int,
+) -> None:
+    """Drop jaw into screaming pose at lunge peak — face fills the lens."""
+    if armature.type != "ARMATURE":
+        return
+    snap_f = max(bait_f + 2, frame_end - 6)
+    prev_active = bpy.context.view_layer.objects.active
+    bpy.context.view_layer.objects.active = armature
+    if armature.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+
+    def _key_bone(name: str, rot: tuple[float, float, float], frame: int) -> None:
+        pb = armature.pose.bones.get(name)
+        if not pb:
+            return
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = rot
+        pb.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+    for fr, jaw in [
+        (bait_f, 0.02),
+        (snap_f, 0.22),
+        (frame_end, 0.62),
+    ]:
+        for jaw_bone in ("lowerjaw", "lowerjaw_001"):
+            _key_bone(jaw_bone, (jaw, 0, 0), fr)
 
     bpy.ops.object.mode_set(mode="OBJECT")
     if prev_active:
@@ -1190,12 +1260,12 @@ def _add_creature_only_lights() -> bpy.types.Light:
 
 
 def _setup_creature_lunge_camera() -> bpy.types.Object:
-    """Fixed POV for lunge training — eyes land on top rule-of-thirds line."""
+    """Fixed POV for lunge training — wide lens, eyes on top third at peak."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
     bpy.ops.object.camera_add(location=(0, -4.2, 1.78))
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
-    cam.data.lens = 32
+    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "26"))
     _camera_point_at_rule_thirds(cam, (0, -8, 1.45), frame_line=line)
     bpy.context.scene.camera = cam
     return cam
@@ -1210,34 +1280,56 @@ def _animate_creature_lunge_lab(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
-    """Monster-only: static camera, Mixamo lunge drives the scare."""
+    """Monster-only: locked-heading dolly + sprint — open-mouth face fills lens at peak."""
     bait_f = frame_start + max(6, int((frame_end - frame_start) * 0.12))
+    lunge_f = frame_start + max(bait_f + 2, int((frame_end - frame_start) * 0.38))
     base_s = 1.0 if _creature_only_mode() else (
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
+    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.38"))
+    cam_start = (0.0, -4.35, 1.78)
+    cam_end = (0.0, -3.92, 1.71)
+    creep_end = (0.0, -7.2, 0.0)
+    face_end = (0.0, -4.62, -0.12)
+
     cam.animation_data_clear()
     form2.animation_data_clear()
-    # Camera locked — no dolly, no spin
+    # Lock POV — dolly in only (no spin)
+    cam.location = cam_start
     fixed_rot = cam.rotation_euler.copy()
-    fixed_loc = cam.location.copy()
     fixed_shift = cam.data.shift_y
     cam.keyframe_insert(data_path="location", frame=frame_start)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     cam.data.keyframe_insert(data_path="shift_y", frame=frame_start)
+    cam.location = cam_start
+    cam.rotation_euler = fixed_rot
+    cam.data.shift_y = fixed_shift
+    cam.keyframe_insert(data_path="location", frame=bait_f)
+    cam.keyframe_insert(data_path="rotation_euler", frame=bait_f)
+    cam.data.keyframe_insert(data_path="shift_y", frame=bait_f)
+    cam.location = cam_end
+    cam.rotation_euler = fixed_rot
+    cam.data.shift_y = fixed_shift
     cam.keyframe_insert(data_path="location", frame=frame_end)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     cam.data.keyframe_insert(data_path="shift_y", frame=frame_end)
-    # Creature — far hold then sprint into lens (Mixamo Zombie Attack)
+
+    # Creature — far hold → sprint → in-your-face (mouth open at frame_end)
     form2.location = (0, -9.5, 0)
     form2.scale = (base_s, base_s, base_s)
     form2.rotation_euler = (0, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    form2.location = creep_end
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    form2.location = (0, -1.15, 0.22)
-    form2.rotation_euler = (0.16, 0, 0)
+    form2.location = (0, -5.4, 0.0)
+    form2.keyframe_insert(data_path="location", frame=lunge_f)
+    form2.location = face_end
+    form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
+    form2.rotation_euler = (0.24, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
+    form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     if armature:
         _play_creature_action(
@@ -1255,6 +1347,7 @@ def _animate_creature_lunge_lab(
             frame_end=frame_end,
             mixamo_overlay=True,
         )
+        _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
 
 
 def _animate_micro_jumpscare(
