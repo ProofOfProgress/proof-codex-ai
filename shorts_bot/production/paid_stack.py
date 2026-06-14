@@ -85,8 +85,6 @@ def ensure_resemble_voice() -> None:
 
 def ensure_turboscribe_segments(sync_source: str) -> None:
     """Block script-timing fallbacks when transcript timestamps are required."""
-    from shorts_bot.config import settings
-
     if settings.allow_script_timing_fallback or settings.uses_kling_native_audio or settings.uses_blender_video:
         return
     if sync_source in _SCRIPT_FALLBACK_SOURCES:
