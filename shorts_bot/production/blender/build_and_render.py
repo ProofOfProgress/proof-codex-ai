@@ -467,6 +467,66 @@ def _apply_creature_texture(rig: bpy.types.Object, tex_path: Path) -> None:
             links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
 
 
+def _apply_creature_mouth_emissive(rig: bpy.types.Object) -> None:
+    """Part 5 nodes — bloody mouth interior glows red when jaw opens at lunge peak."""
+    if not (_micro_jumpscare_mode() or _creature_only_mode()):
+        return
+    strength = float(os.environ.get("BLENDER_MOUTH_EMISSIVE", "7.5"))
+    mouth_rgb = (
+        float(os.environ.get("BLENDER_MOUTH_RED", "0.95")),
+        float(os.environ.get("BLENDER_MOUTH_GREEN", "0.04")),
+        float(os.environ.get("BLENDER_MOUTH_BLUE", "0.02")),
+        1.0,
+    )
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat or not mat.use_nodes:
+                continue
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+            bsdf = nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            tex = next((n for n in nodes if n.type == "TEX_IMAGE"), None)
+            if not tex:
+                continue
+            sep = nodes.new("ShaderNodeSeparateColor")
+            sep.mode = "RGB"
+            sep.location = (tex.location.x + 220, tex.location.y - 120)
+            links.new(tex.outputs["Color"], sep.inputs["Color"])
+            r_gt = nodes.new("ShaderNodeMath")
+            r_gt.operation = "GREATER_THAN"
+            r_gt.inputs[1].default_value = 0.28
+            r_gt.location = (sep.location.x + 160, sep.location.y + 40)
+            links.new(sep.outputs["Red"], r_gt.inputs[0])
+            rg = nodes.new("ShaderNodeMath")
+            rg.operation = "SUBTRACT"
+            rg.location = (sep.location.x + 160, sep.location.y - 20)
+            links.new(sep.outputs["Red"], rg.inputs[0])
+            links.new(sep.outputs["Green"], rg.inputs[1])
+            rg_gt = nodes.new("ShaderNodeMath")
+            rg_gt.operation = "GREATER_THAN"
+            rg_gt.inputs[1].default_value = 0.06
+            rg_gt.location = (sep.location.x + 320, sep.location.y - 20)
+            links.new(rg.outputs[0], rg_gt.inputs[0])
+            mask = nodes.new("ShaderNodeMath")
+            mask.operation = "MULTIPLY"
+            mask.location = (sep.location.x + 480, sep.location.y + 10)
+            links.new(r_gt.outputs[0], mask.inputs[0])
+            links.new(rg_gt.outputs[0], mask.inputs[1])
+            emit_mul = nodes.new("ShaderNodeMath")
+            emit_mul.operation = "MULTIPLY"
+            emit_mul.inputs[1].default_value = strength
+            emit_mul.location = (sep.location.x + 640, sep.location.y + 10)
+            links.new(mask.outputs[0], emit_mul.inputs[0])
+            bsdf.inputs["Emission Color"].default_value = mouth_rgb
+            links.new(emit_mul.outputs[0], bsdf.inputs["Emission Strength"])
+    print(f"Mouth emissive wired (strength={strength})")
+
+
 def _ground_creature(rig: bpy.types.Object) -> None:
     bpy.context.view_layer.update()
     zmin = 1e9
@@ -530,6 +590,7 @@ def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Obj
     _normalize_creature_rig(rig)
     tex = path.parent / "scp_096.png"
     _apply_creature_texture(rig, tex)
+    _apply_creature_mouth_emissive(rig)
     _tweak_imported_creature(rig)
     return rig
 
@@ -1178,8 +1239,8 @@ def _apply_lunge_mouth_open(
 
     for fr, jaw in [
         (bait_f, 0.02),
-        (snap_f, 0.22),
-        (frame_end, 0.62),
+        (snap_f, 0.28),
+        (frame_end, 0.92),
     ]:
         for jaw_bone in ("lowerjaw", "lowerjaw_001"):
             _key_bone(jaw_bone, (jaw, 0, 0), fr)
@@ -1256,7 +1317,41 @@ def _add_creature_only_lights() -> bpy.types.Light:
     fill.name = "CreatureFill"
     fill.data.energy = 120
     fill.data.color = (0.55, 0.6, 0.75)
+    bpy.ops.object.light_add(type="POINT", location=(0, -4.6, 1.52))
+    mouth = bpy.context.active_object
+    mouth.name = "CreatureMouthFill"
+    mouth.data.energy = 0.0
+    mouth.data.color = (1.0, 0.12, 0.05)
+    mouth.data.shadow_soft_size = 0.06
     return fill
+
+
+def _animate_creature_mouth_light(
+    *,
+    frame_start: int,
+    bait_f: int,
+    frame_end: int,
+    peak_location: tuple[float, float, float],
+) -> None:
+    """Pulse red mouth fill at lunge peak so final frame reads bloody."""
+    mouth = bpy.data.objects.get("CreatureMouthFill")
+    if not mouth or mouth.type != "LIGHT":
+        return
+    px, py, pz = peak_location
+    mouth.animation_data_clear()
+    mouth.location = (px, py - 2.0, pz)
+    mouth.data.energy = 0.0
+    mouth.keyframe_insert(data_path="location", frame=frame_start)
+    mouth.data.keyframe_insert(data_path="energy", frame=frame_start)
+    snap_f = max(bait_f + 2, frame_end - 8)
+    mouth.location = (px, py + 0.12, pz - 0.08)
+    mouth.data.energy = 55.0
+    mouth.keyframe_insert(data_path="location", frame=snap_f)
+    mouth.data.keyframe_insert(data_path="energy", frame=snap_f)
+    mouth.location = (px, py + 0.06, pz - 0.03)
+    mouth.data.energy = 980.0
+    mouth.keyframe_insert(data_path="location", frame=frame_end)
+    mouth.data.keyframe_insert(data_path="energy", frame=frame_end)
 
 
 def _lunge_camera_height() -> float:
@@ -1366,6 +1461,20 @@ def _animate_creature_lunge_lab(
             mixamo_overlay=True,
         )
         _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
+    saved_loc = form2.location.copy()
+    saved_scale = form2.scale.copy()
+    form2.location = face_end
+    form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
+    bpy.context.view_layer.update()
+    peak_face = _creature_face_target(form2, armature)
+    form2.location = saved_loc
+    form2.scale = saved_scale
+    _animate_creature_mouth_light(
+        frame_start=frame_start,
+        bait_f=bait_f,
+        frame_end=frame_end,
+        peak_location=peak_face,
+    )
 
 
 def _animate_micro_jumpscare(

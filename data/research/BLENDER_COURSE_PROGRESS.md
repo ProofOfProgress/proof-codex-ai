@@ -52,6 +52,7 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 - Image Texture node → link to Principled Base Color
 - Relink `img.filepath` + `img.reload()` when FBX paths break
 - **Result:** `Environment textures: fixed=68 ok=71 missing=0`
+- **Mouth emissive (2026-06-14):** `_apply_creature_mouth_emissive()` — red UV mouth glows at lunge peak
 - **Preview:** `data/production/draft_2/blender_preview_wave.png` — scene-only (no creature); road/trees visible
 - **Gemini vision QC (2026-06-14):** score **2.5/10 FAIL** — see `data/research/GEMINI_SCENE_REVIEW_draft_2.md`. Pumps/canopy not readable; camera must frame gas station hero; add flicker lighting
 - Night grade: skip albedo crush when texture nodes are live
