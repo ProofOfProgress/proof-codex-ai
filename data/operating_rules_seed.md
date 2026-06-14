@@ -87,7 +87,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Production stack
 
-**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). **Creature motion:** **Proscenium** addon in Blender 5 (Animatica/Kimodo) — owner exports FBX to `channel/assets/motion_exports/`; **do NOT** use Gemini for bone animation. Install: `bash scripts/install_proscenium.sh`, `docs/FOR_OWNER_PROSCENIUM.md`. Fallback: `VIDEO_BACKEND=kling`. See `python3 -m shorts_bot.production.blender.render_cli --help`.
+**Video (locked 2026-06-13):** **Blender 3D on cloud** — **3×10s EEVEE clips**, silent launch + post horror SFX. **Motion:** cloud service → FBX in `channel/assets/motion_exports/` (Mixamo, Uthana, DeepMotion, Plask; Proscenium/Animatica when waitlist opens). **No Kling.** **No Gemini bone animation.** See `docs/FOR_OWNER_CLOUD_MOTION.md`, `docs/FOR_OWNER_PROSCENIUM.md`.
 
 Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 

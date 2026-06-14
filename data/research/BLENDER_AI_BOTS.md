@@ -14,7 +14,21 @@
 | **3D-Agent / Blender MCP** | Modeling + general bpy via Claude | **Not** a motion specialist | Needs desktop Blender + MCP | Varies — still LLM, owner rejected |
 | **Mixamo** | Pick preset (wave, walk) | Good for humans | Browser only | Free |
 
-**Peripheral choice:** **Proscenium** — only tool that is (1) built for Blender, (2) text-to-motion on custom rigs, (3) cloud AI so owner GPU does not matter.
+**Peripheral stack (2026-06):** **Blender EEVEE on cloud VM** + **cloud motion service** → FBX → render. No Kling. No local GPU motion.
+
+| Tool | Cloud? | Blender? | Status |
+|------|--------|----------|--------|
+| **[Proscenium / Animatica](https://animatica.ai)** ⭐ | Yes (Kimodo) | Addon in Blender 5 | **Waitlist** — owner applied |
+| **[Mixamo](https://www.mixamo.com)** | Yes (Adobe) | Import FBX | **Use now** — free, no waitlist |
+| **[Uthana](https://uthana.com)** | Yes | Blender plugin + API | **Try now** — free signup |
+| **[DeepMotion](https://www.deepmotion.com/)** | Yes | Export FBX | Video/text → motion |
+| **[Plask](https://plask.ai/)** | Yes | Export FBX | Video mocap |
+| Kimodo Blender Bridge | No (local GPU) | Addon | **Skip** — weak PC |
+| Kling / Replicate video | Cloud but not Blender | N/A | **Off** — owner locked Blender stack |
+
+**Interim choice while Animatica blocked:** **Mixamo** or **Uthana** → FBX → `channel/assets/motion_exports/`.
+
+Owner doc: `docs/FOR_OWNER_CLOUD_MOTION.md`
 
 ---
 
