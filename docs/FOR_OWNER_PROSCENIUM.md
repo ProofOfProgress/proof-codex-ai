@@ -4,6 +4,29 @@
 
 ---
 
+## Can't find "Proscenium" in the addon list?
+
+**Most common cause: wrong Blender version for the zip.**
+
+| Your Blender version | Download this zip | Search term in Add-ons |
+|---------------------|-------------------|------------------------|
+| **5.0 or newer** (check **Help → About Blender**) | [proscenium-blender-0.4.0.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip) | `Proscenium` |
+| **4.2 / 4.3 / 4.4** (not 5.x) | [proscenium-blender-v0.3.2.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-v0.3.2.zip) | `Proscenium` |
+
+If you installed the **0.4.0** zip on **Blender 4.x**, it will **never show up** — that's normal. Uninstall nothing; just install the **0.3.2** zip instead.
+
+**You must click Install first** — it is not in Blender's built-in list until you add the zip:
+
+1. **Edit → Preferences → Add-ons**
+2. Click **Install from Disk…** (top-right — not just scrolling the list)
+3. Choose the **.zip file** you downloaded (do not unzip it first)
+4. In the search box at the top-left, type: **`Proscenium`**
+5. Tick the checkbox: **Proscenium — AI Motion Generation**
+
+The panel appears after enable: 3D view → press **N** → tab **Proscenium** (right side).
+
+---
+
 ## What Proscenium is
 
 | | Our old way (delete this) | Proscenium |
@@ -21,25 +44,40 @@
 
 ## One-time setup (you, ~15 minutes)
 
-### Step 1 — Install Blender 5
+### Step 1 — Check your Blender version
 
-Download **Blender 5.0 or newer** from [blender.org](https://www.blender.org/download/) on the computer that will run Blender (can be a different PC than Cursor if yours is slow).
+Open Blender → **Help → About Blender**.
 
-### Step 2 — Install the addon
+- If it says **5.0** or higher → use the **0.4.0** zip (default)
+- If it says **4.2, 4.3, or 4.4** → you need the **0.3.2** zip instead (see troubleshooting at top of this doc)
 
-On that same machine, in a terminal (or ask the agent to download for you):
+Download **Blender 5** from [blender.org](https://www.blender.org/download/) if you want the latest Proscenium — or stay on 4.x and use 0.3.2.
+
+### Step 2 — Get the zip onto your PC
+
+The zip lives in our repo, but your Blender PC needs its **own copy**. Either:
+
+**Option A — direct download (easiest):**
+
+- Blender **5.0+**: https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip
+- Blender **4.x**: https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-v0.3.2.zip
+
+**Option B — from this project** (if you have the repo):
 
 ```bash
-bash scripts/install_proscenium.sh
+bash scripts/install_proscenium.sh          # Blender 5
+bash scripts/install_proscenium.sh --blender4   # Blender 4.x
 ```
 
-Then in Blender:
+### Step 3 — Install in Blender (not from the list — from disk)
 
-1. **Edit → Preferences → Add-ons → Install…**
-2. Pick the zip from `channel/tools/proscenium/proscenium-blender-0.4.0.zip`
-3. Enable **Proscenium — AI Motion Generation**
+1. **Edit → Preferences → Add-ons**
+2. Click **Install from Disk…** (top-right)
+3. Select the **.zip** you downloaded — **do not unzip it**
+4. In the search box, type **`Proscenium`**
+5. Enable **Proscenium — AI Motion Generation** (tick the checkbox)
 
-### Step 3 — Sign in
+### Step 4 — Sign in
 
 1. Create free account at [animatica.ai](https://animatica.ai)
 2. In Blender: **Edit → Preferences → Add-ons → Proscenium** → sign in
