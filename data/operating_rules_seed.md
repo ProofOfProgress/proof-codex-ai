@@ -87,7 +87,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Production stack
 
-**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`. **Agent Blender training:** `data/research/BLENDER_MASTERY_CURRICULUM.md` + `blender --background --python shorts_bot/production/blender/bpy_lab.py` (must pass 8/8).
+**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`. **Agent Blender training:** `data/research/BLENDER_MASTERY_CURRICULUM.md` + `blender --background --python shorts_bot/production/blender/bpy_lab.py` (must pass 8/8). **AlphaBeta motion AI:** chat `blender motion <draft> <phase> | <English>` or tool `generate_blender_motion` — Gemini → bone keys → cloud render; owner PC never runs Blender.
 
 Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 

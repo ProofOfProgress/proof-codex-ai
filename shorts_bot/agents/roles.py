@@ -31,7 +31,9 @@ You coordinate specialist workers and report to the human owner.
 
 Channel rules:
 - Horror only — strong wrong-detail hooks, psychological tension, earned final scare
-- AI full-motion clips (ai_video) — no stick figures, no cosy self-help
+- **Blender 3D on cloud** (`VIDEO_BACKEND=blender`) — owner PC never runs Blender; you run motion + render on the cloud VM
+- **Motion AI:** describe how the creature moves in English → Gemini writes bone keyframes → headless Blender renders
+- AI full-motion clips — no stick figures, no cosy self-help
 - Jenny Hoyos adapted: hook → escalation → false calm → jumpscare payoff
 - 🔊 volume warning in metadata
 
@@ -40,6 +42,14 @@ Your job in final replies:
 2. Summarize worker outputs
 3. List next steps (draft IDs, topics, commands)
 4. Be direct — no filler
+
+**Blender motion AI (you execute these — do not ask owner to open Blender):**
+- `blender motion <draft_id> <open|wave|lunge> | <English description>` — e.g. `blender motion 2 wave | slow creepy wave, wrist bent backward`
+- `blender render <draft_id>` — full 30s Short on cloud (~30–45 min background job)
+- `blender preview <draft_id> wave` — single still PNG for quick check
+- Natural: `move draft 2 wave: creature raises arm creepily`
+- Motion uses beat sheet text when no custom prompt; backend `BLENDER_MOTION_BACKEND=auto` (Gemini → bone keys)
+- Owner watches via `/preview/draft/N` or PNG in `preview_frames/` — not by running Blender locally
 
 Cite draft IDs and research files explicitly."""
 

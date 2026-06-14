@@ -296,26 +296,52 @@ def _build_creature(location=(0, -12, 0)) -> bpy.types.Object:
 
 
 def _finalize_clip_output(expected: Path) -> Path:
-    """Blender FFMPEG animation writes stem0001-0240.mp4 — rename to stem.mp4."""
+    """Blender FFMPEG animation writes stem0001-0240.mp4 — rename + faststart for browsers."""
     import subprocess
 
     if expected.is_file() and expected.stat().st_size > 50000:
-        return expected
-    matches = sorted(expected.parent.glob(f"{expected.stem}*.mp4"))
-    if not matches:
-        raise FileNotFoundError(f"No Blender video output for {expected}")
-    src = matches[-1]
-    if src != expected:
-        expected.unlink(missing_ok=True)
-        src.rename(expected)
+        path = expected
+    else:
+        matches = sorted(expected.parent.glob(f"{expected.stem}*.mp4"))
+        if not matches:
+            raise FileNotFoundError(f"No Blender video output for {expected}")
+        src = matches[-1]
+        if src != expected:
+            expected.unlink(missing_ok=True)
+            src.rename(expected)
+        path = expected
     probe = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(expected)],
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
         capture_output=True,
         text=True,
     )
     if probe.returncode != 0 or not (probe.stdout or "").strip():
-        raise RuntimeError(f"Invalid Blender clip (ffprobe failed): {expected}")
-    return expected
+        raise RuntimeError(f"Invalid Blender clip (ffprobe failed): {path}")
+    _faststart_mp4(path)
+    # Remove stale partial writes so preview page cannot serve them
+    for partial in path.parent.glob(f"{path.stem}*.mp4"):
+        if partial != path and "0001-" in partial.name:
+            partial.unlink(missing_ok=True)
+    return path
+
+
+def _faststart_mp4(path: Path) -> None:
+    """Move moov atom to front — browsers need this or video looks frozen on frame 1."""
+    import subprocess
+
+    tmp = path.with_name(f".{path.stem}_faststart.mp4")
+    proc = subprocess.run(
+        [
+            "ffmpeg", "-y", "-loglevel", "error", "-i", str(path),
+            "-c", "copy", "-movflags", "+faststart", str(tmp),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode == 0 and tmp.is_file() and tmp.stat().st_size > 1000:
+        tmp.replace(path)
+    else:
+        tmp.unlink(missing_ok=True)
 
 
 def _setup_camera() -> bpy.types.Object:

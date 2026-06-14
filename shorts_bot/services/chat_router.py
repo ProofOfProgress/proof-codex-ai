@@ -87,6 +87,64 @@ def parse_auto_video_request(message: str) -> int | None:
     return None
 
 
+def parse_blender_motion_request(message: str) -> dict | None:
+    """blender motion 2 wave | slow creepy wave  OR  move draft 2 wave: ..."""
+    text = message.strip()
+    lower = text.lower()
+
+    m = re.match(
+        r"^(?:blender\s+motion|move\s+creature|creature\s+motion)\s+(\d+)\s+(open|wave|lunge)\s*(?:\||:\s*)?\s*(.*)$",
+        lower,
+        re.I,
+    )
+    if m:
+        return {
+            "draft_id": int(m.group(1)),
+            "phase": m.group(2).lower(),
+            "prompt": text[text.lower().find(m.group(2)) + len(m.group(2)) :].strip(" |:"),
+        }
+
+    m = re.match(r"^move\s+draft\s+(\d+)\s+(open|wave|lunge)\s*[:\-]\s*(.+)$", lower, re.I)
+    if m:
+        return {"draft_id": int(m.group(1)), "phase": m.group(2).lower(), "prompt": m.group(3).strip()}
+
+    # Natural: "make draft 2 wave creepily with bent wrist"
+    m = re.match(
+        r"^(?:make|have)\s+(?:draft\s+)?(\d+)\s+(open|wave|lunge)\s+(.+)$",
+        lower,
+        re.I,
+    )
+    if m and any(w in lower for w in ("wave", "lunge", "walk", "move", "creep", "arm", "creature")):
+        return {"draft_id": int(m.group(1)), "phase": m.group(2).lower(), "prompt": m.group(3).strip()}
+
+    return None
+
+
+def parse_blender_render_request(message: str) -> dict | None:
+    """blender render 2 | re-render draft 2 | blender preview 2 wave"""
+    lower = message.strip().lower()
+    text = message.strip()
+
+    m = re.match(r"^(?:blender\s+preview|preview\s+blender)\s+(\d+)(?:\s+(open|wave|lunge))?$", lower)
+    if m:
+        return {"draft_id": int(m.group(1)), "preview": True, "phase": (m.group(2) or "wave").lower()}
+
+    for pat in (
+        r"^(?:blender\s+render|re-?render\s+(?:draft\s+)?|render\s+blender\s+)\s*(\d+)(?:\s+--force)?$",
+        r"^blender\s+produce\s+(\d+)$",
+    ):
+        m = re.match(pat, lower)
+        if m:
+            return {"draft_id": int(m.group(1)), "background": True, "force": "--force" in lower}
+
+    if re.search(r"\bblender\b", lower) and re.search(r"\bre-?render\b", lower):
+        m = re.search(r"draft\s*#?\s*(\d+)", lower)
+        if m:
+            return {"draft_id": int(m.group(1)), "background": True, "force": True}
+
+    return None
+
+
 def parse_produce_request(message: str) -> tuple[int, str] | None:
     """produce 5 | <turboscribe paste> or produce draft 5 then transcript on next lines."""
     text = message.strip()
