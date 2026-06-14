@@ -53,7 +53,24 @@ def _run_blender_preview(draft_id: int, *, pack_dir: Path) -> str:
         **__import__("os").environ,
         "BLENDER_SAMPLES": str(settings.blender_samples),
     }
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=settings.blender_timeout_sec,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raw_tail = (exc.stderr or b"") + (exc.stdout or b"")
+        if isinstance(raw_tail, bytes):
+            tail = raw_tail.decode("utf-8", errors="replace")[-2000:]
+        else:
+            tail = str(raw_tail)[-2000:]
+        raise RuntimeError(
+            f"Blender preview timed out after {settings.blender_timeout_sec}s"
+            + (f":\n{tail}" if tail else "")
+        ) from exc
     if proc.returncode != 0:
         raise RuntimeError(f"Blender preview failed:\n{(proc.stderr or proc.stdout)[-2000:]}")
     return f"Preview: {pack_dir / 'blender_preview.png'}"
