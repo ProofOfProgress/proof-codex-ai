@@ -82,9 +82,15 @@ def _add_streetlight() -> tuple[bpy.types.Object, bpy.types.Light]:
     bpy.ops.object.light_add(type="POINT", location=(4, -6, 5.2))
     lamp = bpy.context.active_object
     lamp.name = "Streetlight"
-    lamp.data.energy = 800
+    lamp.data.energy = 1200
     lamp.data.color = (1.0, 0.55, 0.2)
     lamp.parent = pole_empty
+    bpy.ops.object.light_add(type="SUN", location=(0, 0, 30))
+    moon = bpy.context.active_object
+    moon.name = "MoonFill"
+    moon.data.energy = 0.35
+    moon.data.color = (0.55, 0.62, 0.85)
+    moon.rotation_euler = (math.radians(55), 0, math.radians(-25))
     return pole_empty, lamp.data
 
 
@@ -148,9 +154,9 @@ def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rur
                 continue
             col = bsdf.inputs["Base Color"].default_value
             bsdf.inputs["Base Color"].default_value = (
-                col[0] * 0.35,
-                col[1] * 0.32,
-                col[2] * 0.30,
+                col[0] * 0.55,
+                col[1] * 0.50,
+                col[2] * 0.48,
                 1.0,
             )
             bsdf.inputs["Roughness"].default_value = max(
@@ -173,6 +179,43 @@ def _mesh_world_height(rig: bpy.types.Object) -> float:
     return max(0.01, zmax - zmin)
 
 
+def _apply_creature_texture(rig: bpy.types.Object, tex_path: Path) -> None:
+    if not tex_path.is_file():
+        return
+    img = bpy.data.images.load(str(tex_path), check_existing=True)
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        if not obj.data.materials:
+            obj.data.materials.append(_mat("CreatureSkin", (0.7, 0.65, 0.6, 1.0)))
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat:
+                continue
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+            bsdf = nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            tex = nodes.new("ShaderNodeTexImage")
+            tex.image = img
+            links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+
+
+def _ground_creature(rig: bpy.types.Object) -> None:
+    bpy.context.view_layer.update()
+    zmin = 1e9
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for corner in obj.bound_box:
+            world = obj.matrix_world @ Vector(corner)
+            zmin = min(zmin, world.z)
+    if zmin < 1e8:
+        rig.location.z -= zmin
+
+
 def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float = 2.45) -> None:
     """SCP-096 lore height ~2.38m — scale import to match scene."""
     bpy.context.view_layer.update()
@@ -180,7 +223,8 @@ def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float = 2.4
     if h > 0.05:
         factor = target_height / h
         rig.scale = Vector((factor, factor, factor))
-    rig.rotation_euler = (math.radians(90), 0, math.radians(180))
+    rig.rotation_euler = (0, 0, 0)
+    _ground_creature(rig)
     bpy.context.view_layer.update()
 
 
@@ -195,6 +239,8 @@ def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Obj
         if obj.parent is None:
             obj.parent = rig
     _normalize_creature_rig(rig)
+    tex = path.parent / "scp_096.png"
+    _apply_creature_texture(rig, tex)
     _tweak_imported_creature(rig)
     return rig
 
@@ -221,7 +267,9 @@ def _build_creature(location=(0, -12, 0)) -> bpy.types.Object:
 
 def _finalize_clip_output(expected: Path) -> Path:
     """Blender FFMPEG animation writes stem0001-0240.mp4 — rename to stem.mp4."""
-    if expected.is_file() and expected.stat().st_size > 5000:
+    import subprocess
+
+    if expected.is_file() and expected.stat().st_size > 50000:
         return expected
     matches = sorted(expected.parent.glob(f"{expected.stem}*.mp4"))
     if not matches:
@@ -230,6 +278,13 @@ def _finalize_clip_output(expected: Path) -> Path:
     if src != expected:
         expected.unlink(missing_ok=True)
         src.rename(expected)
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(expected)],
+        capture_output=True,
+        text=True,
+    )
+    if probe.returncode != 0 or not (probe.stdout or "").strip():
+        raise RuntimeError(f"Invalid Blender clip (ffprobe failed): {expected}")
     return expected
 
 
@@ -263,8 +318,8 @@ def _setup_render(scene: bpy.types.Scene, *, samples: int = 32) -> None:
         scene.world = bpy.data.worlds.new("PeripheralWorld")
     scene.world.use_nodes = True
     bg = scene.world.node_tree.nodes["Background"]
-    bg.inputs[0].default_value = (0.008, 0.012, 0.02, 1.0)
-    bg.inputs[1].default_value = 0.15
+    bg.inputs[0].default_value = (0.015, 0.022, 0.035, 1.0)
+    bg.inputs[1].default_value = 0.45
 
 
 def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: int) -> None:
@@ -302,7 +357,7 @@ def _add_fog_and_trees() -> None:
         output = nodes.get("World Output")
         if output and not output.inputs["Volume"].links:
             vol = nodes.new("ShaderNodeVolumeScatter")
-            vol.inputs["Density"].default_value = 0.025
+            vol.inputs["Density"].default_value = 0.008
             vol.inputs["Anisotropy"].default_value = 0.2
             links.new(vol.outputs["Volume"], output.inputs["Volume"])
 
@@ -377,20 +432,18 @@ def build_scene(*, samples: int = 32) -> dict:
 
 
 def render_clip(
+    ctx: dict,
     out_path: Path,
     *,
     phase: str,
     seconds: float = 10.0,
-    frame_offset: int = 0,
-    samples: int = 32,
 ) -> None:
-    ctx = build_scene(samples=samples)
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
     lamp = ctx["lamp"]
-    f0 = 1 + frame_offset
-    f1 = f0 + int(seconds * FPS) - 1
+    f0 = 1
+    f1 = int(seconds * FPS)
     scene.frame_start = f0
     scene.frame_end = f1
     _flicker_keyframes(lamp, f0, f1)
@@ -400,6 +453,21 @@ def render_clip(
     bpy.ops.render.render(animation=True)
     _finalize_clip_output(out_path)
     print(f"Rendered {out_path}")
+
+
+def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, samples: int = 32) -> list[Path]:
+    """One scene build → three clip renders (faster than rebuild per clip)."""
+    clips_dir = pack_dir / "clips"
+    phases = ("open", "wave", "lunge")
+    paths: list[Path] = []
+    ctx = build_scene(samples=samples)
+    for i, phase in enumerate(phases, start=1):
+        dest = clips_dir / f"blender_part_{i:02d}.mp4"
+        render_clip(ctx, dest, phase=phase, seconds=seconds)
+        paths.append(dest)
+    spec = {"backend": "blender", "clips": [p.name for p in paths], "draft_id": draft_id}
+    (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
+    return paths
 
 
 def render_preview(out_png: Path, *, samples: int = 32) -> None:
@@ -413,21 +481,6 @@ def render_preview(out_png: Path, *, samples: int = 32) -> None:
     scene.render.filepath = str(out_png)
     bpy.ops.render.render(write_still=True)
     print(f"Preview {out_png}")
-
-
-def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, samples: int = 32) -> list[Path]:
-    clips_dir = pack_dir / "clips"
-    phases = ("open", "wave", "lunge")
-    paths: list[Path] = []
-    offset = 0
-    for i, phase in enumerate(phases, start=1):
-        dest = clips_dir / f"blender_part_{i:02d}.mp4"
-        render_clip(dest, phase=phase, seconds=seconds, frame_offset=offset, samples=samples)
-        paths.append(dest)
-        offset += int(seconds * FPS)
-    spec = {"backend": "blender", "clips": [p.name for p in paths], "draft_id": draft_id}
-    (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
-    return paths
 
 
 def main(argv: list[str] | None = None) -> None:
