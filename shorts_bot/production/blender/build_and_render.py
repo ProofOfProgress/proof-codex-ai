@@ -24,6 +24,20 @@ FPS = 24
 RES_X = 720
 RES_Y = 1280
 
+# Scene-first craft (course Part 3–5): polish gas station before creature returns.
+SCENE_FOCAL = (0.0, -8.0, 2.2)  # pump island — camera look-at when no creature
+
+
+def _include_creature() -> bool:
+    raw = os.environ.get("BLENDER_INCLUDE_CREATURE", "0").strip().lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def _scene_only_mode() -> bool:
+    if not _include_creature():
+        return True
+    return os.environ.get("BLENDER_SCENE_ONLY", "").strip().lower() in ("1", "true", "yes", "on")
+
 
 def _clear_scene() -> None:
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -359,7 +373,23 @@ def _import_gas_station_environment() -> bpy.types.Object | None:
     )
     _fit_environment_to_scene(root, imported)
     _tweak_environment_night(root)
+    _import_gas_station_props(root, hit.parent)
     return root
+
+
+def _import_gas_station_props(env_root: bpy.types.Object, models_dir: Path) -> None:
+    """Props FBX (signs, pumps detail) — parent to same env root."""
+    props = models_dir / "Gas_station_Props.fbx"
+    if not props.is_file():
+        props = models_dir.parent / "Models" / "Gas_station_Props.fbx"
+    if not props.is_file():
+        return
+    print(f"Importing gas-station props: {props}")
+    imported = _import_mesh_file(props)
+    for obj in imported:
+        if obj.parent is None:
+            obj.parent = env_root
+    _relink_environment_textures(props)
 
 
 def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
@@ -564,7 +594,20 @@ def _camera_point_at(cam: bpy.types.Object, target: tuple[float, float, float]) 
         bpy.data.objects.remove(empty, do_unlink=True)
 
 
+def _setup_camera_scene() -> bpy.types.Object:
+    """Part 3 — POV for environment craft (no creature)."""
+    bpy.ops.object.camera_add(location=(0, -3.5, 1.6))
+    cam = bpy.context.active_object
+    cam.name = "POVCamera"
+    cam.data.lens = 32
+    _camera_point_at(cam, SCENE_FOCAL)
+    bpy.context.scene.camera = cam
+    return cam
+
+
 def _setup_camera() -> bpy.types.Object:
+    if _scene_only_mode():
+        return _setup_camera_scene()
     bpy.ops.object.camera_add(location=(0, -5.5, 1.55))
     cam = bpy.context.active_object
     cam.name = "POVCamera"
@@ -968,6 +1011,32 @@ def _pose_wave_or_lunge(
         bpy.context.view_layer.objects.active = prev_active
 
 
+def _animate_scene_camera(
+    cam: bpy.types.Object,
+    *,
+    frame_start: int,
+    frame_end: int,
+    phase: str,
+) -> None:
+    """Environment-only camera — slow dolly/pan across gas-station lot (Part 3)."""
+    cam.animation_data_clear()
+    focal = SCENE_FOCAL
+    if phase == "open":
+        start, end = (0, 1.5, 1.65), (0, -2.5, 1.55)
+    elif phase == "wave":
+        start, end = (0, -4.0, 1.55), (1.2, -6.5, 1.5)
+    else:
+        start, end = (0.5, -5.5, 1.55), (0, -7.0, 1.85)
+    cam.location = start
+    _camera_point_at(cam, focal)
+    cam.keyframe_insert(data_path="location", frame=frame_start)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    cam.location = end
+    _camera_point_at(cam, focal)
+    cam.keyframe_insert(data_path="location", frame=frame_end)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
+
+
 def _animate_camera_wave_lunge(
     cam: bpy.types.Object,
     form2: bpy.types.Object,
@@ -1059,16 +1128,39 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
         _add_ground_and_road()
         _add_gas_station()
     pole_empty, lamp = _add_streetlight()
-    form2 = _build_creature()
+    form2: bpy.types.Object | None = None
+    armature = None
+    if _include_creature():
+        form2 = _build_creature()
+        armature = _find_armature(form2)
+    else:
+        print("Scene-only mode — creature skipped (set BLENDER_INCLUDE_CREATURE=1 to restore)")
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_eevee_light_probes()
     _add_fog_and_trees(env_loaded=env is not None)
-    if pack_dir:
+    if pack_dir and form2 is not None:
         from shorts_bot.production.blender.scene_layout import apply_scene_layout
 
         apply_scene_layout(pack_dir, camera=cam, creature=form2, environment=env)
-    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2), "environment": env, "pack_dir": pack_dir}
+    elif pack_dir and env is not None:
+        from shorts_bot.production.blender.scene_layout import load_scene_layout
+
+        layout = load_scene_layout(pack_dir)
+        env_cfg = layout.get("environment") or {}
+        if scale := env_cfg.get("scale"):
+            s = float(scale)
+            env.scale = Vector((s, s, s))
+    return {
+        "scene": scene,
+        "camera": cam,
+        "form2": form2,
+        "lamp": lamp,
+        "armature": armature,
+        "environment": env,
+        "pack_dir": pack_dir,
+        "scene_only": _scene_only_mode(),
+    }
 
 
 def render_clip(
@@ -1088,10 +1180,13 @@ def render_clip(
     scene.frame_start = f0
     scene.frame_end = f1
     _flicker_keyframes(lamp, f0, f1)
-    _animate_camera_wave_lunge(
-        cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature,
-        pack_dir=ctx.get("pack_dir"),
-    )
+    if ctx.get("scene_only") or form2 is None:
+        _animate_scene_camera(cam, frame_start=f0, frame_end=f1, phase=phase)
+    else:
+        _animate_camera_wave_lunge(
+            cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature,
+            pack_dir=ctx.get("pack_dir"),
+        )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
@@ -1136,12 +1231,15 @@ def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave", pac
     form2 = ctx["form2"]
     armature = ctx.get("armature")
     f1 = 48
-    _animate_camera_wave_lunge(
-        cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature,
-        pack_dir=ctx.get("pack_dir"),
-    )
-    # Peak wave frame ~52% through clip
-    peak = 1 + int((f1 - 1) * (0.52 if phase == "wave" else 0.85))
+    if ctx.get("scene_only") or form2 is None:
+        _animate_scene_camera(cam, frame_start=1, frame_end=f1, phase=phase)
+        peak = 1 + int((f1 - 1) * 0.45)
+    else:
+        _animate_camera_wave_lunge(
+            cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature,
+            pack_dir=ctx.get("pack_dir"),
+        )
+        peak = 1 + int((f1 - 1) * (0.52 if phase == "wave" else 0.85))
     scene.frame_set(peak)
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(out_png)
@@ -1167,6 +1265,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Animation phase for preview or single-clip test",
     )
     parser.add_argument("--clip-only", action="store_true", help="Render one clip for --phase only")
+    parser.add_argument(
+        "--scene-only",
+        action="store_true",
+        help="Environment craft — no creature (default unless BLENDER_INCLUDE_CREATURE=1)",
+    )
     parser.add_argument("--pack-dir", type=Path, default=None)
     parser.add_argument("--seconds", type=float, default=None, help="Clip length (default from env)")
     parser.add_argument("--samples", type=int, default=None, help="EEVEE TAA samples")
@@ -1174,6 +1277,8 @@ def main(argv: list[str] | None = None) -> None:
 
     seconds = args.seconds or float(os.environ.get("BLENDER_CLIP_SECONDS", "10"))
     samples = args.samples or int(os.environ.get("BLENDER_SAMPLES", "32"))
+    if args.scene_only:
+        os.environ["BLENDER_INCLUDE_CREATURE"] = "0"
 
     pack = args.pack_dir or OUTPUT_ROOT / f"draft_{args.draft_id}"
     if args.save_blend:

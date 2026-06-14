@@ -60,8 +60,16 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 
 ---
 
+## Owner direction (2026-06-14)
+
+**Scene first, creature later.** Monster removed from default renders until the gas-station lot reads like LIGHTS ARE OFF. Course is authority; owner notes are input.
+
+- Default: `BLENDER_INCLUDE_CREATURE=0` (scene-only)
+- Restore creature: `BLENDER_INCLUDE_CREATURE=1`
+- Scene preview: `blender ... build_and_render.py -- --draft-id 2 --preview --scene-only`
+
 ## Next actions
 
-1. **Part 4 — custom operators:** Peripheral re-render operator CLI wrapper
-2. Re-render 3 clips with new camera → owner preview
-3. Part 6 finish: env scale/camera bounds helper
+1. **Part 5/6:** props FBX, pump signage readability, streetlight flicker on emissive signs
+2. Scene dolly clips (open/wave/lunge) without creature → owner approves still
+3. Part 4 operators — then creature returns when set is done
