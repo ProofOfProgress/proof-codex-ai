@@ -104,7 +104,7 @@ def _add_streetlight() -> tuple[bpy.types.Object, bpy.types.Light]:
     bpy.ops.object.light_add(type="AREA", location=(-3, -7, 3))
     fill = bpy.context.active_object
     fill.name = "CreatureFill"
-    fill.data.energy = 350
+    fill.data.energy = 480
     fill.data.color = (0.75, 0.82, 1.0)
     fill.data.size = 4.0
     fill.rotation_euler = (math.radians(65), 0, math.radians(-30))
@@ -184,52 +184,78 @@ def _environment_mesh_bounds(objects: list) -> tuple[float, float, float, float,
     return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
 
 
-def _relink_environment_textures(model_path: Path) -> int:
-    """Fix broken FBX image paths (Windows absolute) → local Textures/ dir."""
-    textures_dir = model_path.parent / "Textures"
-    if not textures_dir.is_dir():
-        textures_dir = model_path.parent.parent / "Textures"
-    if not textures_dir.is_dir():
-        return 0
+def _texture_search_dirs(model_path: Path) -> list[Path]:
+    """All local Texture folders for this gas-station pack."""
+    dirs: list[Path] = []
+    for candidate in (
+        model_path.parent / "Textures",
+        model_path.parent.parent / "Textures",
+        model_path.parent.parent.parent / "Textures",
+    ):
+        if candidate.is_dir() and candidate not in dirs:
+            dirs.append(candidate)
+    return dirs
 
+
+def _build_texture_index(dirs: list[Path]) -> dict[str, Path]:
     by_name: dict[str, Path] = {}
-    for img_path in textures_dir.iterdir():
-        if img_path.suffix.lower() in {".png", ".jpg", ".jpeg", ".tga", ".bmp"}:
-            by_name[img_path.name.lower()] = img_path
+    for textures_dir in dirs:
+        for img_path in textures_dir.rglob("*"):
+            if img_path.suffix.lower() in {".png", ".jpg", ".jpeg", ".tga", ".bmp"}:
+                by_name[img_path.name.lower()] = img_path
+                by_name.setdefault(img_path.stem.lower(), img_path)
+    return by_name
 
-    fixed = 0
-    for img in bpy.data.images:
-        raw = (img.filepath_raw or img.filepath or "").replace("\\", "/")
-        base = Path(raw).name.lower() if raw else img.name.lower()
-        hit = by_name.get(base)
-        if hit is None and base:
-            stem = Path(base).stem.lower()
-            for name, path in by_name.items():
-                if Path(name).stem.lower() == stem:
-                    hit = path
-                    break
+
+def _resolve_texture_path(raw: str, by_name: dict[str, Path]) -> Path | None:
+    base = Path(raw.replace("\\", "/")).name.lower()
+    if not base:
+        return None
+    hit = by_name.get(base)
+    if hit:
+        return hit
+    stem = Path(base).stem.lower()
+    return by_name.get(stem)
+
+
+def _relink_environment_textures(model_path: Path) -> dict[str, int]:
+    """Fix broken FBX image paths (Windows absolute) → local Textures/ dir."""
+    dirs = _texture_search_dirs(model_path)
+    if not dirs:
+        return {"images_fixed": 0, "images_ok": 0, "images_missing": 0}
+
+    by_name = _build_texture_index(dirs)
+    stats = {"images_fixed": 0, "images_ok": 0, "images_missing": 0}
+
+    def _fix_image(img) -> None:
+        raw = (img.filepath_raw or img.filepath or img.name or "").replace("\\", "/")
+        hit = _resolve_texture_path(raw, by_name)
         if hit is None:
-            continue
+            if img.size[0] == 0:
+                stats["images_missing"] += 1
+            else:
+                stats["images_ok"] += 1
+            return
         new_path = str(hit.resolve())
         if img.filepath_raw != new_path or img.size[0] == 0:
             img.filepath = new_path
             img.reload()
-            fixed += 1
+            stats["images_fixed"] += 1
+        else:
+            stats["images_ok"] += 1
+
+    for img in list(bpy.data.images):
+        if img.name in {"Render Result", "Viewer Node"}:
+            continue
+        _fix_image(img)
 
     for mat in bpy.data.materials:
         if not mat or not mat.use_nodes:
             continue
         for node in mat.node_tree.nodes:
-            if node.type != "TEX_IMAGE" or not node.image:
-                continue
-            img = node.image
-            raw = (img.filepath_raw or img.filepath or "").replace("\\", "/")
-            base = Path(raw).name.lower() if raw else img.name.lower()
-            hit = by_name.get(base)
-            if hit and (img.size[0] == 0 or "Users/" in raw or "C:/" in raw.upper()):
-                img.filepath = str(hit.resolve())
-                img.reload()
-    return fixed
+            if node.type == "TEX_IMAGE" and node.image:
+                _fix_image(node.image)
+    return stats
 
 
 def _material_has_texture(mat) -> bool:
@@ -254,8 +280,15 @@ def _tweak_environment_night(root: bpy.types.Object) -> None:
             if not bsdf:
                 continue
             textured = _material_has_texture(mat)
+            if textured:
+                # Part 5 rule: don't crush albedo when image nodes are live
+                emit = bsdf.inputs.get("Emission Color")
+                emit_str = bsdf.inputs.get("Emission Strength")
+                if emit and emit_str and float(emit_str.default_value) > 0.05:
+                    emit_str.default_value = float(emit_str.default_value) * 1.35
+                continue
             col = bsdf.inputs["Base Color"].default_value
-            dim = 0.82 if textured else 0.42
+            dim = 0.42
             bsdf.inputs["Base Color"].default_value = (
                 col[0] * dim,
                 col[1] * (dim - 0.02 if textured else dim - 0.02),
@@ -320,7 +353,10 @@ def _import_gas_station_environment() -> bpy.types.Object | None:
             obj.parent = root
     bpy.context.view_layer.update()
     relinked = _relink_environment_textures(hit)
-    print(f"Relinked {relinked} environment texture(s) from {hit.parent}")
+    print(
+        f"Environment textures: fixed={relinked['images_fixed']} "
+        f"ok={relinked['images_ok']} missing={relinked['images_missing']}"
+    )
     _fit_environment_to_scene(root, imported)
     _tweak_environment_night(root)
     return root
@@ -533,8 +569,10 @@ def _setup_render(scene: bpy.types.Scene, *, samples: int = 32) -> None:
         scene.world = bpy.data.worlds.new("PeripheralWorld")
     scene.world.use_nodes = True
     bg = scene.world.node_tree.nodes["Background"]
-    bg.inputs[0].default_value = (0.025, 0.035, 0.055, 1.0)
-    bg.inputs[1].default_value = 0.65
+    bg.inputs[0].default_value = (0.035, 0.045, 0.07, 1.0)
+    bg.inputs[1].default_value = 0.85
+    if hasattr(scene.view_settings, "exposure"):
+        scene.view_settings.exposure = 0.6
     scene.eevee.use_ssr = True
     scene.eevee.use_ssr_refraction = False
     scene.eevee.gi_diffuse_bounces = 2
@@ -583,11 +621,17 @@ def _add_eevee_light_probes() -> None:
             print(f"Light probe bake skipped: {exc}")
 
 
-def _add_fog_and_trees() -> None:
+def _add_fog_and_trees(*, env_loaded: bool = False) -> None:
     """Low pine silhouettes + volumetric fog for rural night mood."""
-    trunk = _mat("PineTrunk", (0.04, 0.03, 0.02, 1.0), rough=0.95)
-    needle = _mat("PineNeedle", (0.02, 0.04, 0.03, 1.0), rough=0.9)
-    for x, y, h in [(-12, -16, 7), (14, -18, 9), (-8, -22, 6), (18, -14, 8)]:
+    if not env_loaded:
+        trunk = _mat("PineTrunk", (0.04, 0.03, 0.02, 1.0), rough=0.95)
+        needle = _mat("PineNeedle", (0.02, 0.04, 0.03, 1.0), rough=0.9)
+        tree_spots = [(-12, -16, 7), (14, -18, 9), (-8, -22, 6), (18, -14, 8)]
+    else:
+        trunk = _mat("PineTrunk", (0.04, 0.03, 0.02, 1.0), rough=0.95)
+        needle = _mat("PineNeedle", (0.02, 0.04, 0.03, 1.0), rough=0.9)
+        tree_spots = [(-14, -20, 7), (16, -20, 8)]  # fewer when real gas station loaded
+    for x, y, h in tree_spots:
         bpy.ops.mesh.primitive_cylinder_add(radius=0.25, depth=h * 0.35, location=(x, y, h * 0.18))
         t = bpy.context.active_object
         t.data.materials.append(trunk)
@@ -602,7 +646,7 @@ def _add_fog_and_trees() -> None:
         output = nodes.get("World Output")
         if output and not output.inputs["Volume"].links:
             vol = nodes.new("ShaderNodeVolumeScatter")
-            vol.inputs["Density"].default_value = 0.005
+            vol.inputs["Density"].default_value = 0.002 if env_loaded else 0.005
             vol.inputs["Anisotropy"].default_value = 0.2
             links.new(vol.outputs["Volume"], output.inputs["Volume"])
 
@@ -991,7 +1035,7 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_eevee_light_probes()
-    _add_fog_and_trees()
+    _add_fog_and_trees(env_loaded=env is not None)
     if pack_dir:
         from shorts_bot.production.blender.scene_layout import apply_scene_layout
 
