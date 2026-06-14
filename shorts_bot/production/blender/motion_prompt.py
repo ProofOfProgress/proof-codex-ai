@@ -239,6 +239,12 @@ def load_beat_prompt(draft_id: int, phase: str) -> str:
     return PHASE_DEFAULT_PROMPTS.get(phase, PHASE_DEFAULT_PROMPTS["wave"])
 
 
+def _english_for_sidecar(draft_id: int, phase: str) -> str:
+    from shorts_bot.production.blender.phase_motion_prompts import english_prompt
+
+    return english_prompt(draft_id, phase)
+
+
 def prepare_motion_for_pack(
     pack_dir: Path,
     draft_id: int,
@@ -262,7 +268,7 @@ def prepare_motion_for_pack(
                 "phase": phase,
                 "backend": "proscenium_fbx",
                 "source_fbx": str(fbx),
-                "prompt": prompt_override or load_beat_prompt(draft_id, phase),
+                "prompt": prompt_override or _english_for_sidecar(draft_id, phase),
             }
             out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
             written[phase] = out

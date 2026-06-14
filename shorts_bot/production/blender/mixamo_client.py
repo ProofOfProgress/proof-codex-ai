@@ -9,12 +9,19 @@ from pathlib import Path
 
 MIXAMO_URL = "https://www.mixamo.com/#/?page=1&type=Motion"
 
-# Horror beats for draft #2 gas station / SCP creature
+# Fallback if no draft motion config
 DEFAULT_PHASE_QUERIES: dict[str, str] = {
     "open": "zombie walk",
-    "wave": "zombie idle",
+    "wave": "waving",
     "lunge": "zombie attack",
 }
+
+
+def phase_queries_for_draft(draft_id: int) -> dict[str, str]:
+    from shorts_bot.production.blender.phase_motion_prompts import all_phase_queries, ensure_draft_motion_json
+
+    ensure_draft_motion_json(draft_id)
+    return all_phase_queries(draft_id)
 
 
 @dataclass
@@ -149,7 +156,7 @@ def fetch_draft_motions(
     from shorts_bot.browser.stealth import launch_stealth_context
     from shorts_bot.config import settings
 
-    queries = phases or DEFAULT_PHASE_QUERIES
+    queries = phases or phase_queries_for_draft(draft_id)
     results: list[MixamoFetchResult] = []
 
     with sync_playwright() as pw:

@@ -2,6 +2,7 @@
   "draft_id": 2,
   "source": "mixamo",
   "model": "channel/assets/creatures/scp_096/scp_096.fbx",
+  "prompts_file": "data/production/draft_2/motion_prompts.json",
   "clips": [
     {
       "phase": "open",
@@ -11,8 +12,8 @@
     },
     {
       "phase": "wave",
-      "query": "zombie idle",
-      "animation": "Zombie Idle",
+      "query": "waving",
+      "animation": "Waving Gesture",
       "path": "/workspace/channel/assets/motion_exports/draft_2_wave.fbx"
     },
     {

@@ -10,7 +10,12 @@ from rich.console import Console
 
 from shorts_bot.config import settings
 from shorts_bot.production.blender.creature_paths import resolve_creature_model
-from shorts_bot.production.blender.mixamo_client import DEFAULT_PHASE_QUERIES, fetch_draft_motions
+from shorts_bot.production.blender.mixamo_client import fetch_draft_motions
+from shorts_bot.production.blender.phase_motion_prompts import (
+    ensure_draft_motion_json,
+    export_motion_prompts_file,
+    phase_queries_for_draft,
+)
 
 console = Console()
 
@@ -45,6 +50,11 @@ def main() -> None:
         raise SystemExit(f"Mixamo needs FBX/OBJ/ZIP — got {model.suffix}. Use scp_096.fbx")
     out_dir = args.out_dir or (Path(__file__).resolve().parents[3] / "channel" / "assets" / "motion_exports")
 
+    ensure_draft_motion_json(args.draft_id)
+    queries = phase_queries_for_draft(args.draft_id)
+    pack = settings.data_dir / "production" / f"draft_{args.draft_id}"
+    prompt_doc = export_motion_prompts_file(args.draft_id, pack)
+
     if args.login_wait > 0:
         console.print(
             "[bold yellow]Mixamo login[/bold yellow] — browser opening.\n"
@@ -54,7 +64,8 @@ def main() -> None:
 
     console.print(f"Model: {model}")
     console.print(f"Output: {out_dir}")
-    console.print(f"Phases: {DEFAULT_PHASE_QUERIES}")
+    console.print(f"Mixamo searches: {queries}")
+    console.print(f"Prompts doc: {prompt_doc}")
 
     results = fetch_draft_motions(
         draft_id=args.draft_id,
@@ -68,6 +79,7 @@ def main() -> None:
         "draft_id": args.draft_id,
         "source": "mixamo",
         "model": str(model),
+        "prompts_file": str(pack / "motion_prompts.json"),
         "clips": [
             {
                 "phase": r.phase,
