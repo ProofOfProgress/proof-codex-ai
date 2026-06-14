@@ -73,11 +73,15 @@ def produce_micro_jumpscare(
             "BLENDER_INCLUDE_CREATURE": "1",
             "BLENDER_MICRO_JUMPSCARE": "1",
             "BLENDER_MOTION_BACKEND": "proscenium_fbx",
+            "BLENDER_CREATURE_TARGET_HEIGHT": str(settings.micro_jumpscare_creature_height),
+            "BLENDER_MICRO_CREATURE_SCALE": str(settings.micro_jumpscare_creature_scale),
         }
         proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if proc.returncode != 0:
             tail = (proc.stderr or proc.stdout or "")[-4000:]
             raise RuntimeError(f"Blender micro render failed:\n{tail}")
+        if not clip.is_file() or clip.stat().st_size < 5000:
+            raise RuntimeError(f"Blender finished but clip missing: {clip}")
     else:
         console.print(f"[green]Reusing clip[/green] {clip}")
 

@@ -403,7 +403,7 @@ def _import_gas_station_props(env_root: bpy.types.Object, models_dir: Path) -> N
 
 def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
     """Peripheral Form 2 pass — darker, taller, wet-night horror."""
-    if profile == "form2_rural":
+    if profile == "form2_rural" and not _micro_jumpscare_mode():
         extra = float(os.environ.get("BLENDER_CREATURE_SCALE", "1.0"))
         rig.scale = Vector(rig.scale) * Vector((1.05, 1.05, 1.15)) * extra
     for obj in rig.children_recursive:
@@ -480,8 +480,33 @@ def _ground_creature(rig: bpy.types.Object) -> None:
         rig.location.z -= zmin
 
 
-def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float = 2.45) -> None:
-    """SCP-096 lore height ~2.38m — scale import to match scene."""
+def _creature_target_height() -> float:
+    if _micro_jumpscare_mode():
+        return float(
+            os.environ.get(
+                "BLENDER_CREATURE_TARGET_HEIGHT",
+                os.environ.get("MICRO_CREATURE_HEIGHT", "1.85"),
+            )
+        )
+    return float(os.environ.get("BLENDER_CREATURE_TARGET_HEIGHT", "2.45"))
+
+
+def _micro_creature_uniform_scale() -> float:
+    return float(os.environ.get("BLENDER_MICRO_CREATURE_SCALE", "0.82"))
+
+
+def _apply_micro_creature_scale(form2: bpy.types.Object) -> None:
+    """Human-scale next to gas-station FBX — not tower over the road."""
+    s = _micro_creature_uniform_scale()
+    form2.scale = Vector((s, s, s))
+    _ground_creature(form2)
+    bpy.context.view_layer.update()
+
+
+def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float | None = None) -> None:
+    """Scale import to target height in meters (lore or micro gas-station proportion)."""
+    if target_height is None:
+        target_height = _creature_target_height()
     bpy.context.view_layer.update()
     h = _mesh_world_height(rig)
     if h > 0.05:
@@ -1080,35 +1105,37 @@ def _animate_micro_jumpscare(
 ) -> None:
     """3s format: ~0.4s bait → lunge; eyes on top rule-of-thirds line at scare."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
+    base_s = _micro_creature_uniform_scale()
     bait_f = frame_start + max(8, int((frame_end - frame_start) * 0.14))
     cam.animation_data_clear()
     form2.animation_data_clear()
     cam.data.shift_y = 0.0
-    # Bait — camera raised, pumps readable
+    # Bait — camera raised, pumps readable; creature human-scale in distance
     cam.location = (0, -5.0, 2.15)
     _camera_point_at_rule_thirds(cam, SCENE_FOCAL, frame_line=line)
     cam.keyframe_insert(data_path="location", frame=frame_start)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
-    cam.keyframe_insert(data_path="data.shift_y", frame=frame_start)
-    form2.location = (0, -10.5, 0)
-    form2.scale = (1.0, 1.0, 1.25)
+    cam.data.keyframe_insert(data_path="shift_y", frame=frame_start)
+    form2.location = (0, -11.0, 0)
+    form2.scale = (base_s, base_s, base_s)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     cam.keyframe_insert(data_path="location", frame=bait_f)
     cam.keyframe_insert(data_path="rotation_euler", frame=bait_f)
-    cam.keyframe_insert(data_path="data.shift_y", frame=bait_f)
+    cam.data.keyframe_insert(data_path="shift_y", frame=bait_f)
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    # Lunge — eyes land on top third horizontal line (not frame edge)
-    form2.location = (0, -1.55, 0.88)
-    form2.scale = (1.42, 1.42, 1.62)
+    # Lunge — closer + slight scale pop (not giant); eyes on top third line
+    lunge_s = base_s * 1.06
+    form2.location = (0, -2.4, 0.88)
+    form2.scale = (lunge_s, lunge_s, lunge_s)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
-    cam.location = (0, -2.55, 2.35)
+    cam.location = (0, -2.85, 2.35)
     eye = _creature_eye_target(form2)
     _camera_point_at_rule_thirds(cam, eye, frame_line=line)
     cam.keyframe_insert(data_path="location", frame=frame_end)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
-    cam.keyframe_insert(data_path="data.shift_y", frame=frame_end)
+    cam.data.keyframe_insert(data_path="shift_y", frame=frame_end)
     if armature:
         _play_creature_action(
             armature,
@@ -1228,6 +1255,8 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
         from shorts_bot.production.blender.scene_layout import apply_scene_layout
 
         apply_scene_layout(pack_dir, camera=cam, creature=form2, environment=env)
+        if _micro_jumpscare_mode():
+            _apply_micro_creature_scale(form2)
     elif pack_dir and env is not None:
         from shorts_bot.production.blender.scene_layout import load_scene_layout
 

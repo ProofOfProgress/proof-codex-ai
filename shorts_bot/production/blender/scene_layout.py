@@ -14,7 +14,7 @@ DEFAULT_LAYOUT: dict[str, Any] = {
     "creature": {
         "location": [0.0, -7.5, 0.0],
         "rotation": [0.0, 0.0, 0.0],
-        "scale": [1.0, 1.0, 1.35],
+        "scale": [1.0, 1.0, 1.0],
     },
     "camera": {
         "location": [0.0, 2.0, 1.65],
