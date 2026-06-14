@@ -108,6 +108,13 @@ class BotOperations:
             return self.login_status_text()
         if is_generate_assets_command(text):
             return self.generate_brand_assets()
+
+        from shorts_bot.agents.blender_motion_ops import try_parse_and_run
+
+        blender_reply = try_parse_and_run(text)
+        if blender_reply:
+            return blender_reply
+
         auto_id = parse_auto_video_request(text)
         if auto_id is not None:
             if auto_id < 0:
@@ -198,6 +205,9 @@ class BotOperations:
             "• generate assets — profile.png + banner.png locally\n"
             "• login status — live service health\n"
             "• make video <draft_id> — auto still pack from script\n"
+            "• blender motion <id> <open|wave|lunge> | <English> — AI moves creature (cloud)\n"
+            "• blender render <id> — full Blender Short on cloud (~30–45 min, your PC does nothing)\n"
+            "• blender preview <id> wave — PNG still of wave clip\n"
             "• remember <fact> — save operating rule / preference for future sessions\n"
             "• memory / rules — list what the bot remembers\n"
             "• forget <id> — remove a saved memory\n"

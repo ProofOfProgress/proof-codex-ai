@@ -99,7 +99,16 @@ class Settings(BaseSettings):
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
     # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
-    content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
+    content_format: str = "short_30"  # short_30 | short_hybrid | micro_jumpscare | long_* 
+    micro_jumpscare_seconds: float = 3.0
+    micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
+    micro_jumpscare_bed_gain: float = 0.85  # loud noise throughout (not whisper-quiet)
+    micro_jumpscare_roar_gain: float = 1.85  # premade CC0 roar at lunge
+    micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
+    micro_jumpscare_rule_of_thirds: float = 2 / 3  # eyes on top horizontal third line
+    micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
+    micro_jumpscare_creature_scale: float = 0.82  # uniform scale vs FBX env (0.07)
+    micro_jumpscare_creature_only: bool = True  # lunge lab — monster + void, no gas station
 
     @field_validator("visual_style", mode="before")
     @classmethod
@@ -136,6 +145,10 @@ class Settings(BaseSettings):
     blender_clip_seconds: float = 10.0
     blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
     blender_force_regen: bool = False
+    blender_creature_model: str | None = None  # FBX/GLB/OBJ — default slot channel/assets/creatures/scp_096/
+    blender_creature_scale: float = 1.0  # extra uniform scale after import
+    blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx | kimodo — NOT gemini (use Proscenium addon)
+    blender_animation_tool: str = "proscenium"  # proscenium | kimodo | mixamo — see docs/FOR_OWNER_PROSCENIUM.md
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"

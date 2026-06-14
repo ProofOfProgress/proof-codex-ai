@@ -316,6 +316,53 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "generate_blender_motion",
+            "description": (
+                "Turn English into Blender creature motion for a draft clip phase. "
+                "Writes motion_{phase}.json (Gemini bone keyframes). Cloud only — owner PC never runs Blender."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "draft_id": {"type": "integer"},
+                    "prompt": {
+                        "type": "string",
+                        "description": "How the creature should move, e.g. slow creepy wave with bent wrist",
+                    },
+                    "phase": {
+                        "type": "string",
+                        "enum": ["open", "wave", "lunge"],
+                        "description": "Which 10s clip: open (0-10s), wave (10-20s), lunge (20-30s)",
+                    },
+                },
+                "required": ["draft_id", "prompt", "phase"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "start_blender_render",
+            "description": (
+                "Start full Blender Short render on cloud VM (~30-45 min background). "
+                "Uses motion JSON + beat sheet. Owner watches at /preview/draft/N."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "draft_id": {"type": "integer"},
+                    "force": {
+                        "type": "boolean",
+                        "description": "Re-render even if clips cached",
+                    },
+                },
+                "required": ["draft_id"],
+            },
+        },
+    },
 ]
 
 
@@ -354,6 +401,8 @@ class ToolRunner:
             "get_youtube_status": self._get_youtube_status,
             "mark_channel_ready": self._mark_channel_ready,
             "score_video_performance": self._score_video_performance,
+            "generate_blender_motion": self._generate_blender_motion,
+            "start_blender_render": self._start_blender_render,
         }
 
     def run(self, name: str, arguments: dict[str, Any]) -> str:
@@ -671,3 +720,22 @@ class ToolRunner:
                 "url": result.current_url,
             }
         )
+
+    def _generate_blender_motion(self, args: dict[str, Any]) -> str:
+        from shorts_bot.agents.blender_motion_ops import move_creature_from_prompt
+
+        result = move_creature_from_prompt(
+            int(args["draft_id"]),
+            args["prompt"],
+            phase=args.get("phase", "wave"),
+        )
+        return json.dumps(result)
+
+    def _start_blender_render(self, args: dict[str, Any]) -> str:
+        from shorts_bot.agents.blender_motion_ops import start_blender_render_background
+
+        result = start_blender_render_background(
+            int(args["draft_id"]),
+            force=bool(args.get("force", True)),
+        )
+        return json.dumps(result)
