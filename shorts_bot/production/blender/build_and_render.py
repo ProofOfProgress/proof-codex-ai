@@ -362,6 +362,108 @@ def _add_fog_and_trees() -> None:
             links.new(vol.outputs["Volume"], output.inputs["Volume"])
 
 
+def _find_armature(rig: bpy.types.Object) -> bpy.types.Object | None:
+    for obj in rig.children_recursive:
+        if obj.type == "ARMATURE":
+            return obj
+    return None
+
+
+def _clear_armature_animation(armature: bpy.types.Object) -> None:
+    if not armature.animation_data:
+        return
+    armature.animation_data.action = None
+    while armature.animation_data.nla_tracks:
+        armature.animation_data.nla_tracks.remove(armature.animation_data.nla_tracks[0])
+
+
+def _play_creature_action(
+    armature: bpy.types.Object,
+    *,
+    phase: str,
+    frame_start: int,
+    frame_end: int,
+) -> None:
+    """Use imported SCP-096 skeletal animation (NLA) + pose keys for wave/lunge."""
+    action = bpy.data.actions.get("anim_Armature1") or bpy.data.actions.get("Armature1")
+    if not action:
+        for act in bpy.data.actions:
+            if "armature" in act.name.lower() or "anim" in act.name.lower():
+                action = act
+                break
+    if not action:
+        return
+
+    _clear_armature_animation(armature)
+    ad = armature.animation_data or armature.animation_data_create()
+    act_end = int(min(action.frame_range[1], 600))
+    phase_ranges = {
+        "open": (1, min(120, act_end)),
+        "wave": (min(80, act_end // 4), min(280, act_end // 2)),
+        "lunge": (min(300, act_end // 2), min(480, act_end)),
+    }
+    a0, a1 = phase_ranges.get(phase, (1, min(120, act_end)))
+    track = ad.nla_tracks.new()
+    track.name = f"Form2_{phase}"
+    strip = track.strips.new(action.name, frame_start, action)
+    strip.action_frame_start = a0
+    strip.action_frame_end = a1
+    strip.frame_end = frame_end
+    strip.blend_type = "REPLACE"
+    ad.use_nla = True
+
+    # Extra pose keys — creepy wave / lunge overlay
+    _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+
+
+def _pose_wave_or_lunge(
+    armature: bpy.types.Object,
+    *,
+    phase: str,
+    frame_start: int,
+    frame_end: int,
+) -> None:
+    """Layer manual bone keys on top of NLA for readable wave + jumpscare lunge."""
+    if armature.type != "ARMATURE":
+        return
+    scene = bpy.context.scene
+    prev_active = bpy.context.view_layer.objects.active
+    prev_mode = armature.mode if armature == prev_active else "OBJECT"
+    bpy.context.view_layer.objects.active = armature
+    if armature.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+
+    wave_bones = ("Bone_007", "Bone_008", "Bone_009", "Bone_010")
+    lunge_bones = ("pelvis", "ripcage", "neck", "head")
+
+    def _key_chain(names: tuple[str, ...], rot: tuple[float, float, float], frame: int) -> None:
+        for name in names:
+            pb = armature.pose.bones.get(name)
+            if not pb:
+                continue
+            pb.rotation_mode = "XYZ"
+            pb.rotation_euler = rot
+            pb.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+    mid = frame_start + (frame_end - frame_start) // 2
+    if phase == "wave":
+        _key_chain(wave_bones, (0, 0, 0), frame_start + 4)
+        _key_chain(wave_bones, (math.radians(-95), math.radians(15), math.radians(-20)), mid)
+        _key_chain(wave_bones, (math.radians(-110), math.radians(8), math.radians(-12)), frame_end - 6)
+    elif phase == "lunge":
+        lunge_f = frame_end - 10
+        _key_chain(lunge_bones, (0, 0, 0), frame_start)
+        _key_chain(lunge_bones, (math.radians(25), 0, 0), lunge_f)
+        _key_chain(lunge_bones, (math.radians(55), 0, 0), frame_end)
+        _key_chain(wave_bones, (math.radians(-130), 0, 0), frame_end)
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    if prev_active:
+        bpy.context.view_layer.objects.active = prev_active
+        if prev_active.type == "ARMATURE" and prev_mode == "POSE":
+            bpy.ops.object.mode_set(mode="POSE")
+
+
 def _animate_camera_wave_lunge(
     cam: bpy.types.Object,
     form2: bpy.types.Object,
@@ -369,6 +471,7 @@ def _animate_camera_wave_lunge(
     frame_start: int,
     frame_end: int,
     phase: str,
+    armature: bpy.types.Object | None = None,
 ) -> None:
     cam.animation_data_clear()
     form2.animation_data_clear()
@@ -417,6 +520,9 @@ def _animate_camera_wave_lunge(
         cam.location = (0, -3.5, 1.4)
         cam.keyframe_insert(data_path="location", frame=frame_end)
 
+    if armature:
+        _play_creature_action(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+
 
 def build_scene(*, samples: int = 32) -> dict:
     _clear_scene()
@@ -428,7 +534,7 @@ def build_scene(*, samples: int = 32) -> dict:
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_fog_and_trees()
-    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp}
+    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2)}
 
 
 def render_clip(
@@ -442,12 +548,15 @@ def render_clip(
     cam = ctx["camera"]
     form2 = ctx["form2"]
     lamp = ctx["lamp"]
+    armature = ctx.get("armature")
     f0 = 1
     f1 = int(seconds * FPS)
     scene.frame_start = f0
     scene.frame_end = f1
     _flicker_keyframes(lamp, f0, f1)
-    _animate_camera_wave_lunge(cam, form2, frame_start=f0, frame_end=f1, phase=phase)
+    _animate_camera_wave_lunge(
+        cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
@@ -475,7 +584,10 @@ def render_preview(out_png: Path, *, samples: int = 32) -> None:
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
-    _animate_camera_wave_lunge(cam, form2, frame_start=1, frame_end=48, phase="lunge")
+    armature = ctx.get("armature")
+    _animate_camera_wave_lunge(
+        cam, form2, frame_start=1, frame_end=48, phase="lunge", armature=armature
+    )
     scene.frame_set(40)
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(out_png)
