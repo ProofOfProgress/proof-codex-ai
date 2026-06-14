@@ -1,6 +1,6 @@
 {
-  "passed": 5,
-  "total": 8,
+  "passed": 12,
+  "total": 12,
   "results": [
     {
       "module": "01_scene_graph",
@@ -23,24 +23,44 @@
       "detail": ""
     },
     {
-      "module": "lab_05_eevee_probes",
-      "pass": false,
-      "detail": "Operator bpy.ops.object.lightprobe_add.poll() failed, context is incorrect"
+      "module": "05_eevee_probes",
+      "pass": true,
+      "detail": "grid=GRID cube=CUBEMAP"
     },
     {
-      "module": "lab_06_camera_path",
-      "pass": false,
-      "detail": "Operator bpy.ops.object.camera_add.poll() failed, context is incorrect"
+      "module": "06_camera_path",
+      "pass": "<bpy_struct, Action(\"CameraAction\") at 0x7f7f78832508>",
+      "detail": ""
     },
     {
-      "module": "lab_07_headless_render",
-      "pass": false,
-      "detail": "Error: Cannot render, no camera\n"
+      "module": "07_headless_render",
+      "pass": true,
+      "detail": ""
     },
     {
       "module": "08_creature_import",
       "pass": true,
       "detail": "armature=Armature"
+    },
+    {
+      "module": "09_texture_relink",
+      "pass": true,
+      "detail": "spotlight_Emissor.png 1x1"
+    },
+    {
+      "module": "10_shader_nodes",
+      "pass": true,
+      "detail": "Fuel_pump.png"
+    },
+    {
+      "module": "11_fbx_environment",
+      "pass": true,
+      "detail": "meshes=960"
+    },
+    {
+      "module": "12_lamp_keyframes",
+      "pass": true,
+      "detail": ""
     }
   ]
 }

@@ -8,7 +8,17 @@
 
 ## Do free “AI Blender courses” exist?
 
-**Yes, but they are mostly pipelines — not “Blender AI inside the app.”**
+**Yes — but for *coding* Blender, start here:**
+
+### Primary: CG Python — Blender Python for Artists (FREE)
+
+- **Skool classroom:** https://www.skool.com/cgpython/classroom/60a44c1e  
+- **Intro:** https://www.youtube.com/watch?v=KZAT7jElCRk  
+- **Syllabus + progress:** `data/research/BLENDER_PYTHON_COURSE_PLAN.md`, `BLENDER_COURSE_PROGRESS.md`  
+- **Parts:** Python basics → operators/panels → objects → shader/geo **nodes in code**  
+- **Why:** 100% bpy scripting — matches headless cloud pipeline (`build_and_render.py`)
+
+**Other resources:**
 
 | Course / resource | Cost | AI angle | Best for us? |
 |-------------------|------|----------|--------------|
@@ -131,7 +141,7 @@ When procedural pose keys are not enough:
 
 Before claiming “Blender is production-ready,” all must pass:
 
-- [ ] `bpy_lab.py` → 8/8 PASS
+- [ ] `bpy_lab.py` → **12/12 PASS** (CG Python Parts 3 + 5 + 6 drills)
 - [ ] Preview PNG shows creature + readable lighting
 - [ ] Wave clip: arm visibly moves 0s → 5s → 10s
 - [ ] Full 3-clip stitch → 30s with SFX

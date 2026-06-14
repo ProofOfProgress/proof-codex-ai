@@ -147,6 +147,74 @@ def lab_08_creature_import() -> None:
     _record("08_creature_import", ok, f"armature={arm.name if arm else None}")
 
 
+def lab_09_texture_relink() -> None:
+    """CG Python Part 5 — shader/image nodes: fix broken image paths (gas-station FBX)."""
+    workspace = Path("/workspace")
+    sys.path.insert(0, str(workspace))
+    tex_dir = workspace / "channel/assets/environments/gas_station/Gas_station/Textures"
+    if not tex_dir.is_dir():
+        _record("09_texture_relink", False, "textures dir missing")
+        return
+    sample = next(tex_dir.glob("*.png"), None) or next(tex_dir.glob("*.jpg"), None)
+    if not sample:
+        _record("09_texture_relink", False, "no sample texture")
+        return
+    img = bpy.data.images.new("BrokenPathTest", width=1, height=1)
+    img.filepath = "C:/Users/fake/broken.png"
+    img.filepath = str(sample.resolve())
+    img.reload()
+    ok = img.size[0] > 0 and img.size[1] > 0
+    _record("09_texture_relink", ok, f"{sample.name} {img.size[0]}x{img.size[1]}")
+
+
+def lab_10_shader_nodes() -> None:
+    """CG Python Part 5 — build Principled + Image Texture in code."""
+    tex_dir = Path("/workspace/channel/assets/environments/gas_station/Gas_station/Textures")
+    sample = tex_dir / "Fuel_pump.png"
+    if not sample.is_file():
+        sample = next(tex_dir.glob("*.png"), None)
+    mat = bpy.data.materials.new("LabShaderNodes")
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    nodes.clear()
+    out = nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nodes.new("ShaderNodeBsdfPrincipled")
+    links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    if sample and sample.is_file():
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = bpy.data.images.load(str(sample.resolve()))
+        links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    ok = bsdf.outputs["BSDF"].is_linked and mat.use_nodes
+    _record("10_shader_nodes", ok, sample.name if sample else "no image")
+
+
+def lab_11_fbx_environment() -> None:
+    """CG Python Part 6 — import gas-station FBX headless."""
+    fbx = Path("/workspace/channel/assets/environments/gas_station/Gas_station/Models/Gas_station.fbx")
+    if not fbx.is_file():
+        _record("11_fbx_environment", False, "fbx missing")
+        return
+    before = {o.name for o in bpy.data.objects}
+    bpy.ops.import_scene.fbx(filepath=str(fbx))
+    meshes = [o for o in bpy.data.objects if o.name not in before and o.type == "MESH"]
+    ok = len(meshes) >= 5
+    _record("11_fbx_environment", ok, f"meshes={len(meshes)}")
+
+
+def lab_12_lamp_keyframes() -> None:
+    """Part 3 + EEVEE — streetlight energy keyframes (headless-safe)."""
+    bpy.ops.object.light_add(type="POINT", location=(4, -6, 5))
+    lamp = bpy.context.active_object
+    lamp.data.energy = 120.0
+    lamp.data.keyframe_insert(data_path="energy", frame=1)
+    lamp.data.energy = 1600.0
+    lamp.data.keyframe_insert(data_path="energy", frame=12)
+    ad = lamp.data.animation_data
+    ok = ad is not None and ad.action is not None
+    _record("12_lamp_keyframes", ok)
+
+
 def main() -> None:
     labs = [
         lab_01_scene_graph,
@@ -157,6 +225,10 @@ def main() -> None:
         lab_06_camera_path,
         lab_07_headless_render,
         lab_08_creature_import,
+        lab_09_texture_relink,
+        lab_10_shader_nodes,
+        lab_11_fbx_environment,
+        lab_12_lamp_keyframes,
     ]
     for fn in labs:
         try:
@@ -168,7 +240,7 @@ def main() -> None:
     print(f"\n=== LAB SUMMARY: {passed}/{len(RESULTS)} passed ===")
     out = Path("/workspace/data/research/bpy_lab_results.json")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps({"passed": passed, "total": len(RESULTS), "results": RESULTS}, indent=2))
+    out.write_text(json.dumps({"passed": passed, "total": len(RESULTS), "results": RESULTS}, indent=2, default=str))
     print(f"Wrote {out}")
 
 
