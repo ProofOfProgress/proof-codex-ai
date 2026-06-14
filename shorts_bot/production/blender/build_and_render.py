@@ -1031,6 +1031,18 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
     return paths
 
 
+def save_scene_blend(out_path: Path, *, samples: int = 32, pack_dir: Path | None = None) -> Path:
+    """Write current scene to .blend so owner can open in Blender Desktop."""
+    ctx = build_scene(samples=samples)
+    if pack_dir:
+        ctx["pack_dir"] = pack_dir
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(out_path))
+    print(f"Saved blend {out_path}")
+    return out_path
+
+
 def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave", pack_dir: Path | None = None) -> None:
     ctx = build_scene(samples=samples)
     if pack_dir:
@@ -1060,6 +1072,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--draft-id", type=int, default=2)
     parser.add_argument("--preview", action="store_true")
     parser.add_argument(
+        "--save-blend",
+        action="store_true",
+        help="Save peripheral_draft_N.blend for owner (Blender Desktop)",
+    )
+    parser.add_argument(
         "--phase",
         choices=("open", "wave", "lunge"),
         default="wave",
@@ -1075,6 +1092,13 @@ def main(argv: list[str] | None = None) -> None:
     samples = args.samples or int(os.environ.get("BLENDER_SAMPLES", "32"))
 
     pack = args.pack_dir or OUTPUT_ROOT / f"draft_{args.draft_id}"
+    if args.save_blend:
+        save_scene_blend(
+            pack / f"peripheral_draft_{args.draft_id}.blend",
+            samples=samples,
+            pack_dir=pack,
+        )
+        return
     if args.preview:
         render_preview(
             pack / f"blender_preview_{args.phase}.png",

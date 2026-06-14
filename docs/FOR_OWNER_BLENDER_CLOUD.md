@@ -1,6 +1,18 @@
 # Blender on a weak PC — what you need to know
 
-**You never install or run Blender.** All 3D work happens on the **cloud machine** (Cursor agent). Your PC only opens pictures, links, or YouTube.
+**You never have to run Blender** — but you **can** if you want to fix lighting, textures, or camera yourself. All cloud rendering still works without your PC.
+
+---
+
+## Get the Blender folder (owner access)
+
+| Method | What to do |
+|--------|------------|
+| **Browse on GitHub** | [shorts_bot/production/blender](https://github.com/ProofOfProgress/proof-codex-ai/tree/main/shorts_bot/production/blender) · [channel/assets](https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/assets) |
+| **Download a zip** | Ask agent: `make owner blender pack for draft 2` — or run `python3 -m shorts_bot.production.blender.owner_pack_cli --draft-id 2 --with-blend` on cloud → download `data/production/draft_2/OWNER_BLENDER_PACK_draft_2.zip` from Cursor file tree |
+| **Open in Blender** | Unzip → open `peripheral_draft_2.blend` in [Blender 4.x](https://www.blender.org/download/) → fix scene → save → send `.blend` back |
+
+Full map: `shorts_bot/production/blender/README_FOR_OWNER.md`
 
 ---
 
@@ -29,11 +41,13 @@
 
 ## What you say to the agent
 
+- `make owner blender pack for draft 2` — zip of 3D assets (+ optional .blend) to download
 - `re-render draft 2 in blender` — full cloud render
 - `show me a wave preview` — one clip test (~12 min cloud)
 - `make the creature wave creepier` — edits English motion prompt, re-renders
+- `I fixed the blend file` — after you edited lighting/textures in Blender Desktop
 
-You do **not** need to open Blender, install GPU drivers, or download SCP models.
+You do **not** need to open Blender unless you **want** to help with the scene craft.
 
 ---
 
