@@ -72,6 +72,7 @@ def produce_micro_jumpscare(
             **__import__("os").environ,
             "BLENDER_INCLUDE_CREATURE": "1",
             "BLENDER_MICRO_JUMPSCARE": "1",
+            "BLENDER_CREATURE_ONLY": "1",
             "BLENDER_MOTION_BACKEND": "proscenium_fbx",
             "BLENDER_CREATURE_TARGET_HEIGHT": str(settings.micro_jumpscare_creature_height),
             "BLENDER_MICRO_CREATURE_SCALE": str(settings.micro_jumpscare_creature_scale),

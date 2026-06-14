@@ -108,6 +108,7 @@ class Settings(BaseSettings):
     micro_jumpscare_rule_of_thirds: float = 2 / 3  # eyes on top horizontal third line
     micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
     micro_jumpscare_creature_scale: float = 0.82  # uniform scale vs FBX env (0.07)
+    micro_jumpscare_creature_only: bool = True  # lunge lab — monster + void, no gas station
 
     @field_validator("visual_style", mode="before")
     @classmethod

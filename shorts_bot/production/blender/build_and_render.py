@@ -1090,8 +1090,106 @@ def _animate_scene_camera(
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
 
 
+def _creature_only_mode() -> bool:
+    return os.environ.get("BLENDER_CREATURE_ONLY", "").strip().lower() in ("1", "true", "yes", "on")
+
+
 def _micro_jumpscare_mode() -> bool:
     return os.environ.get("BLENDER_MICRO_JUMPSCARE", "").strip().lower() in ("1", "true", "yes")
+
+
+def _setup_creature_only_world(scene: bpy.types.Scene) -> None:
+    """Void backdrop — monster lunge lab only."""
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("PeripheralWorld")
+    scene.world.use_nodes = True
+    bg = scene.world.node_tree.nodes["Background"]
+    bg.inputs[0].default_value = (0.008, 0.01, 0.014, 1.0)
+    bg.inputs[1].default_value = 1.0
+    if hasattr(scene.view_settings, "exposure"):
+        scene.view_settings.exposure = 0.45
+
+
+def _add_creature_only_lights() -> bpy.types.Light:
+    """Horror rim + key — no streetlight, no environment."""
+    bpy.ops.object.light_add(type="AREA", location=(1.5, -2, 2.8))
+    key = bpy.context.active_object
+    key.name = "CreatureKey"
+    key.data.energy = 420
+    key.data.color = (0.82, 0.88, 1.0)
+    key.data.size = 3.5
+    key.rotation_euler = (math.radians(58), 0, math.radians(200))
+    bpy.ops.object.light_add(type="SPOT", location=(-1.2, -1.5, 2.2))
+    rim = bpy.context.active_object
+    rim.name = "CreatureRim"
+    rim.data.energy = 680
+    rim.data.color = (1.0, 0.42, 0.18)
+    rim.data.spot_size = math.radians(48)
+    rim.rotation_euler = (math.radians(115), 0, math.radians(160))
+    bpy.ops.object.light_add(type="POINT", location=(0, -3, 1.2))
+    fill = bpy.context.active_object
+    fill.name = "CreatureFill"
+    fill.data.energy = 120
+    fill.data.color = (0.55, 0.6, 0.75)
+    return fill
+
+
+def _setup_creature_lunge_camera() -> bpy.types.Object:
+    """Fixed POV for lunge training — eyes land on top rule-of-thirds line."""
+    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
+    bpy.ops.object.camera_add(location=(0, -4.2, 1.78))
+    cam = bpy.context.active_object
+    cam.name = "LungeCamera"
+    cam.data.lens = 32
+    _camera_point_at_rule_thirds(cam, (0, -8, 1.45), frame_line=line)
+    bpy.context.scene.camera = cam
+    return cam
+
+
+def _animate_creature_lunge_lab(
+    cam: bpy.types.Object,
+    form2: bpy.types.Object,
+    *,
+    frame_start: int,
+    frame_end: int,
+    armature: bpy.types.Object | None = None,
+    pack_dir: Path | None = None,
+) -> None:
+    """Monster-only: static camera, Mixamo lunge drives the scare."""
+    bait_f = frame_start + max(6, int((frame_end - frame_start) * 0.12))
+    base_s = 1.0 if _creature_only_mode() else (
+        _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
+    )
+    cam.animation_data_clear()
+    form2.animation_data_clear()
+    # Camera locked — no dolly, no spin
+    fixed_rot = cam.rotation_euler.copy()
+    fixed_loc = cam.location.copy()
+    fixed_shift = cam.data.shift_y
+    cam.keyframe_insert(data_path="location", frame=frame_start)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    cam.data.keyframe_insert(data_path="shift_y", frame=frame_start)
+    cam.keyframe_insert(data_path="location", frame=frame_end)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
+    cam.data.keyframe_insert(data_path="shift_y", frame=frame_end)
+    # Creature — far hold then sprint into lens (Mixamo Zombie Attack)
+    form2.location = (0, -9.5, 0)
+    form2.scale = (base_s, base_s, base_s)
+    form2.rotation_euler = (0, 0, 0)
+    form2.keyframe_insert(data_path="location", frame=frame_start)
+    form2.keyframe_insert(data_path="scale", frame=frame_start)
+    form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    form2.keyframe_insert(data_path="location", frame=bait_f)
+    form2.location = (0, -1.15, 0)
+    form2.keyframe_insert(data_path="location", frame=frame_end)
+    if armature:
+        _play_creature_action(
+            armature,
+            phase="lunge",
+            frame_start=frame_start,
+            frame_end=frame_end,
+            pack_dir=pack_dir,
+        )
 
 
 def _animate_micro_jumpscare(
@@ -1240,6 +1338,29 @@ def _animate_camera_wave_lunge(
 def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
     _clear_scene()
     scene = bpy.context.scene
+    env = None
+    lamp: bpy.types.Light | None = None
+    if _creature_only_mode():
+        print("Creature-only lunge lab — no environment")
+        _setup_render(scene, samples=samples)
+        _setup_creature_only_world(scene)
+        lamp = _add_creature_only_lights()
+        form2 = _build_creature() if _include_creature() else None
+        armature = _find_armature(form2) if form2 else None
+        cam = _setup_creature_lunge_camera()
+        if form2 and _micro_jumpscare_mode() and not _creature_only_mode():
+            _apply_micro_creature_scale(form2)
+        return {
+            "scene": scene,
+            "camera": cam,
+            "form2": form2,
+            "lamp": lamp,
+            "armature": armature,
+            "environment": None,
+            "pack_dir": pack_dir,
+            "scene_only": False,
+            "creature_only": True,
+        }
     env = _import_gas_station_environment()
     if env is None:
         _add_ground_and_road()
@@ -1281,6 +1402,7 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
         "environment": env,
         "pack_dir": pack_dir,
         "scene_only": _scene_only_mode(),
+        "creature_only": False,
     }
 
 
@@ -1303,6 +1425,11 @@ def render_clip(
     _flicker_keyframes(lamp, f0, f1)
     if ctx.get("scene_only") or form2 is None:
         _animate_scene_camera(cam, frame_start=f0, frame_end=f1, phase=phase)
+    elif ctx.get("creature_only") and phase == "lunge":
+        _animate_creature_lunge_lab(
+            cam, form2, frame_start=f0, frame_end=f1, armature=armature,
+            pack_dir=ctx.get("pack_dir"),
+        )
     elif _micro_jumpscare_mode() and phase == "lunge":
         _animate_micro_jumpscare(
             cam, form2, frame_start=f0, frame_end=f1, armature=armature,
@@ -1326,6 +1453,7 @@ def render_micro_jumpscare(draft_id: int, pack_dir: Path, *, seconds: float = 3.
     clips_dir.mkdir(parents=True, exist_ok=True)
     os.environ["BLENDER_INCLUDE_CREATURE"] = "1"
     os.environ["BLENDER_MICRO_JUMPSCARE"] = "1"
+    os.environ["BLENDER_CREATURE_ONLY"] = "1"
     ctx = build_scene(samples=samples, pack_dir=pack_dir)
     ctx["pack_dir"] = pack_dir
     dest = clips_dir / "blender_part_01.mp4"
