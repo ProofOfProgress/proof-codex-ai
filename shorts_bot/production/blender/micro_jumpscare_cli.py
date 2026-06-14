@@ -63,10 +63,16 @@ def produce_micro_jumpscare(
         console.print(
             f"[cyan]Micro jumpscare — draft #{draft_id}, {sec:.1f}s lunge @ {smp} samples…[/cyan]"
         )
+        from shorts_bot.production.blender.motion_exports import list_motion_exports
+
+        fbx_hits = list_motion_exports(draft_id)
+        if fbx_hits.get("lunge"):
+            console.print(f"[green]Mixamo lunge[/green] → {fbx_hits['lunge'].name}")
         env = {
             **__import__("os").environ,
             "BLENDER_INCLUDE_CREATURE": "1",
             "BLENDER_MICRO_JUMPSCARE": "1",
+            "BLENDER_MOTION_BACKEND": "proscenium_fbx",
         }
         proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if proc.returncode != 0:
