@@ -1259,14 +1259,33 @@ def _add_creature_only_lights() -> bpy.types.Light:
     return fill
 
 
+def _lunge_camera_height() -> float:
+    """Part 3 — POV height (m). Raised default so viewer looks slightly down at the creature."""
+    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.18"))
+
+
+def _creature_lunge_look_target() -> tuple[float, float, float]:
+    return (
+        0.0,
+        -8.0,
+        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "1.72")),
+    )
+
+
+def _creature_lunge_camera_positions() -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+    """Start/end camera locations — locked heading, dolly only (course Part 3 keyframes)."""
+    z = _lunge_camera_height()
+    return (0.0, -4.35, z), (0.0, -3.92, z - 0.08)
+
+
 def _setup_creature_lunge_camera() -> bpy.types.Object:
     """Fixed POV for lunge training — wide lens, eyes on top third at peak."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
-    bpy.ops.object.camera_add(location=(0, -4.2, 1.78))
+    bpy.ops.object.camera_add(location=(0.0, -4.2, _lunge_camera_height()))
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
     cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "26"))
-    _camera_point_at_rule_thirds(cam, (0, -8, 1.45), frame_line=line)
+    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=line)
     bpy.context.scene.camera = cam
     return cam
 
@@ -1287,10 +1306,9 @@ def _animate_creature_lunge_lab(
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
     face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.38"))
-    cam_start = (0.0, -4.35, 1.78)
-    cam_end = (0.0, -3.92, 1.71)
+    cam_start, cam_end = _creature_lunge_camera_positions()
     creep_end = (0.0, -7.2, 0.0)
-    face_end = (0.0, -4.62, -0.12)
+    face_end = (0.0, -4.62, -0.05)
 
     cam.animation_data_clear()
     form2.animation_data_clear()

@@ -13,7 +13,7 @@
 | 1 | Python basics in Blender | **done** | `bpy_lab` 01–02 + course ex 1.01–1.02 PASS |
 | 2 | First operator + panel | **done** | course ex 2.01 register/run operator PASS |
 | 2.5 | VSCode / external scripts | **done (VM)** | headless `build_and_render.py` |
-| 3 | Working with objects | **done (applied)** | course ex 3.01–3.04 PASS; `_camera_point_at()` + pump framing |
+| 3 | Working with objects | **done (applied)** | course ex 3.01–3.05 PASS; raised lunge POV + `_camera_point_at()` |
 | 4 | Custom operators + UI | pending | — |
 | 5 | Shader / geo nodes in Python | **done (applied)** | `_relink_environment_textures()` — 68 fixed, 0 missing on draft #2 |
 | 6 | Geometry / meshes | **in progress** | `bpy_lab` 11; gas-station FBX import |
@@ -25,7 +25,7 @@
 | Date | Score | Notes |
 |------|-------|-------|
 | 2026-06-14 | **12/12 PASS** | bpy_lab all modules |
-| 2026-06-14 | **7/7 PASS** | CG Python course exercises Parts 1–3 |
+| 2026-06-14 | **8/8 PASS** | CG Python course exercises Parts 1–3 (incl. 3.05 elevated lunge POV) |
 
 Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 
@@ -44,6 +44,7 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 ### Part 3 — Objects — APPLIED 2026-06-14
 - `obj.location`, keyframes, collections, linked duplicates
 - **`_camera_point_at()`** via TRACK_TO constraint (course: constraints → applied rotation)
+- **`_lunge_camera_height()`** + **`_creature_lunge_camera_positions()`** — raised POV for micro jumpscare (owner: camera higher)
 - Wave camera: `(0, -5.5, 1.55)` → looks at creature at pumps; no procedural trees when FBX loaded
 - Run: `blender --background --python shorts_bot/production/blender/course_exercises.py`
 

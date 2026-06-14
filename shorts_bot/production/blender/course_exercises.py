@@ -175,6 +175,25 @@ def exercise_3_04_camera_look_at() -> None:
     _record("3", "camera_look_at_pumps", ok, f"dot={dot:.3f}")
 
 
+def exercise_3_05_elevated_lunge_pov() -> None:
+    """Course apply: raised lunge POV + rule-of-thirds (micro jumpscare grammar)."""
+    _reset()
+    workspace = Path("/workspace")
+    sys.path.insert(0, str(workspace))
+    from shorts_bot.production.blender.build_and_render import (
+        _camera_point_at_rule_thirds,
+        _creature_lunge_look_target,
+        _lunge_camera_height,
+    )
+
+    z = _lunge_camera_height()
+    bpy.ops.object.camera_add(location=(0.0, -4.2, z))
+    cam = bpy.context.active_object
+    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=2 / 3)
+    ok = cam.location.z >= 2.0 and cam.data.shift_y < 0
+    _record("3", "elevated_lunge_pov", ok, f"z={cam.location.z:.2f} shift_y={cam.data.shift_y:.3f}")
+
+
 def run_part(part: str | None = None) -> int:
     parts = {
         "1": [exercise_1_01_five_cubes, exercise_1_02_material_function],
@@ -184,6 +203,7 @@ def run_part(part: str | None = None) -> int:
             exercise_3_02_linked_duplicate,
             exercise_3_03_collection,
             exercise_3_04_camera_look_at,
+            exercise_3_05_elevated_lunge_pov,
         ],
     }
     to_run: list = []

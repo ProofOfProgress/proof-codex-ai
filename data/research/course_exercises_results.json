@@ -1,25 +1,7 @@
 {
-  "passed": 7,
-  "total": 7,
+  "passed": 5,
+  "total": 5,
   "results": [
-    {
-      "part": "1",
-      "name": "five_cubes_loop",
-      "pass": true,
-      "detail": "count=5"
-    },
-    {
-      "part": "1",
-      "name": "material_function",
-      "pass": true,
-      "detail": ""
-    },
-    {
-      "part": "2",
-      "name": "register_and_run_operator",
-      "pass": true,
-      "detail": "x=1.00"
-    },
     {
       "part": "3",
       "name": "camera_keyframes",
@@ -43,6 +25,12 @@
       "name": "camera_look_at_pumps",
       "pass": true,
       "detail": "dot=1.000"
+    },
+    {
+      "part": "3",
+      "name": "elevated_lunge_pov",
+      "pass": true,
+      "detail": "z=2.18 shift_y=-0.097"
     }
   ]
 }
