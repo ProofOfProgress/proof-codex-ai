@@ -422,18 +422,87 @@ def _clear_armature_animation(armature: bpy.types.Object) -> None:
         armature.animation_data.nla_tracks.remove(armature.animation_data.nla_tracks[0])
 
 
+def _read_motion_json(pack_dir: Path, phase: str) -> list[dict] | None:
+    path = pack_dir / f"motion_{phase}.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        kf = data.get("keyframes")
+        if isinstance(kf, list) and len(kf) >= 2:
+            return kf
+    except Exception as exc:
+        print(f"Motion JSON read failed ({path}): {exc}")
+    return None
+
+
+def _apply_motion_keyframes(
+    armature: bpy.types.Object,
+    keyframes: list[dict],
+    *,
+    frame_start: int,
+    frame_end: int,
+) -> None:
+    """Apply English→JSON pose keys from motion_{phase}.json."""
+    if armature.type != "ARMATURE":
+        return
+    prev_active = bpy.context.view_layer.objects.active
+    bpy.context.view_layer.objects.active = armature
+    if armature.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+
+    dur = max(1, frame_end - frame_start)
+
+    def _key_bone(name: str, rot: tuple[float, float, float], frame: int) -> None:
+        pb = armature.pose.bones.get(name)
+        if not pb:
+            return
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = rot
+        pb.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+    for item in keyframes:
+        t_frac = float(item.get("t", 0))
+        frame = frame_start + int(dur * max(0.0, min(1.0, t_frac)))
+        bones = item.get("bones") or {}
+        if not isinstance(bones, dict):
+            continue
+        for bname, rot in bones.items():
+            if not isinstance(rot, (list, tuple)) or len(rot) != 3:
+                continue
+            _key_bone(bname, (float(rot[0]), float(rot[1]), float(rot[2])), frame)
+
+    if armature.animation_data and armature.animation_data.action:
+        for fcu in armature.animation_data.action.fcurves:
+            for kp in fcu.keyframe_points:
+                kp.interpolation = "BEZIER"
+                kp.handle_left_type = "AUTO_CLAMPED"
+                kp.handle_right_type = "AUTO_CLAMPED"
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    if prev_active:
+        bpy.context.view_layer.objects.active = prev_active
+
+
 def _play_creature_action(
     armature: bpy.types.Object,
     *,
     phase: str,
     frame_start: int,
     frame_end: int,
+    pack_dir: Path | None = None,
 ) -> None:
-    """Use imported SCP-096 skeletal animation (NLA) + pose keys for wave/lunge."""
+    """Motion from motion_{phase}.json (English prompt) or procedural/NLA fallback."""
     _clear_armature_animation(armature)
 
-    # Wave clip — procedural slow creepy wave (readable in 10s Short beat)
-    if phase == "wave":
+    if pack_dir:
+        motion = _read_motion_json(pack_dir, phase)
+        if motion:
+            _apply_motion_keyframes(armature, motion, frame_start=frame_start, frame_end=frame_end)
+            return
+
+    # Wave / lunge without JSON — built-in pose keys
+    if phase in ("wave", "lunge"):
         _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
         return
 
@@ -545,6 +614,7 @@ def _animate_camera_wave_lunge(
     frame_end: int,
     phase: str,
     armature: bpy.types.Object | None = None,
+    pack_dir: Path | None = None,
 ) -> None:
     cam.animation_data_clear()
     form2.animation_data_clear()
@@ -594,7 +664,13 @@ def _animate_camera_wave_lunge(
         cam.keyframe_insert(data_path="location", frame=frame_end)
 
     if armature:
-        _play_creature_action(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+        _play_creature_action(
+            armature,
+            phase=phase,
+            frame_start=frame_start,
+            frame_end=frame_end,
+            pack_dir=pack_dir,
+        )
 
 
 def build_scene(*, samples: int = 32) -> dict:
@@ -629,7 +705,8 @@ def render_clip(
     scene.frame_end = f1
     _flicker_keyframes(lamp, f0, f1)
     _animate_camera_wave_lunge(
-        cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature
+        cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature,
+        pack_dir=ctx.get("pack_dir"),
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
@@ -644,6 +721,7 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
     phases = ("open", "wave", "lunge")
     paths: list[Path] = []
     ctx = build_scene(samples=samples)
+    ctx["pack_dir"] = pack_dir
     for i, phase in enumerate(phases, start=1):
         dest = clips_dir / f"blender_part_{i:02d}.mp4"
         render_clip(ctx, dest, phase=phase, seconds=seconds)
@@ -653,15 +731,18 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
     return paths
 
 
-def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave") -> None:
+def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave", pack_dir: Path | None = None) -> None:
     ctx = build_scene(samples=samples)
+    if pack_dir:
+        ctx["pack_dir"] = pack_dir
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
     armature = ctx.get("armature")
     f1 = 48
     _animate_camera_wave_lunge(
-        cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature
+        cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature,
+        pack_dir=ctx.get("pack_dir"),
     )
     # Peak wave frame ~52% through clip
     peak = 1 + int((f1 - 1) * (0.52 if phase == "wave" else 0.85))
@@ -695,10 +776,16 @@ def main(argv: list[str] | None = None) -> None:
 
     pack = args.pack_dir or OUTPUT_ROOT / f"draft_{args.draft_id}"
     if args.preview:
-        render_preview(pack / f"blender_preview_{args.phase}.png", samples=samples, phase=args.phase)
+        render_preview(
+            pack / f"blender_preview_{args.phase}.png",
+            samples=samples,
+            phase=args.phase,
+            pack_dir=pack,
+        )
         return
     if args.clip_only:
         ctx = build_scene(samples=samples)
+        ctx["pack_dir"] = pack
         dest = (pack / "clips" / f"blender_part_{args.phase}.mp4")
         render_clip(ctx, dest, phase=args.phase, seconds=seconds)
         return

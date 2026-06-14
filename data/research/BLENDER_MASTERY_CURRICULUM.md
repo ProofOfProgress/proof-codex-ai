@@ -106,11 +106,12 @@ Work in order. Each module has a **drill** (run on VM) and **Peripheral applicat
 
 When procedural pose keys are not enough:
 
-1. **Mixamo** — free auto-rig + wave/walk FBX → import action
-2. **Kimodo + Rokoko** — text-to-motion, retarget to SCP armature
-3. **Proscenium** — prompt blocks on timeline (Blender 5+)
+1. **English → motion (`BLENDER_MOTION_BACKEND=auto`)** — beat sheet or `--prompt` → Gemini → `motion_{phase}.json`
+2. **Mixamo** — free auto-rig + wave/walk FBX → import action
+3. **Kimodo + Rokoko** — text-to-BVH → retarget (needs NVIDIA GPU)
+4. **Proscenium** — prompt blocks on timeline (Blender 5+)
 
-**Peripheral rule:** Prefer **free local** over paid API. Pose keys for launch; Mixamo/Kimodo for polish.
+**Peripheral rule:** `auto` uses Gemini for "describe how it moves" — no GPU required.
 
 ---
 

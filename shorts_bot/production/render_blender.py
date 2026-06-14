@@ -78,6 +78,18 @@ def render_blender_clips(
     creature = resolve_creature_model(settings.blender_creature_model)
     if creature:
         env["BLENDER_CREATURE_MODEL"] = str(creature.resolve())
+
+    from shorts_bot.production.blender.motion_prompt import prepare_motion_for_pack
+
+    try:
+        motion_paths = prepare_motion_for_pack(root, draft_id, force=force_regen)
+        console.print(
+            f"[cyan]Motion prompts → {len(motion_paths)} clip keyframe files "
+            f"({settings.blender_motion_backend})[/cyan]"
+        )
+    except Exception as exc:
+        console.print(f"[yellow]Motion prompt generation skipped: {exc}[/yellow]")
+
     proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-3000:]
