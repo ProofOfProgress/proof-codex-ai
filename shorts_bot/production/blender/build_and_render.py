@@ -184,8 +184,65 @@ def _environment_mesh_bounds(objects: list) -> tuple[float, float, float, float,
     return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
 
 
+def _relink_environment_textures(model_path: Path) -> int:
+    """Fix broken FBX image paths (Windows absolute) → local Textures/ dir."""
+    textures_dir = model_path.parent / "Textures"
+    if not textures_dir.is_dir():
+        textures_dir = model_path.parent.parent / "Textures"
+    if not textures_dir.is_dir():
+        return 0
+
+    by_name: dict[str, Path] = {}
+    for img_path in textures_dir.iterdir():
+        if img_path.suffix.lower() in {".png", ".jpg", ".jpeg", ".tga", ".bmp"}:
+            by_name[img_path.name.lower()] = img_path
+
+    fixed = 0
+    for img in bpy.data.images:
+        raw = (img.filepath_raw or img.filepath or "").replace("\\", "/")
+        base = Path(raw).name.lower() if raw else img.name.lower()
+        hit = by_name.get(base)
+        if hit is None and base:
+            stem = Path(base).stem.lower()
+            for name, path in by_name.items():
+                if Path(name).stem.lower() == stem:
+                    hit = path
+                    break
+        if hit is None:
+            continue
+        new_path = str(hit.resolve())
+        if img.filepath_raw != new_path or img.size[0] == 0:
+            img.filepath = new_path
+            img.reload()
+            fixed += 1
+
+    for mat in bpy.data.materials:
+        if not mat or not mat.use_nodes:
+            continue
+        for node in mat.node_tree.nodes:
+            if node.type != "TEX_IMAGE" or not node.image:
+                continue
+            img = node.image
+            raw = (img.filepath_raw or img.filepath or "").replace("\\", "/")
+            base = Path(raw).name.lower() if raw else img.name.lower()
+            hit = by_name.get(base)
+            if hit and (img.size[0] == 0 or "Users/" in raw or "C:/" in raw.upper()):
+                img.filepath = str(hit.resolve())
+                img.reload()
+    return fixed
+
+
+def _material_has_texture(mat) -> bool:
+    if not mat or not mat.use_nodes:
+        return False
+    for node in mat.node_tree.nodes:
+        if node.type == "TEX_IMAGE" and node.image and node.image.size[0] > 0:
+            return True
+    return False
+
+
 def _tweak_environment_night(root: bpy.types.Object) -> None:
-    """Dim imported PSX albedo + boost emissive signage for 3 AM horror."""
+    """Night horror grade — lighter when textures loaded so set stays readable."""
     for obj in root.children_recursive:
         if obj.type != "MESH":
             continue
@@ -196,15 +253,17 @@ def _tweak_environment_night(root: bpy.types.Object) -> None:
             bsdf = mat.node_tree.nodes.get("Principled BSDF")
             if not bsdf:
                 continue
+            textured = _material_has_texture(mat)
             col = bsdf.inputs["Base Color"].default_value
+            dim = 0.82 if textured else 0.42
             bsdf.inputs["Base Color"].default_value = (
-                col[0] * 0.42,
-                col[1] * 0.40,
-                col[2] * 0.48,
+                col[0] * dim,
+                col[1] * (dim - 0.02 if textured else dim - 0.02),
+                col[2] * (dim + 0.06 if textured else dim + 0.06),
                 1.0,
             )
             bsdf.inputs["Roughness"].default_value = max(
-                float(bsdf.inputs["Roughness"].default_value), 0.78
+                float(bsdf.inputs["Roughness"].default_value), 0.72 if textured else 0.78
             )
             emit = bsdf.inputs.get("Emission Color")
             emit_str = bsdf.inputs.get("Emission Strength")
@@ -260,6 +319,8 @@ def _import_gas_station_environment() -> bpy.types.Object | None:
         if obj.parent is None:
             obj.parent = root
     bpy.context.view_layer.update()
+    relinked = _relink_environment_textures(hit)
+    print(f"Relinked {relinked} environment texture(s) from {hit.parent}")
     _fit_environment_to_scene(root, imported)
     _tweak_environment_night(root)
     return root

@@ -49,6 +49,11 @@ Your job in final replies:
 - Workflow: cloud motion site → FBX → `motion_exports/` → cloud EEVEE render
 - If no FBX yet: procedural fallback only; say motion will look stiff until cloud export exists
 
+**Visual quality bar — LIGHTS ARE OFF (Blender, owner north star):**
+- Reference links (always cite in visual planning + QC): https://youtube.com/shorts/R7cEIG_gqLU · https://youtu.be/S0x2llxEAjk · https://youtu.be/lnDP902qeqw · https://www.youtube.com/@LIGHTSAREOFF
+- Codex: `data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md` — finished sets, working textures, horror lighting; FAIL grey block-outs
+- Gemini brief CLI: `python3 -m shorts_bot.production.blender.gemini_visual_brief_cli`
+
 Cite draft IDs and research files explicitly."""
 
 
@@ -122,8 +127,33 @@ Reject slop. Check:
 - No cosy/self-help tone?
 - No stick figures?
 - Volume warning appropriate?
+- Blender renders: finished set like LIGHTS ARE OFF (refs: youtube.com/shorts/R7cEIG_gqLU, youtu.be/S0x2llxEAjk, youtu.be/lnDP902qeqw) — not grey block-out or broken textures?
 
 Return PASS or FAIL with bullet fixes.""",
+)
+
+BLENDER_VISUAL_DIRECTOR = AgentRole(
+    name="blender_visual_director",
+    temperature=0.35,
+    system_prompt="""You are the Blender Visual Director for Peripheral horror Shorts.
+
+North star: **LIGHTS ARE OFF** — 100% Blender EEVEE, finished environments, horror lighting.
+Reference URLs (always include when advising):
+- https://youtube.com/shorts/R7cEIG_gqLU (viral Short — hook + dread)
+- https://youtu.be/S0x2llxEAjk (Pt1 — lab set craft)
+- https://youtu.be/lnDP902qeqw (Pt3 — escalation + readable sets)
+- https://www.youtube.com/@LIGHTSAREOFF
+
+Read: data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md
+
+When reviewing or planning a render:
+1. Environment must read in 1s (gas station, road, fog — not flat grey plane)
+2. FBX textures relinked from Textures/ — no 0×0 broken images
+3. EEVEE night lighting: key + fill + rim; streetlight flicker motivates scare
+4. Camera intentional — POV walk, push-in, dutch tilt
+5. Creature grounded in same light as the set
+
+Return concrete fixes (lighting values, camera move, texture path, EEVEE settings). FAIL anything that looks like viewport test or unfinished block-out.""",
 )
 
 COMPETITOR_ANALYST = AgentRole(
