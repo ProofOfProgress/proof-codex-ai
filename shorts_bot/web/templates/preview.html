@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Draft {{ draft_id }} preview — Peripheral</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    body { max-width: 480px; margin: 0 auto; padding: 16px; }
+    video { width: 100%; border-radius: 12px; background: #000; }
+    .file-list { margin: 16px 0; }
+    .file-list a {
+      display: block; padding: 10px 12px; margin: 6px 0;
+      border-radius: 10px; border: 1px solid var(--border, #333);
+      text-decoration: none; color: inherit;
+    }
+    .file-list a.active { border-color: #c44; background: rgba(200,68,68,.08); }
+    .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+    .frames img { width: 100%; border-radius: 8px; }
+    .hint { font-size: .85rem; color: var(--muted, #888); margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1 style="font-size:1.2rem;">Draft {{ draft_id }} — watch in browser</h1>
+  <p class="hint">Cursor cannot open .mp4 files in the editor. Use this page or the PNG frames below.</p>
+
+  {% if render_busy %}
+  <p class="hint" style="color:#e8a040;border:1px solid #e8a040;padding:10px;border-radius:8px;">
+    <strong>Render in progress.</strong> Ignore broken clips (names with <code>0001-0240</code>).
+    Pick <strong>blender_part_wave</strong> or wait for the new full Short.
+  </p>
+  {% endif %}
+
+  {% if selected %}
+  <video controls autoplay playsinline loop preload="auto" src="{{ selected.url }}"></video>
+  <p style="font-size:.85rem;margin-top:8px;">Playing: <code>{{ selected.name }}</code></p>
+  <p class="hint">If the picture looks frozen, click ▶ or pick a different clip below.</p>
+  {% else %}
+  <p>No video selected. Pick one below.</p>
+  {% endif %}
+
+  <div class="file-list">
+    <strong>Videos</strong>
+    {% for f in videos %}
+    <a href="/preview/draft/{{ draft_id }}?file={{ f.name }}" class="{% if selected and selected.name == f.name %}active{% endif %}">
+      {{ f.label }} — {{ f.name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if frames %}
+  <h2 style="font-size:1rem;margin-top:24px;">Still frames (open in Cursor)</h2>
+  <div class="frames">
+    {% for fr in frames %}
+    <figure>
+      <img src="{{ fr.url }}" alt="{{ fr.name }}" />
+      <figcaption style="font-size:.75rem;text-align:center;">{{ fr.name }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <p class="hint"><a href="/">← Back to Peripheral UI</a></p>
+</body>
+</html>

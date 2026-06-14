@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from shorts_bot.config import settings
@@ -24,6 +25,7 @@ def _upload_mp4(
     tags: list[str],
     visibility: str,
     url_template: str,
+    publish_at: datetime | None = None,
 ) -> UploadResult:
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload
@@ -39,6 +41,15 @@ def _upload_mp4(
         )
 
     youtube = build("youtube", "v3", credentials=creds)
+    status_body: dict = {
+        "privacyStatus": visibility if visibility in ("public", "unlisted", "private") else "unlisted",
+        "selfDeclaredMadeForKids": False,
+    }
+    if publish_at is not None:
+        if publish_at.tzinfo is None:
+            publish_at = publish_at.replace(tzinfo=timezone.utc)
+        status_body["privacyStatus"] = "private"
+        status_body["publishAt"] = publish_at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     body = {
         "snippet": {
             "title": title[:100],
@@ -46,10 +57,7 @@ def _upload_mp4(
             "tags": tags[:30],
             "categoryId": (settings.youtube_category_id or "24")[:2],
         },
-        "status": {
-            "privacyStatus": visibility if visibility in ("public", "unlisted", "private") else "unlisted",
-            "selfDeclaredMadeForKids": False,
-        },
+        "status": status_body,
     }
     if settings.youtube_declare_synthetic_media:
         body["status"]["containsSyntheticMedia"] = True
@@ -68,10 +76,15 @@ def _upload_mp4(
             pass
     vid = response["id"]
     url = url_template.format(vid=vid)
+    sched = status_body.get("publishAt", "")
+    msg = f"Uploaded to YouTube ({status_body['privacyStatus']})"
+    if sched:
+        msg += f", scheduled public at {sched}"
+    msg += f": {url}"
     return UploadResult(
         video_id=vid,
         video_url=url,
-        message=f"Uploaded to YouTube ({visibility}): {url}",
+        message=msg,
     )
 
 
@@ -82,6 +95,7 @@ def upload_short(
     description: str,
     tags: list[str],
     visibility: str = "unlisted",
+    publish_at: datetime | None = None,
 ) -> UploadResult:
     """Upload MP4 as YouTube Short. Requires youtube.upload OAuth scope."""
     return _upload_mp4(
@@ -91,6 +105,7 @@ def upload_short(
         tags=tags,
         visibility=visibility,
         url_template="https://youtube.com/shorts/{vid}",
+        publish_at=publish_at,
     )
 
 

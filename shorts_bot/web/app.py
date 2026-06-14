@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
@@ -90,6 +90,141 @@ class DevRequest(BaseModel):
 class ProductionRequest(BaseModel):
     draft_id: int
     turboscribe_text: str = Field(min_length=10)
+
+
+def _draft_pack_dir(draft_id: int) -> Path:
+    return settings.data_dir / "production" / f"draft_{draft_id}"
+
+
+def _safe_pack_file(pack: Path, name: str) -> Path:
+    """Resolve a file inside a draft pack — blocks path traversal."""
+    clean = Path(name).name
+    if not clean or clean != name:
+        raise HTTPException(400, "Invalid file name")
+    path = (pack / clean).resolve()
+    if not str(path).startswith(str(pack.resolve())):
+        raise HTTPException(400, "Invalid path")
+    if not path.is_file():
+        raise HTTPException(404, "File not found")
+    return path
+
+
+@app.get("/preview/draft/{draft_id}/file/{filename}")
+async def preview_draft_file(draft_id: int, filename: str) -> FileResponse:
+    """Stream a pack video or image for in-browser preview."""
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4
+
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, "Draft pack not found")
+    path = _safe_pack_file(pack, filename)
+    if path.suffix.lower() == ".mp4" and not is_browser_playable_mp4(path):
+        raise HTTPException(409, "Video still rendering or corrupt — try another clip")
+    media = {
+        ".mp4": "video/mp4",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+    }
+    return FileResponse(
+        path,
+        media_type=media.get(path.suffix.lower(), "application/octet-stream"),
+        headers={"Accept-Ranges": "bytes", "Cache-Control": "no-cache"},
+    )
+
+
+@app.get("/preview/draft/{draft_id}/clips/{filename}")
+async def preview_draft_clip(draft_id: int, filename: str) -> FileResponse:
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4
+
+    pack = _draft_pack_dir(draft_id)
+    clips = pack / "clips"
+    if not clips.is_dir():
+        raise HTTPException(404, "Clips folder not found")
+    path = _safe_pack_file(clips, filename)
+    if not is_browser_playable_mp4(path):
+        raise HTTPException(409, "Clip still rendering — wait for render to finish")
+    return FileResponse(
+        path,
+        media_type="video/mp4",
+        headers={"Accept-Ranges": "bytes", "Cache-Control": "no-cache"},
+    )
+
+
+@app.get("/preview/draft/{draft_id}/frames/{filename}")
+async def preview_draft_frame(draft_id: int, filename: str) -> FileResponse:
+    pack = _draft_pack_dir(draft_id)
+    frames = pack / "preview_frames"
+    if not frames.is_dir():
+        raise HTTPException(404, "Preview frames not found")
+    path = _safe_pack_file(frames, filename)
+    return FileResponse(path, media_type="image/png")
+
+
+@app.get("/preview/draft/{draft_id}", response_class=HTMLResponse)
+async def preview_draft_page(request: Request, draft_id: int, file: str | None = None) -> HTMLResponse:
+    """Browser page to watch draft videos — Cursor cannot open .mp4 in the editor."""
+    from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4, list_playable_clips
+
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, f"No production pack for draft {draft_id}")
+
+    import time
+    cache_bust = int(time.time())
+
+    videos: list[dict] = []
+    final = pack / "final_short.mp4"
+    if final.is_file() and is_browser_playable_mp4(final):
+        videos.append({
+            "name": "final_short.mp4",
+            "label": "Full Short (30s)",
+            "url": f"/preview/draft/{draft_id}/file/final_short.mp4?v={cache_bust}",
+        })
+    for clip in list_playable_clips(pack / "clips"):
+        videos.append({
+            "name": f"clips/{clip.name}",
+            "label": f"Clip — {clip.name}",
+            "url": f"/preview/draft/{draft_id}/clips/{clip.name}?v={cache_bust}",
+        })
+
+    selected = None
+    if file:
+        for v in videos:
+            if v["name"] == file or v["name"].endswith(f"/{file}") or v["name"] == f"clips/{file}":
+                selected = v
+                break
+    if selected is None and videos:
+        # Default: wave clip if present, else first playable
+        for v in videos:
+            if "wave" in v["name"] or "part_02" in v["name"]:
+                selected = v
+                break
+        if selected is None:
+            selected = videos[0]
+
+    frames_dir = pack / "preview_frames"
+    frames = []
+    if frames_dir.is_dir():
+        for img in sorted(frames_dir.glob("*.png")):
+            frames.append({"name": img.name, "url": f"/preview/draft/{draft_id}/frames/{img.name}"})
+
+    render_busy = any(
+        (pack / "clips").glob("blender_part_*0001-*.mp4")
+    ) if (pack / "clips").is_dir() else False
+
+    return TEMPLATES.TemplateResponse(
+        request,
+        "preview.html",
+        {
+            "draft_id": draft_id,
+            "videos": videos,
+            "selected": selected,
+            "frames": frames,
+            "render_busy": render_busy,
+        },
+    )
 
 
 @app.get("/", response_class=HTMLResponse)

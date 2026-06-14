@@ -1,3 +1,6 @@
+import subprocess
+
+import pytest
 from fastapi.testclient import TestClient
 
 from shorts_bot.web.app import app
@@ -56,7 +59,41 @@ def test_dev_api_create_and_list():
     assert "pending" in r2.json()
 
 
-def test_learned_endpoint():
-    r = client.get("/api/learned")
+def test_preview_draft_page_404():
+    r = client.get("/preview/draft/99999")
+    assert r.status_code == 404
+
+
+def test_preview_draft_page_lists_videos(tmp_path, monkeypatch):
+    from shorts_bot.config import settings
+
+    pack = tmp_path / "production" / "draft_42"
+    clips = pack / "clips"
+    clips.mkdir(parents=True)
+    # Minimal valid-ish mp4 header stub — use real tiny file from test fixture
+    tiny = tmp_path / "tiny.mp4"
+    subprocess.run(
+        [
+            "ffmpeg", "-y", "-f", "lavfi", "-i", "color=c=black:s=64x64:d=1",
+            "-c:v", "libx264", "-movflags", "+faststart", str(tiny),
+        ],
+        capture_output=True,
+        check=False,
+    )
+    if tiny.is_file():
+        (clips / "blender_part_wave.mp4").write_bytes(tiny.read_bytes())
+    else:
+        pytest.skip("ffmpeg not available for preview test")
+    (pack / "preview_frames").mkdir()
+    (pack / "preview_frames" / "wave_0s.png").write_bytes(b"\x89PNG\r\n")
+
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    monkeypatch.setattr(
+        "shorts_bot.production.blender.preview_validate.is_browser_playable_mp4",
+        lambda p, **_: p.is_file() and p.stat().st_size > 50,
+    )
+    r = client.get("/preview/draft/42")
     assert r.status_code == 200
-    assert "content" in r.json()
+    assert "blender_part_wave.mp4" in r.text
+    assert "wave_0s.png" in r.text
+
