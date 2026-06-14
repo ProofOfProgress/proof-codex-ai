@@ -578,6 +578,25 @@ def _faststart_mp4(path: Path) -> None:
         tmp.unlink(missing_ok=True)
 
 
+def _camera_point_at_rule_thirds(
+    cam: bpy.types.Object,
+    target: tuple[float, float, float],
+    *,
+    frame_line: float = 2 / 3,
+) -> None:
+    """Rule of thirds — place target on a horizontal screen line (0=bottom, 1=top)."""
+    _camera_point_at(cam, target)
+    # Positive shift_y moves image down; negative raises subject toward top third.
+    cam.data.shift_y = (0.5 - frame_line) * 0.58
+
+
+def _creature_eye_target(form2: bpy.types.Object) -> tuple[float, float, float]:
+    """Approximate eye height for SCP-096 / Form 2 rig."""
+    loc = form2.location
+    head_z = float(loc.z) + 2.05 * float(form2.scale.z)
+    return (float(loc.x), float(loc.y), head_z)
+
+
 def _camera_point_at(cam: bpy.types.Object, target: tuple[float, float, float]) -> None:
     """Part 3 — aim camera at world target using TRACK_TO (course: constraints → code)."""
     empty = bpy.data.objects.new("_PeripheralLookAt", None)
@@ -1059,29 +1078,37 @@ def _animate_micro_jumpscare(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
-    """3s format: ~0.4s gas-station bait → in-your-face lunge + camera snap."""
+    """3s format: ~0.4s bait → lunge; eyes on top rule-of-thirds line at scare."""
+    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
     bait_f = frame_start + max(8, int((frame_end - frame_start) * 0.14))
     cam.animation_data_clear()
     form2.animation_data_clear()
-    cam.location = (0, -5.0, 1.7)
-    _camera_point_at(cam, SCENE_FOCAL)
+    cam.data.shift_y = 0.0
+    # Bait — camera raised, pumps readable
+    cam.location = (0, -5.0, 2.15)
+    _camera_point_at_rule_thirds(cam, SCENE_FOCAL, frame_line=line)
     cam.keyframe_insert(data_path="location", frame=frame_start)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    cam.keyframe_insert(data_path="data.shift_y", frame=frame_start)
     form2.location = (0, -10.5, 0)
     form2.scale = (1.0, 1.0, 1.25)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
-    # Hold bait — pumps readable
     cam.keyframe_insert(data_path="location", frame=bait_f)
     cam.keyframe_insert(data_path="rotation_euler", frame=bait_f)
+    cam.keyframe_insert(data_path="data.shift_y", frame=bait_f)
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    # Lunge — fill the lens
-    form2.location = (0, -1.6, 0.85)
-    form2.scale = (1.45, 1.45, 1.65)
+    # Lunge — eyes land on top third horizontal line (not frame edge)
+    form2.location = (0, -1.55, 0.88)
+    form2.scale = (1.42, 1.42, 1.62)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
-    cam.location = (0, -2.8, 1.35)
+    cam.location = (0, -2.55, 2.35)
+    eye = _creature_eye_target(form2)
+    _camera_point_at_rule_thirds(cam, eye, frame_line=line)
     cam.keyframe_insert(data_path="location", frame=frame_end)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
+    cam.keyframe_insert(data_path="data.shift_y", frame=frame_end)
     if armature:
         _play_creature_action(
             armature,

@@ -28,7 +28,7 @@ def produce_micro_jumpscare(
     pack.mkdir(parents=True, exist_ok=True)
     clip = pack / "clips" / "blender_part_01.mp4"
     sec = seconds if seconds is not None else settings.micro_jumpscare_seconds
-    smp = samples if samples is not None else max(16, settings.blender_samples // 2)
+    smp = samples if samples is not None else max(24, settings.blender_samples)
 
     if force or not clip.is_file() or clip.stat().st_size < 5000:
         clip.unlink(missing_ok=True)

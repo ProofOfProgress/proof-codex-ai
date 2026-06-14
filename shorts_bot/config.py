@@ -103,7 +103,9 @@ class Settings(BaseSettings):
     micro_jumpscare_seconds: float = 3.0
     micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
     micro_jumpscare_bed_gain: float = 0.85  # loud noise throughout (not whisper-quiet)
-    micro_jumpscare_roar_gain: float = 2.4  # creature roar at lunge
+    micro_jumpscare_roar_gain: float = 1.85  # premade CC0 roar at lunge
+    micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
+    micro_jumpscare_rule_of_thirds: float = 2 / 3  # eyes on top horizontal third line
 
     @field_validator("visual_style", mode="before")
     @classmethod
