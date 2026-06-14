@@ -167,6 +167,104 @@ def _import_mesh_file(path: Path) -> list:
     return [o for o in bpy.data.objects if o.name not in before and o.type in {"MESH", "ARMATURE", "EMPTY"}]
 
 
+def _environment_mesh_bounds(objects: list) -> tuple[float, float, float, float, float, float] | None:
+    xs: list[float] = []
+    ys: list[float] = []
+    zs: list[float] = []
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        for corner in obj.bound_box:
+            world = obj.matrix_world @ Vector(corner)
+            xs.append(world.x)
+            ys.append(world.y)
+            zs.append(world.z)
+    if not xs:
+        return None
+    return min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)
+
+
+def _tweak_environment_night(root: bpy.types.Object) -> None:
+    """Dim imported PSX albedo + boost emissive signage for 3 AM horror."""
+    for obj in root.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat or not mat.use_nodes:
+                continue
+            bsdf = mat.node_tree.nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            col = bsdf.inputs["Base Color"].default_value
+            bsdf.inputs["Base Color"].default_value = (
+                col[0] * 0.42,
+                col[1] * 0.40,
+                col[2] * 0.48,
+                1.0,
+            )
+            bsdf.inputs["Roughness"].default_value = max(
+                float(bsdf.inputs["Roughness"].default_value), 0.78
+            )
+            emit = bsdf.inputs.get("Emission Color")
+            emit_str = bsdf.inputs.get("Emission Strength")
+            if emit and emit_str and float(emit_str.default_value) > 0.05:
+                emit_str.default_value = float(emit_str.default_value) * 1.35
+
+
+def _fit_environment_to_scene(root: bpy.types.Object, imported: list) -> None:
+    bounds = _environment_mesh_bounds(imported)
+    if not bounds:
+        return
+    x0, x1, y0, y1, z0, _z1 = bounds
+    cx = (x0 + x1) / 2.0
+    cy = (y0 + y1) / 2.0
+    offset_y = float(os.environ.get("BLENDER_ENV_OFFSET_Y", "-6"))
+    root.location = (-cx, -cy + offset_y, -z0)
+    bpy.context.view_layer.update()
+
+
+def _import_gas_station_environment() -> bpy.types.Object | None:
+    """CC0 Elbolilloduro gas station when present under channel/assets/environments/."""
+    explicit = os.environ.get("BLENDER_ENVIRONMENT_MODEL", "").strip()
+    workspace = Path(os.environ.get("WORKSPACE_ROOT", "/workspace"))
+    hit: Path | None = None
+    if explicit:
+        p = Path(explicit)
+        if p.is_file():
+            hit = p
+    if hit is None:
+        try:
+            sys.path.insert(0, str(workspace))
+            from shorts_bot.production.blender.environment_paths import resolve_environment_model
+
+            hit = resolve_environment_model()
+        except Exception as exc:
+            print(f"Environment lookup failed ({exc}) — procedural gas station")
+            return None
+    if not hit:
+        return None
+
+    print(f"Importing gas-station environment: {hit}")
+    imported = _import_mesh_file(hit)
+    if not imported:
+        print(f"Environment import empty: {hit}")
+        return None
+
+    root = bpy.data.objects.new("GasStationEnv", None)
+    bpy.context.collection.objects.link(root)
+    scale = float(os.environ.get("BLENDER_ENV_SCALE", "0.07"))
+    root.scale = Vector((scale, scale, scale))
+    bpy.context.view_layer.update()
+    for obj in imported:
+        if obj.parent is None:
+            obj.parent = root
+    bpy.context.view_layer.update()
+    _fit_environment_to_scene(root, imported)
+    _tweak_environment_night(root)
+    return root
+
+
 def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
     """Peripheral Form 2 pass — darker, taller, wet-night horror."""
     if profile == "form2_rural":
@@ -815,15 +913,17 @@ def _animate_camera_wave_lunge(
 def build_scene(*, samples: int = 32) -> dict:
     _clear_scene()
     scene = bpy.context.scene
-    _add_ground_and_road()
-    _add_gas_station()
+    env = _import_gas_station_environment()
+    if env is None:
+        _add_ground_and_road()
+        _add_gas_station()
     pole_empty, lamp = _add_streetlight()
     form2 = _build_creature()
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_eevee_light_probes()
     _add_fog_and_trees()
-    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2)}
+    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2), "environment": env}
 
 
 def render_clip(

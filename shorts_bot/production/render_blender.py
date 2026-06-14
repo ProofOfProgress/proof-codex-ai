@@ -49,6 +49,13 @@ def render_blender_clips(
     except Exception as exc:
         console.print(f"[yellow]Creature auto-download skipped: {exc}[/yellow]")
 
+    from shorts_bot.production.blender.download_environment import ensure_gas_station_environment
+
+    try:
+        ensure_gas_station_environment(force=force_regen)
+    except Exception as exc:
+        console.print(f"[yellow]Environment auto-download skipped: {exc}[/yellow]")
+
     cmd = [
         "blender",
         "--background",
