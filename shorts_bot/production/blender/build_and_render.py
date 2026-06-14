@@ -385,6 +385,13 @@ def _play_creature_action(
     frame_end: int,
 ) -> None:
     """Use imported SCP-096 skeletal animation (NLA) + pose keys for wave/lunge."""
+    _clear_armature_animation(armature)
+
+    # Wave clip — procedural slow creepy wave (readable in 10s Short beat)
+    if phase == "wave":
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+        return
+
     action = bpy.data.actions.get("anim_Armature1") or bpy.data.actions.get("Armature1")
     if not action:
         for act in bpy.data.actions:
@@ -392,14 +399,13 @@ def _play_creature_action(
                 action = act
                 break
     if not action:
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
         return
 
-    _clear_armature_animation(armature)
     ad = armature.animation_data or armature.animation_data_create()
     act_end = int(min(action.frame_range[1], 600))
     phase_ranges = {
         "open": (1, min(120, act_end)),
-        "wave": (min(80, act_end // 4), min(280, act_end // 2)),
         "lunge": (min(300, act_end // 2), min(480, act_end)),
     }
     a0, a1 = phase_ranges.get(phase, (1, min(120, act_end)))
@@ -412,8 +418,8 @@ def _play_creature_action(
     strip.blend_type = "REPLACE"
     ad.use_nla = True
 
-    # Extra pose keys — creepy wave / lunge overlay
-    _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+    if phase == "lunge":
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
 
 
 def _pose_wave_or_lunge(
@@ -423,45 +429,60 @@ def _pose_wave_or_lunge(
     frame_start: int,
     frame_end: int,
 ) -> None:
-    """Layer manual bone keys on top of NLA for readable wave + jumpscare lunge."""
+    """Procedural creepy wave (right arm chain) + jumpscare lunge pose."""
     if armature.type != "ARMATURE":
         return
-    scene = bpy.context.scene
     prev_active = bpy.context.view_layer.objects.active
-    prev_mode = armature.mode if armature == prev_active else "OBJECT"
     bpy.context.view_layer.objects.active = armature
     if armature.mode != "POSE":
         bpy.ops.object.mode_set(mode="POSE")
 
-    wave_bones = ("Bone_007", "Bone_008", "Bone_009", "Bone_010")
-    lunge_bones = ("pelvis", "ripcage", "neck", "head")
+    # Right arm: Bone_007 (shoulder) → Bone_009 → Bone_012 → Bone_011
+    def _key_bone(name: str, rot: tuple[float, float, float], frame: int) -> None:
+        pb = armature.pose.bones.get(name)
+        if not pb:
+            return
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = rot
+        pb.keyframe_insert(data_path="rotation_euler", frame=frame)
 
-    def _key_chain(names: tuple[str, ...], rot: tuple[float, float, float], frame: int) -> None:
-        for name in names:
-            pb = armature.pose.bones.get(name)
-            if not pb:
-                continue
-            pb.rotation_mode = "XYZ"
-            pb.rotation_euler = rot
-            pb.keyframe_insert(data_path="rotation_euler", frame=frame)
-
-    mid = frame_start + (frame_end - frame_start) // 2
     if phase == "wave":
-        _key_chain(wave_bones, (0, 0, 0), frame_start + 4)
-        _key_chain(wave_bones, (math.radians(-95), math.radians(15), math.radians(-20)), mid)
-        _key_chain(wave_bones, (math.radians(-110), math.radians(8), math.radians(-12)), frame_end - 6)
+        # Slow uncanny wave — arm up, wrist bent backward, slight sway
+        dur = frame_end - frame_start
+        t = lambda frac: frame_start + int(dur * frac)
+        poses = [
+            (t(0.05), {"Bone_007": (0, 0, 0), "Bone_009": (0, 0, 0), "Bone_012": (0, 0, 0), "Bone_011": (0, 0, 0)}),
+            (t(0.20), {"Bone_007": (-1.4, 0.15, -0.25), "Bone_009": (-0.4, 0, 0.1), "Bone_012": (0.3, 0, 0.5), "Bone_011": (0, 0, 0.6)}),
+            (t(0.38), {"Bone_007": (-2.0, 0.2, -0.35), "Bone_009": (-0.9, 0.1, -0.15), "Bone_012": (0.5, 0.15, 0.9), "Bone_011": (0.2, 0, 1.1)}),
+            (t(0.52), {"Bone_007": (-2.15, 0.18, -0.3), "Bone_009": (-1.0, 0.08, -0.2), "Bone_012": (0.45, 0.1, 1.0), "Bone_011": (0.15, 0, 1.2)}),
+            (t(0.65), {"Bone_007": (-1.85, 0.12, -0.28), "Bone_009": (-0.75, 0, 0.05), "Bone_012": (0.35, 0, 0.75), "Bone_011": (0, 0, 0.9)}),
+            (t(0.78), {"Bone_007": (-2.05, 0.16, -0.32), "Bone_009": (-0.95, 0.06, -0.1), "Bone_012": (0.4, 0.08, 0.95), "Bone_011": (0.1, 0, 1.05)}),
+            (t(0.92), {"Bone_007": (-1.6, 0.1, -0.2), "Bone_009": (-0.5, 0, 0), "Bone_012": (0.2, 0, 0.4), "Bone_011": (0, 0, 0.5)}),
+        ]
+        for frame, bones in poses:
+            for bname, rot in bones.items():
+                _key_bone(bname, rot, frame)
+        # Subtle head tilt toward camera during wave
+        _key_bone("neck", (0.08, 0, 0.05), t(0.38))
+        _key_bone("neck", (0.12, 0, 0.08), t(0.65))
+        _key_bone("head", (0.05, 0, 0.1), t(0.52))
     elif phase == "lunge":
         lunge_f = frame_end - 10
-        _key_chain(lunge_bones, (0, 0, 0), frame_start)
-        _key_chain(lunge_bones, (math.radians(25), 0, 0), lunge_f)
-        _key_chain(lunge_bones, (math.radians(55), 0, 0), frame_end)
-        _key_chain(wave_bones, (math.radians(-130), 0, 0), frame_end)
+        for name, rot, fr in [
+            ("pelvis", (0, 0, 0), frame_start),
+            ("ripcage", (0.15, 0, 0), lunge_f),
+            ("ripcage", (0.5, 0, 0), frame_end),
+            ("neck", (0.2, 0, 0), lunge_f),
+            ("neck", (0.45, 0, 0), frame_end),
+            ("head", (0.1, 0, 0), lunge_f),
+            ("head", (0.35, 0, 0), frame_end),
+            ("Bone_007", (-2.2, 0, 0), frame_end),
+        ]:
+            _key_bone(name, rot, fr)
 
     bpy.ops.object.mode_set(mode="OBJECT")
     if prev_active:
         bpy.context.view_layer.objects.active = prev_active
-        if prev_active.type == "ARMATURE" and prev_mode == "POSE":
-            bpy.ops.object.mode_set(mode="POSE")
 
 
 def _animate_camera_wave_lunge(
@@ -579,16 +600,19 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
     return paths
 
 
-def render_preview(out_png: Path, *, samples: int = 32) -> None:
+def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave") -> None:
     ctx = build_scene(samples=samples)
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
     armature = ctx.get("armature")
+    f1 = 48
     _animate_camera_wave_lunge(
-        cam, form2, frame_start=1, frame_end=48, phase="lunge", armature=armature
+        cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature
     )
-    scene.frame_set(40)
+    # Peak wave frame ~52% through clip
+    peak = 1 + int((f1 - 1) * (0.52 if phase == "wave" else 0.85))
+    scene.frame_set(peak)
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(out_png)
     bpy.ops.render.render(write_still=True)
@@ -601,6 +625,13 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--draft-id", type=int, default=2)
     parser.add_argument("--preview", action="store_true")
+    parser.add_argument(
+        "--phase",
+        choices=("open", "wave", "lunge"),
+        default="wave",
+        help="Animation phase for preview or single-clip test",
+    )
+    parser.add_argument("--clip-only", action="store_true", help="Render one clip for --phase only")
     parser.add_argument("--pack-dir", type=Path, default=None)
     parser.add_argument("--seconds", type=float, default=None, help="Clip length (default from env)")
     parser.add_argument("--samples", type=int, default=None, help="EEVEE TAA samples")
@@ -611,7 +642,12 @@ def main(argv: list[str] | None = None) -> None:
 
     pack = args.pack_dir or OUTPUT_ROOT / f"draft_{args.draft_id}"
     if args.preview:
-        render_preview(pack / "blender_preview.png", samples=samples)
+        render_preview(pack / f"blender_preview_{args.phase}.png", samples=samples, phase=args.phase)
+        return
+    if args.clip_only:
+        ctx = build_scene(samples=samples)
+        dest = (pack / "clips" / f"blender_part_{args.phase}.mp4")
+        render_clip(ctx, dest, phase=args.phase, seconds=seconds)
         return
     render_draft_short(args.draft_id, pack, seconds=seconds, samples=samples)
 
