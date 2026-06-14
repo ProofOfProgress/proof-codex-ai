@@ -51,7 +51,8 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 - Image Texture node → link to Principled Base Color
 - Relink `img.filepath` + `img.reload()` when FBX paths break
 - **Result:** `Environment textures: fixed=68 ok=71 missing=0`
-- **Preview:** `data/production/draft_2/blender_preview_wave.png` — creature lit, trees visible; camera still needs framing toward pumps (Part 3 next)
+- **Preview:** `data/production/draft_2/blender_preview_wave.png` — scene-only (no creature); road/trees visible
+- **Gemini vision QC (2026-06-14):** score **2.5/10 FAIL** — see `data/research/GEMINI_SCENE_REVIEW_draft_2.md`. Pumps/canopy not readable; camera must frame gas station hero; add flicker lighting
 - Night grade: skip albedo crush when texture nodes are live
 
 ### Part 6 — Geometry / import
@@ -70,6 +71,7 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 
 ## Next actions
 
-1. **Part 5/6:** props FBX, pump signage readability, streetlight flicker on emissive signs
-2. Scene dolly clips (open/wave/lunge) without creature → owner approves still
-3. Part 4 operators — then creature returns when set is done
+1. **Camera + framing (Part 3):** point at pump island `(0, -8, 2.2)` so canopy/signs read — Gemini flagged this as #1 gap
+2. **Part 5/6:** emissive pump signs, streetlight flicker, fog readability
+3. Re-render scene-only wave → Gemini QC again before owner still approval
+4. Part 4 operators — creature returns only after set passes QC
