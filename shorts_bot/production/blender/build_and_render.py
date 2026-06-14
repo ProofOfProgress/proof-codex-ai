@@ -914,6 +914,9 @@ def _animate_camera_wave_lunge(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
+    from shorts_bot.production.blender.scene_layout import creature_wave_positions, load_scene_layout
+
+    layout = load_scene_layout(pack_dir)
     cam.animation_data_clear()
     form2.animation_data_clear()
     cam.keyframe_insert(data_path="location", frame=frame_start)
@@ -928,19 +931,24 @@ def _animate_camera_wave_lunge(
         form2.location = (0, -11, 0)
         form2.keyframe_insert(data_path="location", frame=frame_end)
     elif phase == "wave":
-        cam.location = (1.2, -5, 1.65)
+        cam_cfg = layout.get("camera") or {}
+        cam_start = tuple(cam_cfg.get("location") or (1.2, -5, 1.65))
+        cam.location = cam_start
         cam.keyframe_insert(data_path="location", frame=frame_start)
-        cam.location = (0.3, -6.5, 1.65)
+        cam.location = (cam_start[0] - 0.9, cam_start[1] - 1.5, cam_start[2])
         cam.keyframe_insert(data_path="location", frame=frame_end)
-        form2.location = (0, -7.5, 0)
+        wave_start, wave_end, wave_scale = creature_wave_positions(layout)
+        form2.location = tuple(wave_start)
         form2.keyframe_insert(data_path="location", frame=frame_start)
-        # creepy wave — rotate arm proxy via rig Z
         form2.rotation_euler = (0, 0, 0)
         form2.keyframe_insert(data_path="rotation_euler", frame=frame_start + 6)
         form2.rotation_euler = (0, 0, math.radians(8))
         form2.keyframe_insert(data_path="rotation_euler", frame=frame_end - 8)
-        form2.location = (0, -6.0, 0)
+        form2.location = tuple(wave_end)
         form2.keyframe_insert(data_path="location", frame=frame_end)
+        if wave_scale:
+            form2.scale = tuple(wave_scale)
+            form2.keyframe_insert(data_path="scale", frame=frame_start)
     else:  # lunge / jumpscare
         cam.location = (0, -6, 1.65)
         cam.keyframe_insert(data_path="location", frame=frame_start)
@@ -971,7 +979,7 @@ def _animate_camera_wave_lunge(
         )
 
 
-def build_scene(*, samples: int = 32) -> dict:
+def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
     _clear_scene()
     scene = bpy.context.scene
     env = _import_gas_station_environment()
@@ -984,7 +992,11 @@ def build_scene(*, samples: int = 32) -> dict:
     _setup_render(scene, samples=samples)
     _add_eevee_light_probes()
     _add_fog_and_trees()
-    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2), "environment": env}
+    if pack_dir:
+        from shorts_bot.production.blender.scene_layout import apply_scene_layout
+
+        apply_scene_layout(pack_dir, camera=cam, creature=form2, environment=env)
+    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2), "environment": env, "pack_dir": pack_dir}
 
 
 def render_clip(
@@ -1020,7 +1032,7 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
     clips_dir = pack_dir / "clips"
     phases = ("open", "wave", "lunge")
     paths: list[Path] = []
-    ctx = build_scene(samples=samples)
+    ctx = build_scene(samples=samples, pack_dir=pack_dir)
     ctx["pack_dir"] = pack_dir
     for i, phase in enumerate(phases, start=1):
         dest = clips_dir / f"blender_part_{i:02d}.mp4"
@@ -1033,7 +1045,7 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
 
 def save_scene_blend(out_path: Path, *, samples: int = 32, pack_dir: Path | None = None) -> Path:
     """Write current scene to .blend so owner can open in Blender Desktop."""
-    ctx = build_scene(samples=samples)
+    ctx = build_scene(samples=samples, pack_dir=pack_dir)
     if pack_dir:
         ctx["pack_dir"] = pack_dir
     out_path = Path(out_path)
@@ -1044,7 +1056,7 @@ def save_scene_blend(out_path: Path, *, samples: int = 32, pack_dir: Path | None
 
 
 def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave", pack_dir: Path | None = None) -> None:
-    ctx = build_scene(samples=samples)
+    ctx = build_scene(samples=samples, pack_dir=pack_dir)
     if pack_dir:
         ctx["pack_dir"] = pack_dir
     scene = ctx["scene"]

@@ -28,6 +28,15 @@ That creates:
 
 **In Cursor:** click that zip in the file tree → **Download**. Unzip on your PC.
 
+### Shared 3D workspace (move model in real time — no Blender install)
+
+1. Start web UI: `python3 -m shorts_bot.web` → open **http://127.0.0.1:8080**
+2. Go to **http://127.0.0.1:8080/workspace/draft/2** (or click the link on the video preview page)
+3. **Drag the creature** (or camera) — you see it move live; anyone else on that page sees the same
+4. Click **Save layout** — the cloud render uses your positions on the next `produce_cli`
+
+Same page works for you + the agent at once (shared workspace).
+
 Inside the zip:
 
 | File / folder | What it is |
@@ -90,5 +99,6 @@ You do **not** need to edit Python. Blender UI is enough.
 ## Ask the agent
 
 - `make owner blender pack for draft 2` — zip ready to download  
+- **3D workspace:** `python3 -m shorts_bot.web` → http://127.0.0.1:8080/workspace/draft/2 — drag creature live, Save layout  
 - `save blend file for draft 2` — `.blend` in `data/production/draft_2/`  
 - `re-render draft 2 after my blend fix` — cloud render using your file

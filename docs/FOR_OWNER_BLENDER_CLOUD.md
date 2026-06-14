@@ -10,7 +10,8 @@
 |--------|------------|
 | **Browse on GitHub** | [shorts_bot/production/blender](https://github.com/ProofOfProgress/proof-codex-ai/tree/main/shorts_bot/production/blender) · [channel/assets](https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/assets) |
 | **Download a zip** | Ask agent: `make owner blender pack for draft 2` — or run `python3 -m shorts_bot.production.blender.owner_pack_cli --draft-id 2 --with-blend` on cloud → download `data/production/draft_2/OWNER_BLENDER_PACK_draft_2.zip` from Cursor file tree |
-| **Open in Blender** | Unzip → open `peripheral_draft_2.blend` in [Blender 4.x](https://www.blender.org/download/) → fix scene → save → send `.blend` back |
+| **Shared 3D workspace (best)** | Start web UI → open **http://127.0.0.1:8080/workspace/draft/2** — drag creature/camera in browser, live sync, click Save |
+| **Open in Blender Desktop** | Unzip → open `peripheral_draft_2.blend` in [Blender 4.x](https://www.blender.org/download/) → fix scene → save → send `.blend` back |
 
 Full map: `shorts_bot/production/blender/README_FOR_OWNER.md`
 
