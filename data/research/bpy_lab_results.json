@@ -1,0 +1,46 @@
+{
+  "passed": 5,
+  "total": 8,
+  "results": [
+    {
+      "module": "01_scene_graph",
+      "pass": true,
+      "detail": "objects=1"
+    },
+    {
+      "module": "02_materials",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "module": "03_pose_keyframes",
+      "pass": true,
+      "detail": "fcurves=3"
+    },
+    {
+      "module": "04_nla_strip",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "module": "lab_05_eevee_probes",
+      "pass": false,
+      "detail": "Operator bpy.ops.object.lightprobe_add.poll() failed, context is incorrect"
+    },
+    {
+      "module": "lab_06_camera_path",
+      "pass": false,
+      "detail": "Operator bpy.ops.object.camera_add.poll() failed, context is incorrect"
+    },
+    {
+      "module": "lab_07_headless_render",
+      "pass": false,
+      "detail": "Error: Cannot render, no camera\n"
+    },
+    {
+      "module": "08_creature_import",
+      "pass": true,
+      "detail": "armature=Armature"
+    }
+  ]
+}

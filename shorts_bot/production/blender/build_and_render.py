@@ -82,9 +82,24 @@ def _add_streetlight() -> tuple[bpy.types.Object, bpy.types.Light]:
     bpy.ops.object.light_add(type="POINT", location=(4, -6, 5.2))
     lamp = bpy.context.active_object
     lamp.name = "Streetlight"
-    lamp.data.energy = 1200
+    lamp.data.energy = 1800
     lamp.data.color = (1.0, 0.55, 0.2)
     lamp.parent = pole_empty
+    # Fill + rim so Form 2 reads against fog (Blender Guru lighting)
+    bpy.ops.object.light_add(type="AREA", location=(-3, -7, 3))
+    fill = bpy.context.active_object
+    fill.name = "CreatureFill"
+    fill.data.energy = 350
+    fill.data.color = (0.75, 0.82, 1.0)
+    fill.data.size = 4.0
+    fill.rotation_euler = (math.radians(65), 0, math.radians(-30))
+    bpy.ops.object.light_add(type="SPOT", location=(2, -5, 4))
+    rim = bpy.context.active_object
+    rim.name = "CreatureRim"
+    rim.data.energy = 600
+    rim.data.color = (1.0, 0.45, 0.15)
+    rim.data.spot_size = math.radians(55)
+    rim.rotation_euler = (math.radians(110), 0, math.radians(200))
     bpy.ops.object.light_add(type="SUN", location=(0, 0, 30))
     moon = bpy.context.active_object
     moon.name = "MoonFill"
@@ -318,8 +333,12 @@ def _setup_render(scene: bpy.types.Scene, *, samples: int = 32) -> None:
         scene.world = bpy.data.worlds.new("PeripheralWorld")
     scene.world.use_nodes = True
     bg = scene.world.node_tree.nodes["Background"]
-    bg.inputs[0].default_value = (0.015, 0.022, 0.035, 1.0)
-    bg.inputs[1].default_value = 0.45
+    bg.inputs[0].default_value = (0.025, 0.035, 0.055, 1.0)
+    bg.inputs[1].default_value = 0.65
+    scene.eevee.use_ssr = True
+    scene.eevee.use_ssr_refraction = False
+    scene.eevee.gi_diffuse_bounces = 2
+    scene.eevee.gi_cubemap_resolution = "512"
 
 
 def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: int) -> None:
@@ -336,6 +355,32 @@ def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: 
             lamp_data.energy = energy
             lamp_data.keyframe_insert(data_path="energy", frame=f)
             prev = energy
+
+
+def _add_eevee_light_probes() -> None:
+    """Irradiance grid + reflection cubemap — EEVEE course: indirect light on night scenes."""
+    scene = bpy.context.scene
+    if scene.render.engine != "BLENDER_EEVEE":
+        return
+    bpy.ops.object.lightprobe_add(type="GRID", location=(0, -8, 2.5))
+    grid = bpy.context.active_object
+    grid.name = "GasStationGI"
+    grid.scale = (14, 16, 6)
+    if grid.data:
+        grid.data.grid_bake_samples = 256
+        grid.data.grid_capture_indirect = True
+        grid.data.grid_capture_emission = True
+    bpy.ops.object.lightprobe_add(type="CUBEMAP", location=(0, -10, 3))
+    cube = bpy.context.active_object
+    cube.name = "GasStationRefl"
+    if cube.data:
+        cube.data.influence_distance = 18.0
+    # Headless probe bake can corrupt skinned meshes — opt-in only
+    if os.environ.get("BLENDER_BAKE_PROBES", "").strip().lower() in ("1", "true", "yes"):
+        try:
+            bpy.ops.object.lightprobe_cache_bake()
+        except Exception as exc:
+            print(f"Light probe bake skipped: {exc}")
 
 
 def _add_fog_and_trees() -> None:
@@ -462,6 +507,13 @@ def _pose_wave_or_lunge(
         for frame, bones in poses:
             for bname, rot in bones.items():
                 _key_bone(bname, rot, frame)
+        # Smooth wave motion (avoid robotic linear default)
+        if armature.animation_data and armature.animation_data.action:
+            for fcu in armature.animation_data.action.fcurves:
+                for kp in fcu.keyframe_points:
+                    kp.interpolation = "BEZIER"
+                    kp.handle_left_type = "AUTO_CLAMPED"
+                    kp.handle_right_type = "AUTO_CLAMPED"
         # Subtle head tilt toward camera during wave
         _key_bone("neck", (0.08, 0, 0.05), t(0.38))
         _key_bone("neck", (0.12, 0, 0.08), t(0.65))
@@ -554,6 +606,7 @@ def build_scene(*, samples: int = 32) -> dict:
     form2 = _build_creature()
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
+    _add_eevee_light_probes()
     _add_fog_and_trees()
     return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2)}
 
