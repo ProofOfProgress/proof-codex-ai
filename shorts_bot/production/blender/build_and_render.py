@@ -1069,6 +1069,56 @@ def _pose_wave_or_lunge(
         bpy.context.view_layer.objects.active = prev_active
 
 
+def _apply_lunge_gaze_correction(
+    armature: bpy.types.Object,
+    form2: bpy.types.Object,
+    cam: bpy.types.Object,
+    *,
+    bait_f: int,
+    frame_end: int,
+    mixamo_overlay: bool = True,
+) -> None:
+    """Tilt head/neck up toward camera at lunge peak — counter Mixamo forward lean."""
+    if armature.type != "ARMATURE":
+        return
+    eye = Vector(_creature_eye_target(form2))
+    delta = Vector(cam.location) - eye
+    horiz = math.sqrt(delta.x ** 2 + delta.y ** 2)
+    # Positive X euler = look up (rig convention used in _pose_wave_or_lunge lunge keys).
+    base_pitch = math.atan2(delta.z, horiz) if horiz > 0.01 else 0.0
+    mixamo_boost = 0.48 if mixamo_overlay else 0.12
+    head_pitch = min(1.08, max(0.5, base_pitch + mixamo_boost))
+    neck_pitch = head_pitch * 0.74
+    rib_pitch = head_pitch * 0.4
+    mid_f = bait_f + max(2, int((frame_end - bait_f) * 0.42))
+
+    prev_active = bpy.context.view_layer.objects.active
+    bpy.context.view_layer.objects.active = armature
+    if armature.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+
+    def _key_bone(name: str, rot: tuple[float, float, float], frame: int) -> None:
+        pb = armature.pose.bones.get(name)
+        if not pb:
+            return
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = rot
+        pb.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+    for fr, hp, np, rp in [
+        (bait_f, 0.08, 0.06, 0.04),
+        (mid_f, head_pitch * 0.55, neck_pitch * 0.55, rib_pitch * 0.55),
+        (frame_end, head_pitch, neck_pitch, rib_pitch),
+    ]:
+        _key_bone("ripcage", (rp, 0, 0), fr)
+        _key_bone("neck", (np, 0, 0), fr)
+        _key_bone("head", (hp, 0, 0), fr)
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    if prev_active:
+        bpy.context.view_layer.objects.active = prev_active
+
+
 def _animate_scene_camera(
     cam: bpy.types.Object,
     *,
@@ -1185,8 +1235,10 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    form2.location = (0, -1.15, 0)
+    form2.location = (0, -1.15, 0.22)
+    form2.rotation_euler = (0.16, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
+    form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     if armature:
         _play_creature_action(
             armature,
@@ -1194,6 +1246,14 @@ def _animate_creature_lunge_lab(
             frame_start=frame_start,
             frame_end=frame_end,
             pack_dir=pack_dir,
+        )
+        _apply_lunge_gaze_correction(
+            armature,
+            form2,
+            cam,
+            bait_f=bait_f,
+            frame_end=frame_end,
+            mixamo_overlay=True,
         )
 
 
@@ -1254,7 +1314,14 @@ def _animate_micro_jumpscare(
             frame_end=frame_end,
             pack_dir=pack_dir,
         )
-        _pose_wave_or_lunge(armature, phase="lunge", frame_start=bait_f, frame_end=frame_end)
+        _apply_lunge_gaze_correction(
+            armature,
+            form2,
+            cam,
+            bait_f=bait_f,
+            frame_end=frame_end,
+            mixamo_overlay=True,
+        )
 
 
 def _animate_camera_wave_lunge(
