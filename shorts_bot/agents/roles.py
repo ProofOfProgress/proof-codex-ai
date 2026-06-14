@@ -50,7 +50,7 @@ Your job in final replies:
 - If no FBX yet: procedural fallback only; say motion will look stiff until cloud export exists
 
 **Visual quality bar — LIGHTS ARE OFF (Blender, owner north star):**
-- Reference links (always cite in visual planning + QC): https://youtube.com/shorts/R7cEIG_gqLU · https://youtu.be/S0x2llxEAjk · https://youtu.be/lnDP902qeqw · https://www.youtube.com/@LIGHTSAREOFF
+- Reference links (always cite in visual planning + QC): https://youtube.com/shorts/R7cEIG_gqLU · https://youtube.com/shorts/zCA4NuvoVXI · https://youtu.be/S0x2llxEAjk · https://youtu.be/lnDP902qeqw · https://www.youtube.com/@LIGHTSAREOFF
 - Codex: `data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md` — finished sets, working textures, horror lighting; FAIL grey block-outs
 - Gemini brief CLI: `python3 -m shorts_bot.production.blender.gemini_visual_brief_cli`
 
@@ -127,7 +127,7 @@ Reject slop. Check:
 - No cosy/self-help tone?
 - No stick figures?
 - Volume warning appropriate?
-- Blender renders: finished set like LIGHTS ARE OFF (refs: youtube.com/shorts/R7cEIG_gqLU, youtu.be/S0x2llxEAjk, youtu.be/lnDP902qeqw) — not grey block-out or broken textures?
+- Blender renders: finished set like LIGHTS ARE OFF (refs: youtube.com/shorts/R7cEIG_gqLU, youtube.com/shorts/zCA4NuvoVXI, youtu.be/S0x2llxEAjk, youtu.be/lnDP902qeqw) — not grey block-out or broken textures?
 
 Return PASS or FAIL with bullet fixes.""",
 )
@@ -140,6 +140,7 @@ BLENDER_VISUAL_DIRECTOR = AgentRole(
 North star: **LIGHTS ARE OFF** — 100% Blender EEVEE, finished environments, horror lighting.
 Reference URLs (always include when advising):
 - https://youtube.com/shorts/R7cEIG_gqLU (viral Short — hook + dread)
+- https://youtube.com/shorts/zCA4NuvoVXI (viral Short — sewer monster, 18M views)
 - https://youtu.be/S0x2llxEAjk (Pt1 — lab set craft)
 - https://youtu.be/lnDP902qeqw (Pt3 — escalation + readable sets)
 - https://www.youtube.com/@LIGHTSAREOFF

@@ -7,6 +7,7 @@ REFERENCE_PATH = "data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md"
 # Owner-approved north-star links (always pass to Gemini text prompts).
 LIGHTS_ARE_OFF_URLS: tuple[str, ...] = (
     "https://youtube.com/shorts/R7cEIG_gqLU",
+    "https://youtube.com/shorts/zCA4NuvoVXI",
     "https://youtu.be/S0x2llxEAjk",
     "https://youtu.be/lnDP902qeqw",
     "https://www.youtube.com/@LIGHTSAREOFF",
@@ -15,13 +16,15 @@ LIGHTS_ARE_OFF_URLS: tuple[str, ...] = (
 
 def reference_links_block() -> str:
     return (
-        "QUALITY BAR — LIGHTS ARE OFF (Blender horror, not AI slop):\n"
+        "QUALITY BAR — LIGHTS ARE OFF (100% Blender horror Shorts — learnable, not AI slop):\n"
         f"- Viral Short (swim/dread): {LIGHTS_ARE_OFF_URLS[0]}\n"
-        f"- Pt1 Self-Aware Robot (lab craft): {LIGHTS_ARE_OFF_URLS[1]}\n"
-        f"- Pt3 Prisoner (escalation + sets): {LIGHTS_ARE_OFF_URLS[2]}\n"
-        f"- Channel: {LIGHTS_ARE_OFF_URLS[3]}\n"
+        f"- Viral Short (sewer monster, 18M views): {LIGHTS_ARE_OFF_URLS[1]}\n"
+        f"- Pt1 Self-Aware Robot (lab craft): {LIGHTS_ARE_OFF_URLS[2]}\n"
+        f"- Pt3 Prisoner (escalation + sets): {LIGHTS_ARE_OFF_URLS[3]}\n"
+        f"- Channel: {LIGHTS_ARE_OFF_URLS[4]}\n"
         "Peripheral target: same FINISHED Blender look — readable environment, "
-        "working textures, horror lighting, intentional camera. "
+        "working textures, horror lighting, intentional camera, earned scare in ~15–30s. "
+        "These are made entirely in Blender; study hook → reveal → payoff timing. "
         "FAIL anything that looks like grey block-out or broken FBX import."
     )
 
@@ -57,6 +60,7 @@ def ask_gemini_blender_brief(*, scene: str, extra: str = "") -> str:
         f"{gemini_blender_quality_prompt(scene=scene)}\n\n"
         f"{load_reference_markdown()[:6000]}\n\n"
         "The owner wants videos like LIGHTS ARE OFF — all Blender, finished sets, horror lighting.\n"
+        "Study their viral Shorts (swim, sewer monster) for hook timing and reveal payoff.\n"
         "You cannot watch YouTube; use your knowledge of that channel's style plus the notes above.\n\n"
         f"{extra}\n\n"
         "Return markdown with:\n"

@@ -23,9 +23,21 @@
 
 **Bottom line for Peripheral:** There is no single “AI Blender course.” The winning stack is:
 
-1. **bpy scripting** (build scenes, keyframes, render headless) — our `build_and_render.py`
-2. **EEVEE lighting** (probes, fill, streetlight) — quality without Cycles cost
-3. **AI motion import** (Mixamo, Kimodo, Proscenium) layered on imported rigs — wave/lunge beats
+1. **Study finished Shorts** (LIGHTS ARE OFF — owner refs) — hook, reveal, payoff in ~15s
+2. **bpy scripting** (build scenes, keyframes, render headless) — our `build_and_render.py`
+3. **EEVEE lighting** (probes, fill, streetlight) — quality without Cycles cost
+4. **AI motion import** (Mixamo, Kimodo, Proscenium) layered on imported rigs — wave/lunge beats
+
+### Reference study (owner syllabus — watch, then replicate in bpy)
+
+| Short | URL | Lesson |
+|-------|-----|--------|
+| Swim here | https://youtube.com/shorts/R7cEIG_gqLU | Environment + dread in one hook frame |
+| **A friend from the sewer** | https://youtube.com/shorts/zCA4NuvoVXI | Monster reveal; 15s; set reads instantly (18M views) |
+| Self-Aware Robot Pt1 | https://youtu.be/S0x2llxEAjk | Materials + 3-point lighting on a full set |
+| Channel | https://www.youtube.com/@LIGHTSAREOFF | Series craft — 100% Blender, no AI |
+
+After each watch: write 4 bullets (hook frame, lighting, camera move, scare beat) → apply to next `produce_cli` render. Codex: `data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md`.
 
 ---
 

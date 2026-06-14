@@ -11,11 +11,14 @@
 | Video | URL | Length | What to steal |
 |-------|-----|--------|---------------|
 | **Swim here** (viral Short) | https://youtube.com/shorts/R7cEIG_gqLU | ~15s | Hook frame reads in 1s; environment + dread; payoff timing |
+| **A friend from the sewer** (viral Short) | https://youtube.com/shorts/zCA4NuvoVXI | ~15s | Monster reveal in tight runtime; set reads instantly; 18M-view hook/payoff craft — **owner pick 2026-06** |
 | **I Made a Self-Aware Robot** (Pt 1) | https://youtu.be/S0x2llxEAjk | ~8 min | Lab set dressing; materials; 3-point lighting; character + world |
 | **Held Prisoner by Robot** (Pt 3) | https://youtu.be/lnDP902qeqw | ~10 min | Asset reuse; escalation; readable workshop; cinematic framing |
 | **Channel** | https://www.youtube.com/@LIGHTSAREOFF | — | Series craft; “no AI” Blender animation; horror that feels **real** |
 
 Creator note on long videos: *“No AI was used at all in the making of this video. This animation was made entirely in Blender.”*
+
+**Learn how to do it:** These Shorts are the syllabus — not magic. Reverse-engineer: (1) hook frame in 1s, (2) environment/materials that read in low light, (3) camera move that builds dread, (4) scare lands on the last beat. Free EEVEE/lighting courses below + `bpy_lab` drills on our VM.
 
 ---
 

@@ -2,59 +2,53 @@
 
 Reference links included in prompt:
 - https://youtube.com/shorts/R7cEIG_gqLU
+- https://youtube.com/shorts/zCA4NuvoVXI
 - https://youtu.be/S0x2llxEAjk
 - https://youtu.be/lnDP902qeqw
 - https://www.youtube.com/@LIGHTSAREOFF
 
 ---
 
-Here's the breakdown for the gas station horror shorts, focusing on achieving the LIGHTS ARE OFF Blender aesthetic:
+Here's the breakdown for the gas station horror short, adhering to the LIGHTS ARE OFF quality bar:
 
 ## 1. What Makes the LIGHTS ARE OFF References Work
 
-*   **Immediate Environmental Readability:** The viewer instantly understands the setting (e.g., a dark, isolated lab, a murky swimming pool) within the first second, establishing mood and context without exposition.
-*   **Grounded, Tangible World:** Despite being CG, the environments feel lived-in and real. Materials are believable, lighting interacts realistically with surfaces, and assets are placed with intention, avoiding a "CG" feel.
-*   **Purposeful, Cinematic Camera Work:** Every shot feels deliberate. Camera movements (dolly, push-in, subtle pans) and framing (rule of thirds, leading lines) guide the viewer's eye and build tension, mimicking live-action cinematography.
-*   **Atmospheric, Horror-Focused Lighting:** Lighting is not just for visibility; it's a narrative tool. Shadows are deep, light sources are motivated (flickering fluorescents, dim streetlights), and contrast is used to create unease and highlight key elements.
-*   **Integrated Creature Presentation:** The creatures are not just "placed" in the scene. They are lit by the same environmental lights, cast shadows, and interact with the world, making them feel like a genuine, terrifying part of the environment.
+*   **Instant Environment Readability:** Even in low light, the viewer immediately understands the setting (pool, sewer, lab) within the first second. This is achieved through strong silhouette, iconic environmental elements, and deliberate composition.
+*   **Masterful Dread-Building Through Lighting:** The lighting isn't just for visibility; it's a character. It uses harsh shadows, motivated light sources (flickering lights, car headlights), and subtle color shifts to create unease and guide the viewer's eye towards the threat.
+*   **Precise Camera Work for Pacing:** Every camera move, from slow pushes to sudden pans, is intentional. They build tension, reveal information strategically, and punctuate the scares. The camera often acts as the viewer's eyes, enhancing immersion.
+*   **Earned Reveals and Payoffs:** The scares aren't gratuitous. They are built up through atmosphere and anticipation, with the reveal of the creature or threat timed perfectly to maximize impact within the short runtime. The payoff feels earned by the preceding tension.
+*   **"Finished" Blender Aesthetic:** Despite being entirely in Blender, the scenes feel tangible and real. Materials are well-chosen and applied, assets are integrated seamlessly, and the overall polish suggests a complete, intentional artistic vision, not a work-in-progress.
 
 ## 2. Concrete Fixes for Our Gas Station Draft
 
-**Lighting:**
-
-*   **Re-establish Key/Fill/Rim:** The current "black void" indicates a lack of fill light and potentially missing key/rim.
-    *   **Key Light:** Use the gas station's overhead canopy lights and any visible interior lights as the primary source. These should be low-intensity but have a distinct color temperature (e.g., sickly yellow-green).
-    *   **Fill Light:** Introduce very subtle, cool-toned fill light from the environment (e.g., distant moonlight, ambient sky light) to lift shadows just enough to reveal form without dispelling the darkness. This is crucial for readability.
-    *   **Rim Light:** Use the headlights of any unseen vehicles, or the glow from the gas pumps themselves, to create subtle rim lighting on the creature and foreground elements, separating them from the background.
-*   **Motivated Flicker:** The streetlight flicker mentioned in the codex is paramount. Implement a subtle, irregular flicker on the main overhead gas station lights and any streetlights. This should be timed to reveal the creature or specific details.
-*   **Color Grading:** Avoid crushing the albedo. Instead, use EEVEE's color management to achieve a dark, desaturated night look with specific color accents (e.g., the pump sign colors, the creature's potential emissive elements).
-
-**Textures:**
-
-*   **Relink FBX Paths:** This is the top priority. Ensure all texture paths are correctly set up to point to the `Textures/` directory. This means checking UV mapping and material assignments in Blender.
-*   **Material PBR Work:** Even for a night scene, materials need to have appropriate PBR values (roughness, metallic, normal maps). The asphalt should have subtle wetness/grime, the building should have weathered paint, and the signs should have a distinct emissive quality.
-*   **Avoid Flatness:** Ensure textures have enough detail (normal maps, bump maps) to read as surfaces, not just flat colors, even in low light.
-
-**Camera:**
-
-*   **Clip 1 (POV toward pumps):** Start with a slow, steady forward dolly or a subtle handheld feel. The camera should be at human eye-level. The reveal of the figure should happen as the camera moves, not as a static shot.
-*   **Clip 2 (Uncanny wave):** A slightly wider shot, perhaps a slow push-in or a static shot with subtle camera shake. The focus is on the creature's unnatural movement and the visible environment (canopy, signs, wet asphalt). Ensure the wet asphalt reflects the limited light sources.
-*   **Clip 3 (Lunge):** A rapid, disorienting push-in or a Dutch tilt as the creature lunges. The camera should feel like it's being attacked. The background elements (emissive signs) must remain visible and readable, adding to the chaos.
-
-**Scale:**
-
-*   **Form 2 Creature:** Ensure the Form 2 creature is scaled correctly relative to the gas station elements (pumps, canopy, building). It should feel imposing and out of place, but not so large that it breaks the believability of the environment. The "too-tall" aspect should be a deliberate, unsettling exaggeration, not an accidental scaling error.
-*   **Grounding:** The creature must be firmly planted on the ground plane. No floating or clipping through the asphalt.
+*   **Textures:**
+    *   **Immediate Action:** Relink all broken FBX texture paths. Ensure all textures are located within the `Textures/` directory relative to the project file.
+    *   **Material Check:** Verify that all imported textures have appropriate PBR properties (Albedo, Roughness, Normal, Metallic if applicable) and are correctly assigned in the shader nodes. Avoid flat, untextured grey surfaces.
+    *   **Night-Appropriate Materials:** For the wet asphalt, ensure a subtle reflection map or roughness variation is present to catch the limited light. For signs, ensure emissive materials are set up correctly to glow.
+*   **Lighting:**
+    *   **Motivated Streetlights:** Re-establish the primary light sources as the gas station's overhead canopy lights and any visible streetlights. Implement a subtle flicker effect on these lights to create dynamic shadows and moments of partial darkness.
+    *   **Key, Fill, Rim:** Apply a classic 3-point lighting setup, even for exteriors.
+        *   **Key:** The primary light source (e.g., a flickering streetlight).
+        *   **Fill:** A very dim, cool-toned fill light to lift shadows just enough to reveal form without eliminating mystery.
+        *   **Rim:** A subtle rim light to separate the creature from the background, especially when it's at the tree line.
+    *   **Color Grading:** Avoid crushing the albedo to black. Instead, use a desaturated, cool color palette for the night. Introduce subtle color variations (e.g., a hint of sickly green or blue from the pump lights) to enhance the unsettling atmosphere.
+*   **Camera:**
+    *   **Clip 1 (POV Walk):** Start with a steady, slightly low-angle POV walk towards the pumps. The camera should feel grounded and observant. The reveal of the figure at the tree line should be a slow pan or a subtle camera drift that draws attention.
+    *   **Clip 2 (Uncanny Wave):** Use a slightly wider shot here, perhaps a slow push-in towards the pumps. The camera should capture the environment (canopy, signs, wet asphalt) clearly. The creature's wave should be framed to feel unnatural and isolated.
+    *   **Clip 3 (Lunge):** A rapid, disorienting camera move. This could be a quick zoom or a sudden tilt/roll as the creature lunges. The final frame should be a tight close-up of the creature's face, with the emissive pump signs still visible and slightly out of focus in the background, providing context and a sense of place.
+*   **Scale:**
+    *   **Creature Integration:** Ensure the Form 2 creature is scaled correctly relative to the gas station environment. It should feel imposing but not so large that it breaks the believability of its interaction with the set. Ground it firmly on the asphalt.
 
 ## 3. EEVEE Settings Checklist
 
-*   **Render Properties:**
-    *   **Render Engine:** EEVEE
-    *   **Viewport Performance:** Enable "High Quality Normals" and "Screen Space Reflections" if applicable for previews.
-    *   **Shadows:**
-        *   **Cube Size/Cascade Size:** Set to highest quality (e.g., 2048 or 4096) for sharp, detailed shadows.
-        *   **Soft Shadows:** Enable for a more natural falloff, but be mindful of performance.
-    *   **Bloom:**
-        *   **Enable:** Crucial for the glowing effect of signs and potential creature emissives.
-        *   **Threshold:** Adjust to control what glows.
-        *   **Intensity:** Control the strength
+*   **Exposure:**
+    *   **Enable:** Ensure "Exposure" is checked in the Render Properties.
+    *   **Adjust:** Set a low "Min" and "Max" value to control the overall brightness and contrast, aiming for a dark, moody feel.
+    *   **Contrast:** Fine-tune the "Contrast" slider to achieve punchy shadows and highlights without losing detail.
+*   **Bloom:**
+    *   **Enable:** Check "Bloom" in the Render Properties.
+    *   **Threshold:** Set a moderate "Threshold" (e.g., 0.8-1.0) so only the brightest emissive elements (pump signs) bloom.
+    *   **Intensity:** Keep "Intensity" low (e.g., 0.1-0.3) to avoid an overly "glowing" or unrealistic look.
+    *   **Knee:** Adjust "Knee" for a softer bloom falloff.
+*   **Probes (Light & Reflection):**
+    *   **Light Probes:** Place several "Cube" or "Sphere" light probes throughout the scene, especially near the creature and the
