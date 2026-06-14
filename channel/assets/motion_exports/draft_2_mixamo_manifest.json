@@ -1,0 +1,25 @@
+{
+  "draft_id": 2,
+  "source": "mixamo",
+  "model": "channel/assets/creatures/scp_096/scp_096.fbx",
+  "clips": [
+    {
+      "phase": "open",
+      "query": "zombie walk",
+      "animation": "Zombie Walk",
+      "path": "/workspace/channel/assets/motion_exports/draft_2_open.fbx"
+    },
+    {
+      "phase": "wave",
+      "query": "zombie idle",
+      "animation": "Zombie Idle",
+      "path": "/workspace/channel/assets/motion_exports/draft_2_wave.fbx"
+    },
+    {
+      "phase": "lunge",
+      "query": "zombie attack",
+      "animation": "Zombie Attack",
+      "path": "/workspace/channel/assets/motion_exports/draft_2_lunge.fbx"
+    }
+  ]
+}
