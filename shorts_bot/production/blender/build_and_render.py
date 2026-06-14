@@ -1103,16 +1103,19 @@ def _animate_micro_jumpscare(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
-    """3s format: ~0.4s bait → lunge; eyes on top rule-of-thirds line at scare."""
+    """3s format: ~0.4s bait → lunge; fixed camera heading (dolly only — no spin)."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
     base_s = _micro_creature_uniform_scale()
     bait_f = frame_start + max(8, int((frame_end - frame_start) * 0.14))
     cam.animation_data_clear()
     form2.animation_data_clear()
     cam.data.shift_y = 0.0
-    # Bait — camera raised, pumps readable; creature human-scale in distance
+    # Lock POV down the lot — rotation stays constant; only dolly forward on lunge.
+    look_target = SCENE_FOCAL
     cam.location = (0, -5.0, 2.15)
-    _camera_point_at_rule_thirds(cam, SCENE_FOCAL, frame_line=line)
+    _camera_point_at_rule_thirds(cam, look_target, frame_line=line)
+    fixed_rot = cam.rotation_euler.copy()
+    fixed_shift = cam.data.shift_y
     cam.keyframe_insert(data_path="location", frame=frame_start)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     cam.data.keyframe_insert(data_path="shift_y", frame=frame_start)
@@ -1120,19 +1123,23 @@ def _animate_micro_jumpscare(
     form2.scale = (base_s, base_s, base_s)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
+    # Bait hold — same heading
+    cam.location = (0, -5.0, 2.15)
+    cam.rotation_euler = fixed_rot
+    cam.data.shift_y = fixed_shift
     cam.keyframe_insert(data_path="location", frame=bait_f)
     cam.keyframe_insert(data_path="rotation_euler", frame=bait_f)
     cam.data.keyframe_insert(data_path="shift_y", frame=bait_f)
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    # Lunge — closer + slight scale pop (not giant); eyes on top third line
+    # Lunge — dolly in; creature runs into fixed frame (no look-at whip)
     lunge_s = base_s * 1.06
     form2.location = (0, -2.4, 0.88)
     form2.scale = (lunge_s, lunge_s, lunge_s)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     cam.location = (0, -2.85, 2.35)
-    eye = _creature_eye_target(form2)
-    _camera_point_at_rule_thirds(cam, eye, frame_line=line)
+    cam.rotation_euler = fixed_rot
+    cam.data.shift_y = fixed_shift
     cam.keyframe_insert(data_path="location", frame=frame_end)
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     cam.data.keyframe_insert(data_path="shift_y", frame=frame_end)
