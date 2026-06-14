@@ -6,24 +6,25 @@
 
 ## Can't find "Proscenium" in the addon list?
 
-**Most common cause: wrong Blender version for the zip.**
+**On Blender 5.1:** your version is fine. Proscenium is **not** in Blender's online extension store — you won't find it by browsing. You must **install the zip from disk first**.
 
-| Your Blender version | Download this zip | Search term in Add-ons |
-|---------------------|-------------------|------------------------|
-| **5.0 or newer** (check **Help → About Blender**) | [proscenium-blender-0.4.0.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip) | `Proscenium` |
-| **4.2 / 4.3 / 4.4** (not 5.x) | [proscenium-blender-0.3.2.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-0.3.2.zip) | `Proscenium` |
+### Blender 5.1 — do this exactly
 
-If you installed the **0.4.0** zip on **Blender 4.x**, it will **never show up** — that's normal. Uninstall nothing; just install the **0.3.2** zip instead.
+1. Download (keep it zipped):  
+   https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip
+2. **Edit → Preferences**
+3. Left side: **Get Extensions** (or **Add-ons**)
+4. Top-right **▼ menu** → **Install from Disk…**
+5. Pick `proscenium-blender-0.4.0.zip`
+6. Left side: **Add-ons**
+7. Search: **`Proscenium`**
+8. Enable **Proscenium — AI Motion Generation**
+9. In the 3D view press **N** → **Proscenium** tab on the right
 
-**You must click Install first** — it is not in Blender's built-in list until you add the zip:
+**Tip:** Scrolling the default add-on list without step 4–5 will show nothing — that's expected.
 
-1. **Edit → Preferences → Add-ons**
-2. Click **Install from Disk…** (top-right — not just scrolling the list)
-3. Choose the **.zip file** you downloaded (do not unzip it first)
-4. In the search box at the top-left, type: **`Proscenium`**
-5. Tick the checkbox: **Proscenium — AI Motion Generation**
-
-The panel appears after enable: 3D view → press **N** → tab **Proscenium** (right side).
+**Still missing?** **Refresh Local** on the Add-ons page, or restart Blender.  
+**Won't enable?** **Window → Toggle System Console** and tell the agent any red error text.
 
 ---
 
