@@ -539,12 +539,37 @@ def _faststart_mp4(path: Path) -> None:
         tmp.unlink(missing_ok=True)
 
 
+def _camera_point_at(cam: bpy.types.Object, target: tuple[float, float, float]) -> None:
+    """Part 3 — aim camera at world target using TRACK_TO (course: constraints → code)."""
+    empty = bpy.data.objects.new("_PeripheralLookAt", None)
+    bpy.context.scene.collection.objects.link(empty)
+    empty.location = target
+    con = cam.constraints.new("TRACK_TO")
+    con.target = empty
+    con.track_axis = "TRACK_NEGATIVE_Z"
+    con.up_axis = "UP_Y"
+    bpy.context.view_layer.update()
+    try:
+        bpy.ops.object.select_all(action="DESELECT")
+        cam.select_set(True)
+        bpy.context.view_layer.objects.active = cam
+        bpy.ops.constraint.apply(constraint=con.name, owner="OBJECT")
+    except Exception:
+        # Fallback: manual quat
+        direction = Vector(target) - cam.location
+        if direction.length > 0.001:
+            cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+    finally:
+        cam.constraints.clear()
+        bpy.data.objects.remove(empty, do_unlink=True)
+
+
 def _setup_camera() -> bpy.types.Object:
-    bpy.ops.object.camera_add(location=(0, 2, 1.65))
+    bpy.ops.object.camera_add(location=(0, -5.5, 1.55))
     cam = bpy.context.active_object
     cam.name = "POVCamera"
-    cam.data.lens = 24
-    cam.rotation_euler = (math.radians(88), 0, math.radians(180))
+    cam.data.lens = 28
+    _camera_point_at(cam, (0, -9.0, 1.6))
     bpy.context.scene.camera = cam
     return cam
 
@@ -622,24 +647,19 @@ def _add_eevee_light_probes() -> None:
 
 
 def _add_fog_and_trees(*, env_loaded: bool = False) -> None:
-    """Low pine silhouettes + volumetric fog for rural night mood."""
+    """Volumetric fog — skip procedural trees when real gas-station FBX is loaded."""
+    scene = bpy.context.scene
     if not env_loaded:
         trunk = _mat("PineTrunk", (0.04, 0.03, 0.02, 1.0), rough=0.95)
         needle = _mat("PineNeedle", (0.02, 0.04, 0.03, 1.0), rough=0.9)
-        tree_spots = [(-12, -16, 7), (14, -18, 9), (-8, -22, 6), (18, -14, 8)]
-    else:
-        trunk = _mat("PineTrunk", (0.04, 0.03, 0.02, 1.0), rough=0.95)
-        needle = _mat("PineNeedle", (0.02, 0.04, 0.03, 1.0), rough=0.9)
-        tree_spots = [(-14, -20, 7), (16, -20, 8)]  # fewer when real gas station loaded
-    for x, y, h in tree_spots:
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.25, depth=h * 0.35, location=(x, y, h * 0.18))
-        t = bpy.context.active_object
-        t.data.materials.append(trunk)
-        bpy.ops.mesh.primitive_cone_add(radius1=h * 0.45, depth=h * 0.65, location=(x, y, h * 0.65))
-        c = bpy.context.active_object
-        c.data.materials.append(needle)
+        for x, y, h in [(-12, -16, 7), (14, -18, 9), (-8, -22, 6), (18, -14, 8)]:
+            bpy.ops.mesh.primitive_cylinder_add(radius=0.25, depth=h * 0.35, location=(x, y, h * 0.18))
+            t = bpy.context.active_object
+            t.data.materials.append(trunk)
+            bpy.ops.mesh.primitive_cone_add(radius1=h * 0.45, depth=h * 0.65, location=(x, y, h * 0.65))
+            c = bpy.context.active_object
+            c.data.materials.append(needle)
 
-    scene = bpy.context.scene
     if scene.world and scene.world.node_tree:
         nodes = scene.world.node_tree.nodes
         links = scene.world.node_tree.links
@@ -967,21 +987,29 @@ def _animate_camera_wave_lunge(
 
     if phase == "open":
         cam.location = (0, 4, 1.65)
+        _camera_point_at(cam, (0, -8, 2.0))
         cam.keyframe_insert(data_path="location", frame=frame_start)
-        cam.location = (0, -1, 1.65)
+        cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+        cam.location = (0, -2, 1.65)
+        _camera_point_at(cam, (0, -9, 1.5))
         cam.keyframe_insert(data_path="location", frame=frame_end - 4)
+        cam.keyframe_insert(data_path="rotation_euler", frame=frame_end - 4)
         form2.location = (0, -14, 0)
         form2.keyframe_insert(data_path="location", frame=frame_start)
         form2.location = (0, -11, 0)
         form2.keyframe_insert(data_path="location", frame=frame_end)
     elif phase == "wave":
-        cam_cfg = layout.get("camera") or {}
-        cam_start = tuple(cam_cfg.get("location") or (1.2, -5, 1.65))
-        cam.location = cam_start
-        cam.keyframe_insert(data_path="location", frame=frame_start)
-        cam.location = (cam_start[0] - 0.9, cam_start[1] - 1.5, cam_start[2])
-        cam.keyframe_insert(data_path="location", frame=frame_end)
         wave_start, wave_end, wave_scale = creature_wave_positions(layout)
+        cam_start = (0, -5.5, 1.55)
+        cam_end = (0.4, -7.0, 1.5)
+        cam.location = cam_start
+        _camera_point_at(cam, tuple(wave_start))
+        cam.keyframe_insert(data_path="location", frame=frame_start)
+        cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+        cam.location = cam_end
+        _camera_point_at(cam, (wave_start[0], wave_start[1] - 0.5, 1.65))
+        cam.keyframe_insert(data_path="location", frame=frame_end)
+        cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
         form2.location = tuple(wave_start)
         form2.keyframe_insert(data_path="location", frame=frame_start)
         form2.rotation_euler = (0, 0, 0)

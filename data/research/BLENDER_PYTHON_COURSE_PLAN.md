@@ -27,10 +27,10 @@ Work in order. After each part: run matching `bpy_lab` module + apply one fix to
 
 | Part | CG Python topic | What you learn in code | Our drill | Apply to Peripheral |
 |------|-----------------|------------------------|-----------|---------------------|
-| **1 — Basics** | Variables, loops, functions | Python inside Blender text editor | `bpy_lab` 01–02 | `_mat()`, scene graph |
-| **2 — First operator + panel** | `bpy.types.Operator`, `register()` | Custom tools like Blender buttons | (read + mirror patterns) | Future: “Re-render draft” operator |
+| **1 — Basics** | Variables, loops, functions | Python inside Blender text editor | `course_exercises.py` 1.01–1.02 | `_mat()`, scene graph |
+| **2 — First operator + panel** | `bpy.types.Operator`, `register()` | Custom tools like Blender buttons | `course_exercises.py` 2.01 | Future: “Re-render draft” operator |
 | **2.5 — VSCode** | External editor + Blender | Same scripts we run headless on VM | `blender --background --python` | All production |
-| **3 — Working with objects** | Location, rotation, scale, collections | Move cameras/creatures in code | `bpy_lab` 06, 09 | `scene_layout`, camera path |
+| **3 — Working with objects** | Location, rotation, scale, collections | Move cameras/creatures in code | `course_exercises.py` 3.01–3.04 | `_camera_point_at`, pump POV |
 | **4 — Custom operators + UI** | Menus, properties | Batch tools | — | Mixamo fetch CLI patterns |
 | **5 — Nodes** | Shader + geometry nodes in Python | **Materials & textures in code** | `bpy_lab` 10 | Fix gas-station texture relink |
 | **6 — Geometry** | Meshes, bmesh | Ground, pumps, trees procedural | `bpy_lab` 11 | Environment import + scale |

@@ -10,10 +10,10 @@
 
 | Part | Topic | Status | Applied to pipeline |
 |------|-------|--------|---------------------|
-| 1 | Python basics in Blender | **in progress** | `bpy_lab` 01–02 PASS |
-| 2 | First operator + panel | pending | — |
+| 1 | Python basics in Blender | **done** | `bpy_lab` 01–02 + course ex 1.01–1.02 PASS |
+| 2 | First operator + panel | **done** | course ex 2.01 register/run operator PASS |
 | 2.5 | VSCode / external scripts | **done (VM)** | headless `build_and_render.py` |
-| 3 | Working with objects | **in progress** | `bpy_lab` 06, 09; camera/creature keyframes |
+| 3 | Working with objects | **done (applied)** | course ex 3.01–3.04 PASS; `_camera_point_at()` + pump framing |
 | 4 | Custom operators + UI | pending | — |
 | 5 | Shader / geo nodes in Python | **done (applied)** | `_relink_environment_textures()` — 68 fixed, 0 missing on draft #2 |
 | 6 | Geometry / meshes | **in progress** | `bpy_lab` 11; gas-station FBX import |
@@ -24,7 +24,8 @@
 
 | Date | Score | Notes |
 |------|-------|-------|
-| 2026-06-14 | **12/12 PASS** | Added Part 5–6 drills: texture relink, shader nodes, FBX env, lamp keyframes |
+| 2026-06-14 | **12/12 PASS** | bpy_lab all modules |
+| 2026-06-14 | **7/7 PASS** | CG Python course exercises Parts 1–3 |
 
 Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 
@@ -36,9 +37,15 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 - `bpy.data.objects` / `bpy.context.active_object` — never instantiate Mesh() directly
 - Materials: `mat.use_nodes = True`, grab `Principled BSDF`
 
-### Part 3 — Objects
-- `obj.location`, `obj.rotation_euler`, `obj.keyframe_insert(data_path="location", frame=N)`
-- Headless: set active object + mode before `bpy.ops`
+### Part 2 — Operator (add-on tutorial exercise)
+- `bpy.types.Operator`, `register()` / `unregister()`, `bpy.ops.peripheral.move_x()`
+- Headless: register → run → unregister (no GUI keymaps needed)
+
+### Part 3 — Objects — APPLIED 2026-06-14
+- `obj.location`, keyframes, collections, linked duplicates
+- **`_camera_point_at()`** via TRACK_TO constraint (course: constraints → applied rotation)
+- Wave camera: `(0, -5.5, 1.55)` → looks at creature at pumps; no procedural trees when FBX loaded
+- Run: `blender --background --python shorts_bot/production/blender/course_exercises.py`
 
 ### Part 5 — Nodes (critical for our bug) — APPLIED 2026-06-14
 - Image Texture node → link to Principled Base Color
@@ -55,6 +62,6 @@ Run: `blender --background --python shorts_bot/production/blender/bpy_lab.py`
 
 ## Next actions
 
-1. **Part 3 — camera framing:** wave clip camera must show pumps/canopy (currently trees + grey ground dominate)
-2. Re-render 3 clips after camera fix → owner preview before any YouTube
-3. Finish CG Python Part 4 (operators) when pipeline stable
+1. **Part 4 — custom operators:** Peripheral re-render operator CLI wrapper
+2. Re-render 3 clips with new camera → owner preview
+3. Part 6 finish: env scale/camera bounds helper
