@@ -323,9 +323,19 @@ async def preview_draft_page(request: Request, draft_id: int, file: str | None =
     videos: list[dict] = []
     final = pack / "final_short.mp4"
     if final.is_file() and is_browser_playable_mp4(final):
+        manifest_path = pack / "manifest.json"
+        micro = False
+        if manifest_path.is_file():
+            import json
+
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            micro = manifest.get("render_mode") == "micro_jumpscare" or manifest.get(
+                "content_format"
+            ) == "micro_jumpscare"
+        label = "Micro jumpscare (3s) 🔊" if micro else "Full Short (30s)"
         videos.append({
             "name": "final_short.mp4",
-            "label": "Full Short (30s)",
+            "label": label,
             "url": f"/preview/draft/{draft_id}/file/final_short.mp4?v={cache_bust}",
         })
     for clip in list_playable_clips(pack / "clips"):
@@ -342,11 +352,16 @@ async def preview_draft_page(request: Request, draft_id: int, file: str | None =
                 selected = v
                 break
     if selected is None and videos:
-        # Default: wave clip if present, else first playable
+        # Default: final_short (micro or full), else wave clip
         for v in videos:
-            if "wave" in v["name"] or "part_02" in v["name"]:
+            if v["name"] == "final_short.mp4":
                 selected = v
                 break
+        if selected is None:
+            for v in videos:
+                if "wave" in v["name"] or "part_02" in v["name"]:
+                    selected = v
+                    break
         if selected is None:
             selected = videos[0]
 

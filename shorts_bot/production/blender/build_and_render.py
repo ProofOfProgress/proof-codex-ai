@@ -1037,6 +1037,53 @@ def _animate_scene_camera(
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
 
 
+def _micro_jumpscare_mode() -> bool:
+    return os.environ.get("BLENDER_MICRO_JUMPSCARE", "").strip().lower() in ("1", "true", "yes")
+
+
+def _animate_micro_jumpscare(
+    cam: bpy.types.Object,
+    form2: bpy.types.Object,
+    *,
+    frame_start: int,
+    frame_end: int,
+    armature: bpy.types.Object | None = None,
+    pack_dir: Path | None = None,
+) -> None:
+    """3s format: ~0.4s gas-station bait → in-your-face lunge + camera snap."""
+    bait_f = frame_start + max(8, int((frame_end - frame_start) * 0.14))
+    cam.animation_data_clear()
+    form2.animation_data_clear()
+    cam.location = (0, -5.0, 1.7)
+    _camera_point_at(cam, SCENE_FOCAL)
+    cam.keyframe_insert(data_path="location", frame=frame_start)
+    cam.keyframe_insert(data_path="rotation_euler", frame=frame_start)
+    form2.location = (0, -10.5, 0)
+    form2.scale = (1.0, 1.0, 1.25)
+    form2.keyframe_insert(data_path="location", frame=frame_start)
+    form2.keyframe_insert(data_path="scale", frame=frame_start)
+    # Hold bait — pumps readable
+    cam.keyframe_insert(data_path="location", frame=bait_f)
+    cam.keyframe_insert(data_path="rotation_euler", frame=bait_f)
+    form2.keyframe_insert(data_path="location", frame=bait_f)
+    # Lunge — fill the lens
+    form2.location = (0, -1.6, 0.85)
+    form2.scale = (1.45, 1.45, 1.65)
+    form2.keyframe_insert(data_path="location", frame=frame_end)
+    form2.keyframe_insert(data_path="scale", frame=frame_end)
+    cam.location = (0, -2.8, 1.35)
+    cam.keyframe_insert(data_path="location", frame=frame_end)
+    if armature:
+        _play_creature_action(
+            armature,
+            phase="lunge",
+            frame_start=frame_start,
+            frame_end=frame_end,
+            pack_dir=pack_dir,
+        )
+        _pose_wave_or_lunge(armature, phase="lunge", frame_start=bait_f, frame_end=frame_end)
+
+
 def _animate_camera_wave_lunge(
     cam: bpy.types.Object,
     form2: bpy.types.Object,
@@ -1182,6 +1229,11 @@ def render_clip(
     _flicker_keyframes(lamp, f0, f1)
     if ctx.get("scene_only") or form2 is None:
         _animate_scene_camera(cam, frame_start=f0, frame_end=f1, phase=phase)
+    elif _micro_jumpscare_mode() and phase == "lunge":
+        _animate_micro_jumpscare(
+            cam, form2, frame_start=f0, frame_end=f1, armature=armature,
+            pack_dir=ctx.get("pack_dir"),
+        )
     else:
         _animate_camera_wave_lunge(
             cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature,
@@ -1192,6 +1244,27 @@ def render_clip(
     bpy.ops.render.render(animation=True)
     _finalize_clip_output(out_path)
     print(f"Rendered {out_path}")
+
+
+def render_micro_jumpscare(draft_id: int, pack_dir: Path, *, seconds: float = 3.0, samples: int = 32) -> Path:
+    """Single 3s lunge clip — creature on, one blender_part_01.mp4."""
+    clips_dir = pack_dir / "clips"
+    clips_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["BLENDER_INCLUDE_CREATURE"] = "1"
+    os.environ["BLENDER_MICRO_JUMPSCARE"] = "1"
+    ctx = build_scene(samples=samples, pack_dir=pack_dir)
+    ctx["pack_dir"] = pack_dir
+    dest = clips_dir / "blender_part_01.mp4"
+    render_clip(ctx, dest, phase="lunge", seconds=seconds)
+    spec = {
+        "backend": "blender",
+        "format": "micro_jumpscare",
+        "clips": [dest.name],
+        "draft_id": draft_id,
+        "clip_seconds": seconds,
+    }
+    (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
+    return dest
 
 
 def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, samples: int = 32) -> list[Path]:
@@ -1264,7 +1337,11 @@ def main(argv: list[str] | None = None) -> None:
         default="wave",
         help="Animation phase for preview or single-clip test",
     )
-    parser.add_argument("--clip-only", action="store_true", help="Render one clip for --phase only")
+    parser.add_argument(
+        "--micro-jumpscare",
+        action="store_true",
+        help="Single 3s lunge clip with creature (volume-sting format)",
+    )
     parser.add_argument(
         "--scene-only",
         action="store_true",
@@ -1295,6 +1372,9 @@ def main(argv: list[str] | None = None) -> None:
             phase=args.phase,
             pack_dir=pack,
         )
+        return
+    if args.micro_jumpscare:
+        render_micro_jumpscare(args.draft_id, pack, seconds=seconds, samples=samples)
         return
     if args.clip_only:
         ctx = build_scene(samples=samples)

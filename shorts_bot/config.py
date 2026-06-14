@@ -99,7 +99,9 @@ class Settings(BaseSettings):
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
     # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
-    content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
+    content_format: str = "short_30"  # short_30 | short_hybrid | micro_jumpscare | long_* 
+    micro_jumpscare_seconds: float = 3.0
+    micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
 
     @field_validator("visual_style", mode="before")
     @classmethod
