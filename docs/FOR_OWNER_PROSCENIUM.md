@@ -11,7 +11,7 @@
 | Your Blender version | Download this zip | Search term in Add-ons |
 |---------------------|-------------------|------------------------|
 | **5.0 or newer** (check **Help → About Blender**) | [proscenium-blender-0.4.0.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip) | `Proscenium` |
-| **4.2 / 4.3 / 4.4** (not 5.x) | [proscenium-blender-v0.3.2.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-v0.3.2.zip) | `Proscenium` |
+| **4.2 / 4.3 / 4.4** (not 5.x) | [proscenium-blender-0.3.2.zip](https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-0.3.2.zip) | `Proscenium` |
 
 If you installed the **0.4.0** zip on **Blender 4.x**, it will **never show up** — that's normal. Uninstall nothing; just install the **0.3.2** zip instead.
 
@@ -60,7 +60,7 @@ The zip lives in our repo, but your Blender PC needs its **own copy**. Either:
 **Option A — direct download (easiest):**
 
 - Blender **5.0+**: https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip
-- Blender **4.x**: https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-v0.3.2.zip
+- Blender **4.x**: https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-0.3.2.zip
 
 **Option B — from this project** (if you have the repo):
 

@@ -14,8 +14,8 @@ if [[ "${1:-}" == "--blender4" ]]; then
 fi
 
 if $BLENDER4; then
-  URL="https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-v0.3.2.zip"
-  OUT="$DEST/proscenium-blender-v0.3.2.zip"
+  URL="https://github.com/animatica-ai/proscenium-blender/releases/download/v0.3.2/proscenium-blender-0.3.2.zip"
+  OUT="$DEST/proscenium-blender-0.3.2.zip"
   VER="Blender 4.2–4.4"
 else
   URL="https://github.com/animatica-ai/proscenium-blender/releases/download/v0.4.0/proscenium-blender-0.4.0.zip"
