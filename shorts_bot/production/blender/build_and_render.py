@@ -52,10 +52,20 @@ def _add_ground_and_road() -> None:
     road.data.materials.append(_mat("WetRoad", (0.06, 0.06, 0.08, 1.0)))
 
 
+def _emissive_mat(name: str, color: tuple[float, float, float, float], *, strength: float = 2.0):
+    m = _mat(name, color, rough=0.4)
+    bsdf = m.node_tree.nodes.get("Principled BSDF")
+    if bsdf:
+        bsdf.inputs["Emission Color"].default_value = color
+        bsdf.inputs["Emission Strength"].default_value = strength
+    return m
+
+
 def _add_gas_station() -> bpy.types.Object:
     mats = {
         "pump": _mat("Pump", (0.12, 0.12, 0.14, 1.0)),
         "canopy": _mat("Canopy", (0.08, 0.08, 0.1, 1.0)),
+        "pump_glow": _emissive_mat("PumpGlow", (1.0, 0.45, 0.12, 1.0), strength=1.5),
     }
     for i, x in enumerate((-3.5, 3.5)):
         bpy.ops.mesh.primitive_cube_add(size=1, location=(x, -8, 1.2))
@@ -63,6 +73,11 @@ def _add_gas_station() -> bpy.types.Object:
         pump.name = f"Pump_{i}"
         pump.scale = (0.6, 0.5, 2.4)
         pump.data.materials.append(mats["pump"])
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(x, -8, 2.35))
+        glow = bpy.context.active_object
+        glow.name = f"PumpGlow_{i}"
+        glow.scale = (0.35, 0.25, 0.08)
+        glow.data.materials.append(mats["pump_glow"])
     bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -10, 3.5))
     canopy = bpy.context.active_object
     canopy.name = "Canopy"
@@ -346,11 +361,11 @@ def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: 
     prev = -1.0
     for f in range(frame_start, frame_end + 1):
         if int(f / 6) % 2 == 0:
-            energy = 800.0
+            energy = 1600.0
         elif int(f / 3) % 5 == 0:
-            energy = 80.0
+            energy = 350.0
         else:
-            energy = 20.0
+            energy = 120.0
         if energy != prev:
             lamp_data.energy = energy
             lamp_data.keyframe_insert(data_path="energy", frame=f)
@@ -402,7 +417,7 @@ def _add_fog_and_trees() -> None:
         output = nodes.get("World Output")
         if output and not output.inputs["Volume"].links:
             vol = nodes.new("ShaderNodeVolumeScatter")
-            vol.inputs["Density"].default_value = 0.008
+            vol.inputs["Density"].default_value = 0.005
             vol.inputs["Anisotropy"].default_value = 0.2
             links.new(vol.outputs["Volume"], output.inputs["Volume"])
 
@@ -630,18 +645,18 @@ def _animate_camera_wave_lunge(
         form2.location = (0, -11, 0)
         form2.keyframe_insert(data_path="location", frame=frame_end)
     elif phase == "wave":
-        cam.location = (1.5, -4, 1.65)
+        cam.location = (1.2, -5, 1.65)
         cam.keyframe_insert(data_path="location", frame=frame_start)
-        cam.location = (0.5, -7, 1.65)
+        cam.location = (0.3, -6.5, 1.65)
         cam.keyframe_insert(data_path="location", frame=frame_end)
-        form2.location = (0, -9, 0)
+        form2.location = (0, -7.5, 0)
         form2.keyframe_insert(data_path="location", frame=frame_start)
         # creepy wave — rotate arm proxy via rig Z
         form2.rotation_euler = (0, 0, 0)
         form2.keyframe_insert(data_path="rotation_euler", frame=frame_start + 6)
         form2.rotation_euler = (0, 0, math.radians(8))
         form2.keyframe_insert(data_path="rotation_euler", frame=frame_end - 8)
-        form2.location = (0, -7.5, 0)
+        form2.location = (0, -6.0, 0)
         form2.keyframe_insert(data_path="location", frame=frame_end)
     else:  # lunge / jumpscare
         cam.location = (0, -6, 1.65)

@@ -11,6 +11,7 @@ from rich.console import Console
 from shorts_bot.config import settings
 from shorts_bot.production.render_blender import render_blender_clips
 from shorts_bot.production.render_video import render_short_video
+from shorts_bot.production.blender.preview_export import export_preview_assets
 
 console = Console()
 
@@ -51,6 +52,8 @@ def produce_blender_short(
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
     result = render_short_video(pack, draft_id=draft_id, output_name=output_name)
+    watch = export_preview_assets(pack, draft_id=draft_id)
+    console.print(f"[green]Preview guide: {watch}[/green]")
     final = pack / output_name
     if output_name != "final_short.mp4":
         (pack / "final_short.mp4").unlink(missing_ok=True)
