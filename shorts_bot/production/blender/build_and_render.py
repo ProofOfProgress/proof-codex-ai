@@ -700,8 +700,13 @@ def _setup_render(scene: bpy.types.Scene, *, samples: int = 32) -> None:
     scene.eevee.gi_cubemap_resolution = "512"
 
 
-def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: int) -> None:
+def _flicker_keyframes(lamp_obj: bpy.types.Object | bpy.types.Light | None, frame_start: int, frame_end: int) -> None:
     """Streetlight strobes — keyframes avoid headless driver restrictions."""
+    if lamp_obj is None:
+        return
+    lamp_data = lamp_obj.data if isinstance(lamp_obj, bpy.types.Object) else lamp_obj
+    if not hasattr(lamp_data, "energy"):
+        return
     prev = -1.0
     for f in range(frame_start, frame_end + 1):
         if int(f / 6) % 2 == 0:
@@ -1422,7 +1427,8 @@ def render_clip(
     f1 = int(seconds * FPS)
     scene.frame_start = f0
     scene.frame_end = f1
-    _flicker_keyframes(lamp, f0, f1)
+    if lamp and not ctx.get("creature_only"):
+        _flicker_keyframes(lamp, f0, f1)
     if ctx.get("scene_only") or form2 is None:
         _animate_scene_camera(cam, frame_start=f0, frame_end=f1, phase=phase)
     elif ctx.get("creature_only") and phase == "lunge":
