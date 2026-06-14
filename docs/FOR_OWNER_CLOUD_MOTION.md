@@ -21,6 +21,18 @@ All export **FBX** (or GLB). Our bot imports either.
 
 ## Fastest path tonight: Mixamo (15 min)
 
+**Option A — agent automates (after you log in once):**
+
+1. In Cursor, open the **Desktop** tab (browser will appear there).
+2. Tell the agent to run Mixamo fetch, or run:
+   ```bash
+   python3 -m shorts_bot.production.blender.mixamo_fetch_cli --draft-id 2 --login-wait 900 --headed
+   ```
+3. Click **Log In** on Mixamo → sign in with **Adobe** (free account is fine).
+4. **Do not close the browser** — the bot uploads SCP-096, picks zombie walk / idle / attack, downloads 3 FBX files automatically.
+
+**Option B — manual in browser:**
+
 1. Go to https://www.mixamo.com — sign in with Adobe (free).
 2. **Upload Character** → try `channel/assets/creatures/scp_096/scp_096.fbx`.  
    If Mixamo rejects it, upload any **humanoid** FBX — motion still works; we match camera in Blender.
