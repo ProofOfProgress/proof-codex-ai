@@ -54,10 +54,14 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
         messages.append(f"Auto-approved draft #{draft.id}")
         messages.append(learned)
 
-    result = finish_draft_pipeline(store, draft.id, upload_youtube=upload)
-    messages.extend(result.messages)
-    if result.upload_url:
-        messages.append(f"PUBLISHED: {result.upload_url}")
+    try:
+        result = finish_draft_pipeline(store, draft.id, upload_youtube=upload)
+    except Exception as exc:
+        messages.append(f"Pipeline blocked: {exc}")
+    else:
+        messages.extend(result.messages)
+        if result.upload_url:
+            messages.append(f"PUBLISHED: {result.upload_url}")
 
     return "\n".join(messages)
 

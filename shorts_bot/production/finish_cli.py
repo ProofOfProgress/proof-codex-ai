@@ -15,7 +15,10 @@ console = Console()
 
 def finish_draft(draft_id: int, *, upload: bool | None = None, resume: bool = True) -> str:
     store = MemoryStore(settings.database_path)
-    result = finish_draft_pipeline(store, draft_id, upload_youtube=upload, resume=resume)
+    try:
+        result = finish_draft_pipeline(store, draft_id, upload_youtube=upload, resume=resume)
+    except Exception as exc:
+        return f"Pipeline blocked: {exc}"
     lines = list(result.messages)
     lines.append(f"Pack: {result.pack_dir}")
     if result.video_path:

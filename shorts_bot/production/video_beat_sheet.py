@@ -100,6 +100,82 @@ def save_beat_sheet(draft_id: int, beats: list[BeatEntry]) -> list[dict]:
     return payload
 
 
+def _sentences_from_text(text: str) -> list[str]:
+    cleaned = re.sub(r"\s+", " ", text.strip())
+    return [s.strip() for s in re.split(r"(?<=[.!?])\s+", cleaned) if s.strip()]
+
+
+def _dedupe_hook_prefix(hook: str, script: str) -> str:
+    """Avoid turning an already-hook-led script into duplicate first beats."""
+    h = re.sub(r"\s+", " ", hook.strip()).lower()
+    s = re.sub(r"\s+", " ", script.strip())
+    if h and s.lower().startswith(h):
+        return s
+    return f"{hook.strip()} {s}".strip()
+
+
+def _sample_full_arc(sentences: list[str], *, max_beats: int = 9) -> list[str]:
+    """Keep the hook, middle escalation, and final payoff when scripts are long."""
+    if len(sentences) <= max_beats:
+        return sentences
+    count = max_beats
+    last = len(sentences) - 1
+    indexes: list[int] = []
+    for i in range(count):
+        idx = round(i * last / (count - 1))
+        if idx not in indexes:
+            indexes.append(idx)
+    # Rounding can collapse adjacent points on short inputs; fill deterministically.
+    cursor = 0
+    while len(indexes) < count and cursor <= last:
+        if cursor not in indexes:
+            indexes.append(cursor)
+        cursor += 1
+    indexes = sorted(indexes[:count])
+    if indexes[-1] != last:
+        indexes[-1] = last
+    return [sentences[i] for i in indexes]
+
+
+def _significant_words(text: str) -> set[str]:
+    stop = {
+        "about",
+        "after",
+        "again",
+        "always",
+        "before",
+        "could",
+        "there",
+        "their",
+        "these",
+        "those",
+        "until",
+        "where",
+        "which",
+        "would",
+        "you",
+        "your",
+    }
+    return {
+        w
+        for w in re.findall(r"[a-z0-9']+", text.lower())
+        if len(w) >= 4 and w not in stop
+    }
+
+
+def _missing_script_payoff(beats: list[BeatEntry], script: str) -> bool:
+    sentences = _sentences_from_text(script)
+    if not beats or not sentences:
+        return False
+    final_words = _significant_words(" ".join(sentences[-2:]))
+    if not final_words:
+        return False
+    beat_words = _significant_words(" ".join(b.visual for b in beats[-3:]))
+    overlap = final_words & beat_words
+    needed = 1 if len(final_words) <= 3 else 2
+    return len(overlap) < needed
+
+
 def write_beat_sheet_files(
     pack_dir,
     *,
@@ -180,13 +256,17 @@ def default_beat_sheet_for_draft(
     hook: str,
     script: str,
     total_seconds: float | None = None,
+    visual_beats: list[str] | None = None,
 ) -> list[BeatEntry]:
     """Build ~30s beat sheet from hook + script when LLM did not supply one."""
     dur = total_seconds or (
         settings.kling_clip_seconds * settings.kling_clips_per_short
     )
-    text = f"{hook.strip()} {script.strip()}".strip()
-    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    visual_arc = [str(v).strip() for v in (visual_beats or []) if str(v).strip()]
+    text = _dedupe_hook_prefix(hook, script)
+    sentences = _sample_full_arc(_sentences_from_text(text))
+    if visual_arc:
+        sentences = visual_arc
     if not sentences:
         sentences = [text or hook or topic]
     n = min(9, max(6, len(sentences)))
@@ -216,11 +296,24 @@ def ensure_beat_sheet(
     script: str,
 ) -> list[BeatEntry]:
     """Load saved beat sheet or build default."""
+    from shorts_bot.drafts.meta import load_draft_meta
+
+    meta = load_draft_meta(draft_id)
+    visual_arc = [str(v).strip() for v in (meta.get("visual_beats") or []) if str(v).strip()]
     existing = load_beat_sheet(draft_id)
-    if existing:
+    existing_visuals = [b.visual for b in existing]
+    if existing and (
+        meta.get("beat_sheet_approved")
+        or (visual_arc and existing_visuals == visual_arc)
+        or not _missing_script_payoff(existing, script)
+    ):
         return existing
     beats = default_beat_sheet_for_draft(
-        draft_id=draft_id, topic=topic, hook=hook, script=script
+        draft_id=draft_id,
+        topic=topic,
+        hook=hook,
+        script=script,
+        visual_beats=visual_arc or None,
     )
     save_beat_sheet(draft_id, beats)
     return beats
