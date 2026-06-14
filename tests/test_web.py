@@ -56,7 +56,24 @@ def test_dev_api_create_and_list():
     assert "pending" in r2.json()
 
 
-def test_learned_endpoint():
-    r = client.get("/api/learned")
+def test_preview_draft_page_404():
+    r = client.get("/preview/draft/99999")
+    assert r.status_code == 404
+
+
+def test_preview_draft_page_lists_videos(tmp_path, monkeypatch):
+    from shorts_bot.config import settings
+
+    pack = tmp_path / "production" / "draft_42"
+    clips = pack / "clips"
+    clips.mkdir(parents=True)
+    (clips / "blender_part_wave.mp4").write_bytes(b"\x00" * 100)
+    (pack / "preview_frames").mkdir()
+    (pack / "preview_frames" / "wave_0s.png").write_bytes(b"\x89PNG\r\n")
+
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    r = client.get("/preview/draft/42")
     assert r.status_code == 200
-    assert "content" in r.json()
+    assert "blender_part_wave.mp4" in r.text
+    assert "wave_0s.png" in r.text
+
