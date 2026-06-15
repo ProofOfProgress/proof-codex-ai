@@ -22,27 +22,29 @@ class BlenderParams:
     face_scale: float = 1.32
     mouth_emissive: float = 7.5
     mouth_red: float = 0.95
-    rule_of_thirds: float = 2 / 3
-    exposure: float = 0.65
+    rule_of_thirds: float = 0.74
+    exposure: float = 0.72
+    stop_gap: float = 0.72
+    creature_z: float = 0.88
     lunge_action_trim: str = "78,140"
 
     def to_env(self) -> dict[str, str]:
+        p = self.clamp()
         return {
-            "BLENDER_SAMPLES": str(int(self.samples)),
-            "BLENDER_LUNGE_CAMERA_Z": f"{self.camera_z:.3f}",
-            "BLENDER_LUNGE_LOOK_Z": f"{self.look_z:.3f}",
+            "BLENDER_SAMPLES": str(int(p.samples)),
+            "BLENDER_LUNGE_CAMERA_Z": f"{p.camera_z:.3f}",
+            "BLENDER_LUNGE_LOOK_Z": f"{p.look_z:.3f}",
             "BLENDER_LUNGE_CAMERA_Y": "-3.850",
-            "BLENDER_LUNGE_STOP_GAP": "0.880",
+            "BLENDER_LUNGE_STOP_GAP": f"{p.stop_gap:.3f}",
             "BLENDER_LUNGE_LOOK_DIST": "6.000",
-            "BLENDER_LUNGE_CREATURE_Z": "0.820",
-            "BLENDER_RULE_OF_THIRDS": "0.7400",
-            "BLENDER_LUNGE_FOCAL_MM": f"{self.focal_mm:.1f}",
-            "BLENDER_LUNGE_FACE_SCALE": f"{self.face_scale:.3f}",
-            "BLENDER_MOUTH_EMISSIVE": f"{self.mouth_emissive:.2f}",
-            "BLENDER_MOUTH_RED": f"{self.mouth_red:.3f}",
-            "BLENDER_RULE_OF_THIRDS": f"{self.rule_of_thirds:.4f}",
-            "BLENDER_EXPOSURE": f"{self.exposure:.3f}",
-            "BLENDER_LUNGE_ACTION_TRIM": self.lunge_action_trim,
+            "BLENDER_LUNGE_CREATURE_Z": f"{p.creature_z:.3f}",
+            "BLENDER_LUNGE_FOCAL_MM": f"{p.focal_mm:.1f}",
+            "BLENDER_LUNGE_FACE_SCALE": f"{p.face_scale:.3f}",
+            "BLENDER_MOUTH_EMISSIVE": f"{p.mouth_emissive:.2f}",
+            "BLENDER_MOUTH_RED": f"{p.mouth_red:.3f}",
+            "BLENDER_RULE_OF_THIRDS": f"{p.rule_of_thirds:.4f}",
+            "BLENDER_EXPOSURE": f"{p.exposure:.3f}",
+            "BLENDER_LUNGE_ACTION_TRIM": p.lunge_action_trim,
         }
 
     @classmethod
@@ -59,7 +61,10 @@ class BlenderParams:
                 samples=max(16, min(48, settings.blender_self_train_samples)),
                 camera_z=settings.blender_self_train_camera_z,
                 rule_of_thirds=settings.micro_jumpscare_rule_of_thirds,
-                mouth_emissive=settings.blender_self_train_mouth_emissive,
+                mouth_emissive=9.0,
+                exposure=0.72,
+                stop_gap=0.72,
+                creature_z=0.88,
             )
         except Exception:
             return cls()
@@ -75,6 +80,8 @@ class BlenderParams:
         p.mouth_red = max(0.7, min(1.0, p.mouth_red))
         p.rule_of_thirds = max(0.55, min(0.78, p.rule_of_thirds))
         p.exposure = max(0.25, min(0.85, p.exposure))
+        p.stop_gap = max(0.45, min(1.6, p.stop_gap))
+        p.creature_z = max(0.0, min(1.35, p.creature_z))
         return p
 
     def mutate(self, *, strength: float = 0.08, rng: random.Random | None = None) -> BlenderParams:
@@ -89,6 +96,8 @@ class BlenderParams:
         p.mouth_red += r.uniform(-strength, strength) * 0.08
         p.rule_of_thirds += r.uniform(-strength, strength) * 0.06
         p.exposure += r.uniform(-strength, strength) * 0.12
+        p.stop_gap += r.uniform(-strength, strength) * 0.10
+        p.creature_z += r.uniform(-strength, strength) * 0.08
         if r.random() < 0.15:
             p.samples += r.choice([-4, 4, 8])
         return p.clamp()
@@ -96,8 +105,8 @@ class BlenderParams:
 
 _ISSUE_PATCHES: list[tuple[re.Pattern[str], dict[str, float | int]]] = [
     (re.compile(r"dark|underexpos|too black|can.t see", re.I), {"exposure": 0.08, "mouth_emissive": 1.2}),
-    (re.compile(r"small|tiny|distant|far away|not close", re.I), {"face_scale": 0.1, "focal_mm": -2.0}),
-    (re.compile(r"crotch|groin|pelvis|legs|below waist|aimed too low|between the legs", re.I), {"look_z": 0.18, "camera_z": 0.10}),
+    (re.compile(r"small|tiny|distant|far away|not close", re.I), {"stop_gap": -0.10, "focal_mm": -2.0, "face_scale": 0.06}),
+    (re.compile(r"crotch|groin|pelvis|legs|below waist|aimed too low|between the legs", re.I), {"look_z": 0.12, "camera_z": 0.14, "creature_z": 0.06, "rule_of_thirds": 0.02}),
     (re.compile(r"face|mouth|teeth|scream|open", re.I), {"face_scale": 0.06, "mouth_emissive": 1.0}),
     (re.compile(r"red|blood|gore|interior", re.I), {"mouth_emissive": 1.8, "mouth_red": 0.04}),
     (re.compile(r"low angle|looking up|camera too low", re.I), {"camera_z": 0.14, "look_z": 0.06}),

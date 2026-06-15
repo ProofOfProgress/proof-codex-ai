@@ -55,10 +55,11 @@ def ask_gemini_lunge_director(
         "{\n"
         '  "summary": "one sentence",\n'
         '  "must_fix": ["max 5 actionable bullets"],\n'
-        '  "param_deltas": {"camera_z": 0.0, "look_z": 0.0, "face_scale": 0.0, "mouth_emissive": 0.0, "exposure": 0.0},\n'
+        '  "param_deltas": {"camera_z": 0.0, "look_z": 0.0, "face_scale": 0.0, "mouth_emissive": 0.0, "exposure": 0.0, "stop_gap": 0.0, "creature_z": 0.0, "focal_mm": 0.0, "rule_of_thirds": 0.0},\n'
         '  "pass_next_trial": false\n'
         "}\n"
-        "param_deltas = small nudges (+/-) to apply on top of current params."
+        "param_deltas = small nudges (+/-) on current params. "
+        "For crotch/legs framing: INCREASE camera_z and look_z (positive deltas), DECREASE stop_gap (negative = closer)."
     )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
@@ -79,11 +80,39 @@ def ask_gemini_lunge_director(
     return _parse_json(raw)
 
 
-def apply_director_deltas(params: BlenderParams, director: dict[str, Any]) -> BlenderParams:
+def sanitize_director_deltas(deltas: dict[str, Any], issues: list[str]) -> dict[str, float]:
+    """Fix common Gemini mistakes (e.g. lowering camera when crotch framed)."""
+    blob = " ".join(issues).lower()
+    out: dict[str, float] = {}
+    for key, val in (deltas or {}).items():
+        try:
+            out[key] = float(val)
+        except (TypeError, ValueError):
+            continue
+    if re.search(r"crotch|pelvis|legs|groin|lower body", blob):
+        if out.get("camera_z", 0) < 0:
+            out["camera_z"] = abs(out["camera_z"])
+        if out.get("look_z", 0) < 0:
+            out["look_z"] = abs(out["look_z"])
+        out.setdefault("stop_gap", -0.10)
+        out.setdefault("creature_z", 0.06)
+        out.setdefault("rule_of_thirds", 0.02)
+    if re.search(r"tiny|distant|small|far away", blob):
+        out.setdefault("stop_gap", -0.12)
+        out.setdefault("focal_mm", -3.0)
+    if re.search(r"dark|underexpos|black", blob):
+        out.setdefault("exposure", 0.10)
+        out.setdefault("mouth_emissive", 1.2)
+    if re.search(r"mouth|red|scare|weak", blob):
+        out.setdefault("mouth_emissive", 1.5)
+        out.setdefault("mouth_red", 0.03)
+    return out
+
+
+def apply_director_deltas(params: BlenderParams, director: dict[str, Any], *, issues: list[str] | None = None) -> BlenderParams:
     """Merge Gemini param_deltas into BlenderParams (clamped)."""
-    deltas = director.get("param_deltas") or {}
-    if not isinstance(deltas, dict):
-        return params.clamp()
+    raw = director.get("param_deltas") or {}
+    deltas = sanitize_director_deltas(raw if isinstance(raw, dict) else {}, issues or [])
     p = params.clamp()
     for key, delta in deltas.items():
         if not hasattr(p, key):

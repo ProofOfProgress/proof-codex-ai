@@ -108,7 +108,7 @@ class Settings(BaseSettings):
     micro_jumpscare_scream_gain: float = 1.45  # high-pitch shriek at final frame
     micro_jumpscare_scream_before_end: float = 0.48  # seconds before clip ends
     micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
-    micro_jumpscare_rule_of_thirds: float = 2 / 3  # eyes on top horizontal third line
+    micro_jumpscare_rule_of_thirds: float = 0.74  # eyes on top horizontal third line
     micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
     micro_jumpscare_creature_scale: float = 0.82  # uniform scale vs FBX env (0.07)
     micro_jumpscare_creature_only: bool = True  # lunge lab — monster + void, no gas station
@@ -159,7 +159,7 @@ class Settings(BaseSettings):
     blender_self_train_target_score: float = 7.5
     blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
     blender_self_train_camera_z: float = 2.78
-    blender_self_train_mouth_emissive: float = 7.5
+    blender_self_train_mouth_emissive: float = 9.0
     blender_self_train_auto_grind: bool = True
     blender_self_train_on_sync: bool = True
     blender_self_train_interval_hours: int = 12  # aligned with analytics sync

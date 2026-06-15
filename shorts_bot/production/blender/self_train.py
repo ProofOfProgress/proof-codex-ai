@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import random
 import shutil
 from dataclasses import dataclass
@@ -45,9 +46,14 @@ def _pick_next_params(
     last: BlenderTrial | None,
     rng: random.Random,
     director_deltas: dict | None = None,
+    seed_defaults: Path | None = None,
 ) -> BlenderParams:
     if best is None:
-        saved = load_params(Path(settings.data_dir) / "production" / "blender_rl_defaults.json")
+        saved = None
+        if seed_defaults and seed_defaults.is_file():
+            saved = load_params(seed_defaults)
+        if saved is None:
+            saved = load_params(Path(settings.data_dir) / "production" / "blender_rl_defaults.json")
         base = (saved or BlenderParams.defaults()).clamp()
     elif last and last.issues:
         base = patch_from_issues(best.params, last.issues)
@@ -57,7 +63,11 @@ def _pick_next_params(
     if director_deltas:
         from shorts_bot.production.blender.gemini_director import apply_director_deltas
 
-        base = apply_director_deltas(base, {"param_deltas": director_deltas})
+        base = apply_director_deltas(
+            base,
+            {"param_deltas": director_deltas},
+            issues=(last.issues if last else []),
+        )
     return base.clamp()
 
 
@@ -96,6 +106,32 @@ def run_blender_self_train(
     youtube_seed_used = False
     pending_director_deltas: dict | None = None
 
+    # Seed from last Gemini director notes on this pack (canonical QC conversation)
+    director_path = pack / "gemini_director.json"
+    qc_path = pack / "vision_qc.json"
+    seed_defaults = store.root / "seed_defaults.json"
+    if director_path.is_file():
+        try:
+            director_seed = json.loads(director_path.read_text(encoding="utf-8"))
+            issues_seed: list[str] = []
+            if qc_path.is_file():
+                issues_seed = list(json.loads(qc_path.read_text(encoding="utf-8")).get("issues") or [])
+            from shorts_bot.production.blender.gemini_director import apply_director_deltas, sanitize_director_deltas
+
+            raw = director_seed.get("param_deltas") if isinstance(director_seed.get("param_deltas"), dict) else {}
+            pending_director_deltas = sanitize_director_deltas(raw, issues_seed)
+            seeded = apply_director_deltas(
+                patch_from_issues(BlenderParams.defaults(), issues_seed),
+                {"param_deltas": pending_director_deltas},
+                issues=issues_seed,
+            )
+            save_params(seed_defaults, seeded, meta={"source": "gemini_director_seed"})
+            console.print("[cyan]Gemini seed loaded — grinding toward higher score[/cyan]")
+            for fix in (director_seed.get("must_fix") or [])[:2]:
+                console.print(f"[magenta]Director[/magenta] {fix}")
+        except Exception as exc:
+            console.print(f"[yellow]Gemini seed skip: {exc}[/yellow]")
+
     for _ in range(n_trials):
         trial_id = store.next_trial_id()
         params = _pick_next_params(
@@ -103,6 +139,7 @@ def run_blender_self_train(
             last=last_trial,
             rng=rng,
             director_deltas=pending_director_deltas,
+            seed_defaults=seed_defaults if seed_defaults.is_file() else None,
         )
         pending_director_deltas = None
         seed_path = pack / "blender_rl" / "seed_from_youtube.json"
@@ -117,8 +154,8 @@ def run_blender_self_train(
         trial_dir.mkdir(parents=True, exist_ok=True)
 
         console.print(
-            f"[dim]Trial {trial_id}[/dim] cam_z={params.camera_z:.2f} "
-            f"face={params.face_scale:.2f} mouth={params.mouth_emissive:.1f}"
+            f"[dim]Trial {trial_id}[/dim] cam_z={params.camera_z:.2f} gap={params.stop_gap:.2f} "
+            f"mouth={params.mouth_emissive:.1f} exp={params.exposure:.2f}"
         )
 
         produce_micro_jumpscare(
@@ -144,6 +181,7 @@ def run_blender_self_train(
             from shorts_bot.production.blender.gemini_director import (
                 apply_director_deltas,
                 ask_gemini_lunge_director,
+                sanitize_director_deltas,
                 save_director_notes,
             )
 
@@ -157,7 +195,10 @@ def run_blender_self_train(
             save_director_notes(trial_dir / "gemini_director.json", director)
             for fix in (director.get("must_fix") or [])[:3]:
                 console.print(f"[magenta]Director[/magenta] {fix}")
-            pending_director_deltas = director.get("param_deltas") if isinstance(director.get("param_deltas"), dict) else None
+            pending_director_deltas = sanitize_director_deltas(
+                director.get("param_deltas") if isinstance(director.get("param_deltas"), dict) else {},
+                list(report.issues),
+            )
         except Exception as exc:
             console.print(f"[yellow]Gemini director skip: {exc}[/yellow]")
 
@@ -176,6 +217,13 @@ def run_blender_self_train(
         if best_overall is None or trial.score > best_overall.score:
             best_overall = trial
             console.print(f"[green]New best[/green] {reward:.2f}/10 — {report.summary()}")
+            shutil.copy2(video, pack / "final_short.mp4")
+            src_clip = trial_dir / "clips" / "blender_part_01.mp4"
+            if src_clip.is_file():
+                (pack / "clips").mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src_clip, pack / "clips" / "blender_part_01.mp4")
+            if director:
+                save_director_notes(pack / "gemini_director.json", director)
         else:
             console.print(f"[yellow]Score {reward:.2f}[/yellow] — {report.summary()}")
 
