@@ -17,6 +17,20 @@ def test_dev_task_flow(tmp_path: Path):
     assert all(t.id != task.id for t in pending)
 
 
+def test_dev_auto_approval_stays_on_top_four(tmp_path: Path):
+    from shorts_bot.automation.auto_approve import dev_task_is_auto_approvable
+
+    mem = MemoryExtensions(MemoryStore(tmp_path / "auto.db"))
+    polish = mem.create_dev_task(title="Polish UI", description="Make dashboard prettier")
+    upload = mem.create_dev_task(
+        title="Improve upload QC",
+        description="Block weak vision QC before YouTube publish",
+    )
+
+    assert dev_task_is_auto_approvable(polish) is False
+    assert dev_task_is_auto_approvable(upload) is True
+
+
 def test_learned_file_append(tmp_path: Path):
     path = tmp_path / "LEARNED.md"
     lf = LearnedFile(path)

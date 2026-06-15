@@ -13,6 +13,16 @@ RISKY_TEXT = re.compile(
     r"stop upload|new channel|vidIQ|turboscribe account|resemble account)\b",
     re.I,
 )
+TOP_FOUR_DEV_TEXT = re.compile(
+    r"\b(autopilot|automation|auto daily|daily runner|daily short|upload|youtube|publish|"
+    r"analytics|sync|retention|hook|script|draft|voice|render|video|visual|caption|qc|"
+    r"quality|vision|learn|learning|self-training|comment triage|resume|pipeline)\b",
+    re.I,
+)
+BACKLOG_POLISH_TEXT = re.compile(
+    r"\b(ui|dashboard|pretty|prettier|polish|glow|theme|css|style-only|docs-only)\b",
+    re.I,
+)
 
 
 def improvement_is_auto_approvable(imp: Improvement) -> bool:
@@ -38,4 +48,6 @@ def dev_task_is_auto_approvable(task: DevTask) -> bool:
     blob = f"{task.title} {task.description}"
     if RISKY_TEXT.search(blob):
         return False
-    return True
+    if BACKLOG_POLISH_TEXT.search(blob) and not TOP_FOUR_DEV_TEXT.search(blob):
+        return False
+    return bool(TOP_FOUR_DEV_TEXT.search(blob))

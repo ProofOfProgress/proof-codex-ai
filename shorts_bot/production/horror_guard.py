@@ -30,10 +30,13 @@ def _offline_fix(store: MemoryStore, draft_id: int, topic: str, help_angle: str)
 
     gen = DraftGenerator(store)
     fixed = gen._generate_offline(topic, help_angle)  # noqa: SLF001
+    fixed_hook = fixed.hook
+    if "your" not in fixed_hook.lower():
+        fixed_hook = f"Your {fixed_hook[:1].lower()}{fixed_hook[1:]}"
     store.update_draft_content(
         draft_id,
         script=fixed.script,
-        hook=fixed.hook,
+        hook=fixed_hook,
         help_angle=fixed.help_angle,
     )
     if fixed.visual_beats:
@@ -43,10 +46,10 @@ def _offline_fix(store: MemoryStore, draft_id: int, topic: str, help_angle: str)
     pack = settings.data_dir / "production" / f"draft_{draft_id}"
     cleared = clear_render_artifacts(pack)
     invalidate_downstream_steps(pack, draft_id)
-    write_content_stamp(pack, hook=fixed.hook, script=fixed.script)
+    write_content_stamp(pack, hook=fixed_hook, script=fixed.script)
     cleared_note = f" Cleared {len(cleared)} stale artifact(s)." if cleared else ""
     return HorrorGuardResult(
-        hook=fixed.hook,
+        hook=fixed_hook,
         script=fixed.script,
         help_angle=fixed.help_angle,
         repaired=True,

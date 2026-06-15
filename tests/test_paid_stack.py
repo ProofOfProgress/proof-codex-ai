@@ -63,6 +63,23 @@ def test_paid_stack_skips_resemble_when_blender(monkeypatch):
     assert not any("Resemble" in i for i in issues)
 
 
+def test_paid_stack_flags_missing_blender(monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(
+        require_paid_stack=True,
+        video_backend="blender",
+        gemini_api_key="a" * 24,
+        vision_qc_enabled=False,
+        auto_upload_youtube=False,
+    )
+    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    monkeypatch.setattr("shorts_bot.production.paid_stack.shutil.which", lambda name: None)
+
+    issues = paid_stack_issues()
+    assert any("Blender" in i for i in issues)
+
+
 def test_ensure_turboscribe_skipped_for_blender(monkeypatch):
     from shorts_bot.config import Settings
 

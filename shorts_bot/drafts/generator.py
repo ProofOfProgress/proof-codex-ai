@@ -23,7 +23,7 @@ from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_s
 from shorts_bot.production.visual_identity import face_eye_visibility_rules
 from shorts_bot.production.black_mirror_format import black_mirror_script_structure
 from shorts_bot.production.world import world_lore_for_scripts
-from shorts_bot.production.script_humanize import finalize_script
+from shorts_bot.production.script_humanize import coerce_spoken_script, finalize_script
 
 
 SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 seconds).
@@ -204,8 +204,8 @@ Return JSON with keys:
             temperature=0.85,
         )
         payload = json.loads(response.choices[0].message.content or "{}")
-        hook = str(payload.get("hook", "")).strip()
-        script = str(payload.get("script", "")).strip()
+        hook = coerce_spoken_script(payload.get("hook", ""))
+        script = coerce_spoken_script(payload.get("script", ""))
         help_angle = str(payload.get("help_angle", "")).strip()
         beats_raw = payload.get("visual_beats") or []
         visual_beats = [str(b).strip() for b in beats_raw if str(b).strip()][:8]

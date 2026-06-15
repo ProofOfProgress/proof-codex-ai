@@ -1,5 +1,5 @@
 from shorts_bot.config import settings
-from shorts_bot.production.script_humanize import finalize_script
+from shorts_bot.production.script_humanize import coerce_spoken_script, finalize_script
 
 
 def test_finalize_script_reduces_ai_score():
@@ -16,6 +16,17 @@ def test_finalize_script_reduces_ai_score():
 def test_ai_detect_default_threshold_is_five():
     assert settings.ai_detect_threshold == 5
     assert settings.ai_detect_blocks_render is True
+
+
+def test_coerce_spoken_script_flattens_structured_beats():
+    raw = (
+        "[{'spoken_text': 'You reach the village square again.', "
+        "'visual_description': 'fog', 'subtitles': 'again'}, "
+        "{'spoken_text': 'The Eye sign turns toward you.'}]"
+    )
+    text = coerce_spoken_script(raw)
+    assert text == "You reach the village square again. The Eye sign turns toward you."
+    assert "visual_description" not in text
 
 
 def test_finalize_script_passes_when_score_at_or_below_threshold():

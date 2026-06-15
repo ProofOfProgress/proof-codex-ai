@@ -20,6 +20,7 @@ def test_blender_config_defaults():
     assert fields["blender_clips_per_short"].default == 3
     assert fields["blender_clip_seconds"].default == 10.0
     assert fields["blender_samples"].default == 32
+    assert fields["blender_render_timeout_sec"].default == 900
 
 
 def test_uses_blender_video_property():

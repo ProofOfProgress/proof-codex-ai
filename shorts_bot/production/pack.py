@@ -141,7 +141,12 @@ def build_production_pack(
         rules=launch_rules_blurb(draft_id),
     )
     meta = load_draft_meta(draft_id)
-    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+    if (
+        settings.require_paid_stack
+        and settings.require_beat_sheet_approval
+        and render_images
+        and not meta.get("beat_sheet_approved")
+    ):
         raise RuntimeError(
             f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
             f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
