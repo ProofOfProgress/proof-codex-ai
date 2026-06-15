@@ -1385,7 +1385,7 @@ def _creature_lunge_look_target() -> tuple[float, float, float]:
 def _creature_lunge_stop_y() -> float:
     """Creature stops far enough out that camera sees face/chest, not up the legs."""
     cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.22"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.48"))
     return cam_y - gap
 
 
