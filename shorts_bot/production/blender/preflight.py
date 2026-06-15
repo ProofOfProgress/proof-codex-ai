@@ -58,7 +58,9 @@ def render_peak_still(
     smp = samples if samples is not None else settings.blender_preflight_samples
     still = pack_dir / "preflight" / "peak_still.jpg"
 
-    if not force and still.is_file() and still.stat().st_size > 2000:
+    if force:
+        still.unlink(missing_ok=True)
+    elif still.is_file() and still.stat().st_size > 2000:
         return still
 
     try:
@@ -102,6 +104,9 @@ def render_peak_still(
         raise RuntimeError(f"Preflight still render failed:\n{tail}")
     if proc.returncode != 0:
         console.print("[yellow]Blender exited non-zero but still OK — continuing[/yellow]")
+    from shorts_bot.production.blender.params import save_render_stamp
+
+    save_render_stamp(pack_dir, label="preflight_peak_still")
     return still
 
 

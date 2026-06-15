@@ -1384,8 +1384,8 @@ def _creature_lunge_look_target() -> tuple[float, float, float]:
 
 def _creature_lunge_stop_y() -> float:
     """Creature stops far enough out that camera sees face/chest, not up the legs."""
-    cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.55"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.52"))
+    cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-5.15"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.78"))
     return cam_y - gap
 
 
@@ -1393,7 +1393,7 @@ def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
     """Single locked POV — monster runs toward camera down the lane."""
     return (
         0.0,
-        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.55")),
+        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-5.15")),
         _lunge_camera_height(),
     )
 
@@ -1438,15 +1438,20 @@ def _setup_creature_lunge_camera() -> bpy.types.Object:
     bpy.ops.object.camera_add(location=pos)
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
-    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "32"))
+    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "28"))
     _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=_peak_frame_line())
     bpy.context.scene.camera = cam
     return cam
 
 
 def _creature_face_camera_yaw() -> float:
-    """Z rotation so creature face points at camera (default 0° — was π; owner flip 2026-06)."""
-    return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", "0"))
+    """Y-axis yaw (rig forward) — π flips imported mesh to face the camera."""
+    return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", str(math.pi)))
+
+
+def _creature_root_rotation(*, pitch: float = 0.0, face_yaw: float | None = None) -> tuple[float, float, float]:
+    yaw = face_yaw if face_yaw is not None else _creature_face_camera_yaw()
+    return (pitch, yaw, 0.0)
 
 
 def _animate_creature_lunge_lab(
@@ -1470,31 +1475,32 @@ def _animate_creature_lunge_lab(
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)
     face_yaw = _creature_face_camera_yaw()
+    root_rot = _creature_root_rotation(face_yaw=face_yaw)
 
     form2.animation_data_clear()
 
-    # Creature runs toward camera — start closer so less grey void before the lunge
+    # Creature runs toward camera — Y yaw faces the lens (imported mesh forward is +Y)
     form2.location = (0, -9.2, 0)
     form2.scale = run_scale
-    form2.rotation_euler = (0, 0, face_yaw)
+    form2.rotation_euler = root_rot
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.location = creep_end
     form2.scale = run_scale
-    form2.rotation_euler = (0, 0, face_yaw)
+    form2.rotation_euler = root_rot
     form2.keyframe_insert(data_path="location", frame=bait_f)
     form2.keyframe_insert(data_path="scale", frame=bait_f)
     form2.keyframe_insert(data_path="rotation_euler", frame=bait_f)
     form2.location = (0, -5.4, 0.10)
     form2.scale = run_scale
-    form2.rotation_euler = (0, 0, face_yaw)
+    form2.rotation_euler = root_rot
     form2.keyframe_insert(data_path="location", frame=lunge_f)
     form2.keyframe_insert(data_path="scale", frame=lunge_f)
     form2.keyframe_insert(data_path="rotation_euler", frame=lunge_f)
     form2.location = face_end
     form2.scale = run_scale
-    form2.rotation_euler = (0.06, 0, face_yaw)
+    form2.rotation_euler = _creature_root_rotation(pitch=0.06, face_yaw=face_yaw)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)

@@ -39,6 +39,8 @@ def produce_micro_jumpscare(
     motion_label = motion_source_label(use_mixamo=use_mixamo)
 
     if force or not clip.is_file() or clip.stat().st_size < 5000:
+        (pack / "final_short.mp4").unlink(missing_ok=True)
+        (pack / "preflight" / "peak_still.jpg").unlink(missing_ok=True)
         if not skip_preflight and settings.blender_preflight_still_enabled:
             from shorts_bot.production.blender.preflight import PreflightFailedError, run_preflight_gate
 
@@ -142,12 +144,12 @@ def produce_micro_jumpscare(
         import json
         import time
 
-        stamp = {
-            "draft_id": draft_id,
-            "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "motion": motion_label,
-            "camera": "locked_still_creature_runs_in",
-        }
+        from shorts_bot.production.blender.params import save_render_stamp
+
+        save_render_stamp(pack, label="micro_jumpscare_final", params=None)
+        stamp = json.loads((pack / "preview_build.json").read_text(encoding="utf-8"))
+        stamp["draft_id"] = draft_id
+        stamp["motion"] = motion_label
         (pack / "preview_build.json").write_text(json.dumps(stamp, indent=2), encoding="utf-8")
     console.print(f"[green]{result.message}[/green]")
     console.print(f"[green]Preview guide: {watch}[/green]")

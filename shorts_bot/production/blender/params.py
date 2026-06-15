@@ -11,28 +11,23 @@ from pathlib import Path
 from typing import Any
 
 
-def default_render_env() -> dict[str, str]:
-    """Canonical Blender lunge knobs for CLI renders (when no trial params)."""
-    return BlenderParams.defaults().to_env()
-
-
 @dataclass
 class BlenderParams:
     """Knobs mapped to BLENDER_* env vars in build_and_render.py."""
 
     samples: int = 24
-    camera_y: float = -4.55
+    camera_y: float = -5.15
     camera_z: float = 3.40
     look_z: float = 1.90
-    focal_mm: float = 32.0
+    focal_mm: float = 28.0
     face_scale: float = 1.32
     mouth_emissive: float = 10.0
     mouth_red: float = 0.95
     rule_of_thirds: float = 0.5
     exposure: float = 0.72
-    stop_gap: float = 1.52
+    stop_gap: float = 1.78
     creature_z: float = 0.28
-    creature_yaw: float = 0.0
+    creature_yaw: float = 3.141592653589793
     lunge_action_trim: str = "78,140"
 
     def to_env(self) -> dict[str, str]:
@@ -71,9 +66,10 @@ class BlenderParams:
                 rule_of_thirds=settings.micro_jumpscare_rule_of_thirds,
                 mouth_emissive=10.0,
                 exposure=0.72,
-                stop_gap=1.52,
-                camera_y=-4.55,
-                creature_yaw=0.0,
+                stop_gap=1.78,
+                camera_y=-5.15,
+                focal_mm=28.0,
+                creature_yaw=3.141592653589793,
                 creature_z=0.28,
                 look_z=1.90,
             )
@@ -93,7 +89,7 @@ class BlenderParams:
         p.mouth_red = max(0.7, min(1.0, p.mouth_red))
         p.rule_of_thirds = max(0.42, min(0.78, p.rule_of_thirds))
         p.exposure = max(0.25, min(0.85, p.exposure))
-        p.stop_gap = max(0.95, min(1.65, p.stop_gap))
+        p.stop_gap = max(0.95, min(2.0, p.stop_gap))
         p.creature_z = max(0.0, min(0.55, p.creature_z))
         return p
 
@@ -167,3 +163,22 @@ def load_params(path: Path) -> BlenderParams | None:
         return BlenderParams.from_dict(data.get("params") or data)
     except (json.JSONDecodeError, TypeError, ValueError):
         return None
+
+
+def default_render_env() -> dict[str, str]:
+    """Canonical Blender lunge knobs for CLI renders (when no trial params)."""
+    return BlenderParams.defaults().to_env()
+
+
+def save_render_stamp(pack_dir: Path, *, label: str, params: BlenderParams | None = None) -> None:
+    """Owner-visible proof which camera/yaw knobs built this preview."""
+    import time
+
+    p = (params or BlenderParams.defaults()).clamp()
+    payload = {
+        "label": label,
+        "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "params": asdict(p),
+    }
+    pack_dir.mkdir(parents=True, exist_ok=True)
+    (pack_dir / "preview_build.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")

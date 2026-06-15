@@ -398,9 +398,27 @@ async def preview_draft_page(
     preflight_info: dict | None = None
     if preflight_still.is_file():
         qc_path = pack / "preflight" / "preflight_qc.json"
+        stamp_path = pack / "preview_build.json"
         score = None
         passed = None
         issues: list[str] = []
+        build_note = ""
+        built_at = cache_bust
+        if stamp_path.is_file():
+            import json
+
+            try:
+                stamp = json.loads(stamp_path.read_text(encoding="utf-8"))
+                built_at = stamp.get("built_at", built_at)
+                params = stamp.get("params") or {}
+                if params:
+                    yaw = params.get("creature_yaw", "?")
+                    build_note = (
+                        f"Render stamp: yaw={yaw:.2f} gap={params.get('stop_gap')} "
+                        f"cam_y={params.get('camera_y')} focal={params.get('focal_mm')}mm"
+                    )
+            except (json.JSONDecodeError, OSError, TypeError, ValueError):
+                pass
         if qc_path.is_file():
             import json
 
@@ -412,10 +430,11 @@ async def preview_draft_page(
             except (json.JSONDecodeError, OSError, TypeError, ValueError):
                 pass
         preflight_info = {
-            "url": f"/preview/draft/{draft_id}/preflight/peak_still.jpg?v={cache_bust}",
+            "url": f"/preview/draft/{draft_id}/preflight/peak_still.jpg?v={built_at}",
             "score": score,
             "passed": passed,
             "issues": issues,
+            "build_note": build_note,
         }
 
     show_preflight = bool(preflight) or file == "peak_still.jpg"

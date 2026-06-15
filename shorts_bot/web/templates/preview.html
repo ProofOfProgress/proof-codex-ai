@@ -48,6 +48,9 @@
     </span>
   </p>
   {% endif %}
+  {% if preflight.build_note %}
+  <p class="hint" style="margin-top:0;">{{ preflight.build_note }}</p>
+  {% endif %}
   {% if preflight.issues %}
   <ul class="hint" style="margin-top:0;">
     {% for issue in preflight.issues %}<li>{{ issue }}</li>{% endfor %}
