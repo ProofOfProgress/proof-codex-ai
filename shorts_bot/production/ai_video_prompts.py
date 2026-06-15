@@ -54,11 +54,11 @@ def visual_dna() -> str:
     return (
         "VISUAL DNA — Peripheral horror: "
         "Style: cinematic photoreal horror still, film grain, harsh contrast, underexposed — not illustration, not anime. "
-        "Palette: black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents, sickly green sparingly. "
-        "Lighting: single harsh source or security-cam IR, deep shadows, no warm lamp glow. "
+        "Palette: fog grey, black #0A0A0A, cold blue #1A2A3A, deep crimson #8B0000 accents on finale only. "
+        "Lighting: moonlit fog, ritual candle rim light, deep shadows, no warm cosy lamp glow. "
         "Composition: 9:16 vertical; subject upper 55%; bottom 40% empty for captions + Shorts UI. "
         f"{face_eye_visibility_rules()} "
-        "Sets: hallways, mirrors, CCTV POV, warehouse pit — no smartphones in analog lane. "
+        "Sets: fog village square, crooked signpost, barn Eye symbols, ritual interiors, dream rooms — no apartments, no CCTV, no smartphones. "
         "Motion: slow dread drift or locked static; final beat may snap fast toward camera. "
         f"{world_visual_continuity()} "
         f"{analog_color_rules()} "
@@ -73,6 +73,7 @@ def negative_block() -> str:
         "no text, no watermark, no logos, no stick figures, no cosy aesthetic, no cream palette, "
         "no warm lamp, no couch tea ritual, no self-help illustration, no anime, no bright daylight, "
         "no smartphone, no mobile phone, no hands holding phone, no phone screen, no UI bezel, "
+        "no CCTV, no security camera overlay, no apartment hallway, no night-vision green, "
         "morphing textures, extra fingers, gore, blood spray, office fluorescent, cheerful mood, "
         f"{metal_negative_prompt_extra()}"
     )
@@ -312,12 +313,12 @@ def match_template(
         id="derived_horror",
         name=f"Derived horror — {scene[:40]}",
         keywords=(),
-        subject="Dark hallway, mirror, fullscreen CCTV, or closet — faceless POV, no phones",
-        action=f"Slow uncanny motion then wrong detail: {scene}",
-        camera="Slow push-in or locked static, horror framing, 9:16",
-        environment="Black and cold blue, film grain, liminal empty room",
-        style="Cinematic horror, terrifying, photorealistic, no cosy palette",
-        end_state="Shadow shifts or reflection wrong",
+        subject="Fog village POV with an Eye symbol, uncanny villager, or dream-room Eye presence",
+        action=f"Slow uncanny motion then wrong village detail: {scene}",
+        camera="Slow push-in or locked static, cinematic horror framing, 9:16",
+        environment="Fog grey village square or ritual interior, cold blue-black shadows, crimson finale accent",
+        style="Cinematic village cult horror, terrifying, photorealistic, no cosy palette",
+        end_state="Eye symbol, villager, or dream reflection reveals the rule was broken",
         duration_seconds=4.0,
         model_hint="auto",
         role="escalation",

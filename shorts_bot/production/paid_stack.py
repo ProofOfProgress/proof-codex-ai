@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import shutil
+
 from shorts_bot.config import settings
 
 _TIMESTAMP_SOURCES = frozenset({"turboscribe", "cache", "assemblyai", "gemini"})
@@ -31,6 +33,12 @@ def paid_stack_issues() -> list[str]:
     if settings.vision_qc_enabled and settings.vision_qc_blocks_upload and not settings.has_gemini:
         issues.append(
             "Gemini vision QC needs GEMINI_API_KEY in Cursor secrets"
+        )
+
+    if settings.uses_blender_video and shutil.which("blender") is None:
+        issues.append(
+            "Blender video backend selected but `blender` is not installed on this VM. "
+            "Install Blender or set VIDEO_BACKEND=kling/legacy_i2v with valid provider keys."
         )
 
     if settings.auto_upload_youtube and settings.youtube_upload_via_api and not settings.youtube_studio_upload_fallback:

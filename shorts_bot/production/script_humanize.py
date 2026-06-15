@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from dataclasses import dataclass
@@ -81,6 +82,47 @@ def _rule_humanize(text: str) -> str:
     return t
 
 
+def coerce_spoken_script(value: object) -> str:
+    """Flatten structured LLM beat output into the narration text we actually speak."""
+    if value is None:
+        return ""
+    if isinstance(value, dict):
+        for key in ("script", "voiceover", "narration", "spoken_text", "text"):
+            if key in value:
+                return coerce_spoken_script(value[key])
+        return " ".join(coerce_spoken_script(v) for v in value.values()).strip()
+    if isinstance(value, list):
+        parts: list[str] = []
+        for item in value:
+            if isinstance(item, dict):
+                spoken = (
+                    item.get("spoken_text")
+                    or item.get("narration")
+                    or item.get("voiceover")
+                    or item.get("text")
+                    or item.get("subtitle")
+                    or item.get("subtitles")
+                )
+                parts.append(coerce_spoken_script(spoken if spoken is not None else item))
+            else:
+                parts.append(coerce_spoken_script(item))
+        return " ".join(p for p in parts if p).strip()
+
+    text = str(value).strip()
+    if not text:
+        return ""
+    if "spoken_text" in text or "visual_description" in text:
+        for loader in (json.loads, ast.literal_eval):
+            try:
+                parsed = loader(text)
+            except Exception:
+                continue
+            flattened = coerce_spoken_script(parsed)
+            if flattened:
+                return flattened
+    return text
+
+
 def _llm_humanize(topic: str, hook: str, script: str, help_angle: str) -> dict[str, str] | None:
     from shorts_bot.llm.provider import get_llm_backend
 
@@ -100,10 +142,11 @@ def _llm_humanize(topic: str, hook: str, script: str, help_angle: str) -> dict[s
             max_tokens=800,
         )
         data = json.loads(r.choices[0].message.content or "{}")
-        if data.get("hook") and data.get("script"):
+        script_text = coerce_spoken_script(data.get("script"))
+        if data.get("hook") and script_text:
             return {
                 "hook": str(data["hook"]).strip(),
-                "script": str(data["script"]).strip(),
+                "script": script_text,
                 "help_angle": str(data.get("help_angle", help_angle)).strip(),
             }
     except Exception:
@@ -128,7 +171,7 @@ def finalize_script(
     threshold = threshold if threshold is not None else settings.ai_detect_threshold
 
     scores_log: list[int] = []
-    h, s, ha = hook, script, help_angle
+    h, s, ha = coerce_spoken_script(hook), coerce_spoken_script(script), help_angle
     rewrite_passes = 0
 
     for n in range(1, max_passes + 1):
@@ -139,7 +182,11 @@ def finalize_script(
             break
         llm = _llm_humanize(topic, h, s, ha)
         if llm:
-            h, s, ha = llm["hook"], llm["script"], llm["help_angle"]
+            h, s, ha = (
+                coerce_spoken_script(llm["hook"]),
+                coerce_spoken_script(llm["script"]),
+                llm["help_angle"],
+            )
         else:
             h = _rule_humanize(h)
             s = _rule_humanize(s)

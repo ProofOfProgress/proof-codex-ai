@@ -103,6 +103,15 @@ def run_quality_checks(
     issues: list[str] = []
     warnings: list[str] = []
 
+    from shorts_bot.production.script_humanize import coerce_spoken_script
+
+    raw_script = script
+    script = coerce_spoken_script(script)
+    if raw_script != script and "spoken_text" in raw_script:
+        warnings.append("Structured script output flattened to spoken narration.")
+    if re.search(r"\b(spoken_text|visual_description|subtitles)\b", script, re.I):
+        issues.append("Script still contains production JSON keys — voiceover must be plain spoken lines.")
+
     word_count = len(script.split())
     if word_count < 50:
         issues.append(f"Script too short ({word_count} words). Aim for 70-110 for a horror Short.")

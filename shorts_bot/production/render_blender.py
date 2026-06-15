@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -42,6 +43,12 @@ def render_blender_clips(
         console.print(f"[green]Blender clips cached ({count}) — skip regen[/green]")
         return count
 
+    if shutil.which("blender") is None:
+        raise RuntimeError(
+            "Blender render failed before launch: `blender` executable not found. "
+            "Install Blender on this machine or set VIDEO_BACKEND=kling/legacy_i2v."
+        )
+
     cmd = [
         "blender",
         "--background",
@@ -62,7 +69,19 @@ def render_blender_clips(
         "BLENDER_SAMPLES": str(settings.blender_samples),
         "BLENDER_CLIP_SECONDS": str(settings.blender_clip_seconds),
     }
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=settings.blender_render_timeout_sec,
+        )
+    except subprocess.TimeoutExpired as exc:
+        tail = ((exc.stderr or "") + "\n" + (exc.stdout or ""))[-3000:]
+        raise RuntimeError(
+            f"Blender render timed out after {settings.blender_render_timeout_sec}s:\n{tail}"
+        ) from exc
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-3000:]
         raise RuntimeError(f"Blender render failed (exit {proc.returncode}):\n{tail}")
