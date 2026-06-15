@@ -51,6 +51,16 @@ See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 - `yes <id>` / `no <id>` in web chat
 - Draft **Yes/No** — learns instantly
 
+## Blender self-reinforcement (render trials)
+
+Separate loop for **3D craft** — not YouTube analytics:
+
+```bash
+python3 -m shorts_bot.production.blender.self_train_cli --draft-id 2 --trials 5
+```
+
+Try camera/mouth/light params → Gemini vision QC scores → auto-tweak → save best to `blender_rl/best_params.json`. See `docs/BLENDER_SELF_TRAIN.md`.
+
 ## Storage
 
 - **Runtime truth:** SQLite `training_config` + `feedback` table

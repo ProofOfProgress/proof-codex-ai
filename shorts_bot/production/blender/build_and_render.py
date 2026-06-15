@@ -1293,7 +1293,7 @@ def _setup_creature_only_world(scene: bpy.types.Scene) -> None:
     bg.inputs[0].default_value = (0.008, 0.01, 0.014, 1.0)
     bg.inputs[1].default_value = 1.0
     if hasattr(scene.view_settings, "exposure"):
-        scene.view_settings.exposure = 0.45
+        scene.view_settings.exposure = float(os.environ.get("BLENDER_EXPOSURE", "0.45"))
 
 
 def _add_creature_only_lights() -> bpy.types.Light:

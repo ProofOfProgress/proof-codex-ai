@@ -23,6 +23,7 @@ def produce_micro_jumpscare(
     force: bool = False,
     seconds: float | None = None,
     samples: int | None = None,
+    extra_env: dict[str, str] | None = None,
 ) -> str:
     pack = pack_dir or (settings.data_dir / "production" / f"draft_{draft_id}")
     pack.mkdir(parents=True, exist_ok=True)
@@ -77,6 +78,8 @@ def produce_micro_jumpscare(
             "BLENDER_CREATURE_TARGET_HEIGHT": str(settings.micro_jumpscare_creature_height),
             "BLENDER_MICRO_CREATURE_SCALE": str(settings.micro_jumpscare_creature_scale),
         }
+        if extra_env:
+            env.update(extra_env)
         proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if proc.returncode != 0:
             tail = (proc.stderr or proc.stdout or "")[-4000:]

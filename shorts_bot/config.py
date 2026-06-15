@@ -149,6 +149,13 @@ class Settings(BaseSettings):
     blender_creature_scale: float = 1.0  # extra uniform scale after import
     blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx | kimodo — NOT gemini (use Proscenium addon)
     blender_animation_tool: str = "proscenium"  # proscenium | kimodo | mixamo — see docs/FOR_OWNER_PROSCENIUM.md
+    # Blender self-reinforcement — try render params → vision QC score → update (see docs/BLENDER_SELF_TRAIN.md)
+    blender_self_train_enabled: bool = True
+    blender_self_train_trials: int = 5
+    blender_self_train_target_score: float = 7.5
+    blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
+    blender_self_train_camera_z: float = 2.18
+    blender_self_train_mouth_emissive: float = 7.5
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
