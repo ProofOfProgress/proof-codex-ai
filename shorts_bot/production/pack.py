@@ -144,6 +144,7 @@ def build_production_pack(
     if (
         settings.require_paid_stack
         and settings.require_beat_sheet_approval
+        and render_images
         and not meta.get("beat_sheet_approved")
     ):
         raise RuntimeError(
