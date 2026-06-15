@@ -1195,7 +1195,7 @@ def _apply_lunge_gaze_correction(
     horiz = math.sqrt(delta.x ** 2 + delta.y ** 2)
     # Positive X euler = look up (rig convention used in _pose_wave_or_lunge lunge keys).
     base_pitch = math.atan2(delta.z, horiz) if horiz > 0.01 else 0.0
-    mixamo_boost = 0.48 if mixamo_overlay else 0.12
+    mixamo_boost = 0.48 if mixamo_overlay else 0.28
     head_pitch = min(1.08, max(0.5, base_pitch + mixamo_boost))
     neck_pitch = head_pitch * 0.74
     rib_pitch = head_pitch * 0.4
@@ -1369,24 +1369,24 @@ def _animate_creature_mouth_light(
 
 
 def _lunge_camera_height() -> float:
-    """Part 3 — POV height (m). Raised default so viewer looks slightly down at the creature."""
-    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.18"))
+    """POV height (m) — eye level, slightly above creature head when it arrives."""
+    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.42"))
 
 
 def _creature_lunge_look_target() -> tuple[float, float, float]:
-    """Fixed aim point — face height where the monster arrives (camera never moves)."""
+    """Far point down the lane at head height — locked camera stares here; monster runs in."""
     return (
         0.0,
-        float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-4.78")),
-        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "2.08")),
+        float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-12.0")),
+        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "1.95")),
     )
 
 
 def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
-    """Single locked POV — monster runs to the camera, not the other way around."""
+    """Single locked POV — monster runs toward camera down the lane."""
     return (
         0.0,
-        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.0")),
+        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.80")),
         _lunge_camera_height(),
     )
 
@@ -1443,16 +1443,17 @@ def _animate_creature_lunge_lab(
     base_s = 1.0 if _creature_only_mode() else (
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
-    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.38"))
-    look_y = float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-4.78"))
-    creep_end = (0.0, -8.0, 0.0)
-    face_end = (0.0, look_y, float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.42")))
+    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))
+    stop_y = float(os.environ.get("BLENDER_LUNGE_STOP_Y", "-4.05"))
+    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.65"))
+    creep_end = (0.0, -9.0, 0.0)
+    face_end = (0.0, stop_y, root_z)
 
     _lock_camera_still(cam, frame_start=frame_start, frame_end=frame_end, frame_line=line)
     form2.animation_data_clear()
 
-    # Creature runs to the camera — far hold → sprint → face in lens
-    form2.location = (0, -11.0, 0)
+    # Creature runs down the lane into the locked camera — far → sprint → face in lens
+    form2.location = (0, -11.5, 0)
     form2.scale = (base_s, base_s, base_s)
     form2.rotation_euler = (0, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_start)
@@ -1460,11 +1461,11 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.location = creep_end
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    form2.location = (0, -6.2, 0.08)
+    form2.location = (0, -6.8, 0.12)
     form2.keyframe_insert(data_path="location", frame=lunge_f)
     form2.location = face_end
     form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
-    form2.rotation_euler = (0.08, 0, 0)
+    form2.rotation_euler = (0.04, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)

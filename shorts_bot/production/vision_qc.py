@@ -391,7 +391,9 @@ def run_vision_qc(
             t = fallback_t
         frames.append((t, path))
 
-    local_issues, local_warnings, local_ok = _local_frame_checks([p for _, p in frames])
+    local_issues, local_warnings, local_ok = _local_frame_checks(
+        [Path(p).resolve() for _, p in frames]
+    )
     if not local_ok:
         report = VisionQCReport(
             passed=False,

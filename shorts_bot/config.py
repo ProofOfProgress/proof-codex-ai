@@ -155,7 +155,7 @@ class Settings(BaseSettings):
     blender_self_train_trials: int = 5
     blender_self_train_target_score: float = 7.5
     blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
-    blender_self_train_camera_z: float = 2.18
+    blender_self_train_camera_z: float = 2.42
     blender_self_train_mouth_emissive: float = 7.5
     blender_self_train_auto_grind: bool = True
     blender_self_train_on_sync: bool = True

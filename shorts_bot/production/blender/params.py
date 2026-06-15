@@ -16,10 +16,10 @@ class BlenderParams:
     """Knobs mapped to BLENDER_* env vars in build_and_render.py."""
 
     samples: int = 24
-    camera_z: float = 2.18
-    look_z: float = 2.08
+    camera_z: float = 2.42
+    look_z: float = 1.95
     focal_mm: float = 26.0
-    face_scale: float = 1.38
+    face_scale: float = 1.32
     mouth_emissive: float = 7.5
     mouth_red: float = 0.95
     rule_of_thirds: float = 2 / 3
@@ -31,9 +31,10 @@ class BlenderParams:
             "BLENDER_SAMPLES": str(int(self.samples)),
             "BLENDER_LUNGE_CAMERA_Z": f"{self.camera_z:.3f}",
             "BLENDER_LUNGE_LOOK_Z": f"{self.look_z:.3f}",
-            "BLENDER_LUNGE_LOOK_Y": "-4.780",
-            "BLENDER_LUNGE_CAMERA_Y": "-4.000",
-            "BLENDER_LUNGE_CREATURE_Z": "0.420",
+            "BLENDER_LUNGE_LOOK_Y": "-12.000",
+            "BLENDER_LUNGE_CAMERA_Y": "-3.800",
+            "BLENDER_LUNGE_STOP_Y": "-4.050",
+            "BLENDER_LUNGE_CREATURE_Z": "0.650",
             "BLENDER_LUNGE_FOCAL_MM": f"{self.focal_mm:.1f}",
             "BLENDER_LUNGE_FACE_SCALE": f"{self.face_scale:.3f}",
             "BLENDER_MOUTH_EMISSIVE": f"{self.mouth_emissive:.2f}",
