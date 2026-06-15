@@ -1369,17 +1369,23 @@ def _animate_creature_mouth_light(
 
 
 def _lunge_camera_height() -> float:
-    """POV height (m) — eye level, slightly above creature head when it arrives."""
-    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.42"))
+    """POV height (m) — eye level, horizontal sight line down the lane."""
+    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.50"))
 
 
 def _creature_lunge_look_target() -> tuple[float, float, float]:
-    """Far point down the lane at head height — locked camera stares here; monster runs in."""
-    return (
-        0.0,
-        float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-12.0")),
-        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "1.95")),
-    )
+    """Eye-level horizon down the lane — same Z as camera (no upward tilt into pelvis)."""
+    pos = _creature_lunge_camera_fixed()
+    dist = float(os.environ.get("BLENDER_LUNGE_LOOK_DIST", "6.0"))
+    look_z = float(os.environ.get("BLENDER_LUNGE_LOOK_Z", str(pos[2])))
+    return (0.0, pos[1] - dist, look_z)
+
+
+def _creature_lunge_stop_y() -> float:
+    """How far in front of the locked camera the creature stops (meters down -Y)."""
+    cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.35"))
+    return cam_y - gap
 
 
 def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
@@ -1444,8 +1450,8 @@ def _animate_creature_lunge_lab(
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
     face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))  # legacy param; no scale pop
-    stop_y = float(os.environ.get("BLENDER_LUNGE_STOP_Y", "-3.92"))
-    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.65"))
+    stop_y = _creature_lunge_stop_y()
+    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.0"))
     creep_end = (0.0, -9.0, 0.0)
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)
@@ -1470,7 +1476,7 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="scale", frame=lunge_f)
     form2.location = face_end
     form2.scale = run_scale
-    form2.rotation_euler = (0.04, 0, 0)
+    form2.rotation_euler = (0.0, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)
