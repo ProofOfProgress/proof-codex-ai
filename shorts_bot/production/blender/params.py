@@ -44,6 +44,7 @@ class BlenderParams:
             "BLENDER_MOUTH_RED": f"{p.mouth_red:.3f}",
             "BLENDER_RULE_OF_THIRDS": f"{p.rule_of_thirds:.4f}",
             "BLENDER_EXPOSURE": f"{p.exposure:.3f}",
+            "BLENDER_CREATURE_FACE_YAW": "3.141593",
             "BLENDER_LUNGE_ACTION_TRIM": p.lunge_action_trim,
         }
 

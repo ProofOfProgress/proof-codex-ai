@@ -1434,6 +1434,11 @@ def _setup_creature_lunge_camera() -> bpy.types.Object:
     return cam
 
 
+def _creature_face_camera_yaw() -> float:
+    """Rig default faces -Y; run toward camera at +Y — flip 180° so we see face/mouth."""
+    return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", str(math.pi)))
+
+
 def _animate_creature_lunge_lab(
     cam: bpy.types.Object,
     form2: bpy.types.Object,
@@ -1456,28 +1461,33 @@ def _animate_creature_lunge_lab(
     creep_end = (0.0, -9.0, 0.0)
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)
+    face_yaw = _creature_face_camera_yaw()
 
     _lock_camera_still(cam, frame_start=frame_start, frame_end=frame_end, frame_line=line)
     form2.animation_data_clear()
 
-    # Creature runs to the camera — location only (no scale pop = no fake zoom)
+    # Creature runs toward camera — location only; YAW faces the lens (not back/legs)
     form2.location = (0, -11.5, 0)
     form2.scale = run_scale
-    form2.rotation_euler = (0, 0, 0)
+    form2.rotation_euler = (0, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.location = creep_end
     form2.scale = run_scale
+    form2.rotation_euler = (0, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=bait_f)
     form2.keyframe_insert(data_path="scale", frame=bait_f)
+    form2.keyframe_insert(data_path="rotation_euler", frame=bait_f)
     form2.location = (0, -6.8, 0.12)
     form2.scale = run_scale
+    form2.rotation_euler = (0, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=lunge_f)
     form2.keyframe_insert(data_path="scale", frame=lunge_f)
+    form2.keyframe_insert(data_path="rotation_euler", frame=lunge_f)
     form2.location = face_end
     form2.scale = run_scale
-    form2.rotation_euler = (0.0, 0, 0)
+    form2.rotation_euler = (0.06, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)

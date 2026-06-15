@@ -59,7 +59,7 @@ def ask_gemini_lunge_director(
         '  "pass_next_trial": false\n'
         "}\n"
         "param_deltas = small nudges (+/-) on current params. "
-        "For crotch/legs framing: INCREASE camera_z and look_z (positive deltas), DECREASE stop_gap (negative = closer)."
+        "For crotch/legs framing: INCREASE camera_z and look_z; INCREASE stop_gap (creature further from lens)."
     )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
