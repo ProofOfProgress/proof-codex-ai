@@ -104,6 +104,29 @@ def produce_micro_jumpscare(
         pack, draft_id=draft_id, clip_path=clip, motion_source=motion_label
     )
     watch = export_preview_assets(pack, draft_id=draft_id)
+    canonical = settings.data_dir / "production" / f"draft_{draft_id}"
+    final = pack / "final_short.mp4"
+    if pack.resolve() != canonical.resolve() and final.is_file():
+        canonical.mkdir(parents=True, exist_ok=True)
+        import shutil
+
+        shutil.copy2(final, canonical / "final_short.mp4")
+        src_clip = pack / "clips" / "blender_part_01.mp4"
+        if src_clip.is_file():
+            (canonical / "clips").mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src_clip, canonical / "clips" / "blender_part_01.mp4")
+        console.print(f"[cyan]Preview synced[/cyan] → {canonical / 'final_short.mp4'}")
+    elif final.is_file():
+        import json
+        import time
+
+        stamp = {
+            "draft_id": draft_id,
+            "built_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "motion": motion_label,
+            "camera": "locked_still_creature_runs_in",
+        }
+        (pack / "preview_build.json").write_text(json.dumps(stamp, indent=2), encoding="utf-8")
     console.print(f"[green]{result.message}[/green]")
     console.print(f"[green]Preview guide: {watch}[/green]")
     return (

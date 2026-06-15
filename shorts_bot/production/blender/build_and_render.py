@@ -1443,28 +1443,33 @@ def _animate_creature_lunge_lab(
     base_s = 1.0 if _creature_only_mode() else (
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
-    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))
-    stop_y = float(os.environ.get("BLENDER_LUNGE_STOP_Y", "-4.05"))
+    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))  # legacy param; no scale pop
+    stop_y = float(os.environ.get("BLENDER_LUNGE_STOP_Y", "-3.92"))
     root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.65"))
     creep_end = (0.0, -9.0, 0.0)
     face_end = (0.0, stop_y, root_z)
+    run_scale = (base_s, base_s, base_s)
 
     _lock_camera_still(cam, frame_start=frame_start, frame_end=frame_end, frame_line=line)
     form2.animation_data_clear()
 
-    # Creature runs down the lane into the locked camera — far → sprint → face in lens
+    # Creature runs to the camera — location only (no scale pop = no fake zoom)
     form2.location = (0, -11.5, 0)
-    form2.scale = (base_s, base_s, base_s)
+    form2.scale = run_scale
     form2.rotation_euler = (0, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_start)
     form2.keyframe_insert(data_path="scale", frame=frame_start)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.location = creep_end
+    form2.scale = run_scale
     form2.keyframe_insert(data_path="location", frame=bait_f)
+    form2.keyframe_insert(data_path="scale", frame=bait_f)
     form2.location = (0, -6.8, 0.12)
+    form2.scale = run_scale
     form2.keyframe_insert(data_path="location", frame=lunge_f)
+    form2.keyframe_insert(data_path="scale", frame=lunge_f)
     form2.location = face_end
-    form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
+    form2.scale = run_scale
     form2.rotation_euler = (0.04, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
@@ -1492,7 +1497,7 @@ def _animate_creature_lunge_lab(
     saved_loc = form2.location.copy()
     saved_scale = form2.scale.copy()
     form2.location = face_end
-    form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
+    form2.scale = run_scale
     bpy.context.view_layer.update()
     peak_face = _creature_face_target(form2, armature)
     form2.location = saved_loc

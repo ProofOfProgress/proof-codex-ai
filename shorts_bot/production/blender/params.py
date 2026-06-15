@@ -33,7 +33,7 @@ class BlenderParams:
             "BLENDER_LUNGE_LOOK_Z": f"{self.look_z:.3f}",
             "BLENDER_LUNGE_LOOK_Y": "-12.000",
             "BLENDER_LUNGE_CAMERA_Y": "-3.800",
-            "BLENDER_LUNGE_STOP_Y": "-4.050",
+            "BLENDER_LUNGE_STOP_Y": "-3.920",
             "BLENDER_LUNGE_CREATURE_Z": "0.650",
             "BLENDER_LUNGE_FOCAL_MM": f"{self.focal_mm:.1f}",
             "BLENDER_LUNGE_FACE_SCALE": f"{self.face_scale:.3f}",
