@@ -128,6 +128,7 @@ def render_micro_jumpscare_final(
     draft_id: int,
     clip_path: Path | None = None,
     output_name: str = "final_short.mp4",
+    motion_source: str = "procedural_learned",
 ) -> MicroJumpscareResult:
     """Mux single lunge clip + loud horror bed + CC0 roar → browser-playable Short."""
     clips_dir = pack_dir / "clips"
@@ -215,7 +216,7 @@ def render_micro_jumpscare_final(
                 "seconds": duration,
                 "roar_at": roar_at,
                 "roar_asset": roar_path.name,
-                "motion_source": "mixamo",
+                "motion_source": motion_source,
                 "framing": "rule_of_thirds_top_line",
                 "volume_warning": "🔊 VOLUME WARNING — loud 3s jumpscare + creature roar. Headphones.",
             },

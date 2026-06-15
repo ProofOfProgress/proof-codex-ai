@@ -1039,9 +1039,9 @@ def _play_creature_action(
     """Motion from Proscenium FBX export, motion_{phase}.json, or procedural fallback."""
     _clear_armature_animation(armature)
 
-    backend = os.environ.get("BLENDER_MOTION_BACKEND", "").strip().lower()
-    prefer_fbx = backend in ("", "auto", "proscenium_fbx", "proscenium")
-    if prefer_fbx and pack_dir:
+    from shorts_bot.production.blender.motion_backend import use_downloaded_motion
+
+    if use_downloaded_motion() and pack_dir:
         fbx = _resolve_proscenium_fbx(pack_dir, phase)
         trim = _lunge_action_trim() if phase == "lunge" else None
         if fbx and _apply_proscenium_fbx(
@@ -1053,7 +1053,7 @@ def _play_creature_action(
         ):
             return
 
-    if pack_dir and backend not in ("proscenium_fbx", "proscenium"):
+    if pack_dir:
         motion = _read_motion_json(pack_dir, phase)
         if motion:
             _apply_motion_keyframes(armature, motion, frame_start=frame_start, frame_end=frame_end)
@@ -1146,16 +1146,30 @@ def _pose_wave_or_lunge(
         _key_bone("neck", (0.12, 0, 0.08), t(0.65))
         _key_bone("head", (0.05, 0, 0.1), t(0.52))
     elif phase == "lunge":
-        lunge_f = frame_end - 10
+        dur = max(1, frame_end - frame_start)
+        t = lambda frac: frame_start + int(dur * frac)
+        lunge_f = frame_end - max(8, int(dur * 0.15))
+        snap_f = frame_end - 4
         for name, rot, fr in [
             ("pelvis", (0, 0, 0), frame_start),
-            ("ripcage", (0.15, 0, 0), lunge_f),
-            ("ripcage", (0.5, 0, 0), frame_end),
-            ("neck", (0.2, 0, 0), lunge_f),
-            ("neck", (0.45, 0, 0), frame_end),
-            ("head", (0.1, 0, 0), lunge_f),
-            ("head", (0.35, 0, 0), frame_end),
-            ("Bone_007", (-2.2, 0, 0), frame_end),
+            ("pelvis", (0.22, 0, 0), lunge_f),
+            ("pelvis", (0.38, 0, 0), frame_end),
+            ("ripcage", (0.12, 0, 0), t(0.35)),
+            ("ripcage", (0.35, 0, 0), lunge_f),
+            ("ripcage", (0.58, 0, 0), frame_end),
+            ("neck", (0.15, 0, 0), lunge_f),
+            ("neck", (0.42, 0, 0), snap_f),
+            ("neck", (0.52, 0, 0), frame_end),
+            ("head", (0.08, 0, 0), lunge_f),
+            ("head", (0.38, 0, 0), snap_f),
+            ("head", (0.48, 0, 0), frame_end),
+            ("lowerjaw", (0.05, 0, 0), lunge_f),
+            ("lowerjaw", (0.45, 0, 0), snap_f),
+            ("lowerjaw", (0.72, 0, 0), frame_end),
+            ("Bone_007", (-1.4, 0.1, -0.2), lunge_f),
+            ("Bone_007", (-2.35, 0, 0.15), frame_end),
+            ("Bone_008", (-1.35, -0.1, 0.2), lunge_f),
+            ("Bone_008", (-2.3, 0, -0.12), frame_end),
         ]:
             _key_bone(name, rot, fr)
 
@@ -1445,6 +1459,9 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     if armature:
+        from shorts_bot.production.blender.motion_backend import use_downloaded_motion
+
+        downloaded = use_downloaded_motion()
         _play_creature_action(
             armature,
             phase="lunge",
@@ -1458,7 +1475,7 @@ def _animate_creature_lunge_lab(
             cam,
             bait_f=bait_f,
             frame_end=frame_end,
-            mixamo_overlay=True,
+            mixamo_overlay=downloaded,
         )
         _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
     saved_loc = form2.location.copy()
@@ -1527,6 +1544,9 @@ def _animate_micro_jumpscare(
     cam.keyframe_insert(data_path="rotation_euler", frame=frame_end)
     cam.data.keyframe_insert(data_path="shift_y", frame=frame_end)
     if armature:
+        from shorts_bot.production.blender.motion_backend import use_downloaded_motion
+
+        downloaded = use_downloaded_motion()
         _play_creature_action(
             armature,
             phase="lunge",
@@ -1540,7 +1560,7 @@ def _animate_micro_jumpscare(
             cam,
             bait_f=bait_f,
             frame_end=frame_end,
-            mixamo_overlay=True,
+            mixamo_overlay=downloaded,
         )
 
 

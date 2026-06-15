@@ -147,8 +147,9 @@ class Settings(BaseSettings):
     blender_force_regen: bool = False
     blender_creature_model: str | None = None  # FBX/GLB/OBJ — default slot channel/assets/creatures/scp_096/
     blender_creature_scale: float = 1.0  # extra uniform scale after import
-    blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx | kimodo — NOT gemini (use Proscenium addon)
+    blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx — procedural default for self-train
     blender_animation_tool: str = "proscenium"  # proscenium | kimodo | mixamo — see docs/FOR_OWNER_PROSCENIUM.md
+    blender_use_mixamo_motion: bool = False  # opt-in Mixamo FBX; off by default (bypasses motion learning)
     # Blender self-reinforcement — try render params → vision QC score → update (see docs/BLENDER_SELF_TRAIN.md)
     blender_self_train_enabled: bool = True
     blender_self_train_trials: int = 5

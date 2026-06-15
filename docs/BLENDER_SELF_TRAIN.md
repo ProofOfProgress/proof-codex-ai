@@ -56,6 +56,8 @@ Preview best: http://127.0.0.1:8080/preview/draft/2?file=final_short.mp4
 | `exposure` | Scene brightness |
 | `samples` | EEVEE quality (slower = sharper) |
 
+**Motion:** procedural lunge keys by default (learnable). Mixamo FBX is **opt-in only** — `--use-mixamo` or `BLENDER_USE_MIXAMO=1` — because downloaded presets bypass motion learning.
+
 ---
 
 ## Settings (`.env`)
