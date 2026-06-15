@@ -38,16 +38,20 @@ def produce_micro_jumpscare(
     if force or not clip.is_file() or clip.stat().st_size < 5000:
         clip.unlink(missing_ok=True)
         from shorts_bot.production.blender.download_creature import ensure_scp096_model
-        from shorts_bot.production.blender.download_environment import ensure_gas_station_environment
 
         try:
             ensure_scp096_model(force=force)
         except Exception as exc:
             console.print(f"[yellow]Creature download skipped: {exc}[/yellow]")
-        try:
-            ensure_gas_station_environment(force=force)
-        except Exception as exc:
-            console.print(f"[yellow]Environment download skipped: {exc}[/yellow]")
+        if not settings.micro_jumpscare_creature_only:
+            from shorts_bot.production.blender.download_environment import ensure_gas_station_environment
+
+            try:
+                ensure_gas_station_environment(force=force)
+            except Exception as exc:
+                console.print(f"[yellow]Environment download skipped: {exc}[/yellow]")
+        else:
+            console.print("[dim]Creature-only lab — skipping gas station download[/dim]")
 
         cmd = [
             "blender",

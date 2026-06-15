@@ -23,7 +23,7 @@ class BlenderParams:
     mouth_emissive: float = 7.5
     mouth_red: float = 0.95
     rule_of_thirds: float = 2 / 3
-    exposure: float = 0.45
+    exposure: float = 0.65
     lunge_action_trim: str = "78,140"
 
     def to_env(self) -> dict[str, str]:

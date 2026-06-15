@@ -1307,7 +1307,7 @@ def _setup_creature_only_world(scene: bpy.types.Scene) -> None:
     bg.inputs[0].default_value = (0.008, 0.01, 0.014, 1.0)
     bg.inputs[1].default_value = 1.0
     if hasattr(scene.view_settings, "exposure"):
-        scene.view_settings.exposure = float(os.environ.get("BLENDER_EXPOSURE", "0.45"))
+        scene.view_settings.exposure = float(os.environ.get("BLENDER_EXPOSURE", "0.65"))
 
 
 def _add_creature_only_lights() -> bpy.types.Light:
@@ -1315,21 +1315,21 @@ def _add_creature_only_lights() -> bpy.types.Light:
     bpy.ops.object.light_add(type="AREA", location=(1.5, -2, 2.8))
     key = bpy.context.active_object
     key.name = "CreatureKey"
-    key.data.energy = 420
+    key.data.energy = 620
     key.data.color = (0.82, 0.88, 1.0)
     key.data.size = 3.5
     key.rotation_euler = (math.radians(58), 0, math.radians(200))
     bpy.ops.object.light_add(type="SPOT", location=(-1.2, -1.5, 2.2))
     rim = bpy.context.active_object
     rim.name = "CreatureRim"
-    rim.data.energy = 680
+    rim.data.energy = 900
     rim.data.color = (1.0, 0.42, 0.18)
     rim.data.spot_size = math.radians(48)
     rim.rotation_euler = (math.radians(115), 0, math.radians(160))
     bpy.ops.object.light_add(type="POINT", location=(0, -3, 1.2))
     fill = bpy.context.active_object
     fill.name = "CreatureFill"
-    fill.data.energy = 120
+    fill.data.energy = 240
     fill.data.color = (0.55, 0.6, 0.75)
     bpy.ops.object.light_add(type="POINT", location=(0, -4.6, 1.52))
     mouth = bpy.context.active_object
@@ -1774,11 +1774,19 @@ def render_micro_jumpscare(draft_id: int, pack_dir: Path, *, seconds: float = 3.
     spec = {
         "backend": "blender",
         "format": "micro_jumpscare",
+        "creature_only": True,
         "clips": [dest.name],
         "draft_id": draft_id,
         "clip_seconds": seconds,
     }
     (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
+    lab_marker = {
+        "lab": "creature_lunge",
+        "creature_only": True,
+        "draft_id": draft_id,
+        "clip_seconds": seconds,
+    }
+    (pack_dir / "creature_lunge_lab.json").write_text(json.dumps(lab_marker, indent=2), encoding="utf-8")
     return dest
 
 

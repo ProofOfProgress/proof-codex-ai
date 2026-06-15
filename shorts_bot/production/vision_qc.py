@@ -235,6 +235,41 @@ def _pack_uses_blender(pack_dir: Path) -> bool:
     return False
 
 
+def _is_creature_lunge_lab(pack_dir: Path | None) -> bool:
+    """Micro jumpscare void lab — creature + black backdrop, no gas station set."""
+    if pack_dir is None:
+        return False
+    if (pack_dir / "creature_lunge_lab.json").is_file():
+        return True
+    for rel in ("clips/blender_spec.json", "blender_spec.json"):
+        spec_path = pack_dir / rel
+        if not spec_path.is_file():
+            continue
+        try:
+            data = json.loads(spec_path.read_text(encoding="utf-8"))
+            if data.get("creature_only") or data.get("format") == "creature_lunge_lab":
+                return True
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            continue
+    return False
+
+
+def _creature_lunge_lab_qc_block(*, topic: str, hook: str) -> str:
+    from shorts_bot.production.blender.gemini_blender_reference import (
+        gemini_blender_quality_prompt,
+    )
+
+    return (
+        f"\n\n{gemini_blender_quality_prompt(scene=f'{topic[:80]} — {hook[:80]}')}\n"
+        "CREATURE LUNGE LAB (100% Blender EEVEE — NOT AI video clips, NOT I2V):\n"
+        "- Intentional void/black backdrop — do NOT fail for missing gas station, road, or full environment.\n"
+        "- Score creature craft: face readable, eyes/gaze toward camera, open mouth with red interior glow at peak.\n"
+        "- FAIL pass=false if: near-black unreadable frames, creature tiny/distant, face looking away/down, "
+        "grey untextured block-out, broken FBX import, flat viewport-test lighting, or scare payoff weak.\n"
+        "- PASS criteria: close face-fill at final frame, horror rim/key lighting, earned lunge jumpscare vs LIGHTS ARE OFF bar."
+    )
+
+
 def _gemini_vision_review(
     frames: list[tuple[float, Path]],
     *,
@@ -250,8 +285,11 @@ def _gemini_vision_review(
 
     model = (settings.gemini_vision_model or settings.gemini_model).strip()
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
+    creature_lab = _is_creature_lunge_lab(pack_dir)
     blender_bar = ""
-    if pack_dir and _pack_uses_blender(pack_dir):
+    if creature_lab:
+        blender_bar = _creature_lunge_lab_qc_block(topic=topic, hook=hook)
+    elif pack_dir and _pack_uses_blender(pack_dir):
         from shorts_bot.production.blender.gemini_blender_reference import (
             gemini_blender_quality_prompt,
         )
@@ -262,8 +300,14 @@ def _gemini_vision_review(
             "environment does not read (gas station/road/fog), creature not grounded in set, "
             "viewport-test lighting, or quality far below LIGHTS ARE OFF finished Blender horror."
         )
+    if creature_lab:
+        medium = "QC this Don't Blink horror Blender Short (3s creature lunge lab — no captions, no VO)."
+    elif pack_dir and _pack_uses_blender(pack_dir):
+        medium = "QC this Don't Blink horror YouTube Short (100% Blender EEVEE render)."
+    else:
+        medium = "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions)."
     prompt = (
-        "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions). "
+        f"{medium} "
         f"Frames in order at: {labels}. Topic: {topic[:80]}. Hook: {hook[:100]}.\n"
         "Return ONLY JSON keys: score (1-10), pass (bool), issues (string[]), warnings (string[]), "
         "hook_clear, captions_safe, horror_visible, no_cosy_aesthetic, scare_potential (bools). "
