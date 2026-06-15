@@ -93,6 +93,7 @@ def produce_micro_jumpscare(
             f"[cyan]Micro jumpscare — draft #{draft_id}, {sec:.1f}s lunge @ {smp} samples…[/cyan]"
         )
         from shorts_bot.production.blender.motion_exports import list_motion_exports
+        from shorts_bot.production.blender.params import default_render_env
 
         if use_downloaded_motion() or (use_mixamo is True):
             fbx_hits = list_motion_exports(draft_id)
@@ -107,6 +108,7 @@ def produce_micro_jumpscare(
             "BLENDER_CREATURE_ONLY": "1",
             "BLENDER_CREATURE_TARGET_HEIGHT": str(settings.micro_jumpscare_creature_height),
             "BLENDER_MICRO_CREATURE_SCALE": str(settings.micro_jumpscare_creature_scale),
+            **default_render_env(),
             **motion_env(use_mixamo=use_mixamo),
         }
         if extra_env:

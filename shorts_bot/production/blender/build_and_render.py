@@ -1384,8 +1384,8 @@ def _creature_lunge_look_target() -> tuple[float, float, float]:
 
 def _creature_lunge_stop_y() -> float:
     """Creature stops far enough out that camera sees face/chest, not up the legs."""
-    cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.18"))
+    cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.55"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.52"))
     return cam_y - gap
 
 
@@ -1393,7 +1393,7 @@ def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
     """Single locked POV — monster runs toward camera down the lane."""
     return (
         0.0,
-        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85")),
+        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.55")),
         _lunge_camera_height(),
     )
 
@@ -1438,15 +1438,15 @@ def _setup_creature_lunge_camera() -> bpy.types.Object:
     bpy.ops.object.camera_add(location=pos)
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
-    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "42"))
+    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "32"))
     _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=_peak_frame_line())
     bpy.context.scene.camera = cam
     return cam
 
 
 def _creature_face_camera_yaw() -> float:
-    """Rig default faces -Y; run toward camera at +Y — flip 180° so we see face/mouth."""
-    return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", str(math.pi)))
+    """Z rotation so creature face points at camera (default 0° — was π; owner flip 2026-06)."""
+    return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", "0"))
 
 
 def _animate_creature_lunge_lab(

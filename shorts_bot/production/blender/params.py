@@ -11,22 +11,28 @@ from pathlib import Path
 from typing import Any
 
 
+def default_render_env() -> dict[str, str]:
+    """Canonical Blender lunge knobs for CLI renders (when no trial params)."""
+    return BlenderParams.defaults().to_env()
+
+
 @dataclass
 class BlenderParams:
     """Knobs mapped to BLENDER_* env vars in build_and_render.py."""
 
     samples: int = 24
-    camera_y: float = -4.05
+    camera_y: float = -4.55
     camera_z: float = 3.40
     look_z: float = 1.90
-    focal_mm: float = 38.0
+    focal_mm: float = 32.0
     face_scale: float = 1.32
     mouth_emissive: float = 10.0
     mouth_red: float = 0.95
     rule_of_thirds: float = 0.5
     exposure: float = 0.72
-    stop_gap: float = 1.32
+    stop_gap: float = 1.52
     creature_z: float = 0.28
+    creature_yaw: float = 0.0
     lunge_action_trim: str = "78,140"
 
     def to_env(self) -> dict[str, str]:
@@ -45,7 +51,7 @@ class BlenderParams:
             "BLENDER_MOUTH_RED": f"{p.mouth_red:.3f}",
             "BLENDER_PEAK_FRAME_LINE": f"{p.rule_of_thirds:.4f}",
             "BLENDER_EXPOSURE": f"{p.exposure:.3f}",
-            "BLENDER_CREATURE_FACE_YAW": "3.141593",
+            "BLENDER_CREATURE_FACE_YAW": f"{p.creature_yaw:.6f}",
             "BLENDER_LUNGE_ACTION_TRIM": p.lunge_action_trim,
         }
 
@@ -65,8 +71,9 @@ class BlenderParams:
                 rule_of_thirds=settings.micro_jumpscare_rule_of_thirds,
                 mouth_emissive=10.0,
                 exposure=0.72,
-                stop_gap=1.32,
-                camera_y=-4.05,
+                stop_gap=1.52,
+                camera_y=-4.55,
+                creature_yaw=0.0,
                 creature_z=0.28,
                 look_z=1.90,
             )
@@ -76,7 +83,8 @@ class BlenderParams:
     def clamp(self) -> BlenderParams:
         p = copy.deepcopy(self)
         p.samples = int(max(16, min(64, p.samples)))
-        p.camera_y = max(-4.8, min(-3.2, p.camera_y))
+        p.camera_y = max(-5.2, min(-3.2, p.camera_y))
+        p.creature_yaw = float(p.creature_yaw) % (2 * 3.141592653589793)
         p.camera_z = max(2.8, min(3.8, p.camera_z))
         p.look_z = max(1.45, min(2.15, p.look_z))
         p.focal_mm = max(18.0, min(42.0, p.focal_mm))
@@ -104,6 +112,8 @@ class BlenderParams:
         p.exposure += r.uniform(-strength, strength) * 0.12
         p.stop_gap += r.uniform(-strength, strength) * 0.10
         p.creature_z += r.uniform(-strength, strength) * 0.08
+        if r.random() < 0.08:
+            p.creature_yaw += 3.141592653589793
         if r.random() < 0.15:
             p.samples += r.choice([-4, 4, 8])
         return p.clamp()
@@ -111,6 +121,7 @@ class BlenderParams:
 
 _ISSUE_PATCHES: list[tuple[re.Pattern[str], dict[str, float | int]]] = [
     (re.compile(r"dark|underexpos|too black|can.t see", re.I), {"exposure": 0.08, "mouth_emissive": 1.2}),
+    (re.compile(r"too close|fills the frame|in my face|closer than|so close", re.I), {"stop_gap": 0.14, "camera_y": -0.18, "focal_mm": -3.0}),
     (re.compile(r"void|empty|too much (grey|gray)|mostly blank", re.I), {"stop_gap": -0.10, "focal_mm": 2.5}),
     (re.compile(r"small|tiny|distant|far away|not close", re.I), {"stop_gap": -0.08, "focal_mm": -2.0}),
     (re.compile(r"crotch|groin|pelvis|legs|below waist|between the legs|upskirt|vagina", re.I), {"look_z": -0.06, "camera_z": 0.15, "stop_gap": 0.15, "creature_z": -0.10}),

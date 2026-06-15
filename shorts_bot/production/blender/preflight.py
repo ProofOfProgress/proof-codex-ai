@@ -50,6 +50,7 @@ def render_peak_still(
 ) -> Path:
     """Blender background — one JPEG at jumpscare peak."""
     from shorts_bot.production.blender.download_creature import ensure_scp096_model
+    from shorts_bot.production.blender.params import default_render_env
     from shorts_bot.production.blender.motion_backend import motion_env
 
     pack_dir.mkdir(parents=True, exist_ok=True)
@@ -88,6 +89,7 @@ def render_peak_still(
         "BLENDER_CREATURE_ONLY": "1",
         "BLENDER_CREATURE_TARGET_HEIGHT": str(settings.micro_jumpscare_creature_height),
         "BLENDER_MICRO_CREATURE_SCALE": str(settings.micro_jumpscare_creature_scale),
+        **default_render_env(),
         **motion_env(use_mixamo=use_mixamo),
     }
     if extra_env:
