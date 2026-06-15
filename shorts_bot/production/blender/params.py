@@ -17,7 +17,7 @@ class BlenderParams:
 
     samples: int = 24
     camera_z: float = 2.18
-    look_z: float = 2.05
+    look_z: float = 2.08
     focal_mm: float = 26.0
     face_scale: float = 1.38
     mouth_emissive: float = 7.5
@@ -31,6 +31,9 @@ class BlenderParams:
             "BLENDER_SAMPLES": str(int(self.samples)),
             "BLENDER_LUNGE_CAMERA_Z": f"{self.camera_z:.3f}",
             "BLENDER_LUNGE_LOOK_Z": f"{self.look_z:.3f}",
+            "BLENDER_LUNGE_LOOK_Y": "-4.780",
+            "BLENDER_LUNGE_CAMERA_Y": "-4.000",
+            "BLENDER_LUNGE_CREATURE_Z": "0.420",
             "BLENDER_LUNGE_FOCAL_MM": f"{self.focal_mm:.1f}",
             "BLENDER_LUNGE_FACE_SCALE": f"{self.face_scale:.3f}",
             "BLENDER_MOUTH_EMISSIVE": f"{self.mouth_emissive:.2f}",

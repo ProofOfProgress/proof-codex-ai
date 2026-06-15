@@ -1374,42 +1374,51 @@ def _lunge_camera_height() -> float:
 
 
 def _creature_lunge_look_target() -> tuple[float, float, float]:
-    """Static fallback — prefer _keyframe_camera_track_face at runtime."""
+    """Fixed aim point — face height where the monster arrives (camera never moves)."""
     return (
         0.0,
-        -8.0,
-        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "2.05")),
+        float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-4.78")),
+        float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "2.08")),
     )
 
 
-def _keyframe_camera_track_face(
+def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
+    """Single locked POV — monster runs to the camera, not the other way around."""
+    return (
+        0.0,
+        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-4.0")),
+        _lunge_camera_height(),
+    )
+
+
+def _lock_camera_still(
     cam: bpy.types.Object,
-    form2: bpy.types.Object,
-    armature: bpy.types.Object | None,
-    frame: int,
     *,
+    frame_start: int,
+    frame_end: int,
     frame_line: float,
 ) -> None:
-    """Aim camera at creature head on this frame (pose must be keyed before call)."""
-    scene = bpy.context.scene
-    scene.frame_set(frame)
-    bpy.context.view_layer.update()
-    face = _creature_face_target(form2, armature)
-    _camera_point_at_rule_thirds(cam, face, frame_line=frame_line)
-    cam.keyframe_insert(data_path="rotation_euler", frame=frame)
-    cam.data.keyframe_insert(data_path="shift_y", frame=frame)
-
-
-def _creature_lunge_camera_positions() -> tuple[tuple[float, float, float], tuple[float, float, float]]:
-    """Start/end camera locations — locked heading, dolly only (course Part 3 keyframes)."""
-    z = _lunge_camera_height()
-    return (0.0, -4.35, z), (0.0, -3.92, z - 0.08)
+    """Freeze camera location, rotation, and shift for the whole clip."""
+    pos = _creature_lunge_camera_fixed()
+    cam.animation_data_clear()
+    cam.location = pos
+    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=frame_line)
+    fixed_rot = cam.rotation_euler.copy()
+    fixed_shift = cam.data.shift_y
+    for fr in (frame_start, frame_end):
+        cam.location = pos
+        cam.rotation_euler = fixed_rot
+        cam.data.shift_y = fixed_shift
+        cam.keyframe_insert(data_path="location", frame=fr)
+        cam.keyframe_insert(data_path="rotation_euler", frame=fr)
+        cam.data.keyframe_insert(data_path="shift_y", frame=fr)
 
 
 def _setup_creature_lunge_camera() -> bpy.types.Object:
-    """Fixed POV for lunge training — wide lens, eyes on top third at peak."""
+    """Fixed POV — wide lens, locked; creature lunges into frame."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
-    bpy.ops.object.camera_add(location=(0.0, -4.2, _lunge_camera_height()))
+    pos = _creature_lunge_camera_fixed()
+    bpy.ops.object.camera_add(location=pos)
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
     cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "26"))
@@ -1427,31 +1436,23 @@ def _animate_creature_lunge_lab(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
-    """Monster-only: dolly + sprint — camera tracks head; open mouth fills lens at peak."""
+    """Monster-only: locked camera — creature sprints into lens; mouth fills at peak."""
     line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
-    peak_line = float(os.environ.get("BLENDER_LUNGE_PEAK_FRAME_LINE", "0.78"))
     bait_f = frame_start + max(6, int((frame_end - frame_start) * 0.12))
     lunge_f = frame_start + max(bait_f + 2, int((frame_end - frame_start) * 0.38))
     base_s = 1.0 if _creature_only_mode() else (
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
     face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.38"))
-    cam_start, cam_end = _creature_lunge_camera_positions()
-    creep_end = (0.0, -7.2, 0.0)
-    face_end = (0.0, -4.62, -0.05)
+    look_y = float(os.environ.get("BLENDER_LUNGE_LOOK_Y", "-4.78"))
+    creep_end = (0.0, -8.0, 0.0)
+    face_end = (0.0, look_y, float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.42")))
 
-    cam.animation_data_clear()
+    _lock_camera_still(cam, frame_start=frame_start, frame_end=frame_end, frame_line=line)
     form2.animation_data_clear()
-    # Dolly only on location — rotation tracks head each beat (never lock on pelvis/crotch).
-    cam.location = cam_start
-    cam.keyframe_insert(data_path="location", frame=frame_start)
-    cam.location = cam_start
-    cam.keyframe_insert(data_path="location", frame=bait_f)
-    cam.location = cam_end
-    cam.keyframe_insert(data_path="location", frame=frame_end)
 
-    # Creature — far hold → sprint → in-your-face (mouth open at frame_end)
-    form2.location = (0, -9.5, 0)
+    # Creature runs to the camera — far hold → sprint → face in lens
+    form2.location = (0, -11.0, 0)
     form2.scale = (base_s, base_s, base_s)
     form2.rotation_euler = (0, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_start)
@@ -1459,11 +1460,11 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_start)
     form2.location = creep_end
     form2.keyframe_insert(data_path="location", frame=bait_f)
-    form2.location = (0, -5.4, 0.0)
+    form2.location = (0, -6.2, 0.08)
     form2.keyframe_insert(data_path="location", frame=lunge_f)
     form2.location = face_end
     form2.scale = (base_s * face_scale, base_s * face_scale, base_s * face_scale)
-    form2.rotation_euler = (0.10, 0, 0)
+    form2.rotation_euler = (0.08, 0, 0)
     form2.keyframe_insert(data_path="location", frame=frame_end)
     form2.keyframe_insert(data_path="scale", frame=frame_end)
     form2.keyframe_insert(data_path="rotation_euler", frame=frame_end)
@@ -1487,13 +1488,6 @@ def _animate_creature_lunge_lab(
             mixamo_overlay=downloaded,
         )
         _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
-    for fr, fl in (
-        (frame_start, line),
-        (bait_f, line),
-        (lunge_f, line + 0.04),
-        (frame_end, peak_line),
-    ):
-        _keyframe_camera_track_face(cam, form2, armature, fr, frame_line=fl)
     saved_loc = form2.location.copy()
     saved_scale = form2.scale.copy()
     form2.location = face_end
