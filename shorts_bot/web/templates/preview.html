@@ -8,6 +8,12 @@
   <style>
     body { max-width: 480px; margin: 0 auto; padding: 16px; }
     video { width: 100%; border-radius: 12px; background: #000; }
+    .preflight-img { width: 100%; border-radius: 12px; background: #111; border: 2px solid #444; }
+    .preflight-pass { border-color: #3a8; }
+    .preflight-fail { border-color: #c44; }
+    .qc-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: .85rem; margin: 8px 0; }
+    .qc-pass { background: rgba(60,180,120,.15); color: #6dcea0; }
+    .qc-fail { background: rgba(200,68,68,.15); color: #e88; }
     .file-list { margin: 16px 0; }
     .file-list a {
       display: block; padding: 10px 12px; margin: 6px 0;
@@ -31,14 +37,37 @@
   </p>
   {% endif %}
 
-  {% if selected %}
+  {% if show_preflight and preflight %}
+  <h2 style="font-size:1rem;margin-top:8px;">Preflight — peak still (cheap QC frame)</h2>
+  <img class="preflight-img {% if preflight.passed %}preflight-pass{% elif preflight.passed == false %}preflight-fail{% endif %}"
+       src="{{ preflight.url }}" alt="peak still" />
+  {% if preflight.score is not none %}
+  <p>
+    <span class="qc-badge {% if preflight.passed %}qc-pass{% else %}qc-fail{% endif %}">
+      {% if preflight.passed %}PASS{% else %}FAIL{% endif %} {{ preflight.score }}/10
+    </span>
+  </p>
+  {% endif %}
+  {% if preflight.issues %}
+  <ul class="hint" style="margin-top:0;">
+    {% for issue in preflight.issues %}<li>{{ issue }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+  <p class="hint">This is the frame we score <em>before</em> spending usage on the full 3s clip.</p>
+  <p class="hint"><a href="/preview/draft/{{ draft_id }}">← Back to full video preview</a></p>
+  {% elif preflight %}
+  <p class="hint"><a href="/preview/draft/{{ draft_id }}?preflight=1">View preflight peak still</a></p>
+  {% endif %}
+
+  {% if selected and not show_preflight %}
   <video controls autoplay playsinline loop preload="auto" src="{{ selected.url }}"></video>
   <p style="font-size:.85rem;margin-top:8px;">Playing: <code>{{ selected.name }}</code></p>
   <p class="hint">If the picture looks frozen, click ▶ or pick a different clip below.</p>
-  {% else %}
+  {% elif not show_preflight %}
   <p>No video selected. Pick one below.</p>
   {% endif %}
 
+  {% if not show_preflight %}
   <div class="file-list">
     <strong>Videos</strong>
     {% for f in videos %}
@@ -47,6 +76,16 @@
     </a>
     {% endfor %}
   </div>
+  {% endif %}
+
+  {% if preflight and not show_preflight %}
+  <div class="file-list" style="margin-top:16px;">
+    <strong>Preflight</strong>
+    <a href="/preview/draft/{{ draft_id }}?preflight=1" class="{% if show_preflight %}active{% endif %}">
+      Peak still — preflight QC
+    </a>
+  </div>
+  {% endif %}
 
   {% if frames %}
   <h2 style="font-size:1rem;margin-top:24px;">Still frames (open in Cursor)</h2>

@@ -255,6 +255,27 @@ async def workspace_ws(websocket: WebSocket, draft_id: int) -> None:
         await workspace_hub.disconnect(draft_id, websocket)
 
 
+@app.get("/preview/draft/{draft_id}/preflight/{filename}")
+async def preview_draft_preflight(draft_id: int, filename: str) -> FileResponse:
+    """Peak still + preflight QC artifacts."""
+    pack = _draft_pack_dir(draft_id)
+    preflight = pack / "preflight"
+    if not preflight.is_dir():
+        raise HTTPException(404, "Preflight folder not found")
+    path = _safe_pack_file(preflight, filename)
+    media = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".json": "application/json",
+    }
+    return FileResponse(
+        path,
+        media_type=media.get(path.suffix.lower(), "application/octet-stream"),
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
 @app.get("/preview/draft/{draft_id}/file/{filename}")
 async def preview_draft_file(draft_id: int, filename: str) -> FileResponse:
     """Stream a pack video or image for in-browser preview."""
@@ -309,7 +330,9 @@ async def preview_draft_frame(draft_id: int, filename: str) -> FileResponse:
 
 
 @app.get("/preview/draft/{draft_id}", response_class=HTMLResponse)
-async def preview_draft_page(request: Request, draft_id: int, file: str | None = None) -> HTMLResponse:
+async def preview_draft_page(
+    request: Request, draft_id: int, file: str | None = None, preflight: int | None = None
+) -> HTMLResponse:
     """Browser page to watch draft videos — Cursor cannot open .mp4 in the editor."""
     from shorts_bot.production.blender.preview_validate import is_browser_playable_mp4, list_playable_clips
 
@@ -371,6 +394,32 @@ async def preview_draft_page(request: Request, draft_id: int, file: str | None =
         for img in sorted(frames_dir.glob("*.png")):
             frames.append({"name": img.name, "url": f"/preview/draft/{draft_id}/frames/{img.name}"})
 
+    preflight_still = pack / "preflight" / "peak_still.jpg"
+    preflight_info: dict | None = None
+    if preflight_still.is_file():
+        qc_path = pack / "preflight" / "preflight_qc.json"
+        score = None
+        passed = None
+        issues: list[str] = []
+        if qc_path.is_file():
+            import json
+
+            try:
+                qc = json.loads(qc_path.read_text(encoding="utf-8"))
+                score = qc.get("score")
+                passed = qc.get("passed")
+                issues = list(qc.get("issues") or [])[:4]
+            except (json.JSONDecodeError, OSError, TypeError, ValueError):
+                pass
+        preflight_info = {
+            "url": f"/preview/draft/{draft_id}/preflight/peak_still.jpg?v={cache_bust}",
+            "score": score,
+            "passed": passed,
+            "issues": issues,
+        }
+
+    show_preflight = bool(preflight) or file == "peak_still.jpg"
+
     render_busy = any(
         (pack / "clips").glob("blender_part_*0001-*.mp4")
     ) if (pack / "clips").is_dir() else False
@@ -383,6 +432,8 @@ async def preview_draft_page(request: Request, draft_id: int, file: str | None =
             "videos": videos,
             "selected": selected,
             "frames": frames,
+            "preflight": preflight_info,
+            "show_preflight": show_preflight,
             "render_busy": render_busy,
         },
     )

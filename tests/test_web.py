@@ -97,3 +97,23 @@ def test_preview_draft_page_lists_videos(tmp_path, monkeypatch):
     assert "blender_part_wave.mp4" in r.text
     assert "wave_0s.png" in r.text
 
+
+def test_preview_preflight_still(tmp_path, monkeypatch):
+    from shorts_bot.config import settings
+
+    pack = tmp_path / "production" / "draft_7"
+    preflight = pack / "preflight"
+    preflight.mkdir(parents=True)
+    (preflight / "peak_still.jpg").write_bytes(b"\xff\xd8\xff" + b"\x00" * 200)
+    (preflight / "preflight_qc.json").write_text(
+        '{"passed": false, "score": 4.5, "issues": ["face too small"]}', encoding="utf-8"
+    )
+    monkeypatch.setattr(settings, "data_dir", tmp_path)
+    r = client.get("/preview/draft/7?preflight=1")
+    assert r.status_code == 200
+    assert "peak_still.jpg" in r.text
+    assert "FAIL" in r.text
+    assert "4.5" in r.text
+    img = client.get("/preview/draft/7/preflight/peak_still.jpg")
+    assert img.status_code == 200
+

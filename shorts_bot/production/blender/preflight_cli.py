@@ -36,6 +36,9 @@ def main() -> None:
     console.print(result.message)
     if result.still_path.is_file():
         console.print(f"Still: {result.still_path}")
+        console.print(
+            f"Browser: http://127.0.0.1:{settings.web_port}/preview/draft/{args.draft_id}?preflight=1"
+        )
     raise SystemExit(0 if result.passed else 1)
 
 
