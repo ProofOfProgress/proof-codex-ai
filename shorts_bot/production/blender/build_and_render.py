@@ -1445,13 +1445,13 @@ def _setup_creature_lunge_camera() -> bpy.types.Object:
 
 
 def _creature_face_camera_yaw() -> float:
-    """Y-axis yaw (rig forward) — π flips imported mesh to face the camera."""
+    """Z-axis yaw — π faces SCP-096 mesh toward camera (Y-axis π shows back/legs)."""
     return float(os.environ.get("BLENDER_CREATURE_FACE_YAW", str(math.pi)))
 
 
 def _creature_root_rotation(*, pitch: float = 0.0, face_yaw: float | None = None) -> tuple[float, float, float]:
     yaw = face_yaw if face_yaw is not None else _creature_face_camera_yaw()
-    return (pitch, yaw, 0.0)
+    return (pitch, 0.0, yaw)
 
 
 def _animate_creature_lunge_lab(
