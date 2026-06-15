@@ -1411,24 +1411,21 @@ def _lock_camera_on_peak_face(
     frame_start: int,
     frame_end: int,
     frame_line: float | None = None,
+    sample_frames: list[int] | None = None,
 ) -> None:
-    """Lock camera still — rotation calibrated so head bone is center frame at peak."""
+    """Lock camera position; aim at face on keyframes so the face stays visible all clip."""
     line = frame_line if frame_line is not None else _peak_frame_line()
+    pos = _creature_lunge_camera_fixed()
     scene = bpy.context.scene
     saved_frame = scene.frame_current
-    scene.frame_set(frame_end)
-    bpy.context.view_layer.update()
-    face = _creature_face_target(form2, armature)
-    pos = _creature_lunge_camera_fixed()
     cam.animation_data_clear()
-    cam.location = pos
-    _camera_point_at_rule_thirds(cam, face, frame_line=line)
-    fixed_rot = cam.rotation_euler.copy()
-    fixed_shift = cam.data.shift_y
-    for fr in (frame_start, frame_end):
+    frames = sorted({frame_start, frame_end, *(sample_frames or [])})
+    for fr in frames:
+        scene.frame_set(fr)
+        bpy.context.view_layer.update()
+        face = _creature_face_target(form2, armature)
         cam.location = pos
-        cam.rotation_euler = fixed_rot
-        cam.data.shift_y = fixed_shift
+        _camera_point_at_rule_thirds(cam, face, frame_line=line)
         cam.keyframe_insert(data_path="location", frame=fr)
         cam.keyframe_insert(data_path="rotation_euler", frame=fr)
         cam.data.keyframe_insert(data_path="shift_y", frame=fr)
@@ -1469,15 +1466,15 @@ def _animate_creature_lunge_lab(
     )
     stop_y = _creature_lunge_stop_y()
     root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.28"))
-    creep_end = (0.0, -9.0, 0.0)
+    creep_end = (0.0, -7.6, 0.0)
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)
     face_yaw = _creature_face_camera_yaw()
 
     form2.animation_data_clear()
 
-    # Creature runs toward camera — location only; YAW faces the lens (not back/legs)
-    form2.location = (0, -11.5, 0)
+    # Creature runs toward camera — start closer so less grey void before the lunge
+    form2.location = (0, -9.2, 0)
     form2.scale = run_scale
     form2.rotation_euler = (0, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=frame_start)
@@ -1489,7 +1486,7 @@ def _animate_creature_lunge_lab(
     form2.keyframe_insert(data_path="location", frame=bait_f)
     form2.keyframe_insert(data_path="scale", frame=bait_f)
     form2.keyframe_insert(data_path="rotation_euler", frame=bait_f)
-    form2.location = (0, -6.8, 0.12)
+    form2.location = (0, -5.4, 0.10)
     form2.scale = run_scale
     form2.rotation_euler = (0, 0, face_yaw)
     form2.keyframe_insert(data_path="location", frame=lunge_f)
@@ -1515,6 +1512,7 @@ def _animate_creature_lunge_lab(
         _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
         _lock_camera_on_peak_face(
             cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+            sample_frames=[bait_f, lunge_f],
         )
         _apply_lunge_gaze_correction(
             armature,
@@ -1526,10 +1524,12 @@ def _animate_creature_lunge_lab(
         )
         _lock_camera_on_peak_face(
             cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+            sample_frames=[bait_f, lunge_f],
         )
     else:
         _lock_camera_on_peak_face(
             cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+            sample_frames=[bait_f, lunge_f],
         )
     saved_loc = form2.location.copy()
     saved_scale = form2.scale.copy()

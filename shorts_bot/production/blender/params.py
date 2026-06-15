@@ -16,15 +16,16 @@ class BlenderParams:
     """Knobs mapped to BLENDER_* env vars in build_and_render.py."""
 
     samples: int = 24
-    camera_z: float = 3.22
+    camera_y: float = -4.05
+    camera_z: float = 3.40
     look_z: float = 1.90
-    focal_mm: float = 42.0
+    focal_mm: float = 38.0
     face_scale: float = 1.32
     mouth_emissive: float = 10.0
     mouth_red: float = 0.95
     rule_of_thirds: float = 0.5
     exposure: float = 0.72
-    stop_gap: float = 1.18
+    stop_gap: float = 1.32
     creature_z: float = 0.28
     lunge_action_trim: str = "78,140"
 
@@ -32,9 +33,9 @@ class BlenderParams:
         p = self.clamp()
         return {
             "BLENDER_SAMPLES": str(int(p.samples)),
+            "BLENDER_LUNGE_CAMERA_Y": f"{p.camera_y:.3f}",
             "BLENDER_LUNGE_CAMERA_Z": f"{p.camera_z:.3f}",
             "BLENDER_LUNGE_LOOK_Z": f"{p.look_z:.3f}",
-            "BLENDER_LUNGE_CAMERA_Y": "-3.850",
             "BLENDER_LUNGE_STOP_GAP": f"{p.stop_gap:.3f}",
             "BLENDER_LUNGE_LOOK_DIST": "6.000",
             "BLENDER_LUNGE_CREATURE_Z": f"{p.creature_z:.3f}",
@@ -64,7 +65,8 @@ class BlenderParams:
                 rule_of_thirds=settings.micro_jumpscare_rule_of_thirds,
                 mouth_emissive=10.0,
                 exposure=0.72,
-                stop_gap=1.22,
+                stop_gap=1.32,
+                camera_y=-4.05,
                 creature_z=0.28,
                 look_z=1.90,
             )
@@ -74,13 +76,14 @@ class BlenderParams:
     def clamp(self) -> BlenderParams:
         p = copy.deepcopy(self)
         p.samples = int(max(16, min(64, p.samples)))
-        p.camera_z = max(2.5, min(3.5, p.camera_z))
+        p.camera_y = max(-4.8, min(-3.2, p.camera_y))
+        p.camera_z = max(2.8, min(3.8, p.camera_z))
         p.look_z = max(1.45, min(2.15, p.look_z))
         p.focal_mm = max(18.0, min(42.0, p.focal_mm))
         p.face_scale = max(1.05, min(1.85, p.face_scale))
         p.mouth_emissive = max(2.0, min(16.0, p.mouth_emissive))
         p.mouth_red = max(0.7, min(1.0, p.mouth_red))
-        p.rule_of_thirds = max(0.55, min(0.78, p.rule_of_thirds))
+        p.rule_of_thirds = max(0.42, min(0.78, p.rule_of_thirds))
         p.exposure = max(0.25, min(0.85, p.exposure))
         p.stop_gap = max(0.95, min(1.65, p.stop_gap))
         p.creature_z = max(0.0, min(0.55, p.creature_z))
@@ -90,6 +93,7 @@ class BlenderParams:
         """Small random walk — exploration between scored trials."""
         r = rng or random.Random()
         p = self.clamp()
+        p.camera_y += r.uniform(-strength, strength) * 0.25
         p.camera_z += r.uniform(-strength, strength) * 0.8
         p.look_z += r.uniform(-strength, strength) * 0.5
         p.focal_mm += r.uniform(-strength, strength) * 6.0
@@ -107,6 +111,7 @@ class BlenderParams:
 
 _ISSUE_PATCHES: list[tuple[re.Pattern[str], dict[str, float | int]]] = [
     (re.compile(r"dark|underexpos|too black|can.t see", re.I), {"exposure": 0.08, "mouth_emissive": 1.2}),
+    (re.compile(r"void|empty|too much (grey|gray)|mostly blank", re.I), {"stop_gap": -0.10, "focal_mm": 2.5}),
     (re.compile(r"small|tiny|distant|far away|not close", re.I), {"stop_gap": -0.08, "focal_mm": -2.0}),
     (re.compile(r"crotch|groin|pelvis|legs|below waist|between the legs|upskirt|vagina", re.I), {"look_z": -0.06, "camera_z": 0.15, "stop_gap": 0.15, "creature_z": -0.10}),
     (re.compile(r"face|mouth|teeth|scream|open", re.I), {"face_scale": 0.06, "mouth_emissive": 1.0}),
