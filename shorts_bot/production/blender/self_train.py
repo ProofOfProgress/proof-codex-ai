@@ -158,13 +158,17 @@ def run_blender_self_train(
             f"mouth={params.mouth_emissive:.1f} exp={params.exposure:.2f}"
         )
 
-        produce_micro_jumpscare(
-            draft_id,
-            pack_dir=trial_dir,
-            force=force_render,
-            samples=params.samples,
-            extra_env=params.to_env(),
-        )
+        try:
+            produce_micro_jumpscare(
+                draft_id,
+                pack_dir=trial_dir,
+                force=force_render,
+                samples=params.samples,
+                extra_env=params.to_env(),
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]Trial {trial_id} render failed — skip[/red] {exc}")
+            continue
         video = trial_dir / "final_short.mp4"
         if not video.is_file():
             raise RuntimeError(f"Trial {trial_id} produced no video: {video}")

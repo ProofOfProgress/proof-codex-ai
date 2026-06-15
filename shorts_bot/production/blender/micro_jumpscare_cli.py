@@ -92,11 +92,11 @@ def produce_micro_jumpscare(
         if extra_env:
             env.update(extra_env)
         proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
-        if proc.returncode != 0:
+        if not clip.is_file() or clip.stat().st_size < 5000:
             tail = (proc.stderr or proc.stdout or "")[-4000:]
             raise RuntimeError(f"Blender micro render failed:\n{tail}")
-        if not clip.is_file() or clip.stat().st_size < 5000:
-            raise RuntimeError(f"Blender finished but clip missing: {clip}")
+        if proc.returncode != 0:
+            console.print("[yellow]Blender exited non-zero but clip OK — continuing[/yellow]")
     else:
         console.print(f"[green]Reusing clip[/green] {clip}")
 
