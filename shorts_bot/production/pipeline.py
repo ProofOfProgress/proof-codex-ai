@@ -628,8 +628,20 @@ def _run_pipeline_locked(
                 from shorts_bot.learning.reflect import vision_qc_snapshot
 
                 from shorts_bot.production.scare_pillar import pillar_label, scare_pillar_for_topic
+                from shorts_bot.production.blender.analytics_bridge import blender_snapshot_for_pack
 
                 pillar = scare_pillar_for_topic(draft.topic)
+                upload_snapshot: dict = {
+                    "scare_pillar": pillar,
+                    "scare_pillar_label": pillar_label(pillar),
+                    "vision_qc": vision_qc_snapshot(
+                        score=vision.score,
+                        passed=vision.passed,
+                        issues=vision.issues,
+                        warnings=vision.warnings,
+                    ),
+                }
+                upload_snapshot.update(blender_snapshot_for_pack(pack_dir))
                 record_upload(
                     mem,
                     draft_id=draft_id,
@@ -638,16 +650,7 @@ def _run_pipeline_locked(
                     script=draft.script,
                     title=package.title,
                     video_id=up_video_id,
-                    extra_snapshot={
-                        "scare_pillar": pillar,
-                        "scare_pillar_label": pillar_label(pillar),
-                        "vision_qc": vision_qc_snapshot(
-                            score=vision.score,
-                            passed=vision.passed,
-                            issues=vision.issues,
-                            warnings=vision.warnings,
-                        ),
-                    },
+                    extra_snapshot=upload_snapshot,
                 )
                 if settings.auto_publish_hours > 0 and package.visibility == "unlisted":
                     mem.schedule_publish(
