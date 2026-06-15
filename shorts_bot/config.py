@@ -165,6 +165,9 @@ class Settings(BaseSettings):
     blender_self_train_interval_hours: int = 12  # aligned with analytics sync
     blender_self_train_trials_on_sync: int = 3
     blender_self_train_default_draft_id: int = 2
+    blender_preflight_still_enabled: bool = True
+    blender_preflight_min_score: float = 6.5
+    blender_preflight_samples: int = 16
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"

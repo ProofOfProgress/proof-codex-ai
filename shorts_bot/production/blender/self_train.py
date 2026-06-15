@@ -165,10 +165,38 @@ def run_blender_self_train(
                 force=force_render,
                 samples=params.samples,
                 extra_env=params.to_env(),
+                topic=topic,
+                hook=hook,
             )
-        except RuntimeError as exc:
-            console.print(f"[red]Trial {trial_id} render failed — skip[/red] {exc}")
-            continue
+        except Exception as exc:
+            from shorts_bot.production.blender.preflight import PreflightFailedError
+
+            if isinstance(exc, PreflightFailedError):
+                pf = exc.result
+                console.print(
+                    f"[yellow]Trial {trial_id} preflight fail — skip full render[/yellow] "
+                    f"({pf.score:.1f}/10)"
+                )
+                for issue in pf.issues[:2]:
+                    console.print(f"[dim]  {issue}[/dim]")
+                reward = max(0.0, float(pf.score) * 0.35)
+                trial = BlenderTrial(
+                    trial_id=trial_id,
+                    params=params,
+                    score=reward,
+                    passed=False,
+                    issues=list(pf.issues) or ["preflight still failed"],
+                    warnings=list(pf.report.warnings) if pf.report else [],
+                    video_path=str(pf.still_path),
+                )
+                store.record(trial)
+                last_trial = trial
+                console.print(f"[yellow]Preflight reward {reward:.2f}[/yellow] — still only, no full clip")
+                continue
+            if isinstance(exc, RuntimeError):
+                console.print(f"[red]Trial {trial_id} render failed — skip[/red] {exc}")
+                continue
+            raise
         video = trial_dir / "final_short.mp4"
         if not video.is_file():
             raise RuntimeError(f"Trial {trial_id} produced no video: {video}")

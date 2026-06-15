@@ -25,6 +25,9 @@ def produce_micro_jumpscare(
     samples: int | None = None,
     extra_env: dict[str, str] | None = None,
     use_mixamo: bool | None = None,
+    skip_preflight: bool = False,
+    topic: str = "micro jumpscare lunge",
+    hook: str = "creature lunge face fill",
 ) -> str:
     pack = pack_dir or (settings.data_dir / "production" / f"draft_{draft_id}")
     pack.mkdir(parents=True, exist_ok=True)
@@ -36,6 +39,23 @@ def produce_micro_jumpscare(
     motion_label = motion_source_label(use_mixamo=use_mixamo)
 
     if force or not clip.is_file() or clip.stat().st_size < 5000:
+        if not skip_preflight and settings.blender_preflight_still_enabled:
+            from shorts_bot.production.blender.preflight import PreflightFailedError, run_preflight_gate
+
+            pf = run_preflight_gate(
+                draft_id,
+                pack,
+                seconds=sec,
+                samples=settings.blender_preflight_samples,
+                extra_env=extra_env,
+                use_mixamo=use_mixamo,
+                topic=topic,
+                hook=hook,
+                force_still=True,
+            )
+            if not pf.passed:
+                raise PreflightFailedError(pf)
+
         clip.unlink(missing_ok=True)
         from shorts_bot.production.blender.download_creature import ensure_scp096_model
 
@@ -147,7 +167,26 @@ def main() -> None:
         action="store_true",
         help="Opt-in downloaded Mixamo FBX (default: procedural learned lunge)",
     )
+    parser.add_argument(
+        "--skip-preflight",
+        action="store_true",
+        help="Skip peak-still gate (render full clip immediately)",
+    )
+    parser.add_argument("--preflight-only", action="store_true", help="Peak still + QC only — no full render")
     args = parser.parse_args()
+    if args.preflight_only:
+        from shorts_bot.production.blender.preflight import run_preflight_gate
+
+        pf = run_preflight_gate(
+            args.draft_id,
+            args.pack_dir or (settings.data_dir / "production" / f"draft_{args.draft_id}"),
+            seconds=args.seconds,
+            samples=args.samples,
+            use_mixamo=True if args.use_mixamo else None,
+            force_still=True,
+        )
+        console.print(pf.message)
+        raise SystemExit(0 if pf.passed else 1)
     console.print(
         produce_micro_jumpscare(
             args.draft_id,
@@ -156,6 +195,7 @@ def main() -> None:
             seconds=args.seconds,
             samples=args.samples,
             use_mixamo=True if args.use_mixamo else None,
+            skip_preflight=args.skip_preflight,
         )
     )
 

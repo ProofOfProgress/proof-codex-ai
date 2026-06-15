@@ -488,3 +488,122 @@ def run_vision_qc(
     )
     _save_report(pack_dir, video_path, report)
     return report
+
+
+def _preflight_report_path(pack_dir: Path) -> Path:
+    return pack_dir / "preflight" / "preflight_qc.json"
+
+
+def run_preflight_still_qc(
+    still_path: Path,
+    pack_dir: Path,
+    *,
+    topic: str,
+    hook: str,
+    peak_time: float | None = None,
+    min_score: float | None = None,
+) -> VisionQCReport:
+    """
+    Vision QC on a single peak-frame still — one Gemini image, no ffmpeg extract.
+    Used before committing to a full 3s Blender animation render.
+    """
+    if not settings.vision_qc_enabled:
+        return VisionQCReport(passed=True, score=10.0, skipped_gemini=True)
+
+    if not still_path.is_file():
+        return VisionQCReport(passed=False, score=0.0, issues=["preflight still missing"])
+
+    threshold = min_score if min_score is not None else settings.blender_preflight_min_score
+    peak = peak_time
+    if peak is None:
+        try:
+            peak = max(0.5, float(settings.micro_jumpscare_seconds) - 0.35)
+        except Exception:
+            peak = 2.65
+
+    local_issues, local_warnings, local_ok = _local_frame_checks([still_path.resolve()])
+    if not local_ok:
+        report = VisionQCReport(
+            passed=False,
+            score=0.0,
+            issues=local_issues,
+            warnings=local_warnings,
+            frame_times=[peak],
+            frame_paths=[str(still_path)],
+            skipped_gemini=True,
+        )
+        _save_preflight_report(pack_dir, still_path, report)
+        return report
+
+    issues = list(local_issues)
+    warnings = list(local_warnings)
+    checks: dict[str, bool] = {}
+    score = 7.0
+    passed = True
+    skipped = False
+    frames = [(peak, still_path)]
+
+    if settings.has_gemini:
+        try:
+            data = _gemini_vision_review(frames, topic=topic, hook=hook, pack_dir=pack_dir)
+            score = float(data.get("score", 0))
+            passed = bool(data.get("pass", score >= threshold))
+            issues.extend(str(x) for x in (data.get("issues") or []) if x)
+            warnings.extend(str(x) for x in (data.get("warnings") or []) if x)
+            for key in ("hook_clear", "captions_safe", "horror_visible", "no_cosy_aesthetic", "scare_potential"):
+                if key in data:
+                    checks[key] = bool(data[key])
+            score, passed, issues = _enforce_framing_caps(
+                score=score, passed=passed, issues=issues, checks=checks
+            )
+            if score < threshold:
+                passed = False
+                if not issues:
+                    issues.append(f"preflight score {score:.1f} below min {threshold}")
+        except Exception as exc:
+            if settings.vision_qc_blocks_upload:
+                passed = False
+                issues.append(f"Gemini preflight QC failed: {exc}")
+            else:
+                skipped = True
+                warnings.append(f"Gemini preflight skipped: {exc}")
+                passed = True
+                score = 7.0
+    else:
+        skipped = True
+        warnings.append("GEMINI_API_KEY missing — preflight QC not run")
+        if settings.vision_qc_blocks_upload:
+            passed = False
+            issues.append("Gemini required for preflight QC")
+        else:
+            passed = True
+
+    report = VisionQCReport(
+        passed=passed,
+        score=score,
+        issues=issues,
+        warnings=warnings,
+        frame_times=[peak],
+        frame_paths=[str(still_path)],
+        skipped_gemini=skipped,
+        checks=checks,
+    )
+    _save_preflight_report(pack_dir, still_path, report)
+    return report
+
+
+def _save_preflight_report(pack_dir: Path, still_path: Path, report: VisionQCReport) -> None:
+    path = _preflight_report_path(pack_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "passed": report.passed,
+        "score": report.score,
+        "issues": report.issues,
+        "warnings": report.warnings,
+        "frame_times": report.frame_times,
+        "frame_paths": report.frame_paths,
+        "skipped_gemini": report.skipped_gemini,
+        "checks": report.checks,
+        "still_mtime": still_path.stat().st_mtime if still_path.is_file() else 0,
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

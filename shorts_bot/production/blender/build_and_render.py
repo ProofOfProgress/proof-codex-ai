@@ -1771,12 +1771,23 @@ def build_scene(*, samples: int = 32, pack_dir: Path | None = None) -> dict:
     }
 
 
+def _write_creature_lunge_lab_marker(pack_dir: Path, draft_id: int, *, seconds: float) -> None:
+    lab_marker = {
+        "lab": "creature_lunge",
+        "creature_only": True,
+        "draft_id": draft_id,
+        "clip_seconds": seconds,
+    }
+    (pack_dir / "creature_lunge_lab.json").write_text(json.dumps(lab_marker, indent=2), encoding="utf-8")
+
+
 def render_clip(
     ctx: dict,
     out_path: Path,
     *,
     phase: str,
     seconds: float = 10.0,
+    still_path: Path | None = None,
 ) -> None:
     scene = ctx["scene"]
     cam = ctx["camera"]
@@ -1807,6 +1818,16 @@ def render_clip(
             pack_dir=ctx.get("pack_dir"),
         )
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    if still_path is not None:
+        still_path.parent.mkdir(parents=True, exist_ok=True)
+        scene.frame_set(f1)
+        bpy.context.view_layer.update()
+        scene.render.image_settings.file_format = "JPEG"
+        scene.render.image_settings.quality = 90
+        scene.render.filepath = str(still_path.with_suffix(""))
+        bpy.ops.render.render(write_still=True)
+        print(f"Peak still {still_path}")
+        return
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
     _finalize_clip_output(out_path)
@@ -1833,13 +1854,39 @@ def render_micro_jumpscare(draft_id: int, pack_dir: Path, *, seconds: float = 3.
         "clip_seconds": seconds,
     }
     (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
-    lab_marker = {
-        "lab": "creature_lunge",
+    _write_creature_lunge_lab_marker(pack_dir, draft_id, seconds=seconds)
+    return dest
+
+
+def render_micro_jumpscare_peak_still(
+    draft_id: int,
+    pack_dir: Path,
+    *,
+    seconds: float = 3.0,
+    samples: int = 16,
+    out_path: Path | None = None,
+) -> Path:
+    """One EEVEE still at lunge peak — cheap gate before full animation render."""
+    preflight_dir = pack_dir / "preflight"
+    preflight_dir.mkdir(parents=True, exist_ok=True)
+    dest = out_path or (preflight_dir / "peak_still.jpg")
+    os.environ["BLENDER_INCLUDE_CREATURE"] = "1"
+    os.environ["BLENDER_MICRO_JUMPSCARE"] = "1"
+    os.environ["BLENDER_CREATURE_ONLY"] = "1"
+    ctx = build_scene(samples=samples, pack_dir=pack_dir)
+    ctx["pack_dir"] = pack_dir
+    clip_stub = preflight_dir / "blender_part_01.mp4"
+    render_clip(ctx, clip_stub, phase="lunge", seconds=seconds, still_path=dest)
+    _write_creature_lunge_lab_marker(pack_dir, draft_id, seconds=seconds)
+    spec = {
+        "backend": "blender",
+        "format": "micro_jumpscare_preflight",
         "creature_only": True,
         "draft_id": draft_id,
         "clip_seconds": seconds,
+        "peak_still": dest.name,
     }
-    (pack_dir / "creature_lunge_lab.json").write_text(json.dumps(lab_marker, indent=2), encoding="utf-8")
+    (preflight_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
     return dest
 
 
@@ -1919,6 +1966,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Single 3s lunge clip with creature (volume-sting format)",
     )
     parser.add_argument(
+        "--peak-still",
+        action="store_true",
+        help="Render one JPEG at lunge peak only (preflight gate — no animation)",
+    )
+    parser.add_argument(
         "--scene-only",
         action="store_true",
         help="Environment craft — no creature (default unless BLENDER_INCLUDE_CREATURE=1)",
@@ -1947,6 +1999,11 @@ def main(argv: list[str] | None = None) -> None:
             samples=samples,
             phase=args.phase,
             pack_dir=pack,
+        )
+        return
+    if args.peak_still:
+        render_micro_jumpscare_peak_still(
+            args.draft_id, pack, seconds=seconds, samples=samples,
         )
         return
     if args.micro_jumpscare:
