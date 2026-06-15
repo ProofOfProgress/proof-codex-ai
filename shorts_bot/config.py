@@ -125,8 +125,12 @@ class Settings(BaseSettings):
     # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
     ai_video_generation_enabled: bool = False
 
-    # Paid image generation (Replicate FLUX or Fal.ai)
-    image_provider: str = "replicate"  # replicate | fal
+    # Paid image generation (Recraft crayon stills, Replicate FLUX, or Fal.ai)
+    image_provider: str = "replicate"  # recraft | replicate | fal
+    recraft_api_key: str | None = None
+    recraft_style_id: str | None = None
+    recraft_model: str = "recraftv3"  # custom style_id needs V3 (not V4)
+    recraft_image_size: str = "1024x1820"  # 9:16 Shorts still
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
@@ -331,8 +335,13 @@ class Settings(BaseSettings):
         return bool(key) and len(key) >= 8 and "your" not in key.lower()
 
     @property
+    def has_recraft_images(self) -> bool:
+        key = (self.recraft_api_key or "").strip()
+        return bool(key) and len(key) >= 16 and "your" not in key.lower()
+
+    @property
     def has_paid_images(self) -> bool:
-        return self.has_replicate_images or self.has_fal_images
+        return self.has_recraft_images or self.has_replicate_images or self.has_fal_images
 
     @property
     def has_assemblyai(self) -> bool:

@@ -72,7 +72,11 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `OPENAI_MODEL` | Environment Variable | Model slug (string) | `gpt-4o-mini` | |
 | `ASSEMBLYAI_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | Skip unless `TRANSCRIPT_PROVIDER=assemblyai` |
 | `FAL_API_KEY` | Runtime Secret | API key (string) | `________________________________` | If `IMAGE_PROVIDER=fal` |
-| `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
+| `RECRAFT_API_KEY` | Runtime Secret | Bearer token from Recraft Profile | `________________________________` | https://recraft.ai/profile → Generate |
+| `RECRAFT_STYLE_ID` | Runtime Secret | UUID from custom style (⋯ → Copy) | `________-____-____-____-____________` | Recraft Studio custom style |
+| `RECRAFT_MODEL` | Environment Variable | Model slug | `recraftv3` | Custom styles need V3 |
+| `RECRAFT_IMAGE_SIZE` | Environment Variable | WxH or w:h | `1024x1820` | 9:16 Shorts still |
+| `IMAGE_PROVIDER` | Environment Variable | Enum: `recraft` \| `replicate` \| `fal` | `recraft` | Crayon lane = recraft |
 | `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |
 | `TAVILY_API_KEY` | Runtime Secret | API key (string, starts `tvly-`) | `tvly-____________________________` | Deep web research |
 | `SLACK_BOT_TOKEN` | Runtime Secret | Bot token `xoxb-...` | `xoxb-...` | [api.slack.com/apps](https://api.slack.com/apps) → AlphaBeta001 app |

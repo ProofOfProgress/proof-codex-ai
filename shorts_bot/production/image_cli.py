@@ -28,7 +28,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if not settings.has_paid_images:
-        console.print("[red]Set REPLICATE_API_TOKEN or FAL_API_KEY in Cursor Secrets[/red]")
+        console.print("[red]Set RECRAFT_API_KEY, REPLICATE_API_TOKEN, or FAL_API_KEY in Cursor Secrets[/red]")
         raise SystemExit(1)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -40,7 +40,12 @@ def main() -> None:
     else:
         console.print("[dim]caption_mode=ffmpeg — captions added at MP4 render, not on PNG[/dim]")
     console.print(f"[green]Saved {args.out} via {provider}[/green]")
-    console.print(f"Provider setting: {settings.image_provider} | model: {settings.replicate_image_model}")
+    if (settings.image_provider or "").strip().lower() == "recraft":
+        console.print(
+            f"Recraft model: {settings.recraft_model} | style: {settings.recraft_style_id or '(none)'}"
+        )
+    else:
+        console.print(f"Provider setting: {settings.image_provider} | model: {settings.replicate_image_model}")
 
 
 if __name__ == "__main__":
