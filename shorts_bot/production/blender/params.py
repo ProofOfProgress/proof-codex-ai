@@ -17,7 +17,7 @@ class BlenderParams:
 
     samples: int = 24
     camera_z: float = 2.18
-    look_z: float = 1.72
+    look_z: float = 2.05
     focal_mm: float = 26.0
     face_scale: float = 1.38
     mouth_emissive: float = 7.5
@@ -92,6 +92,7 @@ class BlenderParams:
 _ISSUE_PATCHES: list[tuple[re.Pattern[str], dict[str, float | int]]] = [
     (re.compile(r"dark|underexpos|too black|can.t see", re.I), {"exposure": 0.08, "mouth_emissive": 1.2}),
     (re.compile(r"small|tiny|distant|far away|not close", re.I), {"face_scale": 0.1, "focal_mm": -2.0}),
+    (re.compile(r"crotch|groin|pelvis|legs|below waist|aimed too low|between the legs", re.I), {"look_z": 0.18, "camera_z": 0.10}),
     (re.compile(r"face|mouth|teeth|scream|open", re.I), {"face_scale": 0.06, "mouth_emissive": 1.0}),
     (re.compile(r"red|blood|gore|interior", re.I), {"mouth_emissive": 1.8, "mouth_red": 0.04}),
     (re.compile(r"low angle|looking up|camera too low", re.I), {"camera_z": 0.14, "look_z": 0.06}),

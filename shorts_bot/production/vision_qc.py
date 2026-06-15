@@ -265,6 +265,7 @@ def _creature_lunge_lab_qc_block(*, topic: str, hook: str) -> str:
         "- Intentional void/black backdrop — do NOT fail for missing gas station, road, or full environment.\n"
         "- Score creature craft: face readable, eyes/gaze toward camera, open mouth with red interior glow at peak.\n"
         "- FAIL pass=false if: near-black unreadable frames, creature tiny/distant, face looking away/down, "
+        "camera framed on crotch/pelvis/legs instead of face/mouth, "
         "grey untextured block-out, broken FBX import, flat viewport-test lighting, or scare payoff weak.\n"
         "- PASS criteria: close face-fill at final frame, horror rim/key lighting, earned lunge jumpscare vs LIGHTS ARE OFF bar."
     )

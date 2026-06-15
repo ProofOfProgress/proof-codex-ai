@@ -44,14 +44,21 @@ def _pick_next_params(
     best: BlenderTrial | None,
     last: BlenderTrial | None,
     rng: random.Random,
+    director_deltas: dict | None = None,
 ) -> BlenderParams:
     if best is None:
         saved = load_params(Path(settings.data_dir) / "production" / "blender_rl_defaults.json")
-        return (saved or BlenderParams.defaults()).clamp()
-    if last and last.issues:
-        exploited = patch_from_issues(best.params, last.issues)
-        return exploited.mutate(strength=0.04, rng=rng)
-    return best.params.mutate(strength=0.07, rng=rng)
+        base = (saved or BlenderParams.defaults()).clamp()
+    elif last and last.issues:
+        base = patch_from_issues(best.params, last.issues)
+        base = base.mutate(strength=0.04, rng=rng)
+    else:
+        base = best.params.mutate(strength=0.07, rng=rng)
+    if director_deltas:
+        from shorts_bot.production.blender.gemini_director import apply_director_deltas
+
+        base = apply_director_deltas(base, {"param_deltas": director_deltas})
+    return base.clamp()
 
 
 def run_blender_self_train(
@@ -87,10 +94,17 @@ def run_blender_self_train(
     )
 
     youtube_seed_used = False
+    pending_director_deltas: dict | None = None
 
     for _ in range(n_trials):
         trial_id = store.next_trial_id()
-        params = _pick_next_params(best=best_overall, last=last_trial, rng=rng)
+        params = _pick_next_params(
+            best=best_overall,
+            last=last_trial,
+            rng=rng,
+            director_deltas=pending_director_deltas,
+        )
+        pending_director_deltas = None
         seed_path = pack / "blender_rl" / "seed_from_youtube.json"
         if not youtube_seed_used and seed_path.is_file():
             loaded = load_params(seed_path)
@@ -125,6 +139,28 @@ def run_blender_self_train(
             hook=hook,
             use_cache=False,
         )
+        director: dict = {}
+        try:
+            from shorts_bot.production.blender.gemini_director import (
+                apply_director_deltas,
+                ask_gemini_lunge_director,
+                save_director_notes,
+            )
+
+            frame_paths = [Path(p) for p in report.frame_paths if Path(p).is_file()]
+            director = ask_gemini_lunge_director(
+                frame_paths=frame_paths,
+                issues=list(report.issues),
+                params=params,
+                score=float(report.score),
+            )
+            save_director_notes(trial_dir / "gemini_director.json", director)
+            for fix in (director.get("must_fix") or [])[:3]:
+                console.print(f"[magenta]Director[/magenta] {fix}")
+            pending_director_deltas = director.get("param_deltas") if isinstance(director.get("param_deltas"), dict) else None
+        except Exception as exc:
+            console.print(f"[yellow]Gemini director skip: {exc}[/yellow]")
+
         reward = _score_trial(report)
         trial = BlenderTrial(
             trial_id=trial_id,
