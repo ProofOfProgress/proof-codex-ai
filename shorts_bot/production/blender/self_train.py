@@ -86,9 +86,19 @@ def run_blender_self_train(
         f"target {target:.1f}/10[/cyan]"
     )
 
+    youtube_seed_used = False
+
     for _ in range(n_trials):
         trial_id = store.next_trial_id()
         params = _pick_next_params(best=best_overall, last=last_trial, rng=rng)
+        seed_path = pack / "blender_rl" / "seed_from_youtube.json"
+        if not youtube_seed_used and seed_path.is_file():
+            loaded = load_params(seed_path)
+            if loaded:
+                params = loaded.clamp()
+                seed_path.unlink(missing_ok=True)
+                youtube_seed_used = True
+                console.print("[cyan]Using YouTube-seeded params for this trial batch[/cyan]")
         trial_dir = store.root / f"trial_{trial_id:03d}"
         trial_dir.mkdir(parents=True, exist_ok=True)
 

@@ -6,7 +6,28 @@ This is **not** neural-net weight training. It is **trial → reward → update 
 
 ---
 
-## Run it (plain English)
+## Dual loop (both run automatically with web UI)
+
+| Loop | When | What it learns |
+|------|------|----------------|
+| **YouTube analytics** | Every 12h (`AUTO_ANALYTICS_SYNC`) | Views, swipe-away, retention → text rules + improvements |
+| **Blender self-train** | After each analytics sync (or every 12h if due) | Camera/mouth/light params → vision QC score |
+
+When YouTube punishes a Short (weak hook/retention), analytics sync **seeds Blender trials** with param patches, then vision QC picks the best render. Upload snapshots store `blender_rl` params so analytics can attribute what worked.
+
+Settings:
+
+```
+AUTO_ANALYTICS_SYNC=true
+AUTO_ANALYTICS_SYNC_INTERVAL_HOURS=12
+BLENDER_SELF_TRAIN_AUTO_GRIND=true
+BLENDER_SELF_TRAIN_ON_SYNC=true
+BLENDER_SELF_TRAIN_INTERVAL_HOURS=12
+```
+
+---
+
+## Run it manually (plain English)
 
 ```bash
 python3 -m shorts_bot.production.blender.self_train_cli --draft-id 2 --trials 5

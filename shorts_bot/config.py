@@ -156,6 +156,11 @@ class Settings(BaseSettings):
     blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
     blender_self_train_camera_z: float = 2.18
     blender_self_train_mouth_emissive: float = 7.5
+    blender_self_train_auto_grind: bool = True
+    blender_self_train_on_sync: bool = True
+    blender_self_train_interval_hours: int = 12  # aligned with analytics sync
+    blender_self_train_trials_on_sync: int = 3
+    blender_self_train_default_draft_id: int = 2
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"

@@ -23,6 +23,7 @@ class AutomationResult:
     comments_queued_human: int = 0
     comment_message: str = ""
     self_training_summary: str = ""
+    blender_grind_summary: str = ""
 
     @property
     def ok(self) -> bool:
@@ -99,6 +100,15 @@ def run_analytics_sync_with_automation(
         )
         training_summary = reflect.summary()
 
+    blender_summary = ""
+    if sync.ok and settings.blender_self_train_auto_grind:
+        try:
+            from shorts_bot.production.blender.analytics_bridge import maybe_grind_after_analytics
+
+            blender_summary = maybe_grind_after_analytics(memory, sync.scored_results)
+        except Exception as exc:  # noqa: BLE001
+            blender_summary = f"Blender grind skipped: {exc}"[:200]
+
     pub_n = process_publish_queue(memory)
     comment_result = process_comment_replies(memory)
     return AutomationResult(
@@ -110,4 +120,5 @@ def run_analytics_sync_with_automation(
         comments_queued_human=comment_result.queued_human if comment_result else 0,
         comment_message=comment_result.message if comment_result else "",
         self_training_summary=training_summary,
+        blender_grind_summary=blender_summary,
     )

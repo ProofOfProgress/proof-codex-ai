@@ -53,13 +53,18 @@ See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 
 ## Blender self-reinforcement (render trials)
 
-Separate loop for **3D craft** — not YouTube analytics:
+Dual loop with YouTube — **both every 12h** when web UI autopilot runs:
+
+| Loop | Learns from |
+|------|-------------|
+| Analytics sync | Views, retention, swipe-away |
+| Blender grind (after sync) | Vision QC on render params |
 
 ```bash
 python3 -m shorts_bot.production.blender.self_train_cli --draft-id 2 --trials 5
 ```
 
-Try camera/mouth/light params → Gemini vision QC scores → auto-tweak → save best to `blender_rl/best_params.json`. See `docs/BLENDER_SELF_TRAIN.md`.
+See `docs/BLENDER_SELF_TRAIN.md`.
 
 ## Storage
 
