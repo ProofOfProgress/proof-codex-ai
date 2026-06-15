@@ -104,6 +104,9 @@ class Settings(BaseSettings):
     micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
     micro_jumpscare_bed_gain: float = 0.85  # loud noise throughout (not whisper-quiet)
     micro_jumpscare_roar_gain: float = 1.85  # premade CC0 roar at lunge
+    micro_jumpscare_scream_enabled: bool = True
+    micro_jumpscare_scream_gain: float = 1.45  # high-pitch shriek at final frame
+    micro_jumpscare_scream_before_end: float = 0.48  # seconds before clip ends
     micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
     micro_jumpscare_rule_of_thirds: float = 2 / 3  # eyes on top horizontal third line
     micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
@@ -155,7 +158,7 @@ class Settings(BaseSettings):
     blender_self_train_trials: int = 5
     blender_self_train_target_score: float = 7.5
     blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
-    blender_self_train_camera_z: float = 2.42
+    blender_self_train_camera_z: float = 2.78
     blender_self_train_mouth_emissive: float = 7.5
     blender_self_train_auto_grind: bool = True
     blender_self_train_on_sync: bool = True

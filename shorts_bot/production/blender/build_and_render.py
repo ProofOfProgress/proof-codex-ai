@@ -1152,24 +1152,24 @@ def _pose_wave_or_lunge(
         snap_f = frame_end - 4
         for name, rot, fr in [
             ("pelvis", (0, 0, 0), frame_start),
-            ("pelvis", (0.22, 0, 0), lunge_f),
-            ("pelvis", (0.38, 0, 0), frame_end),
+            ("pelvis", (0.10, 0, 0), lunge_f),
+            ("pelvis", (0.08, 0, 0), frame_end),
             ("ripcage", (0.12, 0, 0), t(0.35)),
-            ("ripcage", (0.35, 0, 0), lunge_f),
-            ("ripcage", (0.58, 0, 0), frame_end),
+            ("ripcage", (0.28, 0, 0), lunge_f),
+            ("ripcage", (0.38, 0, 0), frame_end),
             ("neck", (0.15, 0, 0), lunge_f),
-            ("neck", (0.42, 0, 0), snap_f),
-            ("neck", (0.52, 0, 0), frame_end),
+            ("neck", (0.48, 0, 0), snap_f),
+            ("neck", (0.62, 0, 0), frame_end),
             ("head", (0.08, 0, 0), lunge_f),
-            ("head", (0.38, 0, 0), snap_f),
-            ("head", (0.48, 0, 0), frame_end),
+            ("head", (0.42, 0, 0), snap_f),
+            ("head", (0.58, 0, 0), frame_end),
             ("lowerjaw", (0.05, 0, 0), lunge_f),
             ("lowerjaw", (0.45, 0, 0), snap_f),
-            ("lowerjaw", (0.72, 0, 0), frame_end),
-            ("Bone_007", (-1.4, 0.1, -0.2), lunge_f),
-            ("Bone_007", (-2.35, 0, 0.15), frame_end),
-            ("Bone_008", (-1.35, -0.1, 0.2), lunge_f),
-            ("Bone_008", (-2.3, 0, -0.12), frame_end),
+            ("lowerjaw", (0.82, 0, 0), frame_end),
+            ("Bone_007", (-0.55, 0.35, -0.12), lunge_f),
+            ("Bone_007", (-1.05, 0.55, -0.22), frame_end),
+            ("Bone_008", (-0.50, -0.25, 0.12), lunge_f),
+            ("Bone_008", (-0.98, -0.42, 0.18), frame_end),
         ]:
             _key_bone(name, rot, fr)
 
@@ -1195,7 +1195,7 @@ def _apply_lunge_gaze_correction(
     horiz = math.sqrt(delta.x ** 2 + delta.y ** 2)
     # Positive X euler = look up (rig convention used in _pose_wave_or_lunge lunge keys).
     base_pitch = math.atan2(delta.z, horiz) if horiz > 0.01 else 0.0
-    mixamo_boost = 0.48 if mixamo_overlay else 0.28
+    mixamo_boost = 0.48 if mixamo_overlay else 0.38
     head_pitch = min(1.08, max(0.5, base_pitch + mixamo_boost))
     neck_pitch = head_pitch * 0.74
     rib_pitch = head_pitch * 0.4
@@ -1369,22 +1369,22 @@ def _animate_creature_mouth_light(
 
 
 def _lunge_camera_height() -> float:
-    """POV height (m) — eye level, horizontal sight line down the lane."""
-    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.50"))
+    """POV height (m) — above head line, looks DOWN at face (not up into pelvis)."""
+    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.78"))
 
 
 def _creature_lunge_look_target() -> tuple[float, float, float]:
-    """Eye-level horizon down the lane — same Z as camera (no upward tilt into pelvis)."""
+    """Down-lane aim below camera height — slight downward tilt frames face not legs."""
     pos = _creature_lunge_camera_fixed()
     dist = float(os.environ.get("BLENDER_LUNGE_LOOK_DIST", "6.0"))
-    look_z = float(os.environ.get("BLENDER_LUNGE_LOOK_Z", str(pos[2])))
+    look_z = float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "2.08"))
     return (0.0, pos[1] - dist, look_z)
 
 
 def _creature_lunge_stop_y() -> float:
     """How far in front of the locked camera the creature stops (meters down -Y)."""
     cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.35"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "0.88"))
     return cam_y - gap
 
 
@@ -1392,7 +1392,7 @@ def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
     """Single locked POV — monster runs toward camera down the lane."""
     return (
         0.0,
-        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.80")),
+        float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85")),
         _lunge_camera_height(),
     )
 
@@ -1422,12 +1422,12 @@ def _lock_camera_still(
 
 def _setup_creature_lunge_camera() -> bpy.types.Object:
     """Fixed POV — wide lens, locked; creature lunges into frame."""
-    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
+    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", "0.74"))
     pos = _creature_lunge_camera_fixed()
     bpy.ops.object.camera_add(location=pos)
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
-    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "26"))
+    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "30"))
     _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=line)
     bpy.context.scene.camera = cam
     return cam
@@ -1443,7 +1443,7 @@ def _animate_creature_lunge_lab(
     pack_dir: Path | None = None,
 ) -> None:
     """Monster-only: locked camera — creature sprints into lens; mouth fills at peak."""
-    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
+    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", "0.74"))
     bait_f = frame_start + max(6, int((frame_end - frame_start) * 0.12))
     lunge_f = frame_start + max(bait_f + 2, int((frame_end - frame_start) * 0.38))
     base_s = 1.0 if _creature_only_mode() else (
@@ -1451,7 +1451,7 @@ def _animate_creature_lunge_lab(
     )
     face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))  # legacy param; no scale pop
     stop_y = _creature_lunge_stop_y()
-    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.0"))
+    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.82"))
     creep_end = (0.0, -9.0, 0.0)
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)
@@ -1526,7 +1526,7 @@ def _animate_micro_jumpscare(
     pack_dir: Path | None = None,
 ) -> None:
     """3s format: ~0.4s bait → lunge; fixed camera heading (dolly only — no spin)."""
-    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", str(2 / 3)))
+    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", "0.74"))
     base_s = _micro_creature_uniform_scale()
     bait_f = frame_start + max(8, int((frame_end - frame_start) * 0.14))
     cam.animation_data_clear()
