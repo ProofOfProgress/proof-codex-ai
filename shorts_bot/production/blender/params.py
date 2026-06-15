@@ -18,13 +18,13 @@ class BlenderParams:
     samples: int = 24
     camera_z: float = 3.22
     look_z: float = 1.90
-    focal_mm: float = 38.0
+    focal_mm: float = 42.0
     face_scale: float = 1.32
     mouth_emissive: float = 10.0
     mouth_red: float = 0.95
-    rule_of_thirds: float = 0.76
+    rule_of_thirds: float = 0.5
     exposure: float = 0.72
-    stop_gap: float = 1.48
+    stop_gap: float = 1.18
     creature_z: float = 0.28
     lunge_action_trim: str = "78,140"
 
@@ -42,7 +42,7 @@ class BlenderParams:
             "BLENDER_LUNGE_FACE_SCALE": f"{p.face_scale:.3f}",
             "BLENDER_MOUTH_EMISSIVE": f"{p.mouth_emissive:.2f}",
             "BLENDER_MOUTH_RED": f"{p.mouth_red:.3f}",
-            "BLENDER_RULE_OF_THIRDS": f"{p.rule_of_thirds:.4f}",
+            "BLENDER_PEAK_FRAME_LINE": f"{p.rule_of_thirds:.4f}",
             "BLENDER_EXPOSURE": f"{p.exposure:.3f}",
             "BLENDER_CREATURE_FACE_YAW": "3.141593",
             "BLENDER_LUNGE_ACTION_TRIM": p.lunge_action_trim,

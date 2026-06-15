@@ -108,7 +108,7 @@ class Settings(BaseSettings):
     micro_jumpscare_scream_gain: float = 1.45  # high-pitch shriek at final frame
     micro_jumpscare_scream_before_end: float = 0.48  # seconds before clip ends
     micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
-    micro_jumpscare_rule_of_thirds: float = 0.74  # eyes on top horizontal third line
+    micro_jumpscare_rule_of_thirds: float = 0.5  # center frame — face at peak
     micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
     micro_jumpscare_creature_scale: float = 0.82  # uniform scale vs FBX env (0.07)
     micro_jumpscare_creature_only: bool = True  # lunge lab — monster + void, no gas station

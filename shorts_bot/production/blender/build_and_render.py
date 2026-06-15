@@ -1167,10 +1167,10 @@ def _pose_wave_or_lunge(
             ("lowerjaw", (0.48, 0, 0), snap_f),
             ("lowerjaw", (0.88, 0, 0), frame_end),
             # Arms reach toward camera — not overhead (overhead + close = crotch shot)
-            ("Bone_007", (-0.35, 0.55, -0.35), lunge_f),
-            ("Bone_007", (-0.85, 0.95, -0.55), frame_end),
-            ("Bone_008", (-0.32, -0.45, 0.28), lunge_f),
-            ("Bone_008", (-0.78, -0.82, 0.42), frame_end),
+            ("Bone_007", (-0.25, 0.35, -0.22), lunge_f),
+            ("Bone_007", (-0.55, 0.62, -0.38), frame_end),
+            ("Bone_008", (-0.22, -0.28, 0.15), lunge_f),
+            ("Bone_008", (-0.48, -0.52, 0.22), frame_end),
         ]:
             _key_bone(name, rot, fr)
 
@@ -1385,7 +1385,7 @@ def _creature_lunge_look_target() -> tuple[float, float, float]:
 def _creature_lunge_stop_y() -> float:
     """Creature stops far enough out that camera sees face/chest, not up the legs."""
     cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.48"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.18"))
     return cam_y - gap
 
 
@@ -1398,18 +1398,31 @@ def _creature_lunge_camera_fixed() -> tuple[float, float, float]:
     )
 
 
-def _lock_camera_still(
+def _peak_frame_line() -> float:
+    """0.5 = dead center — face/mouth in middle of frame at jumpscare peak."""
+    return float(os.environ.get("BLENDER_PEAK_FRAME_LINE", os.environ.get("BLENDER_RULE_OF_THIRDS", "0.5")))
+
+
+def _lock_camera_on_peak_face(
     cam: bpy.types.Object,
+    form2: bpy.types.Object,
+    armature: bpy.types.Object | None,
     *,
     frame_start: int,
     frame_end: int,
-    frame_line: float,
+    frame_line: float | None = None,
 ) -> None:
-    """Freeze camera location, rotation, and shift for the whole clip."""
+    """Lock camera still — rotation calibrated so head bone is center frame at peak."""
+    line = frame_line if frame_line is not None else _peak_frame_line()
+    scene = bpy.context.scene
+    saved_frame = scene.frame_current
+    scene.frame_set(frame_end)
+    bpy.context.view_layer.update()
+    face = _creature_face_target(form2, armature)
     pos = _creature_lunge_camera_fixed()
     cam.animation_data_clear()
     cam.location = pos
-    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=frame_line)
+    _camera_point_at_rule_thirds(cam, face, frame_line=line)
     fixed_rot = cam.rotation_euler.copy()
     fixed_shift = cam.data.shift_y
     for fr in (frame_start, frame_end):
@@ -1419,17 +1432,17 @@ def _lock_camera_still(
         cam.keyframe_insert(data_path="location", frame=fr)
         cam.keyframe_insert(data_path="rotation_euler", frame=fr)
         cam.data.keyframe_insert(data_path="shift_y", frame=fr)
+    scene.frame_set(saved_frame)
 
 
 def _setup_creature_lunge_camera() -> bpy.types.Object:
-    """Fixed POV — wide lens, locked; creature lunges into frame."""
-    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", "0.74"))
+    """Fixed POV — calibrated to center face at peak (refined after pose keys)."""
     pos = _creature_lunge_camera_fixed()
     bpy.ops.object.camera_add(location=pos)
     cam = bpy.context.active_object
     cam.name = "LungeCamera"
-    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "30"))
-    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=line)
+    cam.data.lens = float(os.environ.get("BLENDER_LUNGE_FOCAL_MM", "42"))
+    _camera_point_at_rule_thirds(cam, _creature_lunge_look_target(), frame_line=_peak_frame_line())
     bpy.context.scene.camera = cam
     return cam
 
@@ -1448,14 +1461,12 @@ def _animate_creature_lunge_lab(
     armature: bpy.types.Object | None = None,
     pack_dir: Path | None = None,
 ) -> None:
-    """Monster-only: locked camera — creature sprints into lens; mouth fills at peak."""
-    line = float(os.environ.get("BLENDER_RULE_OF_THIRDS", "0.74"))
+    """Monster-only: locked camera — face centered in frame at final frame."""
     bait_f = frame_start + max(6, int((frame_end - frame_start) * 0.12))
     lunge_f = frame_start + max(bait_f + 2, int((frame_end - frame_start) * 0.38))
     base_s = 1.0 if _creature_only_mode() else (
         _micro_creature_uniform_scale() if _micro_jumpscare_mode() else 1.0
     )
-    face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))  # legacy param; no scale pop
     stop_y = _creature_lunge_stop_y()
     root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.28"))
     creep_end = (0.0, -9.0, 0.0)
@@ -1463,7 +1474,6 @@ def _animate_creature_lunge_lab(
     run_scale = (base_s, base_s, base_s)
     face_yaw = _creature_face_camera_yaw()
 
-    _lock_camera_still(cam, frame_start=frame_start, frame_end=frame_end, frame_line=line)
     form2.animation_data_clear()
 
     # Creature runs toward camera — location only; YAW faces the lens (not back/legs)
@@ -1502,6 +1512,10 @@ def _animate_creature_lunge_lab(
             frame_end=frame_end,
             pack_dir=pack_dir,
         )
+        _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
+        _lock_camera_on_peak_face(
+            cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+        )
         _apply_lunge_gaze_correction(
             armature,
             form2,
@@ -1510,7 +1524,13 @@ def _animate_creature_lunge_lab(
             frame_end=frame_end,
             mixamo_overlay=downloaded,
         )
-        _apply_lunge_mouth_open(armature, bait_f=bait_f, frame_end=frame_end)
+        _lock_camera_on_peak_face(
+            cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+        )
+    else:
+        _lock_camera_on_peak_face(
+            cam, form2, armature, frame_start=frame_start, frame_end=frame_end,
+        )
     saved_loc = form2.location.copy()
     saved_scale = form2.scale.copy()
     form2.location = face_end

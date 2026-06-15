@@ -273,7 +273,7 @@ def _creature_lunge_lab_qc_block(*, topic: str, hook: str) -> str:
         "low-angle up-skirt view between legs, "
         "grey untextured block-out, broken FBX import, flat viewport-test lighting, or scare payoff weak.\n"
         "- Peak frame MUST show open mouth or face — NOT legs or pelvis. If peak shows legs/groin, score <= 3.\n"
-        "- PASS criteria: close face-fill at final frame, horror rim/key lighting, earned lunge jumpscare vs LIGHTS ARE OFF bar."
+        "- PASS criteria: face/mouth DEAD CENTER of final frame, horror rim lighting, earned lunge jumpscare.\n"
     )
 
 
