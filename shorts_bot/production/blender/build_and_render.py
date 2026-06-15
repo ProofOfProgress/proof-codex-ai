@@ -1152,24 +1152,25 @@ def _pose_wave_or_lunge(
         snap_f = frame_end - 4
         for name, rot, fr in [
             ("pelvis", (0, 0, 0), frame_start),
-            ("pelvis", (0.10, 0, 0), lunge_f),
-            ("pelvis", (0.08, 0, 0), frame_end),
-            ("ripcage", (0.12, 0, 0), t(0.35)),
-            ("ripcage", (0.28, 0, 0), lunge_f),
-            ("ripcage", (0.38, 0, 0), frame_end),
-            ("neck", (0.15, 0, 0), lunge_f),
-            ("neck", (0.48, 0, 0), snap_f),
-            ("neck", (0.62, 0, 0), frame_end),
-            ("head", (0.08, 0, 0), lunge_f),
-            ("head", (0.42, 0, 0), snap_f),
-            ("head", (0.58, 0, 0), frame_end),
+            ("pelvis", (0.04, 0, 0), lunge_f),
+            ("pelvis", (0.0, 0, 0), frame_end),
+            ("ripcage", (0.08, 0, 0), t(0.35)),
+            ("ripcage", (0.18, 0, 0), lunge_f),
+            ("ripcage", (0.22, 0, 0), frame_end),
+            ("neck", (0.12, 0, 0), lunge_f),
+            ("neck", (0.55, 0, 0), snap_f),
+            ("neck", (0.72, 0, 0), frame_end),
+            ("head", (0.10, 0, 0), lunge_f),
+            ("head", (0.52, 0, 0), snap_f),
+            ("head", (0.68, 0, 0), frame_end),
             ("lowerjaw", (0.05, 0, 0), lunge_f),
-            ("lowerjaw", (0.45, 0, 0), snap_f),
-            ("lowerjaw", (0.82, 0, 0), frame_end),
-            ("Bone_007", (-0.55, 0.35, -0.12), lunge_f),
-            ("Bone_007", (-1.05, 0.55, -0.22), frame_end),
-            ("Bone_008", (-0.50, -0.25, 0.12), lunge_f),
-            ("Bone_008", (-0.98, -0.42, 0.18), frame_end),
+            ("lowerjaw", (0.48, 0, 0), snap_f),
+            ("lowerjaw", (0.88, 0, 0), frame_end),
+            # Arms reach toward camera — not overhead (overhead + close = crotch shot)
+            ("Bone_007", (-0.35, 0.55, -0.35), lunge_f),
+            ("Bone_007", (-0.85, 0.95, -0.55), frame_end),
+            ("Bone_008", (-0.32, -0.45, 0.28), lunge_f),
+            ("Bone_008", (-0.78, -0.82, 0.42), frame_end),
         ]:
             _key_bone(name, rot, fr)
 
@@ -1195,8 +1196,8 @@ def _apply_lunge_gaze_correction(
     horiz = math.sqrt(delta.x ** 2 + delta.y ** 2)
     # Positive X euler = look up (rig convention used in _pose_wave_or_lunge lunge keys).
     base_pitch = math.atan2(delta.z, horiz) if horiz > 0.01 else 0.0
-    mixamo_boost = 0.48 if mixamo_overlay else 0.38
-    head_pitch = min(1.08, max(0.5, base_pitch + mixamo_boost))
+    mixamo_boost = 0.48 if mixamo_overlay else 0.52
+    head_pitch = min(1.15, max(0.62, base_pitch + mixamo_boost))
     neck_pitch = head_pitch * 0.74
     rib_pitch = head_pitch * 0.4
     mid_f = bait_f + max(2, int((frame_end - bait_f) * 0.42))
@@ -1369,22 +1370,22 @@ def _animate_creature_mouth_light(
 
 
 def _lunge_camera_height() -> float:
-    """POV height (m) — above head line, looks DOWN at face (not up into pelvis)."""
-    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "2.78"))
+    """POV well above head — looks DOWN at face (never up into pelvis)."""
+    return float(os.environ.get("BLENDER_LUNGE_CAMERA_Z", "3.22"))
 
 
 def _creature_lunge_look_target() -> tuple[float, float, float]:
-    """Down-lane aim below camera height — slight downward tilt frames face not legs."""
-    pos = _creature_lunge_camera_fixed()
-    dist = float(os.environ.get("BLENDER_LUNGE_LOOK_DIST", "6.0"))
-    look_z = float(os.environ.get("BLENDER_LUNGE_LOOK_Z", "2.08"))
-    return (0.0, pos[1] - dist, look_z)
+    """Aim at head height where the creature stops — face in frame, not groin."""
+    stop_y = _creature_lunge_stop_y()
+    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.28"))
+    head_lift = float(os.environ.get("BLENDER_FACE_HEIGHT", "1.62"))
+    return (0.0, stop_y - 0.12, root_z + head_lift)
 
 
 def _creature_lunge_stop_y() -> float:
-    """How far in front of the locked camera the creature stops (meters down -Y)."""
+    """Creature stops far enough out that camera sees face/chest, not up the legs."""
     cam_y = float(os.environ.get("BLENDER_LUNGE_CAMERA_Y", "-3.85"))
-    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "0.88"))
+    gap = float(os.environ.get("BLENDER_LUNGE_STOP_GAP", "1.22"))
     return cam_y - gap
 
 
@@ -1451,7 +1452,7 @@ def _animate_creature_lunge_lab(
     )
     face_scale = float(os.environ.get("BLENDER_LUNGE_FACE_SCALE", "1.32"))  # legacy param; no scale pop
     stop_y = _creature_lunge_stop_y()
-    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.82"))
+    root_z = float(os.environ.get("BLENDER_LUNGE_CREATURE_Z", "0.28"))
     creep_end = (0.0, -9.0, 0.0)
     face_end = (0.0, stop_y, root_z)
     run_scale = (base_s, base_s, base_s)

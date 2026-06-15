@@ -29,7 +29,7 @@ def test_params_clamp_bounds():
     p = BlenderParams(samples=999, face_scale=3.0, camera_z=0.5).clamp()
     assert p.samples <= 64
     assert p.face_scale <= 1.85
-    assert p.camera_z >= 1.45
+    assert p.camera_z >= 2.5
 
 
 def test_trial_store_keeps_best(tmp_path: Path):
@@ -58,11 +58,11 @@ def test_trial_store_keeps_best(tmp_path: Path):
 
 def test_save_and_load_params_roundtrip(tmp_path: Path):
     path = tmp_path / "best_params.json"
-    p = BlenderParams(camera_z=2.3, mouth_emissive=9.0)
+    p = BlenderParams(camera_z=2.9, mouth_emissive=9.0)
     save_params(path, p, meta={"score": 8.0})
     loaded = __import__(
         "shorts_bot.production.blender.params", fromlist=["load_params"]
     ).load_params(path)
     assert loaded is not None
-    assert loaded.camera_z == 2.3
+    assert loaded.camera_z == 2.9
     assert loaded.mouth_emissive == 9.0

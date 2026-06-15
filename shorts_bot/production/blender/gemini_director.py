@@ -89,17 +89,19 @@ def sanitize_director_deltas(deltas: dict[str, Any], issues: list[str]) -> dict[
             out[key] = float(val)
         except (TypeError, ValueError):
             continue
-    if re.search(r"crotch|pelvis|legs|groin|lower body", blob):
+    if re.search(r"crotch|pelvis|legs|groin|lower body|between the legs", blob):
         if out.get("camera_z", 0) < 0:
             out["camera_z"] = abs(out["camera_z"])
-        if out.get("look_z", 0) < 0:
-            out["look_z"] = abs(out["look_z"])
-        out.setdefault("stop_gap", -0.10)
-        out.setdefault("creature_z", 0.06)
-        out.setdefault("rule_of_thirds", 0.02)
+        if out.get("look_z", 0) > 0:
+            out["look_z"] = -abs(out["look_z"]) * 0.5
+        out.setdefault("stop_gap", 0.15)
+        out.setdefault("creature_z", -0.08)
+        if out.get("stop_gap", 0) < 0:
+            out["stop_gap"] = abs(out["stop_gap"])
+        if out.get("creature_z", 0) > 0:
+            out["creature_z"] = -out["creature_z"] * 0.5
     if re.search(r"tiny|distant|small|far away", blob):
-        out.setdefault("stop_gap", -0.12)
-        out.setdefault("focal_mm", -3.0)
+        out.setdefault("stop_gap", -0.06)
     if re.search(r"dark|underexpos|black", blob):
         out.setdefault("exposure", 0.10)
         out.setdefault("mouth_emissive", 1.2)

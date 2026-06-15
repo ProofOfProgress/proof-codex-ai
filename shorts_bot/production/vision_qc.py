@@ -113,6 +113,10 @@ def _load_segment_starts(pack_dir: Path) -> list[float]:
 
 def pick_frame_times(duration: float, pack_dir: Path, *, max_frames: int) -> list[float]:
     """Beat-aware sparse samples — hook, segment cuts, mid, pre-end."""
+    if _is_creature_lunge_lab(pack_dir):
+        peak = round(max(0.5, duration - 0.35), 2)
+        return [0.8, peak][:max_frames]
+
     starts = _load_segment_starts(pack_dir)
     candidates: list[float] = [0.8]
     if starts:
@@ -265,10 +269,33 @@ def _creature_lunge_lab_qc_block(*, topic: str, hook: str) -> str:
         "- Intentional void/black backdrop — do NOT fail for missing gas station, road, or full environment.\n"
         "- Score creature craft: face readable, eyes/gaze toward camera, open mouth with red interior glow at peak.\n"
         "- FAIL pass=false if: near-black unreadable frames, creature tiny/distant, face looking away/down, "
-        "camera framed on crotch/pelvis/legs instead of face/mouth, "
+        "camera framed on crotch/pelvis/legs/groin instead of face/mouth (AUTO-FAIL score max 3), "
+        "low-angle up-skirt view between legs, "
         "grey untextured block-out, broken FBX import, flat viewport-test lighting, or scare payoff weak.\n"
+        "- Peak frame MUST show open mouth or face — NOT legs or pelvis. If peak shows legs/groin, score <= 3.\n"
         "- PASS criteria: close face-fill at final frame, horror rim/key lighting, earned lunge jumpscare vs LIGHTS ARE OFF bar."
     )
+
+
+def _enforce_framing_caps(
+    *,
+    score: float,
+    passed: bool,
+    issues: list[str],
+    checks: dict[str, bool],
+) -> tuple[float, bool, list[str]]:
+    """Never let groin/pelvis framing pass as 7/10 — owner veto."""
+    blob = " ".join(issues).lower()
+    bad = re.search(
+        r"crotch|pelvis|groin|legs instead|between the legs|lower body|upskirt|groin|vagina|"
+        r"inner thigh|not.*face|not.*mouth",
+        blob,
+    )
+    if bad:
+        issues.append("AUTO-CAP: inappropriate lower-body framing — must show face/mouth at peak")
+        score = min(score, 3.0)
+        passed = False
+    return score, passed, issues
 
 
 def _gemini_vision_review(
@@ -424,6 +451,9 @@ def run_vision_qc(
             for key in ("hook_clear", "captions_safe", "horror_visible", "no_cosy_aesthetic", "scare_potential"):
                 if key in data:
                     checks[key] = bool(data[key])
+            score, passed, issues = _enforce_framing_caps(
+                score=score, passed=passed, issues=issues, checks=checks
+            )
             if score < settings.vision_qc_min_score:
                 passed = False
                 if not issues:
