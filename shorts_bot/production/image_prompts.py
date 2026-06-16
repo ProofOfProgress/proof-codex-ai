@@ -60,6 +60,36 @@ LOST_BOY_SHOT_DONT = "group_tension"
 LOST_BOY_SHOT_CLOSEUP = "boy_closeup"
 LOST_BOY_SHOT_LURKING = "boy_lurking"
 
+# Horror custom style locks character pose — use comedy style for any shot needing body action.
+LOST_BOY_POSE_SHOTS = frozenset({
+    LOST_BOY_SHOT_HIKERS,
+    LOST_BOY_SHOT_REVEAL,
+    LOST_BOY_SHOT_STANDING,
+    LOST_BOY_SHOT_WAVE,
+    LOST_BOY_SHOT_DONT,
+    LOST_BOY_SHOT_LURKING,
+})
+
+LOST_BOY_POSE_ACTIONS: dict[str, str] = {
+    LOST_BOY_SHOT_HIKERS: "hikers walking forward, no child visible",
+    LOST_BOY_SHOT_REVEAL: "boy standing still between trees, arms at sides, first sighting",
+    LOST_BOY_SHOT_STANDING: "boy stiff upright pose, arms down, unsettling grin",
+    LOST_BOY_SHOT_WAVE: "boy ONE ARM RAISED mid-wave, Carol waving back, three people",
+    LOST_BOY_SHOT_DONT: "tension — one hiker pulling friend back, boy frozen wave in background",
+    LOST_BOY_SHOT_CLOSEUP: "extreme close-up face only, frozen smile, no body",
+    LOST_BOY_SHOT_LURKING: "small silhouette far down trail, watching, arms at sides",
+}
+
+
+def lost_boy_pose_requirements(shot: str) -> str:
+    """Gemini QC + prompt reinforcement for pose-specific frames."""
+    action = LOST_BOY_POSE_ACTIONS.get(shot, "unique pose for this line")
+    return (
+        f"Required pose/action: {action}. "
+        "Must NOT reuse the same standing portrait from other shots. "
+        "Different camera distance and body language than prior frames."
+    )
+
 
 def is_lost_boy_topic(topic: str) -> bool:
     return "lost boy" in (topic or "").strip().lower()
@@ -99,18 +129,19 @@ def lost_boy_shot_prompt(shot: str, scene: str, *, beat_line: str = "") -> tuple
     if shot == LOST_BOY_SHOT_REVEAL:
         return (
             f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"POSE: {LOST_BOY_POSE_ACTIONS[LOST_BOY_SHOT_REVEAL]}. "
             "WIDE ESTABLISHING SHOT. Two small hikers far back on the trail. "
             f"CENTER FRAME between dark pine trunks: {LOST_BOY_CHARACTER} — full body visible, "
-            "standing still, first sighting, NOT a portrait close-up, NOT waving yet.",
-            "horror_solo",
+            "first sighting, NOT a portrait close-up, NOT waving yet.",
+            "comedy",
         )
     if shot == LOST_BOY_SHOT_STANDING:
         return (
             f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"POSE: {LOST_BOY_POSE_ACTIONS[LOST_BOY_SHOT_STANDING]}. "
             f"MEDIUM SHOT of {LOST_BOY_CHARACTER} alone between pine trees. "
-            "Wrong vintage coat detail visible. Standing stiff, arms at sides, unsettling grin. "
-            "Different pose from wave or close-up shots.",
-            "horror_solo",
+            "Wrong vintage coat detail visible. Different body language from wave or close-up.",
+            "comedy",
         )
     if shot == LOST_BOY_SHOT_WAVE:
         return (
@@ -140,9 +171,10 @@ def lost_boy_shot_prompt(shot: str, scene: str, *, beat_line: str = "") -> tuple
     if shot == LOST_BOY_SHOT_LURKING:
         return (
             f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"POSE: {LOST_BOY_POSE_ACTIONS[LOST_BOY_SHOT_LURKING]}. "
             f"WIDE DUSK SHOT — empty trail except {LOST_BOY_CHARACTER} far down the path "
-            "watching camera, small silhouette between trees, still there, different form than close-up.",
-            "horror_solo",
+            "watching camera, small silhouette between trees.",
+            "comedy",
         )
     return (
         f"Hand-drawn illustration: {scene}. {beat} Pine forest. {LOST_BOY_CHARACTER}.",
@@ -162,10 +194,10 @@ def recraft_style_id_for_segment_text(text: str, *, topic: str = "") -> str | No
 
     if is_lost_boy_topic(topic):
         shot = classify_lost_boy_shot(text)
-        _, lane = lost_boy_shot_prompt(shot, text)
-        if lane == "comedy":
-            return comedy_id or None
-        return horror_id or comedy_id or None
+        # Horror style locks pose — comedy style for every shot except face close-up.
+        if shot == LOST_BOY_SHOT_CLOSEUP:
+            return horror_id or comedy_id or None
+        return comedy_id or horror_id or None
 
     if segment_is_horror_snap(text):
         return horror_id or comedy_id or None

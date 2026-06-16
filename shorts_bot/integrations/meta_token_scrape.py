@@ -39,6 +39,48 @@ def resolve_page_token_from_user_token(user_token: str, *, preferred_name: str =
     return str(first["id"]), str(first["access_token"]), str(first.get("name") or "")
 
 
+REGISTER = "https://developers.facebook.com/async/registration/"
+
+
+def _register_as_developer(page) -> None:
+    """Complete one-time Meta developer registration if prompted."""
+    page.goto(REGISTER, wait_until="domcontentloaded", timeout=120000)
+    time.sleep(6)
+    for label in (
+        "Get started",
+        "Continue",
+        "Next",
+        "Confirm",
+        "I agree",
+        "Agree",
+        "Submit",
+        "Save",
+    ):
+        try:
+            btn = page.get_by_role("button", name=re.compile(label, re.I))
+            if btn.count():
+                btn.first.click(force=True, timeout=5000)
+                time.sleep(3)
+        except Exception:
+            pass
+        try:
+            link = page.get_by_role("link", name=re.compile(label, re.I))
+            if link.count():
+                link.first.click(force=True, timeout=5000)
+                time.sleep(3)
+        except Exception:
+            pass
+    # Accept checkboxes if present
+    for sel in ('input[type="checkbox"]', '[role="checkbox"]'):
+        try:
+            boxes = page.locator(sel)
+            for i in range(min(boxes.count(), 4)):
+                boxes.nth(i).click(force=True, timeout=2000)
+                time.sleep(0.5)
+        except Exception:
+            pass
+
+
 def scrape_explorer_user_token(*, wait_sec: int = 15) -> str:
     """Read user access token from Graph API Explorer (owner must be logged in)."""
     from playwright.sync_api import sync_playwright
@@ -61,35 +103,67 @@ def scrape_explorer_user_token(*, wait_sec: int = 15) -> str:
             time.sleep(6)
 
         body = (page.inner_text("body") or "").lower()
-        if "register as a facebook developer" in body or "register" in body[:500]:
-            for label in ("Get started", "Register", "Continue"):
+        if "register as a facebook developer" in body or "aren't registered" in body:
+            clicked = False
+            for sel in (
+                page.get_by_role("link", name=re.compile("Register", re.I)),
+                page.get_by_role("button", name=re.compile("Register", re.I)),
+                page.locator('a:has-text("Register")'),
+            ):
                 try:
-                    page.get_by_role("link", name=re.compile(label, re.I)).first.click(timeout=6000)
-                    time.sleep(8)
-                    page.goto(EXPLORER, wait_until="domcontentloaded", timeout=120000)
-                    time.sleep(6)
-                    break
+                    if hasattr(sel, "count") and sel.count():
+                        sel.first.click(force=True, timeout=8000)
+                        clicked = True
+                        break
                 except Exception:
                     continue
+            if clicked:
+                time.sleep(10)
+                _register_as_developer(page)
+            page.goto(EXPLORER, wait_until="domcontentloaded", timeout=120000)
+            time.sleep(8)
 
-        # Open permissions / token UI if collapsed
-        for label in ("Get Token", "Generate Access Token", "Open"):
+        # Meta app selector — pick first app or create
+        for label in ("Create App", "Get Token", "Generate Access Token"):
             try:
-                page.get_by_role("button", name=re.compile(label, re.I)).first.click(timeout=5000)
+                page.get_by_role("button", name=re.compile(label, re.I)).first.click(force=True, timeout=6000)
                 time.sleep(3)
-                break
             except Exception:
-                continue
+                pass
 
-        for label in ("Get User Access Token", "Get Page Access Token", "Generate Access Token"):
+        # Permissions for Reels + insights
+        for perm in ("pages_manage_posts", "pages_show_list", "pages_read_engagement"):
+            try:
+                cb = page.get_by_label(re.compile(perm, re.I))
+                if cb.count():
+                    cb.first.check(force=True, timeout=3000)
+            except Exception:
+                pass
+
+        for label in (
+            "Generate Access Token",
+            "Get Page Access Token",
+            "Get User Access Token",
+            "Get Token",
+        ):
             try:
                 btn = page.get_by_role("button", name=re.compile(label, re.I))
                 if btn.count():
-                    btn.first.click(timeout=8000)
-                    time.sleep(4)
+                    btn.first.click(force=True, timeout=8000)
+                    time.sleep(5)
                     break
             except Exception:
                 continue
+
+        # OAuth confirm
+        for label in ("Continue as", "Continue", "OK", "Done", "Save"):
+            try:
+                btn = page.get_by_role("button", name=re.compile(label, re.I))
+                if btn.count():
+                    btn.first.click(force=True, timeout=5000)
+                    time.sleep(3)
+            except Exception:
+                pass
 
         token = ""
         for sel in (
@@ -120,7 +194,7 @@ def scrape_explorer_user_token(*, wait_sec: int = 15) -> str:
     return token
 
 
-def setup_meta_page_api(*, page_name: str = "Peripheral") -> str:
+def setup_meta_page_api(*, page_name: str = "Peripheral Horror") -> str:
     """Full Meta API setup: scrape user token → resolve page token → save."""
     user_token = scrape_explorer_user_token()
     page_id, page_token, name = resolve_page_token_from_user_token(user_token, preferred_name=page_name)

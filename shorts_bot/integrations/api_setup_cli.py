@@ -31,10 +31,31 @@ def run_api_setup(*, create_page: bool = True, scrape_meta: bool = True) -> list
         except Exception as exc:
             lines.append(f"Meta token: {exc}")
 
+    if create_page or scrape_meta:
+        try:
+            from pathlib import Path
+
+            from shorts_bot.integrations.facebook_page_polish import polish_facebook_page
+
+            pack = Path("data/production/draft_5")
+            for msg in polish_facebook_page(pack_dir=pack):
+                lines.append(f"Page polish: {msg}")
+        except Exception as exc:
+            lines.append(f"Page polish: {exc}")
+
     from shorts_bot.integrations.meta_token_scrape import probe_saved_credentials
 
     ok, detail = probe_saved_credentials()
     lines.append(f"Facebook API probe: {'OK' if ok else 'FIX'} — {detail}")
+
+    if ok:
+        try:
+            from shorts_bot.integrations.facebook_analytics import probe_facebook_analytics
+
+            a_ok, a_msg = probe_facebook_analytics()
+            lines.append(f"Facebook analytics: {'OK' if a_ok else '—'} {a_msg}")
+        except Exception as exc:
+            lines.append(f"Facebook analytics: {exc}")
 
     return lines
 

@@ -17,10 +17,18 @@ def render_ai_frame(brief: ImageBrief, out_path: Path) -> bool:
         from shorts_bot.production.lost_boy_image_lab import generate_still_with_qc
 
         if "lost boy" in brief.prompt.lower():
-            requirements = (
-                "Match the spoken line composition. Group shots need 2+ visible characters. "
-                "Wave shots need arm raised. Solo shots only when line is about smile/close-up/lurking."
+            from shorts_bot.production.image_prompts import (
+                classify_lost_boy_shot,
+                lost_boy_pose_requirements,
             )
+
+            shot = classify_lost_boy_shot(brief.spoken_text)
+            requirements = lost_boy_pose_requirements(shot)
+            if shot in (
+                "boy_waving_group",
+                "group_tension",
+            ):
+                requirements += " Group shots need 2+ visible adult hikers plus the boy."
             return generate_still_with_qc(
                 brief.prompt,
                 out_path,
