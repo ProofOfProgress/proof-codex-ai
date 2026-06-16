@@ -26,7 +26,7 @@ def test_render_ai_frame_writes_caption(tmp_path: Path, monkeypatch):
     )
     out = tmp_path / "00.00.png"
 
-    def fake_generate(prompt, path):
+    def fake_generate(prompt, path, **kwargs):
         from PIL import Image
 
         Image.new("RGB", (1080, 1920), "#0B1020").save(path, "PNG")
