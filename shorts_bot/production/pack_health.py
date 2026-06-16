@@ -78,8 +78,41 @@ def assess_pack_health(
         report.issues.append("Manifest has no segments")
         return report
 
-    report.segment_count = len(segments)
+    render_mode = manifest.get("render_mode") or ""
     clips_dir = pack_dir / "clips"
+    if render_mode in ("blender_clips", "kling_clips"):
+        import re
+
+        prefix = "blender_part_" if render_mode == "blender_clips" else "kling_part_"
+        pattern = re.compile(rf"{re.escape(prefix)}\d{{2}}\.mp4$")
+        motion_clips = sorted(p for p in clips_dir.glob(f"{prefix}*.mp4") if pattern.fullmatch(p.name))
+        min_bytes = _min_clip_bytes()
+        if len(motion_clips) < 1:
+            report.issues.append(f"No {render_mode} clips in {clips_dir}")
+        else:
+            for clip in motion_clips:
+                if clip.stat().st_size < min_bytes:
+                    report.issues.append(f"Clip too small: {clip.name}")
+            report.clip_count = len(motion_clips)
+        from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+        if not is_silent_launch_draft(draft_id):
+            audio_path = pack_dir / "voiceover.mp3"
+            if not audio_path.is_file():
+                report.issues.append(f"Missing voiceover at {audio_path}")
+        report.segment_count = len(segments)
+        report.ready_to_render = not report.issues
+        final_path = pack_dir / final_short_name
+        if require_final_short and not final_path.is_file():
+            report.issues.append(f"Missing rendered video at {final_path.name}")
+            report.ready_to_upload = False
+        else:
+            report.ready_to_upload = report.ready_to_render and (
+                final_path.is_file() if require_final_short else report.ready_to_render
+            )
+        return report
+
+    report.segment_count = len(segments)
     images_dir = pack_dir / "images"
     min_bytes = _min_clip_bytes()
 

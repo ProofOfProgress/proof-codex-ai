@@ -51,6 +51,21 @@ See `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` for the full architecture.
 - `yes <id>` / `no <id>` in web chat
 - Draft **Yes/No** — learns instantly
 
+## Blender self-reinforcement (render trials)
+
+Dual loop with YouTube — **both every 12h** when web UI autopilot runs:
+
+| Loop | Learns from |
+|------|-------------|
+| Analytics sync | Views, retention, swipe-away |
+| Blender grind (after sync) | Vision QC on render params |
+
+```bash
+python3 -m shorts_bot.production.blender.self_train_cli --draft-id 2 --trials 5
+```
+
+See `docs/BLENDER_SELF_TRAIN.md`.
+
 ## Storage
 
 - **Runtime truth:** SQLite `training_config` + `feedback` table

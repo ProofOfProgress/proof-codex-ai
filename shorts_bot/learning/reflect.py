@@ -125,6 +125,54 @@ def reflect_after_vision_qc(
     return reflection
 
 
+def reflect_after_blender_rl(
+    memory: MemoryExtensions,
+    *,
+    draft_id: int,
+    score: float,
+    passed: bool,
+    params: Any,
+    issues: list[str] | None = None,
+) -> str | None:
+    """Blender RL loop — store best param vector + episode when vision improves."""
+    if not settings.self_training_enabled:
+        return None
+
+    from shorts_bot.production.blender.params import BlenderParams
+
+    p: BlenderParams = params if isinstance(params, BlenderParams) else BlenderParams.from_dict(params)
+    summary = (
+        f"cam_z={p.camera_z:.2f} face={p.face_scale:.2f} mouth={p.mouth_emissive:.1f} "
+        f"samples={p.samples}"
+    )
+    key = f"applied:blender-draft-{draft_id}"
+    memory.set_training_config(key, f"score {score:.2f} — {summary}"[:500])
+
+    reflection = (
+        f"Blender self-train draft #{draft_id}: best vision {score:.2f}/10 "
+        f"({'pass' if passed else 'needs work'}). Params: {summary}."
+    )
+    if issues:
+        reflection += f" Remaining issues: {'; '.join(issues[:3])[:180]}."
+
+    snapshot = memory.active_rules_snapshot()
+    snapshot["blender_rl"] = {
+        "score": round(score, 2),
+        "passed": passed,
+        "params": p.to_env(),
+        "issues": (issues or [])[:5],
+    }
+    memory.record_learning_episode(
+        episode_type="blender_rl_best",
+        video_label=f"draft_{draft_id}",
+        verdict="reward" if passed else "neutral",
+        score=score,
+        reflection=reflection,
+        active_rules_json=json.dumps(snapshot),
+    )
+    return reflection
+
+
 def _offline_reflection(result: RewardResult, upload: dict[str, Any] | None) -> str:
     lines = [
         f"Outcome: {result.verdict} ({result.score:+.2f}) — {result.reason[:200]}",

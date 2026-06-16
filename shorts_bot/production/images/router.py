@@ -6,11 +6,25 @@ from pathlib import Path
 
 from shorts_bot.config import settings
 from shorts_bot.production.images.fal import generate_fal_image
+from shorts_bot.production.images.recraft import generate_recraft_image
 from shorts_bot.production.images.replicate import generate_replicate_image
 
 
-def generate_image(prompt: str, out_path: Path) -> str:
+def generate_image(prompt: str, out_path: Path, *, style_id: str | None = None) -> str:
     provider = (settings.image_provider or "replicate").strip().lower()
+
+    if provider == "recraft":
+        if not settings.has_recraft_images:
+            raise ValueError("RECRAFT_API_KEY not set.")
+        effective_style = (style_id or settings.recraft_style_id or "").strip() or None
+        return generate_recraft_image(
+            prompt,
+            out_path,
+            api_key=settings.recraft_api_key or "",
+            model=settings.recraft_model,
+            style_id=effective_style,
+            size=settings.recraft_image_size,
+        )
 
     if provider == "fal":
         if not settings.has_fal_images:
@@ -40,5 +54,5 @@ def generate_image(prompt: str, out_path: Path) -> str:
         )
 
     raise ValueError(
-        "No image API configured. Set REPLICATE_API_TOKEN or FAL_API_KEY in Cursor Secrets."
+        "No image API configured. Set RECRAFT_API_KEY, REPLICATE_API_TOKEN, or FAL_API_KEY in Cursor Secrets."
     )

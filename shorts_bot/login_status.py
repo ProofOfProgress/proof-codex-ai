@@ -241,6 +241,17 @@ def _check_browser_site(
 
 def _check_image_api() -> ServiceStatus:
     provider = (settings.image_provider or "replicate").strip().lower()
+    if provider == "recraft" and settings.has_recraft_images:
+        from shorts_bot.production.images.recraft import probe_recraft
+
+        ok, detail = probe_recraft(settings.recraft_api_key or "")
+        return ServiceStatus(
+            "recraft_images",
+            "Recraft image API",
+            ok,
+            detail,
+            "https://recraft.ai/profile",
+        )
     if provider == "fal" and settings.has_fal_images:
         from shorts_bot.production.images.fal import probe_fal
 
@@ -264,8 +275,8 @@ def _check_image_api() -> ServiceStatus:
         "image_api",
         "Paid image API",
         False,
-        "REPLICATE_API_TOKEN or FAL_API_KEY missing",
-        "https://replicate.com/account/api-tokens",
+        "RECRAFT_API_KEY, REPLICATE_API_TOKEN, or FAL_API_KEY missing",
+        "https://recraft.ai/profile",
     )
 
 

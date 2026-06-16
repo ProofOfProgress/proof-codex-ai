@@ -1,0 +1,21 @@
+{
+  "draft_id": 2,
+  "title": "Rural gas station / Form 2 — silent launch",
+  "phases": {
+    "open": {
+      "english": "Form 2 rural horror — too-tall figure emerges from pine fog at gas station edge. Stiff wrong walk toward camera, shoulders too high, head too still. Teleports one hop closer when streetlight flickers off. Not human gait.",
+      "mixamo_query": "zombie walk",
+      "notes": "Clip 1 — establish dread, 0–10s"
+    },
+    "wave": {
+      "english": "Slow uncanny wave with right arm — wrist bent backward, not friendly. Figure frozen between pumps while light is on; arm rises wrong, joints inverted. Horror uncanny valley, not a greeting.",
+      "mixamo_query": "waving",
+      "notes": "Clip 2 — creepy wave beat, 10–20s"
+    },
+    "lunge": {
+      "english": "Horror jumpscare lunge — entity snaps from arm's length to lens in under 1 second. Torso and arms explode forward toward camera, still mid-wave. Hard stop at impact frame.",
+      "mixamo_query": "zombie attack",
+      "notes": "Clip 3 — finale lunge, 20–30s"
+    }
+  }
+}

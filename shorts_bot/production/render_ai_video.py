@@ -129,7 +129,7 @@ def render_ai_video_clip(
     require_ai_video_generation(action="render_ai_video_clip")
     try:
         if not image_path.exists():
-            generate_image(image_brief.prompt, image_path)
+            generate_image(image_brief.prompt, image_path, style_id=image_brief.recraft_style_id)
 
         motion_prompt, model_hint, template_id = _video_prompt_for_segment(
             seg,

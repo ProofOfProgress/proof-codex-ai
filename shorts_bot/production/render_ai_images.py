@@ -14,7 +14,23 @@ from shorts_bot.production.images.router import generate_image
 
 def render_ai_frame(brief: ImageBrief, out_path: Path) -> bool:
     try:
-        provider = generate_image(brief.prompt, out_path)
+        from shorts_bot.production.lost_boy_image_lab import generate_still_with_qc
+
+        if "lost boy" in brief.prompt.lower():
+            requirements = (
+                "Match the spoken line composition. Group shots need 2+ visible characters. "
+                "Wave shots need arm raised. Solo shots only when line is about smile/close-up/lurking."
+            )
+            return generate_still_with_qc(
+                brief.prompt,
+                out_path,
+                style_id=brief.recraft_style_id,
+                spoken_line=brief.spoken_text,
+                requirements=requirements,
+                max_attempts=3,
+            )
+
+        generate_image(brief.prompt, out_path, style_id=brief.recraft_style_id)
         if burn_captions_on_frames():
             apply_bottom_caption(out_path, brief.spoken_text)
         return True

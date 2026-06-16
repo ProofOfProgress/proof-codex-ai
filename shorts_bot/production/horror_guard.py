@@ -64,6 +64,10 @@ def ensure_horror_voice_before_pipeline(
     topic: str,
 ) -> HorrorGuardResult:
     """Fix first-person drift before TTS/I2V spend."""
+    from shorts_bot.drafts.meta import load_draft_meta
+
+    if load_draft_meta(draft_id).get("script_locked"):
+        return HorrorGuardResult(hook, script, help_angle, False, "Owner script locked — skip horror auto-repair.")
     if not settings.pipeline_auto_horror_repair:
         return HorrorGuardResult(hook, script, help_angle, False, "Horror auto-repair disabled.")
     if script_needs_horror_repair(script, hook) or check_jenny_voice(script, hook):

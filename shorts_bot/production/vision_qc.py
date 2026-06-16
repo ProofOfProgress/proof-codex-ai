@@ -113,6 +113,10 @@ def _load_segment_starts(pack_dir: Path) -> list[float]:
 
 def pick_frame_times(duration: float, pack_dir: Path, *, max_frames: int) -> list[float]:
     """Beat-aware sparse samples — hook, segment cuts, mid, pre-end."""
+    if _is_creature_lunge_lab(pack_dir):
+        peak = round(max(0.5, duration - 0.35), 2)
+        return [0.8, peak][:max_frames]
+
     starts = _load_segment_starts(pack_dir)
     candidates: list[float] = [0.8]
     if starts:
@@ -225,11 +229,81 @@ def _parse_vision_json(raw: str) -> dict[str, Any]:
     return json.loads(text)
 
 
+def _pack_uses_blender(pack_dir: Path) -> bool:
+    for rel in ("clips/blender_spec.json", "blender_spec.json"):
+        if (pack_dir / rel).is_file():
+            return True
+    clips = pack_dir / "clips"
+    if clips.is_dir() and any(clips.glob("blender_part_*.mp4")):
+        return True
+    return False
+
+
+def _is_creature_lunge_lab(pack_dir: Path | None) -> bool:
+    """Micro jumpscare void lab — creature + black backdrop, no gas station set."""
+    if pack_dir is None:
+        return False
+    if (pack_dir / "creature_lunge_lab.json").is_file():
+        return True
+    for rel in ("clips/blender_spec.json", "blender_spec.json"):
+        spec_path = pack_dir / rel
+        if not spec_path.is_file():
+            continue
+        try:
+            data = json.loads(spec_path.read_text(encoding="utf-8"))
+            if data.get("creature_only") or data.get("format") == "creature_lunge_lab":
+                return True
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            continue
+    return False
+
+
+def _creature_lunge_lab_qc_block(*, topic: str, hook: str) -> str:
+    from shorts_bot.production.blender.gemini_blender_reference import (
+        gemini_blender_quality_prompt,
+    )
+
+    return (
+        f"\n\n{gemini_blender_quality_prompt(scene=f'{topic[:80]} — {hook[:80]}')}\n"
+        "CREATURE LUNGE LAB (100% Blender EEVEE — NOT AI video clips, NOT I2V):\n"
+        "- Intentional void/black backdrop — do NOT fail for missing gas station, road, or full environment.\n"
+        "- Score creature craft: face readable, eyes/gaze toward camera, open mouth with red interior glow at peak.\n"
+        "- FAIL pass=false if: near-black unreadable frames, creature tiny/distant, face looking away/down, "
+        "camera framed on crotch/pelvis/legs/groin instead of face/mouth (AUTO-FAIL score max 3), "
+        "low-angle up-skirt view between legs, "
+        "grey untextured block-out, broken FBX import, flat viewport-test lighting, or scare payoff weak.\n"
+        "- Peak frame MUST show open mouth or face — NOT legs or pelvis. If peak shows legs/groin, score <= 3.\n"
+        "- PASS criteria: face/mouth DEAD CENTER of final frame, horror rim lighting, earned lunge jumpscare.\n"
+    )
+
+
+def _enforce_framing_caps(
+    *,
+    score: float,
+    passed: bool,
+    issues: list[str],
+    checks: dict[str, bool],
+) -> tuple[float, bool, list[str]]:
+    """Never let groin/pelvis framing pass as 7/10 — owner veto."""
+    blob = " ".join(issues).lower()
+    bad = re.search(
+        r"crotch|pelvis|groin|legs instead|between the legs|lower body|upskirt|groin|vagina|"
+        r"inner thigh|not.*face|not.*mouth",
+        blob,
+    )
+    if bad:
+        issues.append("AUTO-CAP: inappropriate lower-body framing — must show face/mouth at peak")
+        score = min(score, 3.0)
+        passed = False
+    return score, passed, issues
+
+
 def _gemini_vision_review(
     frames: list[tuple[float, Path]],
     *,
     topic: str,
     hook: str,
+    pack_dir: Path | None = None,
 ) -> dict[str, Any]:
     from shorts_bot.llm.provider import get_llm_backend
 
@@ -239,13 +313,35 @@ def _gemini_vision_review(
 
     model = (settings.gemini_vision_model or settings.gemini_model).strip()
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
+    creature_lab = _is_creature_lunge_lab(pack_dir)
+    blender_bar = ""
+    if creature_lab:
+        blender_bar = _creature_lunge_lab_qc_block(topic=topic, hook=hook)
+    elif pack_dir and _pack_uses_blender(pack_dir):
+        from shorts_bot.production.blender.gemini_blender_reference import (
+            gemini_blender_quality_prompt,
+        )
+
+        blender_bar = (
+            f"\n\n{gemini_blender_quality_prompt(scene=f'{topic[:80]} — {hook[:80]}')}\n"
+            "Blender EEVEE QC — FAIL pass=false if: grey untextured block-out, broken FBX import, "
+            "environment does not read (gas station/road/fog), creature not grounded in set, "
+            "viewport-test lighting, or quality far below LIGHTS ARE OFF finished Blender horror."
+        )
+    if creature_lab:
+        medium = "QC this Don't Blink horror Blender Short (3s creature lunge lab — no captions, no VO)."
+    elif pack_dir and _pack_uses_blender(pack_dir):
+        medium = "QC this Don't Blink horror YouTube Short (100% Blender EEVEE render)."
+    else:
+        medium = "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions)."
     prompt = (
-        "QC this Don't Blink horror YouTube Short (AI motion clips + burned captions). "
+        f"{medium} "
         f"Frames in order at: {labels}. Topic: {topic[:80]}. Hook: {hook[:100]}.\n"
         "Return ONLY JSON keys: score (1-10), pass (bool), issues (string[]), warnings (string[]), "
         "hook_clear, captions_safe, horror_visible, no_cosy_aesthetic, scare_potential (bools). "
         "Fail pass=false if captions sit in bottom 25%, scene looks cosy/warm/self-help, stick figures, "
         "bright daylight cheer, hook frame lacks dread, or final-frame scare potential is weak."
+        f"{blender_bar}"
     )
 
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
@@ -322,7 +418,9 @@ def run_vision_qc(
             t = fallback_t
         frames.append((t, path))
 
-    local_issues, local_warnings, local_ok = _local_frame_checks([p for _, p in frames])
+    local_issues, local_warnings, local_ok = _local_frame_checks(
+        [Path(p).resolve() for _, p in frames]
+    )
     if not local_ok:
         report = VisionQCReport(
             passed=False,
@@ -345,7 +443,7 @@ def run_vision_qc(
 
     if settings.has_gemini:
         try:
-            data = _gemini_vision_review(frames, topic=topic, hook=hook)
+            data = _gemini_vision_review(frames, topic=topic, hook=hook, pack_dir=pack_dir)
             score = float(data.get("score", 0))
             passed = bool(data.get("pass", score >= settings.vision_qc_min_score))
             issues.extend(str(x) for x in (data.get("issues") or []) if x)
@@ -353,6 +451,9 @@ def run_vision_qc(
             for key in ("hook_clear", "captions_safe", "horror_visible", "no_cosy_aesthetic", "scare_potential"):
                 if key in data:
                     checks[key] = bool(data[key])
+            score, passed, issues = _enforce_framing_caps(
+                score=score, passed=passed, issues=issues, checks=checks
+            )
             if score < settings.vision_qc_min_score:
                 passed = False
                 if not issues:
@@ -387,3 +488,122 @@ def run_vision_qc(
     )
     _save_report(pack_dir, video_path, report)
     return report
+
+
+def _preflight_report_path(pack_dir: Path) -> Path:
+    return pack_dir / "preflight" / "preflight_qc.json"
+
+
+def run_preflight_still_qc(
+    still_path: Path,
+    pack_dir: Path,
+    *,
+    topic: str,
+    hook: str,
+    peak_time: float | None = None,
+    min_score: float | None = None,
+) -> VisionQCReport:
+    """
+    Vision QC on a single peak-frame still — one Gemini image, no ffmpeg extract.
+    Used before committing to a full 3s Blender animation render.
+    """
+    if not settings.vision_qc_enabled:
+        return VisionQCReport(passed=True, score=10.0, skipped_gemini=True)
+
+    if not still_path.is_file():
+        return VisionQCReport(passed=False, score=0.0, issues=["preflight still missing"])
+
+    threshold = min_score if min_score is not None else settings.blender_preflight_min_score
+    peak = peak_time
+    if peak is None:
+        try:
+            peak = max(0.5, float(settings.micro_jumpscare_seconds) - 0.35)
+        except Exception:
+            peak = 2.65
+
+    local_issues, local_warnings, local_ok = _local_frame_checks([still_path.resolve()])
+    if not local_ok:
+        report = VisionQCReport(
+            passed=False,
+            score=0.0,
+            issues=local_issues,
+            warnings=local_warnings,
+            frame_times=[peak],
+            frame_paths=[str(still_path)],
+            skipped_gemini=True,
+        )
+        _save_preflight_report(pack_dir, still_path, report)
+        return report
+
+    issues = list(local_issues)
+    warnings = list(local_warnings)
+    checks: dict[str, bool] = {}
+    score = 7.0
+    passed = True
+    skipped = False
+    frames = [(peak, still_path)]
+
+    if settings.has_gemini:
+        try:
+            data = _gemini_vision_review(frames, topic=topic, hook=hook, pack_dir=pack_dir)
+            score = float(data.get("score", 0))
+            passed = bool(data.get("pass", score >= threshold))
+            issues.extend(str(x) for x in (data.get("issues") or []) if x)
+            warnings.extend(str(x) for x in (data.get("warnings") or []) if x)
+            for key in ("hook_clear", "captions_safe", "horror_visible", "no_cosy_aesthetic", "scare_potential"):
+                if key in data:
+                    checks[key] = bool(data[key])
+            score, passed, issues = _enforce_framing_caps(
+                score=score, passed=passed, issues=issues, checks=checks
+            )
+            if score < threshold:
+                passed = False
+                if not issues:
+                    issues.append(f"preflight score {score:.1f} below min {threshold}")
+        except Exception as exc:
+            if settings.vision_qc_blocks_upload:
+                passed = False
+                issues.append(f"Gemini preflight QC failed: {exc}")
+            else:
+                skipped = True
+                warnings.append(f"Gemini preflight skipped: {exc}")
+                passed = True
+                score = 7.0
+    else:
+        skipped = True
+        warnings.append("GEMINI_API_KEY missing — preflight QC not run")
+        if settings.vision_qc_blocks_upload:
+            passed = False
+            issues.append("Gemini required for preflight QC")
+        else:
+            passed = True
+
+    report = VisionQCReport(
+        passed=passed,
+        score=score,
+        issues=issues,
+        warnings=warnings,
+        frame_times=[peak],
+        frame_paths=[str(still_path)],
+        skipped_gemini=skipped,
+        checks=checks,
+    )
+    _save_preflight_report(pack_dir, still_path, report)
+    return report
+
+
+def _save_preflight_report(pack_dir: Path, still_path: Path, report: VisionQCReport) -> None:
+    path = _preflight_report_path(pack_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "passed": report.passed,
+        "score": report.score,
+        "issues": report.issues,
+        "warnings": report.warnings,
+        "frame_times": report.frame_times,
+        "frame_paths": report.frame_paths,
+        "skipped_gemini": report.skipped_gemini,
+        "checks": report.checks,
+        "still_mtime": still_path.stat().st_mtime if still_path.is_file() else 0,
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")

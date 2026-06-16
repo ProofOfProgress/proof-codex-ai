@@ -110,6 +110,21 @@ class ChiefManager:
     def handle(self, message: str) -> ManagerResult:
         raw = message.strip()
         stripped = strip_manager_prefix(raw)
+
+        from shorts_bot.agents.blender_motion_ops import try_parse_and_run
+
+        blender_reply = try_parse_and_run(stripped)
+        if blender_reply:
+            self.store.save_chat("user", raw)
+            self.store.save_chat("assistant", blender_reply)
+            parsed = parse_work_duration(stripped)
+            return ManagerResult(
+                reply=blender_reply,
+                parsed=parsed,
+                work_seconds=0,
+                session=None,
+            )
+
         parsed = parse_work_duration(stripped)
 
         work_seconds = _resolve_work_budget(parsed, stripped)

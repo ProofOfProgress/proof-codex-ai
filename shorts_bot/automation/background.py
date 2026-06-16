@@ -23,9 +23,10 @@ async def analytics_sync_loop(stop_event: asyncio.Event) -> None:
             result = await asyncio.to_thread(run_full_automation)
             if result.sync.ok:
                 log.info(
-                    "Auto sync: %s videos, %s improvements auto-approved",
+                    "Auto sync: %s videos, %s improvements auto-approved%s",
                     result.sync.videos_scored,
                     result.improvements_auto_approved,
+                    f", blender: {result.blender_grind_summary[:80]}" if result.blender_grind_summary else "",
                 )
         except Exception as exc:  # noqa: BLE001
             log.warning("Auto analytics sync failed: %s", exc)
