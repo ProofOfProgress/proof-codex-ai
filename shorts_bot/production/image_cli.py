@@ -25,6 +25,11 @@ def main() -> None:
     )
     parser.add_argument("--caption", default="I used to grab my phone at 3am.")
     parser.add_argument("--out", type=Path, default=Path("data/production/test_ai_frame.png"))
+    parser.add_argument(
+        "--style-id",
+        default=None,
+        help="Override Recraft style UUID (default: from settings)",
+    )
     args = parser.parse_args()
 
     if not settings.has_paid_images:
@@ -34,7 +39,11 @@ def main() -> None:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     from shorts_bot.production.captions import burn_captions_on_frames
 
-    provider = generate_image(args.prompt, args.out)
+    provider = generate_image(
+        args.prompt,
+        args.out,
+        style_id=args.style_id or None,
+    )
     if burn_captions_on_frames():
         apply_bottom_caption(args.out, args.caption)
     else:

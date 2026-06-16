@@ -82,6 +82,7 @@ def test_recraft_style_routing_comedy_vs_horror(monkeypatch):
     from shorts_bot.config import Settings
     from shorts_bot.production.image_prompts import (
         build_image_briefs,
+        classify_lost_boy_shot,
         recraft_style_id_for_segment_text,
         segment_is_horror_snap,
     )
@@ -96,13 +97,26 @@ def test_recraft_style_routing_comedy_vs_horror(monkeypatch):
 
     assert segment_is_horror_snap("Super chill day.") is False
     assert segment_is_horror_snap("Don't look left.") is True
-    assert recraft_style_id_for_segment_text("Super chill day.") == "522c040d-88f1-47fa-a604-406dfea1a129"
-    assert recraft_style_id_for_segment_text("Those aren't arms.") == "d1155936-62d4-42f0-a8f7-f09442e8701c"
+    assert recraft_style_id_for_segment_text("Super chill day.", topic="forest") == "522c040d-88f1-47fa-a604-406dfea1a129"
+    assert recraft_style_id_for_segment_text("Those aren't arms.", topic="forest") == "d1155936-62d4-42f0-a8f7-f09442e8701c"
+
+    assert classify_lost_boy_shot("He waved.") == "boy_waving_group"
+    assert classify_lost_boy_shot("Between the pines, a small boy.") == "boy_reveal"
+    # Group wave uses comedy style so hikers + boy appear together
+    assert (
+        recraft_style_id_for_segment_text("He waved.", topic="the lost boy in the woods")
+        == "522c040d-88f1-47fa-a604-406dfea1a129"
+    )
+    assert (
+        recraft_style_id_for_segment_text("His smile didn't move.", topic="the lost boy in the woods")
+        == "d1155936-62d4-42f0-a8f7-f09442e8701c"
+    )
 
     segs = [
-        TranscriptSegment(0.0, "Super chill day.", "00.00"),
-        TranscriptSegment(16.0, "Don't look left.", "00.16"),
+        TranscriptSegment(0.0, "Peaceful morning.", "00.00"),
+        TranscriptSegment(13.0, "He waved.", "00.13"),
     ]
-    briefs = build_image_briefs(segs, topic="forest hike")
+    briefs = build_image_briefs(segs, topic="the lost boy in the woods")
     assert briefs[0].recraft_style_id == "522c040d-88f1-47fa-a604-406dfea1a129"
-    assert briefs[1].recraft_style_id == "d1155936-62d4-42f0-a8f7-f09442e8701c"
+    assert briefs[1].recraft_style_id == "522c040d-88f1-47fa-a604-406dfea1a129"
+    assert "ARM RAISED" in briefs[1].prompt or "waving" in briefs[1].prompt.lower()

@@ -46,17 +46,130 @@ def segment_is_horror_snap(text: str) -> bool:
     return any(w in scene for w in COMEDY_HORROR_SCARY_KEYWORDS)
 
 
-def recraft_style_id_for_segment_text(text: str) -> str | None:
+LOST_BOY_CHARACTER = (
+    "Lost Boy: small child 8-10 years old, vintage 1970s coat that looks too clean for the woods, "
+    "pale face, too-wide grin, faint glowing eyes, charcoal horror illustration"
+)
+
+# Shot types for Lost Boy series — each gets its own composition prompt (not one repeated still).
+LOST_BOY_SHOT_HIKERS = "hikers"
+LOST_BOY_SHOT_REVEAL = "boy_reveal"
+LOST_BOY_SHOT_STANDING = "boy_standing"
+LOST_BOY_SHOT_WAVE = "boy_waving_group"
+LOST_BOY_SHOT_DONT = "group_tension"
+LOST_BOY_SHOT_CLOSEUP = "boy_closeup"
+LOST_BOY_SHOT_LURKING = "boy_lurking"
+
+
+def is_lost_boy_topic(topic: str) -> bool:
+    return "lost boy" in (topic or "").strip().lower()
+
+
+def classify_lost_boy_shot(scene: str) -> str:
+    """Map transcript line → shot type so prompts change form/pose/composition."""
+    s = scene.strip().lower()
+    if any(x in s for x in ("he waved", "carol waved", "wave back")):
+        return LOST_BOY_SHOT_WAVE
+    if "carol, don't" in s or "carol don't" in s:
+        return LOST_BOY_SHOT_DONT
+    if "smile didn't" in s or "smile did not" in s:
+        return LOST_BOY_SHOT_CLOSEUP
+    if "still out there" in s or "missing kids" in s:
+        return LOST_BOY_SHOT_LURKING
+    if "between the pines" in s or "small boy" in s:
+        return LOST_BOY_SHOT_REVEAL
+    if "standing there" in s or "wrong coat" in s:
+        return LOST_BOY_SHOT_STANDING
+    if segment_is_horror_snap(s):
+        return LOST_BOY_SHOT_STANDING
+    return LOST_BOY_SHOT_HIKERS
+
+
+def lost_boy_shot_prompt(shot: str, scene: str, *, beat_line: str = "") -> tuple[str, str]:
+    """Return (prompt, style_lane) where style_lane is comedy | horror_solo | horror_group."""
+    beat = beat_line
+    if shot == LOST_BOY_SHOT_HIKERS:
+        return (
+            f"Hand-drawn illustration: {scene}. {beat}"
+            "Two adult hikers on a sunny pine ridge trail — Carol (woman) and narrator (man). "
+            "No lost child visible yet. Slightly disturbed uncanny cartoon faces, goofy morning vibe. "
+            "Wide shot, forest path, birds, peaceful.",
+            "comedy",
+        )
+    if shot == LOST_BOY_SHOT_REVEAL:
+        return (
+            f"Hand-drawn horror illustration: {scene}. {beat}"
+            "WIDE ESTABLISHING SHOT. Two small hikers far back on the trail. "
+            f"CENTER FRAME between dark pine trunks: {LOST_BOY_CHARACTER} — full body visible, "
+            "standing still, first sighting, NOT a portrait close-up, NOT waving yet.",
+            "horror_solo",
+        )
+    if shot == LOST_BOY_SHOT_STANDING:
+        return (
+            f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"MEDIUM SHOT of {LOST_BOY_CHARACTER} alone between pine trees. "
+            "Wrong vintage coat detail visible. Standing stiff, arms at sides, unsettling grin. "
+            "Different pose from wave or close-up shots.",
+            "horror_solo",
+        )
+    if shot == LOST_BOY_SHOT_WAVE:
+        return (
+            f"Hand-drawn illustration: {scene}. {beat}"
+            "THREE CHARACTERS IN ONE FRAME — pine forest trail. "
+            "Foreground: two adult hikers (Carol and narrator). "
+            f"Mid-background between trees: {LOST_BOY_CHARACTER} with ONE ARM RAISED waving at them. "
+            "Carol waving back toward the boy. Boy must be visibly mid-wave, arm up. "
+            "All three characters distinct and separate.",
+            "comedy",
+        )
+    if shot == LOST_BOY_SHOT_DONT:
+        return (
+            f"Hand-drawn illustration: {scene}. {beat}"
+            "THREE CHARACTERS — narrator grabbing Carol's arm, Carol still facing the boy, "
+            f"Lost Boy in background between pines frozen mid-wave with wrong grin. "
+            f"{LOST_BOY_CHARACTER}. Tension, don't-wave-back moment.",
+            "comedy",
+        )
+    if shot == LOST_BOY_SHOT_CLOSEUP:
+        return (
+            f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"EXTREME CLOSE-UP of {LOST_BOY_CHARACTER} face only — frozen smile that does not move, "
+            "glowing eyes, no hikers in frame, different framing from wide shots.",
+            "horror_solo",
+        )
+    if shot == LOST_BOY_SHOT_LURKING:
+        return (
+            f"Hand-drawn horror illustration: {scene}. {beat}"
+            f"WIDE DUSK SHOT — empty trail except {LOST_BOY_CHARACTER} far down the path "
+            "watching camera, small silhouette between trees, still there, different form than close-up.",
+            "horror_solo",
+        )
+    return (
+        f"Hand-drawn illustration: {scene}. {beat} Pine forest. {LOST_BOY_CHARACTER}.",
+        "horror_solo",
+    )
+
+
+def recraft_style_id_for_segment_text(text: str, *, topic: str = "") -> str | None:
     """Pick comedy vs horror custom style when IMAGE_PROVIDER=recraft."""
     from shorts_bot.config import settings
 
     if (settings.image_provider or "").strip().lower() != "recraft":
         return None
+
+    comedy_id = (settings.recraft_style_id or "").strip()
+    horror_id = (settings.recraft_style_id_horror or comedy_id).strip()
+
+    if is_lost_boy_topic(topic):
+        shot = classify_lost_boy_shot(text)
+        _, lane = lost_boy_shot_prompt(shot, text)
+        if lane == "comedy":
+            return comedy_id or None
+        return horror_id or comedy_id or None
+
     if segment_is_horror_snap(text):
-        sid = (settings.recraft_style_id_horror or settings.recraft_style_id or "").strip()
-    else:
-        sid = (settings.recraft_style_id or "").strip()
-    return sid or None
+        return horror_id or comedy_id or None
+    return comedy_id or None
 
 
 @dataclass
@@ -120,28 +233,37 @@ def comedy_horror_drawn_segment_to_prompt(
     topic: str,
     visual_beat: str | None = None,
 ) -> str:
-    """Smiling Friends lane — cute crayon comedy that can snap to nightmare."""
+    """Smiling Friends / Lost Boy lane — scene-specific compositions, not one repeated still."""
     scene = seg.text.strip() or topic
     beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
+
+    if is_lost_boy_topic(topic):
+        shot = classify_lost_boy_shot(scene)
+        body, _lane = lost_boy_shot_prompt(shot, scene, beat_line=beat_line)
+        return (
+            f"{body} "
+            f"Story: {topic}. "
+            "Setting: pine forest ridge trail. "
+            "vertical 9:16 still image, no text, no watermark, no photorealism."
+        )
+
     scary = segment_is_horror_snap(scene)
     if scary:
         mood = (
-            "the Lost Boy — same creepy child every time, small figure between pine trees, "
-            "too-wide frozen smile, glowing eyes, vintage wrong coat, uncanny stillness, "
-            "Facebook folk-horror share bait, lost child in woods but deeply wrong"
+            "creepy forest creature snap, wrong limbs, horror beat — "
+            "unique pose for this line, not a copy of prior frames"
         )
         style_line = (
             "Style: hand-drawn horror illustration, ink charcoal scratchy lines, "
-            "consistent recurring Lost Boy character, dark forest, high contrast, unsettling."
+            "dark forest, high contrast, unsettling."
         )
     else:
         mood = (
-            "casual hiking comedy, two neighbors on a trail, bright morning — "
+            "casual hiking comedy, neighbors on a trail, bright morning — "
             "characters look slightly disturbed and off-kilter (uncanny faces) but still goofy"
         )
         style_line = (
-            "Style: naive hand-drawn cartoon, thick outlines, expressive slightly-disturbed faces, "
-            "Smiling Friends energy but everyone looks a little wrong."
+            "Style: naive hand-drawn cartoon, thick outlines, expressive slightly-disturbed faces."
         )
     return (
         f"Hand-drawn illustration still: {scene}. "
@@ -219,7 +341,7 @@ def build_image_briefs(
                     topic=topic,
                     visual_beat=visual_beat_for_segment(visual_beats, i, len(segments)),
                 ),
-                recraft_style_id=recraft_style_id_for_segment_text(seg.text),
+                recraft_style_id=recraft_style_id_for_segment_text(seg.text, topic=topic),
             )
         )
     return briefs
