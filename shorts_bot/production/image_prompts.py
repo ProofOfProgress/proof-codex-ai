@@ -10,6 +10,44 @@ from shorts_bot.production.visual_identity import face_eye_visibility_rules
 from shorts_bot.production.world import world_visual_continuity
 
 
+COMEDY_HORROR_SCARY_KEYWORDS = (
+    "run",
+    "scream",
+    "demon",
+    "creature",
+    "monster",
+    "oh no",
+    "don't look",
+    "bushes",
+    "isn't arms",
+    "aren't arms",
+    "lurking",
+    "stalking",
+    "teeth",
+    "grin",
+    "shhh",
+)
+
+
+def segment_is_horror_snap(text: str) -> bool:
+    """True when transcript line should use the horror Recraft style (not comedy)."""
+    scene = text.strip().lower()
+    return any(w in scene for w in COMEDY_HORROR_SCARY_KEYWORDS)
+
+
+def recraft_style_id_for_segment_text(text: str) -> str | None:
+    """Pick comedy vs horror custom style when IMAGE_PROVIDER=recraft."""
+    from shorts_bot.config import settings
+
+    if (settings.image_provider or "").strip().lower() != "recraft":
+        return None
+    if segment_is_horror_snap(text):
+        sid = (settings.recraft_style_id_horror or settings.recraft_style_id or "").strip()
+    else:
+        sid = (settings.recraft_style_id or "").strip()
+    return sid or None
+
+
 @dataclass
 class ImageBrief:
     start_seconds: float
@@ -17,6 +55,7 @@ class ImageBrief:
     filename_stem: str
     spoken_text: str
     prompt: str
+    recraft_style_id: str | None = None
 
 
 def _load_style_guide() -> str:
@@ -73,24 +112,7 @@ def comedy_horror_drawn_segment_to_prompt(
     """Smiling Friends lane — cute crayon comedy that can snap to nightmare."""
     scene = seg.text.strip() or topic
     beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
-    scary = any(
-        w in scene.lower()
-        for w in (
-            "run",
-            "scream",
-            "demon",
-            "creature",
-            "monster",
-            "oh no",
-            "don't look",
-            "stop",
-            "wrong",
-            "isn't arms",
-            "aren't arms",
-            "bushes",
-            "laugh",
-        )
-    )
+    scary = segment_is_horror_snap(scene)
     mood = (
         "sudden terrifying demon creature, wide mouth, wrong limbs, horror snap, dark forest"
         if scary
@@ -172,6 +194,7 @@ def build_image_briefs(
                     topic=topic,
                     visual_beat=visual_beat_for_segment(visual_beats, i, len(segments)),
                 ),
+                recraft_style_id=recraft_style_id_for_segment_text(seg.text),
             )
         )
     return briefs

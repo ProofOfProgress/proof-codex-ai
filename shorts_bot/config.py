@@ -128,7 +128,8 @@ class Settings(BaseSettings):
     # Paid image generation (Recraft crayon stills, Replicate FLUX, or Fal.ai)
     image_provider: str = "replicate"  # recraft | replicate | fal
     recraft_api_key: str | None = None
-    recraft_style_id: str | None = None
+    recraft_style_id: str | None = None  # comedy / everyday character lane
+    recraft_style_id_horror: str | None = None  # ink/creepypasta snap beats
     recraft_model: str = "recraftv3"  # custom style_id needs V3 (not V4)
     recraft_image_size: str = "1024x1820"  # 9:16 Shorts still
     replicate_api_token: str | None = None

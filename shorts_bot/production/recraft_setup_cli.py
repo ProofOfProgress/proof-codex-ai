@@ -41,9 +41,15 @@ def recraft_setup_status() -> tuple[bool, list[str]]:
     )
     style_id = (settings.recraft_style_id or "").strip()
     check(
-        "Custom style ID",
+        "Comedy style ID",
         bool(style_id),
-        settings.recraft_style_id or "RECRAFT_STYLE_ID — copy from Recraft Studio (⋯ on your style)",
+        settings.recraft_style_id or "RECRAFT_STYLE_ID — everyday / comedy character style",
+    )
+    horror_id = (settings.recraft_style_id_horror or "").strip()
+    check(
+        "Horror style ID",
+        bool(horror_id),
+        settings.recraft_style_id_horror or "RECRAFT_STYLE_ID_HORROR — ink/creepypasta snap beats",
     )
     check(
         "Model for custom style",

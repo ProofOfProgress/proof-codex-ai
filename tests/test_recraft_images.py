@@ -55,6 +55,7 @@ def test_router_recraft_provider(tmp_path: Path):
         image_provider="recraft",
         recraft_api_key="test-key-123456789012345",
         recraft_style_id="aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        recraft_style_id_horror="11111111-2222-3333-4444-555555555555",
     )
     out = tmp_path / "out.png"
 
@@ -65,8 +66,43 @@ def test_router_recraft_provider(tmp_path: Path):
         ) as gen:
             assert generate_image("prompt", out) == "recraft/recraftv3"
             gen.assert_called_once()
+            assert gen.call_args.kwargs["style_id"] == "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+
+            gen.reset_mock()
+            assert generate_image("prompt", out, style_id="11111111-2222-3333-4444-555555555555") == "recraft/recraftv3"
+            assert gen.call_args.kwargs["style_id"] == "11111111-2222-3333-4444-555555555555"
 
     missing = Settings(image_provider="recraft", recraft_api_key=None)
     with patch("shorts_bot.production.images.router.settings", missing):
         with pytest.raises(ValueError, match="RECRAFT_API_KEY"):
             generate_image("prompt", out)
+
+
+def test_recraft_style_routing_comedy_vs_horror(monkeypatch):
+    from shorts_bot.config import Settings
+    from shorts_bot.production.image_prompts import (
+        build_image_briefs,
+        recraft_style_id_for_segment_text,
+        segment_is_horror_snap,
+    )
+    from shorts_bot.production.turboscribe_parser import TranscriptSegment
+
+    fake = Settings(
+        image_provider="recraft",
+        recraft_style_id="522c040d-88f1-47fa-a604-406dfea1a129",
+        recraft_style_id_horror="d1155936-62d4-42f0-a8f7-f09442e8701c",
+    )
+    monkeypatch.setattr("shorts_bot.config.settings", fake)
+
+    assert segment_is_horror_snap("Super chill day.") is False
+    assert segment_is_horror_snap("Don't look left.") is True
+    assert recraft_style_id_for_segment_text("Super chill day.") == "522c040d-88f1-47fa-a604-406dfea1a129"
+    assert recraft_style_id_for_segment_text("Those aren't arms.") == "d1155936-62d4-42f0-a8f7-f09442e8701c"
+
+    segs = [
+        TranscriptSegment(0.0, "Super chill day.", "00.00"),
+        TranscriptSegment(16.0, "Don't look left.", "00.16"),
+    ]
+    briefs = build_image_briefs(segs, topic="forest hike")
+    assert briefs[0].recraft_style_id == "522c040d-88f1-47fa-a604-406dfea1a129"
+    assert briefs[1].recraft_style_id == "d1155936-62d4-42f0-a8f7-f09442e8701c"

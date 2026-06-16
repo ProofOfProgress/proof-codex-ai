@@ -14,7 +14,7 @@ from shorts_bot.production.images.router import generate_image
 
 def render_ai_frame(brief: ImageBrief, out_path: Path) -> bool:
     try:
-        provider = generate_image(brief.prompt, out_path)
+        provider = generate_image(brief.prompt, out_path, style_id=brief.recraft_style_id)
         if burn_captions_on_frames():
             apply_bottom_caption(out_path, brief.spoken_text)
         return True
