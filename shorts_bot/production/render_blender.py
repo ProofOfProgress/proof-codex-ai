@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -41,6 +42,12 @@ def render_blender_clips(
     if not force_regen and _clips_complete(clips_dir, count):
         console.print(f"[green]Blender clips cached ({count}) — skip regen[/green]")
         return count
+
+    if shutil.which("blender") is None:
+        raise RuntimeError(
+            "Blender render blocked — `blender` is not installed on this machine. "
+            "Install Blender or set VIDEO_BACKEND=legacy_i2v/kling with the required provider keys."
+        )
 
     cmd = [
         "blender",
