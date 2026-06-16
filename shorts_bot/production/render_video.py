@@ -915,6 +915,10 @@ def render_short_video(
         message=(
             f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920"
             f"{', Ken Burns ' + zoom_motion if use_motion else ''}). "
-            f"Captions: ffmpeg ASS burn-in + captions.srt for YouTube."
+            + (
+                "Captions: captions.srt only (synced to voice, not burned in)."
+                if not burn_captions
+                else "Captions: ffmpeg ASS burn-in + captions.srt for YouTube."
+            )
         ),
     )

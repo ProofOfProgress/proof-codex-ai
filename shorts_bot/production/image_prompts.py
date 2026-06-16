@@ -125,9 +125,9 @@ def lost_boy_shot_prompt(shot: str, scene: str, *, beat_line: str = "") -> tuple
     if shot == LOST_BOY_SHOT_DONT:
         return (
             f"Hand-drawn illustration: {scene}. {beat}"
-            "THREE CHARACTERS — narrator grabbing Carol's arm, Carol still facing the boy, "
-            f"Lost Boy in background between pines frozen mid-wave with wrong grin. "
-            f"{LOST_BOY_CHARACTER}. Tension, don't-wave-back moment.",
+            "THREE CHARACTERS on a forest trail — friend pulling companion back, "
+            "small unsettling child figure between pine trees in background, frozen wave pose. "
+            f"{LOST_BOY_CHARACTER}. Tense don't-wave-back moment, no violence.",
             "comedy",
         )
     if shot == LOST_BOY_SHOT_CLOSEUP:

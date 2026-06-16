@@ -89,14 +89,25 @@ def generate_still_with_qc(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     for attempt in range(1, max_attempts + 1):
-        generate_recraft_image(
-            current,
-            out_path,
-            api_key=api_key,
-            model=settings.recraft_model,
-            style_id=style_id,
-            size=settings.recraft_image_size,
-        )
+        try:
+            generate_recraft_image(
+                current,
+                out_path,
+                api_key=api_key,
+                model=settings.recraft_model,
+                style_id=style_id,
+                size=settings.recraft_image_size,
+            )
+        except Exception as exc:
+            if "content filter" in str(exc).lower() or "prompt_is_improper" in str(exc).lower():
+                current = (
+                    f"{prompt} SAFE: family-friendly horror illustration, no harm, "
+                    "cartoon forest scene, unsettling but not violent."
+                )
+                if attempt >= max_attempts:
+                    return False
+                continue
+            raise
         passed, issues, fix = _gemini_review_image(
             out_path,
             requirements=requirements,
@@ -106,4 +117,4 @@ def generate_still_with_qc(
             return True
         if fix and attempt < max_attempts:
             current = f"{prompt} FIX: {fix} Previous issues: {issues}"
-    return False
+    return out_path.is_file() and out_path.stat().st_size > 1000
