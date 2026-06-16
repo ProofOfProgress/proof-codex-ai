@@ -11,6 +11,7 @@ data/*.sqlite
 data/browser_profile/
 data/screenshots/
 data/youtube_token.json
+data/facebook_api.json
 data/LEARNED.md
 data/MEMORY.md
 data/codex_index.json

@@ -11,6 +11,11 @@ YOUTUBE_SECRET_NAMES = (
     "YOUTUBE_TOKEN_JSON",
 )
 
+FACEBOOK_SECRET_NAMES = (
+    "FACEBOOK_PAGE_ID",
+    "META_PAGE_ACCESS_TOKEN",
+)
+
 
 def _parse_names(env_key: str) -> set[str]:
     raw = os.environ.get(env_key, "")
@@ -108,7 +113,7 @@ if __name__ == "__main__":
         console.print("[dim]CLOUD_AGENT_ALL_SECRET_NAMES not set — not a Cloud Agent VM[/dim]")
     else:
         table = Table("Secret", "In agent list", "Injected", "On VM")
-        for name in sorted(lists["all"] | set(YOUTUBE_SECRET_NAMES)):
+        for name in sorted(lists["all"] | set(YOUTUBE_SECRET_NAMES) | set(FACEBOOK_SECRET_NAMES)):
             in_list = "yes" if name in lists["all"] else "no"
             injected = "yes" if name in lists["injected"] else "no"
             on_vm = "yes" if os.environ.get(name) else "—"

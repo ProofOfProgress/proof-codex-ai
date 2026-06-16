@@ -243,6 +243,11 @@ class Settings(BaseSettings):
     assemblyai_speech_model: str = "universal"
     transcript_always_fresh: bool = False  # reuse transcript.txt on pipeline retry (saves API $)
 
+    # Facebook Reels — Graph API (Page token + Page ID)
+    facebook_page_id: str | None = None
+    meta_page_access_token: str | None = None
+    auto_upload_facebook: bool = False
+
     # YouTube — API upload preferred; Studio browser fallback when OAuth missing on VM
     youtube_upload_via_api: bool = True
     youtube_studio_upload_fallback: bool = True

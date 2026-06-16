@@ -55,24 +55,47 @@ def transcribe_with_playwright(audio_path: Path, *, mode: str = "whale", timeout
     Upload voiceover to TurboScribe (saved browser login) and return timestamped transcript.
 
     Requires TurboScribe Unlimited + logged-in profile at data/browser_profile.
+    Uses visible browser when DISPLAY is set (Cloudflare blocks headless).
     """
     from playwright.sync_api import sync_playwright
+
+    from shorts_bot.browser.stealth import launch_stealth_context
 
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio not found: {audio_path}")
 
+    import os
+
+    from shorts_bot.browser.profile_lock import require_unlocked_profile
+
+    require_unlocked_profile(action="run TurboScribe Whale upload")
+
+    headless = not bool(os.environ.get("DISPLAY"))
     audio_path = audio_path.resolve()
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(settings.browser_profile_dir),
-            headless=True,
-            viewport={"width": 1280, "height": 900},
-            accept_downloads=True,
-        )
+        context = launch_stealth_context(p, headless=headless)
         page = context.pages[0] if context.pages else context.new_page()
         page.goto("https://turboscribe.ai/u", wait_until="domcontentloaded", timeout=120000)
-        time.sleep(2)
 
+        cf_deadline = time.time() + (90 if headless else 150)
+        while time.time() < cf_deadline:
+            body = (page.inner_text("body") or "").lower()
+            if "cloudflare" not in body and "security verification" not in body and "ray id" not in body:
+                break
+            time.sleep(4)
+        else:
+            shot = audio_path.parent / "_turboscribe_cloudflare.png"
+            try:
+                page.screenshot(path=str(shot), full_page=True)
+            except Exception:
+                pass
+            context.close()
+            raise RuntimeError(
+                "TurboScribe blocked by Cloudflare in automated browser. "
+                f"Export timestamps on Desktop → save as turboscribe_transcript.txt. Screenshot: {shot}"
+            )
+
+        time.sleep(4 if headless else 6)
         body = (page.inner_text("body") or "").lower()
         if "sign in" in body or "log in" in body:
             context.close()
@@ -80,7 +103,6 @@ def transcribe_with_playwright(audio_path: Path, *, mode: str = "whale", timeout
                 "TurboScribe not logged in. Run: python3 -m shorts_bot.login_handoff --only turboscribe"
             )
 
-        # Upload audio — multiple selectors (TurboScribe UI changes often)
         uploaded = False
         for sel in (
             'input[type="file"]',
@@ -96,18 +118,26 @@ def transcribe_with_playwright(audio_path: Path, *, mode: str = "whale", timeout
                 except Exception:
                     continue
         if not uploaded:
+            for label in ("Upload", "New", "Transcribe", "Add"):
+                try:
+                    with page.expect_file_chooser(timeout=20000) as fc_info:
+                        page.get_by_text(label, exact=False).first.click(timeout=8000)
+                    fc_info.value.set_files(str(audio_path))
+                    uploaded = True
+                    break
+                except Exception:
+                    continue
+        if not uploaded:
+            shot = audio_path.parent / "_turboscribe_fail.png"
             try:
-                with page.expect_file_chooser(timeout=15000) as fc_info:
-                    page.get_by_role("button", name=re.compile(r"upload|transcribe|new", re.I)).first.click(
-                        timeout=8000
-                    )
-                fc_info.value.set_files(str(audio_path))
-                uploaded = True
+                page.screenshot(path=str(shot), full_page=True)
             except Exception:
                 pass
-        if not uploaded:
             context.close()
-            raise RuntimeError("TurboScribe upload control not found — check login at turboscribe.ai/u")
+            raise RuntimeError(
+                "TurboScribe upload control not found (Cloudflare or UI change). "
+                f"Screenshot: {shot}"
+            )
         time.sleep(2)
 
         # Select transcription mode (Whale = max accuracy)

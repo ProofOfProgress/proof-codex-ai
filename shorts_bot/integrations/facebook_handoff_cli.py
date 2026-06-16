@@ -18,15 +18,25 @@ BUSINESS_SUITE_URL = "https://business.facebook.com/latest/home"
 def facebook_status() -> tuple[bool, list[str]]:
     from pathlib import Path
 
+    from shorts_bot.integrations.facebook_page_discover import discover_managed_pages
+    from shorts_bot.integrations.facebook_reel_api import probe_facebook_reel_api
+
     lines: list[str] = []
     profile = Path("data/browser_profile")
     has_profile = profile.exists() and any(profile.iterdir())
     lines.append(
         f"Browser profile: {'OK' if has_profile else 'missing'} (data/browser_profile/)"
     )
-    lines.append("Facebook API posting: not wired yet — manual Reels upload from Page")
+    pages, page_msg = discover_managed_pages(timeout_sec=20)
+    if pages:
+        for p in pages:
+            lines.append(f"Page: {p.name} (id={p.page_id})")
+    else:
+        lines.append(f"Pages: {page_msg}")
+    api_ok, api_msg = probe_facebook_reel_api()
+    lines.append(f"Reel API: {'OK' if api_ok else 'needs tokens'} — {api_msg}")
     lines.append("Docs: docs/FOR_OWNER_FACEBOOK_SETUP.md")
-    ready = has_profile
+    ready = has_profile and bool(pages) and api_ok
     return ready, lines
 
 
