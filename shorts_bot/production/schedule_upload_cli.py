@@ -36,7 +36,7 @@ def _owner_publish_at(when: str | None, *, hour: int, minute: int) -> datetime:
     return target
 
 
-def _gas_station_description(*, volume_line: str, hook: str) -> str:
+def _peripheral_description(*, volume_line: str, hook: str, scene: str = "woods") -> str:
     lines = []
     if volume_line.strip():
         lines.append(volume_line.strip())
@@ -44,15 +44,23 @@ def _gas_station_description(*, volume_line: str, hook: str) -> str:
         [
             hook,
             "",
-            "Peripheral — scary horror Shorts (~30s). Rural gas station. "
+            f"Peripheral — scary horror Shorts (~30s). {scene}. "
             "Watch to the end.\n\ndon't blink.",
             "",
-            "AI motion visuals · synthetic media disclosed",
+            "Hand-drawn AI visuals · synthetic media disclosed",
             "",
-            "#Horror #HorrorShorts #Jumpscare #ScaryStories #Creepy #AnalogHorror",
+            "#Horror #HorrorShorts #ScaryStories #Creepy #LostInTheWoods #FolkHorror",
         ]
     )
     return "\n".join(lines)
+
+
+def _gas_station_description(*, volume_line: str, hook: str) -> str:
+    return _peripheral_description(
+        volume_line=volume_line,
+        hook=hook,
+        scene="Rural gas station",
+    )
 
 
 def schedule_upload(
@@ -96,14 +104,15 @@ def schedule_upload(
             console.print(f"[yellow]YouTube delete skipped: {exc}[/yellow]")
         mem.void_upload_events(video_id=replace_video_id)
 
-    vol = "🔊 VOLUME WARNING — jumpscare at the end. Use headphones."
+    vol = "🔊 VOLUME WARNING — sting at the end. Use headphones."
     hook_line = hook or DEFAULT_HOOK
     upload_title = title or "🔊 Streetlight Flickers — Something Too Tall In The Road"
     upload_title = upload_title[:100]
+    scene = "Pine forest — the Lost Boy" if "lost boy" in (draft.topic or "").lower() else "Rural gas station"
 
     package = UploadPackage(
         title=upload_title,
-        description=_gas_station_description(volume_line=vol, hook=hook_line),
+        description=_peripheral_description(volume_line=vol, hook=hook_line, scene=scene),
         tags=list(HORROR_BACKEND_TAGS),
         visibility="public",
         checklist=[

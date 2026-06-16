@@ -18,6 +18,8 @@ COMEDY_HORROR_SCARY_KEYWORDS = (
     "monster",
     "oh no",
     "don't look",
+    "don't.",
+    "carol, don't",
     "bushes",
     "isn't arms",
     "aren't arms",
@@ -26,6 +28,15 @@ COMEDY_HORROR_SCARY_KEYWORDS = (
     "teeth",
     "grin",
     "shhh",
+    "lost boy",
+    "small boy",
+    "the boy",
+    "that boy",
+    "still out there",
+    "missing kids",
+    "smile didn't",
+    "wrong coat",
+    "between the pines",
 )
 
 
@@ -113,18 +124,32 @@ def comedy_horror_drawn_segment_to_prompt(
     scene = seg.text.strip() or topic
     beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
     scary = segment_is_horror_snap(scene)
-    mood = (
-        "sudden terrifying demon creature, wide mouth, wrong limbs, horror snap, dark forest"
-        if scary
-        else "goofy smiling friends vibe, casual hiking comedy, bright naive cartoon energy"
-    )
+    if scary:
+        mood = (
+            "the Lost Boy — same creepy child every time, small figure between pine trees, "
+            "too-wide frozen smile, glowing eyes, vintage wrong coat, uncanny stillness, "
+            "Facebook folk-horror share bait, lost child in woods but deeply wrong"
+        )
+        style_line = (
+            "Style: hand-drawn horror illustration, ink charcoal scratchy lines, "
+            "consistent recurring Lost Boy character, dark forest, high contrast, unsettling."
+        )
+    else:
+        mood = (
+            "casual hiking comedy, two neighbors on a trail, bright morning — "
+            "characters look slightly disturbed and off-kilter (uncanny faces) but still goofy"
+        )
+        style_line = (
+            "Style: naive hand-drawn cartoon, thick outlines, expressive slightly-disturbed faces, "
+            "Smiling Friends energy but everyone looks a little wrong."
+        )
     return (
-        f"Hand-drawn crayon marker illustration still: {scene}. "
+        f"Hand-drawn illustration still: {scene}. "
         f"{beat_line}"
         f"Story: {topic}. "
         f"Mood: {mood}. "
-        "Setting: pine forest trail, cartoon trees, doodle bushes, Smiling Friends comedy-horror tone. "
-        "Style: naive MS Paint crayon characters, thick outlines, expressive faces, slightly ugly-cute. "
+        "Setting: pine forest ridge trail, cartoon trees, morning light turning cold. "
+        f"{style_line} "
         "vertical 9:16 still image, no text, no watermark, no photorealism."
     )
 
