@@ -1,4 +1,4 @@
-"""Peripheral shared universe — village Eye worship."""
+"""Peripheral shared universe — The Gap analog haunting."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from shorts_bot.production.black_mirror_format import (
 )
 from shorts_bot.production.horror_lane import HORROR_LANE_LABEL, horror_lane_compact
 
-WORLD_NAME = "The Village"
-WORLD_TAGLINE = "They worship the Eye — it finds you in your dreams."
+WORLD_NAME = "The Gap"
+WORLD_TAGLINE = "The recording lags behind reality — and catches what your eyes miss."
 
 _WORLD_DOC = Path("channel/brand/world.md")
 
@@ -25,11 +25,12 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: first-person I; character voices on screen only (no narrator); victims remember dreams; Eye true form in dreams; villagers worship the Eye; uncanny human wrongness when awake.
+Laws: second-person or first-person immediacy; no safe narrator; recordings lag reality; 3:12 AM is the glitch hour; what moves in peripheral vision becomes real on replay.
 Twist rewrites hook; finale sting on NEW truth — then stop.
-Settings: fog village (primary) — square, signpost, barn symbols, ritual candles. No apartment/CCTV/glitch hour.
-Threat: the Eye — true form (macro eye), dream torturer, perception breaker. Villagers complicit in worship.
-Not this world: security cameras, The Gap apartment, 3:12 AM glitch spam, faceless second-person narrator, cosy self-help.
+Settings: alone-at-night apartment (primary) — CCTV camera, mirror, closet, hallway, alarm clock. No phone-screen storytelling.
+Threat: the thing in the recording — edge-of-frame motion, replay mismatch, final jumpscare reveal.
+Legacy motif: the line-eye mark can appear as a tiny frame-edge symbol; not village Eye worship.
+Not this world: safe self-help, folk ritual, generic creature showcase, gore.
 {horror_lane_compact()}"""
 
 
@@ -39,45 +40,43 @@ def world_lore_for_scripts() -> str:
 
 {black_mirror_script_structure()}
 
-Write each Short as first-person screenplay — CHARACTER lines only, victim speaks as I.
-Dream Shorts must include waking beat where victim remembers the Eye.
-Village Shorts: worship, silence, wrong villagers, ritual symbols — outsiders break the rule."""
+Write each Short as a concrete analog-horror micro-story with a visible recording/proof object.
+Security-camera Shorts use fullscreen CCTV, not phone screens.
+Every Short needs a final jumpscare beat that changes what the hook meant."""
 
 
 def world_visual_continuity() -> str:
     """Paste into every video / image prompt after visual DNA."""
     return (
-        "WORLD — Peripheral fog village: dusk, bone fog, crooked signpost, barn Eye symbols, "
-        "villagers with averted eyes and ritual candles; dream sequences — surreal rooms, "
-        "macro freaky Eye filling ceiling or mirror; waking — uncanny almost-human villagers, "
-        "twitchy rabies-wrong movement; solid white and cold blue-black palette; "
-        "cinematic horror — no CCTV green, no smartphones, no apartment hallway spam."
+        "WORLD — Peripheral / The Gap: alone-at-night apartment, fullscreen CCTV, alarm clock, "
+        "mirror, closet, hallway corner, door crack; reality and recording disagree; "
+        "night-vision green, cold blue-black shadows, dirty monitor glow; final synced jumpscare; "
+        "no phone-screen storytelling, no safe self-help, no generic monster showcase."
     )
 
 
 def world_motifs() -> tuple[str, ...]:
     """Recurring in-universe tokens for topic/QC checks."""
     return (
+        "cctv",
         "eye",
-        "the eye",
         "village",
-        "villager",
-        "worship",
-        "ritual",
-        "dream",
-        "remembered",
-        "sign",
-        "signpost",
-        "barn",
-        "fog",
-        "candle",
-        "omen",
-        "curse",
+        "security camera",
+        "recording",
+        "replay",
+        "mirror",
+        "closet",
+        "hallway",
+        "apartment",
+        "alarm clock",
+        "3:12",
+        "glitch",
+        "peripheral",
+        "motion",
         "uncanny",
         "premise",
         "twist",
         "don't blink",
-        "peripheral",
     )
 
 

@@ -58,7 +58,10 @@ def build_ops_status_markdown() -> str:
         lines.append("- Draft #2 — check `data/production/draft_2/upload_result.json`")
 
     lines.extend(["", "## Production queue (approved)"])
-    for d in list_approved(store):
+    approved = list_approved(store)
+    if not approved:
+        lines.append("- No approved drafts in queue")
+    for d in approved:
         clips = _clip_count(d.id)
         final = "✓ final_short.mp4" if _has_final(d.id) else f"{clips} I2V clips"
         meta = "✓" if (_pack_dir(d.id) / "UPLOAD_READY.md").exists() else "—"
@@ -77,8 +80,8 @@ def build_ops_status_markdown() -> str:
         ]
     )
 
-    sample = store.get_draft(nid or 3)
-    if sample:
+    sample = store.get_draft(nid) if nid else (approved[0] if approved else None)
+    if sample is not None:
         report = check_upload_allowed(
             store,
             memory,

@@ -88,7 +88,7 @@ def horror_framing_notes_for_prompt() -> str:
         "Analog horror 9:16 — subject in upper 55%, harsh contrast, deep shadows. "
         f"{face_eye_visibility_rules()} "
         f"{analog_color_rules()} "
-        "Bottom 40% clear for captions + Shorts UI. No cosy warm lamp, no cream palette."
+        "Bottom 40% clear for captions + Shorts UI. No warm safe lamp, no pastel palette."
     )
 
 

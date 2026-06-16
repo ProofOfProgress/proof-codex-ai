@@ -29,27 +29,41 @@ class AnalyticsSync:
         self.engine = RewardEngine(memory)
         self.proposer = proposer
 
+    def _record_sync_attempt(self, *, ok: bool, message: str) -> None:
+        self.memory.set_training_config("last_analytics_sync_attempt", _utc_now())
+        self.memory.set_training_config("last_analytics_sync_status", "ok" if ok else "failed")
+        self.memory.set_training_config("last_analytics_sync_message", message[:500])
+
     def run(self, *, days: int = 28, max_videos: int = 15) -> SyncResult:
         status = auth_status()
         if not status["ready"]:
             if not status["credentials_configured"]:
+                message = "Add Google API keys to .env — see docs/TOMORROW.md"
+                self._record_sync_attempt(ok=False, message=message)
                 return SyncResult(
                     ok=False,
-                    message="Add Google API keys to .env — see docs/TOMORROW.md",
+                    message=message,
                 )
+            message = "Run once: python3 -m shorts_bot.youtube.auth_cli"
+            self._record_sync_attempt(ok=False, message=message)
             return SyncResult(
                 ok=False,
-                message="Run once: python3 -m shorts_bot.youtube.auth_cli",
+                message=message,
             )
 
         try:
             metrics = fetch_video_metrics(days=days, max_videos=max_videos)
             metrics = enrich_titles(metrics)
         except Exception as exc:  # noqa: BLE001
-            return SyncResult(ok=False, message=f"Analytics sync failed: {exc}")
+            message = f"Analytics sync failed: {exc}"
+            self._record_sync_attempt(ok=False, message=message)
+            return SyncResult(ok=False, message=message)
 
         if not metrics:
-            return SyncResult(ok=True, message="No video data yet. Upload a Short first.", videos_scored=0)
+            message = "No video data yet. Upload a Short first."
+            self.memory.set_training_config("last_analytics_sync", _utc_now())
+            self._record_sync_attempt(ok=True, message=message)
+            return SyncResult(ok=True, message=message, videos_scored=0)
 
         rewards: list[dict[str, Any]] = []
         scored: list[RewardResult] = []
@@ -68,11 +82,13 @@ class AnalyticsSync:
 
         improvements_created = self._propose_improvements(scored)
 
+        message = f"Synced {len(metrics)} videos from official YouTube Analytics."
         self.memory.set_training_config("last_analytics_sync", _utc_now())
+        self._record_sync_attempt(ok=True, message=message)
 
         return SyncResult(
             ok=True,
-            message=f"Synced {len(metrics)} videos from official YouTube Analytics.",
+            message=message,
             videos_scored=len(metrics),
             improvements_created=improvements_created,
             rewards=rewards,

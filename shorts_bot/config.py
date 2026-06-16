@@ -97,17 +97,15 @@ class Settings(BaseSettings):
     tts_pitch: str = "-4Hz"
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
-    visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
+    visual_style: str = "ai_video"  # ai_video (motion clips) | hybrid | ai (legacy stills)
     # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
     content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
 
     @field_validator("visual_style", mode="before")
     @classmethod
     def normalize_visual_style(cls, v: object) -> str:
-        """Legacy VISUAL_STYLE=ai meant FLUX stills; Don't Blink launch requires I2V motion."""
+        """Keep explicit legacy still-image mode; default launch mode remains ai_video."""
         s = str(v or "ai_video").strip().lower()
-        if s == "ai":
-            return "ai_video"
         return s
 
     # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in

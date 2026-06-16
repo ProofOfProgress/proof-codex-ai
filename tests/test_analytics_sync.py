@@ -38,17 +38,23 @@ def _sync(tmp_path: Path) -> AnalyticsSync:
 
 
 def test_sync_not_ready_without_credentials(tmp_path: Path):
+    sync = _sync(tmp_path)
     with patch("shorts_bot.youtube.sync.auth_status", return_value={"credentials_configured": False, "token_saved": False, "ready": False}):
-        result = _sync(tmp_path).run()
+        result = sync.run()
     assert not result.ok
     assert "TOMORROW" in result.message
+    assert sync.memory.get_training_config("last_analytics_sync_status") == "failed"
+    assert "TOMORROW" in (sync.memory.get_training_config("last_analytics_sync_message") or "")
 
 
 def test_sync_not_ready_without_token(tmp_path: Path):
+    sync = _sync(tmp_path)
     with patch("shorts_bot.youtube.sync.auth_status", return_value={"credentials_configured": True, "token_saved": False, "ready": False}):
-        result = _sync(tmp_path).run()
+        result = sync.run()
     assert not result.ok
     assert "auth_cli" in result.message
+    assert sync.memory.get_training_config("last_analytics_sync_status") == "failed"
+    assert "auth_cli" in (sync.memory.get_training_config("last_analytics_sync_message") or "")
 
 
 def test_sync_scores_and_proposes(tmp_path: Path):
@@ -68,6 +74,7 @@ def test_sync_scores_and_proposes(tmp_path: Path):
     pending = sync.memory.list_improvements(status="pending")
     assert pending
     assert sync.memory.get_training_config("last_analytics_sync")
+    assert sync.memory.get_training_config("last_analytics_sync_status") == "ok"
 
 
 def test_sync_caps_improvements(tmp_path: Path):

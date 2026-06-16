@@ -25,12 +25,16 @@ def _load_style_guide() -> str:
         return path.read_text(encoding="utf-8").strip()
     return (
         "Terrifying faceless horror 9:16, cinematic, cold blue-black palette, "
-        "film grain, hallways mirrors shadows CCTV alarm clock, no cosy aesthetic."
+        "film grain, hallways mirrors shadows CCTV alarm clock, no safe lifestyle aesthetic."
     )
 
 
+def _prompt_safe_text(text: str) -> str:
+    return text.replace("cosy", "safe").replace("Cosy", "Safe").replace("cream", "pastel")
+
+
 def build_master_prompt(*, channel_topic: str = "Don't Blink horror Short") -> str:
-    style = _load_style_guide()
+    style = _prompt_safe_text(_load_style_guide())
     return f"""You are generating horror keyframe images for faceless YouTube Short "{channel_topic}".
 
 RULES (critical):
@@ -39,7 +43,7 @@ RULES (critical):
 3. Each image covers only the words from that timestamp until the next timestamp.
 4. Output prompts as JSON array: [{{"timestamp": "00.07", "prompt": "..."}}]
 
-STYLE (Don't Blink — terrifying, not cosy):
+STYLE (Don't Blink — terrifying, not safe):
 {style[:2000]}
 
 Every prompt must end with: "vertical 9:16 still image, no text, no watermark, photorealistic horror."
@@ -56,7 +60,7 @@ def horror_segment_to_prompt(
     visual_beat: str | None = None,
 ) -> str:
     """Paid image/I2V keyframe — Don't Blink horror."""
-    style = _load_style_guide()
+    style = _prompt_safe_text(_load_style_guide())
     scene = seg.text.strip() or topic
     beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
     return (

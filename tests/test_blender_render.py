@@ -37,3 +37,14 @@ def test_skip_narrator_tts_for_blender(monkeypatch):
     monkeypatch.setattr(launch_phase, "settings", Settings(video_backend="blender"))
     assert launch_phase.skip_narrator_tts(99) is True
     assert launch_phase.skip_transcript_sync(99) is True
+
+
+def test_render_blender_clips_missing_binary(tmp_path, monkeypatch):
+    import pytest
+
+    from shorts_bot.production import render_blender
+
+    monkeypatch.setattr(render_blender.shutil, "which", lambda name: None)
+
+    with pytest.raises(RuntimeError, match="Blender render blocked"):
+        render_blender.render_blender_clips(clips_dir=tmp_path / "clips", draft_id=1)

@@ -316,7 +316,7 @@ def match_template(
         action=f"Slow uncanny motion then wrong detail: {scene}",
         camera="Slow push-in or locked static, horror framing, 9:16",
         environment="Black and cold blue, film grain, liminal empty room",
-        style="Cinematic horror, terrifying, photorealistic, no cosy palette",
+        style="Cinematic horror, terrifying, photorealistic, no safe lifestyle palette",
         end_state="Shadow shifts or reflection wrong",
         duration_seconds=4.0,
         model_hint="auto",

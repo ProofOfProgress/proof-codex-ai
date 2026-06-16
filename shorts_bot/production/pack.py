@@ -141,7 +141,12 @@ def build_production_pack(
         rules=launch_rules_blurb(draft_id),
     )
     meta = load_draft_meta(draft_id)
-    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+    if (
+        render_images
+        and settings.require_paid_stack
+        and settings.require_beat_sheet_approval
+        and not meta.get("beat_sheet_approved")
+    ):
         raise RuntimeError(
             f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
             f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
@@ -178,7 +183,8 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_blender_video:
+        wants_motion_video = settings.visual_style == "ai_video"
+        if wants_motion_video and settings.uses_blender_video:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
@@ -198,7 +204,7 @@ def build_production_pack(
                 raise RuntimeError(
                     f"Blender returned 0 clips — expected {settings.blender_clips_per_short}."
                 )
-        elif settings.uses_kling_video and settings.has_kling_official:
+        elif wants_motion_video and settings.uses_kling_video and settings.has_kling_official:
             from shorts_bot.production.render_kling import render_kling_clips
 
             clips_rendered = render_kling_clips(
@@ -227,11 +233,11 @@ def build_production_pack(
                 raise RuntimeError(
                     f"Kling returned 0 clips — expected {settings.kling_clips_per_short}."
                 )
-        elif settings.uses_kling_video:
+        elif wants_motion_video and settings.uses_kling_video:
             raise RuntimeError(
                 "Kling video requires KLING_ACCESS_KEY + KLING_SECRET_KEY in Cursor secrets."
             )
-        elif settings.visual_style == "ai_video" and settings.has_paid_images:
+        elif wants_motion_video and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
             priority = [scare_plan.primary_segment_index]
