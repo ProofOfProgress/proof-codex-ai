@@ -25,11 +25,12 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: second-person or first-person immediacy; no cosy narrator; recordings lag reality; 3:12 AM is the glitch hour; what moves in peripheral vision becomes real on replay.
+Laws: second-person or first-person immediacy; no safe narrator; recordings lag reality; 3:12 AM is the glitch hour; what moves in peripheral vision becomes real on replay.
 Twist rewrites hook; finale sting on NEW truth — then stop.
 Settings: alone-at-night apartment (primary) — CCTV camera, mirror, closet, hallway, alarm clock. No phone-screen storytelling.
 Threat: the thing in the recording — edge-of-frame motion, replay mismatch, final jumpscare reveal.
-Not this world: cosy self-help, village cult lore, folk ritual, generic creature showcase, gore.
+Legacy motif: the line-eye mark can appear as a tiny frame-edge symbol; not village Eye worship.
+Not this world: safe self-help, folk ritual, generic creature showcase, gore.
 {horror_lane_compact()}"""
 
 
@@ -50,7 +51,7 @@ def world_visual_continuity() -> str:
         "WORLD — Peripheral / The Gap: alone-at-night apartment, fullscreen CCTV, alarm clock, "
         "mirror, closet, hallway corner, door crack; reality and recording disagree; "
         "night-vision green, cold blue-black shadows, dirty monitor glow; final synced jumpscare; "
-        "no phone-screen storytelling, no cosy self-help, no generic monster showcase."
+        "no phone-screen storytelling, no safe self-help, no generic monster showcase."
     )
 
 
@@ -58,6 +59,8 @@ def world_motifs() -> tuple[str, ...]:
     """Recurring in-universe tokens for topic/QC checks."""
     return (
         "cctv",
+        "eye",
+        "village",
         "security camera",
         "recording",
         "replay",

@@ -30,7 +30,7 @@ Apartment: alone-at-night domestic spaces, door cracks, closets, mirrors, hallwa
 Peripheral: something moves at the edge of frame; reality lags behind the recording; final beat is a jumpscare.
 {metal_aesthetic_compact()}
 Color: night-vision green, cold blue-black (#1A2A3A), dirty monitor glow; crimson accent on finale only.
-Never: phone-screen storytelling, cosy aesthetic, generic monster reveals, faceless narrator, gore.
+Never: phone-screen storytelling, safe lifestyle aesthetic, generic monster reveals, faceless narrator, gore.
 Rejected: {", ".join(HORROR_LANES_REJECTED)}."""
 
 
@@ -38,7 +38,7 @@ def analog_color_rules() -> str:
     """Legacy hook — analog CCTV palette."""
     return (
         "COLOR RULE: night-vision green CCTV wash, cold blue-black shadows, dirty monitor whites; "
-        "crimson accent sparingly on final scare only; avoid warm cosy interiors."
+        "crimson accent sparingly on final scare only; avoid warm safe interiors."
     )
 
 
@@ -50,5 +50,5 @@ def horror_lane_for_qc() -> str:
         f"Channel lane: {HORROR_LANE_LABEL} inside Peripheral (The Gap). "
         f"{black_mirror_for_qc()} "
         "Score fullscreen CCTV, night-vision dread, peripheral motion, and a synced final jumpscare. "
-        "Penalize phone UI, cosy self-help, generic creature shots, and off-screen narrator mismatch."
+        "Penalize phone UI, safe self-help, generic creature shots, and off-screen narrator mismatch."
     )
