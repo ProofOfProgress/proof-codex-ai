@@ -55,7 +55,65 @@ def horror_segment_to_prompt(
     topic: str,
     visual_beat: str | None = None,
 ) -> str:
-    """Paid image/I2V keyframe — Don't Blink horror."""
+    """Paid image keyframe — route crayon lane to Recraft comedy-horror prompts."""
+    from shorts_bot.config import settings
+
+    provider = (settings.image_provider or "").strip().lower()
+    if provider == "recraft":
+        return comedy_horror_drawn_segment_to_prompt(seg, topic=topic, visual_beat=visual_beat)
+    return _photoreal_horror_segment_to_prompt(seg, topic=topic, visual_beat=visual_beat)
+
+
+def comedy_horror_drawn_segment_to_prompt(
+    seg: TranscriptSegment,
+    *,
+    topic: str,
+    visual_beat: str | None = None,
+) -> str:
+    """Smiling Friends lane — cute crayon comedy that can snap to nightmare."""
+    scene = seg.text.strip() or topic
+    beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
+    scary = any(
+        w in scene.lower()
+        for w in (
+            "run",
+            "scream",
+            "demon",
+            "creature",
+            "monster",
+            "oh no",
+            "don't look",
+            "stop",
+            "wrong",
+            "isn't arms",
+            "aren't arms",
+            "bushes",
+            "laugh",
+        )
+    )
+    mood = (
+        "sudden terrifying demon creature, wide mouth, wrong limbs, horror snap, dark forest"
+        if scary
+        else "goofy smiling friends vibe, casual hiking comedy, bright naive cartoon energy"
+    )
+    return (
+        f"Hand-drawn crayon marker illustration still: {scene}. "
+        f"{beat_line}"
+        f"Story: {topic}. "
+        f"Mood: {mood}. "
+        "Setting: pine forest trail, cartoon trees, doodle bushes, Smiling Friends comedy-horror tone. "
+        "Style: naive MS Paint crayon characters, thick outlines, expressive faces, slightly ugly-cute. "
+        "vertical 9:16 still image, no text, no watermark, no photorealism."
+    )
+
+
+def _photoreal_horror_segment_to_prompt(
+    seg: TranscriptSegment,
+    *,
+    topic: str,
+    visual_beat: str | None = None,
+) -> str:
+    """Paid image/I2V keyframe — Don't Blink photoreal horror."""
     style = _load_style_guide()
     scene = seg.text.strip() or topic
     beat_line = f"Shot direction: {visual_beat}. " if visual_beat else ""
