@@ -178,6 +178,7 @@ def _run_pipeline_locked(
 
     # --- Pre-flight quality (before TTS credits) ---
     t0 = _step("preflight")
+    from shorts_bot.drafts.meta import load_draft_meta
     from shorts_bot.drafts.quality import run_quality_checks
 
     pre_qc = run_quality_checks(
@@ -186,7 +187,8 @@ def _run_pipeline_locked(
         hook=draft.hook,
         help_angle=draft.help_angle,
     )
-    if settings.quality_gate_blocks_render and not pre_qc.passed:
+    meta = load_draft_meta(draft_id)
+    if settings.quality_gate_blocks_render and not pre_qc.passed and not meta.get("script_locked"):
         msg = f"Pipeline blocked — pre-flight quality: {pre_qc.summary()}"
         messages.append(msg)
         state.mark("preflight", status="blocked")
@@ -211,15 +213,19 @@ def _run_pipeline_locked(
 
     # --- Humanize ---
     t0 = _step("humanize")
-    from shorts_bot.drafts.meta import load_draft_meta
     from shorts_bot.production.launch_phase import is_silent_launch_draft
 
     meta = load_draft_meta(draft_id)
-    skip_humanize = bool(meta.get("beat_sheet_approved")) and is_silent_launch_draft(draft_id)
+    skip_humanize = bool(meta.get("script_locked")) or (
+        bool(meta.get("beat_sheet_approved")) and is_silent_launch_draft(draft_id)
+    )
     if skip_humanize:
-        messages.append(
-            "Skipped humanize — owner-approved beat sheet (launch phase visual script locked)."
-        )
+        if meta.get("script_locked"):
+            messages.append("Skipped humanize — owner script locked for this draft.")
+        else:
+            messages.append(
+                "Skipped humanize — owner-approved beat sheet (launch phase visual script locked)."
+            )
         state.mark("humanize")
         save_state(pack_dir, state)
     elif resume and state.is_done("humanize") and (pack_dir / "ai_detect_log.txt").exists():
