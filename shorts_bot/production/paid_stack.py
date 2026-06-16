@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from shorts_bot.config import settings
 
-_TIMESTAMP_SOURCES = frozenset({"turboscribe", "cache", "assemblyai", "gemini"})
+_TIMESTAMP_SOURCES = frozenset({"turboscribe", "turboscribe_whale", "cache", "assemblyai", "gemini"})
 _SCRIPT_FALLBACK_SOURCES = frozenset({"script_duration", "script_estimate"})
 
 

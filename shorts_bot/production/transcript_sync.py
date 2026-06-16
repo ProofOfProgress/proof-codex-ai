@@ -310,20 +310,43 @@ def transcribe_with_assemblyai(audio_path: Path, *, timeout_sec: int = 600) -> T
 
 
 def transcribe_audio(audio_path: Path) -> TranscriptResult:
-    """Transcribe voiceover — Gemini by default (no extra signup)."""
+    """Transcribe voiceover — TurboScribe Whale by default (fine switch timing)."""
     if not settings.transcript_always_fresh:
         cached = _read_cache(audio_path)
         if cached:
             return cached
 
-    provider = (settings.transcript_provider or "gemini").strip().lower()
+    provider = (settings.transcript_provider or "turboscribe").strip().lower()
+    ts_err: str | None = None
+
+    if provider == "turboscribe" and settings.use_turboscribe_sync:
+        from shorts_bot.production.turboscribe_sync import transcribe_audio as turboscribe_transcribe
+
+        try:
+            ts = turboscribe_transcribe(audio_path)
+            out_path = _write_cache(audio_path, ts.transcript_text)
+            return TranscriptResult(
+                transcript_text=ts.transcript_text,
+                source=ts.source,
+                message=f"{ts.message} → {out_path.name}",
+            )
+        except Exception as exc:
+            ts_err = str(exc)[:120]
+
     if provider == "assemblyai" and settings.has_assemblyai:
         return transcribe_with_assemblyai(audio_path)
     if settings.has_gemini:
-        return transcribe_with_gemini(audio_path)
+        result = transcribe_with_gemini(audio_path)
+        if ts_err:
+            result = TranscriptResult(
+                transcript_text=result.transcript_text,
+                source=result.source,
+                message=f"TurboScribe unavailable ({ts_err}) — {result.message}",
+            )
+        return result
     if settings.has_assemblyai:
         return transcribe_with_assemblyai(audio_path)
     raise RuntimeError(
-        "Transcript sync needs GEMINI_API_KEY in Cursor secrets (same key as chat/vision). "
-        "Run: bash scripts/install.sh"
+        "Transcript sync needs TurboScribe login or GEMINI_API_KEY. "
+        "Run: python3 -m shorts_bot.login_handoff --only turboscribe"
     )

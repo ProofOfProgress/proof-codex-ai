@@ -65,8 +65,11 @@ SYNC_VARS = (
 
 # Sensible production defaults — written only when the key is absent from .env.
 DEFAULT_ENV: dict[str, str] = {
-    "TRANSCRIPT_PROVIDER": "gemini",
+    "TRANSCRIPT_PROVIDER": "turboscribe",
     "TRANSCRIPT_ALWAYS_FRESH": "false",
+    "USE_TURBOSCRIBE_SYNC": "true",
+    "TURBOSCRIBE_MODE": "whale",
+    "TURBOSCRIBE_ALWAYS_FRESH": "false",
     "VISION_QC_ENABLED": "true",
     "VISION_QC_BLOCKS_UPLOAD": "true",
     "VISION_QC_MIN_SCORE": "7",

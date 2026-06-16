@@ -233,8 +233,11 @@ class Settings(BaseSettings):
     # Quality gates — block before expensive steps / upload
     quality_gate_blocks_render: bool = True
 
-    # Transcript sync — Gemini audio (default; uses GEMINI_API_KEY). AssemblyAI optional fallback.
-    transcript_provider: str = "gemini"  # gemini | assemblyai
+    # Transcript sync — TurboScribe Whale (best switch timing) or Gemini / AssemblyAI fallback.
+    transcript_provider: str = "turboscribe"  # turboscribe | gemini | assemblyai
+    use_turboscribe_sync: bool = True  # browser Whale upload when provider=turboscribe
+    turboscribe_mode: str = "whale"
+    turboscribe_always_fresh: bool = False
     gemini_transcript_model: str = ""  # empty = gemini_model
     assemblyai_api_key: str | None = None  # optional — only if transcript_provider=assemblyai
     assemblyai_speech_model: str = "universal"
