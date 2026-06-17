@@ -9,16 +9,16 @@ from shorts_bot.production.horror_lane import (
 from shorts_bot.production.world import world_rules_compact
 
 
-def test_primary_lane_is_analog():
-    assert HORROR_LANE_PRIMARY == "analog_horror"
-    assert "Analog" in HORROR_LANE_LABEL
+def test_primary_lane_is_village_eye():
+    assert HORROR_LANE_PRIMARY == "village_cult_horror"
+    assert "Eye" in HORROR_LANE_LABEL
 
 
 def test_lane_compact_rejects_creature_and_animal_cruelty():
     text = horror_lane_compact()
     assert "creature" in text.lower()
     assert "animal cruelty" in text.lower()
-    assert "night-vision" in text.lower() or "night vision" in text.lower()
+    assert "village" in text.lower()
 
 
 def test_analog_color_rules_in_visual_dna():
@@ -28,4 +28,4 @@ def test_analog_color_rules_in_visual_dna():
 
 
 def test_world_rules_include_lane():
-    assert "Analog" in world_rules_compact()
+    assert "Eye" in world_rules_compact()

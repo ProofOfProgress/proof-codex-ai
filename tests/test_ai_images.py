@@ -54,6 +54,7 @@ def test_pack_ai_fallback_without_api_key(tmp_path: Path, monkeypatch):
         fal_api_key=None,
         require_paid_stack=False,
         allow_script_timing_fallback=True,
+        require_beat_sheet_approval=False,
     )
     monkeypatch.setattr("shorts_bot.config.settings", fake)
     monkeypatch.setattr("shorts_bot.production.pack.settings", fake)

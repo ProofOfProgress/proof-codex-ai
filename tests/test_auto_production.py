@@ -21,6 +21,7 @@ def test_auto_produce_renders_images(tmp_path: Path, monkeypatch):
         visual_style="hybrid",
         replicate_api_token="r8_test_token_for_pytest",
         ai_video_generation_enabled=False,
+        require_beat_sheet_approval=False,
     )
     monkeypatch.setattr("shorts_bot.config.settings", fake)
     monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
