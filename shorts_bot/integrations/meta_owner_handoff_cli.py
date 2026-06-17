@@ -15,20 +15,18 @@ MY_APPS = "https://developers.facebook.com/apps/"
 EXPLORER = "https://developers.facebook.com/tools/explorer/"
 
 OWNER_STEPS = """
-[bold]Where to look[/bold]
+[bold]You were right — no password on these screens yet.[/bold]
 
-The password box is NOT in this chat.
-It is in the [bold cyan]Desktop[/bold cyan] browser window.
+The app [bold]Peripheral Bot[/bold] is filled in on Desktop. One click left:
 
-1. In Cursor, click the [bold cyan]Desktop[/bold cyan] tab at the top
-   (same place you see Chrome / the remote screen).
-2. Look for a Chrome window on [bold]Meta for Developers[/bold].
-3. A popup in the middle says [bold]"Please re-enter your password"[/bold].
-4. Type your Facebook password in that popup → click [bold]Submit[/bold].
-5. Then click the green [bold]Create app[/bold] button (app name: Peripheral Bot).
+1. Click the [bold cyan]Desktop[/bold cyan] tab in Cursor
+2. Open the Chrome tab [bold]"Create an app"[/bold]
+3. You should see App name = [bold cyan]Peripheral Bot[/bold cyan]
+4. Click the green [bold]Create app[/bold] button (bottom right)
 
-[dim]If you do not see any Chrome window on Desktop, tell the agent
-"open desktop browser" and we will launch it again.[/dim]
+[dim]Facebook may ask for your password ONLY after that click.
+If a popup appears then, type password → Submit.
+If nothing asks for password, the app was created — tell agent "done".[/dim]
 """
 
 
