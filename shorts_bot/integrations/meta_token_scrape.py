@@ -123,65 +123,136 @@ def scrape_explorer_user_token(*, wait_sec: int = 15) -> str:
             page.goto(EXPLORER, wait_until="domcontentloaded", timeout=120000)
             time.sleep(8)
 
-        # Meta app selector — pick first app or create
-        for label in ("Create App", "Get Token", "Generate Access Token"):
+        # Select Peripheral Bot app if dropdown visible
+        try:
+            page.locator('text=Peripheral Bot').first.click(force=True, timeout=3000)
+        except Exception:
+            pass
+
+        # Add permissions via "Add a Permission" combobox
+        perms = (
+            "pages_manage_posts",
+            "pages_show_list",
+            "pages_read_engagement",
+            "pages_manage_metadata",
+            "publish_video",
+        )
+        for perm in perms:
             try:
-                page.get_by_role("button", name=re.compile(label, re.I)).first.click(force=True, timeout=6000)
+                add = page.get_by_text("Add a Permission", exact=False)
+                if add.count():
+                    add.first.click(force=True, timeout=3000)
+                    time.sleep(0.5)
+                page.get_by_text(perm, exact=True).first.click(force=True, timeout=3000)
+                time.sleep(0.4)
+            except Exception:
+                try:
+                    page.locator(f'[role="option"]:has-text("{perm}")').first.click(
+                        force=True, timeout=2000
+                    )
+                    time.sleep(0.4)
+                except Exception:
+                    pass
+
+        # Generate token — opens OAuth (owner may need to click Continue on Desktop)
+        for label in ("Generate Access Token",):
+            try:
+                page.get_by_role("button", name=re.compile(label, re.I)).first.click(
+                    force=True, timeout=8000
+                )
+                time.sleep(4)
+            except Exception:
+                pass
+
+        for label in ("Get User Access Token", "Get Page Access Token"):
+            try:
+                page.get_by_text(label, exact=False).first.click(force=True, timeout=5000)
                 time.sleep(3)
             except Exception:
                 pass
 
-        # Permissions for Reels + insights
-        for perm in ("pages_manage_posts", "pages_show_list", "pages_read_engagement"):
-            try:
-                cb = page.get_by_label(re.compile(perm, re.I))
-                if cb.count():
-                    cb.first.check(force=True, timeout=3000)
-            except Exception:
-                pass
-
-        for label in (
-            "Generate Access Token",
-            "Get Page Access Token",
-            "Get User Access Token",
-            "Get Token",
-        ):
-            try:
-                btn = page.get_by_role("button", name=re.compile(label, re.I))
-                if btn.count():
-                    btn.first.click(force=True, timeout=8000)
-                    time.sleep(5)
-                    break
-            except Exception:
-                continue
-
-        # OAuth confirm
-        for label in ("Continue as", "Continue", "OK", "Done", "Save"):
-            try:
-                btn = page.get_by_role("button", name=re.compile(label, re.I))
-                if btn.count():
-                    btn.first.click(force=True, timeout=5000)
-                    time.sleep(3)
-            except Exception:
-                pass
-
+        # OAuth confirm — poll up to 3 min for owner to click Continue on Desktop
+        deadline = time.time() + 180
         token = ""
-        for sel in (
-            'input[placeholder*="Access Token" i]',
-            'input[aria-label*="Access Token" i]',
-            "textarea",
-        ):
-            loc = page.locator(sel)
-            for i in range(min(loc.count(), 8)):
+        while time.time() < deadline:
+            for label in ("Continue as", "Continue", "OK", "Done", "Save", "Got it"):
                 try:
-                    val = (loc.nth(i).input_value() or "").strip()
-                    if val.startswith("EAA") and len(val) > 40:
-                        token = val
-                        break
+                    btn = page.get_by_role("button", name=re.compile(label, re.I))
+                    if btn.count():
+                        btn.first.click(force=True, timeout=3000)
+                        time.sleep(2)
                 except Exception:
                     pass
+            for sel in (
+                'input[placeholder*="Access Token" i]',
+                'input[aria-label*="Access Token" i]',
+                "textarea",
+            ):
+                loc = page.locator(sel)
+                for i in range(min(loc.count(), 8)):
+                    try:
+                        val = (loc.nth(i).input_value() or "").strip()
+                        if val.startswith("EAA") and len(val) > 40:
+                            token = val
+                            break
+                    except Exception:
+                        pass
+                if token:
+                    break
             if token:
                 break
+            time.sleep(5)
+
+        if not token:
+            # Legacy permission checkboxes
+            for perm in ("pages_manage_posts", "pages_show_list", "pages_read_engagement"):
+                try:
+                    cb = page.get_by_label(re.compile(perm, re.I))
+                    if cb.count():
+                        cb.first.check(force=True, timeout=3000)
+                except Exception:
+                    pass
+
+            for label in (
+                "Generate Access Token",
+                "Get Page Access Token",
+                "Get User Access Token",
+                "Get Token",
+            ):
+                try:
+                    btn = page.get_by_role("button", name=re.compile(label, re.I))
+                    if btn.count():
+                        btn.first.click(force=True, timeout=8000)
+                        time.sleep(5)
+                        break
+                except Exception:
+                    continue
+
+            for label in ("Continue as", "Continue", "OK", "Done", "Save"):
+                try:
+                    btn = page.get_by_role("button", name=re.compile(label, re.I))
+                    if btn.count():
+                        btn.first.click(force=True, timeout=5000)
+                        time.sleep(3)
+                except Exception:
+                    pass
+
+            for sel in (
+                'input[placeholder*="Access Token" i]',
+                'input[aria-label*="Access Token" i]',
+                "textarea",
+            ):
+                loc = page.locator(sel)
+                for i in range(min(loc.count(), 8)):
+                    try:
+                        val = (loc.nth(i).input_value() or "").strip()
+                        if val.startswith("EAA") and len(val) > 40:
+                            token = val
+                            break
+                    except Exception:
+                        pass
+                if token:
+                    break
 
         page.screenshot(path="data/production/_meta_token_scrape.png", full_page=True)
         context.close()
@@ -189,7 +260,7 @@ def scrape_explorer_user_token(*, wait_sec: int = 15) -> str:
     if not token:
         raise RuntimeError(
             "Could not read access token from Graph API Explorer. "
-            "Open Desktop → generate token with pages_manage_posts → retry."
+            "On Desktop: Graph API Explorer → Generate Access Token → Continue as you → retry."
         )
     return token
 
