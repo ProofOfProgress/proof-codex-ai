@@ -65,9 +65,14 @@ def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run one full daily Short (fully AI).")
     parser.add_argument("--topic", default=None, help="Override rotated topic")
+    parser.add_argument("--upload", action="store_true", help="Upload to YouTube after render")
     parser.add_argument("--no-upload", action="store_true")
     args = parser.parse_args()
-    upload = False if args.no_upload else None
+    upload: bool | None = None
+    if args.upload:
+        upload = True
+    if args.no_upload:
+        upload = False
     console.print(f"[green]{run_daily(topic=args.topic, upload=upload)}[/green]")
 
 
