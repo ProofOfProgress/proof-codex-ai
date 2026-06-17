@@ -21,10 +21,20 @@
 
 ### Meta API token (for autopost without browser)
 
-1. Desktop → https://developers.facebook.com/tools/explorer/
-2. Click **Register** (one-time developer signup — automation can't finish this modal alone)
-3. **Generate Access Token** → **Peripheral Horror** Page
-4. Permissions: `pages_manage_posts`, `pages_show_list`, `pages_read_engagement`
+**Agent command (opens Desktop browser):**
+
+```bash
+python3 -m shorts_bot.integrations.meta_app_create_cli
+```
+
+**You do once:** When the popup says **"Please re-enter your password"**, type your Facebook password on Desktop → **Submit**. Agent waits up to 10 minutes, then creates **Peripheral Bot** app + saves Page token.
+
+**Or if app already exists:**
+
+```bash
+python3 -m shorts_bot.integrations.meta_app_create_cli --token-only
+```
+
 5. Cursor Secrets:
    - `FACEBOOK_PAGE_ID=61590716288819`
    - `META_PAGE_ACCESS_TOKEN=EAA...`
