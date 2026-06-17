@@ -25,11 +25,17 @@ def run_api_setup(*, create_page: bool = True, scrape_meta: bool = True) -> list
 
     if scrape_meta:
         try:
-            from shorts_bot.integrations.meta_token_scrape import setup_meta_page_api
+            from shorts_bot.integrations.meta_app_create import setup_meta_app_and_token
 
-            lines.append(setup_meta_page_api())
+            lines.append(setup_meta_app_and_token())
         except Exception as exc:
-            lines.append(f"Meta token: {exc}")
+            lines.append(f"Meta app + token: {exc}")
+            try:
+                from shorts_bot.integrations.meta_token_scrape import setup_meta_page_api
+
+                lines.append(setup_meta_page_api())
+            except Exception as exc2:
+                lines.append(f"Meta token fallback: {exc2}")
 
     if create_page or scrape_meta:
         try:
