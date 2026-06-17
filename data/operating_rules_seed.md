@@ -87,7 +87,9 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Production stack
 
-**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`.
+**Video (locked 2026-06-13):** **Blender 3D on cloud** — **3×10s EEVEE clips**, silent launch + post horror SFX. **Motion default: procedural + self-train** (camera/mouth/lunge keys learned from vision QC + YouTube analytics). **Mixamo/downloaded FBX is opt-in only** (`BLENDER_USE_MIXAMO=1` or `--use-mixamo`) — pre-baked downloads bypass motion learning if used as default. **No Kling.** **No Gemini bone animation.** See `docs/BLENDER_SELF_TRAIN.md`, `docs/FOR_OWNER_CLOUD_MOTION.md`.
+
+**Blender visual quality bar — LIGHTS ARE OFF (owner north star):** Finished Blender horror like https://youtube.com/shorts/R7cEIG_gqLU · https://youtube.com/shorts/zCA4NuvoVXI · https://youtu.be/S0x2llxEAjk · https://youtu.be/lnDP902qeqw · channel https://www.youtube.com/@LIGHTSAREOFF. Codex: `data/research/LIGHTS_ARE_OFF_BLENDER_REFERENCE.md`. **Every Gemini visual QC / planning prompt** must include those links (code: `shorts_bot/production/blender/gemini_blender_reference.py`). Owner approves one preview still before YouTube schedule. FAIL grey block-outs and broken FBX textures.
 
 Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
 

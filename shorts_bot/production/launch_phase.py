@@ -21,7 +21,7 @@ def should_burn_subtitles(draft_id: int | None) -> bool:
         return False
     from shorts_bot.production.captions import burn_captions_via_ffmpeg
 
-    return burn_captions_via_ffmpeg() or settings.burn_in_subtitles
+    return burn_captions_via_ffmpeg()
 
 
 def kling_sound_enabled_for_draft(draft_id: int | None) -> bool:

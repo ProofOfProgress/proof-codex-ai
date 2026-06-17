@@ -8,6 +8,7 @@ from typing import Literal
 ContentFormatId = Literal[
     "short_30",
     "short_hybrid",
+    "micro_jumpscare",
     "long_compilation",
     "long_still",
     "long_hybrid",
@@ -52,6 +53,16 @@ PROFILES: dict[ContentFormatId, ContentFormatProfile] = {
         visual_style="hybrid",
         reuse_short_clips=False,
         description="Hook + finale I2V; middle beats Ken Burns stills — ~70% cost cut.",
+    ),
+    "micro_jumpscare": ContentFormatProfile(
+        id="micro_jumpscare",
+        label="Micro jumpscare (~3s)",
+        aspect_ratio="9:16",
+        target_duration_seconds=(2.5, 4.0),
+        max_i2v_beats=0,
+        visual_style="ai_video",
+        reuse_short_clips=False,
+        description="One 3s Blender lunge + volume sting — no VO, scroll-feed scare.",
     ),
     "long_compilation": ContentFormatProfile(
         id="long_compilation",

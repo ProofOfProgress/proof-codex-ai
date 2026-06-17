@@ -358,7 +358,7 @@ def render_dedicated_jumpscare_clip(
     if not image_path.exists():
         from shorts_bot.production.images.router import generate_image
 
-        generate_image(brief.prompt, image_path)
+        generate_image(brief.prompt, image_path, style_id=brief.recraft_style_id)
 
     motion_prompt, model_hint, template_id = _video_prompt_for_segment(
         seg,

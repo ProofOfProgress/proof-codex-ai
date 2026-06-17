@@ -60,7 +60,7 @@ def test_render_ai_skips_frame_caption_in_ffmpeg_mode(tmp_path: Path, monkeypatc
     def fake_caption(path, text):
         called["n"] += 1
 
-    def fake_generate(prompt, path):
+    def fake_generate(prompt, path, **kwargs):
         from PIL import Image
 
         Image.new("RGB", (1080, 1920), "#0B1020").save(path, "PNG")

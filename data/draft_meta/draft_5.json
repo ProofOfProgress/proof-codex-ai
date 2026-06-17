@@ -1,11 +1,20 @@
 {
+  "beat_sheet_approved": true,
+  "script_locked": true,
   "visual_beats": [
-    "Phone lock screen: delivered receipt, contact name, 3am",
-    "Call failed \u2014 phone off icon",
-    "New message slides in: I can see you",
-    "Window reflection empty",
-    "Phone glows in dark hallway on its own",
-    "False calm: static chat screen",
-    "Screen morphs to your face screaming full frame"
-  ]
+    "Morning trail — two hikers, peaceful",
+    "Famous last words beat",
+    "Lost Boy appears between pines — first sighting",
+    "He waves — Carol waves back",
+    "Don't wave back — frozen smile close-up",
+    "Ranger lore + boy still out there (sting)"
+  ],
+  "jumpscare_plan": {
+    "profile": "finale",
+    "primary_segment_index": 11,
+    "has_jumpscare": true,
+    "sting_start_ratio": 0.92,
+    "volume_warning": "🔊 VOLUME WARNING — sting at the end.",
+    "creator_note": "Lost Boy close-up on final line."
+  }
 }

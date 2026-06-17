@@ -14,7 +14,31 @@ from shorts_bot.production.images.router import generate_image
 
 def render_ai_frame(brief: ImageBrief, out_path: Path) -> bool:
     try:
-        provider = generate_image(brief.prompt, out_path)
+        from shorts_bot.production.lost_boy_image_lab import generate_still_with_qc
+
+        if "lost boy" in brief.prompt.lower():
+            from shorts_bot.production.image_prompts import (
+                classify_lost_boy_shot,
+                lost_boy_pose_requirements,
+            )
+
+            shot = classify_lost_boy_shot(brief.spoken_text)
+            requirements = lost_boy_pose_requirements(shot)
+            if shot in (
+                "boy_waving_group",
+                "group_tension",
+            ):
+                requirements += " Group shots need 2+ visible adult hikers plus the boy."
+            return generate_still_with_qc(
+                brief.prompt,
+                out_path,
+                style_id=brief.recraft_style_id,
+                spoken_line=brief.spoken_text,
+                requirements=requirements,
+                max_attempts=3,
+            )
+
+        generate_image(brief.prompt, out_path, style_id=brief.recraft_style_id)
         if burn_captions_on_frames():
             apply_bottom_caption(out_path, brief.spoken_text)
         return True
@@ -35,4 +59,16 @@ def render_all_ai_images(briefs: list[ImageBrief], images_dir: Path) -> int:
         path = images_dir / f"{b.filename_stem}.png"
         if render_ai_frame(b, path):
             count += 1
+            continue
+        # Fail-soft: one simplified retry so pipeline doesn't die on one frame
+        safe_prompt = (
+            f"Hand-drawn cartoon forest illustration: {b.spoken_text}. "
+            "9:16 vertical still, no text, family-safe spooky comedy."
+        )
+        try:
+            generate_image(safe_prompt, path, style_id=b.recraft_style_id)
+            if path.is_file() and path.stat().st_size > 1000:
+                count += 1
+        except Exception:
+            pass
     return count

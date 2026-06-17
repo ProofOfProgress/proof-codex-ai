@@ -19,6 +19,9 @@ _SITE_URLS = {
     "google": "https://accounts.google.com/signin",
     "trends": "https://trends.google.com/trends/explore",
     "capcut": "https://www.capcut.com/my-edit",
+    "mixamo": "https://www.mixamo.com/#/",
+    "recraft": "https://recraft.ai/profile",
+    "recraft_studio": "https://app.recraft.ai",
 }
 
 

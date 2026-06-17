@@ -41,6 +41,14 @@ SYNC_VARS = (
     "SLACK_AUTONOMY_ENABLED",
     "FAL_API_KEY",
     "IMAGE_PROVIDER",
+    "RECRAFT_API_KEY",
+    "RECRAFT_STYLE_ID",
+    "RECRAFT_STYLE_ID_HORROR",
+    "RECRAFT_MODEL",
+    "RECRAFT_IMAGE_SIZE",
+    "FACEBOOK_PAGE_ID",
+    "META_PAGE_ACCESS_TOKEN",
+    "AUTO_UPLOAD_FACEBOOK",
     "VISUAL_STYLE",
     "REPLICATE_VIDEO_MODEL",
     "AI_VIDEO_GENERATION_ENABLED",
@@ -60,8 +68,11 @@ SYNC_VARS = (
 
 # Sensible production defaults — written only when the key is absent from .env.
 DEFAULT_ENV: dict[str, str] = {
-    "TRANSCRIPT_PROVIDER": "gemini",
+    "TRANSCRIPT_PROVIDER": "turboscribe",
     "TRANSCRIPT_ALWAYS_FRESH": "false",
+    "USE_TURBOSCRIBE_SYNC": "true",
+    "TURBOSCRIBE_MODE": "whale",
+    "TURBOSCRIBE_ALWAYS_FRESH": "false",
     "VISION_QC_ENABLED": "true",
     "VISION_QC_BLOCKS_UPLOAD": "true",
     "VISION_QC_MIN_SCORE": "7",

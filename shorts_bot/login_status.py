@@ -241,6 +241,17 @@ def _check_browser_site(
 
 def _check_image_api() -> ServiceStatus:
     provider = (settings.image_provider or "replicate").strip().lower()
+    if provider == "recraft" and settings.has_recraft_images:
+        from shorts_bot.production.images.recraft import probe_recraft
+
+        ok, detail = probe_recraft(settings.recraft_api_key or "")
+        return ServiceStatus(
+            "recraft_images",
+            "Recraft image API",
+            ok,
+            detail,
+            "https://recraft.ai/profile",
+        )
     if provider == "fal" and settings.has_fal_images:
         from shorts_bot.production.images.fal import probe_fal
 
@@ -264,8 +275,8 @@ def _check_image_api() -> ServiceStatus:
         "image_api",
         "Paid image API",
         False,
-        "REPLICATE_API_TOKEN or FAL_API_KEY missing",
-        "https://replicate.com/account/api-tokens",
+        "RECRAFT_API_KEY, REPLICATE_API_TOKEN, or FAL_API_KEY missing",
+        "https://recraft.ai/profile",
     )
 
 
@@ -426,6 +437,140 @@ def _check_playwright() -> ServiceStatus:
     )
 
 
+def _in_pytest() -> bool:
+    import os
+
+    return bool(os.environ.get("PYTEST_CURRENT_TEST"))
+
+
+def _check_turboscribe_browser() -> ServiceStatus:
+    if _in_pytest():
+        return ServiceStatus(
+            "turboscribe",
+            "TurboScribe Whale (browser)",
+            False,
+            "Skipped live probe during tests",
+            None,
+        )
+    if not settings.use_turboscribe_sync:
+        return ServiceStatus(
+            "turboscribe",
+            "TurboScribe Whale (browser)",
+            False,
+            "USE_TURBOSCRIBE_SYNC=false",
+            None,
+        )
+    from shorts_bot.browser.profile_lock import browser_profile_locked
+
+    locked, lock_detail = browser_profile_locked()
+    if locked:
+        return ServiceStatus(
+            "turboscribe",
+            "TurboScribe Whale (browser)",
+            True,
+            f"Owner Desktop session active ({lock_detail})",
+        )
+
+    import os
+
+    if not os.environ.get("DISPLAY"):
+        return ServiceStatus(
+            "turboscribe",
+            "TurboScribe Whale (browser)",
+            False,
+            "Headless blocked by Cloudflare — export on Desktop",
+            "python3 -m shorts_bot.production.turboscribe_handoff_cli --draft-id N",
+        )
+
+    from shorts_bot.production.turboscribe_probe import TurboScribeState, probe_turboscribe
+
+    probe = probe_turboscribe(timeout_sec=12)
+    if probe.state == TurboScribeState.OK:
+        return ServiceStatus("turboscribe", "TurboScribe Whale (browser)", True, probe.detail)
+    return ServiceStatus(
+        "turboscribe",
+        "TurboScribe Whale (browser)",
+        False,
+        probe.detail,
+        probe.action or "python3 -m shorts_bot.login_handoff --only turboscribe",
+    )
+
+
+def _check_facebook_browser() -> ServiceStatus:
+    from shorts_bot.integrations.facebook_credentials import resolve_facebook_credentials
+
+    if _in_pytest():
+        return ServiceStatus(
+            "facebook_browser",
+            "Facebook Page (browser)",
+            False,
+            "Skipped live probe during tests",
+            None,
+        )
+    pid, token, _ = resolve_facebook_credentials()
+    if pid and token:
+        return ServiceStatus(
+            "facebook_browser",
+            "Facebook Page (browser)",
+            True,
+            "API tokens configured — browser optional",
+        )
+    from shorts_bot.browser.profile_lock import browser_profile_locked
+
+    locked, lock_detail = browser_profile_locked()
+    if locked:
+        return ServiceStatus(
+            "facebook_browser",
+            "Facebook Page (browser)",
+            True,
+            f"Owner Desktop session active ({lock_detail})",
+        )
+
+    from shorts_bot.integrations.facebook_page_discover import discover_managed_pages
+
+    pages, msg = discover_managed_pages(timeout_sec=12)
+    if pages:
+        names = ", ".join(p.name for p in pages[:3])
+        return ServiceStatus(
+            "facebook_browser",
+            "Facebook Page (browser)",
+            True,
+            f"{msg}: {names}",
+        )
+    return ServiceStatus(
+        "facebook_browser",
+        "Facebook Page (browser)",
+        False,
+        msg,
+        "python3 -m shorts_bot.integrations.facebook_handoff_cli --open-browser",
+    )
+
+
+def _check_facebook_api() -> ServiceStatus:
+    from shorts_bot.integrations.facebook_credentials import resolve_facebook_credentials
+    from shorts_bot.integrations.facebook_reel_api import probe_facebook_reel_api
+
+    pid, token, source = resolve_facebook_credentials()
+    if not pid or not token:
+        return ServiceStatus(
+            "facebook_api",
+            "Facebook Reel API",
+            False,
+            "FACEBOOK_PAGE_ID + META_PAGE_ACCESS_TOKEN not set",
+            "python3 -m shorts_bot.integrations.api_setup_cli",
+        )
+    ok, detail = probe_facebook_reel_api(page_id=pid, access_token=token)
+    if ok:
+        detail = f"{detail} ({source})"
+    return ServiceStatus(
+        "facebook_api",
+        "Facebook Reel API",
+        ok,
+        detail,
+        None if ok else "python3 -m shorts_bot.integrations.api_setup_cli",
+    )
+
+
 def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
     """Return live status for all integrations."""
     items = [
@@ -436,10 +581,13 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_chat(),
         _check_resemble(),
         _check_transcript_sync(),
+        _check_turboscribe_browser(),
         _check_vision_qc(),
         _check_image_api(),
         _check_youtube_oauth(),
         _check_youtube_upload(),
+        _check_facebook_browser(),
+        _check_facebook_api(),
     ]
     if include_studio:
         items.append(_check_studio())

@@ -1,0 +1,36 @@
+{
+  "passed": 5,
+  "total": 5,
+  "results": [
+    {
+      "part": "3",
+      "name": "camera_keyframes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "linked_duplicate",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "creature_collection",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "part": "3",
+      "name": "camera_look_at_pumps",
+      "pass": true,
+      "detail": "dot=1.000"
+    },
+    {
+      "part": "3",
+      "name": "elevated_lunge_pov",
+      "pass": true,
+      "detail": "z=2.18 shift_y=-0.097"
+    }
+  ]
+}

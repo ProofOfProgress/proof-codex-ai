@@ -645,14 +645,19 @@ class MemoryExtensions:
         video_id: str,
         draft_id: int | None = None,
         visibility: str = "unlisted",
-        publish_after_hours: int,
+        publish_after_hours: int = 0,
+        publish_at: datetime | None = None,
     ) -> None:
-        if publish_after_hours <= 0:
-            return
         from datetime import datetime, timedelta, timezone
 
-        now = datetime.now(timezone.utc)
-        publish_at = now + timedelta(hours=publish_after_hours)
+        if publish_at is not None:
+            if publish_at.tzinfo is None:
+                publish_at = publish_at.replace(tzinfo=timezone.utc)
+            when = publish_at
+        elif publish_after_hours > 0:
+            when = datetime.now(timezone.utc) + timedelta(hours=publish_after_hours)
+        else:
+            return
         uploaded_at = _utc_now()
         with self._conn() as conn:
             conn.execute(
@@ -672,7 +677,7 @@ class MemoryExtensions:
                     video_id,
                     visibility,
                     uploaded_at,
-                    publish_at.isoformat(),
+                    when.isoformat(),
                 ),
             )
 

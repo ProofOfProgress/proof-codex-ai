@@ -492,8 +492,14 @@ def _render_from_video_clips(
 
 
 def _concat_blender_clips(clips_dir: Path, tmp_dir: Path) -> Path:
-    """Join blender_part_*.mp4 in order — video only (SFX added in post)."""
-    clips = sorted(clips_dir.glob("blender_part_*.mp4"))
+    """Join blender_part_NN.mp4 in order — video only (SFX added in post)."""
+    import re
+
+    clips = sorted(
+        p
+        for p in clips_dir.glob("blender_part_*.mp4")
+        if re.fullmatch(r"blender_part_\d{2}\.mp4", p.name)
+    )
     if not clips:
         raise FileNotFoundError(f"No Blender clips in {clips_dir}")
     tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -909,6 +915,10 @@ def render_short_video(
         message=(
             f"Rendered {out_path.name} ({audio_duration:.1f}s, 1080×1920"
             f"{', Ken Burns ' + zoom_motion if use_motion else ''}). "
-            f"Captions: ffmpeg ASS burn-in + captions.srt for YouTube."
+            + (
+                "Captions: captions.srt only (synced to voice, not burned in)."
+                if not burn_captions
+                else "Captions: ffmpeg ASS burn-in + captions.srt for YouTube."
+            )
         ),
     )

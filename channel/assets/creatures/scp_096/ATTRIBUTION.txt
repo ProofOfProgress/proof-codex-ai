@@ -1,0 +1,8 @@
+SCP-096 creature mesh
+Source: SCP - Containment Breach Ultimate Edition Reborn
+Repository: https://github.com/Jabka666/scpcb-ue-my
+License: Creative Commons Attribution-ShareAlike 3.0
+https://creativecommons.org/licenses/by-sa/3.0/
+
+Original SCP-096 by SCP Foundation community (CC BY-SA).
+Used as Peripheral Form 2 base mesh — retextured/darkened in render pipeline.

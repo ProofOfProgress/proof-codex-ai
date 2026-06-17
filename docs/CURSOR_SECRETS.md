@@ -72,7 +72,15 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `OPENAI_MODEL` | Environment Variable | Model slug (string) | `gpt-4o-mini` | |
 | `ASSEMBLYAI_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | Skip unless `TRANSCRIPT_PROVIDER=assemblyai` |
 | `FAL_API_KEY` | Runtime Secret | API key (string) | `________________________________` | If `IMAGE_PROVIDER=fal` |
-| `IMAGE_PROVIDER` | Environment Variable | Enum: `replicate` \| `fal` | `replicate` | |
+| `RECRAFT_API_KEY` | Runtime Secret | Bearer token from Recraft Profile | `________________________________` | https://recraft.ai/profile → Generate |
+| `RECRAFT_STYLE_ID` | Runtime Secret | UUID — comedy / everyday character style | `________-____-____-____-____________` | Recraft custom style |
+| `RECRAFT_STYLE_ID_HORROR` | Runtime Secret | UUID — ink/creepypasta horror snap style | `________-____-____-____-____________` | Used on scary transcript beats |
+| `RECRAFT_MODEL` | Environment Variable | Model slug | `recraftv3` | Custom styles need V3 |
+| `RECRAFT_IMAGE_SIZE` | Environment Variable | WxH or w:h | `1024x1820` | 9:16 Shorts still |
+| `FACEBOOK_PAGE_ID` | Runtime Secret | Numeric Page ID (string) | `123456789012345` | Meta → your **Peripheral** Page settings |
+| `META_PAGE_ACCESS_TOKEN` | Runtime Secret | Page access token (starts `EAA`) | `EAA________________________` | Graph API Explorer → Page token |
+| `AUTO_UPLOAD_FACEBOOK` | Environment Variable | `true` \| `false` | `false` | Auto-post Reels with closed loop |
+| `IMAGE_PROVIDER` | Environment Variable | Enum: `recraft` \| `replicate` \| `fal` | `recraft` | Crayon lane = recraft |
 | `VISUAL_STYLE` | Environment Variable | Enum: `ai_video` \| `hybrid` \| `ai` \| `calm_stills` | `ai_video` | Default = free AI horror motions |
 | `TAVILY_API_KEY` | Runtime Secret | API key (string, starts `tvly-`) | `tvly-____________________________` | Deep web research |
 | `SLACK_BOT_TOKEN` | Runtime Secret | Bot token `xoxb-...` | `xoxb-...` | [api.slack.com/apps](https://api.slack.com/apps) → AlphaBeta001 app |

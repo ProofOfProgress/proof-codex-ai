@@ -99,7 +99,19 @@ class Settings(BaseSettings):
     resemble_horror_prompt: str = ""  # empty = built-in horror delivery primer
     visual_style: str = "ai_video"  # ai_video (I2V clips) | hybrid | ai (legacy → ai_video)
     # Content format — see shorts_bot/production/content_format.py + docs/CONTENT_FORMATS.md
-    content_format: str = "short_30"  # short_30 | short_hybrid | long_compilation | long_still | long_hybrid
+    content_format: str = "short_30"  # short_30 | short_hybrid | micro_jumpscare | long_* 
+    micro_jumpscare_seconds: float = 3.0
+    micro_jumpscare_sting_at: float = 0.42  # seconds — bait frame then volume blast
+    micro_jumpscare_bed_gain: float = 0.85  # loud noise throughout (not whisper-quiet)
+    micro_jumpscare_roar_gain: float = 1.85  # premade CC0 roar at lunge
+    micro_jumpscare_scream_enabled: bool = True
+    micro_jumpscare_scream_gain: float = 1.45  # high-pitch shriek at final frame
+    micro_jumpscare_scream_before_end: float = 0.48  # seconds before clip ends
+    micro_jumpscare_roar_path: Path = Path("channel/assets/sfx/monster_roar_cc0.wav")
+    micro_jumpscare_rule_of_thirds: float = 0.5  # center frame — face at peak
+    micro_jumpscare_creature_height: float = 1.85  # meters — human-scale vs gas-station lot
+    micro_jumpscare_creature_scale: float = 0.82  # uniform scale vs FBX env (0.07)
+    micro_jumpscare_creature_only: bool = True  # lunge lab — monster + void, no gas station
 
     @field_validator("visual_style", mode="before")
     @classmethod
@@ -113,8 +125,13 @@ class Settings(BaseSettings):
     # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
     ai_video_generation_enabled: bool = False
 
-    # Paid image generation (Replicate FLUX or Fal.ai)
-    image_provider: str = "replicate"  # replicate | fal
+    # Paid image generation (Recraft crayon stills, Replicate FLUX, or Fal.ai)
+    image_provider: str = "replicate"  # recraft | replicate | fal
+    recraft_api_key: str | None = None
+    recraft_style_id: str | None = None  # comedy / everyday character lane
+    recraft_style_id_horror: str | None = None  # ink/creepypasta snap beats
+    recraft_model: str = "recraftv3"  # custom style_id needs V3 (not V4)
+    recraft_image_size: str = "1024x1820"  # 9:16 Shorts still
     replicate_api_token: str | None = None
     replicate_image_model: str = "black-forest-labs/flux-schnell"
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
@@ -136,6 +153,26 @@ class Settings(BaseSettings):
     blender_clip_seconds: float = 10.0
     blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
     blender_force_regen: bool = False
+    blender_creature_model: str | None = None  # FBX/GLB/OBJ — default slot channel/assets/creatures/scp_096/
+    blender_creature_scale: float = 1.0  # extra uniform scale after import
+    blender_motion_backend: str = "procedural"  # procedural | proscenium_fbx — procedural default for self-train
+    blender_animation_tool: str = "proscenium"  # proscenium | kimodo | mixamo — see docs/FOR_OWNER_PROSCENIUM.md
+    blender_use_mixamo_motion: bool = False  # opt-in Mixamo FBX; off by default (bypasses motion learning)
+    # Blender self-reinforcement — try render params → vision QC score → update (see docs/BLENDER_SELF_TRAIN.md)
+    blender_self_train_enabled: bool = True
+    blender_self_train_trials: int = 5
+    blender_self_train_target_score: float = 7.5
+    blender_self_train_samples: int = 24  # fast trials; best applied to final render separately
+    blender_self_train_camera_z: float = 3.40
+    blender_self_train_mouth_emissive: float = 9.0
+    blender_self_train_auto_grind: bool = True
+    blender_self_train_on_sync: bool = True
+    blender_self_train_interval_hours: int = 12  # aligned with analytics sync
+    blender_self_train_trials_on_sync: int = 3
+    blender_self_train_default_draft_id: int = 2
+    blender_preflight_still_enabled: bool = True
+    blender_preflight_min_score: float = 6.5
+    blender_preflight_samples: int = 16
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
     replicate_video_model_jumpscare: str = "minimax/hailuo-2.3-fast"
@@ -196,12 +233,20 @@ class Settings(BaseSettings):
     # Quality gates — block before expensive steps / upload
     quality_gate_blocks_render: bool = True
 
-    # Transcript sync — Gemini audio (default; uses GEMINI_API_KEY). AssemblyAI optional fallback.
-    transcript_provider: str = "gemini"  # gemini | assemblyai
+    # Transcript sync — TurboScribe Whale (best switch timing) or Gemini / AssemblyAI fallback.
+    transcript_provider: str = "turboscribe"  # turboscribe | gemini | assemblyai
+    use_turboscribe_sync: bool = True  # browser Whale upload when provider=turboscribe
+    turboscribe_mode: str = "whale"
+    turboscribe_always_fresh: bool = False
     gemini_transcript_model: str = ""  # empty = gemini_model
     assemblyai_api_key: str | None = None  # optional — only if transcript_provider=assemblyai
     assemblyai_speech_model: str = "universal"
     transcript_always_fresh: bool = False  # reuse transcript.txt on pipeline retry (saves API $)
+
+    # Facebook Reels — Graph API (Page token + Page ID)
+    facebook_page_id: str | None = None
+    meta_page_access_token: str | None = None
+    auto_upload_facebook: bool = False
 
     # YouTube — API upload preferred; Studio browser fallback when OAuth missing on VM
     youtube_upload_via_api: bool = True
@@ -299,8 +344,13 @@ class Settings(BaseSettings):
         return bool(key) and len(key) >= 8 and "your" not in key.lower()
 
     @property
+    def has_recraft_images(self) -> bool:
+        key = (self.recraft_api_key or "").strip()
+        return bool(key) and len(key) >= 16 and "your" not in key.lower()
+
+    @property
     def has_paid_images(self) -> bool:
-        return self.has_replicate_images or self.has_fal_images
+        return self.has_recraft_images or self.has_replicate_images or self.has_fal_images
 
     @property
     def has_assemblyai(self) -> bool:
