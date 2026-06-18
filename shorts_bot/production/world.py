@@ -29,7 +29,7 @@ Laws: first-person I; fullscreen Analog/CCTV grammar; recordings reveal the wron
 Twist rewrites hook; finale sting on NEW truth — then stop.
 Settings: alone-at-night apartment, hallway, mirror, closet, empty living room, security cam corners, alarm clock at 3:12 AM.
 Threat: the lag in reality — motion boxes, delayed reflections, impossible timestamps, peripheral movement.
-Not this world: phone-screen storytelling, cosy self-help, creature lore dumps, village cult worship.
+Not this world: phone-screen storytelling, cosy self-help, creature lore dumps, legacy village Eye worship.
 {horror_lane_compact()}"""
 
 
@@ -71,6 +71,8 @@ def world_motifs() -> tuple[str, ...]:
         "closet",
         "empty room",
         "night vision",
+        "eye",
+        "village",
         "uncanny",
         "premise",
         "twist",
