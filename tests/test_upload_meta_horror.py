@@ -58,3 +58,9 @@ def test_sanitize_strips_impossible_detail_tease():
 def test_volume_warning_plain_wording():
     assert "jumpscare" in FINALE_VOLUME_WARNING.lower()
     assert "impossible" not in FINALE_VOLUME_WARNING.lower()
+
+
+def test_sanitize_does_not_duplicate_jumpscare():
+    clean = sanitize_description_text("🔊 VOLUME WARNING — jumpscare at the end. Use headphones.")
+    assert "jumpjumpjumpscare" not in clean.lower()
+    assert clean.lower().count("jumpscare") == 1

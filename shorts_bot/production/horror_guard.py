@@ -30,6 +30,18 @@ def _offline_fix(store: MemoryStore, draft_id: int, topic: str, help_angle: str)
 
     gen = DraftGenerator(store)
     fixed = gen._generate_offline(topic, help_angle)  # noqa: SLF001
+    lower_topic = (topic or "").lower()
+    if any(k in lower_topic for k in ("security", "camera", "motion")):
+        if "your" not in fixed.hook.lower() or fixed.script.lstrip().startswith("["):
+            fixed.hook = "Your security camera flagged motion at 3:12 AM. You live alone."
+            fixed.script = (
+                f"{fixed.hook} "
+                "The hallway was empty. You told yourself it was a glitch. "
+                "Then the motion box locked onto the closet door. "
+                "The room stayed still for one whole second. "
+                "On the recording, something crawled out before the door opened in real life. "
+                "It looked straight into the camera. Then it lunged."
+            )
     store.update_draft_content(
         draft_id,
         script=fixed.script,

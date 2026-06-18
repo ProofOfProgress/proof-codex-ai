@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from shorts_bot.production.render_blender import blender_clip_paths
 
 
@@ -20,6 +22,7 @@ def test_blender_config_defaults():
     assert fields["blender_clips_per_short"].default == 3
     assert fields["blender_clip_seconds"].default == 10.0
     assert fields["blender_samples"].default == 32
+    assert fields["blender_timeout_sec"].default == 900
 
 
 def test_uses_blender_video_property():
@@ -37,3 +40,12 @@ def test_skip_narrator_tts_for_blender(monkeypatch):
     monkeypatch.setattr(launch_phase, "settings", Settings(video_backend="blender"))
     assert launch_phase.skip_narrator_tts(99) is True
     assert launch_phase.skip_transcript_sync(99) is True
+
+
+def test_blender_missing_binary_message(tmp_path: Path, monkeypatch):
+    from shorts_bot.production import render_blender
+
+    monkeypatch.setattr(render_blender.shutil, "which", lambda _name: None)
+
+    with pytest.raises(RuntimeError, match="Blender executable not found"):
+        render_blender.render_blender_clips(clips_dir=tmp_path / "clips", draft_id=7)

@@ -1,31 +1,31 @@
 # Peripheral — horror lane (locked)
 
-## Primary: **Village cult / Eye worship**
+## Primary: **Analog CCTV horror**
 
-Fog village at dusk. Candles, barn symbols, villagers who **worship the Eye**. Outsiders learn the rules too late.
+Fullscreen security-camera / night-vision footage from The Gap apartment. No phone-screen frame, no fake app UI.
 
-## Secondary: **Dream invasion**
+## Secondary: **Recording lag**
 
-The Eye's **true form** appears in dreams — torture, chase, impossible spaces. Victims **remember** on waking.
+The recording shows one impossible detail a second before reality catches up: delayed reflection, motion box on empty space, impossible timestamp.
 
-## Tertiary: **Uncanny human / perception break**
+## Tertiary: **Peripheral jumpscare**
 
-Wrong villagers — twitchy, rabies-adjacent, shape-shifting **almost-human**. The Eye fucks with your head after contact.
+Wrong movement at the edge of frame. False calm. Final sting snaps toward camera, then stop.
 
 ## Color & look
 
 | Element | Palette |
 |---------|---------|
-| Village exterior | Fog grey, bone white, cold blue-black `#1A2A3A` |
-| Ritual / finale | Deep crimson accent `#8B0000` sparingly |
-| Dream sequences | Surreal contrast — Eye macro fills frame |
+| CCTV / room | Night-vision green, crushed black, cold blue-black `#1A2A3A` |
+| Finale | Deep crimson accent `#8B0000` sparingly |
+| Analog texture | Grain, compression noise, underexposed corners |
 | Merch hero | **Solid white** hoodie + black line-eye |
 
-**No** night-vision green CCTV wash. **No** smartphone UI. **No** apartment analog glitch lane.
+Time appears via alarm clock or REC OSD only. **No** smartphone UI.
 
 ## Lanes we do **not** pursue
 
-Security-cam spam, apartment glitch horror, faceless narrator POV, creature-feature gore, animal cruelty, real religion mockery, cosy aesthetic.
+Phone-screen stories, village cult lore, faceless narrator POV, creature-feature gore, animal cruelty, real religion mockery, cosy aesthetic.
 
 ## Code
 
