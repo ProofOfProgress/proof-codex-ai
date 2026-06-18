@@ -71,15 +71,20 @@ def credentials_configured() -> bool:
     return bool(effective_google_client_id() and effective_google_client_secret())
 
 
+def _effective_credentials_source() -> str | None:
+    if _secret_real(settings.google_client_id) and _secret_real(settings.google_client_secret):
+        return "settings"
+    cid, sec = _token_file_oauth_fields()
+    if _secret_real(cid) and _secret_real(sec):
+        return "token_file"
+    return None
+
+
 def credentials_status_message() -> str:
     """Plain-English hint for login_status / auth_cli."""
     if credentials_configured():
-        cid_env = os.environ.get("GOOGLE_CLIENT_ID")
-        sec_env = os.environ.get("GOOGLE_CLIENT_SECRET")
-        if not (_secret_real(cid_env) and _secret_real(sec_env)):
-            _, sec_t = _token_file_oauth_fields()
-            if _secret_real(_token_file_oauth_fields()[0]) and _secret_real(sec_t):
-                return "Google OAuth keys OK (from youtube_token.json)"
+        if _effective_credentials_source() == "token_file":
+            return "Google OAuth keys OK (from youtube_token.json)"
         return "Google OAuth app keys OK"
 
     try:

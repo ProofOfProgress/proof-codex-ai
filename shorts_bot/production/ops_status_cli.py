@@ -77,7 +77,12 @@ def build_ops_status_markdown() -> str:
         ]
     )
 
-    sample = store.get_draft(nid or 3)
+    sample = None
+    sample_id = nid or 3
+    try:
+        sample = store.get_draft(sample_id)
+    except KeyError:
+        sample = None
     if sample:
         report = check_upload_allowed(
             store,
