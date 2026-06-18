@@ -12,7 +12,11 @@ class _FakeResearch:
 
 class _StaleEyeResearch:
     title_formula = "🔊 VOLUME WARNING: The Eye Found Me in My Dreams. #horror #shorts"
-    keyword_insights = [{"keyword": "the eye"}, {"keyword": "security camera horror"}]
+    keyword_insights = [
+        {"keyword": "the eye"},
+        {"keyword": "theeye"},
+        {"keyword": "security camera horror"},
+    ]
 
 
 def test_backend_tags_include_analog_horror():
@@ -58,4 +62,6 @@ def test_security_cam_rejects_off_lane_research_title():
     )
     assert "security camera" in pkg.title.lower()
     assert "eye" not in pkg.title.lower()
-    assert "the eye" not in {t.lower() for t in pkg.tags}
+    lower_tags = {t.lower() for t in pkg.tags}
+    assert "the eye" not in lower_tags
+    assert "theeye" not in lower_tags

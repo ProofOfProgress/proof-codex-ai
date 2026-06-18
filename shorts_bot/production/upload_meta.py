@@ -25,7 +25,15 @@ HORROR_BACKEND_TAGS = [
 ]
 
 _CCTV_TOPIC_TERMS = ("security", "camera", "motion", "cctv")
-_CCTV_OFF_LANE_TERMS = ("the eye", "village", "cult", "worship", "dream horror")
+_CCTV_OFF_LANE_TERMS = (
+    "the eye",
+    "theeye",
+    "eye horror",
+    "village",
+    "cult",
+    "worship",
+    "dream horror",
+)
 
 
 def _is_cctv_upload_topic(topic: str) -> bool:
