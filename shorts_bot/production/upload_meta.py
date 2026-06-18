@@ -24,6 +24,18 @@ HORROR_BACKEND_TAGS = [
     "scary short",
 ]
 
+_CCTV_TOPIC_TERMS = ("security", "camera", "motion", "cctv")
+_CCTV_OFF_LANE_TERMS = ("the eye", "village", "cult", "worship", "dream horror")
+
+
+def _is_cctv_upload_topic(topic: str) -> bool:
+    return any(k in (topic or "").lower() for k in _CCTV_TOPIC_TERMS)
+
+
+def _off_lane_for_cctv(text: str, topic: str) -> bool:
+    lower = (text or "").lower()
+    return _is_cctv_upload_topic(topic) and any(term in lower for term in _CCTV_OFF_LANE_TERMS)
+
 
 @dataclass
 class UploadPackage:
@@ -94,19 +106,21 @@ def build_upload_package(
 def _title_from_research(topic: str, hook: str, research) -> str:
     formula = (getattr(research, "title_formula", None) or "").strip()
     if formula:
-        cleaned = _clean_title_formula(formula)
+        cleaned = _clean_title_formula(formula, topic=topic)
         if cleaned and len(cleaned) <= 100:
             return cleaned[:100]
     return _safe_title(topic, hook)
 
 
-def _clean_title_formula(formula: str) -> str:
+def _clean_title_formula(formula: str, *, topic: str = "") -> str:
     """Strip hashtags and legacy prefixes; keep 🔊 volume warning when appropriate."""
     from shorts_bot.compliance.ypp_bans import RESEARCH_TITLE_BLOCK_RE
 
     t = re.sub(r"#\w+", "", formula).strip()
     t = re.sub(r"\s+", " ", t)
     t = re.sub(r"^VOLUME WARNING:\s*", "", t, flags=re.I).strip()
+    if _off_lane_for_cctv(t, topic):
+        return ""
     for pat in RESEARCH_TITLE_BLOCK_RE:
         if pat.search(t):
             return ""
@@ -216,6 +230,8 @@ def _tags_from_research(topic: str, research) -> list[str]:
     for row in getattr(research, "keyword_insights", None) or []:
         kw = str(row.get("keyword", "")).strip().lower()
         if not kw or kw in seen or len(kw) > 40:
+            continue
+        if _off_lane_for_cctv(kw, topic):
             continue
         if kw.startswith("#"):
             kw = kw.lstrip("#")
