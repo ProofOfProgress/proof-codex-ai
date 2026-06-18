@@ -1,4 +1,4 @@
-"""Peripheral shared universe — village Eye worship."""
+"""Peripheral shared universe — The Gap analog apartment horror."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from shorts_bot.production.black_mirror_format import (
 )
 from shorts_bot.production.horror_lane import HORROR_LANE_LABEL, horror_lane_compact
 
-WORLD_NAME = "The Village"
-WORLD_TAGLINE = "They worship the Eye — it finds you in your dreams."
+WORLD_NAME = "The Gap"
+WORLD_TAGLINE = "Reality lags behind its recordings."
 
 _WORLD_DOC = Path("channel/brand/world.md")
 
@@ -25,11 +25,11 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: first-person I; character voices on screen only (no narrator); victims remember dreams; Eye true form in dreams; villagers worship the Eye; uncanny human wrongness when awake.
+Laws: first-person I; fullscreen Analog/CCTV grammar; recordings reveal the wrong detail before reality does; no phone screens.
 Twist rewrites hook; finale sting on NEW truth — then stop.
-Settings: fog village (primary) — square, signpost, barn symbols, ritual candles. No apartment/CCTV/glitch hour.
-Threat: the Eye — true form (macro eye), dream torturer, perception breaker. Villagers complicit in worship.
-Not this world: security cameras, The Gap apartment, 3:12 AM glitch spam, faceless second-person narrator, cosy self-help.
+Settings: alone-at-night apartment, hallway, mirror, closet, empty living room, security cam corners, alarm clock at 3:12 AM.
+Threat: the lag in reality — motion boxes, delayed reflections, impossible timestamps, peripheral movement.
+Not this world: phone-screen storytelling, cosy self-help, creature lore dumps, village cult worship.
 {horror_lane_compact()}"""
 
 
@@ -39,40 +39,38 @@ def world_lore_for_scripts() -> str:
 
 {black_mirror_script_structure()}
 
-Write each Short as first-person screenplay — CHARACTER lines only, victim speaks as I.
-Dream Shorts must include waking beat where victim remembers the Eye.
-Village Shorts: worship, silence, wrong villagers, ritual symbols — outsiders break the rule."""
+Write each Short as first-person screenplay — victim sees proof in the room or recording.
+Security-camera Shorts: fullscreen CCTV, REC OSD/alarm-clock time only, no phone UI.
+Apartment Shorts: one concrete wrong detail, false calm, then the jumpscare stops the Short."""
 
 
 def world_visual_continuity() -> str:
     """Paste into every video / image prompt after visual DNA."""
     return (
-        "WORLD — Peripheral fog village: dusk, bone fog, crooked signpost, barn Eye symbols, "
-        "villagers with averted eyes and ritual candles; dream sequences — surreal rooms, "
-        "macro freaky Eye filling ceiling or mirror; waking — uncanny almost-human villagers, "
-        "twitchy rabies-wrong movement; solid white and cold blue-black palette; "
-        "cinematic horror — no CCTV green, no smartphones, no apartment hallway spam."
+        "WORLD — Peripheral / The Gap: alone-at-night apartment, fullscreen CCTV angles, "
+        "alarm clock or REC OSD at 3:12 AM, empty hallway, mirror, closet, cold living room; "
+        "reality lags behind recordings by one impossible beat; dirty night-vision green, "
+        "cold blue-black shadows, crimson only on the final sting; no phone screens."
     )
 
 
 def world_motifs() -> tuple[str, ...]:
     """Recurring in-universe tokens for topic/QC checks."""
     return (
-        "eye",
-        "the eye",
-        "village",
-        "villager",
-        "worship",
-        "ritual",
-        "dream",
-        "remembered",
-        "sign",
-        "signpost",
-        "barn",
-        "fog",
-        "candle",
-        "omen",
-        "curse",
+        "cctv",
+        "security camera",
+        "recording",
+        "rec",
+        "motion",
+        "lag",
+        "3:12",
+        "alarm clock",
+        "apartment",
+        "hallway",
+        "mirror",
+        "closet",
+        "empty room",
+        "night vision",
         "uncanny",
         "premise",
         "twist",

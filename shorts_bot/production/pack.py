@@ -142,9 +142,10 @@ def build_production_pack(
     )
     meta = load_draft_meta(draft_id)
     motion_video = settings.visual_style == "ai_video"
+    production_motion_video = motion_video and settings.require_paid_stack
     if (
         render_images
-        and motion_video
+        and production_motion_video
         and settings.require_beat_sheet_approval
         and not meta.get("beat_sheet_approved")
     ):
@@ -184,7 +185,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if motion_video and settings.uses_blender_video:
+        if production_motion_video and settings.uses_blender_video:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
@@ -204,7 +205,7 @@ def build_production_pack(
                 raise RuntimeError(
                     f"Blender returned 0 clips — expected {settings.blender_clips_per_short}."
                 )
-        elif motion_video and settings.uses_kling_video and settings.has_kling_official:
+        elif production_motion_video and settings.uses_kling_video and settings.has_kling_official:
             from shorts_bot.production.render_kling import render_kling_clips
 
             clips_rendered = render_kling_clips(
@@ -233,11 +234,11 @@ def build_production_pack(
                 raise RuntimeError(
                     f"Kling returned 0 clips — expected {settings.kling_clips_per_short}."
                 )
-        elif motion_video and settings.uses_kling_video:
+        elif production_motion_video and settings.uses_kling_video:
             raise RuntimeError(
                 "Kling video requires KLING_ACCESS_KEY + KLING_SECRET_KEY in Cursor secrets."
             )
-        elif motion_video and settings.has_paid_images:
+        elif production_motion_video and settings.has_paid_images:
             from shorts_bot.production.render_ai_video import render_all_ai_video_clips
 
             priority = [scare_plan.primary_segment_index]

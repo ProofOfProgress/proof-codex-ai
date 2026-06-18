@@ -1,76 +1,66 @@
 # Peripheral — world bible
 
-Every Short is **one episode** in the same world — fog village, the **Eye**, and what it does to people who remember the dreams.
+Every Short is one episode inside **The Gap**: an alone-at-night apartment where reality lags behind its recordings.
 
 ## Horror lane (locked)
 
-**Primary: Village cult horror** — fog-grey village at dusk; villagers **worship the Eye**; outsiders break.
+**Primary: Analog CCTV horror** — fullscreen security-camera / night-vision footage, cold rooms, REC OSD or alarm-clock time.
 
-**Secondary: Dream invasion** — true form of the Eye tortures you in sleep; you **remember** when you wake.
+**Secondary: Recording lag** — cameras reveal one impossible detail before the room catches up.
 
-**Tertiary: Perception break** — rabies-uncanny wrong-humans; reality feels unreliable after the Eye touches you.
+**Tertiary: Peripheral jumpscare** — wrong movement at the edge of frame, then a fast final sting.
 
 | We are | We are not |
 |--------|------------|
-| First-person nightmare Shorts (~30s) | Faceless narrator CCTV clips |
-| Villagers + Eye worship lore | Apartment glitch / security-cam spam |
-| Uncanny humans + dream true form (Eye) | Generic Slender clone with no brand |
-| Implied body horror, YPP-safe | Graphic gore, animal harm, child harm |
+| First-person nightmare Shorts (~30s) | Phone-screen storytelling |
+| CCTV / mirror / empty-room proof | Village cult lore |
+| Implied dread + earned jumpscare | Graphic gore, animal harm, child harm |
+| Same apartment grammar, rotating scare | Generic creature reveals |
 
 Code: `shorts_bot/production/horror_lane.py`, `channel/brand/identity.md`
 
 ## The world in one sentence
 
-**Peripheral** is a village that worships the Eye — it hunts you in dreams, fucks with your head when you wake, and never fully shows itself until you're ready to break.
+**Peripheral** shows recordings from The Gap: empty rooms, delayed reflections, impossible timestamps, and the moment the thing finally notices the camera.
 
-## The Eye (true form)
+## The Gap
 
-- **True form:** giant freaky **Eye** — macro iris, wrong pupil, fills sky/mirror/dream ceiling
-- **Dreams:** tortures victims there; they **remember** on waking (metal taste, gasp, sweat)
-- **Waking:** breaks perception — paranoid, schizophrenic **energy** (entity causes it; not mocking mental illness)
-- **Human form:** shape-shifting uncanny villager — almost human, **rabies-wrong** (twitch, stare, wrong speech)
-- **Visibility:** not every Short — tease on covers; full Eye mainly in **dream** episodes
-
-## The village
-
-- Fog-grey square at dusk, crooked signpost, barn symbols, empty windows with **candles for the Eye**
-- **Villagers worship the Eye** — silent complicity, ritual glances, soup offered with averted eyes
-- Outsiders who **see too much** get the dream, then the sickness, then the village pretends nothing happened
-- **No smartphones, no security apps, no apartment glitch hour** — this is folk-nightmare, not analog CCTV
+- Apartment at night: hallway, mirror, closet, living room, doorway, alarm clock.
+- Time motif: 3:12 AM via alarm clock or REC OSD only.
+- Cameras are proof and trap: the recording is slightly ahead of reality.
+- No smartphones or fake readable app UI; security-camera drafts are fullscreen CCTV.
 
 ## Episode laws
 
 | Law | Scripts & visuals |
 |-----|-------------------|
-| **First person** | Victim speaks as **I** — no off-screen narrator |
-| **Character voices only** | On-screen speech (Sora-synced); subtitles burned in post |
-| **Remember the dream** | Waking beat after dream Shorts — "I remembered the Eye" |
-| **One broken rule** | Hook = premise (worship, name on sign, ritual you weren't meant to see) |
-| **Twist → sting** | Final beat rewrites hook — then stop |
-| **Don't blink** | Merch tagline — movement in peripheral vision, Eye at frame edge |
+| **First person** | Victim sees proof in the room or recording |
+| **Analog grammar** | CCTV/night-vision, mirror delay, alarm-clock timestamp |
+| **One broken rule** | Hook = concrete impossible detail |
+| **False calm** | Rational explanation almost works |
+| **Twist -> sting** | Final beat rewrites hook, jumpscare, then stop |
+| **Don't blink** | Movement hides in peripheral vision |
 
 ## Story voice
 
-- **First person I**, present tense — ragged, breaking, unreliable after the Eye
-- Other characters speak **in scene** (whispered villager, dream voice, wrong neighbor)
-- False calm = rationalization failing — "maybe it was just a dream" — then wrong detail returns
-- Twist → sting → **stop** — no explanation after
+- First person I, present tense, concrete and visual.
+- False calm = "maybe the camera glitched" / "maybe I was tired" / "maybe it was shadow."
+- Twist -> jumpscare -> stop. No explanation after the sting.
 
 ## Merch
 
-- **Solid white hoodie** — huge line-eye on back, *don't blink* underneath
-- Brand name **PERIPHERAL** only — no abbreviations on garments
+- Solid white hoodie — huge line-eye on back, *don't blink* underneath.
+- Brand name **PERIPHERAL** only — no abbreviations on garments.
 
 ## What is NOT this world
 
-- The Gap apartment, 3:12 AM glitch hour, security cameras, phone motion alerts
-- Faceless second-person narrator Shorts
-- Cosy self-help, stick figures, generic creepypasta listicles
-- Bright daytime crowds, camping slashers, real-world religion mockery
+- Village cult worship, Eye lore, dream-monster exposition.
+- Phone-screen stories, cosy self-help, stick figures, generic creepypasta listicles.
+- Bright daytime crowds, camping slashers, real-world religion mockery.
 
 ## Why viewers binge
 
-1. **Who is the Eye?** — true form in dreams; villagers know
-2. **Will they show it again?** — rare full reveals
-3. **Same village grammar** — worship, silence, wrong humans, dream residue
-4. **First-person break** — you feel the schizophrenia-energy, not told about it
+1. **What moved?** — rewind impulse from the edge-of-frame detail.
+2. **Will it happen again?** — same Gap grammar, different room.
+3. **Did reality lag?** — recordings show the truth too early.
+4. **Jumpscare payoff** — every episode earns the final sting.
