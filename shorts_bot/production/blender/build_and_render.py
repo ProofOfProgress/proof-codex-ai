@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -20,8 +21,8 @@ from mathutils import Vector  # type: ignore
 
 OUTPUT_ROOT = Path("/workspace/data/production")
 FPS = 24
-RES_X = 720
-RES_Y = 1280
+RES_X = int(os.environ.get("BLENDER_RES_X", "720"))
+RES_Y = int(os.environ.get("BLENDER_RES_Y", "1280"))
 
 
 def _clear_scene() -> None:
@@ -315,8 +316,6 @@ def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, 
 
 
 def main(argv: list[str] | None = None) -> None:
-    import os
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--draft-id", type=int, default=2)
     parser.add_argument("--preview", action="store_true")
