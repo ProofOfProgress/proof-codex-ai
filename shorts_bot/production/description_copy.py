@@ -49,8 +49,8 @@ def sanitize_description_text(text: str) -> str:
         (r"loud\s+moment\s+at\s+the\s+end", "jumpscare at the end"),
         (r"jumpscare\s+near\s+the\s+end", "jumpscare at the end"),
         (r"jump\s+scare\s+near\s+the\s+end", "jumpscare at the end"),
-        (r"scare\s+at\s+the\s+end", "jumpscare at the end"),
-        (r"scare\s+near\s+the\s+end", "jumpscare at the end"),
+        (r"\bscare\s+at\s+the\s+end", "jumpscare at the end"),
+        (r"\bscare\s+near\s+the\s+end", "jumpscare at the end"),
         (r"payoff\s+at\s+the\s+end", "jumpscare at the end"),
         (r"\bpayoff\b", "jumpscare"),
         (
@@ -61,6 +61,7 @@ def sanitize_description_text(text: str) -> str:
     ]
     for pattern, repl in replacements:
         out = re.sub(pattern, repl, out, flags=re.IGNORECASE)
+    out = re.sub(r"\bjumpjumpjumpscare\b", "jumpscare", out, flags=re.IGNORECASE)
     return out
 
 

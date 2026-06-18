@@ -15,6 +15,7 @@ class _StaleEyeResearch:
     keyword_insights = [
         {"keyword": "the eye"},
         {"keyword": "theeye"},
+        {"keyword": "dreaminvasion"},
         {"keyword": "security camera horror"},
     ]
 
@@ -65,3 +66,4 @@ def test_security_cam_rejects_off_lane_research_title():
     lower_tags = {t.lower() for t in pkg.tags}
     assert "the eye" not in lower_tags
     assert "theeye" not in lower_tags
+    assert "dreaminvasion" not in lower_tags

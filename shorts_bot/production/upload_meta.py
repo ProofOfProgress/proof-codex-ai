@@ -33,6 +33,8 @@ _CCTV_OFF_LANE_TERMS = (
     "cult",
     "worship",
     "dream horror",
+    "dream invasion",
+    "dreaminvasion",
 )
 
 
