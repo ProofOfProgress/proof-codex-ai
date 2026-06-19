@@ -32,7 +32,7 @@ def shorts_product_brief(
         f"HOOK: {hook}",
         f"CLOSE: clear {verdict_hint} verdict + one sentence why.",
         "TONE: skeptical but fair — not hype, not affiliate energy.",
-        "Presenter: AI twin talking to camera for most of the video.",
+        "Presenter: use MY saved AI Twin avatar (not stock actors). Twin on camera fullscreen for most shots.",
         "YOU write the script — this is the creative brief only, not a finished script.",
     ]
     if extra.strip():
