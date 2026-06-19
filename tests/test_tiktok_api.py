@@ -16,10 +16,21 @@ def test_oauth_url_contains_client_key(monkeypatch):
         tiktok_client_secret="test_secret_456",
     )
     monkeypatch.setattr("shorts_bot.tiktok.oauth.settings", fake)
-    url = oauth_authorization_url()
+    url = oauth_authorization_url(code_challenge="abc123")
     assert "test_client_key_123" in url
     assert "video.publish" in url
+    assert "code_challenge=abc123" in url
     assert "8091" in url or redirect_uri() in url
+
+
+def test_generate_pkce_pair():
+    from shorts_bot.tiktok.oauth import generate_pkce_pair
+
+    verifier, challenge = generate_pkce_pair()
+    assert 43 <= len(verifier) <= 128
+    import hashlib
+
+    assert challenge == hashlib.sha256(verifier.encode("utf-8")).hexdigest()
 
 
 def test_requested_scopes_default():

@@ -49,15 +49,21 @@ def main() -> None:
 
     if cmd == "url":
         if getattr(args, "complete", None):
-            result = oauth_complete_redirect(args.complete)
+            from shorts_bot.tiktok.oauth import load_pending_pkce, clear_pending_pkce
+
+            verifier = load_pending_pkce()
+            result = oauth_complete_redirect(args.complete, code_verifier=verifier)
             if result.get("ok"):
+                clear_pending_pkce()
                 console.print(f"[green]{result['message']}[/green]")
                 console.print(f"Scopes: {result.get('scope')}")
             else:
                 console.print(f"[red]{result['message']}[/red]")
             return
         try:
-            url = oauth_authorization_url()
+            from shorts_bot.tiktok.oauth import oauth_authorization_url_with_pkce
+
+            url, _verifier = oauth_authorization_url_with_pkce()
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
             return
@@ -78,24 +84,20 @@ def main() -> None:
         Panel(
             f"Scopes: {', '.join(requested_scopes())}\n"
             f"Redirect: {redirect_uri()}\n\n"
-            "Note: Unaudited TikTok apps may only post **private** until app audit passes.",
+            "Opens Desktop browser + localhost callback on :8091.\n"
+            "Log into TikTok → Allow posting access.",
             title="TikTok connect",
         )
     )
-    try:
-        url = oauth_authorization_url()
-    except RuntimeError as exc:
-        console.print(f"[red]{exc}[/red]")
-        return
-    console.print(url)
-    try:
-        webbrowser.open(url)
-    except Exception:
-        pass
-    console.print(
-        "\nAfter Allow, paste redirect URL:\n"
-        "  python3 -m shorts_bot.tiktok.auth_cli url --complete 'http://127.0.0.1:8091/?code=...'"
-    )
+    from shorts_bot.tiktok.oauth import run_oauth_flow
+
+    result = run_oauth_flow(open_browser=True)
+    if result.get("ok"):
+        console.print(f"[green]{result['message']}[/green]")
+    else:
+        console.print(f"[red]{result.get('message')}[/red]")
+        if result.get("auth_url"):
+            console.print(result["auth_url"])
 
 
 if __name__ == "__main__":
