@@ -78,6 +78,19 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
 
+    # TikTok Content Posting API
+    tiktok_client_key: str | None = None
+    tiktok_client_secret: str | None = None
+    tiktok_token_path: Path = Path("data/tiktok_token.json")
+    tiktok_redirect_uri: str = "http://127.0.0.1:8091/"
+    tiktok_oauth_scopes: str = "user.info.basic,video.publish"
+    tiktok_privacy_level: str = ""  # empty = auto-pick from creator_info
+    tiktok_declare_aigc: bool = True
+    tiktok_disable_duet: bool = False
+    tiktok_disable_stitch: bool = False
+    tiktok_disable_comment: bool = False
+    auto_upload_tiktok: bool = False
+
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing

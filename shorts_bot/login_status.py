@@ -381,6 +381,42 @@ def _check_resemble() -> ServiceStatus:
     )
 
 
+def _check_tiktok_upload() -> ServiceStatus:
+    from shorts_bot.tiktok.oauth import auth_status, credentials_status_message, upload_ready
+
+    st = auth_status()
+    if not st["credentials_configured"]:
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok API upload",
+            False,
+            credentials_status_message(),
+            "docs/FOR_OWNER_TIKTOK_SETUP.md",
+        )
+    if not st["token_saved"]:
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok API upload",
+            False,
+            "OAuth token missing",
+            "python3 -m shorts_bot.tiktok.auth_cli connect",
+        )
+    if upload_ready():
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok API upload",
+            True,
+            "Ready — Content Posting API",
+        )
+    return ServiceStatus(
+        "tiktok_upload",
+        "TikTok API upload",
+        False,
+        "Missing video.publish scope",
+        "python3 -m shorts_bot.tiktok.auth_cli connect",
+    )
+
+
 def _check_vidiq() -> ServiceStatus:
     if not settings.vidiq_enabled:
         return ServiceStatus("vidiq", "vidIQ keyword research", False, "Disabled", None)
@@ -440,6 +476,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_image_api(),
         _check_youtube_oauth(),
         _check_youtube_upload(),
+        _check_tiktok_upload(),
     ]
     if include_studio:
         items.append(_check_studio())
