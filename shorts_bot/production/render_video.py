@@ -526,6 +526,11 @@ def _concat_blender_clips(clips_dir: Path, tmp_dir: Path) -> Path:
     return out_path
 
 
+def _blender_visibility_filter() -> str:
+    """Lift local Blender footage enough for QC without losing the dark horror grade."""
+    return "eq=brightness=0.14:contrast=1.18:saturation=1.05:gamma=1.12"
+
+
 def _concat_kling_clips(clips_dir: Path, tmp_dir: Path) -> Path:
     """Join kling_part_*.mp4 in order — keeps native Kling audio."""
     clips = sorted(clips_dir.glob("kling_part_*.mp4"))
@@ -717,6 +722,8 @@ def render_short_video(
             else:
                 merged_clips = _concat_blender_clips(clips_dir, tmp_dir=pack_dir / "_blender_tmp")
         vf_parts: list[str] = []
+        if render_mode == "blender_clips":
+            vf_parts.append(_blender_visibility_filter())
         if burn_captions:
             vf_parts.append(ffmpeg_subtitles_filter(ass_path).split(",", 1)[1])
         vf = ",".join(vf_parts) if vf_parts else None

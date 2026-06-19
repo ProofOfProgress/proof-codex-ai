@@ -27,6 +27,15 @@ def test_normalize_blender_frame_range_outputs(tmp_path: Path):
     assert not actual.exists()
 
 
+def test_blender_visibility_filter_lifts_dark_frames():
+    from shorts_bot.production.render_video import _blender_visibility_filter
+
+    vf = _blender_visibility_filter()
+    assert "eq=" in vf
+    assert "brightness=0." in vf
+    assert "contrast=" in vf
+
+
 def test_blender_config_defaults():
     from shorts_bot.config import Settings
 
