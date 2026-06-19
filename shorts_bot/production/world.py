@@ -1,4 +1,4 @@
-"""Peripheral shared universe — village Eye worship."""
+"""Peripheral shared universe — The Gap analog apartment horror."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from shorts_bot.production.black_mirror_format import (
 )
 from shorts_bot.production.horror_lane import HORROR_LANE_LABEL, horror_lane_compact
 
-WORLD_NAME = "The Village"
-WORLD_TAGLINE = "They worship the Eye — it finds you in your dreams."
+WORLD_NAME = "The Gap"
+WORLD_TAGLINE = "Recordings lag behind reality — the Eye still watches from the old village lore."
 
 _WORLD_DOC = Path("channel/brand/world.md")
 
@@ -25,11 +25,11 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: first-person I; character voices on screen only (no narrator); victims remember dreams; Eye true form in dreams; villagers worship the Eye; uncanny human wrongness when awake.
+Laws: second-person ownership hooks; no cosy narrator; recordings can show what reality hides; old village worship of the Eye leaks through mirrors, masks, and dreams.
 Twist rewrites hook; finale sting on NEW truth — then stop.
-Settings: fog village (primary) — square, signpost, barn symbols, ritual candles. No apartment/CCTV/glitch hour.
-Threat: the Eye — true form (macro eye), dream torturer, perception breaker. Villagers complicit in worship.
-Not this world: security cameras, The Gap apartment, 3:12 AM glitch spam, faceless second-person narrator, cosy self-help.
+Settings: Analog fullscreen CCTV apartment (primary) — hall, door, mirror, nightstand alarm clock, REC HUD, 3:12 AM. The fog village and Eye worship remain background lore, not the default set.
+Threat: the lag — feed sees motion first; Eye/mask/reflection appears one beat late; final jumpscare proves the room was never empty.
+Not this world: phone screens, generic creature chase, cosy self-help, unearned glitch-hour spam.
 {horror_lane_compact()}"""
 
 
@@ -39,19 +39,18 @@ def world_lore_for_scripts() -> str:
 
 {black_mirror_script_structure()}
 
-Write each Short as first-person screenplay — CHARACTER lines only, victim speaks as I.
-Dream Shorts must include waking beat where victim remembers the Eye.
-Village Shorts: worship, silence, wrong villagers, ritual symbols — outsiders break the rule."""
+Write each Short as second-person owned horror where possible: "Your security camera..." / "You hear..."
+Use first-person only when the story needs character dialogue.
+Dream/Eye/village Shorts are allowed as lore variants; default to analog CCTV and a clear jumpscare payoff."""
 
 
 def world_visual_continuity() -> str:
     """Paste into every video / image prompt after visual DNA."""
     return (
-        "WORLD — Peripheral fog village: dusk, bone fog, crooked signpost, barn Eye symbols, "
-        "villagers with averted eyes and ritual candles; dream sequences — surreal rooms, "
-        "macro freaky Eye filling ceiling or mirror; waking — uncanny almost-human villagers, "
-        "twitchy rabies-wrong movement; solid white and cold blue-black palette; "
-        "cinematic horror — no CCTV green, no smartphones, no apartment hallway spam."
+        "WORLD — Peripheral / The Gap: fullscreen CCTV apartment, empty hallway, door, mirror, "
+        "nightstand alarm clock at 3:12 AM, REC HUD, night-vision green, VHS grain; "
+        "old fog village / Eye worship motifs can leak into reflections or dreams; "
+        "cinematic horror — no smartphones, no phone UI, no cosy self-help."
     )
 
 
@@ -60,6 +59,14 @@ def world_motifs() -> tuple[str, ...]:
     return (
         "eye",
         "the eye",
+        "analog",
+        "cctv",
+        "security camera",
+        "motion",
+        "3:12",
+        "the gap",
+        "apartment",
+        "recording",
         "village",
         "villager",
         "worship",
