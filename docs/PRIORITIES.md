@@ -39,7 +39,7 @@
 |------|--------------|
 | Mem0 / Zep long-term memory | After a few videos ship |
 | Facebook Reels cross-post | Token not saved; YouTube first |
-| **TikTok API upload** | **In progress** — OAuth + upload CLI shipped; owner connects app today |
+| **TikTok API upload** | **Blocked** — code ready; OAuth needs TikTok login (owner phone broken — resume when SMS/2FA works again) |
 | Long-form compilation | Needs 3+ winners in new niche |
 | Multi-channel clone | One channel must print first |
 | Purge Phase 2 (delete Blender/Recraft code) | After InVideo replaces render path |

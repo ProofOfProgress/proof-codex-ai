@@ -118,3 +118,4 @@ Common fixes:
 - Redirect URI mismatch → must match portal **exactly** (`8091` not `8090`)
 - Missing `video.publish` → re-connect after enabling Direct Post in portal
 - `unaudited_client` → post as private until audit passes
+- **Can't log in (broken phone / no SMS)** → TikTok setup is **paused**. Ship on YouTube first; come back when you can receive TikTok verification codes or log in with email/Google on desktop.
