@@ -279,6 +279,19 @@ def render_clip(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
+    if not out_path.exists():
+        candidates = sorted(
+            (
+                p
+                for p in out_path.parent.glob(f"{out_path.stem}*.mp4")
+                if p.name != out_path.name and p.stat().st_size > 0
+            ),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        if candidates:
+            out_path.unlink(missing_ok=True)
+            candidates[0].replace(out_path)
     print(f"Rendered {out_path}")
 
 
