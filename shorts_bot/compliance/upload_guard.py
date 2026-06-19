@@ -75,7 +75,13 @@ def check_upload_allowed(
     if any(m in topic_lower for m in off_niche_markers):
         issues.append("off-niche topic — Peripheral horror Shorts only (wrong vertical uploaded)")
 
+    from shorts_bot.production.launch_phase import is_silent_launch_draft
+
+    silent_launch = is_silent_launch_draft(draft_id)
     for risk in risk_signals_for_script(script, hook, title):
+        if silent_launch and "missing personal voice" in risk:
+            warnings.append("silent launch visual-only draft — personal voice requirement deferred")
+            continue
         if (
             "missing personal voice" in risk
             or "spam-farm" in risk
