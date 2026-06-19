@@ -14,9 +14,9 @@ def test_world_doc_exists():
     assert world_doc_path().exists()
 
 
-def test_niche_positioning_ai_tech():
-    assert "AI" in NICHE_POSITIONING
-    assert "InVideo" in NICHE_POSITIONING or "twin" in NICHE_POSITIONING.lower()
+def test_niche_positioning_ai_product_reviews():
+    assert "product" in NICHE_POSITIONING.lower()
+    assert "Pay" in NICHE_POSITIONING or "Skip" in NICHE_POSITIONING
 
 
 def test_niche_default_topics_non_empty():
@@ -29,9 +29,9 @@ def test_niche_constants():
     assert NICHE_TAGLINE
 
 
-def test_generator_system_prompt_ai_tech():
-    assert "AI" in SYSTEM_PROMPT or "tech" in SYSTEM_PROMPT.lower()
-    assert "verdict" in SYSTEM_PROMPT.lower() or "takeaway" in SYSTEM_PROMPT.lower()
+def test_generator_system_prompt_ai_product_reviews():
+    assert "product" in SYSTEM_PROMPT.lower() or "Pay" in SYSTEM_PROMPT
+    assert "Skip" in SYSTEM_PROMPT or "Wait" in SYSTEM_PROMPT
     assert "worship" not in SYSTEM_PROMPT.lower()
 
 

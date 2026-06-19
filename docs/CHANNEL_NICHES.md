@@ -1,45 +1,42 @@
-# Channel niche — AI / Tech (rebrand)
+# Channel niche — AI Product Reviews (locked)
 
-**Same YouTube channel.** Peripheral horror retired. Pick sub-sub-niche in `data/research/CHANNEL_NICHE_STRATEGY.md`.
+**Same YouTube channel.** Peripheral retired. **Sub-sub-niche locked:** honest AI product tech reviews.
 
 ---
 
-## Hierarchy (target)
+## Hierarchy
 
 ```
 AI / Tech
-    └── [sub-niche — TBD with owner]
-            └── [sub-sub-niche — TBD]
+    └── AI product reviews
+            └── Honest 30s verdict — Pay / Skip / Wait
 ```
 
-**Agent recommendation:** AI/tech → AI tools for normal people → **"I tested it so you don't have to"** (30s honest verdicts).
-
-Alternatives documented in strategy file: **AI Myths Busted**, **AI Workflow Lab**.
+Full playbook: `data/research/CHANNEL_NICHE_STRATEGY.md`
 
 ---
 
-## Production stack (target)
+## Production stack
 
-1. **Topic** — tool launch, myth, or workflow (agent queue + owner notes)
-2. **Script** — Gemini, fixed Short template (~30s)
-3. **Video** — **InVideo AI** (owner twin + stock + captions)
-4. **QC** — duration, captions readable, no watermark
-5. **Upload** — YouTube API, 1 Short / 24h
-6. **Learn** — analytics sync → hook/topic rules
+1. **Product** — real named AI tool (launch, owner pick, or comment request)
+2. **Script** — Gemini, product review template (~30s, one verdict)
+3. **Video** — InVideo twin + product UI B-roll + captions
+4. **QC** — duration, captions, watermark
+5. **Upload** — YouTube API, synthetic disclosure, 1 Short / 24h
+6. **Learn** — analytics → which products and hooks win
 
 ---
 
-## Deprecated (do not use for new content)
+## Monetization (order)
 
-- Peripheral / The Gap / Eye worship universe
-- Jumpscare finales, CCTV found footage
-- Recraft, Replicate I2V, Blender, Resemble horror VO
-- Horror research in `archive/peripheral/` (when moved)
+1. Shorts RPM (tech/product reviews)
+2. Affiliate links (disclosed, honest picks only)
+3. Sponsored reviews (disclosed, owner-approved scripts)
+4. Long-form / course later
 
 ---
 
 ## Code
 
-- Niche constants: `shorts_bot/production/niche.py`
-- Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`
-- Purge plan: `docs/PURGE_MANIFEST.md`
+- `shorts_bot/production/niche.py` — topics, positioning, sponsor rules
+- `data/research/CHANNEL_NICHE_STRATEGY.md` — format + sponsor policy

@@ -1,33 +1,33 @@
-# Channel identity — AI / Tech rebrand
+# Channel identity — AI Product Reviews
 
-> **Same YouTube channel.** Peripheral horror retired. Sub-sub-niche lock: `data/research/CHANNEL_NICHE_STRATEGY.md`
+> **Locked 2026-06.** Same YouTube channel, rebrand in place. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`
 
-## One-line pitch (working)
+## One-line pitch
 
-**Honest AI in 30 seconds — test it so you don't waste money.**
+**Real AI product reviews — tested, honest, Pay / Skip / Wait in 30 seconds.**
+
+## Niche hierarchy (locked)
+
+| Level | Name |
+|-------|------|
+| Big | AI / Tech |
+| Sub | AI product reviews |
+| Sub-sub | Honest 30s verdict on one real product |
 
 ## Presenter
 
-**InVideo AI twin** — owner's face + voice, consistent every Short. Declare synthetic media on upload.
-
-## Niche hierarchy (target)
-
-| Level | Working direction |
-|-------|-------------------|
-| Big | AI / Tech |
-| Sub | AI tools for normal people |
-| Sub-sub | "I tested it so you don't have to" — 30s verdicts |
-
-Alternatives in strategy doc: AI Myths Busted, AI Workflow Lab.
+**InVideo AI twin** — consistent face + voice. Declare synthetic media on every upload.
 
 ## Tone
 
-Skeptical but helpful. One topic per Short. Verdict or takeaway at the end. No horror, no finance spam, no prompt-list slop.
+Sincere honesty first. Say when something's good. Say when it's trash. No hype-bro energy.
+
+**Future:** Sponsors and affiliate links OK — always disclosed, owner approves sponsored scripts, trust beats short-term cash.
 
 ## Channel copy
 
-Studio-facing text: `channel/brand/youtube_copy.txt` (update display name in YouTube Studio when owner picks final name).
+YouTube Studio text: `channel/brand/youtube_copy.txt`
 
 ## Deprecated
 
-Peripheral / Eye / village / jumpscare — see `archive/peripheral/`.
+Peripheral horror → `archive/peripheral/`

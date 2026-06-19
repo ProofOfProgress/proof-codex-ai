@@ -27,7 +27,7 @@
 | # | Priority | Done when |
 |---|----------|-----------|
 | **1** | **InVideo pipeline** — script → twin + stock + captions → `.mp4` on disk | One command produces a finished Short from approved script |
-| **2** | **Niche lock + script templates** — sub-sub-niche chosen, prompts/metadata match | 5 scripts in queue that sound like the same channel |
+| **2** | **Niche lock + script templates** — AI product reviews, Pay/Skip/Wait prompts | 5 product scripts queued with real tool names |
 | **3** | **Daily closed loop** — topic → script → InVideo → QC → YouTube upload | Runs 1 Short/day without Studio clicks |
 | **4** | **Analytics learning** — hooks/topics that win get reused; losers get avoid rules | Auto-proposals after sync, no horror Codex baggage |
 

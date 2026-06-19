@@ -25,7 +25,7 @@
 
 **Shorts Bot** — autonomous CLI for **AI/tech Shorts** on the existing YouTube channel. Knowledge base: **Codex** (`course/files/` 01–09 — hooks/retention still useful; horror rules deprecated). **Paid stack (target):** **Gemini** (scripts + QC) + **InVideo** (twin + stock + captions) + **YouTube upload API**. Keys via `bash scripts/install.sh`.
 
-**Channel direction:** AI / Tech → sub-niche TBD → sub-sub-niche TBD. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`. Brand stub: `channel/brand/identity.md`.
+**Channel direction:** **AI Product Reviews** — real products, honest Pay/Skip/Wait verdicts. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`.
 
 **Codex search (agents only — NOT for the owner):**
 

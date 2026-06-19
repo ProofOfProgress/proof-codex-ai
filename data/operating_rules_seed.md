@@ -83,7 +83,7 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**AI / Tech** — same YouTube channel, rebrand in place. Sub-sub-niche TBD with owner — see `data/research/CHANNEL_NICHE_STRATEGY.md`. Agent pick: honest **AI tool verdicts** (~30s). Hook in line 1. Clear verdict at end.
+**AI Product Reviews** — real AI products, ~30s Shorts, **Pay / Skip / Wait** verdict. Sincere honesty first. Sponsor/affiliate path later with full disclosure + owner approval on paid scripts. See `data/research/CHANNEL_NICHE_STRATEGY.md`.
 
 ## Production stack
 
