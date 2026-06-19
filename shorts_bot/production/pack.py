@@ -191,7 +191,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_blender_video:
+        if settings.visual_style == "ai_video" and settings.uses_blender_video and settings.require_paid_stack:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
