@@ -95,7 +95,7 @@ class Settings(BaseSettings):
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
     invideo_app_url: str = "https://ai.invideo.io"
-    invideo_default_platform: str = "youtube"
+    invideo_default_platform: str = "youtube_shorts"
     invideo_default_vibe: str = "professional"
     invideo_default_audience: str = "AI curious adults"
     invideo_twin_enabled: bool = True

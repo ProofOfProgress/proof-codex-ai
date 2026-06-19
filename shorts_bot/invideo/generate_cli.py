@@ -7,16 +7,11 @@ import argparse
 from rich.console import Console
 from rich.panel import Panel
 
+from shorts_bot.invideo.prompts import DEFAULT_CHATGPT_PLUS_BRIEF
+
 console = Console()
 
-DEFAULT_PROMPT = (
-    "Create a 30-second YouTube Short. Topic: ChatGPT Plus honest review. "
-    "Hook: is the $20/month worth it for normal people? "
-    "Give a clear Pay, Skip, or Wait verdict at the end. "
-    "Tone: skeptical but fair — not hype, not affiliate energy. "
-    "Use talking-head presenter + ChatGPT UI screen recordings. "
-    "Captions on. 9:16 vertical. YOU write the script — this is the creative brief only."
-)
+DEFAULT_PROMPT = DEFAULT_CHATGPT_PLUS_BRIEF
 
 
 def main() -> None:

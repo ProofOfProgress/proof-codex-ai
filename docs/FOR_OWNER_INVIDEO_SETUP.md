@@ -52,6 +52,16 @@ Not required for MCP projects. Add later for higher limits:
 
 ---
 
+## Shorts framing (learned from test #1)
+
+InVideo defaults to **long-form widescreen stock** unless you spell it out. Our prompts now say:
+
+- 9:16 only — no horizontal stock cropped into vertical
+- Talking-head fullscreen + tight app UI — not wide desk/laptop b-roll
+- 4–5 beats max, fast cuts
+
+If stock still looks wonky: in InVideo editor, swap bad clips for **screen recording** or **twin-only** shots.
+
 ## Step 3 — Generate from a **prompt** (InVideo writes the script)
 
 Default test — ChatGPT Plus review brief:

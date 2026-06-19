@@ -8,6 +8,7 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.invideo.mcp_client import InVideoMcpClient
 from shorts_bot.invideo.script_pack import draft_pack_dir, write_script_pack
+from shorts_bot.invideo.prompts import shorts_product_brief
 from shorts_bot.memory.store import MemoryStore
 
 
@@ -134,12 +135,10 @@ def generate_from_draft(
     store = MemoryStore(settings.database_path)
     draft = store.get_draft(draft_id)
     if use_prompt:
-        prompt = (
-            f"Create a 30-second YouTube Short. Topic: {draft.topic}. "
-            f"Angle: {draft.help_angle or 'honest product review'}. "
-            "Format: hook in first 3 seconds, one clear takeaway, Pay/Skip/Wait verdict at end. "
-            "Use talking-head AI twin + product UI b-roll. Captions on. 9:16 vertical. "
-            "YOU write the script — this is the brief only."
+        prompt = shorts_product_brief(
+            product=draft.topic,
+            hook=draft.hook or f"Honest take on {draft.topic}",
+            extra=draft.help_angle or "",
         )
         return generate_from_prompt(
             prompt,
