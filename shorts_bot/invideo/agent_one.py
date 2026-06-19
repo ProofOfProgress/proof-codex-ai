@@ -123,6 +123,9 @@ def send_prompt(
     Send a message to InVideo Agent One (chat panel).
     Requires saved browser login at ai.invideo.io/workspaces.
     """
+    from shorts_bot.invideo.system_context import wrap_invideo_prompt
+
+    prompt = wrap_invideo_prompt(prompt)
     from playwright.sync_api import sync_playwright
 
     from shorts_bot.browser.stealth import launch_stealth_context

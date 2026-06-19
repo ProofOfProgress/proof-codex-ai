@@ -111,10 +111,14 @@ def generate_from_script(
     target_audience: str | None = None,
     platform: str | None = None,
     api_key: str | None = None,
+    include_master_context: bool = True,
 ) -> str:
+    from shorts_bot.invideo.system_context import wrap_invideo_prompt
+
+    payload = wrap_invideo_prompt(script) if include_master_context else script.strip()
     client = InVideoMcpClient(api_key=api_key)
     return client.generate_video_from_script(
-        script=script,
+        script=payload,
         topic=topic,
         vibe=vibe,
         target_audience=target_audience,

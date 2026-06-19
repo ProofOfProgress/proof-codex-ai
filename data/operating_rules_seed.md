@@ -2,7 +2,7 @@
 
 ## Hardcoded rule — InVideo is the soul of the channel (never override)
 
-**InVideo is the soul of our channel.** All video production flows through InVideo AI (Agent One, AI Twin, stock UI, captions). Do not invest in Blender, Recraft, Replicate I2V, or homemade ffmpeg render unless the owner explicitly asks. If work doesn't move InVideo → MP4 on disk → YouTube → analytics learning, deprioritize it. Full paste-ready brief: `docs/CHANNEL_BOT_BRIEF.md`.
+**InVideo is the soul of our channel.** All video production flows through InVideo AI (Agent One, AI Twin, stock UI, captions). Do not invest in Blender, Recraft, Replicate I2V, or homemade ffmpeg render unless the owner explicitly asks. If work doesn't move InVideo → MP4 on disk → YouTube → analytics learning, deprioritize it. Full paste-ready brief: `docs/CHANNEL_BOT_BRIEF.md`. **InVideo AI master prompt (auto-sent to InVideo):** `shorts_bot/invideo/invideo_master_prompt.md`.
 
 ## Video generation — InVideo pivot (2026-06)
 

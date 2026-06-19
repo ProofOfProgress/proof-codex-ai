@@ -109,4 +109,6 @@ InVideo is not a nice-to-have tool. It IS the channel's production engine.
 
 ---
 
-Saved in repo so agents can read: `python3 -m shorts_bot.codex read docs/CHANNEL_BOT_BRIEF.md`
+Saved in repo:
+- **For InVideo AI:** `shorts_bot/invideo/invideo_master_prompt.md` (auto-prepended to every generate/Agent One call)
+- **For Cursor agents:** this file (`docs/CHANNEL_BOT_BRIEF.md`)
