@@ -17,8 +17,8 @@ def test_visual_dna_allows_early_eyes_and_masks():
     assert "mask" in dna
 
 
-def test_generator_prompt_allows_visible_eyes():
+def test_generator_prompt_ai_tech_voice():
     prompt = SYSTEM_PROMPT.lower()
-    assert "faceless" not in prompt or "not saved for finale" in prompt
-    assert "macro" in prompt or "eye" in prompt
-    assert "silhouettes only" not in prompt
+    assert "ai" in prompt or "tech" in prompt
+    assert "verdict" in prompt or "takeaway" in prompt
+    assert "worship" not in prompt

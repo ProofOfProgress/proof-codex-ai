@@ -1,12 +1,12 @@
 # Operating rules seed — imported on first run
 
-## Video generation — owner pause (2026-06)
+## Video generation — InVideo pivot (2026-06)
 
-**Do not call Replicate I2V / FLUX / Hailuo** unless the owner explicitly asks for new clips.
+**Peripheral horror is retired.** Production target: **InVideo AI twin** (script → MP4 → QC → YouTube).
 
-- Default: `AI_VIDEO_GENERATION_ENABLED=false` — improve code, overlays, captions, metadata, tests
-- **OK without owner ask:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (assemble existing clips)
-- **Blocked:** `regen_clips_cli`, `render_jumpscare_cli --force`, full pack I2V regen
+- **Do not** invest in Recraft, Replicate I2V, Blender, TurboScribe, or homemade ffmpeg render unless owner explicitly asks
+- Default: `AI_VIDEO_GENERATION_ENABLED=false` for legacy paths
+- **Next ship:** InVideo API client + slim closed loop after owner validates twin manually ("invideo pass")
 
 ## Codex — knowledge base name
 
@@ -63,7 +63,7 @@ When setup or fixes need an external dashboard (Google Cloud OAuth, YouTube cons
 
 Every feature, fix, and conversation must answer: **does this automate another step OR make the next Short noticeably better?** If not, deprioritize it.
 
-**Better videos — highest-impact levers (in order):** hook → retention pacing → stick-figure beat sync → captions → vision QC before upload → YouTube analytics feedback into the next draft.
+**Better videos — highest-impact levers (in order):** hook → one clear takeaway → twin presenter trust → captions → QC before upload → YouTube analytics feedback into the next draft.
 
 Money at scale requires **not getting demonetized** — keep YPP-safe originality (see below). Helpful content that retains viewers **is** the business model; do not sacrifice quality so badly that YouTube kills the channel.
 
@@ -83,13 +83,11 @@ Do not ask clarifying questions unless the task truly cannot be completed. Infer
 
 ## Niche
 
-**Peripheral** — first-person horror Shorts (~30s). Merch tagline: *don't blink*. **The Village** — Eye worship, dream invasion. Character voices on screen (Kling native audio). Payoff sting at end. Hook in line 1. 🔊 volume warning in description.
+**AI / Tech** — same YouTube channel, rebrand in place. Sub-sub-niche TBD with owner — see `data/research/CHANNEL_NICHE_STRATEGY.md`. Agent pick: honest **AI tool verdicts** (~30s). Hook in line 1. Clear verdict at end.
 
 ## Production stack
 
-**Video (locked 2026-06-13):** **Blender 3D** — **3×10s EEVEE clips**, silent launch + post horror SFX (no API credits). Fallback: `VIDEO_BACKEND=kling` for native lip-sync dialogue. No narrator TTS when Blender or Kling silent launch. See `python3 -m shorts_bot.production.blender.render_cli --help`.
-
-Gemini horror scripts (first-person screenplay), Replicate Kling v3 + optional FLUX reference stills, ffmpeg ASS captions (always burn in — models fail at on-screen text), horror SFX sting at render, YouTube API upload (public + synthetic media disclosure). **Do not** use 10-beat MiniMax/Hailuo daily pipeline unless owner sets `VIDEO_BACKEND=legacy_i2v`.
+**Video (target):** **InVideo AI** — owner twin + stock UI B-roll + captions → MP4. Gemini scripts (verdict/myth template), YouTube API upload (public + synthetic media disclosure). Legacy Blender/Kling/Recraft paths are **deprecated** — see `docs/PURGE_MANIFEST.md`.
 
 ## Browser
 
@@ -114,7 +112,7 @@ YouTube does not ban AI — it demonetizes **inauthentic** mass-produced templat
 - First-person original scripts; no spam-farm phrases ("in today's fast-paced world", "let's dive in")
 - Max **1 upload per 24h**; topic cooldown 7d, hook cooldown 14d
 - No duplicate script skeletons — vary beats, titles, hooks per upload
-- AI horror motion clips **acting** beats (ChainsFR), not slideshow + generic TTS farm
+- Original opinion scripts (verdict or myth bust), not slideshow + generic TTS farm
 - `upload_guard` blocks risky uploads automatically; render may finish, upload skipped
 - Flat views ≠ always shadowban — fix hook/retention before re-uploading same topic same day
 - Serious comments stay human; no mass identical auto-replies
@@ -126,18 +124,14 @@ See `docs/YPP_ANTI_SHADOWBAN.md`. Config: `YPP_SAFE_MODE`, `MAX_UPLOADS_PER_24H`
 **Primary goal is not one-off viral hits.** Build a **loyal subscriber base** of people who come back because the channel actually helps.
 
 - Every Short: one **real** protocol for one **specific** minute — viewer should leave able to *do something tonight*
-- Optimize for **completion rate** and binge — jumpscare at end every Short; rotate scare types
+- Optimize for **completion rate** and saves — one clear takeaway every Short
 - Comments: take serious messages seriously (human queue); light thanks OK — relationships matter
 - Hooks can be strong, but payoff must **deliver** — no bait-and-switch wellness slop
 - **Do NOT** end every Short with "you're still here. good." — tagline is channel metadata only; end on the concrete protocol
 - Jenny 07 + 09: relatability and subscriber value over pure view spikes
 
-## TikTok + TikTok Shop — owner approved (prep phase)
+## TikTok — backlog
 
-User wants **TikTok + TikTok Shop** for Peripheral merch and second distribution surface. **Biker / streetwear** is a strong **merch identity** lane (PERIPH patches, eye mark) — not a full content pivot unless hooks test well.
-
-**Do not build TikTok login/upload automation until:** TikTok account exists, Shop setup started, and user says **go** on automation.
-
-**Do now:** planning doc `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`, manual cross-post winners (1/day max), Shop SKUs from brand assets.
+Deprioritized until YouTube Shorts flow on InVideo. Revisit after sub-sub-niche locks and 10+ uploads.
 
 Subscriber count + daily post prompt live in **Cursor automations** (owner-configured).

@@ -13,56 +13,34 @@
 
 ### North star (read first)
 
-**Make a lot of money from 100% AI-automated YouTube Shorts channel(s)** — self-learning, self-improving, self-posting. No “human does 70%.”
+**Make a lot of money from 100% AI-automated YouTube Shorts** — same channel, **AI/tech rebrand**, InVideo twin production, self-learning from analytics. No “human does 70%.”
 
 **Work rule:** Only the **top 4** items in `docs/PRIORITIES.md` get built. Re-assess often.
 
 **User:** Not a coder — explain in plain English, one step at a time.
 
-**Long jobs (Replicate I2V, regen, QC):** always run in the **background** and do other work in parallel (docs, tests, commits, prompt fixes). Never sit idle waiting on shell — poll every 1–2 min.
-
-**Video generation (owner rule):** `AI_VIDEO_GENERATION_ENABLED=false` by default — **no new Replicate I2V/FLUX** unless owner asks. Keep improving code, overlays, captions, upload meta, tests. **Render-only OK:** `python3 -m shorts_bot.production.render_pack_cli --draft-id N` (runs pack health first). **Pre-flight:** `python3 -m shorts_bot.production.pack_health_cli --draft-id N`.
+**Video generation:** Homemade render (Recraft, Blender, ffmpeg) is **retired**. Target: **InVideo AI twin** after owner validates manually. See `data/research/CHANNEL_NICHE_STRATEGY.md`.
 
 ### Project overview
 
-**Shorts Bot** — Jenny Hoyos strategist CLI for **Peripheral** horror Shorts (merch tagline: *don't blink*). Knowledge base: **Codex** (`course/files/` 01–09, research, brand, learned rules). See `docs/CODEX.md`. **Paid stack:** **Gemini** (scripts + transcript + vision QC) + **Resemble** (cold narrator) + **Replicate I2V** (`VISUAL_STYLE=ai_video`). Keys via `bash scripts/install.sh`. Horror research: `data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md`. Applied learnings: `data/research/APPLIED_RESEARCH_ROUND_2.md`.
+**Shorts Bot** — autonomous CLI for **AI/tech Shorts** on the existing YouTube channel. Knowledge base: **Codex** (`course/files/` 01–09 — hooks/retention still useful; horror rules deprecated). **Paid stack (target):** **Gemini** (scripts + QC) + **InVideo** (twin + stock + captions) + **YouTube upload API**. Keys via `bash scripts/install.sh`.
 
-**Channel brand:** **Peripheral** (display name). Merch tagline: *don't blink* under line-eye logo. Spec: `channel/brand/identity.md`.
+**Channel direction:** AI / Tech → sub-niche TBD → sub-sub-niche TBD. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`. Brand stub: `channel/brand/identity.md`.
 
-**Codex search (agents only — NOT for the owner):** Reduces context load. **AlphaBeta001** auto-injects BM25 passages on strategy questions (`shorts_bot/codex/context.py`). **Cloud agents:** use search in terminal instead of reading every file:
-
-```bash
-python3 -m shorts_bot.codex search "suspense retention horror short"
-python3 -m shorts_bot.codex read data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md  # if you need one file
-```
-
-No owner-facing `!codex`, web API, or chat command. Owner talks to AlphaBeta001; AlphaBeta001 reads Codex. See `docs/CODEX.md`.
-
-**Formats:** Shorts now; long-form via **asset reuse** — `docs/CONTENT_FORMATS.md`, `data/PRIORITY_LONG_FORM.md`, `CONTENT_FORMAT=short_hybrid` for low I2V cost (3 beats).
-
-**Long-form (no new I2V):** stitch 3+ finished Shorts → 16:9 blur pillarbox; QC + chapters before upload.
+**Codex search (agents only — NOT for the owner):**
 
 ```bash
-python3 -m shorts_bot.production.winner_selection_cli --limit 3
-python3 -m shorts_bot.production.long_compilation_cli --draft-ids 2,3,1
-python3 -m shorts_bot.production.long_quality_cli --pack-dir data/production/long_compilation_001
-python3 -m shorts_bot.production.upload_long_cli --pack-dir data/production/long_compilation_001
+python3 -m shorts_bot.codex search "hook retention short form"
+python3 -m shorts_bot.codex read data/research/CHANNEL_NICHE_STRATEGY.md
 ```
 
-**Visual grammar (default):** fullscreen **CCTV** for security-cam drafts — **no phone screens**. Time via **alarm clock** or REC OSD (`screen_text_phone_enabled=false`).
+**Peripheral horror:** retired — archived under `archive/peripheral/`. Do not produce new horror content unless owner explicitly reverses.
 
-**Channel mission:** terrifying ~30s micro-stories with **jumpscare at the end** — completion + binge, not cosy self-help. **Universe:** all Shorts live in **The Gap** (`channel/brand/world.md`, `shorts_bot/production/world.py`) — same alone-at-night apartment, lag between reality and recordings, 3:12 AM glitch hour. Launch QC playbook: `data/LAUNCH_QUALITY.md` (script bar, vision min 7.5, jumpscare sting on render). Horror VO: `tts_horror_delivery=true` — per-sentence dread/lunge prosody (Resemble SSML or edge-tts chunked).
+**Formats:** Shorts now via InVideo; long-form later via winner compilation when new niche has 3+ hits.
 
-**Live:** Video #1 mirror blink — https://youtube.com/shorts/-21Yc_xTcMY
+**Channel mission:** ~30s AI/tech Shorts with **one clear takeaway** — verdict, myth bust, or workflow. InVideo twin presenter. See `data/research/CHANNEL_NICHE_STRATEGY.md`.
 
-**QA previews (YPP-safe):** Compare renders **locally** (`final_short_vN.mp4`). Do **not** upload `(build vN …)` iterations to YouTube under `YPP_SAFE_MODE` — batch QA uploads are **banned** (Jul 2025 inauthentic-content policy). One public/unlisted upload per draft max; 1 Short / 24h.
-
-```bash
-# Local render only — no YouTube upload for iteration builds
-python3 -m shorts_bot.production.render_jumpscare_cli --draft-id 3 --render
-# Single owner-approved upload (no build suffix, no --allow-duplicate-draft):
-python3 -m shorts_bot.production.upload_canonical_cli --draft-id 3 --video data/production/draft_3/final_short_v21_cctv.mp4
-```
+**QA previews (YPP-safe):** One public upload per draft max; 1 Short / 24h. Compare renders locally before canonical upload.
 
 See `docs/YPP_ANTI_SHADOWBAN.md` and `shorts_bot/compliance/ypp_bans.py`.
 

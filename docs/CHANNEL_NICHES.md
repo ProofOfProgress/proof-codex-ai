@@ -1,40 +1,45 @@
-# Channel niche — Peripheral (horror Shorts)
+# Channel niche — AI / Tech (rebrand)
 
-**Peripheral** — faceless horror micro-stories (~30s) with **jumpscare on finale beats** (most uploads). Merch tagline: *don't blink*. Audience research: `data/research/PERIPHERAL_CHANNEL_AUDIENCE_RESEARCH.md`.
+**Same YouTube channel.** Peripheral horror retired. Pick sub-sub-niche in `data/research/CHANNEL_NICHE_STRATEGY.md`.
 
-## World (The Gap)
+---
 
-- Recordings lag reality by one beat; movement happens when you stop watching
-- 3:12 AM = systems glitch (motion alerts, impossible timestamps, dead-contact texts)
-- Same liminal apartment grammar every upload — hallway, mirror, phone, security cam
-- Bible: `channel/brand/world.md` · code: `shorts_bot/production/world.py`
+## Hierarchy (target)
 
-## Positioning
+```
+AI / Tech
+    └── [sub-niche — TBD with owner]
+            └── [sub-sub-niche — TBD]
+```
 
-Another alone-at-night night in The Gap → tension builds → jumpscare at the end. AI full-motion clips (I2V). Not cosy self-help, not creepypasta listicles.
+**Agent recommendation:** AI/tech → AI tools for normal people → **"I tested it so you don't have to"** (30s honest verdicts).
 
-## Scare pillars (rotate)
+Alternatives documented in strategy file: **AI Myths Busted**, **AI Workflow Lab**.
 
-| Pillar | Example hook |
-|--------|----------------|
-| Wrong reflection | Mirror blinked one second after you did |
-| Wrong place | Security cam flagged motion — you live alone |
-| Wrong text | Last text showed delivered — phone was off |
-| Wrong sound | Knock came from inside the closet |
-| Wrong time | Photo timestamp from next week |
+---
 
-## Production stack
+## Production stack (target)
 
-1. **Deep research** — `data/research/LAUNCH_VIDEO_*_SEO_HOOKS.md`
-2. **Draft** — second-person horror script (`drafts/generator.py`)
-3. **Paid pipeline** — Resemble/edge VO + Gemini transcript + Replicate I2V
-4. **Upload** — vision QC ≥ 7.5, 1 Short/day, rotate scare pillar
+1. **Topic** — tool launch, myth, or workflow (agent queue + owner notes)
+2. **Script** — Gemini, fixed Short template (~30s)
+3. **Video** — **InVideo AI** (owner twin + stock + captions)
+4. **QC** — duration, captions readable, no watermark
+5. **Upload** — YouTube API, 1 Short / 24h
+6. **Learn** — analytics sync → hook/topic rules
 
-## Launch calendar (first 4)
+---
 
-1. Mirror blink (live)
-2. Security cam motion (draft #3)
-3. Closet knock (research prep)
-4. Wrong text delivered (playbook)
+## Deprecated (do not use for new content)
 
-See `data/PRIORITIES.md` and `data/PRIORITY_14_NOW.md`.
+- Peripheral / The Gap / Eye worship universe
+- Jumpscare finales, CCTV found footage
+- Recraft, Replicate I2V, Blender, Resemble horror VO
+- Horror research in `archive/peripheral/` (when moved)
+
+---
+
+## Code
+
+- Niche constants: `shorts_bot/production/niche.py`
+- Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`
+- Purge plan: `docs/PURGE_MANIFEST.md`

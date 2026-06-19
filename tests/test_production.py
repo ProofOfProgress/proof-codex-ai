@@ -27,7 +27,12 @@ def test_parse_turboscribe():
     assert "darkness" in segs[1].text.lower()
 
 
-def test_build_production_pack(tmp_path: Path):
+def test_build_production_pack(tmp_path: Path, monkeypatch):
+    from shorts_bot.config import Settings
+
+    fake = Settings(require_beat_sheet_approval=False)
+    monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
+
     store = MemoryStore(tmp_path / "test.db")
     d = store.save_draft(
         topic="sleep at 3am",

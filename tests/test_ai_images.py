@@ -47,6 +47,7 @@ def test_pack_ai_fallback_without_api_key(tmp_path: Path, monkeypatch):
     from shorts_bot.production.pack import auto_produce_draft
 
     fake = Settings(
+        require_beat_sheet_approval=False,
         data_dir=tmp_path,
         database_path=tmp_path / "t.db",
         visual_style="ai",

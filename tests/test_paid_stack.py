@@ -68,6 +68,7 @@ def test_ensure_turboscribe_skipped_for_blender(monkeypatch):
 
     fake = Settings(allow_script_timing_fallback=False, video_backend="blender")
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    monkeypatch.setattr("shorts_bot.config.settings", fake)
     ensure_turboscribe_segments("script_estimate")
 
 
@@ -106,6 +107,7 @@ def test_ensure_turboscribe_skipped_for_kling_native(monkeypatch):
         kling_skip_narrator_tts=True,
     )
     monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
+    monkeypatch.setattr("shorts_bot.config.settings", fake)
     ensure_turboscribe_segments("script_estimate")
 
 

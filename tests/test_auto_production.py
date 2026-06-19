@@ -16,6 +16,7 @@ def test_auto_produce_renders_images(tmp_path: Path, monkeypatch):
 
     fake = Settings(
         data_dir=tmp_path,
+        require_beat_sheet_approval=False,
         require_paid_stack=False,
         allow_script_timing_fallback=True,
         visual_style="hybrid",

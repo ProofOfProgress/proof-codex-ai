@@ -1,65 +1,59 @@
-"""Niche — Peripheral (village Eye worship horror Shorts)."""
+"""Niche — AI / Tech Shorts (channel rebrand)."""
 
 from __future__ import annotations
 
-from shorts_bot.production.world import WORLD_NAME, world_rules_compact
+NICHE_NAME = "AI Tech Shorts"
+NICHE_TAGLINE = "Honest AI in 30 seconds."
 
-NICHE_NAME = "Peripheral"
-NICHE_TAGLINE = "Watch the whole thing."
+NICHE_POSITIONING = """
+**AI / Tech Shorts** — ~30 second explainers with a **clear takeaway** (verdict, myth bust, or one workflow).
+Presenter: owner **InVideo AI twin** (consistent face + voice). Stock UI / tech B-roll. Captions on.
 
-NICHE_POSITIONING = f"""
-Peripheral — **first-person nightmare Shorts** (~30 seconds) from **{WORLD_NAME}**.
-Villagers **worship the Eye**. The Eye tortures you in dreams; you remember when you wake.
-Character voices on screen only — no narrator. Subtitles always. AI cinematic video (Sora-class when available).
-
-{world_rules_compact()}
-
-Episode pillars (rotate):
-1. **Worship exposed** — you witness the ritual; villagers know you saw
-2. **Dream invasion** — Eye true form in sleep; waking residue
-3. **Wrong villager** — uncanny human, rabies-wrong, shape-shifting energy
-4. **Outsider rule** — name on sign, symbol on barn, soup with averted eyes
-5. **Perception break** — reality fractures after the Eye touches you
+Target hierarchy (lock sub-sub with owner):
+- Big: **AI / Tech**
+- Sub: **AI tools for normal people** OR **AI literacy**
+- Sub-sub: **Honest tool verdicts** OR **one scary truth about AI per Short**
 
 Format rules:
-- First person **I** — screenplay dialogue, no off-screen narrator
-- Hook in line 1 = **premise** (broken rule — not vague mood)
-- Victims **remember dreams** on waking Shorts
-- Twist rewrites hook — full-frame Eye or uncanny lunge — then STOP
-- 25–35s; subtitles burned in post
+- Hook in line 1 = **claim or question** (not vague mood)
+- One topic only — one tool OR one myth OR one workflow
+- End with **verdict or takeaway** (Pay / Skip / Wait — or "remember this")
+- 25–35s; captions burned in InVideo
+- Original opinion every time — not Wikipedia summary
 
-What works: Eye lore binge, village complicity, dream true form, uncanny humans, heavy SFX.
-What fails: CCTV apartment spam, faceless narrator, glitch hour hooks, template farms, cosy tone.
+What works: skeptical honesty, specific limitation, save-worthy myth, your face on camera.
+What fails: prompt spam lists, hype thumbnails, horror tone, template farms, "make $10k" energy.
 """
 
 DEFAULT_TOPICS = [
-    "the village sign showed my name — everyone else looked away",
-    "I saw them praying to the Eye in the barn — they know I watched",
-    "I woke up tasting metal — I remembered the Eye",
-    "the villager smiled with too many teeth — then spoke in my mother's voice",
-    "they brought me soup — none of them would look at my face",
-    "I dreamed the Eye filled the ceiling — I was still screaming when I woke",
-    "grandma said never stare at the signpost — I counted four seconds too long",
-    "every candle in the square pointed at me — I was the only outsider",
-    "the doctor said I was fine — I hadn't slept in six days",
-    "I filmed the ritual to prove I was sane — the playback showed me kneeling",
-    "the fog lifted and the symbol on the barn was my initials",
-    "I asked who they worship — the whole square went silent",
-    "my neighbor's eyes were wrong — both pupils too wide, never blinking",
-    "I heard them chanting one word under their breath — it wasn't a language",
-    "the child in the window pointed at the sky — there was nothing there until I looked",
-    "I tried to leave the village — the road was the same square again",
-    "they left a white hooded robe on my doorstep — it fit",
-    "I dreamed they cut out my tongue — I woke up unable to speak for an hour",
-    "the priestess of the Eye smiled — she had my face",
-    "I blinked and every villager was staring at the same spot behind me",
+    "I paid for ChatGPT Pro so you don't have to — here's when to skip it",
+    "that AI headshot app hides this in the fine print",
+    "voice clones need three seconds of audio — not thirty minutes",
+    "NotebookLM is free and useful — one catch nobody mentions",
+    "AI essay detectors are mostly guessing — don't trust the score",
+    "InVideo vs CapCut AI — honest thirty second pick for Shorts",
+    "your ChatGPT history isn't private — read this before you paste secrets",
+    "this AI girlfriend app is worse than the ads show",
+    "why AI still can't count reliably — ten second proof",
+    "the free tier sells your data — how to spot it on any AI site",
+    "I tried an AI meeting notetaker for a week — skip if you do this",
+    "Gemini vs ChatGPT for research — one clear winner for most people",
+    "that viral AI video tool watermark — what you actually get on free",
+    "don't upload your kid's photos to that AI app — here's why",
+    "AI resume builders — one actually helped, two wasted an hour",
+    "the 'AI detected' label on social media is mostly theater",
+    "I automated my captions with AI — workflow in thirty seconds",
+    "OpenAI o-series hype vs what normal users actually need",
+    "this browser extension reads everything you type — AI privacy check",
+    "Sora-style video AI — wait before you pay, here's why",
 ]
 
 
 def quality_lessons() -> str:
     return (
-        "Better: first-person I, Eye worship or dream invasion hook, uncanny villager visible, "
-        "victims remember dreams, subtitles on all dialogue, heavy SFX, twist sting. "
-        "Worse: CCTV apartment spam, faceless narrator, glitch hour, template farms, cosy tone. "
-        "Always: 🔊 volume warning when stinging, declare synthetic media, rotate scare pillars."
+        "Better: specific tool or myth, honest verdict, one clear limitation, twin presenter, "
+        "readable captions, hook in first line. "
+        "Worse: generic prompt lists, hype without testing, horror tone, finance spam, "
+        "multiple topics in one Short. "
+        "Always: declare synthetic presenter when required, 1 Short per 24h, original script."
     )

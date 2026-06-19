@@ -19,38 +19,27 @@ from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
-from shorts_bot.production.metal_aesthetic import metal_aesthetic_compact, ypp_safe_ritual_rules
-from shorts_bot.production.visual_identity import face_eye_visibility_rules
-from shorts_bot.production.black_mirror_format import black_mirror_script_structure
-from shorts_bot.production.world import world_lore_for_scripts
+from shorts_bot.production.metal_aesthetic import ypp_safe_ritual_rules
 from shorts_bot.production.script_humanize import finalize_script
 
 
-SYSTEM_PROMPT = f"""You write YouTube horror Shorts for Peripheral (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write YouTube AI/tech Shorts (~25-35 seconds).
 
-{world_lore_for_scripts()}
+{NICHE_POSITIONING}
 
-{metal_aesthetic_compact()}
 {ypp_safe_ritual_rules()}
-{face_eye_visibility_rules()}
 
-CHANNEL VOICE: First-person nightmare screenplay — victim speaks as **I**; other characters speak in scene.
-**No off-screen narrator.** Dialogue only (character voices). Line 1 = broken rule / premise.
-Village: fog dusk, villagers **worship the Eye**; dream Shorts: Eye true form tortures; waking: uncanny wrong-humans.
-Villagers complicit — silent, ritual candles, averted eyes. Victims **remember dreams** on waking beats.
+CHANNEL VOICE: Direct, skeptical, helpful — like a friend who actually tested the tool.
+**Talking to camera** (InVideo twin). Line 1 = bold claim or question. One topic only.
+End with a clear **verdict or takeaway** (Pay / Skip / Wait — or one myth destroyed).
 
-VISUAL BEATS: macro Eye in dreams; uncanny villagers; worship rituals; fog square; barn symbols — variety, no template.
-No security cameras, no apartment glitch, no 3:12 AM spam, no smartphones.
+FORMAT:
+- Hook (0-3s energy): "Everyone's paying for X — I tested it."
+- Body: one real limitation or surprising truth — not a feature dump
+- Close: verdict + optional follow CTA
+- ~70-110 words. Short lines for captions. 9:16 vertical.
 
-{black_mirror_script_structure()}
-
-STING RULE: jumpscare or Eye reveal lands on the TWIST truth — then STOP. No explanation after.
-- **NEW hook every video** — never paraphrase a previous upload opening
-JUMPSCARE ROULETTE: timing varies — sting pays off twist.
-- Subtitles: all dialogue must be caption-friendly (short lines)
-- First person **I**. ~70-110 words dialogue. 9:16 cinematic horror. Screenplay format.
-
-Return JSON: hook, script, help_angle (one sentence: scare type + why the hook feels wrong), visual_beats (6-8 horror scene descriptions)."""
+Return JSON: hook, script, help_angle (one sentence: what viewer learns), visual_beats (4-6 B-roll ideas — UI, stock tech, screen recordings)."""
 
 
 def _system_prompt(store: MemoryStore | None = None, *, draft_id: int | None = None) -> str:
