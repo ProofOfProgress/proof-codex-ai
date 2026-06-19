@@ -13,7 +13,7 @@ Connect InVideo so the agent can turn your scripts into video projects (you expo
 |------|-----|------|
 | Script | Agent | Writes Pay/Skip/Wait review from product queue |
 | Start video | Agent | MCP creates InVideo project from script |
-| Finish + export | You | Desktop browser → Generate → Download MP4 |
+| Finish + export | Agent | Browser clicks **Download** → saves MP4 (no file upload from you) |
 | Upload | Agent | YouTube API (TikTok later when phone works) |
 
 ---
@@ -78,8 +78,15 @@ python3 -m shorts_bot.invideo.generate_cli --open-browser --prompt "30s honest r
 
 1. Desktop tab opens your InVideo project  
 2. **InVideo writes the script** and generates the video  
-3. When done → **Download** MP4  
-4. Save as: `data/production/invideo_runs/chatgpt-plus/final_short.mp4` (or tell agent path)
+3. Agent downloads MP4 when ready (browser automation — you don't send files)
+
+```bash
+# Generate + wait + download in one go (after handoff login):
+python3 -m shorts_bot.invideo.generate_cli --draft-id 1 --download --auto-generate
+
+# Or download an existing finished project:
+python3 -m shorts_bot.invideo.download_cli --draft-id 1
+```
 
 **We do not paste finished scripts** unless you pass `--from-our-script`.
 
