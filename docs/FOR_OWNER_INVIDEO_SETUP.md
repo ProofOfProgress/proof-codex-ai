@@ -3,7 +3,30 @@
 Connect InVideo so the agent can turn your scripts into video projects (you export the MP4).
 
 **Time:** ~10 minutes first time.  
-**Works without phone:** log in with **Google** on Desktop.
+**Works without phone:** log in with **Google** on Desktop — *unless Google 2FA needs your phone (see below).*
+
+---
+
+## Broken phone / no 2FA — use a link instead
+
+If Google login asks for a code on a phone you can't use:
+
+1. On your **laptop** (where you made the v1 InVideo test), open the project — you may still be logged in  
+2. Click **Download** → save the MP4  
+3. Upload to **Google Drive** (or Dropbox)  
+4. Share → **Anyone with the link**  
+5. Paste the link in Cursor chat — the agent runs:
+
+```bash
+python3 -m shorts_bot.invideo.fetch_url_cli --draft-id 6 'PASTE_DRIVE_LINK_HERE'
+python3 -m shorts_bot.production.upload_canonical_cli --draft-id 6 --video data/production/draft_6/final_short.mp4
+```
+
+No file attach in Cursor. No VM login. YouTube upload still works from here.
+
+**Google 2FA alternatives** (one-time, if you want VM browser login later):
+- Google sign-in → **Try another way** → backup codes, recovery email, or laptop passkey  
+- InVideo → sign up with **email + password** (not Google) so VM login skips Google 2FA
 
 ---
 
