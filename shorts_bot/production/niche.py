@@ -1,4 +1,4 @@
-"""Niche — Peripheral (village Eye worship horror Shorts)."""
+"""Niche — Peripheral (analog/CCTV horror Shorts)."""
 
 from __future__ import annotations
 
@@ -8,58 +8,58 @@ NICHE_NAME = "Peripheral"
 NICHE_TAGLINE = "Watch the whole thing."
 
 NICHE_POSITIONING = f"""
-Peripheral — **first-person nightmare Shorts** (~30 seconds) from **{WORLD_NAME}**.
-Villagers **worship the Eye**. The Eye tortures you in dreams; you remember when you wake.
-Character voices on screen only — no narrator. Subtitles always. AI cinematic video (Sora-class when available).
+Peripheral — **analog/CCTV nightmare Shorts** (~30 seconds) from **{WORLD_NAME}**.
+Fullscreen security footage catches what reality hides. Old villagers still **worship the Eye** in background lore.
+Second-person ownership hooks. Subtitles when dialogue exists. AI cinematic video (Sora-class when available).
 
 {world_rules_compact()}
 
 Episode pillars (rotate):
-1. **Worship exposed** — you witness the ritual; villagers know you saw
-2. **Dream invasion** — Eye true form in sleep; waking residue
-3. **Wrong villager** — uncanny human, rabies-wrong, shape-shifting energy
-4. **Outsider rule** — name on sign, symbol on barn, soup with averted eyes
-5. **Perception break** — reality fractures after the Eye touches you
+1. **Motion alert** — CCTV flags an empty room before the scare appears
+2. **Recording lag** — playback shows a different timeline
+3. **Mirror/feed mismatch** — reflection or mask moves one beat late
+4. **3:12 AM rule** — alarm clock/REC timestamp anchors the wrongness
+5. **Eye leak** — village/Eye lore bleeds into the analog feed
 
 Format rules:
-- First person **I** — screenplay dialogue, no off-screen narrator
+- Second-person ownership hook — "Your security camera..." / "You live alone..."
 - Hook in line 1 = **premise** (broken rule — not vague mood)
-- Victims **remember dreams** on waking Shorts
+- Victims notice recordings before reality catches up
 - Twist rewrites hook — full-frame Eye or uncanny lunge — then STOP
 - 25–35s; subtitles burned in post
 
-What works: Eye lore binge, village complicity, dream true form, uncanny humans, heavy SFX.
-What fails: CCTV apartment spam, faceless narrator, glitch hour hooks, template farms, cosy tone.
+What works: security cam ownership, empty-room motion, clear 3:12 AM clock, final lunge/sting, heavy SFX.
+What fails: phone screens, faceless narrator, repeated glitch-hour filler, template farms, cosy tone.
 """
 
 DEFAULT_TOPICS = [
-    "the village sign showed my name — everyone else looked away",
-    "I saw them praying to the Eye in the barn — they know I watched",
-    "I woke up tasting metal — I remembered the Eye",
-    "the villager smiled with too many teeth — then spoke in my mother's voice",
-    "they brought me soup — none of them would look at my face",
-    "I dreamed the Eye filled the ceiling — I was still screaming when I woke",
-    "grandma said never stare at the signpost — I counted four seconds too long",
-    "every candle in the square pointed at me — I was the only outsider",
-    "the doctor said I was fine — I hadn't slept in six days",
-    "I filmed the ritual to prove I was sane — the playback showed me kneeling",
-    "the fog lifted and the symbol on the barn was my initials",
-    "I asked who they worship — the whole square went silent",
-    "my neighbor's eyes were wrong — both pupils too wide, never blinking",
-    "I heard them chanting one word under their breath — it wasn't a language",
-    "the child in the window pointed at the sky — there was nothing there until I looked",
-    "I tried to leave the village — the road was the same square again",
-    "they left a white hooded robe on my doorstep — it fit",
-    "I dreamed they cut out my tongue — I woke up unable to speak for an hour",
-    "the priestess of the Eye smiled — she had my face",
-    "I blinked and every villager was staring at the same spot behind me",
+    "your security camera flagged motion at 3:12 AM — you live alone",
+    "your hallway camera replayed tomorrow's footsteps",
+    "your alarm clock hit 3:12 AM before the room went quiet",
+    "your mirror feed blinked one second after you did",
+    "your doorbell camera recorded someone leaving your apartment from inside",
+    "your baby monitor whispered your name from an empty room",
+    "your night-vision camera found eyes behind the closed closet door",
+    "your kitchen camera showed a chair turn toward the hallway",
+    "your locked apartment camera showed the deadbolt turning from inside",
+    "your bedroom camera replayed you sleeping with your eyes open",
+    "your elevator camera stopped at a floor your building does not have",
+    "your stairwell camera counted one extra shadow behind you",
+    "your living-room feed froze except for the thing under the table",
+    "your webcam light turned on while the laptop was unplugged",
+    "your hallway motion box followed something standing perfectly still",
+    "your apartment feed showed the old village symbol on your door",
+    "your mirror reflected the Eye before the glass went black",
+    "your security playback showed you kneeling to the Eye",
+    "your nightstand clock flashed 3:12 AM in every room at once",
+    "your final camera frame was taken from behind your own eyes",
 ]
 
 
 def quality_lessons() -> str:
     return (
-        "Better: first-person I, Eye worship or dream invasion hook, uncanny villager visible, "
-        "victims remember dreams, subtitles on all dialogue, heavy SFX, twist sting. "
-        "Worse: CCTV apartment spam, faceless narrator, glitch hour, template farms, cosy tone. "
+        "Better: second-person owned security-camera hook, fullscreen CCTV, clear 3:12 AM anchor, "
+        "empty-room motion before reality catches up, subtitles on dialogue, heavy SFX, twist sting. "
+        "Worse: phone screens, faceless narrator, repeated glitch-hour filler, template farms, cosy tone. "
         "Always: 🔊 volume warning when stinging, declare synthetic media, rotate scare pillars."
     )

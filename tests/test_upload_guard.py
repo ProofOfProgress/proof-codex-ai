@@ -86,6 +86,30 @@ def test_horror_second_person_allowed(tmp_path: Path, monkeypatch):
     assert report.allowed
 
 
+def test_silent_launch_visual_draft_allows_no_voice(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr(settings, "ypp_safe_mode", True)
+    monkeypatch.setattr(settings, "launch_silent_video_count", 3)
+    store, mem = _mem(tmp_path)
+    script = (
+        "Handheld camera moves down the apartment hallway. "
+        "The security feed flickers at 3:12 AM. "
+        "A motion box locks onto the empty elevator door. "
+        "The door opens to blackness. "
+        "A mask lunges into the lens and the feed cuts."
+    )
+    report = check_upload_allowed(
+        store,
+        mem,
+        draft_id=1,
+        topic="elevator camera stopped at a floor that does not exist",
+        hook="Your elevator camera stopped at a floor your building does not have.",
+        script=script,
+        title="🔊 Elevator camera stopped on a missing floor",
+    )
+    assert report.allowed
+    assert any("silent launch" in w for w in report.warnings)
+
+
 def test_upload_blocked_rate_limit(tmp_path: Path, monkeypatch):
     monkeypatch.setattr(settings, "ypp_safe_mode", True)
     monkeypatch.setattr(settings, "max_uploads_per_24h", 1)

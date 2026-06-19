@@ -19,7 +19,28 @@ def blender_clip_paths(clips_dir: Path, count: int | None = None) -> list[Path]:
     return [clips_dir / f"blender_part_{i + 1:02d}.mp4" for i in range(n)]
 
 
+def _normalize_blender_outputs(clips_dir: Path, count: int) -> None:
+    """Blender may append frame ranges; move those files to stable clip names."""
+    for expected in blender_clip_paths(clips_dir, count):
+        if expected.exists() and expected.stat().st_size > 5000:
+            continue
+        candidates = sorted(
+            (
+                p
+                for p in clips_dir.glob(f"{expected.stem}*.mp4")
+                if p.name != expected.name and p.stat().st_size > 5000
+            ),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        if not candidates:
+            continue
+        expected.unlink(missing_ok=True)
+        candidates[0].replace(expected)
+
+
 def _clips_complete(clips_dir: Path, count: int) -> bool:
+    _normalize_blender_outputs(clips_dir, count)
     for path in blender_clip_paths(clips_dir, count):
         if not path.exists() or path.stat().st_size < 5000:
             return False
@@ -67,6 +88,7 @@ def render_blender_clips(
         tail = (proc.stderr or proc.stdout or "")[-3000:]
         raise RuntimeError(f"Blender render failed (exit {proc.returncode}):\n{tail}")
 
+    _normalize_blender_outputs(clips_dir, count)
     rendered = sum(
         1 for p in blender_clip_paths(clips_dir, count) if p.exists() and p.stat().st_size > 5000
     )

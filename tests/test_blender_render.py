@@ -4,13 +4,36 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shorts_bot.production.render_blender import blender_clip_paths
+from shorts_bot.production.render_blender import _normalize_blender_outputs, blender_clip_paths
 
 
 def test_blender_clip_paths():
     paths = blender_clip_paths(Path("/tmp/clips"), 3)
     assert paths[0].name == "blender_part_01.mp4"
     assert paths[2].name == "blender_part_03.mp4"
+
+
+def test_normalize_blender_frame_range_outputs(tmp_path: Path):
+    clips = tmp_path / "clips"
+    clips.mkdir()
+    actual = clips / "blender_part_010001-0240.mp4"
+    actual.write_bytes(b"x" * 6000)
+
+    _normalize_blender_outputs(clips, 1)
+
+    expected = clips / "blender_part_01.mp4"
+    assert expected.exists()
+    assert expected.stat().st_size == 6000
+    assert not actual.exists()
+
+
+def test_blender_visibility_filter_lifts_dark_frames():
+    from shorts_bot.production.render_video import _blender_visibility_filter
+
+    vf = _blender_visibility_filter()
+    assert "eq=" in vf
+    assert "brightness=0." in vf
+    assert "contrast=" in vf
 
 
 def test_blender_config_defaults():

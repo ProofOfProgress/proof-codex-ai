@@ -25,6 +25,17 @@ class ProductionPack:
     message: str
 
 
+def _requires_owner_beat_sheet_approval(*, render_images: bool) -> bool:
+    """Gate credit-spending video generation, not safe/local pack assembly."""
+    if not settings.require_beat_sheet_approval or not render_images:
+        return False
+    if settings.uses_blender_video:
+        return False
+    if settings.uses_kling_video:
+        return True
+    return settings.visual_style == "ai_video" and settings.has_paid_images
+
+
 def _capcut_instructions(briefs: list, topic: str) -> str:
     lines = [
         f"# CapCut timeline — {topic}",
@@ -141,7 +152,9 @@ def build_production_pack(
         rules=launch_rules_blurb(draft_id),
     )
     meta = load_draft_meta(draft_id)
-    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+    if _requires_owner_beat_sheet_approval(render_images=render_images) and not meta.get(
+        "beat_sheet_approved"
+    ):
         raise RuntimeError(
             f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
             f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
@@ -178,7 +191,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_blender_video:
+        if settings.visual_style == "ai_video" and settings.uses_blender_video and settings.require_paid_stack:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
