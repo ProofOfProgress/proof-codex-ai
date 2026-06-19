@@ -1,5 +1,9 @@
 # Operating rules seed — imported on first run
 
+## Hardcoded rule — InVideo is the soul of the channel (never override)
+
+**InVideo is the soul of our channel.** All video production flows through InVideo AI (Agent One, AI Twin, stock UI, captions). Do not invest in Blender, Recraft, Replicate I2V, or homemade ffmpeg render unless the owner explicitly asks. If work doesn't move InVideo → MP4 on disk → YouTube → analytics learning, deprioritize it. Full paste-ready brief: `docs/CHANNEL_BOT_BRIEF.md`.
+
 ## Video generation — InVideo pivot (2026-06)
 
 **Peripheral horror is retired.** Production target: **InVideo AI twin** (script → MP4 → QC → YouTube).

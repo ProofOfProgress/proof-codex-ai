@@ -15,6 +15,8 @@
 
 **Make a lot of money from 100% AI-automated YouTube Shorts** — same channel, **AI/tech rebrand**, InVideo twin production, self-learning from analytics. No “human does 70%.”
 
+**Hardcoded rule:** **InVideo is the soul of our channel** — all video production flows through InVideo; paste-ready agent brief: `docs/CHANNEL_BOT_BRIEF.md`.
+
 **Work rule:** Only the **top 4** items in `docs/PRIORITIES.md` get built. Re-assess often.
 
 **User:** Not a coder — explain in plain English, one step at a time.
