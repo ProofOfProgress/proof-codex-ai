@@ -244,7 +244,12 @@ def get_access_token(*, force_refresh: bool = False) -> str:
     return token
 
 
-def run_oauth_flow(*, open_browser: bool = True, timeout_sec: int = 300) -> dict[str, Any]:
+def run_oauth_flow(
+    *,
+    open_browser: bool = True,
+    timeout_sec: int = 300,
+    auth_url: str | None = None,
+) -> dict[str, Any]:
     """
     Start localhost callback on :8091, open TikTok authorize URL, save token on redirect.
     Works on Cloud VM Desktop browser — user logs in and taps Allow.
@@ -257,7 +262,15 @@ def run_oauth_flow(*, open_browser: bool = True, timeout_sec: int = 300) -> dict
     if not credentials_configured():
         return {"ok": False, "message": credentials_status_message()}
 
-    code_verifier, code_challenge = generate_pkce_pair()
+    code_verifier = load_pending_pkce()
+    if code_verifier:
+        code_challenge = hashlib.sha256(code_verifier.encode("utf-8")).hexdigest()
+        if not auth_url:
+            auth_url = oauth_authorization_url(code_challenge=code_challenge)
+    else:
+        code_verifier, code_challenge = generate_pkce_pair()
+        save_pending_pkce(code_verifier)
+        auth_url = auth_url or oauth_authorization_url(code_challenge=code_challenge)
     captured: dict[str, str | None] = {"code": None, "error": None}
     server_ref: list[HTTPServer] = []
 
@@ -299,7 +312,7 @@ def run_oauth_flow(*, open_browser: bool = True, timeout_sec: int = 300) -> dict
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
 
-    auth_url = oauth_authorization_url(code_challenge=code_challenge)
+    auth_url = auth_url or oauth_authorization_url(code_challenge=code_challenge)
     if open_browser:
         try:
             webbrowser.open(auth_url)
@@ -326,4 +339,7 @@ def run_oauth_flow(*, open_browser: bool = True, timeout_sec: int = 300) -> dict
             ),
             "auth_url": auth_url,
         }
-    return oauth_complete_code(captured["code"], code_verifier=code_verifier)
+    result = oauth_complete_code(captured["code"], code_verifier=code_verifier)
+    if result.get("ok"):
+        clear_pending_pkce()
+    return result
