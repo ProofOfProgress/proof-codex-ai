@@ -25,11 +25,11 @@ def world_rules_compact() -> str:
     return f"""UNIVERSE — Peripheral (~30s nightmare Shorts):
 {WORLD_TAGLINE}
 {black_mirror_format_compact()}
-Laws: second-person ownership hooks; no cosy narrator; recordings can show what reality hides; old village worship of the Eye leaks through mirrors, masks, and dreams.
+Laws: second-person ownership hooks; no soft narrator; recordings can show what reality hides; old village worship of the Eye leaks through mirrors, masks, and dreams.
 Twist rewrites hook; finale sting on NEW truth — then stop.
 Settings: Analog fullscreen CCTV apartment (primary) — hall, door, mirror, nightstand alarm clock, REC HUD, 3:12 AM. The fog village and Eye worship remain background lore, not the default set.
 Threat: the lag — feed sees motion first; Eye/mask/reflection appears one beat late; final jumpscare proves the room was never empty.
-Not this world: phone screens, generic creature chase, cosy self-help, unearned glitch-hour spam.
+Not this world: phone screens, generic creature chase, comfort/self-help visuals, unearned glitch-hour spam.
 {horror_lane_compact()}"""
 
 
@@ -50,7 +50,7 @@ def world_visual_continuity() -> str:
         "WORLD — Peripheral / The Gap: fullscreen CCTV apartment, empty hallway, door, mirror, "
         "nightstand alarm clock at 3:12 AM, REC HUD, night-vision green, VHS grain; "
         "old fog village / Eye worship motifs can leak into reflections or dreams; "
-        "cinematic horror — no smartphones, no phone UI, no cosy self-help."
+        "cinematic horror — no smartphones, no phone UI, no comfort/self-help visuals."
     )
 
 
