@@ -1,4 +1,4 @@
-"""Start InVideo project from draft script via MCP."""
+"""Start InVideo project from a prompt — InVideo writes the script."""
 
 from __future__ import annotations
 
@@ -9,44 +9,85 @@ from rich.panel import Panel
 
 console = Console()
 
+DEFAULT_PROMPT = (
+    "Create a 30-second YouTube Short. Topic: ChatGPT Plus honest review. "
+    "Hook: is the $20/month worth it for normal people? "
+    "Give a clear Pay, Skip, or Wait verdict at the end. "
+    "Tone: skeptical but fair — not hype, not affiliate energy. "
+    "Use talking-head presenter + ChatGPT UI screen recordings. "
+    "Captions on. 9:16 vertical. YOU write the script — this is the creative brief only."
+)
+
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate InVideo project from draft script")
-    parser.add_argument("--draft-id", type=int, required=True)
+    parser = argparse.ArgumentParser(
+        description="Send a prompt to InVideo — it writes the script and starts the project"
+    )
+    parser.add_argument(
+        "--prompt",
+        default=None,
+        help="Creative brief (InVideo writes the script). Default: ChatGPT Plus test",
+    )
+    parser.add_argument("--topic", default="ChatGPT Plus — Pay or Skip?")
+    parser.add_argument("--draft-id", type=int, default=None, help="Optional — link run to draft folder")
     parser.add_argument("--open-browser", action="store_true", help="Open project in Desktop browser")
-    parser.add_argument("--pack-only", action="store_true", help="Write script pack only — no MCP call")
+    parser.add_argument("--from-our-script", action="store_true", help="Rare: send our pre-written script instead")
     parser.add_argument("--vibe", default=None)
-    parser.add_argument("--platform", default=None)
+    parser.add_argument("--platform", default="youtube")
     args = parser.parse_args()
 
-    if args.pack_only:
-        from shorts_bot.invideo.script_pack import write_script_pack
+    console.print(
+        Panel(
+            "InVideo writes the script from your prompt.\n"
+            "We do NOT paste a finished script unless you pass --from-our-script.",
+            title="InVideo prompt mode",
+        )
+    )
 
-        path = write_script_pack(args.draft_id)
-        console.print(f"[green]Script pack:[/green] {path}")
-        return
+    if args.draft_id and args.from_our_script:
+        from shorts_bot.invideo.generate import generate_from_draft
 
-    from shorts_bot.invideo.generate import generate_from_draft
-
-    console.print(Panel(f"Draft #{args.draft_id} → InVideo MCP", title="InVideo generate"))
-    try:
         result = generate_from_draft(
             args.draft_id,
             open_browser=args.open_browser,
             vibe=args.vibe,
             platform=args.platform,
+            use_prompt=False,
         )
-    except Exception as exc:
-        console.print(f"[red]{exc}[/red]")
-        console.print("[yellow]Log in first:[/yellow] python3 -m shorts_bot.invideo.handoff_cli")
-        raise SystemExit(1) from exc
+    elif args.draft_id:
+        from shorts_bot.invideo.generate import generate_from_draft
+
+        result = generate_from_draft(
+            args.draft_id,
+            open_browser=args.open_browser,
+            vibe=args.vibe,
+            platform=args.platform,
+            use_prompt=True,
+        )
+    else:
+        from shorts_bot.invideo.generate import generate_from_prompt
+
+        prompt = args.prompt or DEFAULT_PROMPT
+        try:
+            result = generate_from_prompt(
+                prompt,
+                topic=args.topic,
+                open_browser=args.open_browser,
+                vibe=args.vibe,
+                platform=args.platform,
+                draft_id=args.draft_id,
+            )
+        except Exception as exc:
+            console.print(f"[red]{exc}[/red]")
+            console.print("[yellow]Log in first:[/yellow] python3 -m shorts_bot.invideo.handoff_cli")
+            raise SystemExit(1) from exc
 
     console.print(f"[green]{result.message}[/green]")
-    console.print(f"\nProject URL:\n{result.project_url}")
-    console.print(f"\nScript file: {result.script_path}")
+    console.print(f"\n[bold]Project URL:[/bold]\n{result.project_url}")
+    if result.script_path:
+        console.print(f"\nPrompt saved: {result.script_path}")
     console.print(
-        "\n[bold]You:[/bold] Desktop tab → wait for render → Download MP4 → "
-        f"save as data/production/draft_{args.draft_id}/final_short.mp4"
+        "\n[bold]You:[/bold] Desktop tab → InVideo generates script + video → Download MP4 when ready."
     )
 
 

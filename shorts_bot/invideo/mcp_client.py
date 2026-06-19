@@ -107,7 +107,7 @@ class InVideoMcpClient:
         target_audience: str | None = None,
         platform: str | None = None,
     ) -> str:
-        """Return InVideo project URL (open in browser while logged in)."""
+        """Return InVideo project URL. `script` can be a creative brief — InVideo writes copy."""
         if not self.session_id:
             self.initialize()
         vibe = vibe or settings.invideo_default_vibe

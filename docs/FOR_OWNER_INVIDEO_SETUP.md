@@ -52,24 +52,26 @@ Not required for MCP projects. Add later for higher limits:
 
 ---
 
-## Step 3 — Generate from a draft
+## Step 3 — Generate from a **prompt** (InVideo writes the script)
 
-After the agent writes draft #1:
+Default test — ChatGPT Plus review brief:
 
 ```bash
-python3 -m shorts_bot.invideo.generate_cli --draft-id 1 --open-browser
+python3 -m shorts_bot.invideo.generate_cli --open-browser
+```
+
+Custom prompt:
+
+```bash
+python3 -m shorts_bot.invideo.generate_cli --open-browser --prompt "30s honest review of NotebookLM. Pay Skip Wait. 9:16 Short."
 ```
 
 1. Desktop tab opens your InVideo project  
-2. Click **Generate** (uses credits on your plan)  
+2. **InVideo writes the script** and generates the video  
 3. When done → **Download** MP4  
-4. Save as: `data/production/draft_1/final_short.mp4`
+4. Save as: `data/production/invideo_runs/chatgpt-plus/final_short.mp4` (or tell agent path)
 
-Or copy export anywhere and run:
-
-```bash
-python3 -m shorts_bot.invideo.import_cli --draft-id 1 /path/to/export.mp4
-```
+**We do not paste finished scripts** unless you pass `--from-our-script`.
 
 ---
 
