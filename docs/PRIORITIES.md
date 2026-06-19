@@ -12,7 +12,7 @@
 |------|--------|
 | Script / draft generation | **Yes** — repurpose for AI/tech niche |
 | Homemade render (Recraft, Blender, ffmpeg) | **Retired** — do not invest |
-| InVideo production | **Next** — owner validates twin manually, then API |
+| InVideo production | **Wiring** — MCP client + handoff; owner logs in + exports MP4 |
 | YouTube upload API | **Yes** — works |
 | Daily autopilot | **Partial** — needs InVideo + simplified closed loop |
 | Analytics → learning | **Built** — needs consistent uploads to matter |

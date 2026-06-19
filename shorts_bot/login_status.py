@@ -417,6 +417,32 @@ def _check_tiktok_upload() -> ServiceStatus:
     )
 
 
+def _check_invideo() -> ServiceStatus:
+    from shorts_bot.invideo.auth import auth_status
+
+    st = auth_status()
+    if st["production_ready"]:
+        return ServiceStatus(
+            "invideo",
+            "InVideo AI production",
+            True,
+            "MCP + browser logged in — script → project URL",
+        )
+    parts = []
+    if not st["browser_logged_in"]:
+        parts.append("browser login needed")
+    if not st["mcp_ready"]:
+        parts.append(f"MCP: {st['mcp_detail'][:60]}")
+    detail = "; ".join(parts) if parts else st["browser_detail"]
+    return ServiceStatus(
+        "invideo",
+        "InVideo AI production",
+        False,
+        detail,
+        "python3 -m shorts_bot.invideo.handoff_cli",
+    )
+
+
 def _check_vidiq() -> ServiceStatus:
     if not settings.vidiq_enabled:
         return ServiceStatus("vidiq", "vidIQ keyword research", False, "Disabled", None)
@@ -477,6 +503,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_youtube_oauth(),
         _check_youtube_upload(),
         _check_tiktok_upload(),
+        _check_invideo(),
     ]
     if include_studio:
         items.append(_check_studio())

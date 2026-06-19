@@ -91,6 +91,15 @@ class Settings(BaseSettings):
     tiktok_disable_comment: bool = False
     auto_upload_tiktok: bool = False
 
+    # InVideo AI — MCP + browser production
+    invideo_api_key: str | None = None
+    invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
+    invideo_app_url: str = "https://ai.invideo.io"
+    invideo_default_platform: str = "youtube"
+    invideo_default_vibe: str = "professional"
+    invideo_default_audience: str = "AI curious adults"
+    invideo_twin_enabled: bool = True
+
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing

@@ -19,6 +19,7 @@ _SITE_URLS = {
     "google": "https://accounts.google.com/signin",
     "trends": "https://trends.google.com/trends/explore",
     "capcut": "https://www.capcut.com/my-edit",
+    "invideo": "https://ai.invideo.io/login",
 }
 
 
