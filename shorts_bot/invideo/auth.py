@@ -25,29 +25,10 @@ def credentials_status_message() -> str:
 
 
 def check_browser_logged_in() -> tuple[bool, str]:
-    """Headless probe of saved browser profile on ai.invideo.io."""
-    if not settings.browser_enabled:
-        return False, "Browser disabled"
-    try:
-        from shorts_bot.browser.session import browse_url
+    """Probe Agent One workspace — more reliable than signup redirect."""
+    from shorts_bot.invideo.agent_one import probe_agent_one_session
 
-        result = browse_url(
-            settings.invideo_app_url.rstrip("/") + "/",
-            max_chars=4000,
-            wait_sec=3.0,
-            screenshot=False,
-        )
-        body = (result.text or "").lower()
-        url = (result.url or "").lower()
-        if "signup" in url and "login" not in url:
-            return False, "Not signed in — signup page"
-        if "log in" in body or "login to continue" in body or "email address" in body[:500]:
-            return False, "Not signed in — log in via handoff_cli"
-        if "create" in body or "workspace" in body or "generate" in body:
-            return True, "Browser session active on InVideo"
-        return False, "Session unclear — run handoff_cli to log in"
-    except Exception as exc:
-        return False, str(exc)[:120]
+    return probe_agent_one_session()
 
 
 def auth_status() -> dict:

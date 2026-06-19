@@ -50,6 +50,7 @@ def run_wizard(*, login_only: bool = False) -> int:
         Panel(
             "Step 1 — Log into InVideo AI\n"
             "• Use Google or email (Google works without your broken phone)\n"
+            "• Toggle **Agent mode** at top (not Autopilot) — this is Agent One\n"
             "• Create your AI twin if InVideo asks\n\n"
             "Step 2 — (Optional) API key\n"
             "• Settings → Developers → copy API key\n"

@@ -99,6 +99,7 @@ class Settings(BaseSettings):
     invideo_default_vibe: str = "professional"
     invideo_default_audience: str = "AI curious adults"
     invideo_twin_enabled: bool = True
+    invideo_copilot_url: str = ""  # saved workspace .../v40-copilot URL
 
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True

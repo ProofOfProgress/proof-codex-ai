@@ -426,7 +426,7 @@ def _check_invideo() -> ServiceStatus:
             "invideo",
             "InVideo AI production",
             True,
-            "MCP + browser logged in — script → project URL",
+            "Agent One session + MCP OK",
         )
     parts = []
     if not st["browser_logged_in"]:
