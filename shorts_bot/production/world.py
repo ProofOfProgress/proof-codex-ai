@@ -29,6 +29,7 @@ Laws: first-person or camera-owned POV; character voices on screen only (no narr
 Twist rewrites hook; finale sting on NEW truth — then stop.
 Settings: The Gap apartment, empty hallway, bathroom mirror, bedroom doorway, fullscreen CCTV, alarm clock at 3:12 AM.
 Threat: the recording is late — motion boxes, delayed reflections, impossible doors, a human shape where no one stood.
+Legacy symbol layer: the line Eye logo and old village-worship tapes can appear as background marks, never as the main setting.
 Not this world: phone screens, cosy self-help, creature suits, animal cruelty, random static with no story, faceless advice narrator.
 {horror_lane_compact()}"""
 
@@ -49,7 +50,7 @@ def world_visual_continuity() -> str:
     return (
         "WORLD — Peripheral / The Gap: alone-at-night apartment, empty hallway, bathroom mirror, "
         "bedroom doorway, fullscreen CCTV feed, alarm clock stuck near 3:12 AM; the recording lags "
-        "behind reality by one beat; partial faces and silhouettes only until the final scare; "
+        "behind reality by one beat; partial faces and edge-frame shapes stay obscured until the final scare; "
         "black, cold blue, dirty night-vision green, VHS/CCD grain; no phone screens, no creature suits."
     )
 
@@ -72,6 +73,9 @@ def world_motifs() -> tuple[str, ...]:
         "lag",
         "rec",
         "uncanny",
+        "eye",
+        "village",
+        "worship",
         "premise",
         "twist",
         "don't blink",
