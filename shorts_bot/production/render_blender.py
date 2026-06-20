@@ -69,7 +69,21 @@ def render_blender_clips(
         "BLENDER_SAMPLES": str(settings.blender_samples),
         "BLENDER_CLIP_SECONDS": str(settings.blender_clip_seconds),
     }
-    proc = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=max(30, int(settings.blender_timeout_seconds)),
+        )
+    except subprocess.TimeoutExpired as exc:
+        tail = ((exc.stderr or "") + (exc.stdout or ""))[-3000:]
+        raise RuntimeError(
+            f"Blender render timed out after {settings.blender_timeout_seconds}s. "
+            "Lower BLENDER_SAMPLES or rerun on the home worker.\n"
+            f"{tail}"
+        ) from exc
     if proc.returncode != 0:
         tail = (proc.stderr or proc.stdout or "")[-3000:]
         raise RuntimeError(f"Blender render failed (exit {proc.returncode}):\n{tail}")

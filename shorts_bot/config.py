@@ -135,6 +135,7 @@ class Settings(BaseSettings):
     blender_clips_per_short: int = 3
     blender_clip_seconds: float = 10.0
     blender_samples: int = 32  # EEVEE TAA samples — lower = faster cloud renders
+    blender_timeout_seconds: int = 900  # cap stuck local renders; cloud VMs can hang silently
     blender_force_regen: bool = False
     replicate_video_model: str = "minimax/video-01"  # legacy I2V default
     replicate_video_model_hook: str = "minimax/video-01"
