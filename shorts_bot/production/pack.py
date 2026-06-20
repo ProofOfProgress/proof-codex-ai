@@ -140,6 +140,11 @@ def build_production_pack(
         rules=launch_rules_blurb(draft_id),
     )
     meta = load_draft_meta(draft_id)
+    use_local_blender_motion = (
+        settings.visual_style == "ai_video"
+        and settings.uses_blender_video
+        and settings.require_paid_stack
+    )
     needs_paid_motion_review = render_images and (
         (settings.uses_kling_video and settings.has_kling_official)
         or (
@@ -189,7 +194,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_blender_video:
+        if use_local_blender_motion:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
