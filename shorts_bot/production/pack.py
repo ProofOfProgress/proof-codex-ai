@@ -121,7 +121,6 @@ def build_production_pack(
     from shorts_bot.production.video_beat_sheet import (
         ensure_beat_sheet,
         launch_rules_blurb,
-        load_beat_sheet,
         write_beat_sheet_files,
     )
     from shorts_bot.drafts.meta import load_draft_meta
@@ -141,7 +140,24 @@ def build_production_pack(
         rules=launch_rules_blurb(draft_id),
     )
     meta = load_draft_meta(draft_id)
-    if settings.require_beat_sheet_approval and not meta.get("beat_sheet_approved"):
+    use_local_blender_motion = (
+        settings.visual_style == "ai_video"
+        and settings.uses_blender_video
+        and settings.require_paid_stack
+    )
+    needs_paid_motion_review = render_images and (
+        (settings.uses_kling_video and settings.has_kling_official)
+        or (
+            settings.visual_style == "ai_video"
+            and not settings.uses_blender_video
+            and settings.has_paid_images
+        )
+    )
+    if (
+        settings.require_beat_sheet_approval
+        and needs_paid_motion_review
+        and not meta.get("beat_sheet_approved")
+    ):
         raise RuntimeError(
             f"Draft #{draft_id}: beat sheet must be owner-approved before video generation. "
             f"Read data/production/draft_{draft_id}/VIDEO_BEAT_SHEET.md — then set "
@@ -178,7 +194,7 @@ def build_production_pack(
     clips_rendered = 0
     rendered = 0
     if render_images:
-        if settings.uses_blender_video:
+        if use_local_blender_motion:
             from shorts_bot.production.render_blender import render_blender_clips
 
             clips_rendered = render_blender_clips(
@@ -341,7 +357,7 @@ def build_production_pack(
         f"Folder: {root}."
     )
     if rendered:
-        if render_mode == "video_clips":
+        if render_mode in ("video_clips", "kling_clips", "blender_clips"):
             msg += f" Rendered {rendered} motion clips in clips/{image_note}."
         else:
             msg += f" Rendered {rendered} still PNGs in images/{image_note}."

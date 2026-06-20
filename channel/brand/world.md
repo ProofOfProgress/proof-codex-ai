@@ -1,59 +1,58 @@
 # Peripheral — world bible
 
-Every Short is **one episode** in the same world — fog village, the **Eye**, and what it does to people who remember the dreams.
+Every Short is **one episode** in the same world — **The Gap**, an alone-at-night apartment where cameras and mirrors show the wrong thing first.
 
 ## Horror lane (locked)
 
-**Primary: Village cult horror** — fog-grey village at dusk; villagers **worship the Eye**; outsiders break.
+**Primary: Analog horror / CCTV anomaly** — fullscreen security feeds, mirror lag, alarm clocks, hallway cameras.
 
-**Secondary: Dream invasion** — true form of the Eye tortures you in sleep; you **remember** when you wake.
+**Secondary: Apartment surveillance** — the recording is one beat late, and the room follows it.
 
-**Tertiary: Perception break** — rabies-uncanny wrong-humans; reality feels unreliable after the Eye touches you.
+**Tertiary: Wrong reflection / recording lag** — the camera catches a person or motion before reality admits it.
 
 | We are | We are not |
 |--------|------------|
-| First-person nightmare Shorts (~30s) | Faceless narrator CCTV clips |
-| Villagers + Eye worship lore | Apartment glitch / security-cam spam |
-| Uncanny humans + dream true form (Eye) | Generic Slender clone with no brand |
+| First-person/camera-owned nightmare Shorts (~30s) | Faceless narrator clips |
+| Fullscreen CCTV, mirrors, alarm clocks | Phone-screen gimmicks |
+| Uncanny silhouettes + delayed reflections | Generic Slender clone with no brand |
 | Implied body horror, YPP-safe | Graphic gore, animal harm, child harm |
 
 Code: `shorts_bot/production/horror_lane.py`, `channel/brand/identity.md`
 
 ## The world in one sentence
 
-**Peripheral** is a village that worships the Eye — it hunts you in dreams, fucks with your head when you wake, and never fully shows itself until you're ready to break.
+**Peripheral** is The Gap: an apartment where recordings lag behind reality, mirrors blink late, and the thing at the edge of frame waits until you look back.
 
-## The Eye (true form)
+## The Gap
 
-- **True form:** giant freaky **Eye** — macro iris, wrong pupil, fills sky/mirror/dream ceiling
-- **Dreams:** tortures victims there; they **remember** on waking (metal taste, gasp, sweat)
-- **Waking:** breaks perception — paranoid, schizophrenic **energy** (entity causes it; not mocking mental illness)
-- **Human form:** shape-shifting uncanny villager — almost human, **rabies-wrong** (twitch, stare, wrong speech)
-- **Visibility:** not every Short — tease on covers; full Eye mainly in **dream** episodes
+- **Rule:** reality and the recording are out of sync by one beat
+- **Proof:** motion boxes, delayed blinks, impossible doorways, alarm clocks stuck near 3:12 AM
+- **Human form:** partial face, wrong reflection, silhouette behind the viewer, almost-human movement
+- **Visibility:** tease at frame edge; full lunge only on the final scare beat
 
-## The village
+## The apartment
 
-- Fog-grey square at dusk, crooked signpost, barn symbols, empty windows with **candles for the Eye**
-- **Villagers worship the Eye** — silent complicity, ritual glances, soup offered with averted eyes
-- Outsiders who **see too much** get the dream, then the sickness, then the village pretends nothing happened
-- **No smartphones, no security apps, no apartment glitch hour** — this is folk-nightmare, not analog CCTV
+- Empty hallway, bathroom mirror, bedroom doorway, living-room security feed, kitchen camera, alarm clock
+- Fullscreen CCTV only for surveillance beats — no phone UI, no app screens
+- The camera sees the wrongness before the person does
+- **No cosy rooms, no random static, no animal harm, no creature suits**
 
 ## Episode laws
 
 | Law | Scripts & visuals |
 |-----|-------------------|
-| **First person** | Victim speaks as **I** — no off-screen narrator |
+| **First person / camera-owned** | Victim speaks as **I**, or the CCTV feed owns the proof — no off-screen narrator |
 | **Character voices only** | On-screen speech (Sora-synced); subtitles burned in post |
-| **Remember the dream** | Waking beat after dream Shorts — "I remembered the Eye" |
-| **One broken rule** | Hook = premise (worship, name on sign, ritual you weren't meant to see) |
+| **Recording lag** | The visual proof arrives before reality catches up |
+| **One broken rule** | Hook = premise (motion where no one stood, reflection blinks late, hallway gains a door) |
 | **Twist → sting** | Final beat rewrites hook — then stop |
-| **Don't blink** | Merch tagline — movement in peripheral vision, Eye at frame edge |
+| **Don't blink** | Merch tagline — movement in peripheral vision, face at frame edge |
 
 ## Story voice
 
-- **First person I**, present tense — ragged, breaking, unreliable after the Eye
-- Other characters speak **in scene** (whispered villager, dream voice, wrong neighbor)
-- False calm = rationalization failing — "maybe it was just a dream" — then wrong detail returns
+- **First person I**, present tense — ragged, scared, concrete
+- Other characters speak **in scene** only if visible; no advice narrator
+- False calm = rationalization failing — "maybe it was compression" — then wrong detail returns
 - Twist → sting → **stop** — no explanation after
 
 ## Merch
@@ -63,14 +62,14 @@ Code: `shorts_bot/production/horror_lane.py`, `channel/brand/identity.md`
 
 ## What is NOT this world
 
-- The Gap apartment, 3:12 AM glitch hour, security cameras, phone motion alerts
+- Phone screens, phone motion alerts, app UI closeups
 - Faceless second-person narrator Shorts
 - Cosy self-help, stick figures, generic creepypasta listicles
-- Bright daytime crowds, camping slashers, real-world religion mockery
+- Bright daytime crowds, camping slashers, real-world religion mockery, animal cruelty
 
 ## Why viewers binge
 
-1. **Who is the Eye?** — true form in dreams; villagers know
-2. **Will they show it again?** — rare full reveals
-3. **Same village grammar** — worship, silence, wrong humans, dream residue
-4. **First-person break** — you feel the schizophrenia-energy, not told about it
+1. **What did the camera catch?** — proof appears before the person sees it
+2. **Will it move again?** — rare full reveals, most wrongness at the edge
+3. **Same Gap grammar** — CCTV, mirror lag, alarm clock, empty hallway
+4. **First-person break** — you feel the lag, not a narrator explaining it
