@@ -1,6 +1,6 @@
 # Channel identity — Peripheral
 
-> **Horror Shorts** (~30s) — Eye worship village, dream invasion, payoff at the end. **Brand:** Peripheral · **Tagline on merch:** don't blink
+> **Horror Shorts** (~30s) — analog/CCTV nightmares, mirror lag, jumpscare at the end. **Brand:** Peripheral · **Tagline on merch:** don't blink
 
 ## One-line pitch
 
@@ -18,43 +18,43 @@
 
 ## World
 
-Fog village that **worships the Eye**. Dreams, uncanny villagers, first-person character voices. See `channel/brand/world.md`.
+The Gap: alone-at-night apartment, fullscreen CCTV, alarm clocks, mirror lag, first-person character voices. See `channel/brand/world.md`.
 
-**Horror lane (locked):** village cult / Eye worship — `channel/brand/horror_lane.md`.
+**Horror lane (locked):** analog horror / CCTV anomaly — `channel/brand/horror_lane.md`.
 
 ## Niche
 
 | Avoid | Peripheral |
 |-------|------------|
-| CCTV / apartment glitch Shorts | Village Eye worship nightmares |
+| Phone-screen gimmicks | Fullscreen CCTV / mirror-lag nightmares |
 | Faceless narrator | First-person character dialogue |
-| Generic creepypasta | Cult complicity + dream true form |
-| Same template every upload | Rotate pillars — worship, dream, wrong villager |
+| Generic creepypasta | Recording lag + impossible visual proof |
+| Same template every upload | Rotate pillars — CCTV, mirror, hallway, alarm clock |
 
 **Display name:** **Peripheral**  
 **Channel description:** `channel/brand/youtube_copy.txt`
 
 ## Tone
 
-Each Short = **~30s nightmare** — premise → escalation → twist → sting. First person **I**, character voices on screen.
+Each Short = **~30s nightmare** — premise → escalation → twist → sting. First person **I** or camera-owned POV, character voices on screen.
 
 | Do | Don't |
 |----|-------|
-| Eye worship village lore | Security cam spam |
-| Dream true form (Eye) | The Gap apartment thread |
-| Uncanny villagers | Off-screen narrator |
+| Fullscreen CCTV / mirror lag | Phone screens |
+| The Gap apartment grammar | Random static with no story |
+| Uncanny silhouettes/reflections | Off-screen narrator |
 | Subtitles always | Abbreviated brand names on merch |
 | 🔊 volume warning on stings | Random noise without setup |
 
 ## Visual system
 
 - **Format:** cinematic AI video (Sora-class target); subtitles burned in post
-- **Palette:** fog grey, cold blue-black, solid white merch, crimson accent on finale
+- **Palette:** black, cold blue, dirty night-vision green, solid white merch, crimson accent on finale
 - **Captions:** ffmpeg ASS, always on
 
 ## Merch audience
 
-**PERIPHERAL** as clothing label — solid white Eye hoodie, streetwear / night-rider crossover. Content stays village Eye horror; merch speaks to people who wear horror like identity.
+**PERIPHERAL** as clothing label — solid white Eye hoodie, streetwear / night-rider crossover. Content stays analog/CCTV horror; merch speaks to people who wear horror like identity.
 
 Research: `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md` (update as needed)
 

@@ -77,7 +77,12 @@ def build_ops_status_markdown() -> str:
         ]
     )
 
-    sample = store.get_draft(nid or 3)
+    sample = None
+    if nid:
+        sample = store.get_draft(nid)
+    else:
+        drafts = store.list_drafts(limit=1)
+        sample = drafts[0] if drafts else None
     if sample:
         report = check_upload_allowed(
             store,

@@ -53,6 +53,15 @@ def _token_file_oauth_fields() -> tuple[str | None, str | None]:
     return data.get("client_id"), data.get("client_secret")
 
 
+def _settings_have_real_oauth_fields() -> bool:
+    return _secret_real(settings.google_client_id) and _secret_real(settings.google_client_secret)
+
+
+def _token_file_has_real_oauth_fields() -> bool:
+    cid, sec = _token_file_oauth_fields()
+    return _secret_real(cid) and _secret_real(sec)
+
+
 def effective_google_client_id() -> str | None:
     if _secret_real(settings.google_client_id):
         return (settings.google_client_id or "").strip()
@@ -74,12 +83,8 @@ def credentials_configured() -> bool:
 def credentials_status_message() -> str:
     """Plain-English hint for login_status / auth_cli."""
     if credentials_configured():
-        cid_env = os.environ.get("GOOGLE_CLIENT_ID")
-        sec_env = os.environ.get("GOOGLE_CLIENT_SECRET")
-        if not (_secret_real(cid_env) and _secret_real(sec_env)):
-            _, sec_t = _token_file_oauth_fields()
-            if _secret_real(_token_file_oauth_fields()[0]) and _secret_real(sec_t):
-                return "Google OAuth keys OK (from youtube_token.json)"
+        if not _settings_have_real_oauth_fields() and _token_file_has_real_oauth_fields():
+            return "Google OAuth keys OK (from youtube_token.json)"
         return "Google OAuth app keys OK"
 
     try:

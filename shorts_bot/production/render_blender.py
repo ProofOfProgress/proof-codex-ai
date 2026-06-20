@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -41,6 +42,12 @@ def render_blender_clips(
     if not force_regen and _clips_complete(clips_dir, count):
         console.print(f"[green]Blender clips cached ({count}) — skip regen[/green]")
         return count
+
+    if shutil.which("blender") is None:
+        raise RuntimeError(
+            "Blender executable not found. Install Blender on this VM/home worker, "
+            "then rerun finish for this draft."
+        )
 
     cmd = [
         "blender",
