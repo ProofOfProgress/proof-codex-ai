@@ -107,7 +107,40 @@ Use this to audit “will it self-learn?” — all must be **yes** by day 60:
 - [ ] **Niche locked:** Product queue, not random topics  
 - [ ] **Failure modes handled:** Credit fail → Drive fallback proposed; render retry ×2  
 
-**Today (2026-06):** 6/7 yes — **daily path blocked only by InVideo credits/phone**, not by missing software.
+**Today (2026-06):** Run `python3 -m shorts_bot.learning.blueprint_audit` — expect **7/7 software yes**; daily path blocked only by InVideo credits/phone.
+
+---
+
+## Code traceability (claim → file)
+
+| Claim | Where it lives |
+|-------|----------------|
+| Daily loop steps | `data/workflows/daily_invideo_v1.json` |
+| Run orchestration | `shorts_bot/learning/workflow_runner.py` |
+| Hook evolution (TextGrad) | `shorts_bot/learning/public_evolve.py` |
+| Post-run + analytics evolution | `shorts_bot/learning/workflow_evolve.py` |
+| Long-term memory (Mem0) | `shorts_bot/learning/mem0_bridge.py` |
+| Script QC gate | `shorts_bot/learning/script_qc.py` |
+| Run audit log | `shorts_bot/learning/run_telemetry.py` → `data/telemetry/runs.jsonl` |
+| Owner corrections | `shorts_bot/learning/owner_signals.py` |
+| Performance scoring | `shorts_bot/rewards/engine.py` |
+| Analytics sync | `shorts_bot/youtube/sync.py` |
+| InVideo production | `shorts_bot/invideo/` |
+| Product queue (15) | `data/product_queue.json` |
+| Blueprint self-check | `python3 -m shorts_bot.learning.blueprint_audit` |
+
+---
+
+## Risk register (honest)
+
+| Risk | Impact | Mitigation (in repo) |
+|------|--------|----------------------|
+| InVideo credits / paywall | No new MP4s on cloud | Laptop export → Drive → `fetch_url_cli`; audit flags operational blocker |
+| Phone / 2FA broken | Can't pay or TikTok OAuth | YouTube-only first; daily loop paused until resume |
+| Viral not guaranteed | Revenue delay | Measure swipe-away + retention; evolve hooks from losers |
+| TextGrad unavailable | Slower hook improvement | Template rotation fallback in `public_evolve.py` |
+| Mem0 unavailable | Weaker cross-run memory | SQLite + agent memory still work |
+| Browser download flake | Stuck before upload | Render retry ×2; Drive handoff path |
 
 ---
 

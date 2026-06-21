@@ -44,6 +44,7 @@ No paid Drive. No cloud verify.
 ## Inspect
 
 ```bash
+python3 -m shorts_bot.learning.blueprint_audit   # 90-day checklist — on paper proof
 python3 -m shorts_bot.learning.workflow_cli status
 python3 -m shorts_bot.production.product_queue_cli   # if added
 cat data/telemetry/runs.jsonl | tail -3
