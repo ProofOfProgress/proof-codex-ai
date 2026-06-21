@@ -1,0 +1,14 @@
+Repo: ProofOfProgress/proof-codex-ai
+
+Run the InVideo daily ship — one AI product review Short:
+
+python3 -m shorts_bot.production.invideo_daily_cli
+
+Rules:
+- InVideo is the soul of the channel — do not use old Blender/Recraft render.
+- If InVideo credits block Generate: note in data/ALERTS.md and tell owner to paste a Google Drive link for that draft.
+- If MP4 exists but upload skipped: run upload_canonical_cli for that draft.
+- Max 1 YouTube upload per 24h (YPP_SAFE_MODE).
+- Post a 5-line summary: product, draft #, project URL, YouTube link or what blocked.
+
+Read docs/PRIORITIES.md — top 4 only.

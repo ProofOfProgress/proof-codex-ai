@@ -257,6 +257,7 @@ class Settings(BaseSettings):
     auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
+    pipeline_backend: str = "invideo"  # invideo | legacy (homemade render — retired)
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
     auto_publish_hours: int = 0  # 0 = keep upload visibility (unlisted for manual review)
     quality_gate_blocks_upload: bool = True

@@ -89,7 +89,7 @@ async def daily_autopilot_loop(stop_event: asyncio.Event) -> None:
             log.warning("Auto daily failed: %s", exc)
             from shorts_bot.automation.alerts import record_automation_alert
 
-            record_automation_alert("daily_autopilot", str(exc))
+            record_automation_alert("auto_daily", str(exc))
 
 
 async def comment_reply_loop(stop_event: asyncio.Event) -> None:
