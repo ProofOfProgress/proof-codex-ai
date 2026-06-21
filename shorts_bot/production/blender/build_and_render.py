@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -81,9 +82,15 @@ def _add_streetlight() -> tuple[bpy.types.Object, bpy.types.Light]:
     bpy.ops.object.light_add(type="POINT", location=(4, -6, 5.2))
     lamp = bpy.context.active_object
     lamp.name = "Streetlight"
-    lamp.data.energy = 800
+    lamp.data.energy = 1200
     lamp.data.color = (1.0, 0.55, 0.2)
     lamp.parent = pole_empty
+    bpy.ops.object.light_add(type="SUN", location=(0, 0, 30))
+    moon = bpy.context.active_object
+    moon.name = "MoonFill"
+    moon.data.energy = 0.35
+    moon.data.color = (0.55, 0.62, 0.85)
+    moon.rotation_euler = (math.radians(55), 0, math.radians(-25))
     return pole_empty, lamp.data
 
 
@@ -112,6 +119,173 @@ def _build_form2(location=(0, -12, 0)) -> bpy.types.Object:
     part("Leg_R", (0.35, 0, 0.9), (0.14, 0.14, 1.8))
     rig.scale = (1.0, 1.0, 1.35)  # too tall
     return rig
+
+
+def _import_mesh_file(path: Path) -> list:
+    ext = path.suffix.lower()
+    before = {o.name for o in bpy.data.objects}
+    if ext == ".fbx":
+        bpy.ops.import_scene.fbx(filepath=str(path))
+    elif ext in (".glb", ".gltf"):
+        bpy.ops.import_scene.gltf(filepath=str(path))
+    elif ext == ".obj":
+        bpy.ops.wm.obj_import(filepath=str(path))
+    elif ext == ".dae":
+        bpy.ops.wm.collada_import(filepath=str(path))
+    else:
+        raise ValueError(f"Unsupported creature model format: {ext}")
+    return [o for o in bpy.data.objects if o.name not in before and o.type in {"MESH", "ARMATURE", "EMPTY"}]
+
+
+def _tweak_imported_creature(rig: bpy.types.Object, *, profile: str = "form2_rural") -> None:
+    """Peripheral Form 2 pass — darker, taller, wet-night horror."""
+    if profile == "form2_rural":
+        extra = float(os.environ.get("BLENDER_CREATURE_SCALE", "1.0"))
+        rig.scale = Vector(rig.scale) * Vector((1.05, 1.05, 1.15)) * extra
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat or not mat.use_nodes:
+                continue
+            bsdf = mat.node_tree.nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            col = bsdf.inputs["Base Color"].default_value
+            bsdf.inputs["Base Color"].default_value = (
+                col[0] * 0.55,
+                col[1] * 0.50,
+                col[2] * 0.48,
+                1.0,
+            )
+            bsdf.inputs["Roughness"].default_value = max(
+                float(bsdf.inputs["Roughness"].default_value), 0.72
+            )
+            spec = bsdf.inputs.get("Specular IOR Level") or bsdf.inputs.get("Specular")
+            if spec:
+                spec.default_value = 0.18
+
+
+def _mesh_world_height(rig: bpy.types.Object) -> float:
+    zmin, zmax = 1e9, -1e9
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for corner in obj.bound_box:
+            world = obj.matrix_world @ Vector(corner)
+            zmin = min(zmin, world.z)
+            zmax = max(zmax, world.z)
+    return max(0.01, zmax - zmin)
+
+
+def _apply_creature_texture(rig: bpy.types.Object, tex_path: Path) -> None:
+    if not tex_path.is_file():
+        return
+    img = bpy.data.images.load(str(tex_path), check_existing=True)
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        if not obj.data.materials:
+            obj.data.materials.append(_mat("CreatureSkin", (0.7, 0.65, 0.6, 1.0)))
+        for slot in obj.material_slots:
+            mat = slot.material
+            if not mat:
+                continue
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+            bsdf = nodes.get("Principled BSDF")
+            if not bsdf:
+                continue
+            tex = nodes.new("ShaderNodeTexImage")
+            tex.image = img
+            links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+
+
+def _ground_creature(rig: bpy.types.Object) -> None:
+    bpy.context.view_layer.update()
+    zmin = 1e9
+    for obj in rig.children_recursive:
+        if obj.type != "MESH":
+            continue
+        for corner in obj.bound_box:
+            world = obj.matrix_world @ Vector(corner)
+            zmin = min(zmin, world.z)
+    if zmin < 1e8:
+        rig.location.z -= zmin
+
+
+def _normalize_creature_rig(rig: bpy.types.Object, *, target_height: float = 2.45) -> None:
+    """SCP-096 lore height ~2.38m — scale import to match scene."""
+    bpy.context.view_layer.update()
+    h = _mesh_world_height(rig)
+    if h > 0.05:
+        factor = target_height / h
+        rig.scale = Vector((factor, factor, factor))
+    rig.rotation_euler = (0, 0, 0)
+    _ground_creature(rig)
+    bpy.context.view_layer.update()
+
+
+def _build_creature_from_file(path: Path, location=(0, -12, 0)) -> bpy.types.Object:
+    imported = _import_mesh_file(path)
+    if not imported:
+        raise RuntimeError(f"Import produced no objects: {path}")
+    rig = bpy.data.objects.new("Form2Rig", None)
+    bpy.context.collection.objects.link(rig)
+    rig.location = Vector(location)
+    for obj in imported:
+        if obj.parent is None:
+            obj.parent = rig
+    _normalize_creature_rig(rig)
+    tex = path.parent / "scp_096.png"
+    _apply_creature_texture(rig, tex)
+    _tweak_imported_creature(rig)
+    return rig
+
+
+def _build_creature(location=(0, -12, 0)) -> bpy.types.Object:
+    model_path = os.environ.get("BLENDER_CREATURE_MODEL", "").strip()
+    if model_path:
+        p = Path(model_path)
+        if p.is_file():
+            return _build_creature_from_file(p, location=location)
+    # Default slot — channel/assets/creatures/scp_096/*
+    workspace = Path(os.environ.get("WORKSPACE_ROOT", "/workspace"))
+    try:
+        sys.path.insert(0, str(workspace))
+        from shorts_bot.production.blender.creature_paths import resolve_creature_model
+
+        hit = resolve_creature_model()
+        if hit:
+            return _build_creature_from_file(hit, location=location)
+    except Exception as exc:
+        print(f"Creature model lookup failed ({exc}) — using procedural Form 2")
+    return _build_form2(location=location)
+
+
+def _finalize_clip_output(expected: Path) -> Path:
+    """Blender FFMPEG animation writes stem0001-0240.mp4 — rename to stem.mp4."""
+    import subprocess
+
+    if expected.is_file() and expected.stat().st_size > 50000:
+        return expected
+    matches = sorted(expected.parent.glob(f"{expected.stem}*.mp4"))
+    if not matches:
+        raise FileNotFoundError(f"No Blender video output for {expected}")
+    src = matches[-1]
+    if src != expected:
+        expected.unlink(missing_ok=True)
+        src.rename(expected)
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(expected)],
+        capture_output=True,
+        text=True,
+    )
+    if probe.returncode != 0 or not (probe.stdout or "").strip():
+        raise RuntimeError(f"Invalid Blender clip (ffprobe failed): {expected}")
+    return expected
 
 
 def _setup_camera() -> bpy.types.Object:
@@ -144,8 +318,8 @@ def _setup_render(scene: bpy.types.Scene, *, samples: int = 32) -> None:
         scene.world = bpy.data.worlds.new("PeripheralWorld")
     scene.world.use_nodes = True
     bg = scene.world.node_tree.nodes["Background"]
-    bg.inputs[0].default_value = (0.008, 0.012, 0.02, 1.0)
-    bg.inputs[1].default_value = 0.15
+    bg.inputs[0].default_value = (0.015, 0.022, 0.035, 1.0)
+    bg.inputs[1].default_value = 0.45
 
 
 def _flicker_keyframes(lamp_data: bpy.types.Light, frame_start: int, frame_end: int) -> None:
@@ -183,9 +357,132 @@ def _add_fog_and_trees() -> None:
         output = nodes.get("World Output")
         if output and not output.inputs["Volume"].links:
             vol = nodes.new("ShaderNodeVolumeScatter")
-            vol.inputs["Density"].default_value = 0.025
+            vol.inputs["Density"].default_value = 0.008
             vol.inputs["Anisotropy"].default_value = 0.2
             links.new(vol.outputs["Volume"], output.inputs["Volume"])
+
+
+def _find_armature(rig: bpy.types.Object) -> bpy.types.Object | None:
+    for obj in rig.children_recursive:
+        if obj.type == "ARMATURE":
+            return obj
+    return None
+
+
+def _clear_armature_animation(armature: bpy.types.Object) -> None:
+    if not armature.animation_data:
+        return
+    armature.animation_data.action = None
+    while armature.animation_data.nla_tracks:
+        armature.animation_data.nla_tracks.remove(armature.animation_data.nla_tracks[0])
+
+
+def _play_creature_action(
+    armature: bpy.types.Object,
+    *,
+    phase: str,
+    frame_start: int,
+    frame_end: int,
+) -> None:
+    """Use imported SCP-096 skeletal animation (NLA) + pose keys for wave/lunge."""
+    _clear_armature_animation(armature)
+
+    # Wave clip — procedural slow creepy wave (readable in 10s Short beat)
+    if phase == "wave":
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+        return
+
+    action = bpy.data.actions.get("anim_Armature1") or bpy.data.actions.get("Armature1")
+    if not action:
+        for act in bpy.data.actions:
+            if "armature" in act.name.lower() or "anim" in act.name.lower():
+                action = act
+                break
+    if not action:
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+        return
+
+    ad = armature.animation_data or armature.animation_data_create()
+    act_end = int(min(action.frame_range[1], 600))
+    phase_ranges = {
+        "open": (1, min(120, act_end)),
+        "lunge": (min(300, act_end // 2), min(480, act_end)),
+    }
+    a0, a1 = phase_ranges.get(phase, (1, min(120, act_end)))
+    track = ad.nla_tracks.new()
+    track.name = f"Form2_{phase}"
+    strip = track.strips.new(action.name, frame_start, action)
+    strip.action_frame_start = a0
+    strip.action_frame_end = a1
+    strip.frame_end = frame_end
+    strip.blend_type = "REPLACE"
+    ad.use_nla = True
+
+    if phase == "lunge":
+        _pose_wave_or_lunge(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+
+
+def _pose_wave_or_lunge(
+    armature: bpy.types.Object,
+    *,
+    phase: str,
+    frame_start: int,
+    frame_end: int,
+) -> None:
+    """Procedural creepy wave (right arm chain) + jumpscare lunge pose."""
+    if armature.type != "ARMATURE":
+        return
+    prev_active = bpy.context.view_layer.objects.active
+    bpy.context.view_layer.objects.active = armature
+    if armature.mode != "POSE":
+        bpy.ops.object.mode_set(mode="POSE")
+
+    # Right arm: Bone_007 (shoulder) → Bone_009 → Bone_012 → Bone_011
+    def _key_bone(name: str, rot: tuple[float, float, float], frame: int) -> None:
+        pb = armature.pose.bones.get(name)
+        if not pb:
+            return
+        pb.rotation_mode = "XYZ"
+        pb.rotation_euler = rot
+        pb.keyframe_insert(data_path="rotation_euler", frame=frame)
+
+    if phase == "wave":
+        # Slow uncanny wave — arm up, wrist bent backward, slight sway
+        dur = frame_end - frame_start
+        t = lambda frac: frame_start + int(dur * frac)
+        poses = [
+            (t(0.05), {"Bone_007": (0, 0, 0), "Bone_009": (0, 0, 0), "Bone_012": (0, 0, 0), "Bone_011": (0, 0, 0)}),
+            (t(0.20), {"Bone_007": (-1.4, 0.15, -0.25), "Bone_009": (-0.4, 0, 0.1), "Bone_012": (0.3, 0, 0.5), "Bone_011": (0, 0, 0.6)}),
+            (t(0.38), {"Bone_007": (-2.0, 0.2, -0.35), "Bone_009": (-0.9, 0.1, -0.15), "Bone_012": (0.5, 0.15, 0.9), "Bone_011": (0.2, 0, 1.1)}),
+            (t(0.52), {"Bone_007": (-2.15, 0.18, -0.3), "Bone_009": (-1.0, 0.08, -0.2), "Bone_012": (0.45, 0.1, 1.0), "Bone_011": (0.15, 0, 1.2)}),
+            (t(0.65), {"Bone_007": (-1.85, 0.12, -0.28), "Bone_009": (-0.75, 0, 0.05), "Bone_012": (0.35, 0, 0.75), "Bone_011": (0, 0, 0.9)}),
+            (t(0.78), {"Bone_007": (-2.05, 0.16, -0.32), "Bone_009": (-0.95, 0.06, -0.1), "Bone_012": (0.4, 0.08, 0.95), "Bone_011": (0.1, 0, 1.05)}),
+            (t(0.92), {"Bone_007": (-1.6, 0.1, -0.2), "Bone_009": (-0.5, 0, 0), "Bone_012": (0.2, 0, 0.4), "Bone_011": (0, 0, 0.5)}),
+        ]
+        for frame, bones in poses:
+            for bname, rot in bones.items():
+                _key_bone(bname, rot, frame)
+        # Subtle head tilt toward camera during wave
+        _key_bone("neck", (0.08, 0, 0.05), t(0.38))
+        _key_bone("neck", (0.12, 0, 0.08), t(0.65))
+        _key_bone("head", (0.05, 0, 0.1), t(0.52))
+    elif phase == "lunge":
+        lunge_f = frame_end - 10
+        for name, rot, fr in [
+            ("pelvis", (0, 0, 0), frame_start),
+            ("ripcage", (0.15, 0, 0), lunge_f),
+            ("ripcage", (0.5, 0, 0), frame_end),
+            ("neck", (0.2, 0, 0), lunge_f),
+            ("neck", (0.45, 0, 0), frame_end),
+            ("head", (0.1, 0, 0), lunge_f),
+            ("head", (0.35, 0, 0), frame_end),
+            ("Bone_007", (-2.2, 0, 0), frame_end),
+        ]:
+            _key_bone(name, rot, fr)
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    if prev_active:
+        bpy.context.view_layer.objects.active = prev_active
 
 
 def _animate_camera_wave_lunge(
@@ -195,6 +492,7 @@ def _animate_camera_wave_lunge(
     frame_start: int,
     frame_end: int,
     phase: str,
+    armature: bpy.types.Object | None = None,
 ) -> None:
     cam.animation_data_clear()
     form2.animation_data_clear()
@@ -243,6 +541,9 @@ def _animate_camera_wave_lunge(
         cam.location = (0, -3.5, 1.4)
         cam.keyframe_insert(data_path="location", frame=frame_end)
 
+    if armature:
+        _play_creature_action(armature, phase=phase, frame_start=frame_start, frame_end=frame_end)
+
 
 def build_scene(*, samples: int = 32) -> dict:
     _clear_scene()
@@ -250,64 +551,72 @@ def build_scene(*, samples: int = 32) -> dict:
     _add_ground_and_road()
     _add_gas_station()
     pole_empty, lamp = _add_streetlight()
-    form2 = _build_form2()
+    form2 = _build_creature()
     cam = _setup_camera()
     _setup_render(scene, samples=samples)
     _add_fog_and_trees()
-    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp}
+    return {"scene": scene, "camera": cam, "form2": form2, "lamp": lamp, "armature": _find_armature(form2)}
 
 
 def render_clip(
+    ctx: dict,
     out_path: Path,
     *,
     phase: str,
     seconds: float = 10.0,
-    frame_offset: int = 0,
-    samples: int = 32,
 ) -> None:
-    ctx = build_scene(samples=samples)
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
     lamp = ctx["lamp"]
-    f0 = 1 + frame_offset
-    f1 = f0 + int(seconds * FPS) - 1
+    armature = ctx.get("armature")
+    f0 = 1
+    f1 = int(seconds * FPS)
     scene.frame_start = f0
     scene.frame_end = f1
     _flicker_keyframes(lamp, f0, f1)
-    _animate_camera_wave_lunge(cam, form2, frame_start=f0, frame_end=f1, phase=phase)
+    _animate_camera_wave_lunge(
+        cam, form2, frame_start=f0, frame_end=f1, phase=phase, armature=armature
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     scene.render.filepath = str(out_path.with_suffix(""))
     bpy.ops.render.render(animation=True)
+    _finalize_clip_output(out_path)
     print(f"Rendered {out_path}")
 
 
-def render_preview(out_png: Path, *, samples: int = 32) -> None:
+def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, samples: int = 32) -> list[Path]:
+    """One scene build → three clip renders (faster than rebuild per clip)."""
+    clips_dir = pack_dir / "clips"
+    phases = ("open", "wave", "lunge")
+    paths: list[Path] = []
+    ctx = build_scene(samples=samples)
+    for i, phase in enumerate(phases, start=1):
+        dest = clips_dir / f"blender_part_{i:02d}.mp4"
+        render_clip(ctx, dest, phase=phase, seconds=seconds)
+        paths.append(dest)
+    spec = {"backend": "blender", "clips": [p.name for p in paths], "draft_id": draft_id}
+    (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
+    return paths
+
+
+def render_preview(out_png: Path, *, samples: int = 32, phase: str = "wave") -> None:
     ctx = build_scene(samples=samples)
     scene = ctx["scene"]
     cam = ctx["camera"]
     form2 = ctx["form2"]
-    _animate_camera_wave_lunge(cam, form2, frame_start=1, frame_end=48, phase="lunge")
-    scene.frame_set(40)
+    armature = ctx.get("armature")
+    f1 = 48
+    _animate_camera_wave_lunge(
+        cam, form2, frame_start=1, frame_end=f1, phase=phase, armature=armature
+    )
+    # Peak wave frame ~52% through clip
+    peak = 1 + int((f1 - 1) * (0.52 if phase == "wave" else 0.85))
+    scene.frame_set(peak)
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = str(out_png)
     bpy.ops.render.render(write_still=True)
     print(f"Preview {out_png}")
-
-
-def render_draft_short(draft_id: int, pack_dir: Path, *, seconds: float = 10.0, samples: int = 32) -> list[Path]:
-    clips_dir = pack_dir / "clips"
-    phases = ("open", "wave", "lunge")
-    paths: list[Path] = []
-    offset = 0
-    for i, phase in enumerate(phases, start=1):
-        dest = clips_dir / f"blender_part_{i:02d}.mp4"
-        render_clip(dest, phase=phase, seconds=seconds, frame_offset=offset, samples=samples)
-        paths.append(dest)
-        offset += int(seconds * FPS)
-    spec = {"backend": "blender", "clips": [p.name for p in paths], "draft_id": draft_id}
-    (clips_dir / "blender_spec.json").write_text(json.dumps(spec, indent=2), encoding="utf-8")
-    return paths
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -316,6 +625,13 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--draft-id", type=int, default=2)
     parser.add_argument("--preview", action="store_true")
+    parser.add_argument(
+        "--phase",
+        choices=("open", "wave", "lunge"),
+        default="wave",
+        help="Animation phase for preview or single-clip test",
+    )
+    parser.add_argument("--clip-only", action="store_true", help="Render one clip for --phase only")
     parser.add_argument("--pack-dir", type=Path, default=None)
     parser.add_argument("--seconds", type=float, default=None, help="Clip length (default from env)")
     parser.add_argument("--samples", type=int, default=None, help="EEVEE TAA samples")
@@ -326,7 +642,12 @@ def main(argv: list[str] | None = None) -> None:
 
     pack = args.pack_dir or OUTPUT_ROOT / f"draft_{args.draft_id}"
     if args.preview:
-        render_preview(pack / "blender_preview.png", samples=samples)
+        render_preview(pack / f"blender_preview_{args.phase}.png", samples=samples, phase=args.phase)
+        return
+    if args.clip_only:
+        ctx = build_scene(samples=samples)
+        dest = (pack / "clips" / f"blender_part_{args.phase}.mp4")
+        render_clip(ctx, dest, phase=args.phase, seconds=seconds)
         return
     render_draft_short(args.draft_id, pack, seconds=seconds, samples=samples)
 

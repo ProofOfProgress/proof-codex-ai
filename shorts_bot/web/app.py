@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
@@ -90,6 +90,109 @@ class DevRequest(BaseModel):
 class ProductionRequest(BaseModel):
     draft_id: int
     turboscribe_text: str = Field(min_length=10)
+
+
+def _draft_pack_dir(draft_id: int) -> Path:
+    return settings.data_dir / "production" / f"draft_{draft_id}"
+
+
+def _safe_pack_file(pack: Path, name: str) -> Path:
+    """Resolve a file inside a draft pack — blocks path traversal."""
+    clean = Path(name).name
+    if not clean or clean != name:
+        raise HTTPException(400, "Invalid file name")
+    path = (pack / clean).resolve()
+    if not str(path).startswith(str(pack.resolve())):
+        raise HTTPException(400, "Invalid path")
+    if not path.is_file():
+        raise HTTPException(404, "File not found")
+    return path
+
+
+@app.get("/preview/draft/{draft_id}/file/{filename}")
+async def preview_draft_file(draft_id: int, filename: str) -> FileResponse:
+    """Stream a pack video or image for in-browser preview."""
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, "Draft pack not found")
+    path = _safe_pack_file(pack, filename)
+    media = {
+        ".mp4": "video/mp4",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+    }
+    return FileResponse(path, media_type=media.get(path.suffix.lower(), "application/octet-stream"))
+
+
+@app.get("/preview/draft/{draft_id}/clips/{filename}")
+async def preview_draft_clip(draft_id: int, filename: str) -> FileResponse:
+    pack = _draft_pack_dir(draft_id)
+    clips = pack / "clips"
+    if not clips.is_dir():
+        raise HTTPException(404, "Clips folder not found")
+    path = _safe_pack_file(clips, filename)
+    return FileResponse(path, media_type="video/mp4")
+
+
+@app.get("/preview/draft/{draft_id}/frames/{filename}")
+async def preview_draft_frame(draft_id: int, filename: str) -> FileResponse:
+    pack = _draft_pack_dir(draft_id)
+    frames = pack / "preview_frames"
+    if not frames.is_dir():
+        raise HTTPException(404, "Preview frames not found")
+    path = _safe_pack_file(frames, filename)
+    return FileResponse(path, media_type="image/png")
+
+
+@app.get("/preview/draft/{draft_id}", response_class=HTMLResponse)
+async def preview_draft_page(request: Request, draft_id: int, file: str | None = None) -> HTMLResponse:
+    """Browser page to watch draft videos — Cursor cannot open .mp4 in the editor."""
+    pack = _draft_pack_dir(draft_id)
+    if not pack.is_dir():
+        raise HTTPException(404, f"No production pack for draft {draft_id}")
+
+    videos: list[dict] = []
+    for name, label in (
+        ("final_short.mp4", "Full Short"),
+        ("final_short_blender.mp4", "Full Short (Blender)"),
+    ):
+        if (pack / name).is_file():
+            videos.append({"name": name, "label": label, "url": f"/preview/draft/{draft_id}/file/{name}"})
+    clips = pack / "clips"
+    if clips.is_dir():
+        for clip in sorted(clips.glob("*.mp4")):
+            videos.append(
+                {
+                    "name": f"clips/{clip.name}",
+                    "label": "Clip",
+                    "url": f"/preview/draft/{draft_id}/clips/{clip.name}",
+                }
+            )
+
+    selected = None
+    if file:
+        for v in videos:
+            if v["name"] == file or v["name"].endswith(f"/{file}") or v["name"] == f"clips/{file}":
+                selected = v
+                break
+        if selected is None and (pack / file).is_file():
+            selected = {"name": file, "url": f"/preview/draft/{draft_id}/file/{file}"}
+    if selected is None and videos:
+        selected = videos[0]
+
+    frames_dir = pack / "preview_frames"
+    frames = []
+    if frames_dir.is_dir():
+        for img in sorted(frames_dir.glob("*.png")):
+            frames.append({"name": img.name, "url": f"/preview/draft/{draft_id}/frames/{img.name}"})
+
+    return TEMPLATES.TemplateResponse(
+        request,
+        "preview.html",
+        {"draft_id": draft_id, "videos": videos, "selected": selected, "frames": frames},
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
