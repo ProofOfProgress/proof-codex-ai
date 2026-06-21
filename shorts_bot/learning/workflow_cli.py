@@ -26,7 +26,11 @@ def main() -> None:
     store = MemoryStore(settings.database_path)
 
     if args.command == "status":
+        from shorts_bot.learning.run_telemetry import telemetry_summary
+
         console.print(workflow_status(store))
+        console.print("")
+        console.print(telemetry_summary())
         return
 
     if args.command == "json":

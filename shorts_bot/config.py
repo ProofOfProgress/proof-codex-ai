@@ -257,6 +257,11 @@ class Settings(BaseSettings):
     workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
     mem0_enabled: bool = True  # Mem0 long-term memory (public system)
     textgrad_evolution_enabled: bool = True  # TextGrad hook evolution (EvoAgentX stack)
+    script_qc_enabled: bool = True  # Gemini/heuristic brief QC before InVideo
+    script_qc_min_score: float = 7.0
+    run_telemetry_enabled: bool = True  # JSONL run log under data/telemetry/
+    owner_signals_enabled: bool = True  # Reflexio-style chat corrections → Mem0
+    invideo_render_retries: int = 2
     auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0

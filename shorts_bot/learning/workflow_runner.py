@@ -18,7 +18,11 @@ from shorts_bot.learning.workflow import (
 )
 from shorts_bot.learning.workflow_evolve import evolve_after_daily_run
 from shorts_bot.memory.store import MemoryStore
-from shorts_bot.production.product_rotation import next_product_topic, product_name_from_topic
+from shorts_bot.production.product_rotation import (
+    consume_pending_queue_item,
+    next_product_topic,
+    product_name_from_topic,
+)
 
 
 @dataclass
@@ -70,6 +74,7 @@ def run_daily_invideo_workflow(
     product = ""
     brief = ""
     hook = ""
+    verdict = "Pay, Skip, or Wait"
 
     # --- pick_topic ---
     if wf.step("pick_topic") and wf.step("pick_topic").enabled:
@@ -90,7 +95,16 @@ def run_daily_invideo_workflow(
         try:
             hook_tpl = str(brief_step.params.get("hook_template", HOOK_TEMPLATES_FALLBACK))
             verdict = str(brief_step.params.get("verdict_hint", "Pay, Skip, or Wait"))
-            hook = hook_tpl.format(product=product)
+            pending = consume_pending_queue_item(store)
+            if pending:
+                if pending.get("hook"):
+                    hook = str(pending["hook"])
+                else:
+                    hook = hook_tpl.format(product=product)
+                if pending.get("verdict_hint"):
+                    verdict = str(pending["verdict_hint"])
+            else:
+                hook = hook_tpl.format(product=product)
             brief = shorts_product_brief(
                 product=product,
                 hook=hook,
@@ -101,6 +115,39 @@ def run_daily_invideo_workflow(
         except Exception as exc:
             step_results.append(_record_step("build_brief", False, str(exc), t0))
             return _finalize(store, wf, step_results, messages, 0, topic or "", "", None, None, upload)
+
+    # --- script_qc ---
+    qc_step = wf.step("script_qc")
+    if qc_step and qc_step.enabled:
+        t0 = time.monotonic()
+        from shorts_bot.learning.script_qc import score_script_brief
+
+        qc = score_script_brief(
+            product=product,
+            hook=hook,
+            brief=brief,
+            verdict_hint=verdict,
+        )
+        if qc.passed:
+            step_results.append(_record_step("script_qc", True, f"score={qc.score}", t0))
+            messages.append(f"Script QC passed ({qc.score}/10)")
+        else:
+            detail = "; ".join(qc.issues) or qc.summary
+            step_results.append(_record_step("script_qc", False, detail[:300], t0))
+            messages.append(f"Script QC failed ({qc.score}/10): {detail[:200]}")
+            return _finalize(
+                store,
+                wf,
+                step_results,
+                messages,
+                0,
+                topic or "",
+                "",
+                None,
+                None,
+                upload,
+                ok=False,
+            )
 
     # --- save_draft ---
     if wf.step("save_draft") and wf.step("save_draft").enabled:
@@ -158,9 +205,29 @@ def run_daily_invideo_workflow(
         try:
             from shorts_bot.invideo.ship_cli import ship
 
-            ship(project_url, video_path, wait_render_sec=render_wait)
-            step_results.append(_record_step("invideo_render", True, str(video_path), t0))
-            messages.append(f"MP4 saved: {video_path}")
+            last_err = ""
+            attempts = max(1, int(settings.invideo_render_retries))
+            for attempt in range(1, attempts + 1):
+                try:
+                    ship(project_url, video_path, wait_render_sec=render_wait)
+                    step_results.append(
+                        _record_step(
+                            "invideo_render",
+                            True,
+                            f"{video_path} (attempt {attempt})",
+                            t0,
+                        )
+                    )
+                    messages.append(f"MP4 saved: {video_path}")
+                    last_err = ""
+                    break
+                except Exception as exc:
+                    last_err = str(exc)[:300]
+                    if attempt < attempts:
+                        messages.append(f"InVideo render attempt {attempt} failed — retrying…")
+                        time.sleep(min(30 * attempt, 90))
+            if last_err:
+                raise RuntimeError(last_err)
         except Exception as exc:
             msg = str(exc)[:300]
             step_results.append(_record_step("invideo_render", False, msg, t0))
@@ -250,6 +317,10 @@ def _finalize(
 
     memory = MemoryExtensions(store)
     evo = evolve_after_daily_run(store, run, memory=memory)
+
+    from shorts_bot.learning.run_telemetry import record_run
+
+    record_run(run, evolution_summary=evo.summary())
 
     return DailyWorkflowResult(
         ok=ok,

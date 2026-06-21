@@ -1,4 +1,4 @@
-"""Rotate AI product review topics — no horror scare-pillar logic."""
+"""Rotate AI product review topics — structured queue + fallback pool."""
 
 from __future__ import annotations
 
@@ -8,12 +8,43 @@ from datetime import datetime, timezone
 
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.niche import DEFAULT_TOPICS, NICHE_NAME
+from shorts_bot.production.product_queue import next_queue_item
 
 _STATE_KEY = "invideo_product_index"
+_PENDING_QUEUE_KEY = "pending_queue_item"
 
 
 def next_product_topic(store: MemoryStore) -> str:
-    """Pick next product topic from the locked AI review pool."""
+    """Pick next product topic — prefers data/product_queue.json."""
+    item = next_queue_item(store)
+    if item:
+        store.set_channel_state(
+            _PENDING_QUEUE_KEY,
+            json.dumps(
+                {
+                    "product": item.product,
+                    "topic": item.topic,
+                    "hook": item.hook,
+                    "verdict_hint": item.verdict_hint,
+                }
+            ),
+        )
+        store.set_channel_state("niche_version", "ai_product_reviews_v2")
+        store.set_channel_state(
+            "last_topic_pick",
+            json.dumps(
+                {
+                    "topic": item.topic,
+                    "product": item.product,
+                    "niche": NICHE_NAME,
+                    "backend": "invideo",
+                    "queue_id": item.id,
+                    "at": datetime.now(timezone.utc).isoformat(),
+                }
+            ),
+        )
+        return item.topic
+
     raw = store.get_channel_state(_STATE_KEY)
     index = int(raw) if raw and raw.isdigit() else 0
 
@@ -42,6 +73,17 @@ def next_product_topic(store: MemoryStore) -> str:
         ),
     )
     return chosen
+
+
+def consume_pending_queue_item(store: MemoryStore) -> dict | None:
+    raw = store.get_channel_state(_PENDING_QUEUE_KEY)
+    if not raw:
+        return None
+    store.set_channel_state(_PENDING_QUEUE_KEY, "")
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
 
 
 def product_name_from_topic(topic: str) -> str:

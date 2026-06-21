@@ -165,6 +165,12 @@ class BotOperations:
             except (ValueError, IndexError):
                 pass
 
+        from shorts_bot.learning.owner_signals import capture_owner_signal
+
+        signal = capture_owner_signal(get_memory(), text)
+        if signal:
+            return signal
+
         from shorts_bot.agents.manager import should_use_manager, ChiefManager
 
         if should_use_manager(text):
