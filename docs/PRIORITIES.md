@@ -18,7 +18,8 @@
 | Analytics → learning | **Built** — needs consistent uploads to matter |
 | Agent memory / Codex | **Yes** — slim horror cruft, add AI/tech seeds |
 
-**Bottom line:** Brain exists. Hands were broken on homemade video. **InVideo is the hands.**
+**Bottom line:** Brain exists. Hands were broken on homemade video. **InVideo is the hands.**  
+**90-day plan:** `docs/VIRAL_90_DAY_BLUEPRINT.md` — public stack + self-learning loop on paper.
 
 ---
 
