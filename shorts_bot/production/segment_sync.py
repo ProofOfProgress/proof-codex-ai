@@ -161,7 +161,7 @@ def resolve_segments(
 
     audio_path = pack_dir / "voiceover.mp3"
     if audio_path.exists() and audio_duration is None:
-        from shorts_bot.production.render_video import _probe_duration
+        from shorts_bot.production.media_probe import _probe_duration
 
         try:
             audio_duration = _probe_duration(audio_path)

@@ -31,13 +31,14 @@ def test_description_uses_plain_language():
         assert "terrifying faceless" not in lower
 
 
-def test_finale_description_says_jumpscare():
+def test_finale_description_safe_for_ai_niche():
     desc = _safe_description(
-        "security camera motion",
-        "Your security camera flagged motion at 3:12 AM.",
+        "ChatGPT Plus review",
+        "Is ChatGPT Plus worth it in 2026?",
         draft_id=1,
     )
-    assert "jumpscare" in desc.lower()
+    assert description_is_safe(desc)
+    assert "chatgpt" in desc.lower() or "plus" in desc.lower()
 
 
 def test_sanitize_upgrades_legacy_copy():

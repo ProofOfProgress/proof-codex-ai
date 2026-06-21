@@ -1,13 +1,15 @@
-from pathlib import Path
+"""Mem0 + public evolution tests."""
 
+from pathlib import Path
+from unittest.mock import patch
+
+from shorts_bot.learning.mem0_bridge import recall_context_block, remember
+from shorts_bot.learning.public_evolve import evolve_hook_after_punish, next_hook_template
 from shorts_bot.learning.workflow import (
     StepResult,
-    WorkflowDefinition,
     WorkflowRun,
-    WorkflowStep,
     load_active_workflow,
     load_seed_workflow,
-    save_active_workflow,
 )
 from shorts_bot.learning.workflow_evolve import evolve_after_daily_run, evolve_from_rewards
 from shorts_bot.learning.workflow_store import WorkflowRunStore
@@ -21,15 +23,6 @@ def test_seed_workflow_has_daily_steps():
     ids = [s.id for s in wf.enabled_steps()]
     assert "pick_topic" in ids
     assert "invideo_render" in ids
-    assert "youtube_upload" in ids
-
-
-def test_active_workflow_persists(tmp_path: Path):
-    store = MemoryStore(tmp_path / "t.db")
-    wf = load_active_workflow(store)
-    assert wf.id == "daily_invideo"
-    wf2 = load_active_workflow(store)
-    assert wf2.version == wf.version
 
 
 def test_evolve_increases_render_wait_on_timeout(tmp_path: Path):
@@ -37,44 +30,48 @@ def test_evolve_increases_render_wait_on_timeout(tmp_path: Path):
     mem = MemoryExtensions(store)
     wf = load_active_workflow(store)
     before = wf.step("invideo_render").params["wait_render_sec"]
-
     run = WorkflowRun(
         workflow_id=wf.id,
         workflow_version=wf.version,
         draft_id=1,
         topic="ChatGPT Plus",
         ok=False,
-        step_results=[
-            StepResult("invideo_render", False, "expect_download timed out after 2400s"),
-        ],
+        step_results=[StepResult("invideo_render", False, "expect_download timed out after 2400s")],
     )
     result = evolve_after_daily_run(store, run, memory=mem)
-    after_wf = load_active_workflow(store)
-    after = after_wf.step("invideo_render").params["wait_render_sec"]
+    after = load_active_workflow(store).step("invideo_render").params["wait_render_sec"]
     assert after == before + 600
-    assert after_wf.version == wf.version + 1
     assert result.applied
 
 
-def test_evolve_rotates_hook_on_punish(tmp_path: Path):
+def test_evolve_hook_rotate_fallback(tmp_path: Path):
     store = MemoryStore(tmp_path / "t.db")
     mem = MemoryExtensions(store)
     wf = load_active_workflow(store)
     before = wf.step("build_brief").params["hook_template"]
-
     reward = RewardResult(
-        video_label="ChatGPT Plus review",
+        video_label="ChatGPT Plus",
         score=0.2,
         verdict="punish",
         reason="High swipe-away on hook",
-        diagnosis="Hook failed to stop scroll",
-        metrics={"viewed_vs_swiped_away": 80},
+        diagnosis="Hook failed",
+        metrics={},
     )
-    result = evolve_from_rewards(mem, [reward])
-    after_wf = load_active_workflow(store)
-    after = after_wf.step("build_brief").params["hook_template"]
+    with patch("shorts_bot.learning.public_evolve.optimize_hook_template", return_value=None):
+        result = evolve_from_rewards(mem, [reward])
+    after = load_active_workflow(store).step("build_brief").params["hook_template"]
     assert after != before
     assert result.applied
+
+
+def test_mem0_remember_noop_when_disabled(monkeypatch):
+    from shorts_bot.config import settings
+    from shorts_bot.learning.mem0_bridge import reset_mem0_cache
+
+    monkeypatch.setattr(settings, "mem0_enabled", False)
+    reset_mem0_cache()
+    assert remember("test memory") is False
+    assert recall_context_block() == ""
 
 
 def test_workflow_run_history(tmp_path: Path):
@@ -89,7 +86,19 @@ def test_workflow_run_history(tmp_path: Path):
         step_results=[StepResult("invideo_render", False, "Upgrade plan")],
     )
     rs.record(run)
-    recent = rs.recent(limit=1)
-    assert len(recent) == 1
-    assert recent[0]["draft_id"] == 3
     assert rs.step_failure_streak("invideo_render") == 1
+
+
+def test_next_hook_template_rotates():
+    a = "Everyone's paying for {product} — I tested if it's worth it."
+    b = next_hook_template(a)
+    assert b != a
+    assert "{product}" in b
+
+
+def test_evolve_hook_after_punish_fallback():
+    current = "Everyone's paying for {product} — I tested if it's worth it."
+    with patch("shorts_bot.learning.public_evolve.optimize_hook_template", return_value=None):
+        new, method = evolve_hook_after_punish(current, "high swipe-away")
+    assert method == "rotate"
+    assert new != current

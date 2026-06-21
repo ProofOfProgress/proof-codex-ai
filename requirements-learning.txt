@@ -1,0 +1,4 @@
+mem0ai>=2.0.0
+google-genai>=1.0.0
+textgrad>=0.1.8
+litellm>=1.50.0

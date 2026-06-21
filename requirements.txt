@@ -16,3 +16,9 @@ edge-tts>=6.1.0
 PyJWT>=2.8.0
 pytrends>=4.9.0
 slack-sdk>=3.27.0
+
+# Public learning stack (Mem0 memory + TextGrad evolution — EvoAgentX uses TextGrad)
+mem0ai>=2.0.0
+google-genai>=1.0.0
+textgrad>=0.1.8
+litellm>=1.50.0

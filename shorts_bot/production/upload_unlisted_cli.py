@@ -94,7 +94,6 @@ def upload_unlisted_draft(
     from shorts_bot.memory.store import MemoryStore
     from shorts_bot.memory.extensions import MemoryExtensions
     from shorts_bot.production.jumpscare_timing import plan_for_draft, persist_plan
-    from shorts_bot.production.render_video import render_short_video
     from shorts_bot.production.upload_meta import build_upload_package, write_upload_files
     from shorts_bot.youtube.upload import upload_short
     from shorts_bot.youtube.upload_guardrails import preflight_upload
@@ -114,78 +113,12 @@ def upload_unlisted_draft(
             allow_duplicate_draft=allow_duplicate_draft,
         )
 
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    segments = manifest.get("segments") or []
-    scare_plan = plan_for_draft(draft_id, len(segments))
-    if draft_id % 3 == 0:
-        # Owner QA: force finale jumpscare for SFX validation upload
-        from shorts_bot.production.jumpscare_timing import JumpscarePlan
+    from shorts_bot.production.legacy_retired import LegacyPipelineRetired
 
-        last = max(0, len(segments) - 1)
-        scare_plan = JumpscarePlan(
-            profile="finale",
-            primary_segment_index=last,
-            decoy_segment_index=None,
-            has_jumpscare=True,
-            sting_start_ratio=0.92,
-            volume_warning="🔊 VOLUME WARNING — jumpscare at the end. Use headphones.",
-            creator_note="QA upload — finale scare + agent-mixed SFX.",
-        )
-    manifest["jumpscare_plan"] = scare_plan.to_dict()
-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    persist_plan(draft_id, scare_plan)
-
-    console.print(f"[cyan]Rendering draft #{draft_id} with horror SFX + finale scare…[/cyan]")
-    rendered = render_short_video(
-        root,
-        draft_id=draft_id,
-        output_name=output_name,
+    raise LegacyPipelineRetired(
+        "Homemade render removed — pass --video path/to/final_short.mp4 --no-render "
+        "or use upload_canonical_cli after InVideo export."
     )
-    console.print(f"[green]{rendered.message}[/green]")
-
-    store = MemoryStore(settings.database_path)
-    draft = store.get_draft(draft_id)
-    package = build_upload_package(draft.topic, draft.hook, draft_id=draft_id)
-    title = package.title
-    if title_suffix and title_suffix not in title:
-        title = f"{title} {title_suffix}".strip()[:100]
-    package.visibility = "unlisted"
-
-    write_upload_files(root, package, draft_id=draft_id)
-
-    mem = MemoryExtensions(store)
-    pre = preflight_upload(
-        store,
-        mem,
-        draft_id=draft_id,
-        topic=draft.topic,
-        hook=draft.hook,
-        script=draft.script,
-        title=title,
-        allow_duplicate_draft=allow_duplicate_draft,
-        visibility="unlisted",
-    )
-    if not pre.allowed:
-        raise RuntimeError(f"Upload blocked: {pre.message}")
-
-    up = upload_short(
-        rendered.output_path,
-        title=title,
-        description=package.description,
-        tags=package.tags,
-        visibility="unlisted",
-    )
-    record_upload(
-        mem,
-        draft_id=draft_id,
-        topic=draft.topic,
-        hook=draft.hook,
-        script=draft.script,
-        title=title,
-        video_id=up.video_id,
-        extra_snapshot={"visibility": "unlisted", "qa_sfx_upload": True},
-    )
-    return f"Unlisted upload OK: {up.video_url}"
 
 
 def main() -> None:

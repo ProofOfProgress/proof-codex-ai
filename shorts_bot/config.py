@@ -255,6 +255,8 @@ class Settings(BaseSettings):
     self_training_enabled: bool = True
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
     workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
+    mem0_enabled: bool = True  # Mem0 long-term memory (public system)
+    textgrad_evolution_enabled: bool = True  # TextGrad hook evolution (EvoAgentX stack)
     auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0

@@ -37,7 +37,7 @@
 
 | Item | Why it waits |
 |------|--------------|
-| Mem0 / Zep long-term memory | After a few videos ship |
+| Mem0 / Zep long-term memory | **Mem0 integrated** — see `docs/WORKFLOW_EVOLUTION.md`; Zep optional |
 | Facebook Reels cross-post | Token not saved; YouTube first |
 | **TikTok API upload** | **Blocked** — code ready; OAuth needs TikTok login (owner phone broken — resume when SMS/2FA works again) |
 | Long-form compilation | Needs 3+ winners in new niche |

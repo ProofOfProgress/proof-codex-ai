@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from shorts_bot.memory.store import MemoryStore
-from shorts_bot.production.pack import auto_produce_draft
+from shorts_bot.production.pack import build_production_pack
 from shorts_bot.production.script_segments import segments_from_script
 
 
@@ -11,43 +11,22 @@ def test_segments_from_script():
     assert segs[1].start_seconds > segs[0].start_seconds
 
 
-def test_auto_produce_renders_images(tmp_path: Path, monkeypatch):
+def test_build_production_pack_invideo(tmp_path: Path, monkeypatch):
     from shorts_bot.config import Settings
 
-    fake = Settings(
-        data_dir=tmp_path,
-        require_beat_sheet_approval=False,
-        require_paid_stack=False,
-        allow_script_timing_fallback=True,
-        visual_style="hybrid",
-        replicate_api_token="r8_test_token_for_pytest",
-        ai_video_generation_enabled=False,
-    )
+    fake = Settings(data_dir=tmp_path)
     monkeypatch.setattr("shorts_bot.config.settings", fake)
-    monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
-    monkeypatch.setattr("shorts_bot.production.paid_stack.settings", fake)
-
-    def _fake_render(briefs, images_dir):
-        images_dir.mkdir(parents=True, exist_ok=True)
-        for b in briefs:
-            (images_dir / f"{b.filename_stem}.png").write_bytes(b"png")
-        return len(briefs)
-
-    monkeypatch.setattr("shorts_bot.production.pack.render_all_ai_images", _fake_render)
+    monkeypatch.setattr("shorts_bot.invideo.script_pack.settings", fake)
 
     store = MemoryStore(tmp_path / "t.db")
     d = store.save_draft(
-        topic="sleep",
-        script="You wake at 3 a.m. Your phone stays dark. One breath. You're still here.",
-        hook="Stop scrolling.",
-        help_angle="helps",
+        topic="ChatGPT Plus",
+        script="Pay or skip?",
+        hook="Everyone pays for ChatGPT Plus.",
+        help_angle="review",
         quality_notes="ok",
     )
-    pack = auto_produce_draft(
-        store,
-        d.id,
-        render_images=True,
-    )
-    assert pack.images_rendered >= 1
-    assert (pack.output_dir / "images").exists()
-    assert (pack.output_dir / "VOICEOVER_SCRIPT.txt").exists()
+    pack = build_production_pack(store, draft_id=d.id)
+    assert pack.draft_id == d.id
+    assert (pack.output_dir / "script.txt").is_file()
+    assert pack.manifest_path.is_file()

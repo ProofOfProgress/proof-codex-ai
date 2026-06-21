@@ -150,14 +150,7 @@ def assess_pack_health(
         else load_plan_for_draft(draft_id, len(segments))
     )
     if plan.has_jumpscare and settings.jumpscare_dedicated_clip:
-        from shorts_bot.production.jumpscare_clip import jumpscare_clip_path
-
-        scare = jumpscare_clip_path(clips_dir)
-        if not scare.is_file() or scare.stat().st_size < min_bytes:
-            report.issues.append(
-                f"Missing dedicated jumpscare clip at {scare.name} "
-                "(required when jumpscare_dedicated_clip=true)"
-            )
+        pass  # homemade jumpscare clips retired — InVideo production
 
     report.ready_to_render = not report.issues
     final_path = pack_dir / final_short_name

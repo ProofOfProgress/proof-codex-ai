@@ -30,15 +30,16 @@ def test_parse_turboscribe():
 def test_build_production_pack(tmp_path: Path, monkeypatch):
     from shorts_bot.config import Settings
 
-    fake = Settings(require_beat_sheet_approval=False)
-    monkeypatch.setattr("shorts_bot.production.pack.settings", fake)
+    fake = Settings(data_dir=tmp_path, require_beat_sheet_approval=False)
+    monkeypatch.setattr("shorts_bot.config.settings", fake)
+    monkeypatch.setattr("shorts_bot.invideo.script_pack.settings", fake)
 
     store = MemoryStore(tmp_path / "test.db")
     d = store.save_draft(
-        topic="sleep at 3am",
+        topic="ChatGPT Plus review",
         script="Full script here.",
-        hook="Stop scrolling.",
-        help_angle="Helps insomniacs.",
+        hook="Stop paying until you watch this.",
+        help_angle="Pay or skip?",
         quality_notes="ok",
     )
     pack = build_production_pack(
@@ -47,7 +48,7 @@ def test_build_production_pack(tmp_path: Path, monkeypatch):
         turboscribe_text=SAMPLE,
         output_root=tmp_path / "out",
     )
-    assert pack.image_count == 4
-    assert (pack.output_dir / "manifest.json").exists()
-    assert (pack.output_dir / "prompts" / "00.07.txt").exists()
-    assert (pack.output_dir / "CAPCUT_TIMELINE.md").exists()
+    assert pack.draft_id == d.id
+    assert (pack.output_dir / "script.txt").exists()
+    assert (pack.output_dir / "transcript.txt").exists()
+    assert pack.manifest_path.exists()
