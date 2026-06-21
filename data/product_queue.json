@@ -1,0 +1,107 @@
+[
+  {
+    "id": 1,
+    "product": "ChatGPT Plus",
+    "topic": "ChatGPT Plus — worth $20/mo in 2026?",
+    "hook": "Everyone's paying for ChatGPT Plus — I tested if it's worth it.",
+    "verdict_hint": "Skip unless you hit limits daily"
+  },
+  {
+    "id": 2,
+    "product": "Claude Pro",
+    "topic": "Claude Pro vs ChatGPT Plus — honest 30s verdict",
+    "hook": "Claude Pro vs ChatGPT — which $20 subscription wins?",
+    "verdict_hint": "Pay for writers; Skip for casual chat"
+  },
+  {
+    "id": 3,
+    "product": "Google Gemini Advanced",
+    "topic": "Gemini Advanced — Pay, Skip, or Wait?",
+    "hook": "Stop paying for Gemini Advanced until you watch this.",
+    "verdict_hint": "Wait if free Gemini is enough"
+  },
+  {
+    "id": 4,
+    "product": "InVideo AI",
+    "topic": "InVideo AI for daily Shorts — honest review",
+    "hook": "Is InVideo AI worth it for faceless Shorts?",
+    "verdict_hint": "Pay if you ship daily Shorts"
+  },
+  {
+    "id": 5,
+    "product": "Cursor Pro",
+    "topic": "Cursor Pro — Pay or Skip for non-coders?",
+    "hook": "Cursor Pro in 30 seconds — who actually needs it?",
+    "verdict_hint": "Skip unless you code every day"
+  },
+  {
+    "id": 6,
+    "product": "Perplexity Pro",
+    "topic": "Perplexity Pro vs free search",
+    "hook": "Perplexity Pro vs free alternatives — 30 second verdict.",
+    "verdict_hint": "Pay if research is your job"
+  },
+  {
+    "id": 7,
+    "product": "NotebookLM",
+    "topic": "NotebookLM — underrated or overhyped?",
+    "hook": "NotebookLM is free — here's who should actually use it.",
+    "verdict_hint": "Pay N/A — free tier first"
+  },
+  {
+    "id": 8,
+    "product": "CapCut AI",
+    "topic": "CapCut AI features — Pay or Skip?",
+    "hook": "CapCut AI vs doing it manually — honest take.",
+    "verdict_hint": "Skip unless you edit daily"
+  },
+  {
+    "id": 9,
+    "product": "ElevenLabs",
+    "topic": "ElevenLabs for Shorts voice — worth it?",
+    "hook": "Everyone's cloning voice with ElevenLabs — worth the price?",
+    "verdict_hint": "Pay for voice-only workflows"
+  },
+  {
+    "id": 10,
+    "product": "HeyGen",
+    "topic": "HeyGen vs InVideo for AI avatar Shorts",
+    "hook": "HeyGen vs InVideo — which AI twin wins for Shorts?",
+    "verdict_hint": "Skip if InVideo is your stack"
+  },
+  {
+    "id": 11,
+    "product": "Midjourney",
+    "topic": "Midjourney in 2026 — still worth it?",
+    "hook": "Is Midjourney still worth paying for in 2026?",
+    "verdict_hint": "Wait — test free alternatives first"
+  },
+  {
+    "id": 12,
+    "product": "Notion AI",
+    "topic": "Notion AI add-on — Pay or Skip?",
+    "hook": "Notion AI costs extra — here's the 30s verdict.",
+    "verdict_hint": "Skip unless you live in Notion"
+  },
+  {
+    "id": 13,
+    "product": "Descript",
+    "topic": "Descript for podcast-to-Shorts",
+    "hook": "Descript vs CapCut for turning talk into Shorts.",
+    "verdict_hint": "Pay if you edit long-form talk"
+  },
+  {
+    "id": 14,
+    "product": "Runway Gen-3",
+    "topic": "Runway for AI video clips — honest cost check",
+    "hook": "Runway looks amazing — but is the credit burn worth it?",
+    "verdict_hint": "Skip for daily Shorts budgets"
+  },
+  {
+    "id": 15,
+    "product": "Opus Clip",
+    "topic": "Opus Clip — auto Shorts from long video",
+    "hook": "Opus Clip promises instant Shorts — does it deliver?",
+    "verdict_hint": "Pay if you have long videos to chop"
+  }
+]

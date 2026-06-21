@@ -17,6 +17,13 @@
       }
     },
     {
+      "id": "script_qc",
+      "enabled": true,
+      "params": {
+        "min_score": 7.0
+      }
+    },
+    {
       "id": "save_draft",
       "enabled": true,
       "params": {}
