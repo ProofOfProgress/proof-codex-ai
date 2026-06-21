@@ -1,10 +1,27 @@
 # Daily post — what actually works
 
-Cursor **Automations** at cursor.com/automations do **not** work for everyone (plan, repo, or UI bugs). Skip them if you already tried.
+Cursor **Automations** at cursor.com/automations do **not** work for everyone — skip if you already tried.
 
 ---
 
-## Plan A — One message when you’re in Cursor (works today)
+## Best path: laptop always on (recommended for you)
+
+You said you can leave the laptop running. **Use this.**
+
+Full guide: **`docs/FOR_OWNER_LAPTOP_ALWAYS_ON.md`**
+
+Short version:
+
+1. `git pull` + `bash scripts/install.sh`
+2. In `.env`: `AUTO_DAILY_ENABLED=true` + pick `AUTO_DAILY_HOUR` (UTC)
+3. `python3 -m shorts_bot.invideo.handoff_cli` (login once)
+4. `bash scripts/run-all.sh` — leave it running, laptop plugged in, no sleep
+
+The bot fires **daily ship** by itself. You don't open Cursor every day.
+
+Test once: `python3 -m shorts_bot.production.invideo_daily_cli`
+
+---
 
 Open Cursor → chat → type:
 
