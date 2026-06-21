@@ -27,20 +27,22 @@ Owner is NOT a developer — plain English, exact steps, do the technical work y
 
 ## Niche (locked)
 
+- **Channel:** **Rapid Tool Review** · **@RapidToolReview**
 - **Big:** AI / Tech
 - **Format:** ~30 second YouTube Shorts
-- **Sub-niche:** Honest AI product reviews — one real product per video
+- **Sub-niche:** Honest AI tool reviews — one real product per video
 - **Verdict:** Pay / Skip / Wait (clear call at the end)
 - **Tone:** Skeptical but fair. No hype-bro. Sincere honesty first.
-- **Presenter:** Owner's **InVideo AI Twin** (face + voice) — not stock actors
+- **Presenter:** InVideo — **voice + screen UI** (no twin required yet)
 - **Retired:** Peripheral horror, jumpscares, CCTV grammar, homemade video stack
+- **Rebrand kit:** `channel/brand/REBRAND_KIT.md`
 
 ---
 
 ## Production pipeline (how videos get made)
 
 1. **Brief, not script** — agent sends a creative *prompt* to InVideo; InVideo writes the script
-2. **InVideo generates** — twin on camera + tight app UI B-roll + captions (9:16 Shorts only)
+2. **InVideo generates** — voice + tight app UI + captions (9:16 Shorts only; twin optional)
 3. **MP4 on disk** — browser download OR owner pastes Google Drive link (see blockers)
 4. **YouTube upload** — API, public, synthetic media disclosed
 5. **Analytics → learn** — winners get reused; losers get avoid rules

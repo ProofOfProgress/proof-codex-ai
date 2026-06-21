@@ -8,18 +8,20 @@ Read all of this before every project. Apply it even when the per-video brief is
 
 ## Who we are
 
-**Channel type:** AI / Tech — honest product reviews for normal people (not developers, not hype bros).
+**Channel:** **Rapid Tool Review** · **@RapidToolReview**
 
-**One-line pitch:** I test AI products so viewers don't waste money — no hype, clear verdict.
+**Channel type:** AI / Tech — honest tool reviews for normal people (not developers, not hype bros).
 
-**Series:** AI Product Reviews  
-**Tagline:** Honest AI in 30 seconds.
+**One-line pitch:** I test AI tools so you don't waste money — no hype, clear verdict in 30 seconds.
 
-**Presenter:** The channel owner's **saved AI Twin** in InVideo — face + voice clone. **Always use the twin** for talking-head shots. Do NOT substitute stock actors or generic presenters unless twin is unavailable (then say so in chat).
+**Series:** Rapid Tool Review  
+**Tagline:** Honest AI tools. Fast verdicts.
+
+**Presenter:** **InVideo** — voiceover + tight app UI on screen (no twin required). Optional AI twin later. No stock actors at a desk.
 
 **Platform:** YouTube Shorts ONLY — vertical mobile feed. Not TikTok repost crops. Not long-form. Not LinkedIn widescreen unless explicitly asked.
 
-**Synthetic media:** This is an AI presenter channel — lean into polished twin delivery; declare synthetic content is handled upstream.
+**Synthetic media:** Disclose when used per YouTube policy.
 
 ---
 
@@ -72,10 +74,10 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 - **NOT 16:9.** NOT cinematic letterboxing inside vertical. NOT horizontal stock squeezed into portrait.
 
 **Shots (priority order)**
-1. **AI Twin fullscreen** — talking head, centered, eye contact, vertical framing
-2. **Tight app UI** — mobile screenshots, desktop UI cropped tight to the feature being discussed
-3. **Single-product close-ups** — logo, pricing page, one screen
-4. **Screen recordings** — actual product in use, cropped vertical
+1. **Bold product name + verdict text** in first 2 seconds
+2. **Tight app UI** — mobile screenshots, desktop UI cropped vertical
+3. **Screen recordings** — actual product in use
+4. **AI Twin** (optional) — only if owner has twin saved; otherwise skip talking-head
 
 **Avoid**
 - Wide desk/laptop stock b-roll
@@ -98,7 +100,7 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 
 - **Use Agent mode / Agent One workflow** — scene-by-scene control, not blind Autopilot unless owner asks
 - **Media tier:** Basic/stock is OK for UI; prefer twin + screen content over random stock people
-- **AI Twin:** Required for presenter shots — owner's twin should already be saved in workspace
+- **AI Twin:** Optional — use if saved; otherwise voice + UI only
 - **Captions:** On, styled for Shorts
 - **Music:** Subtle background OK; don't overpower voice. No horror stings. No jump scares.
 - **Watermarks:** Stock watermarks acceptable on free tier exports

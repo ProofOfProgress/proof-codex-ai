@@ -26,7 +26,9 @@ Sincere honesty first. Say when something's good. Say when it's trash. No hype-b
 
 ## Channel copy
 
-YouTube Studio text: `channel/brand/youtube_copy.txt`
+YouTube Studio text: `channel/brand/youtube_copy.txt`  
+Owner rebrand steps: `channel/brand/REBRAND_KIT.md`  
+Visual spec: `channel/brand/visual_identity.md`
 
 ## Deprecated
 
