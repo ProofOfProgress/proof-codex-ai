@@ -98,6 +98,14 @@ def run_analytics_sync_with_automation(
             agent_memory_store=get_agent_memory_store(memory.store),
         )
         training_summary = reflect.summary()
+        if settings.workflow_evolution_enabled:
+            from shorts_bot.learning.workflow_evolve import evolve_from_rewards
+
+            wf_evo = evolve_from_rewards(memory, sync.scored_results)
+            if wf_evo.summary():
+                training_summary = (
+                    f"{training_summary}; {wf_evo.summary()}" if training_summary else wf_evo.summary()
+                )
 
     pub_n = process_publish_queue(memory)
     comment_result = process_comment_replies(memory)

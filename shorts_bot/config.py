@@ -254,6 +254,7 @@ class Settings(BaseSettings):
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
     self_training_enabled: bool = True
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
+    workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
     auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
