@@ -28,8 +28,8 @@ class ChannelBrand:
             text = self.identity_path.read_text(encoding="utf-8")
             return text[:2500]
         return (
-            "Channel: Peripheral — faceless horror Shorts (~30s). "
-            "Jumpscare at the end. Merch tagline: don't blink. Watch the whole thing."
+            "Channel: Rapid Tool Review — honest AI tool Shorts (~30s). "
+            "Pay / Skip / Wait verdict every upload. InVideo voice + screen production."
         )
 
     def youtube_copy(self) -> str:
@@ -52,8 +52,8 @@ class ChannelBrand:
         if self.world_path.exists():
             return self.world_path.read_text(encoding="utf-8")[:2000]
         return (
-            "Channel: AI/tech product reviews (~30s). Pay / Skip / Wait verdict format. "
-            "InVideo twin production."
+            "Channel: Rapid Tool Review — AI/tech tool reviews (~30s). "
+            "Pay / Skip / Wait verdict format. InVideo production."
         )
 
     def draft_instructions(self) -> str:

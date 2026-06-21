@@ -1,24 +1,26 @@
-"""Generate channel profile + banner PNGs — Don't Blink horror eye brand."""
+"""Generate channel profile + banner PNGs — Rapid Tool Review brand."""
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
 ASSETS_DIR = Path("channel/brand/assets")
 PROFILE_PATH = ASSETS_DIR / "profile.png"
 BANNER_PATH = ASSETS_DIR / "banner.png"
 
-# identity.md palette
-BG_TOP = "#0B0D10"
-BG_MID = "#141820"
-ACCENT_BLUE = "#8EB8FF"
-ACCENT_PURPLE = "#C4A1FF"
-TEXT_PRIMARY = "#F2F5FA"
-TEXT_MUTED = "#9AA8BC"
+# channel/brand/visual_identity.md
+BG_TOP = "#0B0F14"
+BG_MID = "#121820"
+ACCENT = "#3B82F6"
+ACCENT_BRIGHT = "#60A5FA"
+TEXT_PRIMARY = "#F8FAFC"
+TEXT_MUTED = "#94A3B8"
+PAY = "#22C55E"
+SKIP = "#EF4444"
+WAIT = "#F59E0B"
 
 
-def _load_fonts(size_lg: int, size_md: int, size_sm: int):
+def _load_fonts(size_lg: int, size_md: int, size_sm: int, *, mono_lg: int = 0):
     from PIL import ImageFont
 
     candidates_bold = [
@@ -29,7 +31,11 @@ def _load_fonts(size_lg: int, size_md: int, size_sm: int):
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
     ]
-    font_lg = font_md = font_sm = ImageFont.load_default()
+    candidates_mono = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf",
+    ]
+    font_lg = font_md = font_sm = font_mono = ImageFont.load_default()
     for path in candidates_bold:
         try:
             font_lg = ImageFont.truetype(path, size_lg)
@@ -43,7 +49,14 @@ def _load_fonts(size_lg: int, size_md: int, size_sm: int):
             break
         except OSError:
             continue
-    return font_lg, font_md, font_sm
+    if mono_lg:
+        for path in candidates_mono:
+            try:
+                font_mono = ImageFont.truetype(path, mono_lg)
+                break
+            except OSError:
+                continue
+    return font_lg, font_md, font_sm, font_mono
 
 
 def _hex_rgb(hex_color: str) -> tuple[int, int, int]:
@@ -64,45 +77,25 @@ def _vertical_gradient(img, top: str, bottom: str) -> None:
         draw.line([(0, y), (w, y)], fill=color)
 
 
-def _draw_clock_face(draw, cx: int, cy: int, radius: int, *, minute_before: bool = True) -> None:
-    """Minimal dial — hands near 11:59 (the minute before)."""
-    blue = _hex_rgb(ACCENT_BLUE)
-    purple = _hex_rgb(ACCENT_PURPLE)
-    draw.ellipse(
-        [cx - radius, cy - radius, cx + radius, cy + radius],
-        outline=blue,
-        width=max(3, radius // 80),
-    )
-    draw.ellipse(
-        [cx - radius + 18, cy - radius + 18, cx + radius - 18, cy + radius - 18],
-        outline=purple,
-        width=2,
-    )
-    for hour in range(12):
-        angle = math.radians(hour * 30 - 90)
-        inner = radius - 22
-        outer = radius - 8
-        x1 = cx + inner * math.cos(angle)
-        y1 = cy + inner * math.sin(angle)
-        x2 = cx + outer * math.cos(angle)
-        y2 = cy + outer * math.sin(angle)
-        draw.line([(x1, y1), (x2, y2)], fill=blue, width=2)
-
-    if minute_before:
-        # Hour hand ~11, minute hand ~58
-        hour_angle = math.radians(11 * 30 - 90)
-        min_angle = math.radians(58 * 6 - 90)
-        hx = cx + (radius * 0.45) * math.cos(hour_angle)
-        hy = cy + (radius * 0.45) * math.sin(hour_angle)
-        mx = cx + (radius * 0.62) * math.cos(min_angle)
-        my = cy + (radius * 0.62) * math.sin(min_angle)
-        draw.line([(cx, cy), (hx, hy)], fill=TEXT_PRIMARY, width=max(4, radius // 45))
-        draw.line([(cx, cy), (mx, my)], fill=ACCENT_BLUE, width=max(3, radius // 55))
-    draw.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=purple)
+def _draw_verdict_pills(draw, cx: int, y: int, font, *, gap: int = 28) -> None:
+    labels = [("PAY", PAY), ("SKIP", SKIP), ("WAIT", WAIT)]
+    widths = []
+    pad_x, pad_y = 18, 8
+    for label, _ in labels:
+        w = draw.textlength(label, font=font) if hasattr(draw, "textlength") else 60
+        widths.append(w + pad_x * 2)
+    total = sum(widths) + gap * (len(labels) - 1)
+    x = cx - total // 2
+    for (label, color), bw in zip(labels, widths, strict=True):
+        bh = 44
+        draw.rounded_rectangle([x, y, x + bw, y + bh], radius=10, fill=color)
+        tw = draw.textlength(label, font=font) if hasattr(draw, "textlength") else 40
+        draw.text((x + (bw - tw) / 2, y + pad_y - 2), label, fill=TEXT_PRIMARY, font=font)
+        x += bw + gap
 
 
 def generate_profile_image(out_path: Path | None = None) -> Path:
-    """800×800 profile — clock at the minute before, readable at avatar size."""
+    """800×800 profile — RTR monogram, readable at avatar size."""
     from PIL import Image, ImageDraw
 
     out = out_path or PROFILE_PATH
@@ -113,73 +106,63 @@ def generate_profile_image(out_path: Path | None = None) -> Path:
     draw = ImageDraw.Draw(img)
     cx, cy = size // 2, size // 2
 
-    # Outer glow rings
-    for r, alpha_color in (
-        (360, ACCENT_PURPLE),
-        (320, ACCENT_BLUE),
-    ):
-        draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=alpha_color, width=3)
+    for r, color, width in ((340, ACCENT, 4), (300, ACCENT_BRIGHT, 2)):
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=color, width=width)
 
-    _draw_clock_face(draw, cx, cy, 250, minute_before=True)
+    _, _, _, font_mono = _load_fonts(28, 24, 20, mono_lg=168)
+    mark = "RTR"
+    tw = draw.textlength(mark, font=font_mono) if hasattr(draw, "textlength") else 200
+    draw.text((cx - tw / 2, cy - 90), mark, fill=TEXT_PRIMARY, font=font_mono)
 
-    # Tiny series mark (legible on mobile)
-    font_sm = _load_fonts(28, 24, 20)[2]
-    label = "1 min"
-    tw = draw.textlength(label, font=font_sm) if hasattr(draw, "textlength") else 60
-    draw.text((cx - tw / 2, cy + 290), label, fill=TEXT_MUTED, font=font_sm)
+    _, font_md, font_sm, _ = _load_fonts(28, 34, 22)
+    sub = "30 sec"
+    sw = draw.textlength(sub, font=font_sm) if hasattr(draw, "textlength") else 80
+    draw.text((cx - sw / 2, cy + 40), sub, fill=TEXT_MUTED, font=font_sm)
+
+    _draw_verdict_pills(draw, cx, cy + 110, font_md)
 
     img.save(out, "PNG", optimize=True)
     return out
 
 
 def generate_banner_image(out_path: Path | None = None) -> Path:
-    """2560×1440 banner — Don't Blink horror eye, YouTube safe-zone centered."""
+    """2560×1440 banner — Rapid Tool Review, YouTube safe-zone centered."""
     from PIL import Image, ImageDraw
 
     out = out_path or BANNER_PATH
     out.parent.mkdir(parents=True, exist_ok=True)
     w, h = 2560, 1440
     img = Image.new("RGB", (w, h), BG_TOP)
-    _vertical_gradient(img, BG_TOP, "#1A1428")
+    _vertical_gradient(img, BG_TOP, "#0F172A")
     draw = ImageDraw.Draw(img)
 
-    cx, cy = w // 2, int(h * 0.46)
-    for r in (220, 270, 320):
-        draw.ellipse(
-            [cx - r, cy - r - 40, cx + r, cy + r - 40],
-            outline=ACCENT_BLUE if r == 220 else ACCENT_PURPLE,
-            width=3 if r == 220 else 1,
-        )
+    cx = w // 2
+    font_lg, font_md, font_sm, font_mono = _load_fonts(118, 52, 38, mono_lg=44)
 
-    font_lg, font_md, font_sm = _load_fonts(128, 52, 40)
+    eyebrow = "AI TOOL REVIEWS"
+    ew = draw.textlength(eyebrow, font=font_sm) if hasattr(draw, "textlength") else 400
+    draw.text(((w - ew) / 2, h * 0.28), eyebrow, fill=ACCENT_BRIGHT, font=font_sm)
 
-    eyebrow = "DON'T BLINK"
-    title = "Watch the whole thing."
-    sub = "terrifying horror Shorts · jumpscare at the end"
-    tag = "🔊 volume warning"
+    title = "Rapid Tool Review"
+    tw = draw.textlength(title, font=font_lg) if hasattr(draw, "textlength") else 1400
+    draw.text(((w - tw) / 2, h * 0.36), title, fill=TEXT_PRIMARY, font=font_lg)
 
-    ew = draw.textlength(eyebrow, font=font_sm) if hasattr(draw, "textlength") else 700
-    draw.text(((w - ew) / 2, h * 0.30), eyebrow, fill=TEXT_MUTED, font=font_sm)
-
-    tw = draw.textlength(title, font=font_lg) if hasattr(draw, "textlength") else 1200
-    draw.text(((w - tw) / 2, h * 0.38), title, fill=TEXT_PRIMARY, font=font_lg)
-
+    sub = "Honest AI tools · Fast verdicts · ~30 seconds"
     sw = draw.textlength(sub, font=font_md) if hasattr(draw, "textlength") else 1100
-    draw.text(((w - sw) / 2, h * 0.52), sub, fill=ACCENT_BLUE, font=font_md)
+    draw.text(((w - sw) / 2, h * 0.50), sub, fill=ACCENT, font=font_md)
 
-    pillars = "conversations · work dread · boundaries · after the slip"
-    pw = draw.textlength(pillars, font=font_sm) if hasattr(draw, "textlength") else 900
-    draw.text(((w - pw) / 2, h * 0.60), pillars, fill=TEXT_MUTED, font=font_sm)
+    _draw_verdict_pills(draw, cx, int(h * 0.58), font_sm, gap=36)
 
-    gw = draw.textlength(tag, font=font_sm) if hasattr(draw, "textlength") else 500
-    draw.text(((w - gw) / 2, h * 0.68), tag, fill=ACCENT_PURPLE, font=font_sm)
+    handle = "@RapidToolReview"
+    hw = draw.textlength(handle, font=font_mono) if hasattr(draw, "textlength") else 500
+    draw.text(((w - hw) / 2, h * 0.68), handle, fill=TEXT_MUTED, font=font_mono)
 
     img.save(out, "PNG", optimize=True)
     return out
 
 
-def ensure_brand_assets() -> tuple[Path, Path]:
-    """Return Don't Blink eye assets; use committed PNGs when present."""
-    if PROFILE_PATH.exists() and BANNER_PATH.exists():
+def ensure_brand_assets(*, force: bool = False) -> tuple[Path, Path]:
+    """Return Rapid Tool Review assets; regenerate when missing or force=True."""
+    if not force and PROFILE_PATH.exists() and BANNER_PATH.exists():
         return PROFILE_PATH, BANNER_PATH
     return generate_profile_image(), generate_banner_image()
