@@ -17,3 +17,12 @@ data/codex_index.json
 data/backups/
 *.log
 .DS_Store
+
+# Runtime / local ops (do not commit)
+data/mem0/
+data/telemetry/*.jsonl
+data/browser_screenshots/
+logs/
+data/invideo_pending*.json
+data/tiktok_oauth_pending.json
+data/facebook_api.json
