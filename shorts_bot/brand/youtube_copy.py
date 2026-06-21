@@ -22,11 +22,17 @@ class YouTubeCopyFields:
 
 _SECTION_KEYS = (
     "CHANNEL NAME",
+    "YOUTUBE HANDLE",
+    "URL",
     "DESCRIPTION",
     "TAGLINE",
     "SERIES",
     "KEYWORDS",
     "PINNED COMMENT",
+    "TITLE SUFFIX",
+    "BANNER HEADLINE",
+    "BANNER SUBLINE",
+    "UPLOAD DESCRIPTION TEMPLATE",
 )
 
 
@@ -58,6 +64,9 @@ def parse_youtube_copy(text: str) -> YouTubeCopyFields:
         sections[current_key] = "\n".join(current_lines).strip()
 
     name = sections.get("CHANNEL NAME", "").strip()
+    # Name is always a single line in Studio
+    if "\n" in name:
+        name = name.splitlines()[0].strip()
     description = sections.get("DESCRIPTION", "").strip()
     # Collapse extra blank lines in description but keep paragraph breaks
     if description:
