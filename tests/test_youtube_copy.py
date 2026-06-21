@@ -24,6 +24,19 @@ def test_parse_youtube_copy_fields():
     assert fields.pinned_comment == "Which topic next?"
 
 
+def test_parse_channel_name_ignores_handle_and_url_lines():
+    text = """CHANNEL NAME: Rapid Tool Review
+YOUTUBE HANDLE: @RapidToolReview
+URL: https://www.youtube.com/@RapidToolReview
+
+DESCRIPTION:
+Honest AI tool reviews.
+"""
+    fields = parse_youtube_copy(text)
+    assert fields.channel_name == "Rapid Tool Review"
+    assert "Honest AI tool reviews" in fields.description
+
+
 def test_brand_loader_youtube_fields():
     brand = ChannelBrand()
     fields = brand.youtube_fields()

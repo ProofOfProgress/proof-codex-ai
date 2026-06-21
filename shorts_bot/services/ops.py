@@ -663,13 +663,20 @@ class BotOperations:
             if use_brand_file and not channel_name and not description:
                 result = operator.apply_from_brand_file()
             else:
-                result = operator.apply(channel_name=name, description=desc)
+                result = operator.apply(
+                    channel_name=name,
+                    description=desc,
+                    profile_path=profile if profile.exists() else None,
+                    banner_path=banner if banner.exists() else None,
+                )
             return {
                 "ok": result.status in {"applied", "partial"},
                 "status": result.status,
                 "message": result.message,
                 "name_updated": result.name_updated,
                 "description_updated": result.description_updated,
+                "profile_updated": result.profile_updated,
+                "banner_updated": result.banner_updated,
                 "channel_name": result.channel_name,
                 "screenshot": result.screenshot_path,
                 "url": result.current_url,

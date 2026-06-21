@@ -20,7 +20,7 @@ def main() -> None:
     parser.add_argument(
         "--browser",
         action="store_true",
-        help="Fallback to Playwright Studio automation (legacy).",
+        help="Apply everything via Playwright Studio (skip API).",
     )
     args = parser.parse_args()
 
@@ -35,12 +35,38 @@ def main() -> None:
     )
 
     ops = BotOperations()
-    result = ops.apply_channel_branding(
-        channel_name=args.channel_name,
-        description=args.description,
-        use_brand_file=not (args.channel_name or args.description),
-        use_browser_fallback=args.browser,
-    )
+    if args.browser:
+        from shorts_bot.brand.assets import ensure_brand_assets
+        from shorts_bot.config import settings
+        from shorts_bot.youtube.channel_branding import YouTubeChannelBranding
+
+        ensure_brand_assets()
+        operator = YouTubeChannelBranding(
+            profile_dir=settings.browser_profile_dir,
+            headless=True,
+        )
+        if args.channel_name or args.description:
+            profile, banner = ensure_brand_assets()
+            result_obj = operator.apply(
+                channel_name=args.channel_name,
+                description=args.description,
+                profile_path=profile,
+                banner_path=banner,
+            )
+        else:
+            result_obj = operator.apply_from_brand_file()
+        result = {
+            "ok": result_obj.status in {"applied", "partial"},
+            "status": result_obj.status,
+            "message": result_obj.for_human(),
+        }
+    else:
+        result = ops.apply_channel_branding(
+            channel_name=args.channel_name,
+            description=args.description,
+            use_brand_file=not (args.channel_name or args.description),
+            use_browser_fallback=args.browser,
+        )
     style = "green" if result.get("ok") else "yellow"
     console.print(Panel(result.get("message", "Done"), title=result.get("status", "done"), border_style=style))
 
