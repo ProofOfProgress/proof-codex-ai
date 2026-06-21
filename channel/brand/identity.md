@@ -1,10 +1,10 @@
-# Channel identity — AI Product Reviews
+# Channel identity — Rapid Tool Review
 
-> **Locked 2026-06.** Same YouTube channel, rebrand in place. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`
+> **Locked 2026-06.** Display name: **Rapid Tool Review** · Handle: **@RapidToolReview** · Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`
 
 ## One-line pitch
 
-**Real AI product reviews — tested, honest, Pay / Skip / Wait in 30 seconds.**
+**Rapid Tool Review — honest AI tool verdicts in 30 seconds (Pay / Skip / Wait).**
 
 ## Niche hierarchy (locked)
 
@@ -16,7 +16,7 @@
 
 ## Presenter
 
-**InVideo AI twin** — consistent face + voice. Declare synthetic media on every upload.
+**InVideo** — voice + screen UI for now (no twin yet). Twin optional later. Disclose synthetic media per YouTube policy when used.
 
 ## Tone
 

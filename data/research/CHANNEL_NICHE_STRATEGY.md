@@ -93,9 +93,9 @@ AI / Tech
 
 ## Brand (working)
 
-**Series name:** AI Product Reviews (Shorts)  
-**Tagline:** Honest AI in 30 seconds.  
-**Channel name in Studio:** TBD — update when owner picks (ideas: *Skip It*, *Actually AI*, keep current name temporarily)
+**Series name:** Rapid Tool Review (Shorts)  
+**Tagline:** Honest AI tools. Fast verdicts.  
+**Channel name in Studio:** **Rapid Tool Review** · **@RapidToolReview** (owner verified no similar channel on YouTube, 2026-06)
 
 **Bio:** Real AI product reviews — tested, honest, no hype. Pay / Skip / Wait in 30 seconds.
 

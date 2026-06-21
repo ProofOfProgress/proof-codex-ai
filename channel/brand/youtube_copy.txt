@@ -1,23 +1,26 @@
-CHANNEL NAME: TBD
+CHANNEL NAME: Rapid Tool Review
+YOUTUBE HANDLE: @RapidToolReview
 
 DESCRIPTION:
-Honest AI product reviews in 30 seconds — real tools, real verdicts, no hype.
+Honest AI tool reviews in ~30 seconds — real products, real verdicts, no hype.
 
-You're here if you're tired of "THIS CHANGES EVERYTHING" and want someone to actually test the product before you pay.
+You're here if you're tired of "THIS CHANGES EVERYTHING" and want someone to actually test the tool before you pay.
 
 What you'll get:
-• ~30s reviews of real AI products (ChatGPT, InVideo, Notion AI, and whatever launches next)
+• ~30s reviews of real AI tools (ChatGPT, InVideo, Notion AI, and whatever launches next)
 • Clear verdict every time: Pay, Skip, or Wait
 • New Shorts regularly
 
-AI presenter on uploads · synthetic media disclosed per YouTube policy
+Voice + screen reviews · synthetic media disclosed per YouTube policy when applicable
 
-💬 Which AI product should I review next? One sentence in the comments.
+💬 Which AI tool should I review next? One sentence in the comments.
 
-TAGLINE: Honest AI in 30 seconds.
+TAGLINE: Honest AI tools. Fast verdicts.
 
-SERIES: AI Product Reviews
+SERIES: Rapid Tool Review
 
-KEYWORDS: ai product review ai tools review chatgpt review invideo review tech shorts honest ai review ai app review software review pay or skip ai tools 2026
+KEYWORDS: ai tool review rapid tool review chatgpt review invideo review tech shorts honest ai review ai app review software review pay skip wait ai tools 2026
 
-PINNED COMMENT: What AI product should I review next? Name one tool — I read every comment.
+PINNED COMMENT: What AI tool should I review next? Name one — Pay, Skip, or Wait in 30 seconds.
+
+TITLE SUFFIX: | Rapid Tool Review
