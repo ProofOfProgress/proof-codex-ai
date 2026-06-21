@@ -4,4 +4,6 @@
 
 To resume: say **"resume daily loop"** after phone + credits fixed.
 
+See `docs/SYSTEM_UPGRADES.md` for what's built while paused.
+
 ---
