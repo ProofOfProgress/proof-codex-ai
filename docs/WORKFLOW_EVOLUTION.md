@@ -1,74 +1,61 @@
-# Workflow evolution — north star pillar
+# Workflow evolution — public learning stack
 
-The daily loop is not a fixed script. **Steps and parameters evolve** from run outcomes and YouTube analytics — the same idea as [EvoAgentX](https://github.com/EvoAgentX/EvoAgentX) (self-evolving agent workflows), applied to our InVideo → YouTube factory.
+The daily loop uses **public systems** for memory and evolution (not freestyle if/else).
 
-## What evolves (no LLM weight training)
+## Installed stack
 
-| Layer | What changes | Trigger |
-|-------|----------------|---------|
-| **Step params** | Hook template, render wait time | Hook punish → rotate template; render timeout → +600s wait |
-| **Step proposals** | Add Drive-fetch fallback, reorder steps | InVideo credit/paywall failures |
-| **Content rules** | `avoid:*`, `repeat:*`, agent memory | Existing self-training (draft + sync) |
+| System | Package | Role |
+|--------|---------|------|
+| **Mem0** | `mem0ai` | Long-term semantic memory — hooks, workflow failures, rewards |
+| **TextGrad** | `textgrad` | Prompt/hook template optimization (same engine EvoAgentX uses) |
+| **LiteLLM** | `litellm` | Routes TextGrad to Gemini/OpenAI |
 
-We keep the base LLM frozen. Learning = **workflow JSON version bumps** + **training rules** + **episodes**.
+Optional full framework: `pip install -r requirements-learning.txt` includes notes for EvoAgentX (heavy — torch). We use **TextGrad directly** instead of pulling the full EvoAgentX dependency tree into daily ops.
 
-## Default workflow
+## What was removed (Phase 2 purge)
 
-Seed file: `data/workflows/daily_invideo_v1.json`
+Homemade render and Peripheral horror production code:
 
-Steps (in order):
+- Blender, Kling, Recraft, Replicate I2V, `render_video.py`
+- Horror lane, world lore, jumpscare clip pipeline
+- TurboScribe-first render path
 
-1. `pick_topic` — product rotation  
-2. `build_brief` — hook template + Pay/Skip/Wait brief  
-3. `save_draft`  
-4. `auto_approve`  
-5. `invideo_project` — MCP start  
-6. `invideo_render` — browser ship/download  
-7. `youtube_upload`  
+**Kept:** InVideo (`shorts_bot/invideo/`), YouTube upload, `RewardEngine`, `workflow_runner`, SQLite drafts/uploads.
 
-Active version lives in SQLite `channel_state` key `workflow:daily_invideo:active`. Each mutation bumps `version`.
+## Config
+
+```env
+MEM0_ENABLED=true
+TEXTGRAD_EVOLUTION_ENABLED=true
+WORKFLOW_EVOLUTION_ENABLED=true
+PIPELINE_BACKEND=invideo
+```
+
+Mem0 stores vectors under `data/mem0/` (local Qdrant). Uses Gemini when `GEMINI_API_KEY` is set.
+
+## Flow
+
+```
+Daily run → workflow_runner → record run
+         → Mem0 remembers failures
+         → TextGrad evolves hook on analytics punish (fallback: rotate pool)
+
+Analytics sync → RewardEngine → TextGrad + Mem0 + training rules
+Draft context ← Mem0 recall + SQLite rules
+```
 
 ## Inspect
 
 ```bash
 python3 -m shorts_bot.learning.workflow_cli status
-python3 -m shorts_bot.learning.workflow_cli history
-python3 -m shorts_bot.learning.workflow_cli json
+python3 -m shorts_bot.memory.memory_cli list
 ```
 
-## Config
+## Legacy pipeline
 
-```env
-WORKFLOW_EVOLUTION_ENABLED=true   # default on
-SELF_TRAINING_ENABLED=true        # rules + episodes (companion loop)
+Calling homemade render raises `LegacyPipelineRetired`. Use:
+
+```bash
+python3 -m shorts_bot.production.invideo_daily_cli
+python3 -m shorts_bot.production.upload_canonical_cli --draft-id N --video ...
 ```
-
-## Loop diagram
-
-```
-Daily tick → run enabled steps → record workflow_runs
-                    ↓
-         evolve_after_daily_run (params + proposals)
-                    ↓
-YouTube sync → rewards → evolve_from_rewards (hook template)
-                    ↓
-         reflect_after_sync (rules → agent memory)
-                    ↓
-         Next tick uses workflow vN+1
-```
-
-## Public GitHub references (research)
-
-- **EvoAgentX** — workflow + prompt + topology evolution  
-- **EverOS / Memento** — episodic memory (we use `learning_episodes`)  
-- **Reflexio** — learn from corrections (maps to draft Yes/No)  
-
-See also `docs/AUTONOMOUS_SELF_TRAINING_RESEARCH.md` and `docs/SELF_LEARNING.md`.
-
-## Not yet autonomous
-
-- No automatic step reorder without improvement approval (except safe numeric params)  
-- No A/B workflow variants in parallel  
-- Structural steps (e.g. `drive_fetch`) are proposed, not auto-inserted  
-
-Those are the next increment after credits + uploads flow again.

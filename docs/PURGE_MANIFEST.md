@@ -37,20 +37,17 @@
 
 ## DEPRECATE — Phase 2 code removal (after InVideo wired + tests updated)
 
-Do **not** delete in one shot — imports and tests still reference these.
+**Status: DONE (2026-06)** — homemade render modules deleted; `PIPELINE_BACKEND=invideo` only.
 
 | Module | Reason |
 |--------|--------|
 | `shorts_bot/production/blender/` | Homemade 3D — abandoned |
-| Recraft / Replicate I2V | `render_ai_images`, `images/recraft*`, `render_ai_video` |
-| Kling pipeline | `render_kling`, `kling_setup_cli` |
-| TurboScribe browser sync | Broken audio-first path |
-| Horror-specific | `horror_guard`, `horror_lane`, `horror_sfx_mix`, `scare_pillar`, `world.py`, `micro_jumpscare_render` |
-| Lost Boy / Recraft labs | `lost_boy_image_lab`, `recraft_setup_cli` |
-| Resemble horror VO | `tts/horror_voice`, `edge_horror` — InVideo voice replaces |
-| Meta/Facebook (optional) | Keep in repo but deprioritize until YouTube prints |
+| Recraft / Replicate I2V | `render_ai_images`, `render_ai_video` — deleted |
+| Kling pipeline | `render_kling` — deleted |
+| Horror-specific | `horror_lane`, `world.py`, jumpscare render — deleted or stubbed |
+| `render_video.py` | Replaced by InVideo |
 
-**Phase 2 gate:** `PIPELINE_BACKEND=invideo` ships one Short end-to-end → then delete deprecated modules + fix tests.
+**Learning stack:** Mem0 + TextGrad (see `docs/WORKFLOW_EVOLUTION.md`). Custom `workflow_evolve` delegates to public systems.
 
 ---
 

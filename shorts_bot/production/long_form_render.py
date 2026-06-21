@@ -31,7 +31,7 @@ class CompilationRender:
 
 
 def probe_duration(video_path: Path) -> float:
-    from shorts_bot.production.render_video import _probe_duration
+    from shorts_bot.production.media_probe import _probe_duration
 
     return _probe_duration(video_path)
 

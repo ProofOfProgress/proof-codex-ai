@@ -46,41 +46,6 @@ def test_ffmpeg_mode_default(monkeypatch):
     assert not burn_captions_on_frames()
 
 
-def test_render_ai_skips_frame_caption_in_ffmpeg_mode(tmp_path: Path, monkeypatch):
-    from shorts_bot.config import Settings
-    from shorts_bot.production.image_prompts import ImageBrief
-    from shorts_bot.production.render_ai_images import render_ai_frame
-
-    fake = Settings(caption_mode="ffmpeg")
-    monkeypatch.setattr("shorts_bot.config.settings", fake)
-    monkeypatch.setattr("shorts_bot.production.captions.settings", fake)
-
-    called = {"n": 0}
-
-    def fake_caption(path, text):
-        called["n"] += 1
-
-    def fake_generate(prompt, path):
-        from PIL import Image
-
-        Image.new("RGB", (1080, 1920), "#0B1020").save(path, "PNG")
-        return "replicate/test"
-
-    monkeypatch.setattr(
-        "shorts_bot.production.render_ai_images.apply_bottom_caption",
-        fake_caption,
-    )
-    monkeypatch.setattr(
-        "shorts_bot.production.render_ai_images.generate_image",
-        fake_generate,
-    )
-
-    brief = ImageBrief(0, 5, "00.00", "Hello there.", "prompt")
-    out = tmp_path / "00.00.png"
-    assert render_ai_frame(brief, out)
-    assert called["n"] == 0
-
-
 def test_ffmpeg_subtitles_filter_path():
     p = Path("/tmp/test subtitles.ass")
     vf = ffmpeg_subtitles_filter(p)

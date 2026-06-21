@@ -49,9 +49,12 @@ class ChannelBrand:
         )
 
     def world_summary(self) -> str:
-        from shorts_bot.production.world import world_summary_for_brand
-
-        return world_summary_for_brand()
+        if self.world_path.exists():
+            return self.world_path.read_text(encoding="utf-8")[:2000]
+        return (
+            "Channel: AI/tech product reviews (~30s). Pay / Skip / Wait verdict format. "
+            "InVideo twin production."
+        )
 
     def draft_instructions(self) -> str:
         parts = [self.identity_summary()]

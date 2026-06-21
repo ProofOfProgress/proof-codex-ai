@@ -416,6 +416,20 @@ class MemoryExtensions:
                     _utc_now(),
                 ),
             )
+        if settings.mem0_enabled:
+            try:
+                from shorts_bot.learning.mem0_bridge import remember
+
+                remember(
+                    reflection[:2000],
+                    metadata={
+                        "episode_type": episode_type,
+                        "verdict": verdict or "",
+                        "video_label": (video_label or "")[:120],
+                    },
+                )
+            except Exception:
+                pass
 
     def recent_episode_reflections(self, *, limit: int = 3) -> list[str]:
         with self._conn() as conn:
@@ -564,7 +578,11 @@ class MemoryExtensions:
         if settings.self_training_enabled:
             try:
                 from shorts_bot.learning.learned_file import LearnedFile
+                from shorts_bot.learning.mem0_bridge import recall_context_block
 
+                mem0_block = recall_context_block()
+                if mem0_block:
+                    parts.append(mem0_block)
                 tail = LearnedFile(settings.learned_path).read_tail(max_chars=1200)
                 if tail and "No learned rules" not in tail:
                     parts.append(f"CONSOLIDATED JOURNAL (excerpt):\n{tail[-1200:]}")
