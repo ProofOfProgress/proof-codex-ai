@@ -1,116 +1,60 @@
-# Daily post — one prompt, runs on a schedule
+# Daily post — what actually works
 
-You want: **tell the bot once → every day at a set time → make + post a Short.**
-
-InVideo made the old “one-click daily” harder (credits, browser, MP4 handoff). This doc gives you **two ways** to schedule it — pick one.
+Cursor **Automations** at cursor.com/automations do **not** work for everyone (plan, repo, or UI bugs). Skip them if you already tried.
 
 ---
 
-## Recommended: Cursor Automations (cloud)
+## Plan A — One message when you’re in Cursor (works today)
 
-Works even when your laptop is off. The agent runs in the cloud on a timer.
+Open Cursor → chat → type:
 
-### Setup (one time, ~5 minutes)
+**`daily ship`**
 
-1. Open **https://cursor.com/automations**
-2. Click **New automation**
-3. **Name:** `Daily AI product Short`
-4. **Trigger:** **Schedule (cron)**
-   - Example: every day at **9:00 AM Pacific** → cron `0 17 * * *` (17:00 UTC = 9am PT)
-   - [Cron helper](https://crontab.guru/) if you need another time
-5. **Repository:** `ProofOfProgress/proof-codex-ai`
-6. **Prompt:** copy everything from `data/DAILY_AUTOMATION_PROMPT.txt` in the repo (or below)
-7. **Save** and turn it **On**
+Same as running the full daily pipeline (pick product → InVideo → upload if MP4 exists).
 
-### Copy-paste prompt (daily post)
-
-```
-Repo: ProofOfProgress/proof-codex-ai
-
-Run the InVideo daily ship — one AI product review Short:
-
-python3 -m shorts_bot.production.invideo_daily_cli
-
-Rules:
-- InVideo is the soul of the channel — do not use old Blender/Recraft render.
-- If InVideo credits block Generate: note in data/ALERTS.md and tell owner to paste a Google Drive link for that draft.
-- If MP4 exists but upload skipped: run upload_canonical_cli for that draft.
-- Max 1 YouTube upload per 24h (YPP_SAFE_MODE).
-- Post a 5-line summary: product, draft #, project URL, YouTube link or what blocked.
-
-Read docs/PRIORITIES.md — top 4 only.
-```
-
-That’s it. Same prompt every day. Change the cron if you want a different time.
+Do this once a day when you can. Set a **phone alarm** or calendar reminder: *“Message Cursor: daily ship”* — that’s your schedule.
 
 ---
 
-## Option B: Bot runs daily while web UI is up
+## Plan B — Slack (if you use #peripheral-ops)
 
-If the VM or home machine runs `python3 -m shorts_bot.web` 24/7:
+With web UI running and Slack connected:
 
-In `.env`:
+```
+@cursor agent run daily ship on proof-codex-ai
+```
+
+Or post in ops channel if autonomy is wired.
+
+---
+
+## Plan C — Home PC always on (advanced)
+
+If your home machine runs the bot 24/7, see `docs/RUN_AT_HOME.md` and in `.env`:
 
 ```env
 PIPELINE_BACKEND=invideo
 AUTO_DAILY_ENABLED=true
 AUTO_DAILY_HOUR=17
 AUTO_DAILY_MINUTE=0
-AUTO_APPROVE_DRAFTS=true
-AUTO_UPLOAD_YOUTUBE=true
-YOUTUBE_UPLOAD_VISIBILITY=public
 ```
 
-Times are **UTC**. Restart web UI after editing.
-
-Manual test anytime:
-
-```bash
-python3 -m shorts_bot.production.invideo_daily_cli
-```
+Then `python3 -m shorts_bot.web` stays running — bot fires daily internally. **Not for the cloud VM** (no cron there).
 
 ---
 
-## What one daily run does
+## What blocks fully hands-off daily
 
-| Step | Who |
-|------|-----|
-| Pick next AI product (ChatGPT Plus, NotebookLM, …) | Bot |
-| Send brief to InVideo (master prompt + product) | Bot |
-| Generate + download MP4 in browser | Bot (needs InVideo login + credits) |
-| Upload to YouTube | Bot |
-| Log failure to `data/ALERTS.md` | Bot |
+| Blocker | Fix |
+|---------|-----|
+| InVideo credits | Upgrade or generate on laptop |
+| No MP4 | Drive link → paste in chat |
+| Automations broken | Use Plan A (phone reminder) |
 
 ---
 
-## When InVideo blocks you (credits / login)
+## First priority before daily habit
 
-The daily run **won’t silently fail** — it writes to `data/ALERTS.md`.
+**Ship one video:** laptop InVideo → Download → Drive link → paste here → I upload.
 
-**Your fallback (no file attach in Cursor):**
-
-1. Open the project URL from the alert on your laptop  
-2. Generate → Download  
-3. Google Drive → share link → paste in chat  
-
-Agent runs:
-
-```bash
-python3 -m shorts_bot.invideo.fetch_url_cli --draft-id N 'DRIVE_URL'
-python3 -m shorts_bot.production.upload_canonical_cli --draft-id N --video data/production/draft_N/final_short.mp4
-```
-
----
-
-## Change the time
-
-- **Cursor Automation:** edit the cron on [cursor.com/automations](https://cursor.com/automations)  
-- **Web UI:** change `AUTO_DAILY_HOUR` / `AUTO_DAILY_MINUTE` in `.env` (UTC)
-
----
-
-## One-liner you can say in chat anytime
-
-> **“Run daily ship”**
-
-Same as `python3 -m shorts_bot.production.invideo_daily_cli`.
+Daily schedule only matters after one full loop works.
