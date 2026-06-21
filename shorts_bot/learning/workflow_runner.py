@@ -248,6 +248,7 @@ def run_daily_invideo_workflow(
     # --- youtube_upload ---
     upload_step = wf.step("youtube_upload")
     do_upload = settings.auto_upload_youtube if upload is None else upload
+    upload_failed = False
     if upload_step and upload_step.enabled and has_video and do_upload:
         t0 = time.monotonic()
         try:
@@ -260,7 +261,8 @@ def run_daily_invideo_workflow(
         except Exception as exc:
             step_results.append(_record_step("youtube_upload", False, str(exc)[:300], t0))
             messages.append(f"YouTube upload failed: {exc}")
-            has_video = False
+            messages.append(f"MP4 kept for retry: {video_path}")
+            upload_failed = True
     elif not has_video:
         messages.append(
             "No MP4 on disk — stopped before upload. "
@@ -279,7 +281,7 @@ def run_daily_invideo_workflow(
         video_path if has_video else None,
         upload_url,
         upload,
-        ok=ok,
+        ok=False if upload_failed else ok,
     )
 
 
