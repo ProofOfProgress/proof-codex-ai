@@ -62,8 +62,9 @@ def fetch_video_metrics(days: int = 28, max_videos: int = 20) -> list[dict[str, 
                 "likes": int(float(data.get("likes", 0) or 0)),
                 "comments": int(float(data.get("comments", 0) or 0)),
                 "retention_rate": avg_pct,
-                # Shorts swipe-away not in Analytics API — estimate from retention for scoring
-                "viewed_vs_swiped_away": min(95.0, avg_pct * 1.15) if avg_pct else 0,
+                # Real Shorts "viewed vs swiped away" is Studio-only — not in Analytics API.
+                # Do not guess; RewardEngine scores retention/views when swipe is absent.
+                "swipe_source": "unavailable",
             }
         )
     return results

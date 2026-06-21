@@ -42,7 +42,9 @@ class RewardEngine:
     def score(self, video_label: str, metrics: dict[str, Any]) -> RewardResult:
         self.memory.save_analytics(video_label, metrics)
 
-        swipe = float(metrics.get("viewed_vs_swiped_away", metrics.get("swipe_away_inverse", 0)))
+        swipe = float(metrics.get("viewed_vs_swiped_away", metrics.get("swipe_away_inverse", 0)) or 0)
+        swipe_source = str(metrics.get("swipe_source", "manual" if swipe else "unavailable"))
+        use_swipe = swipe > 0 and swipe_source not in ("unavailable", "estimated")
         retention = float(metrics.get("retention_rate", metrics.get("average_view_percentage", 0)))
         views = int(metrics.get("views", 0))
         likes = int(metrics.get("likes", 0))
@@ -60,7 +62,7 @@ class RewardEngine:
             breakdown.append({"factor": factor, "delta": round(delta, 3), "note": note})
             reasons.append(note)
 
-        if swipe > 0:
+        if use_swipe:
             if swipe >= 70:
                 bump(0.35, "swipe_away", f"Strong swipe-away survival ({swipe:.0f}% viewed)")
             elif swipe < 50:
@@ -68,6 +70,8 @@ class RewardEngine:
             else:
                 breakdown.append({"factor": "swipe_away", "delta": 0, "note": f"Mid swipe-away ({swipe:.0f}%)"})
                 reasons.append(f"Mid swipe-away ({swipe:.0f}%)")
+        elif retention <= 0 and views <= 0:
+            reasons.append("Insufficient metrics (swipe unavailable from API; add Studio numbers via score API)")
 
         if retention > 0:
             if retention >= 60:
@@ -78,13 +82,19 @@ class RewardEngine:
                 breakdown.append({"factor": "retention", "delta": 0, "note": f"Mid retention ({retention:.0f}%)"})
                 reasons.append(f"Mid retention ({retention:.0f}%)")
 
-        if baseline:
+        if baseline and use_swipe:
             b_swipe = baseline.get("viewed_vs_swiped_away", 0)
             b_ret = baseline.get("retention_rate", 0)
             if swipe and b_swipe and swipe > b_swipe + 5:
                 bump(0.15, "channel_avg", "Beat your channel average on swipe-away")
             elif swipe and b_swipe and swipe < b_swipe - 5:
                 bump(-0.15, "channel_avg", "Worse than your channel average on swipe-away")
+            if retention and b_ret and retention > b_ret + 5:
+                bump(0.15, "channel_avg", "Beat your channel average on retention")
+            elif retention and b_ret and retention < b_ret - 5:
+                bump(-0.15, "channel_avg", "Worse than your channel average on retention")
+        elif baseline:
+            b_ret = baseline.get("retention_rate", 0)
             if retention and b_ret and retention > b_ret + 5:
                 bump(0.15, "channel_avg", "Beat your channel average on retention")
             elif retention and b_ret and retention < b_ret - 5:
@@ -102,7 +112,7 @@ class RewardEngine:
         else:
             verdict = "neutral"
 
-        diagnosis = self._diagnose(swipe, retention, verdict)
+        diagnosis = self._diagnose(swipe, retention, verdict, use_swipe=use_swipe)
         reason = "; ".join(reasons) if reasons else "Insufficient metrics"
 
         result = RewardResult(
@@ -151,9 +161,9 @@ class RewardEngine:
         return out
 
     @staticmethod
-    def _diagnose(swipe: float, retention: float, verdict: str) -> str:
+    def _diagnose(swipe: float, retention: float, verdict: str, *, use_swipe: bool = True) -> str:
         if verdict == "punish":
-            if swipe and swipe < 50:
+            if use_swipe and swipe and swipe < 50:
                 return "Start upstream: hook and core idea likely failed (course lever 02)."
             if retention and retention < 40:
                 return "Middle/payoff issue — check script pacing and retention beats (lever 06)."
