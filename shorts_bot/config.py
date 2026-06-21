@@ -78,6 +78,29 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
 
+    # TikTok Content Posting API
+    tiktok_client_key: str | None = None
+    tiktok_client_secret: str | None = None
+    tiktok_token_path: Path = Path("data/tiktok_token.json")
+    tiktok_redirect_uri: str = "http://127.0.0.1:8091/"
+    tiktok_oauth_scopes: str = "user.info.basic,video.publish"
+    tiktok_privacy_level: str = ""  # empty = auto-pick from creator_info
+    tiktok_declare_aigc: bool = True
+    tiktok_disable_duet: bool = False
+    tiktok_disable_stitch: bool = False
+    tiktok_disable_comment: bool = False
+    auto_upload_tiktok: bool = False
+
+    # InVideo AI — MCP + browser production
+    invideo_api_key: str | None = None
+    invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
+    invideo_app_url: str = "https://ai.invideo.io"
+    invideo_default_platform: str = "youtube_shorts"
+    invideo_default_vibe: str = "professional"
+    invideo_default_audience: str = "AI curious adults"
+    invideo_twin_enabled: bool = True
+    invideo_copilot_url: str = ""  # saved workspace .../v40-copilot URL
+
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
     allow_free_tts_fallback: bool = False  # edge-tts only when True + Resemble missing
@@ -231,9 +254,11 @@ class Settings(BaseSettings):
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
     self_training_enabled: bool = True
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
+    workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
     auto_daily_enabled: bool = False  # enable only with human upload approval workflow
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
+    pipeline_backend: str = "invideo"  # invideo | legacy (homemade render — retired)
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
     auto_publish_hours: int = 0  # 0 = keep upload visibility (unlisted for manual review)
     quality_gate_blocks_upload: bool = True

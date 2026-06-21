@@ -7,7 +7,7 @@ import re
 from shorts_bot.config import settings
 from shorts_bot.memory.extensions import DevTask, Improvement, MemoryExtensions
 
-SAFE_IMPROVEMENT_CATEGORIES = frozenset({"hook", "retention", "drafting", "editing", "cta"})
+SAFE_IMPROVEMENT_CATEGORIES = frozenset({"hook", "retention", "drafting", "editing", "cta", "workflow"})
 RISKY_TEXT = re.compile(
     r"\b(login|oauth|password|payment|subscribe to paid|credit card|delete channel|change niche|"
     r"stop upload|new channel|vidIQ|turboscribe account|resemble account)\b",
@@ -25,6 +25,8 @@ def improvement_is_auto_approvable(imp: Improvement) -> bool:
     blob = f"{imp.title} {imp.description}"
     if RISKY_TEXT.search(blob):
         return False
+    if imp.source.startswith("workflow:"):
+        return imp.category == "workflow"
     if imp.source.startswith("reward:punish:"):
         return imp.category in ("hook", "retention", "editing")
     if imp.source.startswith("reward:reward:"):

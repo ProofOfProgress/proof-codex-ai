@@ -1,3 +1,7 @@
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Peripheral horror lane retired — see archive/peripheral/")
+
 from shorts_bot.drafts.generator import SYSTEM_PROMPT
 from shorts_bot.production.ai_video_prompts import visual_dna
 from shorts_bot.production.horror_lane import (

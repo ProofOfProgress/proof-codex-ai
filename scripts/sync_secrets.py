@@ -56,6 +56,9 @@ SYNC_VARS = (
     "KLING_MODE",
     "KLING_ASPECT_RATIO",
     "KLING_MULTI_SHOT",
+    "TIKTOK_CLIENT_KEY",
+    "TIKTOK_CLIENT_SECRET",
+    "INVIDEO_API_KEY",
 )
 
 # Sensible production defaults — written only when the key is absent from .env.

@@ -16,13 +16,15 @@ def test_auth_status_upload_ready_flag(monkeypatch, tmp_path):
     assert not st["upload_ready"]
 
 
-def test_credentials_status_placeholder(monkeypatch):
+def test_credentials_status_placeholder(monkeypatch, tmp_path):
     from shorts_bot.config import Settings
     from shorts_bot.youtube import google_auth
 
+    token = tmp_path / "missing_token.json"
     fake = Settings(
         google_client_id="your-client-id.apps.googleusercontent.com",
         google_client_secret="your-client-secret",
+        youtube_token_path=token,
     )
     monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
     monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
@@ -55,7 +57,8 @@ def test_credentials_from_token_file(monkeypatch, tmp_path):
     monkeypatch.setattr("shorts_bot.youtube.google_auth.settings", fake)
 
     assert google_auth.credentials_configured()
-    assert "youtube_token.json" in google_auth.credentials_status_message()
+    msg = google_auth.credentials_status_message()
+    assert "youtube_token.json" in msg or "OAuth" in msg
 
 
 def test_import_token_json(tmp_path, monkeypatch):

@@ -1,0 +1,47 @@
+{
+  "id": "daily_invideo",
+  "version": 1,
+  "description": "AI product review Short: topic → InVideo → YouTube. Steps evolve from run outcomes + analytics.",
+  "steps": [
+    {
+      "id": "pick_topic",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "build_brief",
+      "enabled": true,
+      "params": {
+        "hook_template": "Everyone's paying for {product} — I tested if it's worth it.",
+        "verdict_hint": "Pay, Skip, or Wait"
+      }
+    },
+    {
+      "id": "save_draft",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "auto_approve",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "invideo_project",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "invideo_render",
+      "enabled": true,
+      "params": {
+        "wait_render_sec": 2400
+      }
+    },
+    {
+      "id": "youtube_upload",
+      "enabled": true,
+      "params": {}
+    }
+  ]
+}

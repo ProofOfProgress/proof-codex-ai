@@ -23,6 +23,13 @@ console = Console()
 
 
 def run_daily(*, topic: str | None = None, upload: bool | None = None) -> str:
+    backend = (getattr(settings, "pipeline_backend", None) or "invideo").strip().lower()
+    if backend == "invideo":
+        from shorts_bot.production.invideo_daily import run_invideo_daily
+
+        result = run_invideo_daily(topic=topic, upload=upload)
+        return result.summary
+
     store = MemoryStore(settings.database_path)
     topic = topic or next_topic(store)
 
