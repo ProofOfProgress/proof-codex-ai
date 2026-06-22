@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 ASSETS_DIR = Path("channel/brand/assets")
@@ -94,8 +95,69 @@ def _draw_verdict_pills(draw, cx: int, y: int, font, *, gap: int = 28) -> None:
         x += bw + gap
 
 
+def _draw_ai_review_mark(draw, cx: int, cy: int, *, scale: float = 1.0) -> None:
+    """Universal AI signal: magnifying glass over a 3-node network (not one brand)."""
+    s = scale
+    lens_r = int(118 * s)
+    lens_cx, lens_cy = cx, cy - int(18 * s)
+
+    # Soft outer glow rings
+    for r_off, color, width in (
+        (int(24 * s), "#1E3A5F", int(10 * s)),
+        (int(12 * s), ACCENT, int(4 * s)),
+    ):
+        r = lens_r + r_off
+        draw.ellipse(
+            [lens_cx - r, lens_cy - r, lens_cx + r, lens_cy + r],
+            outline=color,
+            width=max(1, width),
+        )
+
+    # Lens fill + ring
+    draw.ellipse(
+        [lens_cx - lens_r, lens_cy - lens_r, lens_cx + lens_r, lens_cy + lens_r],
+        fill=_hex_rgb(BG_MID),
+        outline=_hex_rgb(ACCENT_BRIGHT),
+        width=max(2, int(10 * s)),
+    )
+
+    # Neural nodes inside lens (triangle layout)
+    node_r = max(2, int(14 * s))
+    nodes = [
+        (lens_cx, lens_cy - int(42 * s)),
+        (lens_cx - int(52 * s), lens_cy + int(34 * s)),
+        (lens_cx + int(52 * s), lens_cy + int(34 * s)),
+    ]
+    for i, j in ((0, 1), (0, 2), (1, 2)):
+        draw.line([nodes[i], nodes[j]], fill=_hex_rgb(ACCENT), width=max(2, int(6 * s)))
+    for nx, ny in nodes:
+        draw.ellipse(
+            [nx - node_r, ny - node_r, nx + node_r, ny + node_r],
+            fill=_hex_rgb(TEXT_PRIMARY),
+            outline=_hex_rgb(ACCENT_BRIGHT),
+            width=max(1, int(3 * s)),
+        )
+
+    # Handle — bottom-right from lens
+    angle = math.radians(38)
+    hx0 = lens_cx + int(lens_r * 0.62 * math.cos(angle))
+    hy0 = lens_cy + int(lens_r * 0.62 * math.sin(angle))
+    hx1 = hx0 + int(92 * s)
+    hy1 = hy0 + int(92 * s)
+    draw.line(
+        [(hx0, hy0), (hx1, hy1)],
+        fill=_hex_rgb(ACCENT_BRIGHT),
+        width=max(3, int(18 * s)),
+    )
+    cap = max(2, int(10 * s))
+    draw.ellipse(
+        [hx1 - cap, hy1 - cap, hx1 + cap, hy1 + cap],
+        fill=_hex_rgb(ACCENT_BRIGHT),
+    )
+
+
 def generate_profile_image(out_path: Path | None = None) -> Path:
-    """800×800 profile — RTR monogram, readable at avatar size."""
+    """800×800 profile — AI magnifier mark, readable at YouTube avatar size."""
     from PIL import Image, ImageDraw
 
     out = out_path or PROFILE_PATH
@@ -104,23 +166,7 @@ def generate_profile_image(out_path: Path | None = None) -> Path:
     img = Image.new("RGB", (size, size), BG_TOP)
     _vertical_gradient(img, BG_TOP, BG_MID)
     draw = ImageDraw.Draw(img)
-    cx, cy = size // 2, size // 2
-
-    for r, color, width in ((340, ACCENT, 4), (300, ACCENT_BRIGHT, 2)):
-        draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=color, width=width)
-
-    _, _, _, font_mono = _load_fonts(28, 24, 20, mono_lg=168)
-    mark = "RTR"
-    tw = draw.textlength(mark, font=font_mono) if hasattr(draw, "textlength") else 200
-    draw.text((cx - tw / 2, cy - 90), mark, fill=TEXT_PRIMARY, font=font_mono)
-
-    _, font_md, font_sm, _ = _load_fonts(28, 34, 22)
-    sub = "30 sec"
-    sw = draw.textlength(sub, font=font_sm) if hasattr(draw, "textlength") else 80
-    draw.text((cx - sw / 2, cy + 40), sub, fill=TEXT_MUTED, font=font_sm)
-
-    _draw_verdict_pills(draw, cx, cy + 110, font_md)
-
+    _draw_ai_review_mark(draw, size // 2, size // 2 + 20, scale=1.0)
     img.save(out, "PNG", optimize=True)
     return out
 
