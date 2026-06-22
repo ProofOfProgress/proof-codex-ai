@@ -111,7 +111,8 @@ def _open_download_modal(page) -> None:
     if not btn.count():
         btn = page.get_by_text("Download", exact=True)
     btn.first.click(force=True, timeout=30_000)
-    page.wait_for_selector("text=Download Settings", timeout=30_000)
+    time.sleep(3)
+    page.wait_for_selector("text=Download Settings", timeout=60_000)
 
 
 def _configure_download_options(
