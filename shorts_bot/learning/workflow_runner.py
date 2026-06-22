@@ -239,11 +239,28 @@ def run_daily_invideo_workflow(
                 msg,
                 detail=(
                     f"draft={draft_id} project={project_url} workflow=v{wf.version} — "
-                    "If credits exhausted: Generate on laptop → Drive link → fetch_url_cli"
+                    "If credits exhausted: Generate on laptop → Drive inbox folder (or fetch_url_cli)"
                 ),
             )
 
     has_video = video_path.is_file() and video_path.stat().st_size > 50_000
+
+    # --- drive_inbox (laptop export → Drive folder → auto pull) ---
+    if not has_video:
+        t0 = time.monotonic()
+        try:
+            from shorts_bot.drive.inbox import try_pull_for_draft
+
+            pull = try_pull_for_draft(draft_id)
+            if pull and pull.video_path:
+                video_path = pull.video_path
+                has_video = True
+                step_results.append(
+                    _record_step("drive_inbox", True, pull.message[:300], t0)
+                )
+                messages.append(pull.message)
+        except Exception as exc:
+            step_results.append(_record_step("drive_inbox", False, str(exc)[:300], t0))
 
     # --- youtube_upload ---
     upload_step = wf.step("youtube_upload")
@@ -264,7 +281,7 @@ def run_daily_invideo_workflow(
     elif not has_video:
         messages.append(
             "No MP4 on disk — stopped before upload. "
-            "Check InVideo credits or paste Drive link for fetch_url_cli."
+            "Drop MP4 in Drive inbox or paste Drive link for fetch_url_cli."
         )
 
     ok = bool(upload_url) if do_upload else has_video

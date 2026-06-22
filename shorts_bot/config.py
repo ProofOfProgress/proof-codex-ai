@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
 
+    # Google Drive inbox — owner drops InVideo MP4s; agent polls folder (no paste-link step)
+    google_drive_folder_id: str | None = None
+    google_drive_inbox_enabled: bool = True
+    google_drive_state_path: Path = Path("data/drive_inbox_state.json")
+
     # TikTok Content Posting API
     tiktok_client_key: str | None = None
     tiktok_client_secret: str | None = None

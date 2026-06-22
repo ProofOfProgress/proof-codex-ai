@@ -7,15 +7,23 @@ Connect InVideo so the agent can turn your scripts into video projects (you expo
 
 ---
 
-## Broken phone / no 2FA — use a link instead
+## Broken phone / no 2FA — use Drive inbox (best)
 
-If Google login asks for a code on a phone you can't use:
+1. On your **laptop**, finish InVideo → **Download** MP4  
+2. Upload to your **Rapid Tool Review Inbox** folder on Google Drive  
+3. Name it **`draft_6.mp4`** (match the draft number)  
+4. Agent pulls automatically — setup once: **`docs/FOR_OWNER_DRIVE_SETUP.md`**
 
-1. On your **laptop** (where you made the v1 InVideo test), open the project — you may still be logged in  
-2. Click **Download** → save the MP4  
-3. Upload to **Google Drive** (or Dropbox)  
-4. Share → **Anyone with the link**  
-5. Paste the link in Cursor chat — the agent runs:
+```bash
+python3 -m shorts_bot.drive.inbox_cli pull --draft-id 6 --upload
+```
+
+## Broken phone — paste a link instead
+
+If Drive inbox isn't set up yet:
+
+1. Share → **Anyone with the link**  
+2. Paste the link in Cursor chat — the agent runs:
 
 ```bash
 python3 -m shorts_bot.invideo.fetch_url_cli --draft-id 6 'PASTE_DRIVE_LINK_HERE'

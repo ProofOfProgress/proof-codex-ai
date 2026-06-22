@@ -6,14 +6,16 @@ from __future__ import annotations
 SHORTS_VISUAL_RULES = """
 FORMAT: YouTube Short ONLY — 9:16 vertical, 25-35 seconds. NOT long-form. NOT 16:9.
 
-VISUAL RULES (critical — previous run had wonky widescreen stock crops):
-- Every shot must be composed for VERTICAL mobile — subject centered, no wide cinematic letterboxing
-- NO horizontal stock footage cropped into vertical — looks broken
-- Prefer: fullscreen talking-head (AI twin), tight mobile phone UI screenshots, single-product close-ups
-- Max 4-5 visual beats total — fast cuts, no slow Ken Burns pans
-- B-roll: screen recordings and app UI only; skip generic office/laptop stock unless tightly center-cropped
+VISUAL MIX (owner rule — stock-first, twin is accent):
+- Use LICENSED STOCK FOOTAGE for most of the runtime — aim for 70–85% stock B-roll
+- AI twin (AlphaBeta Host): SHORT inserts only — hook (1–3s), verdict (2–4s), maybe one mid beat; never long talking-head stretches
+- Voiceover carries the review; visuals = stock + product UI, not twin on camera the whole time
+- Pick stock that fits tech/AI/productivity themes (phones, laptops, typing, thinking, money, decision moments) — vertical-safe, center-weighted
+- NO horizontal stock squeezed into vertical with ugly letterboxing — choose vertical-native stock or tight center crops
+- Also use tight app UI / screen recordings where the product matters
+- Max 5–6 visual beats — fast cuts, no slow Ken Burns pans
 - Captions: bold bottom third, Shorts safe zone (keep clear of YouTube UI overlay)
-- Hook in first 2 seconds on camera or bold text
+- Hook: brief twin OR bold text + stock in first 2 seconds
 """.strip()
 
 
@@ -32,7 +34,7 @@ def shorts_product_brief(
         f"HOOK: {hook}",
         f"CLOSE: clear {verdict_hint} verdict + one sentence why.",
         "TONE: skeptical but fair — not hype, not affiliate energy.",
-        "Presenter: voice + screen UI (no twin required). Optional AI Twin if saved.",
+        "Presenter: my AI twin for SHORT on-camera moments only; stock footage + app UI for everything else.",
         "YOU write the script — this is the creative brief only, not a finished script.",
     ]
     if extra.strip():
@@ -44,5 +46,5 @@ DEFAULT_CHATGPT_PLUS_BRIEF = shorts_product_brief(
     product="ChatGPT Plus",
     hook="Is the $20/month actually worth it for normal people?",
     verdict_hint="Pay, Skip, or Wait",
-    extra="Show ChatGPT mobile/desktop UI — tight crops, not wide desk stock shots.",
+    extra="Stock-heavy edit: licensed B-roll for most shots; twin only 1–3 sec hook + 2–4 sec verdict. ChatGPT UI where needed — vertical crops.",
 )

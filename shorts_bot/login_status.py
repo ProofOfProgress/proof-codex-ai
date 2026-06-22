@@ -340,6 +340,51 @@ def _check_youtube_upload() -> ServiceStatus:
     )
 
 
+def _check_drive_inbox() -> ServiceStatus:
+    from shorts_bot.drive.client import drive_configured, drive_status_message
+    from shorts_bot.youtube.google_auth import auth_status
+
+    if not settings.google_drive_inbox_enabled:
+        return ServiceStatus(
+            "drive_inbox",
+            "Google Drive inbox",
+            False,
+            "Disabled",
+            "Set GOOGLE_DRIVE_INBOX_ENABLED=true",
+        )
+    if not settings.google_drive_folder_id:
+        return ServiceStatus(
+            "drive_inbox",
+            "Google Drive inbox",
+            False,
+            "Folder ID not set",
+            "docs/FOR_OWNER_DRIVE_SETUP.md",
+        )
+    st = auth_status()
+    if st.get("needs_drive_reauth"):
+        return ServiceStatus(
+            "drive_inbox",
+            "Google Drive inbox",
+            False,
+            "Token needs Drive scope",
+            "python3 -m shorts_bot.youtube.auth_cli connect",
+        )
+    if drive_configured() and st.get("drive_ready"):
+        return ServiceStatus(
+            "drive_inbox",
+            "Google Drive inbox",
+            True,
+            drive_status_message(),
+        )
+    return ServiceStatus(
+        "drive_inbox",
+        "Google Drive inbox",
+        False,
+        drive_status_message(),
+        "docs/FOR_OWNER_DRIVE_SETUP.md",
+    )
+
+
 def _check_vision_qc() -> ServiceStatus:
     if not settings.vision_qc_enabled:
         return ServiceStatus("vision_qc", "Gemini vision QC", False, "Disabled", None)
@@ -502,6 +547,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_image_api(),
         _check_youtube_oauth(),
         _check_youtube_upload(),
+        _check_drive_inbox(),
         _check_tiktok_upload(),
         _check_invideo(),
     ]
