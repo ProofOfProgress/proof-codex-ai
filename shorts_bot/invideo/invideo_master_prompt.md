@@ -17,7 +17,7 @@ Read all of this before every project. Apply it even when the per-video brief is
 **Series:** Rapid Tool Review  
 **Tagline:** Honest AI tools. Fast verdicts.
 
-**Presenter:** **InVideo** — voiceover + tight app UI on screen (no twin required). Optional AI twin later. No stock actors at a desk.
+**Presenter:** **AI twin (AlphaBeta Host)** for brief on-camera moments only + **voiceover**. **Licensed stock footage** carries most visuals. Tight app UI when showing the product.
 
 **Platform:** YouTube Shorts ONLY — vertical mobile feed. Not TikTok repost crops. Not long-form. Not LinkedIn widescreen unless explicitly asked.
 
@@ -73,16 +73,16 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 - **25–35 seconds**
 - **NOT 16:9.** NOT cinematic letterboxing inside vertical. NOT horizontal stock squeezed into portrait.
 
-**Shots (priority order)**
-1. **Bold product name + verdict text** in first 2 seconds
-2. **Tight app UI** — mobile screenshots, desktop UI cropped vertical
-3. **Screen recordings** — actual product in use
-4. **AI Twin** (optional) — only if owner has twin saved; otherwise skip talking-head
+**Shots (priority order — stock-first)**
+1. **Licensed stock B-roll** — majority of runtime (70–85%). Tech, phones, laptops, typing, money, decision moments. Vertical-native or tight center crop only.
+2. **Bold product name + verdict text** overlays on stock
+3. **Tight app UI** — mobile screenshots, desktop UI cropped vertical
+4. **Screen recordings** — actual product in use
+5. **AI Twin** — **short inserts only** (1–3s hook, 2–4s verdict, optional one mid beat). Never long talking-head blocks.
 
 **Avoid**
-- Wide desk/laptop stock b-roll
-- Generic office workers at computers
-- Horizontal stock cropped into vertical
+- Long twin talking-head stretches (burns credits, feels low-energy)
+- Horizontal stock cropped into vertical with ugly letterboxing
 - Slow Ken Burns pans on static images
 - More than **4–5 visual beats** — fast cuts only
 - Long-form documentary pacing
@@ -99,8 +99,8 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 ## InVideo production settings
 
 - **Use Agent mode / Agent One workflow** — scene-by-scene control, not blind Autopilot unless owner asks
-- **Media tier:** Basic/stock is OK for UI; prefer twin + screen content over random stock people
-- **AI Twin:** Optional — use if saved; otherwise voice + UI only
+- **Media tier:** Prefer **Basic / licensed stock** when stock-heavy (cheaper credits). Pro only when stock looks bad.
+- **Stock:** Use as much licensed stock as possible — twin is accent, not the whole video.
 - **Captions:** On, styled for Shorts
 - **Music:** Subtle background OK; don't overpower voice. No horror stings. No jump scares.
 - **Watermarks:** Stock watermarks acceptable on free tier exports
