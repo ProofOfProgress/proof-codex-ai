@@ -25,6 +25,12 @@ class PendingUpload:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.astimezone(timezone.utc)
 
+    def video_file(self) -> Path:
+        return Path(self.video_path)
+
+    def video_exists(self) -> bool:
+        return self.video_file().is_file()
+
 
 def queue_path() -> Path:
     return settings.data_dir / "pending_uploads.json"
@@ -84,9 +90,17 @@ def process_due_uploads(*, force: bool = False) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
 
     for item in load_queue():
-        video = Path(item.video_path)
+        video = item.video_file()
         if not video.is_file():
-            results.append({"draft_id": item.draft_id, "ok": False, "message": f"Missing {video}"})
+            remaining.append(item)
+            results.append(
+                {
+                    "draft_id": item.draft_id,
+                    "ok": False,
+                    "message": f"Missing MP4, keeping queued: {video}",
+                    "retry": True,
+                }
+            )
             continue
 
         publish_at = item.publish_dt()
