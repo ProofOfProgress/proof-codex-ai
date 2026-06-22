@@ -55,6 +55,7 @@ def check_upload_allowed(
     script: str,
     title: str,
     visibility: str = "public",
+    force: bool = False,
 ) -> ComplianceReport:
     if not settings.ypp_safe_mode:
         return ComplianceReport(True)
@@ -93,7 +94,9 @@ def check_upload_allowed(
     issues.extend(script_content_compliance_issues(hook, script))
 
     # Unlisted QA bypass disabled by default — every upload counts (Jul 2025 inauthentic policy)
-    skip_cooldown = False
+    skip_cooldown = force
+    if force:
+        warnings.append("owner force — upload cooldown checks skipped")
     if visibility == "unlisted" and settings.unlisted_qa_bypass_upload_cooldown:
         warnings.append(
             "unlisted_qa_bypass_upload_cooldown=true — cooldown skipped (not recommended for YPP)"

@@ -11,6 +11,7 @@ def upload_scheduled_short(
     video_path: Path,
     *,
     publish_at: datetime,
+    force: bool = False,
 ) -> str:
     from shorts_bot.config import settings
     from shorts_bot.memory.extensions import MemoryExtensions
@@ -42,6 +43,7 @@ def upload_scheduled_short(
         script=draft.script,
         title=package.title,
         visibility="private",
+        force=force,
     )
     if not pre.allowed:
         raise RuntimeError(f"Upload blocked: {pre.message}")
