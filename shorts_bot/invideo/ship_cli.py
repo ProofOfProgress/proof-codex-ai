@@ -38,7 +38,7 @@ def ship(
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         console.print(f"[cyan]Open[/cyan] {project_url[:70]}…")
         page.goto(project_url, wait_until="networkidle", timeout=120_000)
-        time.sleep(5)
+        time.sleep(3)
 
         body = page.inner_text("body") or ""
         if "welcome to invideo ai" in body.lower() and "create new" not in body.lower():
@@ -49,6 +49,17 @@ def ship(
                 "Open the project on your laptop (may share same account) or add credits, "
                 "then paste a Google Drive link: fetch_url_cli --draft-id 6 'URL'"
             )
+
+        # MCP projects need ~15–30s before Generate appears in the editor UI.
+        ui_deadline = time.time() + 120
+        while time.time() < ui_deadline:
+            body = page.inner_text("body") or ""
+            gen = page.locator("button").filter(has_text="Generate")
+            if gen.count() or page.get_by_text("Download", exact=True).count():
+                break
+            time.sleep(5)
+        else:
+            raise RuntimeError(f"No Generate/Download on page after 120s: {body[:200]}")
 
         # Platform: YouTube Shorts
         yt = page.get_by_text("YouTube Shorts", exact=False)
@@ -69,7 +80,7 @@ def ship(
 
         gen = page.locator("button").filter(has_text="Generate")
         if gen.count():
-            btn_text = gen.first.inner_text(timeout=5000) if gen.count() else body
+            btn_text = gen.first.inner_text(timeout=5000)
             cost = assert_credit_budget(f"{btn_text}\n{body}", max_credits=max_credits)
             console.print(f"[cyan]Click Generate[/cyan] ({cost} credits, max {max_credits})")
             gen.first.click(force=True)
