@@ -17,7 +17,9 @@ def ship(
     *,
     wait_render_sec: int = 1800,
     resolution: str = "480p",
+    max_credits: int = 10,
 ) -> Path:
+    from shorts_bot.invideo.credit_guard import assert_credit_budget
     from playwright.sync_api import sync_playwright
 
     from shorts_bot.browser.stealth import launch_stealth_context
@@ -36,7 +38,7 @@ def ship(
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         console.print(f"[cyan]Open[/cyan] {project_url[:70]}…")
         page.goto(project_url, wait_until="networkidle", timeout=120_000)
-        time.sleep(5)
+        time.sleep(3)
 
         body = page.inner_text("body") or ""
         if "welcome to invideo ai" in body.lower() and "create new" not in body.lower():
@@ -48,15 +50,39 @@ def ship(
                 "then paste a Google Drive link: fetch_url_cli --draft-id 6 'URL'"
             )
 
+        # MCP projects need ~15–30s before Generate appears in the editor UI.
+        ui_deadline = time.time() + 120
+        while time.time() < ui_deadline:
+            body = page.inner_text("body") or ""
+            gen = page.locator("button").filter(has_text="Generate")
+            if gen.count() or page.get_by_text("Download", exact=True).count():
+                break
+            time.sleep(5)
+        else:
+            raise RuntimeError(f"No Generate/Download on page after 120s: {body[:200]}")
+
         # Platform: YouTube Shorts
         yt = page.get_by_text("YouTube Shorts", exact=False)
         if yt.count():
             yt.first.click(force=True)
             time.sleep(1)
 
+        # Prefer Basic / stock tier when selector visible
+        for label in ("Basic", "Licensed stock", "Stock"):
+            loc = page.get_by_text(label, exact=False)
+            if loc.count():
+                try:
+                    loc.first.click(force=True, timeout=3000)
+                    time.sleep(1)
+                    break
+                except Exception:
+                    pass
+
         gen = page.locator("button").filter(has_text="Generate")
         if gen.count():
-            console.print("[cyan]Click Generate[/cyan] (2 credits)")
+            btn_text = gen.first.inner_text(timeout=5000)
+            cost = assert_credit_budget(f"{btn_text}\n{body}", max_credits=max_credits)
+            console.print(f"[cyan]Click Generate[/cyan] ({cost} credits, max {max_credits})")
             gen.first.click(force=True)
             time.sleep(5)
         elif page.get_by_text("Download", exact=True).count():

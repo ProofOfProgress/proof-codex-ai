@@ -1,4 +1,6 @@
 # Automation alerts
+- **2026-06-22 07:45 UTC** `claude_code_ship`: **Draft #8 MP4 ready** (44MB, 2 InVideo credits). Upload **queued** for ~2026-06-23 04:45 UTC (21h gap after ChatGPT Plus). Run when due: `python3 -m shorts_bot.youtube.pending_upload_cli process`
+- **2026-06-22 07:22 UTC** `claude_code_ship`: first ship attempt failed — Generate UI loads in ~15s; fixed wait in ship_cli
 - **2026-06-21 06:47 UTC** `auto_daily`: render failed
   - timeout
 - **2026-06-21 06:13 UTC** `invideo_daily`: No Generate/Download on page: Home

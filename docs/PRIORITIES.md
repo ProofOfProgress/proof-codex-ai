@@ -1,65 +1,48 @@
-# Priorities — North Star
+# Priorities — North Star (re-assessed 2026-06-22)
 
-**North star:** Make money from **100% AI-automated** YouTube Shorts — same channel, **AI/tech rebrand**, InVideo twin production, self-learning from analytics.
+**North star:** Make money from **100% AI-automated** YouTube Shorts — **Rapid Tool Review**, InVideo production, self-learning from **honest** analytics.
 
-**Rule:** Only the **top 4** below. Everything else waits.
+**Rule:** Only the **top 4** below.
 
 ---
 
-## Honest status (2026-06)
+## Honest status (2026-06-22)
 
 | Area | Status |
 |------|--------|
-| Script / draft generation | **Yes** — repurpose for AI/tech niche |
-| Homemade render (Recraft, Blender, ffmpeg) | **Retired** — do not invest |
-| InVideo production | **Wiring** — MCP client + handoff; owner logs in + exports MP4 |
-| YouTube upload API | **Yes** — works |
-| Daily autopilot | **Partial** — needs InVideo + simplified closed loop |
-| Analytics → learning | **Built** — needs consistent uploads to matter |
-| Agent memory / Codex | **Yes** — slim horror cruft, add AI/tech seeds |
-
-**Bottom line:** Brain exists. Hands were broken on homemade video. **InVideo is the hands.**  
-**90-day plan:** `docs/VIRAL_90_DAY_BLUEPRINT.md` — public stack + self-learning loop on paper.
+| InVideo one-prompt ship | **Live** — `invideo/autonomous_ship_cli` + credit guard ≤10 |
+| Drive inbox handoff | **Live** — folder + OAuth |
+| YouTube upload + schedule | **Live** — API + publishAt |
+| Analytics viewing | **Fixed** — honest labels; swipe Studio-only; merge on sync |
+| Analytics → learning | **Partial** — needs Studio swipe pasted for hook learning |
+| Daily /loop on laptop | **Doc ready** — `docs/FOR_OWNER_LOOP.md` |
+| Conversational format | **Locked** — no Pay/Skip/Wait headers, no twin |
 
 ---
 
-## Top 4 — only these get worked on
+## Top 4 — work these only
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **InVideo pipeline** — script → twin + stock + captions → `.mp4` on disk | One command produces a finished Short from approved script |
-| **2** | **Niche lock + script templates** — AI product reviews, Pay/Skip/Wait prompts | 5 product scripts queued with real tool names |
-| **3** | **Daily closed loop** — topic → script → InVideo → QC → YouTube upload | Runs 1 Short/day without Studio clicks |
-| **4** | **Analytics + workflow evolution** — hooks/topics that win get reused; losers rotate; daily **steps/params** evolve from runs + sync | Auto-proposals after sync; workflow version bumps; see `docs/WORKFLOW_EVOLUTION.md` |
+| **1** | **Ship 3/week via autonomous loop** — one InVideo prompt, Basic ≤10 credits, no twin, Drive or browser download | Claude Code + 2 more products published on schedule |
+| **2** | **Honest analytics loop** — `analytics_report_cli --sync`, Studio swipe via `/api/score`, no fake punish | Owner sees real numbers; learning uses swipe when added |
+| **3** | **Upload meta + brand** — AI descriptions/tags (not horror); profile = AI magnifier | Every upload looks like Rapid Tool Review |
+| **4** | **Workflow evolution** — hooks/topics from rewards after 5+ niche uploads | Auto-proposals match conversational reviews |
 
 ---
 
-## Backlog (after top 4)
+## Tonight (agent autonomous)
 
-| Item | Why it waits |
-|------|--------------|
-| Mem0 / Zep long-term memory | **Mem0 integrated** — see `docs/WORKFLOW_EVOLUTION.md`; Zep optional |
-| Facebook Reels cross-post | Token not saved; YouTube first |
-| **TikTok API upload** | **Blocked** — code ready; OAuth needs TikTok login (owner phone broken — resume when SMS/2FA works again) |
-| Long-form compilation | Needs 3+ winners in new niche |
-| Multi-channel clone | One channel must print first |
-| Purge Phase 2 (delete Blender/Recraft code) | After InVideo replaces render path |
+1. Claude Code Short — research → one MCP brief → Generate (≤10 credits) → schedule ~21h out
+2. Analytics fixes merged + report CLI
+3. `/loop` prompt updated in `docs/FOR_OWNER_LOOP.md`
 
 ---
 
 ## Stop doing
 
-- Peripheral horror production, jumpscare timing, CCTV grammar
-- Recraft / Replicate I2V / Blender daily investment
-- Duplicate agent memory entries
-- Pretending homemade render pipeline will suddenly work
-
----
-
-## Re-assess after each ship
-
-1. Did this post a Short or directly enable posting?
-2. Does this match the locked sub-sub-niche?
-3. Are we still only on items 1–4?
-
-See `data/research/CHANNEL_NICHE_STRATEGY.md` for niche decision.
+- Agent One multi-turn
+- AI twin in InVideo
+- Pro/Ultra tier if credits >10
+- Trusting API avg watch % as "retention graph"
+- Horror upload copy on AI videos

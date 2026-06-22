@@ -1,27 +1,27 @@
 {
   "id": "daily_invideo",
   "version": 1,
-  "description": "AI product review Short: topic → InVideo → YouTube. Steps evolve from run outcomes + analytics.",
+  "description": "One InVideo prompt → credit check (≤10) → download → queue/schedule upload. No AI twin.",
   "steps": [
     {
       "id": "pick_topic",
       "enabled": true,
-      "params": {}
+      "params": {"queue": "data/product_queue.json"}
     },
     {
       "id": "build_brief",
       "enabled": true,
       "params": {
-        "hook_template": "Everyone's paying for {product} — I tested if it's worth it.",
-        "verdict_hint": "Pay, Skip, or Wait"
+        "hook_template": "If you're thinking about {product} — here's my honest 30-second take.",
+        "format": "conversational_review",
+        "no_twin": true,
+        "max_credits": 10
       }
     },
     {
       "id": "script_qc",
       "enabled": true,
-      "params": {
-        "min_score": 7.0
-      }
+      "params": {"min_score": 7.0}
     },
     {
       "id": "save_draft",
@@ -36,19 +36,29 @@
     {
       "id": "invideo_project",
       "enabled": true,
-      "params": {}
+      "params": {"one_prompt_only": true}
     },
     {
       "id": "invideo_render",
       "enabled": true,
       "params": {
-        "wait_render_sec": 2400
+        "wait_render_sec": 2400,
+        "max_credits": 10,
+        "tier": "basic",
+        "no_twin": true
       }
     },
     {
       "id": "youtube_upload",
       "enabled": true,
-      "params": {}
+      "params": {"min_gap_hours": 20, "use_pending_queue": true}
+    },
+    {
+      "id": "analytics_sync",
+      "enabled": true,
+      "params": {"honest_labels": true}
     }
-  ]
+  ],
+  "schedule": "every 24h",
+  "owner_loop": "docs/FOR_OWNER_LOOP.md"
 }

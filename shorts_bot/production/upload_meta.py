@@ -8,6 +8,15 @@ from dataclasses import dataclass
 from pathlib import Path
 
 HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#ScaryStories", "#Creepy")
+AI_REVIEW_HASHTAGS = ("#aitools", "#techshorts", "#rapidtoolreview", "#claude", "#ai")
+AI_BACKEND_TAGS = [
+    "ai tools",
+    "tech review",
+    "software review",
+    "ai app review",
+    "honest review",
+    "rapid tool review",
+]
 HORROR_HASHTAGS_JUMPSCARE = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
 HORROR_BACKEND_TAGS = [
     "horror shorts",
@@ -64,7 +73,9 @@ def build_upload_package(
     description = _description_from_research(
         topic, hook, research, draft_id=draft_id
     ) if research else _safe_description(topic, hook, draft_id=draft_id)
-    tags = _tags_from_research(topic, research) if research else list(HORROR_BACKEND_TAGS)
+    tags = _tags_from_research(topic, research) if research else (
+        _ai_review_tags(topic) if _is_ai_review_topic(topic) else list(HORROR_BACKEND_TAGS)
+    )
     visibility = settings.youtube_upload_visibility
     if visibility not in ("public", "unlisted", "private"):
         visibility = "unlisted"
@@ -232,10 +243,29 @@ def _tags_from_research(topic: str, research) -> list[str]:
     return base[:12]
 
 
+def _is_ai_review_topic(topic: str) -> bool:
+    lower = topic.lower()
+    markers = (
+        "chatgpt", "claude", "gemini", "invideo", "cursor", "ai tool",
+        "notebooklm", "perplexity", "rapid tool", "software", "app review",
+    )
+    return any(m in lower for m in markers)
+
+
+def _ai_review_tags(topic: str) -> list[str]:
+    tags = list(AI_BACKEND_TAGS)
+    lower = topic.lower()
+    if "claude" in lower:
+        tags.insert(0, "claude code")
+    if "chatgpt" in lower:
+        tags.insert(0, "chatgpt")
+    return tags[:8]
+
+
 def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
-    """Front-load hook line; volume emoji only on finale-scare drafts."""
+    """Front-load hook line; skip horror volume prefix on AI reviews."""
     vol_prefix = ""
-    if draft_id and _volume_warning_for_draft(draft_id).strip():
+    if draft_id and not _is_ai_review_topic(topic) and _volume_warning_for_draft(draft_id).strip():
         vol_prefix = "🔊 "
     slop_hooks = ("stop scrolling", "hey guys", "you won't believe")
     if hook and len(hook) < 85 and not any(s in hook.lower() for s in slop_hooks):
@@ -248,6 +278,19 @@ def _safe_title(topic: str, hook: str, *, draft_id: int = 0) -> str:
 
 
 def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
+    hook_line = hook.strip() or topic.strip()
+    if _is_ai_review_topic(topic):
+        hashtags = " ".join(AI_REVIEW_HASHTAGS)
+        lines = [
+            hook_line,
+            "Honest ~30s AI tool review — Rapid Tool Review (@RapidToolReview).",
+            "Voice + stock + UI · synthetic media disclosed where applicable.",
+            hashtags,
+        ]
+        from shorts_bot.production.description_copy import sanitize_description_text
+
+        return sanitize_description_text("\n\n".join(lines))
+
     hook_line = _normalize_horror_hook(hook, topic)
     from shorts_bot.production.jumpscare_timing import load_plan_for_draft
 

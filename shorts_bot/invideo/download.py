@@ -129,6 +129,10 @@ def _configure_download_options(
 
 
 def _click_modal_download(page) -> None:
+    cont = page.locator("button").filter(has_text=re.compile(r"^Continue$", re.I))
+    if cont.count():
+        cont.first.click(force=True, timeout=15_000)
+        return
     buttons = page.locator("button").filter(has_text=re.compile(r"^Download$", re.I))
     if buttons.count() >= 2:
         buttons.last.click(force=True, timeout=15_000)

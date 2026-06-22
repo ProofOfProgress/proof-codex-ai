@@ -8,13 +8,20 @@
   },
   {
     "id": 2,
+    "product": "Claude Code",
+    "topic": "Claude Code — honest 30s review",
+    "hook": "Claude Code sounds amazing — but most people should not pay for this.",
+    "verdict_hint": "Pay if you code in terminal daily; Skip otherwise"
+  },
+  {
+    "id": 3,
     "product": "Claude Pro",
     "topic": "Claude Pro vs ChatGPT Plus — honest 30s verdict",
     "hook": "Claude Pro vs ChatGPT — which $20 subscription wins?",
     "verdict_hint": "Pay for writers; Skip for casual chat"
   },
   {
-    "id": 3,
+    "id": 16,
     "product": "Google Gemini Advanced",
     "topic": "Gemini Advanced — Pay, Skip, or Wait?",
     "hook": "Stop paying for Gemini Advanced until you watch this.",

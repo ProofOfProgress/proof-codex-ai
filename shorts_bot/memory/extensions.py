@@ -203,13 +203,46 @@ class MemoryExtensions:
                 )
 
     def save_analytics(self, video_label: str, metrics: dict[str, Any]) -> None:
-        """Upsert — latest metrics per video replace older rows."""
+        """Upsert by video_id when available; merge preserves Studio/manual swipe."""
         now = _utc_now()
+        vid = str(metrics.get("video_id") or "").strip()
+        key = vid or video_label
         with self._conn() as conn:
-            conn.execute("DELETE FROM analytics_records WHERE video_label = ?", (video_label,))
+            rows = conn.execute(
+                "SELECT video_label, metrics_json FROM analytics_records ORDER BY id DESC LIMIT 50"
+            ).fetchall()
+        from shorts_bot.youtube.analytics_merge import merge_metrics
+
+        existing: dict[str, Any] | None = None
+        for r in rows:
+            try:
+                m = json.loads(r["metrics_json"])
+            except (json.JSONDecodeError, TypeError):
+                continue
+            if vid and str(m.get("video_id") or "") == vid:
+                existing = m
+                break
+            if r["video_label"] == video_label or r["video_label"] == key:
+                existing = m
+                break
+        merged = merge_metrics(existing, metrics)
+        label = str(merged.get("video_label") or key)
+        with self._conn() as conn:
+            conn.execute("DELETE FROM analytics_records WHERE video_label = ?", (label,))
+            if vid:
+                for r in rows:
+                    try:
+                        m = json.loads(r["metrics_json"])
+                    except (json.JSONDecodeError, TypeError):
+                        continue
+                    if str(m.get("video_id") or "") == vid and r["video_label"] != label:
+                        conn.execute(
+                            "DELETE FROM analytics_records WHERE video_label = ?",
+                            (r["video_label"],),
+                        )
             conn.execute(
                 "INSERT INTO analytics_records (video_label, metrics_json, recorded_at) VALUES (?, ?, ?)",
-                (video_label, json.dumps(metrics), now),
+                (label, json.dumps(merged), now),
             )
 
     def list_analytics(self, limit: int = 20) -> list[dict[str, Any]]:
