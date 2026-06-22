@@ -153,7 +153,36 @@ a:hover {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5vw, 4rem);
   line-height: 1.05;
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
+}
+
+.toc-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.toc-links a {
+  color: var(--white);
+  text-decoration: none;
+  font-size: 1.15rem;
+}
+
+.toc-links a:hover {
+  color: var(--beige);
+  text-decoration: underline;
+}
+
+.section-subtitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--burgundy);
+  margin: 0.35rem 0 0;
+  font-weight: normal;
+}
+
+.form-embed-full {
+  max-width: 100%;
 }
 
 .hero-lead {
