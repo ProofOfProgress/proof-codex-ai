@@ -13,16 +13,6 @@ python3 -m http.server 8080
 
 Open: http://127.0.0.1:8080
 
-## Add the real logo
-
-Save Steven's updated logo image as:
-
-`beanz-treats/assets/logo.png`
-
-Recommended: PNG with transparent background, at least 512×512 px.
-
-The site tries `logo.png` first and falls back to `logo.svg` until the PNG is added.
-
 ## Publish for free (GitHub Pages)
 
 1. Push this repo to GitHub.
@@ -33,12 +23,14 @@ The site tries `logo.png` first and falls back to `logo.svg` until the PNG is ad
 
 ## What's on the site
 
-- Hero with brand story
-- About Me (Steven)
-- About Beanz Treats (business story)
-- Social links (TikTok, Instagram, Facebook, YouTube)
+- Table of Contents (Steven's page titles and copy from his Google Sites site)
+- About me / About Beanz Treats
+- Social links
 - Embedded Google order form
+- Mascot: `assets/logo.png`
 
 ## Update content
 
 Edit `index.html` for text changes. Colors and fonts live in `css/styles.css`.
+
+If you add new text, keep Steven's voice — direct, personal, first-person — matching what's already on his site.
