@@ -126,6 +126,8 @@ class Settings(BaseSettings):
     invideo_default_audience: str = "AI curious adults"
     invideo_twin_enabled: bool = True
     invideo_copilot_url: str = ""  # saved workspace .../v40-copilot URL
+    invideo_max_generate_credits: int = 10  # refuse Generate if button shows more
+    invideo_autonomous_enabled: bool = True  # owner approved one-prompt ship
 
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True

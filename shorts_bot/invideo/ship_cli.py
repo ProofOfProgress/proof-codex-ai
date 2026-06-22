@@ -17,7 +17,9 @@ def ship(
     *,
     wait_render_sec: int = 1800,
     resolution: str = "480p",
+    max_credits: int = 10,
 ) -> Path:
+    from shorts_bot.invideo.credit_guard import assert_credit_budget
     from playwright.sync_api import sync_playwright
 
     from shorts_bot.browser.stealth import launch_stealth_context
@@ -54,9 +56,22 @@ def ship(
             yt.first.click(force=True)
             time.sleep(1)
 
+        # Prefer Basic / stock tier when selector visible
+        for label in ("Basic", "Licensed stock", "Stock"):
+            loc = page.get_by_text(label, exact=False)
+            if loc.count():
+                try:
+                    loc.first.click(force=True, timeout=3000)
+                    time.sleep(1)
+                    break
+                except Exception:
+                    pass
+
         gen = page.locator("button").filter(has_text="Generate")
         if gen.count():
-            console.print("[cyan]Click Generate[/cyan] (2 credits)")
+            btn_text = gen.first.inner_text(timeout=5000) if gen.count() else body
+            cost = assert_credit_budget(f"{btn_text}\n{body}", max_credits=max_credits)
+            console.print(f"[cyan]Click Generate[/cyan] ({cost} credits, max {max_credits})")
             gen.first.click(force=True)
             time.sleep(5)
         elif page.get_by_text("Download", exact=True).count():

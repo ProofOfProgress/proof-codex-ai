@@ -72,10 +72,14 @@ def upload_canonical(
         extra_snapshot={
             "visibility": "public",
             "source_file": video_path.name,
-            "brand": "Peripheral",
+            "brand": "Rapid Tool Review",
             "canonical": True,
         },
     )
+    if settings.post_upload_analytics_sync:
+        from shorts_bot.youtube.post_upload import sync_analytics_after_upload
+
+        sync_analytics_after_upload()
     return up.video_url
 
 

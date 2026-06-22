@@ -61,9 +61,10 @@ def fetch_video_metrics(days: int = 28, max_videos: int = 20) -> list[dict[str, 
                 "views": int(float(data.get("views", 0) or 0)),
                 "likes": int(float(data.get("likes", 0) or 0)),
                 "comments": int(float(data.get("comments", 0) or 0)),
-                "retention_rate": avg_pct,
+                "average_view_percentage": avg_pct,
+                "metrics_window_days": days,
+                "metrics_window_end": end.isoformat(),
                 # Real Shorts "viewed vs swiped away" is Studio-only — not in Analytics API.
-                # Do not guess; RewardEngine scores retention/views when swipe is absent.
                 "swipe_source": "unavailable",
             }
         )
@@ -84,5 +85,7 @@ def enrich_titles(metrics: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for m in metrics:
         title = titles.get(m["video_id"], m["video_id"])
         m["title"] = title
-        m["video_label"] = title[:80]
+        # Keep video_id as stable key; title stored separately for display
+        if not m.get("video_label"):
+            m["video_label"] = m["video_id"]
     return metrics

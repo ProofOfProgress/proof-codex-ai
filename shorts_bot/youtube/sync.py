@@ -49,17 +49,30 @@ class AnalyticsSync:
             return SyncResult(ok=False, message=f"Analytics sync failed: {exc}")
 
         if not metrics:
-            return SyncResult(ok=True, message="No video data yet. Upload a Short first.", videos_scored=0)
+            return SyncResult(
+                ok=True,
+                message="No video data yet. Upload a Short first.",
+                videos_scored=0,
+            )
+
+        history = self.memory.list_analytics(limit=50)
+        from shorts_bot.youtube.analytics_merge import find_existing_for_video, merge_metrics
 
         rewards: list[dict[str, Any]] = []
         scored: list[RewardResult] = []
 
         for m in metrics:
-            result = self.engine.score(m["video_label"], m)
+            existing = find_existing_for_video(
+                history, str(m.get("video_id") or ""), str(m.get("video_label") or "")
+            )
+            merged = merge_metrics(existing, m)
+            label = str(merged.get("video_label") or m["video_label"])
+            result = self.engine.score(label, merged)
             scored.append(result)
             rewards.append(
                 {
-                    "video": m["video_label"],
+                    "video": label,
+                    "title": merged.get("title", label),
                     "verdict": result.verdict,
                     "score": result.score,
                     "reason": result.reason,
@@ -72,7 +85,10 @@ class AnalyticsSync:
 
         return SyncResult(
             ok=True,
-            message=f"Synced {len(metrics)} videos from official YouTube Analytics.",
+            message=(
+                f"Synced {len(metrics)} videos (last {days}d window). "
+                "Swipe-away is Studio-only — not from API."
+            ),
             videos_scored=len(metrics),
             improvements_created=improvements_created,
             rewards=rewards,

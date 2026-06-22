@@ -23,6 +23,6 @@ def test_fetch_video_metrics_does_not_fake_swipe():
         rows = fetch_video_metrics(days=7, max_videos=5)
 
     assert len(rows) == 1
-    assert rows[0]["retention_rate"] == 72.5
+    assert rows[0]["average_view_percentage"] == 72.5
     assert rows[0]["swipe_source"] == "unavailable"
     assert "viewed_vs_swiped_away" not in rows[0]

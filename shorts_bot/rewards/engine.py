@@ -45,7 +45,13 @@ class RewardEngine:
         swipe = float(metrics.get("viewed_vs_swiped_away", metrics.get("swipe_away_inverse", 0)) or 0)
         swipe_source = str(metrics.get("swipe_source", "manual" if swipe else "unavailable"))
         use_swipe = swipe > 0 and swipe_source not in ("unavailable", "estimated")
-        retention = float(metrics.get("retention_rate", metrics.get("average_view_percentage", 0)))
+        retention_src = str(metrics.get("retention_source") or "")
+        avg_watch = float(
+            metrics.get("average_view_percentage", metrics.get("retention_rate", 0)) or 0
+        )
+        studio_retention = float(metrics.get("retention_rate", 0) or 0) if retention_src == "studio" else 0.0
+        retention = studio_retention if studio_retention > 0 else avg_watch
+        api_only = not use_swipe and swipe_source == "unavailable"
         views = int(metrics.get("views", 0))
         likes = int(metrics.get("likes", 0))
 
@@ -71,16 +77,23 @@ class RewardEngine:
                 breakdown.append({"factor": "swipe_away", "delta": 0, "note": f"Mid swipe-away ({swipe:.0f}%)"})
                 reasons.append(f"Mid swipe-away ({swipe:.0f}%)")
         elif retention <= 0 and views <= 0:
-            reasons.append("Insufficient metrics (swipe unavailable from API; add Studio numbers via score API)")
+            reasons.append(
+                "Insufficient metrics — API sync has no swipe-away; add Studio numbers via score API"
+            )
+        elif api_only and retention > 0:
+            reasons.append(
+                f"API avg watch {retention:.0f}% (last window) — not Studio retention graph; swipe N/A"
+            )
 
         if retention > 0:
+            ret_weight = 0.15 if api_only and not use_swipe else 0.35
             if retention >= 60:
-                bump(0.35, "retention", f"Good retention ({retention:.0f}%)")
+                bump(ret_weight, "retention", f"Good avg watch ({retention:.0f}%)")
             elif retention < 40:
-                bump(-0.35, "retention", f"Retention drop ({retention:.0f}%) — pacing/payoff issue")
+                bump(-ret_weight, "retention", f"Low avg watch ({retention:.0f}%) — verify in Studio")
             else:
-                breakdown.append({"factor": "retention", "delta": 0, "note": f"Mid retention ({retention:.0f}%)"})
-                reasons.append(f"Mid retention ({retention:.0f}%)")
+                breakdown.append({"factor": "retention", "delta": 0, "note": f"Mid avg watch ({retention:.0f}%)"})
+                reasons.append(f"Mid avg watch ({retention:.0f}%)")
 
         if baseline and use_swipe:
             b_swipe = baseline.get("viewed_vs_swiped_away", 0)
@@ -111,6 +124,11 @@ class RewardEngine:
             verdict = "punish"
         else:
             verdict = "neutral"
+
+        # API-only sync should not auto-punish hard without swipe data
+        if api_only and not use_swipe and verdict == "punish" and abs(score) < 0.4:
+            verdict = "neutral"
+            reasons.append("Neutral — need Studio swipe-away before strong punish/reward")
 
         diagnosis = self._diagnose(swipe, retention, verdict, use_swipe=use_swipe)
         reason = "; ".join(reasons) if reasons else "Insufficient metrics"
