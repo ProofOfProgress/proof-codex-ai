@@ -11,6 +11,14 @@ The PNGs in this folder were generated as **reference / mood boards** — many a
 - Keep face + ONLINE badge in the **upper safe zone** (avoid bottom like/comment overlay)
 - Future art batches should be generated **9:16 vertical** explicitly
 
+## Download all images
+
+**One zip (8 PNGs):**  
+https://github.com/ProofOfProgress/proof-codex-ai/raw/main/channel/brand/assets/ms_byte/ms_byte_all_images.zip
+
+**Browse folder:**  
+https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/brand/assets/ms_byte
+
 ## Files
 
 | File | Purpose |
