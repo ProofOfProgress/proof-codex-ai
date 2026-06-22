@@ -229,8 +229,11 @@ def _load_credentials(scopes: list[str]):
         return None
     creds = Credentials.from_authorized_user_file(str(path), scopes)
     if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-        save_credentials(creds, scopes=scopes)
+        try:
+            creds.refresh(Request())
+            save_credentials(creds, scopes=scopes)
+        except Exception:
+            return None
     return creds
 
 

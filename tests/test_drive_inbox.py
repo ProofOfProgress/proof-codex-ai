@@ -35,7 +35,7 @@ def test_drive_configured_false_when_no_folder(monkeypatch):
     from shorts_bot.config import Settings
     from shorts_bot.drive.client import drive_configured
 
-    fake = Settings(google_drive_folder_id=None, google_drive_inbox_enabled=True)
+    fake = Settings(google_drive_folder_id="", google_drive_inbox_enabled=True)
     monkeypatch.setattr("shorts_bot.config.settings", fake)
     assert not drive_configured()
 
