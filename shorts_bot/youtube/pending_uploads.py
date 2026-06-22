@@ -105,7 +105,12 @@ def process_due_uploads(*, force: bool = False) -> list[dict[str, Any]]:
             continue
 
         try:
-            url = upload_scheduled_short(item.draft_id, video, publish_at=max(publish_at, now))
+            url = upload_scheduled_short(
+                item.draft_id,
+                video,
+                publish_at=max(publish_at, now),
+                force=force,
+            )
             results.append({"draft_id": item.draft_id, "ok": True, "url": url})
         except Exception as exc:
             msg = str(exc)[:300]
