@@ -232,6 +232,152 @@ a:hover {
   max-width: 100%;
 }
 
+.menu-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+.menu-visual {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.menu-board-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px var(--shadow);
+}
+
+.menu-readable {
+  background: #f7f2e8;
+  border: 2px dashed rgba(125, 9, 54, 0.35);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.65rem;
+  box-shadow: 0 14px 40px var(--shadow);
+}
+
+.menu-title,
+.menu-handle {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  color: var(--burgundy);
+  text-align: center;
+  margin: 0 0 1.25rem;
+  letter-spacing: 0.04em;
+}
+
+.menu-handle {
+  margin: 1.5rem 0 0;
+  margin-bottom: 0;
+}
+
+.menu-item {
+  padding: 1.15rem 0;
+  border-top: 2px dashed rgba(125, 9, 54, 0.22);
+}
+
+.menu-item:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.menu-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.menu-item h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 1.85rem);
+  color: var(--burgundy);
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+.menu-meta {
+  display: flex;
+  gap: 0.85rem;
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--burgundy);
+}
+
+.menu-meta span {
+  font-family: var(--font-display);
+}
+
+.menu-flavors-label {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--burgundy);
+}
+
+.menu-flavors {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--burgundy-dark);
+}
+
+.menu-flavors li {
+  margin-bottom: 0.55rem;
+  font-size: clamp(1.05rem, 2.2vw, 1.22rem);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+}
+
+.menu-flavors li:last-child {
+  margin-bottom: 0;
+}
+
+.menu-flavors-inline {
+  list-style: none;
+  padding-left: 0;
+}
+
+.menu-flavors-inline li {
+  font-size: clamp(1.08rem, 2.2vw, 1.25rem);
+}
+
+.order-form-wrap {
+  margin-top: 0.5rem;
+}
+
+.form-embed-compact {
+  width: 100%;
+  min-height: 520px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: 0 14px 40px var(--shadow);
+}
+
+@media (max-width: 820px) {
+  .menu-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-visual {
+    position: static;
+    display: flex;
+    justify-content: center;
+  }
+
+  .menu-board-image {
+    max-width: 260px;
+  }
+}
+
 .hero-lead {
   font-size: 1.12rem;
   max-width: 38ch;
