@@ -59,6 +59,8 @@ SYNC_VARS = (
     "TIKTOK_CLIENT_KEY",
     "TIKTOK_CLIENT_SECRET",
     "INVIDEO_API_KEY",
+    "GOOGLE_DRIVE_FOLDER_ID",
+    "GOOGLE_DRIVE_INBOX_ENABLED",
 )
 
 # Sensible production defaults — written only when the key is absent from .env.

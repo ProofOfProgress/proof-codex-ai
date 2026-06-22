@@ -82,6 +82,27 @@ class Settings(BaseSettings):
     google_drive_folder_id: str | None = None
     google_drive_inbox_enabled: bool = True
     google_drive_state_path: Path = Path("data/drive_inbox_state.json")
+    google_drive_config_path: Path = Path("data/drive_inbox_config.json")
+
+    @field_validator("google_drive_folder_id", mode="before")
+    @classmethod
+    def load_drive_folder_from_config(cls, v: object) -> str | None:
+        if v is not None and str(v).strip():
+            return str(v).strip()
+        if v == "":
+            return None
+        config_path = Path("data/drive_inbox_config.json")
+        if not config_path.exists():
+            return None
+        try:
+            import json
+
+            data = json.loads(config_path.read_text(encoding="utf-8"))
+            if isinstance(data, dict) and data.get("folder_id"):
+                return str(data["folder_id"]).strip()
+        except (OSError, json.JSONDecodeError, TypeError):
+            pass
+        return None
 
     # TikTok Content Posting API
     tiktok_client_key: str | None = None

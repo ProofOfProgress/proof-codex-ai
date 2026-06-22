@@ -2,14 +2,8 @@
 
 _Auto-exported. Login/payment tasks still need you._
 
-## #2 Test task
+## #1 Polish UI
 
-Do something
+Make dashboard prettier
 
-_Approved 2026-06-13T02:24:16.868602+00:00_
-
-## #1 Test feature
-
-do something cool
-
-_Approved 2026-06-13T02:16:17.996832+00:00_
+_Approved 2026-06-21T07:19:41.436358+00:00_

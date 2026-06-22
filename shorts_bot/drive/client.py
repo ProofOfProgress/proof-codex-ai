@@ -99,6 +99,42 @@ def list_mp4s(folder_id: str, *, limit: int = 20) -> list[DriveFile]:
     return out
 
 
+def find_folder_by_name(name: str) -> str | None:
+    """Return folder ID if a folder with this exact name exists in My Drive."""
+    service = _drive_service()
+    safe_name = name.replace("'", "\\'")
+    query = (
+        f"mimeType='application/vnd.google-apps.folder' and trashed=false and "
+        f"name='{safe_name}'"
+    )
+    resp = (
+        service.files()
+        .list(q=query, pageSize=5, fields="files(id,name)", orderBy="createdTime desc")
+        .execute()
+    )
+    files = resp.get("files") or []
+    return str(files[0]["id"]) if files else None
+
+
+def create_folder(name: str, *, parent_id: str = "root") -> str:
+    service = _drive_service()
+    meta = {
+        "name": name,
+        "mimeType": "application/vnd.google-apps.folder",
+        "parents": [parent_id],
+    }
+    created = service.files().create(body=meta, fields="id").execute()
+    return str(created["id"])
+
+
+def ensure_inbox_folder(name: str = "Rapid Tool Review Inbox") -> str:
+    """Find or create the inbox folder; return folder ID."""
+    existing = find_folder_by_name(name)
+    if existing:
+        return existing
+    return create_folder(name)
+
+
 def download_file(file_id: str, dest: Path) -> int:
     dest = dest.expanduser().resolve()
     dest.parent.mkdir(parents=True, exist_ok=True)

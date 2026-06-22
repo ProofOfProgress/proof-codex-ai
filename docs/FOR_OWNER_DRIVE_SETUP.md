@@ -33,7 +33,16 @@ python3 -m shorts_bot.drive.inbox_cli pull --draft-id 6 --upload
 
 ## Step 2 — Tell the agent your folder ID
 
-In **Cursor → Cloud Agent → Secrets**, add:
+**Already done on cloud VM (2026-06):** folder **Rapid Tool Review Inbox** exists.  
+Open it: https://drive.google.com/drive/folders/1jVTIXaoAyut3aoEUVipcsYGYtWRo9gH8
+
+To re-run setup yourself (or on a new machine):
+
+```bash
+PYTHONPATH=. python3 scripts/setup_drive_inbox.py
+```
+
+Optional — add to **Cursor → Cloud Agent → Secrets**:
 
 | Secret name | Value |
 |-------------|--------|
