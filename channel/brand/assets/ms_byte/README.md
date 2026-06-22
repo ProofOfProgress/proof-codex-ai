@@ -1,6 +1,7 @@
 # Ms. Byte — visual asset kit
 
-**Host:** Rapid Tool Review Shorts · **Library name in InVideo:** `RTR_MsByte`
+**Host:** Rapid Tool Review Shorts · **Library name in InVideo:** `RTR_MsByte`  
+**Visual style:** **Anime / cel-shaded** — if InVideo asks, choose anime (not photoreal, not AI twin).
 
 ## Format note (important)
 

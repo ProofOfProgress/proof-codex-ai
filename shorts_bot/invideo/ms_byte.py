@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-MS_BYTE_VISUAL_RULES = """
+# If InVideo asks for illustration / visual style — owner lock.
+MS_BYTE_CHARACTER_STYLE = "anime / cel-shaded (anime kinda style — NOT photoreal, NOT 3D)"
+
+MS_BYTE_VISUAL_RULES = f"""
 FORMAT: YouTube Short ONLY — 9:16 vertical, 25-35 seconds.
 
 HOST — Ms. Byte (always full name "Ms. Byte", never "Byte"):
-- Use ONLY saved library character RTR_MsByte — flat 2D cartoon, clearly synthetic AI
+- Use ONLY saved library character RTR_MsByte — {MS_BYTE_CHARACTER_STYLE}, clearly synthetic AI
 - Bubbly, perky, upbeat teacher — openly says she is an AI in the hook
 - Chest-up framing ~5 seconds total (hook + pro/con beat); rest = stock + tight app UI
 - NO AI Twin. Basic / stock tier ONLY — target ≤8 credits
@@ -59,3 +62,21 @@ def ms_byte_brief(
     if angle.strip():
         parts.append(f"RESEARCH: {angle.strip()}")
     return "\n".join(parts)
+
+
+def ms_byte_character_brief() -> str:
+    """One-shot InVideo agent prompt — build RTR_MsByte library character."""
+    return f"""Style: {MS_BYTE_CHARACTER_STYLE} — confirmed.
+
+Reference photos attached (front + side poses). Build Ms. Byte's reusable character sheet and save to my library as RTR_MsByte.
+
+Character:
+- Bubbly AI teacher host for YouTube Shorts (9:16 vertical, chest-up framing)
+- Pink/magenta hair streak in dark hair, gaming headset with mic
+- Blue circuit-pattern hoodie (#3B82F6), pink accent (#EC4899), hologram glow, ONLINE badge
+- Dark studio background #0B0F14
+- Poses needed: wave hook, thinking, strength thumbs-up, weakness thumbs-down, outro wave
+- Clearly synthetic illustrated AI — NOT photoreal, NOT AI twin face clone
+- Basic tier only
+
+Generate the character master sheet now."""
