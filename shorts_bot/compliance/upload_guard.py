@@ -74,8 +74,11 @@ def check_upload_allowed(
     )
     channel = (settings.youtube_channel_name or "").lower()
     is_horror = "peripheral" in channel or settings.channel_series_name.lower() == "peripheral"
-    if is_horror and any(m in topic_lower for m in off_niche_markers):
-        issues.append("off-niche topic — Peripheral horror Shorts only (wrong vertical uploaded)")
+    if any(m in topic_lower for m in off_niche_markers):
+        if is_horror:
+            issues.append("off-niche topic — Peripheral horror Shorts only (wrong vertical uploaded)")
+        else:
+            issues.append("off-niche topic — Rapid Tool Review AI product reviews only")
 
     for risk in risk_signals_for_script(script, hook, title):
         if (
