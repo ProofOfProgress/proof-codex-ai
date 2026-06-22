@@ -87,6 +87,7 @@ No need to “win” every thread; specificity beats a universal verdict.
 | `pose_strength.png` | STRENGTH beat |
 | `pose_weakness.png` | WEAKNESS beat |
 | `pose_outro.png` | Sign-off |
+| `pose_side_angle.png` | Side / 3/4 profile |
 
 - Flat 2D cartoon — **NOT** photoreal, **NOT** InVideo AI Twin
 - Clearly **digital:** hologram glow, ONLINE badge, UI accents
