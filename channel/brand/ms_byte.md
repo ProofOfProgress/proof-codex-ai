@@ -54,6 +54,28 @@
 
 ---
 
+## Audience framing (don’t over-box people)
+
+**Problem:** Saying “this is ONLY for developers” invites *“well ACTUALLY I’m a grandma and I love it”* comments — because every tool has edge cases.
+
+**Fix:** Verdict on **the money + main job**, not every human on earth.
+
+| Instead of | Say |
+|------------|-----|
+| “Non-coders should skip this.” | “**Skip** if you’re paying $20 and only use chat once a week.” |
+| “This is for developers only.” | “**Pay** if you’re in the terminal daily — otherwise free tiers exist.” |
+| “Everyone needs this.” | “**Pay** if [one specific pain] — **Wait** if you’re happy with [free alt].” |
+
+**Rules:**
+1. **One condition per Short** — price, frequency, or one use case. Not a full persona essay.
+2. **Verdict = wallet + job**, not identity (“developers,” “creators,” “moms”).
+3. **Hedge once, perky:** *“Your mileage may vary — tell me your use case below!”*
+4. **Comments = feature** — “who is this for?” debates boost engagement; pin a clarifying reply if needed.
+
+**Ms. Byte line:** *“I’m grading the **tool for your wallet**, not your whole personality!”*
+
+---
+
 ## InVideo (generate once)
 
 Upload character sheet to media library as **`RTR_MsByte`**.
