@@ -73,20 +73,20 @@ No need to “win” every thread; specificity beats a universal verdict.
 
 ## Look (2D library character — `RTR_MsByte`)
 
-**Canonical reference art:** `channel/brand/assets/ms_byte_reference.png`
+**All visual PNGs:** `channel/brand/assets/ms_byte/` (see README there)
 
-**Asset kit (InVideo / clip loops):**
+**Shorts framing:** Ms. Byte is a **9:16 vertical** host. Current PNG batch is reference art — crop chest-up center for Shorts; **future generations = 9:16 only**.
 
 | File | Use |
 |------|-----|
-| `ms_byte_reference.png` | Master look — match this in Character Generator |
-| `ms_byte_background_studio.png` | Virtual classroom BG (no character) — overlay host clips |
-| `ms_byte_studio_full_scene.png` | Full frame: Ms. Byte in studio |
-| `ms_byte_pose_hook_wave.png` | Hook — “class is in session” |
-| `ms_byte_pose_thinking.png` | Mid-lesson / analyzing tool |
-| `ms_byte_pose_strength.png` | STRENGTH beat |
-| `ms_byte_pose_weakness.png` | WEAKNESS beat |
-| `ms_byte_pose_outro.png` | “You decide!” sign-off |
+| `reference.png` | Master look — Character Generator input |
+| `background_studio.png` | Virtual classroom BG |
+| `studio_full_scene.png` | Full scene reference |
+| `pose_hook_wave.png` | Hook |
+| `pose_thinking.png` | Mid-lesson |
+| `pose_strength.png` | STRENGTH beat |
+| `pose_weakness.png` | WEAKNESS beat |
+| `pose_outro.png` | Sign-off |
 
 - Flat 2D cartoon — **NOT** photoreal, **NOT** InVideo AI Twin
 - Clearly **digital:** hologram glow, ONLINE badge, UI accents
