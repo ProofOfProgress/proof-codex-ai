@@ -11,9 +11,12 @@ SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
 ]
 
+DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.readonly"
+
 UPLOAD_SCOPES = SCOPES + [
     "https://www.googleapis.com/auth/youtube.upload",
     "https://www.googleapis.com/auth/youtube.force-ssl",  # delete own videos
+    DRIVE_SCOPE,
 ]
 
 OAUTH_REDIRECT_URI = "http://127.0.0.1:8090/"
@@ -309,14 +312,32 @@ def upload_ready() -> bool:
     return load_credentials_for_upload() is not None
 
 
+def drive_ready() -> bool:
+    return load_credentials_for_drive() is not None
+
+
+def load_credentials_for_drive():
+    """Load creds with Drive read scope; re-auth if token lacks drive.readonly."""
+    creds = _load_credentials(UPLOAD_SCOPES)
+    if not creds:
+        return None
+    granted = set(creds.scopes or [])
+    if DRIVE_SCOPE not in granted:
+        return None
+    return creds
+
+
 def auth_status() -> dict:
     creds_ok = credentials_configured() and token_exists()
     upload_ok = upload_ready()
+    drive_ok = drive_ready()
     return {
         "credentials_configured": credentials_configured(),
         "credentials_message": credentials_status_message(),
         "token_saved": token_exists(),
         "ready": creds_ok,
         "upload_ready": upload_ok,
+        "drive_ready": drive_ok,
         "needs_upload_reauth": token_exists() and credentials_configured() and not upload_ok,
+        "needs_drive_reauth": token_exists() and credentials_configured() and not drive_ok,
     }

@@ -68,7 +68,8 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 
 | Secret name | Cursor type | Value type | Example (filler) | Notes |
 |-------------|-------------|------------|------------------|-------|
-| `OPENAI_API_KEY` | Runtime Secret | API key (string, starts `sk-`) | `sk-________________________________` | Backup chat |
+| `GOOGLE_DRIVE_FOLDER_ID` | Environment Variable | Drive folder ID (string) | `1a2b3c4d5e6f7g8h9i` | InVideo MP4 inbox — `docs/FOR_OWNER_DRIVE_SETUP.md` |
+| `GOOGLE_DRIVE_INBOX_ENABLED` | Environment Variable | `true` / `false` | `true` | Poll Drive folder for new MP4s |
 | `OPENAI_MODEL` | Environment Variable | Model slug (string) | `gpt-4o-mini` | |
 | `ASSEMBLYAI_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | Skip unless `TRANSCRIPT_PROVIDER=assemblyai` |
 | `FAL_API_KEY` | Runtime Secret | API key (string) | `________________________________` | If `IMAGE_PROVIDER=fal` |
