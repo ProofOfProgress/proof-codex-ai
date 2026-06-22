@@ -49,6 +49,7 @@ Rules:
 - If credits block: append to data/ALERTS.md with draft # and project URL; stop.
 - If MP4 exists but upload failed: python3 -m shorts_bot.production.upload_canonical_cli --draft-id N --video data/production/draft_N/final_short.mp4
 - Max 1 YouTube upload per 24h.
+- If upload blocked by gap: `python3 -m shorts_bot.youtube.pending_upload_cli process` (or auto-queues on ship)
 - Reply in 5 lines: product, draft #, YouTube URL or blocker.
 ```
 

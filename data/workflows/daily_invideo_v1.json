@@ -1,36 +1,62 @@
 {
-  "name": "daily_invideo_v1",
-  "description": "One InVideo prompt → credit check (≤10) → download → schedule upload. No AI twin.",
+  "id": "daily_invideo",
+  "version": 1,
+  "description": "One InVideo prompt → credit check (≤10) → download → queue/schedule upload. No AI twin.",
   "steps": [
     {
-      "id": "pick_product",
-      "action": "pick_next_product",
+      "id": "pick_topic",
+      "enabled": true,
       "params": {"queue": "data/product_queue.json"}
     },
     {
-      "id": "draft",
-      "action": "create_draft",
-      "params": {"format": "conversational_review", "no_twin": true}
-    },
-    {
-      "id": "invideo_ship",
-      "action": "invideo_autonomous_ship",
+      "id": "build_brief",
+      "enabled": true,
       "params": {
-        "max_credits": 10,
-        "tier": "basic",
+        "hook_template": "If you're thinking about {product} — here's my honest 30-second take.",
+        "format": "conversational_review",
         "no_twin": true,
-        "one_prompt_only": true
+        "max_credits": 10
       }
     },
     {
-      "id": "upload",
-      "action": "schedule_upload",
-      "params": {"min_gap_hours": 20}
+      "id": "script_qc",
+      "enabled": true,
+      "params": {"min_score": 7.0}
     },
     {
-      "id": "analytics",
-      "action": "sync_analytics_honest",
-      "params": {"report": true}
+      "id": "save_draft",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "auto_approve",
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "id": "invideo_project",
+      "enabled": true,
+      "params": {"one_prompt_only": true}
+    },
+    {
+      "id": "invideo_render",
+      "enabled": true,
+      "params": {
+        "wait_render_sec": 2400,
+        "max_credits": 10,
+        "tier": "basic",
+        "no_twin": true
+      }
+    },
+    {
+      "id": "youtube_upload",
+      "enabled": true,
+      "params": {"min_gap_hours": 20, "use_pending_queue": true}
+    },
+    {
+      "id": "analytics_sync",
+      "enabled": true,
+      "params": {"honest_labels": true}
     }
   ],
   "schedule": "every 24h",

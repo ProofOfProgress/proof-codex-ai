@@ -104,19 +104,31 @@ def run_autonomous_ship(
 
     upload_url = None
     if upload and dest.is_file() and dest.stat().st_size > 50_000:
+        publish_at = None
         if schedule_hours and schedule_hours > 0:
-            from shorts_bot.youtube.scheduled_upload import upload_scheduled_short
-
             publish_at = datetime.now(timezone.utc) + timedelta(hours=schedule_hours)
-            upload_url = upload_scheduled_short(
-                draft_id,
-                dest,
-                publish_at=publish_at,
-            )
-        else:
-            upload_url = upload_canonical(draft_id, dest, volume_warning=False)
+        try:
+            if publish_at:
+                from shorts_bot.youtube.scheduled_upload import upload_scheduled_short
 
-        if settings.post_upload_analytics_sync:
+                upload_url = upload_scheduled_short(draft_id, dest, publish_at=publish_at)
+            else:
+                upload_url = upload_canonical(draft_id, dest, volume_warning=False)
+        except RuntimeError as exc:
+            if publish_at and ("24h" in str(exc) or "wait" in str(exc).lower()):
+                from shorts_bot.youtube.pending_uploads import enqueue_upload
+
+                enqueue_upload(
+                    draft_id=draft_id,
+                    video_path=dest,
+                    publish_at=publish_at,
+                    topic=topic,
+                )
+                upload_url = f"queued for {publish_at.isoformat()}"
+            else:
+                raise
+
+        if upload_url and upload_url.startswith("http") and settings.post_upload_analytics_sync:
             from shorts_bot.youtube.post_upload import sync_analytics_after_upload
 
             sync_analytics_after_upload()
