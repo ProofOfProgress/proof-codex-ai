@@ -73,6 +73,8 @@ No need to “win” every thread; specificity beats a universal verdict.
 
 ## Look (2D library character — `RTR_MsByte`)
 
+**Canonical reference art:** `channel/brand/assets/ms_byte_reference.png` (use for InVideo Character Generator + clip kit)
+
 - Flat 2D cartoon — **NOT** photoreal, **NOT** InVideo AI Twin
 - Clearly **digital:** hologram glow, ONLINE badge, UI accents
 - Egirl-inspired: pink streak, headset, tablet/pointer, chest-up framing
