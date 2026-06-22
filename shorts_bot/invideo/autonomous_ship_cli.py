@@ -29,33 +29,10 @@ def conversational_brief(
     hook: str,
     angle: str = "",
 ) -> str:
-    """Single InVideo prompt — voice + stock + UI, no twin, Basic tier."""
-    from shorts_bot.invideo.prompts import SHORTS_VISUAL_RULES
+    """Single InVideo prompt — Ms. Byte, stock + UI, no twin, Basic tier."""
+    from shorts_bot.invideo.ms_byte import ms_byte_brief
 
-    parts = [
-        SHORTS_VISUAL_RULES.replace(
-            "AI twin (AlphaBeta Host): SHORT inserts only",
-            "NO AI twin — voiceover + stock + app UI only",
-        ).replace("Twin on camera OR bold text", "Bold text + stock in hook"),
-        "",
-        "MEDIA TIER: Basic / licensed stock ONLY. Target ≤8 credits total. NO Pro. NO Ultra. NO AI twin surcharge.",
-        "",
-        f"TOPIC: {product} — honest ~30 second YouTube Short review.",
-        f"HOOK (first line): {hook}",
-        "",
-        "FORMAT: Conversational — talk like a friend, not an essay.",
-        "Weave 'if you're X… but if you're Y…' naturally. NO 'Pay/Skip/Wait' headers. NO labeled blocks.",
-        "End with a plain-English takeaway: who should actually pay vs skip.",
-        "",
-        "VISUALS: 70–85% vertical stock B-roll. Tight app/terminal UI when showing the product.",
-        "Show Claude Code terminal or IDE screenshots if relevant — no fake UI.",
-        "",
-        "TONE: Skeptical but fair. No hype. No 'THIS CHANGES EVERYTHING.'",
-        "YOU write the script from this brief — one generation only.",
-    ]
-    if angle.strip():
-        parts.extend(["", f"RESEARCH ANGLE: {angle.strip()}"])
-    return "\n".join(parts)
+    return ms_byte_brief(product=product, hook=hook, angle=angle)
 
 
 CLAUDE_CODE_BRIEF = conversational_brief(
