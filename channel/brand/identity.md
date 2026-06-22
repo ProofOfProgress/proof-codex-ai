@@ -16,7 +16,7 @@
 
 ## Presenter
 
-**InVideo** — voice + screen UI for now (no twin yet). Twin optional later. Disclose synthetic media per YouTube policy when used.
+**Ms. Byte** — AI persona hosting the channel (clearly synthetic, not a fake human). Flat 2D character in InVideo library (`RTR_MsByte`). Bubbly, perky teacher; reviews other AI tools. Full spec: `channel/brand/ms_byte.md`. Disclose synthetic media per YouTube policy.
 
 ## Tone
 
