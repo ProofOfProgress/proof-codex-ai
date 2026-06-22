@@ -4,7 +4,7 @@
 
 ## One-line pitch
 
-**Rapid Tool Review — honest AI tool verdicts in 30 seconds (Pay / Skip / Wait).**
+**Rapid Tool Review — honest AI tool breakdowns in 30 seconds (strengths, weaknesses, you decide).**
 
 ## Niche hierarchy (locked)
 
@@ -16,7 +16,7 @@
 
 ## Presenter
 
-**Ms. Byte** — AI persona hosting the channel (clearly synthetic, not a fake human). Flat 2D character in InVideo library (`RTR_MsByte`). Bubbly, perky teacher; reviews other AI tools. Full spec: `channel/brand/ms_byte.md`. Disclose synthetic media per YouTube policy.
+**Ms. Byte** — AI persona hosting the channel (clearly synthetic). Teaches strengths & weaknesses of one tool per Short — viewer decides, no forced Pay/Skip/Wait. Spec: `channel/brand/ms_byte.md`.
 
 ## Tone
 
