@@ -31,6 +31,7 @@ https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/brand/assets
 | `pose_strength.png` | STRENGTH card beat |
 | `pose_weakness.png` | WEAKNESS card beat |
 | `pose_outro.png` | “You decide!” sign-off |
+| `pose_side_angle.png` | Side / 3/4 profile — character sheet reference |
 
 ## Usage
 
