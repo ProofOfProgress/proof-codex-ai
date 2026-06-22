@@ -22,9 +22,10 @@
 
 ## Logo / profile
 
-- **Mark:** **RTR** monogram (Rapid Tool Review)
-- **Subline on avatar:** `30 sec`
-- **Pills under mark:** PAY · SKIP · WAIT (small)
+- **Mark:** **AI magnifier** — magnifying glass over a 3-node network (universal AI + review; not one product logo)
+- **Colors:** dark `#0B0F14` background, blue `#3B82F6` accent on glass + nodes
+- **No text on profile** — must read at 48×48 px avatar size
+- **Banner** still carries full name + tagline + optional verdict pills
 
 Generate PNGs:
 ```bash
