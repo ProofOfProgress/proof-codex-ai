@@ -37,12 +37,14 @@ def conversational_brief(
 
 CLAUDE_CODE_BRIEF = conversational_brief(
     product="Claude Code",
-    hook="Claude Code is Anthropic's terminal coding agent — but who actually needs it?",
+    hook=(
+        "Class is in session! Hi — I'm Ms. Byte! Yes, I'm an AI! "
+        "Today's lesson: Claude Code — what's actually good and what's actually broken!"
+    ),
     angle=(
-        "Included with Claude Pro ($20/mo) — not standalone. Terminal-native: edits multi-file repos, "
-        "runs tests, git ops. Great for devs who live in the terminal; overkill for non-coders. "
-        "Heavy agent use can burn through limits — Max tier for power users. "
-        "Compare briefly to Cursor for editor-native folks. June 2026: programmatic usage may use separate credit pool."
+        "STRENGTH: terminal agent edits multi-file repos, runs tests, git ops. "
+        "WEAKNESS: bundled with Claude Pro; heavy use burns limits; weak value if you don't code. "
+        "TRADEOFF: vs Cursor for editor-native workflows — not a pay/skip command, just the tradeoff."
     ),
 )
 
