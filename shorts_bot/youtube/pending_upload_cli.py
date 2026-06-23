@@ -56,8 +56,11 @@ def main() -> None:
         table.add_column("Draft")
         table.add_column("Publish (UTC)")
         table.add_column("Video")
+        table.add_column("Status")
         for i in items:
-            table.add_row(str(i.draft_id), i.publish_at[:19], Path(i.video_path).name)
+            video = Path(i.video_path)
+            status = "ready" if video.is_file() else "missing MP4 on this machine"
+            table.add_row(str(i.draft_id), i.publish_at[:19], video.name, status)
         console.print(table)
         return
 
