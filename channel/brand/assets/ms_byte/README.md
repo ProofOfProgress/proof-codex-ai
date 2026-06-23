@@ -14,8 +14,13 @@ The PNGs in this folder were generated as **reference / mood boards** — many a
 
 ## Download all images
 
-**One zip (8 PNGs):**  
-https://github.com/ProofOfProgress/proof-codex-ai/raw/main/channel/brand/assets/ms_byte/ms_byte_all_images.zip
+**One zip (12 PNGs — poses + social):**  
+https://github.com/ProofOfProgress/proof-codex-ai/raw/main/channel/brand/assets/ms_byte_all_images.zip
+
+**Social only (profile + banners):**  
+https://github.com/ProofOfProgress/proof-codex-ai/raw/main/channel/brand/assets/ms_byte_social_download.zip
+
+**Owner download guide:** `docs/FOR_OWNER_MS_BYTE_IMAGES.md`
 
 **Browse folder:**  
 https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/brand/assets/ms_byte
@@ -33,6 +38,9 @@ https://github.com/ProofOfProgress/proof-codex-ai/tree/main/channel/brand/assets
 | `pose_weakness.png` | WEAKNESS card beat |
 | `pose_outro.png` | “You decide!” sign-off |
 | `pose_side_angle.png` | Side / 3/4 profile — character sheet reference |
+| `social_profile.png` | Profile pic (all platforms) |
+| `facebook_cover.png` | Facebook banner |
+| `tiktok_cover.png` | TikTok header art |
 
 ## Usage
 
