@@ -62,15 +62,17 @@ def main() -> None:
         from shorts_bot.b2b import email_send
         from shorts_bot.config import settings
 
-        table = Table(title="B2B business email")
+        table = Table(title="B2B outreach email (separate from ops Gmail)")
         table.add_column("Setting")
         table.add_column("Value")
-        addr = email_send.business_email_address() or "(not set)"
-        table.add_row("From address", addr)
-        table.add_row("Display name", email_send.from_header())
-        table.add_row("SMTP configured", "yes" if email_send.smtp_configured() else "no")
+        addr = email_send.outreach_email_address() or "(not set — add B2B_SMTP_USER)"
+        table.add_row("Outreach inbox", addr)
+        table.add_row("From line", email_send.from_header())
+        table.add_row("Outreach SMTP", "yes" if email_send.smtp_configured() else "no")
         enabled = settings.b2b_email_enabled
         table.add_row("Sending enabled", "yes" if enabled else "no — set B2B_EMAIL_ENABLED=true")
+        test_to = email_send.test_recipient() or "(set B2B_TEST_EMAIL or pass --to)"
+        table.add_row("Test goes to", test_to)
         if email_send.smtp_configured():
             sent = email_send.sends_today()
             limit = max(1, int(settings.b2b_email_daily_limit))
@@ -78,21 +80,24 @@ def main() -> None:
         console.print(table)
         if not email_send.smtp_configured():
             console.print("[yellow]Setup:[/yellow] docs/FOR_OWNER_B2B_EMAIL.md")
+            console.print("[dim]Do not use GMAIL_SMTP_* — that is AlphaBeta ops mail only.[/dim]")
         return
 
     if args.cmd == "test-email":
         from shorts_bot.b2b import email_send
 
-        to = (args.to or email_send.business_email_address()).strip()
+        to = (args.to or email_send.test_recipient()).strip()
         if "@" not in to:
-            console.print("[red]No recipient — set GMAIL_SMTP_USER or pass --to[/red]")
+            console.print("[red]No test recipient — pass --to you@your-email.com or set B2B_TEST_EMAIL in Secrets[/red]")
             raise SystemExit(1)
         ok, msg = email_send.send_business_email(
             to=to,
             subject="[Rapid Tool Review] B2B email test",
             body=(
-                "If you got this, business email is wired up.\n\n"
-                "Next: set B2B_EMAIL_ENABLED=true in Cursor Secrets, then:\n"
+                "If you got this, the B2B outreach inbox is wired up.\n\n"
+                "Sent FROM the dedicated outreach address (B2B_SMTP_USER), "
+                "not the AlphaBeta ops Gmail.\n\n"
+                "When ready: set B2B_EMAIL_ENABLED=true, then:\n"
                 "  python3 -m shorts_bot.b2b.outreach_cli send --index N --confirm\n"
             ),
             company="(test)",

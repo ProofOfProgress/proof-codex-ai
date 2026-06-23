@@ -1,62 +1,80 @@
-# Hook up your business email (B2B outreach)
+# B2B outreach email — separate inbox for AlphaBeta
 
-**What this does:** Lets the bot send **B2B sales emails** from **your** Google / Gmail address — same login you use for Slack alerts.
+**What this is:** A **dedicated outreach Gmail** for sales emails — **not** your personal email, **not** the old PayPal ops Gmail (that one stays for Slack/API alerts only).
 
-**Safety:** Sending is **off** until you flip one switch. Max **10 emails per day**. Every send needs `--confirm`.
+**Who sends:** AlphaBeta drafts; **you** approve with `--confirm` before anything goes out.
+
+**Safety:** Off until you enable it. Max **10 emails/day**. Every real send needs `--confirm`.
 
 ---
 
-## One-time setup (~5 min)
+## Three emails — keep them separate
 
-### 1. Use your business Gmail / Google Workspace
+| Inbox | Used for | Touch it? |
+|-------|----------|-----------|
+| **PayPal ops Gmail** (`GMAIL_SMTP_*`) | Slack alerts, APIs, AlphaBeta ops | **No** — leave alone |
+| **Your personal business email** | You, manually | Bot does **not** send from this |
+| **New outreach inbox** (`B2B_SMTP_*`) | B2B cold email to startups | **Create this** |
 
-Example: `you@rapidtoolreview.com` or your ops Gmail.
+---
 
-You need **2-Step Verification** on that Google account.
+## One-time setup (~10 min)
 
-### 2. Create an App Password
+### 1. Create a new Gmail (or Google Workspace alias)
 
-1. Open [Google Account → Security](https://myaccount.google.com/security)
-2. Turn on **2-Step Verification** if it is not already
-3. Search **App passwords** (or Security → App passwords)
-4. Create one named e.g. `Rapid Tool Review B2B`
-5. Copy the **16-character** password (spaces are fine)
+Pick a clean name, for example:
 
-This is **not** your normal Gmail password.
+- `outreach@rapidtoolreview.com` (Workspace — best)
+- `rapidtoolreview.outreach@gmail.com` (free Gmail — fine to start)
 
-### 3. Add Cursor Secrets
+**Do not** reuse the PayPal ops account.
 
-In **Cursor → your cloud agent → Secrets**, add or update:
+Turn on **2-Step Verification** on the new account.
 
-| Secret | What to put |
-|--------|-------------|
-| `GMAIL_SMTP_USER` | Your business email address |
-| `GMAIL_SMTP_APP_PASSWORD` | The 16-char app password |
-| `B2B_EMAIL_ENABLED` | `true` (only after you are ready to send) |
-| `B2B_EMAIL_FROM_NAME` | Your first name, e.g. `Kim` |
+### 2. App password for the outreach inbox
 
-Then on the VM:
+1. [Google Account → Security](https://myaccount.google.com/security) (signed into the **new** outreach account)
+2. **App passwords** → create one named `RTR B2B Outreach`
+3. Copy the 16-character password
+
+### 3. Cursor Secrets
+
+Add these — **separate from** `GMAIL_SMTP_*`:
+
+| Secret | Example |
+|--------|---------|
+| `B2B_SMTP_USER` | `outreach@rapidtoolreview.com` |
+| `B2B_SMTP_APP_PASSWORD` | 16-char app password |
+| `B2B_TEST_EMAIL` | **Your** personal inbox (where test pings land) |
+| `B2B_EMAIL_FROM_NAME` | `Kim` (shows as "Kim &lt;outreach@...&gt;") |
+| `B2B_EMAIL_ENABLED` | `false` until ready, then `true` |
+
+Then:
 
 ```bash
 bash scripts/install.sh
 python3 -m shorts_bot.b2b.outreach_cli status
 ```
 
-You should see **SMTP configured: yes**.
+You should see **Outreach SMTP: yes**.
 
-### 4. Send yourself a test
+### 4. Test (sends to YOUR inbox, from the outreach address)
+
+```bash
+python3 -m shorts_bot.b2b.outreach_cli test-email --to you@your-personal-email.com
+```
+
+Or set `B2B_TEST_EMAIL` once and run:
 
 ```bash
 python3 -m shorts_bot.b2b.outreach_cli test-email
 ```
 
-Check your inbox for `[Rapid Tool Review] B2B email test`.
-
 ---
 
 ## Daily workflow
 
-**1. Draft + save a prospect**
+Same as before — draft, tweak, confirm send:
 
 ```bash
 python3 -m shorts_bot.b2b.outreach_cli save \
@@ -65,31 +83,9 @@ python3 -m shorts_bot.b2b.outreach_cli save \
   --detail "Product Hunt launch Tuesday" \
   --channel email \
   --contact "founder@startup.com"
-```
 
-**2. Read the draft** — tweak one line so it sounds like you.
-
-**3. Send (only when ready)**
-
-```bash
 python3 -m shorts_bot.b2b.outreach_cli send --index 0 --confirm
 ```
-
-`--index` is the row number in `data/b2b/prospects.json` (shown when you `save`).
-
----
-
-## Commands cheat sheet
-
-| Command | Purpose |
-|---------|---------|
-| `outreach_cli status` | Is email wired? How many sent today? |
-| `outreach_cli test-email` | Ping yourself |
-| `outreach_cli draft ... --channel email` | Preview one email |
-| `outreach_cli save ... --contact email@...` | Save to prospect list |
-| `outreach_cli send --index N --confirm` | Actually send |
-
-Send log: `data/b2b/send_log.jsonl`
 
 ---
 
@@ -97,19 +93,9 @@ Send log: `data/b2b/send_log.jsonl`
 
 | Problem | Fix |
 |---------|-----|
-| `Business email not configured` | Set `GMAIL_SMTP_USER` + `GMAIL_SMTP_APP_PASSWORD` in Secrets → `bash scripts/install.sh` |
-| `Gmail auth failed` | Use an **App Password**, not your login password |
-| `B2B email disabled` | Set `B2B_EMAIL_ENABLED=true` in Secrets |
-| `Daily limit reached` | Wait until tomorrow (UTC) or ask agent to raise `B2B_EMAIL_DAILY_LIMIT` |
-| Email lands in spam | Normal for new outreach — warm up slowly, tweak copy, use your real name |
+| `Outreach inbox not configured` | Set `B2B_SMTP_USER` + `B2B_SMTP_APP_PASSWORD` (not `GMAIL_SMTP_*`) |
+| Test used wrong sender | Old test hit ops Gmail — fixed; use `B2B_SMTP_*` only |
+| `No test recipient` | Pass `--to your@email.com` or set `B2B_TEST_EMAIL` |
+| Auth failed | App password must be for the **outreach** account, not PayPal ops |
 
----
-
-## Same keys as Slack email
-
-If you already set up Slack alerts via Gmail (`docs/FOR_OWNER_SLACK_EMAIL.md`), you only need to add:
-
-- `B2B_EMAIL_ENABLED=true`
-- `B2B_EMAIL_FROM_NAME=Kim` (your name)
-
-The bot uses the same Gmail SMTP login for both Slack alerts and B2B outreach.
+Send log: `data/b2b/send_log.jsonl`
