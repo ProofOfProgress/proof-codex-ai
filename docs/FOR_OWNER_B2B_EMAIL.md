@@ -70,6 +70,16 @@ Or set `B2B_TEST_EMAIL` once and run:
 python3 -m shorts_bot.b2b.outreach_cli test-email
 ```
 
+### Agent creates the outreach Gmail (browser)
+
+```bash
+python3 -m shorts_bot.b2b.gmail_setup_cli
+```
+
+Opens **Desktop** browser → fills signup → **you** enter phone code when Google asks.  
+Credentials land in `data/b2b/gmail_setup_handoff.json` (local only).  
+Then create an **App Password** on that new account → `B2B_SMTP_APP_PASSWORD` in Secrets.
+
 ---
 
 ## Daily workflow
