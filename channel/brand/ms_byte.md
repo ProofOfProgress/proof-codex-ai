@@ -25,29 +25,35 @@
 
 ## Format: strengths & weaknesses (NOT binary verdicts)
 
-**Why:** “Don't pay unless you hit limits” fits almost every tool — useless as a channel gimmick.  
+**Codex law:** Jenny Hoyos rules in `course/files/` (especially **02** hook, **06** retention/payoff, **05** mute clarity, **09** CTA) override generic templates. Ms. Byte format runs **inside** Jenny's chain: idea → hook → visuals → momentum → payoff.
+
+**Why no Pay/Skip/Wait:** “Don't pay unless you hit limits” fits almost every tool — useless as a channel gimmick.  
 **Instead:** Each Short = **one product**, **one real strength**, **one real weakness**, optional **tradeoff vs alternative**.
 
-| Beat | Content |
-|------|---------|
-| **Hook (0–3s)** | *“Class is in session! I’m Ms. Byte — I’m an AI! Today’s lesson: **[Product]**!”* |
-| **Strength (3–12s)** | What it genuinely does well — specific feature, not marketing copy |
-| **Weakness (12–22s)** | Where it breaks, costs too much, or loses to a free tier — show UI if possible |
-| **Tradeoff (22–27s)** | *“Beats **[B]** at X — loses at Y”* or *“Only makes sense if you need Z”* — **not** “you should pay” |
-| **Out (27–30s)** | *“That’s the lesson — **you** pick! Comment your use case!”* |
+| Beat | Time | Content (Jenny + Ms. Byte) |
+|------|------|----------------------------|
+| **Hook (0–2s)** | First frame | **Shock or curiosity FIRST** — price, claim, or tension. *Then* host tag: *“I'm Ms. Byte — an AI…”* (Jenny 02: start ASAP; no classroom warm-up before the hook) |
+| **Setup (2–5s)** | | Name product + promise payoff (*“here's the one thing it actually does…”*) |
+| **Strength (5–11s)** | 2 cuts | Specific win + **so** who it's for (cause → effect) |
+| **Weakness (11–17s)** | 2 cuts | **But** price/flaw + **so** conflict (Jenny 06) |
+| **CTA card (17–19s)** | | Comment/subscribe prompt **before** final reveal (Jenny 09) |
+| **Tradeoff (17–22s)** | | Beats **[B]** at X — loses at Y |
+| **Payoff (22–27s)** | | **Best line last** — concrete insight (*“If X isn't your job — walk.”*) |
+| **Out (27–30s)** | | End promptly: *“You decide — comment below.”* |
 
-**Do NOT end with:** Pay / Skip / Wait stamps, “worth it for everyone,” “skip unless you're a developer.”
+**Do NOT end with:** Pay / Skip / Wait stamps, “worth it for everyone,” long classroom intro before hook.
 
-**DO end with:** Product-specific insight the viewer can map to themselves.
+**DO end with:** One sharp payoff line, then comment CTA, then cut (Jenny 06).
 
 ---
 
-## Example lines (Claude Code)
+## Example lines (Claude Code — Jenny order)
 
-> **Strength:** Terminal agent that edits whole repos and runs tests — fast.  
-> **Weakness:** Bundled with Pro; heavy use eats limits. Pointless if you don't touch code.  
-> **Tradeoff:** Beats point-and-click chat for dev workflows — **Cursor** wins if you live in an editor.  
-> **Close:** That's today's lesson — you decide! Tell me what you'd use it for!
+> **Hook:** Claude Code sounds free — until your Pro limits vanish.  
+> **Setup:** I'm Ms. Byte — an AI — one strength, one flaw.  
+> **Strength:** Terminal agent that edits repos and runs tests — fast. **So** devs save hours.  
+> **But:** Bundled with Pro; heavy use eats limits. **So** pointless if you don't code.  
+> **Payoff:** If you don't live in a terminal — skip it. Comment your stack — you decide!
 
 ---
 
