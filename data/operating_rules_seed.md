@@ -77,6 +77,18 @@ Money at scale requires **not getting demonetized** — keep YPP-safe originalit
 
 **Current human touchpoints (shrink over time):** serious comments, rare 2FA/captcha on external dashboards. Agents complete OAuth/API setup via browser when possible.
 
+## Analytics — default check (owner rule 2026-06)
+
+**Unless the owner says otherwise, every agent session that touches production, hooks, or strategy must:**
+
+1. Run `python3 -m shorts_bot.youtube.analytics_review_cli` (syncs + reviews last uploads)
+2. Report **good metrics** (views, avg watch %, likes, comments, swipe if available) and **bad metrics** (low watch, low views, zero engagement, missing swipe data)
+3. Tie learnings to the **next** hook/script decision — do not propose new videos blind
+
+**Honest limits:** Avg watch % comes from YouTube Analytics API (28-day window) — **not** the Studio retention graph. **Swipe-away is Studio-only** — paste via POST `/api/score` or web UI when hook learning matters.
+
+**Command:** `python3 -m shorts_bot.youtube.analytics_review_cli --limit 5`
+
 ## Work queue — top 4 only
 
 **Only work on the top 4 items in `data/PRIORITIES.md`.** Reassess that list often; update the file when status changes. Do not start side quests (refactors, TikTok, Cursor API plumbing, etc.) while a top-4 item is incomplete.

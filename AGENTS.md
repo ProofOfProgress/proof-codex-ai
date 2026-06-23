@@ -137,6 +137,14 @@ SQLite at `data/shorts_bot.db` (gitignored). Stores drafts, approvals, rejection
 
 ### YouTube Analytics (official API)
 
+**Default agent ritual (owner rule):** Unless told otherwise, check **last uploads** good + bad metrics before production or hook work:
+
+```bash
+python3 -m shorts_bot.youtube.analytics_review_cli
+```
+
+Report views, avg watch %, engagement, and what's weak. Swipe-away = Studio only (POST `/api/score`).
+
 1. Enable YouTube Analytics API + YouTube Data API v3 in Google Cloud
 2. Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in `.env`
 3. One-time OAuth: `python3 -m shorts_bot.youtube.auth_cli` (token → `data/youtube_token.json`). For API uploads add `YOUTUBE_OAUTH_UPLOAD=1`.
