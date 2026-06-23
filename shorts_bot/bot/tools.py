@@ -369,7 +369,10 @@ class ToolRunner:
         from shorts_bot.production.research import deep_research_topic
 
         topic = args["topic"]
-        research = deep_research_topic(topic)
+        try:
+            research = deep_research_topic(topic)
+        except Exception:  # noqa: BLE001 - offline drafts should survive provider outages
+            research = None
         draft = self.generator.create_and_store(topic, args.get("angle"), research=research)
         return json.dumps(
             {
