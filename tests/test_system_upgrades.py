@@ -25,19 +25,17 @@ def test_next_queue_item(tmp_path: Path):
 
 
 def test_script_qc_offline_passes():
-    from shorts_bot.config import settings
-
     brief = (
-        "ChatGPT Plus costs $20. Verdict: Skip unless you hit limits daily. "
-        "Pay only if you use GPT-4 every day."
+        "ChatGPT Plus costs twenty a month. Strength: best writing and plugins for daily users. "
+        "Weakness: casual chatters get little over free tier. But so you decide — comment your use case."
     )
     r = score_script_brief(
         product="ChatGPT Plus",
-        hook="Everyone's paying for ChatGPT Plus — worth it?",
+        hook="Twenty bucks for ChatGPT Plus — most casual users shouldn't pay.",
         brief=brief,
-        verdict_hint="Skip unless daily power user",
     )
-    assert r.score >= 5
+    assert r.score >= 7.0
+    assert r.passed
 
 
 def test_owner_signal_avoid(tmp_path: Path):

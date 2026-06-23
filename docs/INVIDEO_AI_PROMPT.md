@@ -8,8 +8,13 @@ Our code wraps your per-video brief automatically:
 
 ```python
 from shorts_bot.invideo.system_context import wrap_invideo_prompt
-full = wrap_invideo_prompt("30s NotebookLM review — Pay Skip Wait, 9:16, my twin")
+from shorts_bot.invideo.ms_byte import ms_byte_brief
+
+brief = ms_byte_brief(product="Grok (xAI)", hook="Thirty bucks for Grok — most shouldn't pay.")
+full = wrap_invideo_prompt(brief)
 ```
+
+**Deep playbook:** `data/research/INVIDEO_MS_BYTE_QUALITY_PLAYBOOK.md`
 
 ---
 
@@ -20,7 +25,8 @@ Open `shorts_bot/invideo/invideo_master_prompt.md`, copy all of it, then add:
 ```
 --- VIDEO BRIEF ---
 
-Review [PRODUCT]. Hook: [HOOK]. Verdict: Pay, Skip, or Wait. 9:16 Short, my AI twin.
+HOST: Ms. Byte — RTR_MsByte. Jenny 8-beat. ONE strength + ONE weakness. NO Pay/Skip/Wait.
+Review [PRODUCT]. Hook: [CURIOSITY HOOK FIRST]. 9:16 Short. Basic ≤10 credits. Say "Twitter" not "X" in VO.
 ```
 
 ---
@@ -29,13 +35,14 @@ Review [PRODUCT]. Hook: [HOOK]. Verdict: Pay, Skip, or Wait. 9:16 Short, my AI t
 
 | Area | Content |
 |------|---------|
-| Identity | AI product review channel, honest verdicts |
-| Format | 9:16 YouTube Short, 25–35s, 4-beat script |
-| Presenter | Owner's AI Twin always |
-| Visuals | No widescreen stock in vertical (v1 lesson) |
-| Tone | Skeptical but fair, no hype |
-| Verdict | Pay / Skip / Wait every video |
-| Avoid | Horror, listicles, fake tests, affiliate energy |
+| Identity | Rapid Tool Review — AI explains AI tools |
+| Format | 9:16 YouTube Short, 25–35s, Jenny 8-beat script |
+| Presenter | **Ms. Byte** — library character `RTR_MsByte`, 45–55% on screen |
+| Visuals | Vertical-native stock + UI; no widescreen letterbox |
+| Tone | Bubbly teacher + skeptical honesty |
+| Verdict | Strength + weakness — **viewer decides** (no Pay/Skip/Wait) |
+| TTS | Say "Twitter" — never speak "X" as a word |
+| Avoid | Horror, listicles, AI Twin, fake tests, affiliate energy |
 | Pipeline | Brief → InVideo writes script → Generate → export |
 
 ---

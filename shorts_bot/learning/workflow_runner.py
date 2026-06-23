@@ -8,7 +8,7 @@ from pathlib import Path
 
 from shorts_bot.config import settings
 from shorts_bot.invideo.generate import generate_from_prompt
-from shorts_bot.invideo.prompts import shorts_product_brief
+from shorts_bot.invideo.ms_byte import ms_byte_brief
 from shorts_bot.invideo.script_pack import draft_pack_dir
 from shorts_bot.learning.workflow import (
     StepResult,
@@ -94,22 +94,24 @@ def run_daily_invideo_workflow(
         t0 = time.monotonic()
         try:
             hook_tpl = str(brief_step.params.get("hook_template", HOOK_TEMPLATES_FALLBACK))
-            verdict = str(brief_step.params.get("verdict_hint", "Pay, Skip, or Wait"))
+            strength_hint = str(brief_step.params.get("strength_hint", ""))
+            weakness_hint = str(brief_step.params.get("weakness_hint", ""))
             pending = consume_pending_queue_item(store)
             if pending:
                 if pending.get("hook"):
                     hook = str(pending["hook"])
                 else:
                     hook = hook_tpl.format(product=product)
-                if pending.get("verdict_hint"):
-                    verdict = str(pending["verdict_hint"])
+                strength_hint = str(pending.get("strength_hint") or strength_hint)
+                weakness_hint = str(pending.get("weakness_hint") or weakness_hint)
             else:
                 hook = hook_tpl.format(product=product)
-            brief = shorts_product_brief(
+            brief = ms_byte_brief(
                 product=product,
                 hook=hook,
-                verdict_hint=verdict,
-                extra=f"Topic line for upload: {topic}",
+                strength_hint=strength_hint,
+                weakness_hint=weakness_hint,
+                angle=f"Topic line for upload: {topic}",
             )
             step_results.append(_record_step("build_brief", True, hook[:120], t0))
         except Exception as exc:
@@ -126,7 +128,6 @@ def run_daily_invideo_workflow(
             product=product,
             hook=hook,
             brief=brief,
-            verdict_hint=verdict,
         )
         if qc.passed:
             step_results.append(_record_step("script_qc", True, f"score={qc.score}", t0))
