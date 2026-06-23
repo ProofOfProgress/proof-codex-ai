@@ -212,3 +212,105 @@ def ensure_brand_assets(*, force: bool = False) -> tuple[Path, Path]:
     if not force and PROFILE_PATH.exists() and BANNER_PATH.exists():
         return PROFILE_PATH, BANNER_PATH
     return generate_profile_image(), generate_banner_image()
+
+
+MS_BYTE_DIR = Path("channel/brand/assets/ms_byte")
+MS_BYTE_PROFILE = MS_BYTE_DIR / "social_profile.png"
+MS_BYTE_FB_COVER = MS_BYTE_DIR / "facebook_cover.png"
+MS_BYTE_TT_COVER = MS_BYTE_DIR / "tiktok_cover.png"
+
+
+def _crop_ms_byte_profile(source: Path, out: Path, *, size: int = 800) -> Path:
+    """Square avatar — chest-up, face centered (reads at small sizes)."""
+    from PIL import Image
+
+    img = Image.open(source).convert("RGBA")
+    w, h = img.size
+    side = min(w, h)
+    left = (w - side) // 2
+    top = max(0, int(h * 0.02))
+    side = min(side, h - top)
+    cropped = img.crop((left, top, left + side, top + side))
+    cropped = cropped.resize((size, size), Image.Resampling.LANCZOS)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    cropped.convert("RGB").save(out, "PNG", optimize=True)
+    return out
+
+
+def generate_ms_byte_facebook_cover(out_path: Path | None = None) -> Path:
+    """1640×624 Facebook cover — Ms. Byte + Rapid Tool Review (mobile-safe center)."""
+    from PIL import Image, ImageDraw
+
+    out = out_path or MS_BYTE_FB_COVER
+    w, h = 1640, 624
+    img = Image.new("RGB", (w, h), BG_TOP)
+    _vertical_gradient(img, BG_TOP, "#0F172A")
+    draw = ImageDraw.Draw(img)
+
+    host_path = MS_BYTE_DIR / "pose_hook_wave.png"
+    if not host_path.exists():
+        host_path = MS_BYTE_DIR / "reference.png"
+    host = Image.open(host_path).convert("RGBA")
+    target_h = int(h * 1.15)
+    scale = target_h / host.height
+    host = host.resize((int(host.width * scale), target_h), Image.Resampling.LANCZOS)
+    img.paste(host, (-int(host.width * 0.08), h - target_h + 20), host)
+
+    font_lg, font_md, font_sm, font_mono = _load_fonts(72, 36, 28, mono_lg=30)
+    cx = int(w * 0.58)
+    draw.text((cx, int(h * 0.22)), "Rapid Tool Review", fill=TEXT_PRIMARY, font=font_lg)
+    draw.text((cx, int(h * 0.48)), "Ms. Byte · AI tool reviews", fill=ACCENT_BRIGHT, font=font_md)
+    draw.text((cx, int(h * 0.62)), "Strengths · Weaknesses · You decide", fill=TEXT_MUTED, font=font_sm)
+    draw.text((cx, int(h * 0.76)), "@RapidToolReview on YouTube", fill=ACCENT, font=font_mono)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out, "PNG", optimize=True)
+    return out
+
+
+def generate_ms_byte_tiktok_cover(out_path: Path | None = None) -> Path:
+    """TikTok header-style 1120×660 — Ms. Byte + channel name."""
+    from PIL import Image, ImageDraw
+
+    out = out_path or MS_BYTE_TT_COVER
+    w, h = 1120, 660
+    img = Image.new("RGB", (w, h), BG_TOP)
+    _vertical_gradient(img, BG_TOP, "#0F172A")
+    draw = ImageDraw.Draw(img)
+
+    host_path = MS_BYTE_DIR / "reference.png"
+    host = Image.open(host_path).convert("RGBA")
+    target_h = int(h * 1.1)
+    scale = target_h / host.height
+    host = host.resize((int(host.width * scale), target_h), Image.Resampling.LANCZOS)
+    img.paste(host, (-int(host.width * 0.05), h - target_h + 10), host)
+
+    font_lg, font_md, font_sm, _ = _load_fonts(64, 34, 26)
+    cx = int(w * 0.55)
+    draw.text((cx, int(h * 0.28)), "Rapid Tool Review", fill=TEXT_PRIMARY, font=font_lg)
+    draw.text((cx, int(h * 0.50)), "Ms. Byte — AI reviewing AI tools", fill=ACCENT_BRIGHT, font=font_md)
+    draw.text((cx, int(h * 0.66)), "Honest breakdowns · You decide", fill=TEXT_MUTED, font=font_sm)
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out, "PNG", optimize=True)
+    return out
+
+
+def ensure_ms_byte_social_assets(*, force: bool = False) -> dict[str, Path]:
+    """Profile + Facebook/TikTok cover art featuring Ms. Byte."""
+    ref = MS_BYTE_DIR / "reference.png"
+    if not ref.exists():
+        raise FileNotFoundError(f"Missing {ref} — run InVideo character CLI or unzip ms_byte assets")
+
+    if force or not MS_BYTE_PROFILE.exists():
+        _crop_ms_byte_profile(ref, MS_BYTE_PROFILE)
+    if force or not MS_BYTE_FB_COVER.exists():
+        generate_ms_byte_facebook_cover()
+    if force or not MS_BYTE_TT_COVER.exists():
+        generate_ms_byte_tiktok_cover()
+
+    return {
+        "profile": MS_BYTE_PROFILE,
+        "facebook_cover": MS_BYTE_FB_COVER,
+        "tiktok_cover": MS_BYTE_TT_COVER,
+    }
