@@ -117,6 +117,17 @@ class Settings(BaseSettings):
     tiktok_disable_comment: bool = False
     auto_upload_tiktok: bool = False
 
+    # Zernio — cheap multi-platform upload (TikTok, Facebook Reels, etc.)
+    zernio_api_key: str | None = None
+    zernio_tiktok_account_id: str | None = None
+    zernio_facebook_account_id: str | None = None
+    zernio_post_tiktok: bool = True
+    zernio_post_facebook: bool = True
+    zernio_tiktok_privacy: str = "PUBLIC_TO_EVERYONE"
+    zernio_facebook_reel_title: str = "Rapid Tool Review"
+    zernio_declare_aigc: bool = True
+    auto_upload_zernio: bool = False
+
     # InVideo AI — MCP + browser production
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
