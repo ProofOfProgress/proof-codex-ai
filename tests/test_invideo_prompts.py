@@ -21,7 +21,7 @@ def test_default_chatgpt_brief():
 def test_ms_byte_brief_jenny_and_tts():
     brief = ms_byte_brief(
         product="Grok",
-        hook="Thirty bucks for Grok — most shouldn't pay.",
+        hook="Grok costs thirty a month — it's built around live Twitter data.",
         strength_hint="Live Twitter data",
         weakness_hint="$30 vs $20 rivals",
     )

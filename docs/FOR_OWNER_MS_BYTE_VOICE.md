@@ -35,10 +35,10 @@ Crisp pronunciation on tech product names: ChatGPT, Claude, Grok, Gemini.
 3. Preview with:
 
 ```
-Thirty bucks for Grok — and most of you shouldn't pay.
+Grok costs thirty a month — and it's built around live Twitter data.
 I'm Ms. Byte — an AI — here's the one thing Grok actually does better.
 But SuperGrok is thirty a month. ChatGPT Plus? Twenty.
-You decide — comment below.
+Which tool next? You decide.
 ```
 
 4. Save your favorite → copy **Voice ID** (tell the agent to wire `ELEVENLABS_VOICE_ID` when ready)

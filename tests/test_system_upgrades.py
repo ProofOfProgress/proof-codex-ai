@@ -37,12 +37,13 @@ def test_next_queue_item(tmp_path: Path):
 
 def test_script_qc_offline_passes():
     brief = (
-        "ChatGPT Plus costs twenty a month. Strength: best writing and plugins for daily users. "
-        "Weakness: casual chatters get little over free tier. But so you decide — comment your use case."
+        "ChatGPT Plus costs twenty a month. Strength: best writing and plugins in the paid tier. "
+        "Weakness: free tier covers light chat on the same model family. Tradeoff vs Gemini free. "
+        "Which tool next? You decide."
     )
     r = score_script_brief(
         product="ChatGPT Plus",
-        hook="Twenty bucks for ChatGPT Plus — most casual users shouldn't pay.",
+        hook="ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
         brief=brief,
     )
     assert r.score >= 7.0

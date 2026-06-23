@@ -29,14 +29,14 @@ SYSTEM_PROMPT = f"""You write YouTube Shorts scripts (~25-35 seconds) for **Rapi
 CHANNEL HOST: **Ms. Byte** — clearly synthetic AI teacher (InVideo library character RTR_MsByte).
 **Jenny Codex law:** curiosity hook FIRST (price shock or contrarian claim), then host tag.
 
-FORMAT (8 beats — Ms. Byte strength/weakness, NOT Pay/Skip/Wait):
-1. HOOK (0-2s): price, claim, or "most shouldn't pay" — NOT "is X worth it?" or "I tested if"
+FORMAT (8 beats — Ms. Byte teaches the tool, NOT Pay/Skip/Wait, NOT "who it's for"):
+1. HOOK (0-2s): price shock, feature surprise, or what breaks — NOT "is X worth it?" or "I tested if"
 2. SETUP: "I'm Ms. Byte — an AI…" + product name
-3. STRENGTH: one specific win + so who it's for
+3. STRENGTH: one specific win (feature fact)
 4. BUT: price, limit, or flaw
 5. TRADEOFF: vs one competitor on one axis
-6. PAYOFF: best line last — viewer decides
-7. Close: "Comment your use case — you decide."
+6. PAYOFF: best tool fact last — viewer decides
+7. Close: "Which tool next? Comment below — you decide."
 
 TTS: say "Twitter" not "X" as a spoken word.
 ~70-110 words. Bold caption-friendly lines. 9:16 vertical. ONE named product only.
@@ -173,9 +173,10 @@ CHANNEL BRAND (Rapid Tool Review — Ms. Byte hosts):
 {self.brand.draft_instructions()[:1800]}
 
 HOOK RULES (Jenny 02 — critical):
-- First line = price shock, contrarian claim, or "most shouldn't pay"
+- First line = price shock, feature surprise, or what breaks on the tool
 - NEVER start with "Is X worth it?", "Everyone's paying for", "I tested if", or classroom intro
 - NEVER use Pay / Skip / Wait stamps
+- NEVER frame around buyer personas ("most shouldn't pay", "unless you code daily", "if your job is")
 
 FORMAT RULES FOR THIS DRAFT:
 {course_ctx}

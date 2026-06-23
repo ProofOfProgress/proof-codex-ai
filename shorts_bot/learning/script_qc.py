@@ -137,7 +137,8 @@ Brief:
 {brief[:2000]}
 
 Rules: Ms. Byte format — ONE strength + ONE weakness, Jenny 8-beat structure,
-curiosity hook BEFORE host intro (price shock, contrarian, or "most shouldn't pay"),
+curiosity hook BEFORE host intro (price shock, feature fact, or what breaks),
+teach the TOOL not buyer personas — NO "most shouldn't pay", NO "if your job is", NO "who it's for",
 NO generic "is X worth it" or "I tested if", CTA before payoff, ~30s, NO Pay/Skip/Wait stamps,
 NO horror, hook under 15 words ideal, say "Twitter" not "X" as spoken word in VO.
 Verdict hint (legacy, penalize if Pay/Skip/Wait): {verdict_hint}

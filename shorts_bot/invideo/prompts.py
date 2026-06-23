@@ -32,8 +32,8 @@ def shorts_product_brief(
 
 DEFAULT_CHATGPT_PLUS_BRIEF = shorts_product_brief(
     product="ChatGPT Plus",
-    hook="Twenty bucks for ChatGPT Plus — and most casual users shouldn't pay.",
+    hook="ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
     strength_hint="Strong writing, voice, and plugins for daily power users.",
-    weakness_hint="$20/month adds little if you only chat occasionally — free tier covers basics.",
+    weakness_hint="$20/month adds little over free tier for light chat — same model family on both.",
     extra="Tradeoff vs Gemini free tier for research-heavy workflows.",
 )

@@ -10,7 +10,7 @@ Our code wraps your per-video brief automatically:
 from shorts_bot.invideo.system_context import wrap_invideo_prompt
 from shorts_bot.invideo.ms_byte import ms_byte_brief
 
-brief = ms_byte_brief(product="Grok (xAI)", hook="Thirty bucks for Grok — most shouldn't pay.")
+brief = ms_byte_brief(product="Grok (xAI)", hook="Grok costs thirty a month — built around live Twitter data.")
 full = wrap_invideo_prompt(brief)
 ```
 

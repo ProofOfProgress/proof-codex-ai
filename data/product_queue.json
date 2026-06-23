@@ -2,37 +2,37 @@
   {
     "id": 1,
     "product": "ChatGPT Plus",
-    "topic": "ChatGPT Plus — $20/month who actually needs it",
-    "hook": "Twenty bucks for ChatGPT Plus — and most casual users shouldn't pay.",
+    "topic": "ChatGPT Plus — $20/month what the paid tier unlocks",
+    "hook": "ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
     "strength_hint": "GPT-4o, plugins, voice, and memory for daily power users.",
-    "weakness_hint": "$20 adds little if you only chat occasionally — free tier covers basics.",
+    "weakness_hint": "$20 adds little over free tier for light chat — same model family on both.",
     "verdict_hint": "Skip unless you hit limits daily"
   },
   {
     "id": 2,
     "product": "Claude Code",
     "topic": "Claude Code — terminal agent honest breakdown",
-    "hook": "Claude Code sounds amazing — but most people should not pay for this.",
+    "hook": "Claude Code runs in your terminal — and it burns through Pro limits fast.",
     "strength_hint": "Terminal agent edits multi-file repos, runs tests, git ops.",
-    "weakness_hint": "Bundled with Claude Pro; heavy use burns limits; weak if you don't code.",
+    "weakness_hint": "Bundled with Claude Pro; heavy use burns limits; weak for non-code tasks.",
     "verdict_hint": "Pay if you code in terminal daily; Skip otherwise"
   },
   {
     "id": 3,
     "product": "Claude Pro",
     "topic": "Claude Pro vs ChatGPT Plus — one axis each wins",
-    "hook": "Twenty bucks for Claude — but ChatGPT already covers most writers.",
+    "hook": "Claude Pro is twenty a month — here's where it beats ChatGPT on writing.",
     "strength_hint": "Cleaner long-form writing and document analysis.",
-    "weakness_hint": "Same $20 as ChatGPT — no clear win for casual chatters.",
+    "weakness_hint": "Same $20 as ChatGPT — no clear win on casual chat or plugins.",
     "verdict_hint": "Pay for writers; Skip for casual chat"
   },
   {
     "id": 16,
     "product": "Google Gemini Advanced",
     "topic": "Gemini Advanced — $20 vs free Gemini",
-    "hook": "Google wants twenty for Gemini Advanced — free Gemini might be enough.",
+    "hook": "Gemini Advanced bundles two terabytes — the AI upgrade isn't always the win.",
     "strength_hint": "Deep Google Workspace integration and 2TB storage bundle.",
-    "weakness_hint": "Free Gemini 2.x covers most research and chat for normal users.",
+    "weakness_hint": "Free Gemini 2.x covers most research and chat — AI bump is incremental.",
     "verdict_hint": "Wait if free Gemini is enough"
   },
   {
@@ -47,17 +47,17 @@
   {
     "id": 5,
     "product": "Cursor Pro",
-    "topic": "Cursor Pro — who actually needs the AI editor",
-    "hook": "Cursor Pro looks perfect — unless you don't write code daily.",
+    "topic": "Cursor Pro — inline AI editor breakdown",
+    "hook": "Cursor Pro rewrites your whole codebase inline — the subscription adds up fast.",
     "strength_hint": "Inline AI edits across your whole codebase in the editor.",
-    "weakness_hint": "$20/mo wasted if you don't live in an IDE.",
+    "weakness_hint": "$20/mo per seat — overkill if you only tweak small scripts.",
     "verdict_hint": "Skip unless you code every day"
   },
   {
     "id": 6,
     "product": "Perplexity Pro",
-    "topic": "Perplexity Pro vs free search — research job test",
-    "hook": "Ten bucks for Perplexity Pro — but free search got scary good.",
+    "topic": "Perplexity Pro vs free search — research feature check",
+    "hook": "Perplexity Pro adds cited research mode — free search already got scary good.",
     "strength_hint": "Cited sources and deep research mode for news-heavy workflows.",
     "weakness_hint": "Free tier + Google often enough for one-off questions.",
     "verdict_hint": "Pay if research is your job"
@@ -66,7 +66,7 @@
     "id": 7,
     "product": "NotebookLM",
     "topic": "NotebookLM — free tool, hidden limits",
-    "hook": "NotebookLM is free — here's the one reason people still skip it.",
+    "hook": "NotebookLM reads your PDFs and cites them back — it just can't browse the web.",
     "strength_hint": "Upload PDFs and get cited answers from YOUR documents only.",
     "weakness_hint": "Weak for live web; best when you already have source material.",
     "verdict_hint": "Pay N/A — free tier first"
@@ -120,7 +120,7 @@
     "id": 13,
     "product": "Descript",
     "topic": "Descript for podcast-to-Shorts workflow",
-    "hook": "Descript edits podcasts like magic — overkill if you only make Shorts.",
+    "hook": "Descript edits video by deleting words from the transcript — the subscription is steep.",
     "strength_hint": "Text-based audio/video edit — delete words from transcript.",
     "weakness_hint": "Heavy subscription for a 30-second vertical workflow.",
     "verdict_hint": "Pay if you edit long-form talk"

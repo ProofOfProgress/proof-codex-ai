@@ -17,7 +17,7 @@ Hierarchy (locked):
 Jenny Codex (course/files 02, 05, 06, 09):
 - Hook = price shock or contrarian claim in first 2 seconds — NOT "is X worth it?"
 - 8 beats, 2–4s cuts, CTA before payoff, mute-readable overlays
-- Cause → effect: strength → so → but → so → tradeoff → payoff
+- Cause → effect: strength → so (feature depth) → but → so (cost of flaw) → tradeoff → payoff
 
 Production:
 - InVideo MCP one-prompt ship, Basic tier ≤10 credits, NO AI Twin
@@ -29,22 +29,22 @@ What fails: generic "worth it" hooks, Pay/Skip/Wait stamps, listicles, horror fr
 """
 
 DEFAULT_TOPICS = [
-    "ChatGPT Plus — twenty bucks, who actually needs it",
+    "ChatGPT Plus — twenty bucks, what the paid tier unlocks",
     "Claude Code — terminal agent honest breakdown",
     "InVideo AI — credit math for daily Shorts",
     "NotebookLM — free tool hidden limits",
     "Gemini Advanced — twenty vs free Gemini",
-    "Cursor Pro — non-coders shouldn't pay",
+    "Cursor Pro — inline AI editor breakdown",
     "Perplexity Pro — ten bucks vs free search",
     "CapCut AI — watermark trap on export",
     "ElevenLabs — voice clone credit burn",
     "HeyGen vs InVideo — avatar Shorts cost",
     "Midjourney — subscription stack in 2026",
     "Notion AI — add-on tax on workspace",
-    "Descript — overkill for Shorts-only editors",
+    "Descript — transcript-edit workflow cost",
     "Runway Gen-3 — credit burn per clip",
     "Opus Clip — AI clip picks wrong moments",
-    "Grok xAI — thirty bucks for Twitter data",
+    "Grok xAI — thirty bucks for live Twitter data",
 ]
 
 SPONSOR_RULES = """
