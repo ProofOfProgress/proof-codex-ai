@@ -29,4 +29,5 @@ def test_ms_byte_brief_jenny_and_tts():
     assert "Twitter" in brief or "NEVER say" in brief
     assert "Pay / Skip / Wait" in brief or "NO Pay" in brief
     assert "RTR_MsByte" in brief
+    assert "British" in brief or "UK" in brief
     assert "45" in brief  # rich host screen time

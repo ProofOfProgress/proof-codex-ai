@@ -68,7 +68,9 @@ We send **creative briefs**, not always finished scripts. **You write the script
 
 **Length:** 25–35 seconds total spoken. Tight. No filler ("Hey guys welcome back").
 
-**Voice:** Ms. Byte speaks — bubbly, perky, clearly synthetic TTS. Always say **Ms. Byte** (full name).
+**Voice:** Ms. Byte speaks — **light British English (RP-lite)**, female, young adult. Bubbly, perky, clearly synthetic TTS — NOT American default, NOT cockney. Fast clear pacing for Shorts. Always say **Ms. Byte** (full name).
+
+**InVideo narrator:** UK English · female · upbeat · synthetic-friendly. Match voice to RTR_MsByte on every render.
 
 ---
 

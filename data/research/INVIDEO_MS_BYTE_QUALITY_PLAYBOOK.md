@@ -152,6 +152,12 @@ Library name: **`RTR_MsByte`**. Style: anime/cel-shaded — NOT photoreal, NOT A
 
 ---
 
+## Voice (locked 2026-06)
+
+**Light British English (RP-lite)** — female, young adult, bubbly synthetic AI teacher. NOT American default, NOT cockney. Fast clear Shorts pacing. InVideo + ElevenLabs prompts: `docs/FOR_OWNER_MS_BYTE_VOICE.md`
+
+---
+
 ## TTS lexicon (critical)
 
 AI voice engines misread certain tokens. **Rules for all scripts and briefs:**

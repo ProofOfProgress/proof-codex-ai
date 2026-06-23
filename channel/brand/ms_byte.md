@@ -19,7 +19,9 @@
 
 **Not:** definitive “buy this” / “don't buy this” for every person, fake-human streamer, hype bro.
 
-**Voice:** Synthetic TTS — clearly AI. Fast, warm, perky. Disclose synthetic media on upload.
+**Voice:** Synthetic TTS — clearly AI. **Light British English (RP-lite)** — smart AI tutor, not cockney, not thick regional. Fast, warm, perky. Disclose synthetic media on upload.
+
+**Voice lock (2026-06):** Light British · bubbly synthetic teacher · crisp product names · see `docs/FOR_OWNER_MS_BYTE_VOICE.md`
 
 ---
 

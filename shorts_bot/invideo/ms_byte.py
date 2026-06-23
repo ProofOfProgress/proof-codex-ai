@@ -6,6 +6,15 @@ from __future__ import annotations
 MS_BYTE_CHARACTER_STYLE = "anime / cel-shaded (anime kinda style — NOT photoreal, NOT 3D)"
 
 # TTS: never speak "X" as a word (Twitter rebrand confuses voice engines).
+MS_BYTE_VOICE_RULES = """
+VOICE — Ms. Byte (LOCKED):
+- Light British English (RP-lite / soft UK) — NOT American default, NOT cockney, NOT thick regional
+- Female, young adult. Bubbly synthetic AI teacher — clearly AI, not fake-human
+- Fast, clear pacing for 30-second Shorts; crisp on product names (ChatGPT, Claude, Grok)
+- Warm, upbeat, slight digital polish — "programmed tutor" energy
+- InVideo: pick matching UK female narrator OR prompt voice as above
+""".strip()
+
 TTS_LEXICON = """
 TTS LEXICON (voiceover — obey strictly):
 - NEVER say the letter "X" as a standalone word. Say "Twitter", "the social app", or "trending posts".
@@ -51,6 +60,8 @@ VISUAL MIX:
 - Cut back and forth every 2-4s: stock/UI explains, Ms. Byte delivers lesson beats
 - Bold STRENGTH / WEAKNESS / payoff text overlays — mute-readable (Jenny 05)
 - NO horizontal stock letterboxed into vertical. Fast cuts. Product name in first 2 seconds.
+
+{MS_BYTE_VOICE_RULES}
 
 {TTS_LEXICON}
 """.strip()
