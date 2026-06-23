@@ -65,6 +65,118 @@ def _hex_rgb(hex_color: str) -> tuple[int, int, int]:
     return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
 
 
+def _solid_background(w: int, h: int, color: str = BG_TOP):
+    """Flat fill — no gradients (clean social banners)."""
+    from PIL import Image
+
+    return Image.new("RGB", (w, h), _hex_rgb(color))
+
+
+def _extract_character_rgba(path: Path, *, pad: int = 12) -> "Image.Image":
+    """Crop to character bounds and key the flat backdrop inside the crop."""
+    import math
+
+    from PIL import Image, ImageDraw
+
+    img = Image.open(path).convert("RGB")
+    w, h = img.size
+    corners = [img.getpixel((0, 0)), img.getpixel((w - 1, 0)), img.getpixel((0, h - 1)), img.getpixel((w - 1, h - 1))]
+    bg = tuple(sum(c[i] for c in corners) // 4 for i in range(3))
+
+    xs: list[int] = []
+    ys: list[int] = []
+    for y in range(h):
+        for x in range(w):
+            r, g, b = img.getpixel((x, y))
+            dr, dg, db = r - bg[0], g - bg[1], b - bg[2]
+            dist = math.sqrt(dr * dr + dg * dg + db * db)
+            sat = max(r, g, b) - min(r, g, b)
+            lum = 0.299 * r + 0.587 * g + 0.114 * b
+            if sat > 35 or lum > 55 or dist > 42:
+                xs.append(x)
+                ys.append(y)
+
+    if not xs:
+        rgba = img.convert("RGBA")
+    else:
+        left = max(0, min(xs) - pad)
+        top = max(0, min(ys) - pad)
+        right = min(w - 1, max(xs) + pad)
+        bottom = min(h - 1, max(ys) + pad)
+        rgba = img.crop((left, top, right + 1, bottom + 1)).convert("RGBA")
+
+    draw = ImageDraw.Draw(rgba)
+    cw, ch = rgba.size
+    for x in range(cw):
+        for y in (0, ch - 1):
+            try:
+                draw.floodfill((x, y), (0, 0, 0, 0), thresh=22)
+            except Exception:
+                pass
+    for y in range(ch):
+        for x in (0, cw - 1):
+            try:
+                draw.floodfill((x, y), (0, 0, 0, 0), thresh=22)
+            except Exception:
+                pass
+
+    alpha = rgba.split()[3]
+    bbox = alpha.getbbox()
+    if bbox:
+        rgba = rgba.crop(bbox)
+
+    bg_rgb = _hex_rgb(BG_TOP)
+    px = rgba.load()
+    cw, ch = rgba.size
+    for y in range(ch):
+        for x in range(cw):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            dr, dg, db = r - bg_rgb[0], g - bg_rgb[1], b - bg_rgb[2]
+            if (dr * dr + dg * dg + db * db) ** 0.5 <= 26:
+                px[x, y] = (r, g, b, 0)
+    return rgba
+
+
+def _font_for_width(
+    draw,
+    text: str,
+    *,
+    max_width: int,
+    start_size: int,
+    min_size: int,
+    bold: bool = True,
+) -> "ImageFont.FreeTypeFont":
+    from PIL import ImageFont
+
+    paths = (
+        [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        ]
+        if bold
+        else [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        ]
+    )
+    for size in range(start_size, min_size - 1, -2):
+        for path in paths:
+            try:
+                font = ImageFont.truetype(path, size)
+                width = draw.textlength(text, font=font) if hasattr(draw, "textlength") else size * len(text) * 0.55
+                if width <= max_width:
+                    return font
+            except OSError:
+                continue
+    return ImageFont.load_default()
+
+
+def _text_width(draw, text: str, font) -> float:
+    return draw.textlength(text, font=font) if hasattr(draw, "textlength") else len(text) * 12
+
+
 def _vertical_gradient(img, top: str, bottom: str) -> None:
     from PIL import ImageDraw
 
@@ -238,30 +350,46 @@ def _crop_ms_byte_profile(source: Path, out: Path, *, size: int = 800) -> Path:
 
 
 def generate_ms_byte_facebook_cover(out_path: Path | None = None) -> Path:
-    """1640×624 Facebook cover — Ms. Byte + Rapid Tool Review (mobile-safe center)."""
+    """1640×624 Facebook cover — flat bg, keyed character, text in safe zone."""
     from PIL import Image, ImageDraw
 
     out = out_path or MS_BYTE_FB_COVER
     w, h = 1640, 624
-    img = Image.new("RGB", (w, h), BG_TOP)
-    _vertical_gradient(img, BG_TOP, "#0F172A")
+    img = _solid_background(w, h, BG_TOP)
     draw = ImageDraw.Draw(img)
 
     host_path = MS_BYTE_DIR / "pose_hook_wave.png"
     if not host_path.exists():
         host_path = MS_BYTE_DIR / "reference.png"
-    host = Image.open(host_path).convert("RGBA")
-    target_h = int(h * 1.15)
-    scale = target_h / host.height
-    host = host.resize((int(host.width * scale), target_h), Image.Resampling.LANCZOS)
-    img.paste(host, (-int(host.width * 0.08), h - target_h + 20), host)
+    host = _extract_character_rgba(host_path)
+    max_host_w = int(w * 0.44)
+    target_h = int(h * 0.88)
+    scale = min(target_h / host.height, max_host_w / host.width)
+    host = host.resize((int(host.width * scale), int(host.height * scale)), Image.Resampling.LANCZOS)
+    host_x = 36
+    host_y = h - host.height - 16
+    img.paste(host, (host_x, host_y), host)
 
-    font_lg, font_md, font_sm, font_mono = _load_fonts(72, 36, 28, mono_lg=30)
-    cx = int(w * 0.58)
-    draw.text((cx, int(h * 0.22)), "Rapid Tool Review", fill=TEXT_PRIMARY, font=font_lg)
-    draw.text((cx, int(h * 0.48)), "Ms. Byte · AI tool reviews", fill=ACCENT_BRIGHT, font=font_md)
-    draw.text((cx, int(h * 0.62)), "Strengths · Weaknesses · You decide", fill=TEXT_MUTED, font=font_sm)
-    draw.text((cx, int(h * 0.76)), "@RapidToolReview on YouTube", fill=ACCENT, font=font_mono)
+    # Text in the right half — stays inside FB mobile crop.
+    text_x = host_x + host.width + 32
+    text_right = w - 56
+    max_text_w = text_right - text_x
+
+    title = "Rapid Tool Review"
+    title_font = _font_for_width(draw, title, max_width=max_text_w, start_size=62, min_size=44)
+    lines = [
+        (title, title_font, TEXT_PRIMARY),
+        ("Ms. Byte · AI tool reviews", _font_for_width(draw, "Ms. Byte · AI tool reviews", max_width=max_text_w, start_size=32, min_size=24), ACCENT_BRIGHT),
+        ("Strengths · Weaknesses · You decide", _font_for_width(draw, "Strengths · Weaknesses · You decide", max_width=max_text_w, start_size=26, min_size=20, bold=False), TEXT_MUTED),
+        ("@RapidToolReview", _font_for_width(draw, "@RapidToolReview", max_width=max_text_w, start_size=24, min_size=18, bold=False), ACCENT),
+    ]
+
+    block_h = sum(int(getattr(f, "size", 24) * 1.35) for _, f, _ in lines)
+    y = (h - block_h) // 2
+    for text, font, color in lines:
+        size = getattr(font, "size", 24)
+        draw.text((text_x, y), text, fill=color, font=font)
+        y += int(size * 1.35)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     img.save(out, "PNG", optimize=True)
