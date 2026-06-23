@@ -12,7 +12,7 @@
       "id": "build_brief",
       "enabled": true,
       "params": {
-        "hook_template": "{product} costs money — and most casual users shouldn't pay.",
+        "hook_template": "{product} has a price tag — here's what the paid tier actually unlocks.",
         "format": "conversational_review",
         "no_twin": true,
         "max_credits": 10

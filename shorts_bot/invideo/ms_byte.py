@@ -38,19 +38,20 @@ HOST — Ms. Byte (always full name "Ms. Byte", never "Byte"):
 JENNY STRUCTURE (Codex law — course/files 02, 05, 06, 09):
 1. HOOK (0-2s) — shock/curiosity FIRST (price, claim, tension) — then host tag
 2. SETUP (2-5s) — "I'm Ms. Byte — an AI…" + product + payoff promise
-3. STRENGTH (5-8s) — one specific win + so who it's for
-4. SO (8-11s) — cause → effect
-5. BUT (11-14s) — price, limit, or bad fit
-6. CONFLICT (14-17s) — so what that means
+3. STRENGTH (5-8s) — one specific win (what the tool does well — feature fact)
+4. SO (8-11s) — deepen the feature (how/why it works — NOT who should buy)
+5. BUT (11-14s) — price, limit, or flaw
+6. CONFLICT (14-17s) — so what that weakness costs (limits, lock-in, missing feature)
 7. CTA (17-19s) — comment card BEFORE final payoff reveal
 8. TRADEOFF + PAYOFF (17-27s) — vs one competitor → best line last
 9. OUT (27-30s) — "You decide — comment below." End within 2s of payoff
 
-CONTENT FORMAT — strengths & weaknesses (NOT Pay/Skip/Wait):
+CONTENT FORMAT — teach the tool (NOT Pay/Skip/Wait, NOT "who it's for"):
 - ONE specific strength (feature-level, not hype)
 - ONE specific weakness or failure mode (price, limits, quality, lock-in)
 - Optional tradeoff: where it beats or loses vs one named alternative
 - DO NOT give Pay / Skip / Wait stamps — viewer decides
+- DO NOT frame around buyer personas ("if your job is…", "most shouldn't pay", "unless you code daily")
 - DO NOT default to "only pay if you hit free limits"
 - Show real app UI where possible
 
@@ -90,10 +91,10 @@ def ms_byte_brief(
         "SCRIPT STRUCTURE (8 beats — you write full VO from this):",
         "1. HOOK — shock/curiosity before host intro",
         "2. SETUP — I'm Ms. Byte — an AI… + product name",
-        "3. STRENGTH — one genuine win + so who it's for",
-        "4. SO — deepen cause → effect",
+        "3. STRENGTH — one genuine win (feature fact)",
+        "4. SO — deepen how/why the feature works (NOT buyer advice)",
         "5. BUT — price/limit/flaw",
-        "6. CONFLICT — so what that means",
+        "6. CONFLICT — so what that weakness costs the product",
         "7. CTA card on screen BEFORE payoff",
         "8. TRADEOFF + PAYOFF — best line last → you decide",
         "",

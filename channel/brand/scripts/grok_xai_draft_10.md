@@ -11,16 +11,16 @@
 
 | Beat | Time | Line |
 |------|------|------|
-| **1 HOOK** | 0–2s | **Thirty bucks for Grok — and most of you shouldn't pay.** |
+| **1 HOOK** | 0–2s | **Grok costs thirty a month — and it's built around live Twitter data.** |
 | **2 SETUP** | 2–5s | I'm **Ms. Byte** — an AI — here's the one thing Grok actually does better. |
 | **3 STRENGTH** | 5–8s | **Strength:** it reads **live Twitter posts** while they're happening. |
-| **4 SO** | 8–11s | **So** if your job is trends on Twitter — nothing else is built like this. |
+| **4 SO** | 8–11s | **So** it pulls trending posts in real time — no other chatbot hooks the feed like this. |
 | **5 BUT** | 11–14s | **But** SuperGrok is **thirty a month**. ChatGPT Plus? **Twenty.** |
-| **6 CONFLICT** | 14–17s | **So** no Twitter habit? You're paying for a gym you never visit. |
+| **6 CONFLICT** | 14–17s | **So** that ten-dollar gap buys Twitter access — not smarter everyday chat. |
 | **7 TRADEOFF** | 17–22s | Beats ChatGPT on **live drama**. Loses to Claude on **clean writing**. |
-| **8 PAYOFF + END** | 22–30s | **If Twitter isn't your job — walk.** Comment **Twitter person or not** — you decide. |
+| **8 PAYOFF + END** | 22–30s | **Best live Twitter feed — weak everyday chatbot for the price.** Which tool next? You decide. |
 
-**Cause-and-effect chain:** claim → strength → *so* use case → *but* price → *so* conflict → tradeoff → **payoff reveal** → comment CTA → end promptly.
+**Cause-and-effect chain:** claim → strength → *so* feature depth → *but* price → *so* cost meaning → tradeoff → **payoff reveal** → comment CTA → end promptly.
 
 ---
 
@@ -28,15 +28,15 @@
 
 | Time | Visual | Text overlay |
 |------|--------|----------------|
-| 0–2s | Grok logo + **$30** bold | `$30/MO — WORTH IT?` |
+| 0–2s | Grok logo + **$30** bold | `$30/MO · LIVE TWITTER` |
 | 2–5s | Ms. Byte hook wave (1s) | `GROK · xAI` |
 | 5–8s | Grok UI: live Twitter query | `STRENGTH: LIVE TWITTER` |
 | 8–11s | Twitter firehose / trending UI | `REAL-TIME POSTS` |
 | 11–14s | x.ai/pricing screenshot | `WEAKNESS: $30` |
 | 14–17s | ChatGPT $20 vs Grok $30 split | `vs $20 RIVALS` |
-| 17–19s | **CTA card** (Jenny 09 — before payoff) | `COMMENT ↓ TWITTER OR NOT?` |
+| 17–19s | **CTA card** (Jenny 09 — before payoff) | `WHICH TOOL NEXT? ↓` |
 | 17–22s | Logo split Grok / ChatGPT / Claude | `TRENDS vs POLISH` |
-| 22–30s | Ms. Byte outro + payoff text | `NOT YOUR JOB? WALK.` |
+| 22–30s | Ms. Byte outro + payoff text | `LIVE FEED · WEAK CHAT` |
 
 **Mute test:** viewer should follow story from text + UI alone.
 
@@ -65,14 +65,14 @@ HOST: Ms. Byte — RTR_MsByte. Anime/cel-shaded. Clearly synthetic AI teacher. F
 TTS: Say "Twitter" — NEVER speak "X" as a word.
 
 VO (exact):
-Thirty bucks for Grok — and most of you shouldn't pay.
+Grok costs thirty a month — and it's built around live Twitter data.
 I'm Ms. Byte — an AI — here's the one thing Grok actually does better.
 Strength: it reads live Twitter posts while they're happening.
-So if your job is trends on Twitter — nothing else is built like this.
+So it pulls trending posts in real time — no other chatbot hooks the feed like this.
 But SuperGrok is thirty a month. ChatGPT Plus? Twenty.
-So no Twitter habit? You're paying for a gym you never visit.
+So that ten-dollar gap buys Twitter access — not smarter everyday chat.
 Beats ChatGPT on live drama. Loses to Claude on clean writing.
-If Twitter isn't your job — walk. Comment Twitter person or not — you decide.
+Best live Twitter feed — weak everyday chatbot for the price. Which tool next? You decide.
 
 NO Pay/Skip/Wait stamps. Basic ≤10 credits. NO AI twin. 9:16 vertical.
 ```
@@ -81,22 +81,22 @@ NO Pay/Skip/Wait stamps. Basic ≤10 credits. NO AI twin. 9:16 vertical.
 
 ## Upload meta
 
-**Title:** `Grok Costs $30 — Most People Shouldn't Pay | Rapid Tool Review`
+**Title:** `Grok Costs $30 — Live Twitter Feed Breakdown | Rapid Tool Review`
 
 **Description:**
 ```
-Thirty bucks for Grok — who it's actually for (Jenny-style honest breakdown).
+Thirty-second Grok breakdown — what it does well, where it breaks.
 
 💪 Strength: Live Twitter data
 ⚠️ Weakness: $30/mo vs $20 rivals
-🎯 Payoff: If Twitter isn't your job — walk.
+🎯 Payoff: Best live feed — weak everyday chatbot for the price
 
-Comment: Twitter person or not?
+Which AI tool should Ms. Byte cover next? Comment below!
 
 #Grok #GrokAI #xAI #AIReview #RapidToolReview
 ```
 
-**Pinned comment:** `Twitter person or not? Drop your use case — I'll reply.`
+**Pinned comment:** `Which tool next? Drop a name — I'll reply.`
 
 ---
 
@@ -104,15 +104,15 @@ Comment: Twitter person or not?
 
 | Rule | Source | Pass? |
 |------|--------|-------|
-| Shock/curiosity in first line | 02 | ✅ $30 + "shouldn't pay" |
+| Shock/curiosity in first line | 02 | ✅ $30 + live Twitter hook |
 | Start video ASAP | 02 | ✅ no classroom warm-up first |
 | Reason to watch to end | 02 | ✅ payoff teased |
 | 6–8 beats, ~2–3s cuts | 06 / PRIORITIES | ✅ 8 beats |
 | but / so movement | 06 | ✅ beats 4–6 |
 | Breadcrumbs (STRENGTH/WEAKNESS cards) | 06 | ✅ step markers |
-| Payoff = best line at end | 06 | ✅ "If Twitter isn't your job — walk" |
+| Payoff = best line at end | 06 | ✅ tool fact payoff |
 | End promptly after payoff | 06 | ✅ comment + cut |
 | Mute clarity | 05 | ✅ overlays planned |
 | CTA before payoff | 09 | ✅ comment card @ 17–19s |
-| Ms. Byte: no forced verdict | brand | ✅ "you decide" |
+| Ms. Byte: teach tool not buyer advice | brand | ✅ no "shouldn't pay" |
 | TTS: no "X" as spoken word | playbook | ✅ Twitter throughout |

@@ -35,7 +35,7 @@ InVideo is our **production soul** — not a side tool. We send **creative brief
 ```json
 {
   "script": "<creative brief OR full VO script>",
-  "topic": "Grok (xAI) — $30/month who should pay",
+  "topic": "Grok (xAI) — $30/month live Twitter data breakdown",
   "vibe": "upbeat, skeptical-but-fair, teacher energy",
   "targetAudience": "AI-curious adults considering paid AI tools",
   "platform": "YouTube Shorts"
@@ -140,10 +140,10 @@ Library name: **`RTR_MsByte`**. Style: anime/cel-shaded — NOT photoreal, NOT A
 |------|------|---------|
 | **1 HOOK** | 0–2s | Shock/curiosity FIRST — price, claim, tension. **Not** classroom warm-up first |
 | **2 SETUP** | 2–5s | *Then* “I'm Ms. Byte — an AI…” + product name + payoff promise |
-| **3 STRENGTH** | 5–8s | One specific win + **so** who it's for |
-| **4 SO** | 8–11s | Cause → effect — deepen the strength |
-| **5 BUT** | 11–14s | Price, limit, or bad fit |
-| **6 CONFLICT** | 14–17s | **So** — what that means for the viewer |
+| **3 STRENGTH** | 5–8s | One specific win — **what the tool does well** (feature fact) |
+| **4 SO** | 8–11s | Deepen the feature — how/why it works (**NOT** who should buy) |
+| **5 BUT** | 11–14s | Price, limit, or flaw |
+| **6 CONFLICT** | 14–17s | **So** — what that weakness costs (limits, lock-in, missing feature) |
 | **7 CTA** | 17–19s | Comment/subscribe card **before** final reveal (Jenny 09) |
 | **7–8 TRADEOFF + PAYOFF** | 17–27s | vs competitor on one axis → **best line last** |
 | **OUT** | 27–30s | “You decide — comment below.” End within 2s of payoff |

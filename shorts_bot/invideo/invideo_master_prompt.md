@@ -58,10 +58,10 @@ We send **creative briefs**, not always finished scripts. **You write the script
 |------|------|---------|
 | **1 HOOK** | 0–2s | **Shock or curiosity FIRST** — price, claim, tension. Host tag comes **after** hook |
 | **2 SETUP** | 2–5s | "I'm **Ms. Byte** — an AI…" + product name + payoff promise |
-| **3 STRENGTH** | 5–8s | One specific win + **so** who it's for |
-| **4 SO** | 8–11s | Deepen cause → effect |
-| **5 BUT** | 11–14s | Price, limit, or bad fit |
-| **6 CONFLICT** | 14–17s | **So** — what that means for the viewer |
+| **3 STRENGTH** | 5–8s | One specific win — **what the tool does well** (feature fact) |
+| **4 SO** | 8–11s | Deepen the feature — how/why it works (**NOT** who should buy) |
+| **5 BUT** | 11–14s | Price, limit, or flaw |
+| **6 CONFLICT** | 14–17s | **So** — what that weakness costs (limits, lock-in, missing feature) |
 | **7 CTA** | 17–19s | Comment/subscribe card **before** final reveal |
 | **8 TRADEOFF + PAYOFF** | 17–27s | vs competitor on one axis → **best line last** |
 | **OUT** | 27–30s | "You decide — comment below." End within 2s of payoff |
@@ -143,7 +143,7 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 
 - **Original opinion** — not a rewrite of the product's marketing page
 - **Real product names** — viewers must be able to search the tool after watching
-- **One clear takeaway** — viewer leaves knowing one strength, one weakness, and who it's for
+- **One clear takeaway** — viewer leaves knowing one strength, one weakness, and one sharp tool fact
 - **No misleading claims**
 - **YouTube policy safe** — no spam patterns, no mass-template feel
 
@@ -151,9 +151,9 @@ Previous render had **wonky widescreen stock footage cropped into vertical** —
 
 ## Example briefs (your job: expand into full script + scenes)
 
-**Grok (xAI):** "$30 hook. Strength: live Twitter data. Weakness: $30 vs $20 rivals. Tradeoff: beats ChatGPT on trends, loses to Claude on writing. Payoff: If Twitter isn't your job — walk."
+**Grok (xAI):** "$30 hook. Strength: live Twitter data. Weakness: $30 vs $20 rivals. Tradeoff: beats ChatGPT on trends, loses to Claude on writing. Payoff: built for live Twitter — weak everyday chatbot for the price."
 
-**Claude Code:** "Strength: terminal agent for repos. Weakness: Pro limits burn fast if you don't code. Tradeoff: vs Cursor for editor workflows."
+**Claude Code:** "Strength: terminal agent for repos. Weakness: Pro limits burn fast on heavy runs. Tradeoff: vs Cursor for editor-native workflows."
 
 **InVideo AI:** "Strength: script-to-Shorts speed. Weakness: credit cost + stock crops. Show editor UI."
 

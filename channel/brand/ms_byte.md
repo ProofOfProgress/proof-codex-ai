@@ -36,11 +36,11 @@
 |------|------|----------------------------|
 | **Hook (0–2s)** | First frame | **Shock or curiosity FIRST** — price, claim, or tension. *Then* host tag: *“I'm Ms. Byte — an AI…”* (Jenny 02: start ASAP; no classroom warm-up before the hook) |
 | **Setup (2–5s)** | | Name product + promise payoff (*“here's the one thing it actually does…”*) |
-| **Strength (5–11s)** | 2 cuts | Specific win + **so** who it's for (cause → effect) |
-| **Weakness (11–17s)** | 2 cuts | **But** price/flaw + **so** conflict (Jenny 06) |
+| **Strength (5–11s)** | 2 cuts | Specific win + **so** how/why the feature works (tool fact, not buyer advice) |
+| **Weakness (11–17s)** | 2 cuts | **But** price/flaw + **so** what that costs (limits, lock-in) |
 | **CTA card (17–19s)** | | Comment/subscribe prompt **before** final reveal (Jenny 09) |
 | **Tradeoff (17–22s)** | | Beats **[B]** at X — loses at Y |
-| **Payoff (22–27s)** | | **Best line last** — concrete insight (*“If X isn't your job — walk.”*) |
+| **Payoff (22–27s)** | | **Best line last** — sharpest tool fact (*“Live Twitter feed — weak everyday chatbot for thirty bucks.”*) |
 | **Out (27–30s)** | | End promptly: *“You decide — comment below.”* |
 
 **Do NOT end with:** Pay / Skip / Wait stamps, “worth it for everyone,” long classroom intro before hook.
@@ -53,9 +53,9 @@
 
 > **Hook:** Claude Code sounds free — until your Pro limits vanish.  
 > **Setup:** I'm Ms. Byte — an AI — one strength, one flaw.  
-> **Strength:** Terminal agent that edits repos and runs tests — fast. **So** devs save hours.  
-> **But:** Bundled with Pro; heavy use eats limits. **So** pointless if you don't code.  
-> **Payoff:** If you don't live in a terminal — skip it. Comment your stack — you decide!
+> **Strength:** Terminal agent that edits repos and runs tests — fast. **So** it reads your whole codebase, not one file at a time.  
+> **But:** Bundled with Pro; heavy use eats limits. **So** one big refactor can drain your monthly cap.  
+> **Payoff:** Best terminal agent in class — expensive if you only need quick snippets. Which tool next? You decide!
 
 ---
 
