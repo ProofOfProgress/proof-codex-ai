@@ -2,25 +2,34 @@
 
 A warm, homemade-feeling website for **Beanz Treats**.
 
-## Put it online (free)
+## Live links
 
-After the site is merged to `main`, GitHub Pages publishes it automatically.
+**Works on your phone right now (no setup):**
 
-**Your link will be:**
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/ProofOfProgress/proof-codex-ai/gh-pages/index.html
+
+**Permanent clean link (after GitHub Pages is turned on):**
 
 https://proofofprogress.github.io/proof-codex-ai/
 
-That works on phones, laptops, anywhere — not just your computer.
+## Put it online permanently (one click on GitHub)
 
-### One-time setup (if Pages is not enabled yet)
+The site files are already on the `gh-pages` branch. To turn on the clean link:
 
-1. Open: https://github.com/ProofOfProgress/proof-codex-ai/settings/pages
-2. Under **Build and deployment → Source**, choose **GitHub Actions**
-3. Wait 1–2 minutes, then open the link above
+1. Open: https://github.com/ProofOfProgress/proof-codex-ai/actions/workflows/enable-beanz-pages.yml
+2. Click **Run workflow** → **Run workflow**
+3. Wait for the green checkmark (~1 min)
+4. Open: https://proofofprogress.github.io/proof-codex-ai/
 
-### Why `127.0.0.1` failed on your phone
+If that workflow fails, use Settings instead:
 
-`127.0.0.1` means “this computer only.” Your phone is a different device, so it cannot see a server running on your laptop.
+1. https://github.com/ProofOfProgress/proof-codex-ai/settings/pages
+2. **Source** → **GitHub Actions**
+3. Re-run **Deploy Beanz Treats site** from Actions
+
+## Why `127.0.0.1` failed on your phone
+
+`127.0.0.1` means “this computer only.” Your phone is a different device.
 
 ## Preview on your computer only
 
