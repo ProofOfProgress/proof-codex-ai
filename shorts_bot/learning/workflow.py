@@ -13,12 +13,7 @@ from shorts_bot.config import settings
 WORKFLOW_STATE_KEY = "workflow:daily_invideo:active"
 DEFAULT_WORKFLOW_PATH = Path("data/workflows/daily_invideo_v1.json")
 
-HOOK_TEMPLATES = (
-    "Everyone's paying for {product} — I tested if it's worth it.",
-    "{product} vs free alternatives — 30 second verdict.",
-    "Stop paying for {product} until you watch this.",
-    "Is {product} worth it in 2026? Honest 30s take.",
-)
+from shorts_bot.production.hooks import HOOK_TEMPLATES
 
 
 @dataclass

@@ -24,7 +24,7 @@ def main() -> None:
         default=None,
         help="Creative brief (InVideo writes the script). Default: ChatGPT Plus test",
     )
-    parser.add_argument("--topic", default="ChatGPT Plus — Pay or Skip?")
+    parser.add_argument("--topic", default="Claude Code — terminal agent honest breakdown")
     parser.add_argument("--draft-id", type=int, default=None, help="Optional — link run to draft folder")
     parser.add_argument("--open-browser", action="store_true", help="Open project in Desktop browser")
     parser.add_argument(

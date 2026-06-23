@@ -1,4 +1,4 @@
-"""Structured product queue — hooks + verdicts for daily rotation."""
+"""Structured product queue — Jenny hooks + strength/weakness for daily rotation."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from shorts_bot.config import settings
+from shorts_bot.production.hooks import migrate_verdict_hint
 
 QUEUE_PATH = Path("data/product_queue.json")
 
@@ -17,7 +17,16 @@ class ProductQueueItem:
     product: str
     topic: str
     hook: str
-    verdict_hint: str
+    strength_hint: str = ""
+    weakness_hint: str = ""
+    verdict_hint: str = ""  # legacy — migrated to hints when missing
+
+    def resolved_hints(self) -> tuple[str, str]:
+        """Strength/weakness for brief — explicit fields or legacy verdict migration."""
+        s, w = self.strength_hint.strip(), self.weakness_hint.strip()
+        if s or w:
+            return s, w
+        return migrate_verdict_hint(self.verdict_hint)
 
 
 def load_product_queue(path: Path | None = None) -> list[ProductQueueItem]:
@@ -33,7 +42,9 @@ def load_product_queue(path: Path | None = None) -> list[ProductQueueItem]:
                 product=str(row["product"]),
                 topic=str(row["topic"]),
                 hook=str(row.get("hook") or ""),
-                verdict_hint=str(row.get("verdict_hint") or "Pay, Skip, or Wait"),
+                strength_hint=str(row.get("strength_hint") or ""),
+                weakness_hint=str(row.get("weakness_hint") or ""),
+                verdict_hint=str(row.get("verdict_hint") or ""),
             )
         )
     return out
@@ -65,7 +76,8 @@ def queue_item_by_product(product: str) -> ProductQueueItem | None:
 
 
 def queue_summary(limit: int = 15) -> str:
-    lines = ["Product queue (Pay/Skip/Wait):"]
+    lines = ["Product queue (Ms. Byte — strength/weakness):"]
     for item in load_product_queue()[:limit]:
-        lines.append(f"  #{item.id} {item.product} — {item.verdict_hint[:50]}")
+        hook_preview = item.hook[:55] + "…" if len(item.hook) > 55 else item.hook
+        lines.append(f"  #{item.id} {item.product} — {hook_preview}")
     return "\n".join(lines)

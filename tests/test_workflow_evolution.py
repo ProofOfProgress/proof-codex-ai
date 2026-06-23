@@ -90,14 +90,18 @@ def test_workflow_run_history(tmp_path: Path):
 
 
 def test_next_hook_template_rotates():
-    a = "Everyone's paying for {product} — I tested if it's worth it."
+    from shorts_bot.production.hooks import HOOK_TEMPLATES
+
+    a = HOOK_TEMPLATES[0]
     b = next_hook_template(a)
     assert b != a
     assert "{product}" in b
 
 
 def test_evolve_hook_after_punish_fallback():
-    current = "Everyone's paying for {product} — I tested if it's worth it."
+    from shorts_bot.production.hooks import HOOK_TEMPLATES
+
+    current = HOOK_TEMPLATES[0]
     with patch("shorts_bot.learning.public_evolve.optimize_hook_template", return_value=None):
         new, method = evolve_hook_after_punish(current, "high swipe-away")
     assert method == "rotate"

@@ -11,11 +11,13 @@ from shorts_bot.invideo.generate import generate_from_prompt
 from shorts_bot.invideo.ms_byte import ms_byte_brief
 from shorts_bot.invideo.script_pack import draft_pack_dir
 from shorts_bot.learning.workflow import (
+    HOOK_TEMPLATES,
     StepResult,
     WorkflowDefinition,
     WorkflowRun,
     load_active_workflow,
 )
+from shorts_bot.production.hooks import hook_for_product
 from shorts_bot.learning.workflow_evolve import evolve_after_daily_run
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.production.product_rotation import (
@@ -74,7 +76,9 @@ def run_daily_invideo_workflow(
     product = ""
     brief = ""
     hook = ""
-    verdict = "Pay, Skip, or Wait"
+    strength_hint = ""
+    weakness_hint = ""
+    verdict_hint = ""
 
     # --- pick_topic ---
     if wf.step("pick_topic") and wf.step("pick_topic").enabled:
@@ -93,7 +97,7 @@ def run_daily_invideo_workflow(
     if brief_step and brief_step.enabled:
         t0 = time.monotonic()
         try:
-            hook_tpl = str(brief_step.params.get("hook_template", HOOK_TEMPLATES_FALLBACK))
+            hook_tpl = str(brief_step.params.get("hook_template", HOOK_TEMPLATES[0]))
             strength_hint = str(brief_step.params.get("strength_hint", ""))
             weakness_hint = str(brief_step.params.get("weakness_hint", ""))
             pending = consume_pending_queue_item(store)
@@ -104,8 +108,9 @@ def run_daily_invideo_workflow(
                     hook = hook_tpl.format(product=product)
                 strength_hint = str(pending.get("strength_hint") or strength_hint)
                 weakness_hint = str(pending.get("weakness_hint") or weakness_hint)
+                verdict_hint = str(pending.get("verdict_hint") or "")
             else:
-                hook = hook_tpl.format(product=product)
+                hook = hook_for_product(product) if product else hook_tpl.format(product=product)
             brief = ms_byte_brief(
                 product=product,
                 hook=hook,
@@ -128,6 +133,7 @@ def run_daily_invideo_workflow(
             product=product,
             hook=hook,
             brief=brief,
+            verdict_hint=verdict_hint,
         )
         if qc.passed:
             step_results.append(_record_step("script_qc", True, f"score={qc.score}", t0))
@@ -158,7 +164,7 @@ def run_daily_invideo_workflow(
                 topic=topic or product,
                 script=brief,
                 hook=hook,
-                help_angle="Pay / Skip / Wait — honest 30s AI product review",
+                help_angle=f"Strength/weakness review — {product}",
                 quality_notes=f"InVideo daily workflow v{wf.version}",
             )
             draft_id = draft.id
@@ -203,6 +209,7 @@ def run_daily_invideo_workflow(
         render_wait = wait_render_sec
         if render_wait is None:
             render_wait = int(render_step.params.get("wait_render_sec", 2400))
+        max_credits = int(render_step.params.get("max_credits", 10))
         try:
             from shorts_bot.invideo.ship_cli import ship
 
@@ -210,7 +217,7 @@ def run_daily_invideo_workflow(
             attempts = max(1, int(settings.invideo_render_retries))
             for attempt in range(1, attempts + 1):
                 try:
-                    ship(project_url, video_path, wait_render_sec=render_wait)
+                    ship(project_url, video_path, wait_render_sec=render_wait, max_credits=max_credits)
                     step_results.append(
                         _record_step(
                             "invideo_render",
@@ -299,9 +306,6 @@ def run_daily_invideo_workflow(
         upload,
         ok=ok,
     )
-
-
-HOOK_TEMPLATES_FALLBACK = "Everyone's paying for {product} — I tested if it's worth it."
 
 
 def _finalize(

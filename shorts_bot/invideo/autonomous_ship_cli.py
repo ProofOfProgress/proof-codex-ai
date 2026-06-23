@@ -37,14 +37,11 @@ def conversational_brief(
 
 CLAUDE_CODE_BRIEF = conversational_brief(
     product="Claude Code",
-    hook=(
-        "Class is in session! Hi — I'm Ms. Byte! Yes, I'm an AI! "
-        "Today's lesson: Claude Code — what's actually good and what's actually broken!"
-    ),
+    hook="Claude Code sounds amazing — but most people should not pay for this.",
     angle=(
         "STRENGTH: terminal agent edits multi-file repos, runs tests, git ops. "
         "WEAKNESS: bundled with Claude Pro; heavy use burns limits; weak value if you don't code. "
-        "TRADEOFF: vs Cursor for editor-native workflows — not a pay/skip command, just the tradeoff."
+        "TRADEOFF: vs Cursor for editor-native workflows."
     ),
 )
 

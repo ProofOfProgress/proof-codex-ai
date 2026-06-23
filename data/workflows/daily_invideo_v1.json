@@ -12,7 +12,7 @@
       "id": "build_brief",
       "enabled": true,
       "params": {
-        "hook_template": "If you're thinking about {product} — here's my honest 30-second take.",
+        "hook_template": "{product} costs money — and most casual users shouldn't pay.",
         "format": "conversational_review",
         "no_twin": true,
         "max_credits": 10

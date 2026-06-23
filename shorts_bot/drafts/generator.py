@@ -19,29 +19,29 @@ from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import Draft, MemoryStore
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
-from shorts_bot.production.metal_aesthetic import ypp_safe_ritual_rules
 from shorts_bot.production.script_humanize import finalize_script
 
 
-SYSTEM_PROMPT = f"""You write YouTube AI/tech Shorts (~25-35 seconds).
+SYSTEM_PROMPT = f"""You write YouTube Shorts scripts (~25-35 seconds) for **Rapid Tool Review**.
 
 {NICHE_POSITIONING}
 
-{ypp_safe_ritual_rules()}
+CHANNEL HOST: **Ms. Byte** — clearly synthetic AI teacher (InVideo library character RTR_MsByte).
+**Jenny Codex law:** curiosity hook FIRST (price shock or contrarian claim), then host tag.
 
-CHANNEL VOICE: Sincere product reviewer — you actually looked at the tool, not a hype channel.
-**Talking to camera** (InVideo twin). Line 1 = product + claim. One **real named product** only.
-End with **Pay / Skip / Wait** — honest even when the product is mid.
+FORMAT (8 beats — Ms. Byte strength/weakness, NOT Pay/Skip/Wait):
+1. HOOK (0-2s): price, claim, or "most shouldn't pay" — NOT "is X worth it?" or "I tested if"
+2. SETUP: "I'm Ms. Byte — an AI…" + product name
+3. STRENGTH: one specific win + so who it's for
+4. BUT: price, limit, or flaw
+5. TRADEOFF: vs one competitor on one axis
+6. PAYOFF: best line last — viewer decides
+7. Close: "Comment your use case — you decide."
 
-FORMAT:
-- Hook: "Everyone's paying for [Product] — I tested it."
-- Body: one genuine strength OR flaw (price, privacy, quality, lock-in) — not a feature list
-- Close: Pay / Skip / Wait + one sentence why
-- ~70-110 words. Short caption-friendly lines. 9:16 vertical.
+TTS: say "Twitter" not "X" as a spoken word.
+~70-110 words. Bold caption-friendly lines. 9:16 vertical. ONE named product only.
 
-Never write undisclosed sponsor praise. If product is bad, say Skip.
-
-Return JSON: hook, script, help_angle (one sentence: verdict + why), visual_beats (4-6 — product UI, pricing page, demo screens)."""
+Return JSON: hook, script, help_angle (strength + weakness one-liner), visual_beats (6-8 — product UI, pricing, Ms. Byte poses)."""
 
 
 def _system_prompt(store: MemoryStore | None = None, *, draft_id: int | None = None) -> str:
@@ -103,12 +103,12 @@ class DraftGenerator:
                 parts.append(block)
         return "\n\n".join(parts) if parts else "No approval history yet."
 
-    def _horror_course_context(self, topic: str) -> str:
-        base = f"HORROR FORMAT (Peripheral):\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+    def _course_context(self, topic: str) -> str:
+        base = f"RAPID TOOL REVIEW FORMAT:\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
         if self.router:
             from shorts_bot.production.jenny_checks import jenny_retention_guidance
 
-            base += f"\n\nRETENTION (Jenny-adapted for horror):\n{jenny_retention_guidance(topic)}"
+            base += f"\n\nRETENTION (Jenny Codex):\n{jenny_retention_guidance(topic)}"
         return base
 
     def _apply_ai_detection(
@@ -154,7 +154,7 @@ class DraftGenerator:
         if self.client is None:
             return self._generate_offline(topic, angle)
 
-        course_ctx = self._horror_course_context(topic)
+        course_ctx = self._course_context(topic)
 
         research_block = ""
         if research is not None:
@@ -169,21 +169,22 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Peripheral — terrifying faceless horror, jumpscare at end):
+CHANNEL BRAND (Rapid Tool Review — Ms. Byte hosts):
 {self.brand.draft_instructions()[:1800]}
 
-ENDING RULE: Final spoken line cues the jumpscare, then STOP. No explanation after the scare.
-Do NOT end with channel taglines ("watch the whole thing") — those are metadata only, not voiceover.
-Do NOT use cosy self-help tone, stick figures, or generic "scary story #12" framing.
+HOOK RULES (Jenny 02 — critical):
+- First line = price shock, contrarian claim, or "most shouldn't pay"
+- NEVER start with "Is X worth it?", "Everyone's paying for", "I tested if", or classroom intro
+- NEVER use Pay / Skip / Wait stamps
 
 FORMAT RULES FOR THIS DRAFT:
 {course_ctx}
 
 Return JSON with keys:
-- hook: first spoken line (something clearly wrong)
-- script: full voiceover script (25-35s when read aloud)
-- help_angle: one sentence — scare type (reflection/knock/glitch/lunge) + why the hook feels wrong
-- visual_beats: list of 6-8 cinematic horror shot descriptions (mute-friendly, one per beat)
+- hook: first spoken line (curiosity FIRST — not host intro)
+- script: full Ms. Byte voiceover (25-35s when read aloud, 8 beats)
+- help_angle: one sentence — main strength + main weakness
+- visual_beats: list of 6-8 shots (product UI, pricing page, STRENGTH/WEAKNESS cards, Ms. Byte poses)
 """
         response = self.client.chat.completions.create(
             model=self.model,

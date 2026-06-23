@@ -1,69 +1,66 @@
-"""Niche — AI product tech reviews (locked 2026-06)."""
+"""Niche — Rapid Tool Review / Ms. Byte (locked 2026-06)."""
 
 from __future__ import annotations
 
-NICHE_NAME = "AI Product Reviews"
-NICHE_TAGLINE = "Honest AI in 30 seconds."
+NICHE_NAME = "Rapid Tool Review"
+NICHE_TAGLINE = "An AI explains AI tools — strengths, weaknesses, you decide."
 
 NICHE_POSITIONING = """
-**AI Product Reviews** — ~30 second Shorts reviewing **real AI products** with a clear verdict.
-Presenter: owner **InVideo AI twin**. Product UI / tech B-roll. Captions on.
+**Rapid Tool Review** (@RapidToolReview) — ~30 second YouTube Shorts reviewing **one real AI product**.
+Host: **Ms. Byte** — saved InVideo library character `RTR_MsByte`, clearly synthetic AI teacher.
 
 Hierarchy (locked):
 - Big: **AI / Tech**
-- Sub: **AI product reviews**
-- Sub-sub: **Honest verdict on one real product** — Pay / Skip / Wait
+- Sub: **Honest AI tool reviews for normal people**
+- Format: **One strength + one weakness** — viewer decides (NO Pay/Skip/Wait stamps)
 
-Format:
-- Hook line 1: claim about the product ("Everyone's paying for X — I tested it.")
-- Body: one genuine flaw, surprise, or strength — not a feature dump
-- Close: **Pay / Skip / Wait** + one sentence why
-- 25–35s; one named product per Short
+Jenny Codex (course/files 02, 05, 06, 09):
+- Hook = price shock or contrarian claim in first 2 seconds — NOT "is X worth it?"
+- 8 beats, 2–4s cuts, CTA before payoff, mute-readable overlays
+- Cause → effect: strength → so → but → so → tradeoff → payoff
 
-Tone: **sincere honesty first** — praise when earned, skip when deserved. No hype voice.
-Future: sponsors/affiliates allowed only with disclosure; sponsored scripts need owner approval; never fake "I tested it."
+Production:
+- InVideo MCP one-prompt ship, Basic tier ≤10 credits, NO AI Twin
+- Ms. Byte ~45–55% on screen; rest = vertical stock + product UI
 
-What works: real product names, specific price/privacy/quality callouts, twin on camera, clear verdict.
-What fails: prompt lists, undisclosed ads, generic AI news, fake testing, finance spam, template farms.
+Tone: bubbly teacher + skeptical honesty. No hype, no affiliate energy, no fake testing.
+What works: real product names, specific price/limit callouts, Jenny hooks, app UI on screen.
+What fails: generic "worth it" hooks, Pay/Skip/Wait stamps, listicles, horror framing, twin talking heads.
 """
 
 DEFAULT_TOPICS = [
-    "ChatGPT Plus — honest thirty second verdict",
-    "InVideo AI — worth it for Shorts creators",
-    "that AI headshot app — skip it if you care about privacy",
-    "NotebookLM vs ChatGPT for research — one clear winner",
-    "CapCut AI vs InVideo — I tested both for Shorts",
-    "this AI meeting notetaker — pay or skip",
-    "Gemini Advanced — who actually needs it",
-    "ChatGPT vs Claude for writing — honest pick",
-    "that viral AI video tool — what the free tier actually gives you",
-    "AI resume builder I tried for an hour — verdict",
-    "Perplexity Pro — pay or stay on free",
-    "HeyGen vs InVideo for AI avatar Shorts",
-    "Notion AI — worth adding to your workspace",
-    "Adobe Firefly vs Midjourney for beginners",
-    "this AI voice clone app — the privacy catch",
-    "Cursor Pro for non-coders — honest take",
-    "Descript AI editing — skip if you only make Shorts",
-    "ElevenLabs voice clone — pay tier or free enough",
-    "Synthesia vs InVideo — talking head Shorts compared",
-    "the new OpenAI feature — wait before you pay",
+    "ChatGPT Plus — twenty bucks, who actually needs it",
+    "Claude Code — terminal agent honest breakdown",
+    "InVideo AI — credit math for daily Shorts",
+    "NotebookLM — free tool hidden limits",
+    "Gemini Advanced — twenty vs free Gemini",
+    "Cursor Pro — non-coders shouldn't pay",
+    "Perplexity Pro — ten bucks vs free search",
+    "CapCut AI — watermark trap on export",
+    "ElevenLabs — voice clone credit burn",
+    "HeyGen vs InVideo — avatar Shorts cost",
+    "Midjourney — subscription stack in 2026",
+    "Notion AI — add-on tax on workspace",
+    "Descript — overkill for Shorts-only editors",
+    "Runway Gen-3 — credit burn per clip",
+    "Opus Clip — AI clip picks wrong moments",
+    "Grok xAI — thirty bucks for Twitter data",
 ]
 
 SPONSOR_RULES = """
 Sponsor / affiliate rules (future):
 - Disclose paid partnerships in video and description (#ad).
 - Organic reviews and sponsored content use separate queues.
-- Sponsored scripts require owner approval; no automatic Pay verdict.
+- Sponsored scripts require owner approval.
 - Affiliate links only for products we'd honestly recommend; disclose commission.
 """
 
 
 def quality_lessons() -> str:
     return (
-        "Better: named real product, tested claim, one sharp pro/con, Pay/Skip/Wait verdict, "
-        "twin presenter, readable captions. "
-        "Worse: vague 'AI tool', hype without substance, undisclosed sponsor praise, "
-        "multi-product listicles, prompt spam. "
-        "Always: sincere honesty, 1 product per Short, synthetic presenter disclosure, 1 Short/24h."
+        "Better: Jenny hook (price/contrarian first), one named product, specific strength + weakness, "
+        "Ms. Byte host, mute-readable overlays, you decide close. "
+        "Worse: 'Is X worth it?', 'I tested if', Pay/Skip/Wait stamps, vague AI hype, "
+        "multi-product listicles, horror/jumpscare framing. "
+        "Always: 1 product per Short, synthetic disclosure, 1 Short/24h YPP-safe."
     )

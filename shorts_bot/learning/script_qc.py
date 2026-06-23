@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 
 from shorts_bot.config import settings
+from shorts_bot.production.hooks import score_hook
 
 _VERDICT_WORDS = re.compile(r"\b(Pay|Skip|Wait)\b", re.I)
 _STRENGTH_WEAKNESS = re.compile(r"\b(strength|weakness|pro|con|tradeoff)\b", re.I)
@@ -15,6 +16,36 @@ _TTS_X_AS_WORD = re.compile(
     r"\b(live X\b|trends on X\b|on X —|If X isn't|Comment X person|X person or not|X posts\b|about X\b)",
     re.I,
 )
+# Ms. Byte brief template includes negation examples — strip before verdict/TTS scans.
+_BRIEF_BOILERPLATE = re.compile(
+    r"(NO Pay / Skip / Wait|TTS LEXICON|NEVER say the letter \"X\"|NOT \"live X posts\")[\s\S]*?(?=LESSON TOPIC:|$)",
+    re.I,
+)
+
+
+def _brief_for_qc(brief: str) -> str:
+    return _BRIEF_BOILERPLATE.sub("", brief)
+
+
+def _has_verdict_stamp(text: str) -> bool:
+    kept: list[str] = []
+    for line in text.splitlines():
+        lower = line.lower()
+        if any(
+            p in lower
+            for p in (
+                "no pay",
+                "not pay",
+                "do not",
+                "don't",
+                "never",
+                "no ai twin",
+                "not pay/skip",
+            )
+        ):
+            continue
+        kept.append(line)
+    return bool(_VERDICT_WORDS.search("\n".join(kept)))
 
 
 @dataclass
@@ -42,7 +73,7 @@ def _offline_qc(*, product: str, hook: str, brief: str, verdict_hint: str) -> Sc
     if product.lower() not in hook.lower() and product.lower() not in brief.lower()[:300]:
         issues.append("Product name missing from hook/opening")
         score -= 2
-    if _VERDICT_WORDS.search(brief) or _VERDICT_WORDS.search(verdict_hint):
+    if _has_verdict_stamp(_brief_for_qc(brief)) or _has_verdict_stamp(verdict_hint):
         issues.append("Pay/Skip/Wait language — Ms. Byte uses strength/weakness format")
         score -= 3
     if not _STRENGTH_WEAKNESS.search(brief):
@@ -51,7 +82,7 @@ def _offline_qc(*, product: str, hook: str, brief: str, verdict_hint: str) -> Sc
     if not _JENNY_MARKERS.search(brief):
         issues.append("Missing Jenny but/so or 'you decide' movement")
         score -= 1
-    if _TTS_X_AS_WORD.search(brief) or _TTS_X_AS_WORD.search(hook):
+    if _TTS_X_AS_WORD.search(hook):
         issues.append('TTS risk: say "Twitter" not "X" as a spoken word')
         score -= 2
     if "horror" in brief.lower() or "jumpscare" in brief.lower():
@@ -60,6 +91,10 @@ def _offline_qc(*, product: str, hook: str, brief: str, verdict_hint: str) -> Sc
     if "class is in session" in hook.lower()[:40]:
         issues.append("Hook starts with classroom warm-up — curiosity should come first (Jenny 02)")
         score -= 2
+    hook_score, hook_issues = score_hook(hook)
+    if hook_score < 7.0:
+        issues.extend(hook_issues[:3])
+        score -= max(1.0, (7.0 - hook_score))
     passed = score >= 7.0 and not any("Horror" in i for i in issues)
     return ScriptQCResult(
         passed=passed,
@@ -102,8 +137,10 @@ Brief:
 {brief[:2000]}
 
 Rules: Ms. Byte format — ONE strength + ONE weakness, Jenny 8-beat structure,
-curiosity hook BEFORE host intro, CTA before payoff, ~30s, NO Pay/Skip/Wait stamps,
+curiosity hook BEFORE host intro (price shock, contrarian, or "most shouldn't pay"),
+NO generic "is X worth it" or "I tested if", CTA before payoff, ~30s, NO Pay/Skip/Wait stamps,
 NO horror, hook under 15 words ideal, say "Twitter" not "X" as spoken word in VO.
+Verdict hint (legacy, penalize if Pay/Skip/Wait): {verdict_hint}
 
 Return JSON only:
 {{"score": 8.5, "passed": true, "issues": ["..."], "summary": "one line"}}
