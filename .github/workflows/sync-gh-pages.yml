@@ -1,0 +1,27 @@
+name: Sync Beanz Treats to gh-pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "beanz-treats/**"
+      - ".github/workflows/sync-gh-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish site files to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: beanz-treats
+          branch: gh-pages
+          clean: true
+          commit-message: "Deploy Beanz Treats site"
