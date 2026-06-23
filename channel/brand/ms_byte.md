@@ -99,7 +99,7 @@ No need to “win” every thread; specificity beats a universal verdict.
 - Clearly **digital:** hologram glow, ONLINE badge, UI accents
 - Egirl-inspired: pink streak, headset, tablet/pointer, chest-up framing
 - Colors: bg `#0B0F14`, tech `#3B82F6`, pink `#EC4899`
-- On screen **~5 seconds total**; rest = stock + app UI
+- On screen **~45–55%** of runtime (hook, strength, weakness, tradeoff, outro); rest = stock + app UI
 
 ---
 

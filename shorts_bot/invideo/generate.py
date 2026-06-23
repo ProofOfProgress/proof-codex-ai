@@ -8,7 +8,7 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.invideo.mcp_client import InVideoMcpClient
 from shorts_bot.invideo.script_pack import draft_pack_dir, write_script_pack
-from shorts_bot.invideo.prompts import shorts_product_brief
+from shorts_bot.invideo.ms_byte import ms_byte_brief
 from shorts_bot.memory.store import MemoryStore
 
 
@@ -139,10 +139,10 @@ def generate_from_draft(
     store = MemoryStore(settings.database_path)
     draft = store.get_draft(draft_id)
     if use_prompt:
-        prompt = shorts_product_brief(
+        prompt = ms_byte_brief(
             product=draft.topic,
-            hook=draft.hook or f"Honest take on {draft.topic}",
-            extra=draft.help_angle or "",
+            hook=draft.hook or f"Most people overpay for {draft.topic} — here's what's actually good and broken.",
+            angle=draft.help_angle or "",
         )
         return generate_from_prompt(
             prompt,

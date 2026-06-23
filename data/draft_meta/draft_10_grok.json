@@ -9,23 +9,24 @@
   "voiceover": [
     "Thirty bucks for Grok — and most of you shouldn't pay.",
     "I'm Ms. Byte — an AI — here's the one thing Grok actually does better.",
-    "Strength: it reads live X posts while they're happening.",
-    "So if your job is trends on X — nothing else is built like this.",
+    "Strength: it reads live Twitter posts while they're happening.",
+    "So if your job is trends on Twitter — nothing else is built like this.",
     "But SuperGrok is thirty a month. ChatGPT Plus? Twenty.",
-    "So no X habit? You're paying for a gym you never visit.",
+    "So no Twitter habit? You're paying for a gym you never visit.",
     "Beats ChatGPT on live drama. Loses to Claude on clean writing.",
-    "If X isn't your job — walk. Comment X person or not — you decide."
+    "If Twitter isn't your job — walk. Comment Twitter person or not — you decide."
   ],
   "visual_beats": [
     "$30 hook frame — GROK logo",
     "Ms. Byte tag + product name",
-    "STRENGTH: Grok UI live X query",
-    "Trending X results",
+    "STRENGTH: Grok UI live Twitter query",
+    "Trending Twitter results",
     "WEAKNESS: x.ai pricing $30",
     "$30 vs $20 split",
-    "CTA card: COMMENT X OR NOT (before payoff)",
+    "CTA card: COMMENT TWITTER OR NOT (before payoff)",
     "Payoff text + outro — end promptly"
   ],
   "title": "Grok Costs $30 — Most People Shouldn't Pay | Rapid Tool Review",
-  "research": "data/research/grok-xai-review-2026.md"
+  "research": "data/research/grok-xai-review-2026.md",
+  "playbook": "data/research/INVIDEO_MS_BYTE_QUALITY_PLAYBOOK.md"
 }
