@@ -40,13 +40,16 @@ def send_gmail_email(
         return False, "Invalid recipient address"
 
     sender = (from_addr or user).strip()
+    # formataddr returns "Name <email>" — plain email also works for SMTP
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject[:200]
     msg["From"] = sender
     msg["To"] = recipient
 
+    host = (getattr(settings, "smtp_host", None) or GMAIL_SMTP_HOST).strip()
+    port = int(getattr(settings, "smtp_port", None) or GMAIL_SMTP_PORT)
     try:
-        with smtplib.SMTP(GMAIL_SMTP_HOST, GMAIL_SMTP_PORT, timeout=30) as smtp:
+        with smtplib.SMTP(host, port, timeout=30) as smtp:
             smtp.ehlo()
             smtp.starttls()
             smtp.ehlo()

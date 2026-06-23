@@ -80,8 +80,11 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 | `SLACK_CHANNEL_ID` | Environment Variable | Channel ID `C...` | `C0123456789` | `#peripheral-ops` → channel details |
 | `SLACK_WEBHOOK_URL` | Runtime Secret | Incoming webhook URL (optional) | `https://hooks.slack.com/services/...` | Fallback if no bot token |
 | `SLACK_CHANNEL_EMAIL` | Environment Variable | Channel inbound email | `peripheral-ops@workspace.slack.com` | Option A — `docs/FOR_OWNER_SLACK_EMAIL.md` |
-| `GMAIL_SMTP_USER` | Runtime Secret | Gmail sender address | `paypalacc4progress@gmail.com` | With app password for Slack email |
+| `GMAIL_SMTP_USER` | Runtime Secret | Gmail sender address | `[REDACTED]` | Slack alerts + B2B outreach |
 | `GMAIL_SMTP_APP_PASSWORD` | Runtime Secret | Google App Password | `16-char password` | Not your login password |
+| `B2B_EMAIL_ENABLED` | Environment Variable | `true` / `false` | `false` | Enable B2B send — `docs/FOR_OWNER_B2B_EMAIL.md` |
+| `B2B_EMAIL_FROM_NAME` | Environment Variable | Display name on From: | `Kim` | Your first name |
+| `B2B_EMAIL_DAILY_LIMIT` | Environment Variable | Max sends per UTC day | `10` | Safety cap |
 | `SLACK_POST_MODE` | Environment Variable | `auto` \| `email` \| `bot` | `email` | Force Gmail path when set |
 | `SLACK_CURSOR_LINKED` | Environment Variable | `true` after Link Account | `true` | Set after `@cursor help` → Link Account in Slack |
 | `SLACK_APP_TOKEN` | Runtime Secret | Socket Mode `xapp-...` | `xapp-...` | Autonomy bus — `docs/SLACK_AUTONOMY.md` |

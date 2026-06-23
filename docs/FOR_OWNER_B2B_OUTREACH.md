@@ -73,6 +73,14 @@ python3 -m shorts_bot.b2b.outreach_cli save \
 
 List lives at `data/b2b/prospects.json`.
 
+**Business email (optional):** connect Gmail once, then send from the bot with your approval — see `docs/FOR_OWNER_B2B_EMAIL.md`.
+
+```bash
+python3 -m shorts_bot.b2b.outreach_cli status
+python3 -m shorts_bot.b2b.outreach_cli test-email
+python3 -m shorts_bot.b2b.outreach_cli send --index 0 --confirm
+```
+
 ---
 
 ## Daily habit (10 min)
