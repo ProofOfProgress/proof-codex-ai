@@ -89,7 +89,7 @@ No need to “win” every thread; specificity beats a universal verdict.
 | `pose_outro.png` | Sign-off |
 | `pose_side_angle.png` | Side / 3/4 profile |
 
-- Flat 2D cartoon — **NOT** photoreal, **NOT** InVideo AI Twin
+- Flat 2D **anime / cel-shaded** illustration — if InVideo asks for style: **anime kinda style**
 - Clearly **digital:** hologram glow, ONLINE badge, UI accents
 - Egirl-inspired: pink streak, headset, tablet/pointer, chest-up framing
 - Colors: bg `#0B0F14`, tech `#3B82F6`, pink `#EC4899`
@@ -102,11 +102,17 @@ No need to “win” every thread; specificity beats a universal verdict.
 Library name: **`RTR_MsByte`**. Every brief:
 
 ```
-HOST: Ms. Byte — RTR_MsByte library character. Bubbly AI teacher, clearly synthetic.
+HOST: Ms. Byte — RTR_MsByte library character. Anime / cel-shaded (if style asked: anime). Bubbly AI teacher, clearly synthetic.
 Format: ONE strength + ONE weakness + tradeoff (optional alt tool). NO Pay/Skip/Wait.
 NO definitive "worth it" for the viewer. NO AI Twin. Basic ≤10 credits.
 Always full name "Ms. Byte".
 ```
+
+**Create in InVideo (agent):**
+```bash
+python3 -m shorts_bot.invideo.ms_byte_character_cli
+```
+If InVideo asks illustration style → **Anime / cel-shaded**.
 
 ---
 

@@ -92,7 +92,7 @@ def process_due_uploads(*, force: bool = False) -> list[dict[str, Any]]:
         publish_at = item.publish_dt()
         recent = mem.recent_uploads(hours=48)
         gap_ok = True
-        if recent:
+        if recent and not force:
             last_at = datetime.fromisoformat(recent[0]["uploaded_at"].replace("Z", "+00:00"))
             if last_at.tzinfo is None:
                 last_at = last_at.replace(tzinfo=timezone.utc)

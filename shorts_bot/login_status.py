@@ -427,38 +427,85 @@ def _check_resemble() -> ServiceStatus:
 
 
 def _check_tiktok_upload() -> ServiceStatus:
+    from shorts_bot.zernio.auth_cli import status_dict
+
+    st = status_dict()
+    if st["configured"] and st["tiktok_ready"]:
+        names = ", ".join(
+            a["name"] for a in st["accounts"] if a["platform"] == "tiktok" and a["active"]
+        )
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok upload (Zernio)",
+            True,
+            f"Ready — {names or 'connected'}",
+        )
+    if st["configured"]:
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok upload (Zernio)",
+            False,
+            "Zernio key OK but TikTok not connected",
+            "https://zernio.com",
+        )
+
     from shorts_bot.tiktok.oauth import auth_status, credentials_status_message, upload_ready
 
-    st = auth_status()
-    if not st["credentials_configured"]:
+    legacy = auth_status()
+    if legacy["upload_ready"]:
         return ServiceStatus(
             "tiktok_upload",
-            "TikTok API upload",
-            False,
-            credentials_status_message(),
-            "docs/FOR_OWNER_TIKTOK_SETUP.md",
-        )
-    if not st["token_saved"]:
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok API upload",
-            False,
-            "OAuth token missing",
-            "python3 -m shorts_bot.tiktok.auth_cli connect",
-        )
-    if upload_ready():
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok API upload",
+            "TikTok API upload (legacy)",
             True,
             "Ready — Content Posting API",
         )
+    if legacy["credentials_configured"]:
+        return ServiceStatus(
+            "tiktok_upload",
+            "TikTok upload",
+            False,
+            "Add ZERNIO_API_KEY (recommended) or finish TikTok OAuth",
+            "python3 -m shorts_bot.zernio.auth_cli status",
+        )
     return ServiceStatus(
         "tiktok_upload",
-        "TikTok API upload",
+        "TikTok upload",
         False,
-        "Missing video.publish scope",
-        "python3 -m shorts_bot.tiktok.auth_cli connect",
+        credentials_status_message(),
+        "python3 -m shorts_bot.zernio.auth_cli status",
+    )
+
+
+def _check_zernio() -> ServiceStatus:
+    from shorts_bot.zernio.auth_cli import status_dict
+
+    st = status_dict()
+    if not st["configured"]:
+        return ServiceStatus(
+            "zernio",
+            "Zernio cross-post",
+            False,
+            "ZERNIO_API_KEY missing",
+            "https://zernio.com",
+        )
+    parts = []
+    if st["tiktok_ready"]:
+        parts.append("TikTok")
+    if st["facebook_ready"]:
+        parts.append("Facebook")
+    if parts:
+        return ServiceStatus(
+            "zernio",
+            "Zernio cross-post",
+            True,
+            f"Ready — {', '.join(parts)}",
+        )
+    return ServiceStatus(
+        "zernio",
+        "Zernio cross-post",
+        False,
+        "API key OK — connect accounts at zernio.com",
+        "python3 -m shorts_bot.zernio.auth_cli status",
     )
 
 
@@ -549,6 +596,7 @@ def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
         _check_youtube_upload(),
         _check_drive_inbox(),
         _check_tiktok_upload(),
+        _check_zernio(),
         _check_invideo(),
     ]
     if include_studio:
