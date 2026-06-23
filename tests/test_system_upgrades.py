@@ -15,6 +15,17 @@ def test_product_queue_loads():
     q = load_product_queue(Path("data/product_queue.json"))
     assert len(q) >= 10
     assert q[0].product
+    assert q[0].hook
+    assert q[0].strength_hint or q[0].weakness_hint
+
+
+def test_product_queue_hooks_pass_jenny_bar():
+    from shorts_bot.production.hooks import score_hook
+
+    q = load_product_queue(Path("data/product_queue.json"))
+    for item in q:
+        score, _ = score_hook(item.hook)
+        assert score >= 7.0, f"Queue hook too weak for {item.product}: {item.hook!r}"
 
 
 def test_next_queue_item(tmp_path: Path):

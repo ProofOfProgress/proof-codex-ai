@@ -3,7 +3,10 @@ from shorts_bot.invideo.prompts import DEFAULT_CHATGPT_PLUS_BRIEF, shorts_produc
 
 
 def test_shorts_brief_includes_vertical_rules():
-    brief = shorts_product_brief(product="Notion AI", hook="Is it worth it?")
+    brief = shorts_product_brief(
+        product="Notion AI",
+        hook="Notion AI sits inside your notes — but the add-on price adds up.",
+    )
     assert "9:16" in brief
     assert "NOT long-form" in brief or "YouTube Short ONLY" in brief
     assert "Notion AI" in brief

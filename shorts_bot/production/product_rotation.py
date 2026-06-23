@@ -25,6 +25,8 @@ def next_product_topic(store: MemoryStore) -> str:
                     "product": item.product,
                     "topic": item.topic,
                     "hook": item.hook,
+                    "strength_hint": item.strength_hint,
+                    "weakness_hint": item.weakness_hint,
                     "verdict_hint": item.verdict_hint,
                 }
             ),

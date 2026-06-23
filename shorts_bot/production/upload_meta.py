@@ -1,4 +1,4 @@
-"""YouTube upload metadata — Peripheral horror Shorts SEO."""
+"""YouTube upload metadata — Rapid Tool Review / AI product Shorts SEO."""
 
 from __future__ import annotations
 
@@ -243,13 +243,18 @@ def _tags_from_research(topic: str, research) -> list[str]:
     return base[:12]
 
 
-def _is_ai_review_topic(topic: str) -> bool:
+def _is_horror_topic(topic: str) -> bool:
     lower = topic.lower()
     markers = (
-        "chatgpt", "claude", "gemini", "invideo", "cursor", "ai tool",
-        "notebooklm", "perplexity", "rapid tool", "software", "app review",
+        "horror", "jumpscare", "scary", "creepy", "peripheral", "don't blink",
+        "analog horror", "security cam", "3:12 am", "faceless horror",
     )
     return any(m in lower for m in markers)
+
+
+def _is_ai_review_topic(topic: str) -> bool:
+    """Rapid Tool Review default — horror archive topics still use horror meta."""
+    return not _is_horror_topic(topic)
 
 
 def _ai_review_tags(topic: str) -> list[str]:

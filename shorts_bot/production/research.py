@@ -9,15 +9,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.production.framing import framing_notes_for_prompt
 from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 
 
 def _visual_framing_for_pipeline() -> str:
     return (
-        f"{framing_notes_for_prompt()}\n\n"
-        "Don't Blink: AI full-motion horror clips per beat. Dark palette, no stick figures. "
-        "Final beat = full-frame jumpscare. See data/research/HORROR_PSYCHOLOGY_DEEP_RESEARCH.md."
+        "Rapid Tool Review / Ms. Byte: 9:16 vertical Short. "
+        "45–55% RTR_MsByte library character; rest = vertical stock + product UI/screenshots. "
+        "Bold STRENGTH/WEAKNESS overlays — mute-readable. NO horror, NO AI twin. "
+        f"{quality_lessons()}"
     )
 
 

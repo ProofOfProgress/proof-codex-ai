@@ -141,12 +141,17 @@ def _click_modal_download(page) -> None:
     page.locator("button").filter(has_text="Download").last.click(force=True, timeout=15_000)
 
 
-def _maybe_click_generate(page) -> bool:
+def _maybe_click_generate(page, *, max_credits: int = 10) -> bool:
+    from shorts_bot.invideo.credit_guard import assert_credit_budget
+
+    body = page.inner_text("body") or ""
     gen = page.locator("button").filter(has_text=re.compile(r"^Generate$", re.I))
     if not gen.count():
         gen = page.get_by_text("Generate", exact=False)
     if not gen.count():
         return False
+    btn_text = gen.first.inner_text() or "Generate"
+    assert_credit_budget(f"{btn_text}\n{body}", max_credits=max_credits)
     gen.first.click(force=True, timeout=15_000)
     return True
 
@@ -157,6 +162,7 @@ def wait_for_project_ready(
     timeout_sec: int = 900,
     poll_sec: float = 8.0,
     auto_generate: bool = False,
+    max_credits: int = 10,
 ) -> ProjectState:
     deadline = time.time() + timeout_sec
     clicked_generate = False
@@ -177,7 +183,7 @@ def wait_for_project_ready(
         if state == ProjectState.READY:
             return state
         if state == ProjectState.GENERATE_PENDING and auto_generate and not clicked_generate:
-            if _maybe_click_generate(page):
+            if _maybe_click_generate(page, max_credits=max_credits):
                 clicked_generate = True
                 time.sleep(10)
                 continue
