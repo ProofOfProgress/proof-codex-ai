@@ -85,13 +85,20 @@ No need to “win” every thread; specificity beats a universal verdict.
 
 | File | Use |
 |------|-----|
-| `reference.png` | Master look — Character Generator input |
+| `reference_916_front.png` | **Primary** 9:16 front — Character Generator input |
+| `reference_916_three_quarter.png` | 9:16 three-quarter depth reference |
+| `reference.png` | Legacy master look (landscape) |
 | `background_studio.png` | Virtual classroom BG |
 | `studio_full_scene.png` | Full scene reference |
-| `pose_hook_wave.png` | Hook |
+| `pose_hook_surprise.png` | Hook — curiosity / price shock (9:16) |
+| `pose_hook_wave.png` | Hook wave (legacy) |
+| `pose_teach_pointing.png` | Setup — pointing at tablet (9:16) |
 | `pose_thinking.png` | Mid-lesson |
 | `pose_strength.png` | STRENGTH beat |
 | `pose_weakness.png` | WEAKNESS beat |
+| `pose_tradeoff.png` | Tradeoff / vs gesture (9:16) |
+| `pose_cta_comment.png` | CTA — comment prompt (9:16) |
+| `pose_payoff.png` | Payoff reveal (9:16) |
 | `pose_outro.png` | Sign-off |
 | `pose_side_angle.png` | Side / 3/4 profile |
 
