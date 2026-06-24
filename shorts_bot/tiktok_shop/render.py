@@ -8,7 +8,7 @@ from pathlib import Path
 
 from shorts_bot.config import settings
 from shorts_bot.tiktok_shop import kling_client
-from shorts_bot.tiktok_shop.product_images import download_cover, parse_cover_url
+from shorts_bot.tiktok_shop.product_images import download_cover, image_payload_for_kling, parse_cover_url
 from shorts_bot.tiktok_shop.product_scout import load_products
 from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
 
@@ -65,14 +65,12 @@ def render_product_clip(
         image_url = image_url or str(row.get("cover_url") or "")
 
     if image_path is None and product_id and parse_cover_url(image_url):
-        image_path = download_cover(product_id=product_id, cover_url=image_url)
-
-    url = parse_cover_url(image_url)
-    if not url:
-        raise RuntimeError("Kling needs a public image URL — run: factory_cli prep-images --force")
-    image_for_kling = url
-    if image_path is None and product_id:
         download_cover(product_id=product_id, cover_url=image_url)
+
+    try:
+        image_for_kling = image_payload_for_kling(product_id=product_id, cover_url=image_url)
+    except RuntimeError as exc:
+        raise RuntimeError(str(exc)) from exc
 
     out_dir = clips_dir()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -87,6 +85,9 @@ def render_product_clip(
             image_url=image_for_kling,
             prompt=prompt or DEFAULT_PROMPT,
             duration=5,
+            mode="pro",  # 1080p vertical
+            aspect_ratio="9:16",
+            sound="off",
         )
         video_url = kling_client.wait_for_video_url(task_id)
         kling_client.download_video(video_url, raw)

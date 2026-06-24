@@ -35,6 +35,73 @@ def parse_cover_url(raw: object) -> str:
     return m.group(0) if m else text
 
 
+def tiktok_cdn_url_from_detail(row: dict) -> str:
+    """First TikTok CDN variant image from EchoTik sale_props (public, Kling-friendly)."""
+    props_raw = row.get("sale_props") or ""
+    try:
+        props = json.loads(props_raw) if isinstance(props_raw, str) else props_raw
+    except json.JSONDecodeError:
+        props = []
+    if not isinstance(props, list):
+        return ""
+    for prop in props:
+        if not isinstance(prop, dict):
+            continue
+        for val in prop.get("sale_prop_values") or []:
+            if not isinstance(val, dict):
+                continue
+            img = str(val.get("image") or "").strip()
+            if img and ("ttcdn" in img or "tiktokcdn" in img):
+                return img
+    return ""
+
+
+def load_image_bytes_for_kling(*, product_id: str = "", cover_url: str = "") -> bytes:
+    """Download a product image Kling can use (TikTok CDN preferred over EchoTik CDN)."""
+    from shorts_bot.tiktok_shop import echotik_client
+
+    if product_id and echotik_client.configured():
+        details = echotik_client.product_detail([product_id])
+        if details:
+            cdn = tiktok_cdn_url_from_detail(details[0])
+            if cdn:
+                with httpx.Client(timeout=60.0, follow_redirects=True) as client:
+                    resp = client.get(cdn)
+                    resp.raise_for_status()
+                    return resp.content
+
+    for candidate in (parse_cover_url(cover_url), cover_url):
+        url = parse_cover_url(candidate)
+        if not url:
+            continue
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; ShortsBot/1.0)",
+            "Referer": "https://www.tiktok.com/",
+        }
+        try:
+            with httpx.Client(timeout=60.0, follow_redirects=True, headers=headers) as client:
+                resp = client.get(url)
+                resp.raise_for_status()
+                return resp.content
+        except httpx.HTTPStatusError:
+            continue
+
+    raise RuntimeError(
+        f"No downloadable product image for {product_id or cover_url[:40]} — "
+        "run prep-images --force after scout"
+    )
+
+
+def image_payload_for_kling(*, product_id: str = "", cover_url: str = "") -> str:
+    """Raw base64 for Kling image2video (no data: prefix)."""
+    import base64
+
+    data = load_image_bytes_for_kling(product_id=product_id, cover_url=cover_url)
+    if len(data) > 10 * 1024 * 1024:
+        raise RuntimeError("Product image exceeds Kling 10MB limit")
+    return base64.standard_b64encode(data).decode("ascii")
+
+
 def image_path_for_product(product_id: str, *, ext: str = ".jpg") -> Path:
     safe = re.sub(r"[^a-zA-Z0-9_-]+", "_", product_id.strip())[:80]
     return settings.data_dir / "tiktok_shop" / "images" / f"{safe}{ext}"

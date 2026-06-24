@@ -24,6 +24,24 @@ def test_parse_cover_url_empty():
     assert parse_cover_url(None) == ""
 
 
+def test_tiktok_cdn_from_sale_props():
+    from shorts_bot.tiktok_shop.product_images import tiktok_cdn_url_from_detail
+
+    row = {
+        "sale_props": json.dumps(
+            [
+                {
+                    "prop_name": "Color",
+                    "sale_prop_values": [
+                        {"image": "https://p16-oec-general-useast5.ttcdn-us.com/foo.webp"},
+                    ],
+                }
+            ]
+        )
+    }
+    assert "ttcdn-us.com" in tiktok_cdn_url_from_detail(row)
+
+
 def test_download_cover_skips_on_403(tmp_path, monkeypatch):
     fake_settings = type("S", (), {"data_dir": tmp_path})()
     monkeypatch.setattr("shorts_bot.tiktok_shop.product_images.settings", fake_settings)

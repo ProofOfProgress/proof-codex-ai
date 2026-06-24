@@ -19,17 +19,19 @@ def configured() -> bool:
 def _auth_header() -> dict[str, str]:
     if not configured():
         raise RuntimeError("Kling not configured — set KLING_API_KEY or ACCESS+SECRET in Secrets")
+    ak = (settings.kling_access_key or "").strip()
+    sk = (settings.kling_secret_key or "").strip()
+    if ak and sk and "your-" not in (ak + sk).lower():
+        # Official API credits usually sit on Access Key + Secret (JWT), not the single API key.
+        import jwt
+
+        payload = {"iss": ak, "exp": int(time.time()) + 1800, "nbf": int(time.time()) - 5}
+        token = jwt.encode(payload, sk, algorithm="HS256")
+        return {"Authorization": f"Bearer {token}"}
     bearer = (settings.kling_api_key or "").strip()
     if bearer:
         return {"Authorization": f"Bearer {bearer}"}
-    # Legacy JWT path
-    import jwt
-
-    ak = (settings.kling_access_key or "").strip()
-    sk = (settings.kling_secret_key or "").strip()
-    payload = {"iss": ak, "exp": int(time.time()) + 1800, "nbf": int(time.time()) - 5}
-    token = jwt.encode(payload, sk, algorithm="HS256")
-    return {"Authorization": f"Bearer {token}"}
+    raise RuntimeError("Kling not configured — set KLING_ACCESS_KEY + KLING_SECRET_KEY or KLING_API_KEY")
 
 
 def _headers() -> dict[str, str]:
@@ -44,20 +46,23 @@ def create_image2video(
     aspect_ratio: str | None = None,
     mode: str | None = None,
     model_name: str | None = None,
+    sound: str | None = None,
 ) -> str:
     """Submit image2video job; return task_id."""
     dur = str(duration or settings.kling_clip_seconds or 5)
     if dur not in {"5", "10"}:
         dur = "5" if int(dur) <= 5 else "10"
     body = {
-        "model_name": model_name or settings.kling_model or "kling-v2-6",
+        "model_name": model_name or "kling-v2-6",
         "image": image_url.strip(),
         "prompt": prompt.strip(),
         "duration": dur,
         "aspect_ratio": aspect_ratio or settings.kling_aspect_ratio or "9:16",
         "mode": mode or settings.kling_mode or "std",
     }
-    if not settings.kling_generate_audio:
+    if sound is not None:
+        body["sound"] = sound
+    elif not settings.kling_generate_audio:
         body["sound"] = "off"
 
     with httpx.Client(timeout=60.0) as client:
