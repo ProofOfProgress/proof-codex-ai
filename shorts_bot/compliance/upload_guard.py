@@ -73,9 +73,16 @@ def check_upload_allowed(
         "productivity tips",
     )
     channel = (settings.youtube_channel_name or "").lower()
-    is_horror = "peripheral" in channel or settings.channel_series_name.lower() == "peripheral"
-    if is_horror and any(m in topic_lower for m in off_niche_markers):
+    series = (settings.channel_series_name or "").lower()
+    is_horror = "peripheral" in channel or series == "peripheral"
+    is_ai_review = "rapid tool review" in channel or "rapid tool review" in series
+    has_off_niche_marker = any(m in topic_lower for m in off_niche_markers)
+    if is_horror and has_off_niche_marker:
         issues.append("off-niche topic — Peripheral horror Shorts only (wrong vertical uploaded)")
+    elif is_ai_review and has_off_niche_marker:
+        issues.append(
+            "off-niche topic — Rapid Tool Review publishes AI product reviews only"
+        )
 
     for risk in risk_signals_for_script(script, hook, title):
         if (

@@ -64,7 +64,7 @@ def build_upload_package(
     draft_id: int,
     research=None,
 ) -> UploadPackage:
-    """Horror Short metadata: volume warning title, keyword-rich description, 5-8 backend tags."""
+    """Upload metadata for the active Rapid Tool Review niche, with horror archive fallback."""
     from shorts_bot.config import settings
     from shorts_bot.production.niche import NICHE_NAME
 
@@ -86,12 +86,12 @@ def build_upload_package(
     checklist = [
         f"Visibility: {visibility}",
         f"Niche: {NICHE_NAME}",
-        "🔊 Volume warning on finale-scare drafts only (suspense-replay drafts skip it)",
+        "No horror volume warning on AI product reviews",
         "YPP: max 1 Short per 24h — upload_guard enforces",
-        "Script is second-person scary story — strong hook in line 1",
-        "Title front-loads hook keyword (first 40 chars); VO speaks hook in first 3s",
+        "Script gives one clear AI-tool takeaway in ~30 seconds",
+        "Title front-loads product + verdict; VO speaks hook in first 3s",
         "3-5 hashtags in description (first 3 show above title)",
-        "5-8 backend tags in Studio — horror/jumpscare/topic-specific",
+        "5-8 backend tags in Studio — AI/tool/product-specific",
         "Disclose altered/synthetic media (API: containsSyntheticMedia)",
         "Captions in Jenny 05 safe zone — above Shorts title overlay",
         "After publish: sync analytics; read retention at 20s and final 3s",
@@ -343,7 +343,7 @@ def write_upload_files(pack_dir: Path, package: UploadPackage, *, draft_id: int)
         "## Video file",
         "`final_short.mp4`",
         "",
-        "## Recommended settings (horror Shorts SEO)",
+        "## Recommended settings (Rapid Tool Review SEO)",
         f"- **Visibility:** {package.visibility}",
         f"- **Title:** {package.title}",
         "",

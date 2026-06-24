@@ -86,7 +86,15 @@ def process_due_uploads(*, force: bool = False) -> list[dict[str, Any]]:
     for item in load_queue():
         video = Path(item.video_path)
         if not video.is_file():
-            results.append({"draft_id": item.draft_id, "ok": False, "message": f"Missing {video}"})
+            remaining.append(item)
+            results.append(
+                {
+                    "draft_id": item.draft_id,
+                    "ok": False,
+                    "message": f"Missing {video}",
+                    "retry": True,
+                }
+            )
             continue
 
         publish_at = item.publish_dt()

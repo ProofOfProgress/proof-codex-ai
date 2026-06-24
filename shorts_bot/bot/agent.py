@@ -243,6 +243,8 @@ class ShortsBotAgent:
             topic = user_message[6:].strip()
             result = self.tool_runner.run("create_draft", {"topic": topic})
             data = json.loads(result)
+            if "draft_id" not in data:
+                return data.get("error") or data.get("message") or "Draft creation failed."
             route = self.router.route(topic)
             return (
                 f"Created draft #{data['draft_id']} about '{data['topic']}'.\n"

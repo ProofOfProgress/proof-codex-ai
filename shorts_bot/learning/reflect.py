@@ -231,7 +231,7 @@ def reflect_after_sync(
                 title=title,
                 content=row["rule_text"][:800],
                 source="self_training",
-                pinned=False,
+                pinned=True,
             )
             memory.mark_rule_promoted(row["rule_key"])
             result.rules_promoted_to_memory += 1
