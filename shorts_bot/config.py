@@ -188,6 +188,7 @@ class Settings(BaseSettings):
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
     video_backend: str = "blender"
     kling_provider: str = "official"  # official | replicate | fal
+    kling_api_key: str | None = None  # single bearer key (api-key-kling-...)
     kling_access_key: str | None = None
     kling_secret_key: str | None = None
     kling_model: str = "kling-v2-6"  # official API model_name; replicate uses kwaivgi/kling-v3-video
@@ -390,6 +391,9 @@ class Settings(BaseSettings):
 
     @property
     def has_kling_official(self) -> bool:
+        bearer = (self.kling_api_key or "").strip()
+        if bearer and "your" not in bearer.lower() and len(bearer) >= 16:
+            return True
         ak = (self.kling_access_key or "").strip()
         sk = (self.kling_secret_key or "").strip()
         return len(ak) >= 8 and len(sk) >= 8 and "your" not in ak.lower()
