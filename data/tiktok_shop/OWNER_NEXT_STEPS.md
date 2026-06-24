@@ -1,75 +1,43 @@
-# TikTok Shop — what you do next (tired-owner checklist)
+# TikTok Shop Affiliate — what you do next
 
-**We committed to TikTok Shop seller (2026-06-24).** This is the only business we're building. Clipping, YouTube, and character content are parked.
+**Model:** Promote other brands’ products → earn commission. **Not** seller / Printify.
 
-The bot handles scouting, clips, captions, and posting. You only need to finish setup once.
-
----
-
-## Tonight (15–30 min)
-
-1. **Add Kling credits** — https://app.klingai.com → buy a small pack (~$10 test).  
-   Without balance, `make-clip` stops with “Account balance not enough.”
-
-2. **Sign up as a Seller** (0 followers OK) — https://seller-us.tiktok.com  
-   Choose **Individual seller**. Use email login (not Google). Have ID + SSN + bank ready.
-
-3. **Connect Printify** — https://printify.com → Premium → link TikTok Shop in Seller Center.  
-   Keep ~$100–$1K float for POD charges (Printify bills before TikTok pays you).
-
-4. **Link your TikTok** — Seller Center → link official account (QR code on phone).
+The bot scouts products and makes clips. **You need affiliate-eligible TikTok account(s) first.**
 
 ---
 
-## When Kling has credits (bot commands)
+## The gate (read this)
 
-Open a terminal in the project folder and run:
+| Followers | Can you do Shop affiliate? |
+|-----------|----------------------------|
+| **0** | ❌ No |
+| **1,000+** | ⚠️ Pilot — ~5 shop videos/week |
+| **5,000+** | ✅ Full product marketplace |
+
+Full guide: **`docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`**
+
+---
+
+## Your options
+
+1. **Grow** a TikTok to 1K/5K (safest, slow)  
+2. **Buy** 1K or 5K account (fast, ban/scam risk — your call)  
+3. Use an **existing** TikTok if you already have followers  
+
+---
+
+## Once Marketplace works on your phone
 
 ```bash
-python3 -m shorts_bot.tiktok_shop.factory_cli status
-python3 -m shorts_bot.tiktok_shop.factory_cli prep-images --force
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Speak Love"
-```
-
-That scouts products → Kling 5s pan video → loops to ~10s → adds to post queue.
-
-Dry-run post (no upload):
-
-```bash
-python3 -m shorts_bot.tiktok_shop.factory_cli post
-```
-
-Real upload (after Zernio + accounts.json):
-
-```bash
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Product name"
 python3 -m shorts_bot.tiktok_shop.factory_cli post --confirm
 ```
 
----
-
-## Still needed for autopost
-
-| Item | Where |
-|------|--------|
-| Zernio connected TikTok(s) | zernio.com dashboard |
-| `data/tiktok_shop/accounts.json` | copy from `accounts.example.json`, fill Zernio IDs |
-| Rotate Kling key | you pasted it in chat — regenerate at app.klingai.com |
+**3 accounts:** copy `accounts.example.json` → `accounts.json`, fill Zernio IDs, ramp **3–5 posts/day** per account first.
 
 ---
 
-## What the bot already has
+## Parked (not this path)
 
-- EchoTik product scout (daily winners)
-- Cover URL parsing + Kling render pipeline
-- Caption variants (no “% off” spam)
-- 10/day per account quota + queue
-
----
-
-## Model we’re following
-
-**Seller path** (Jon Reiter / TikTokWiz course): you own the listing, post faceless clips, recruit affiliates at ~30%, scale with GMV Max.  
-Not the “5K follower affiliate-only” path.
-
-Full playbook: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`  
-Seller setup guide: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
+Seller Center, Printify, GMV Max ads, own POD products.

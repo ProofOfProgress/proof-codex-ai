@@ -1,51 +1,44 @@
-# Priorities — North Star (committed 2026-06-24)
+# Priorities — North Star (affiliate path — owner 2026-06-24)
 
-**North star:** Make money from **100% AI-automated TikTok Shop seller** — Printify POD, faceless 1080p clips, scout → render → post → learn.
+**North star:** **100% AI-automated TikTok Shop affiliate** — faceless product clips, EchoTik scout → Kling render → post → commission.
 
-**Owner commitment:** TikTok Shop only. Clipping, YouTube RTR, Ms. Byte, and horror Shorts are **parked**.
+**Owner decision:** **Affiliate**, not seller/Printify. Promote other brands’ products; earn commission per sale.
 
-**Rule:** Only the **top 4** below. Canonical list also in `data/PRIORITIES.md`.
+**Rule:** Only the **top 4** below. Mirror: `data/PRIORITIES.md`.
 
 ---
 
-## Honest status (2026-06-24)
+## Honest status
 
 | Area | Status |
 |------|--------|
-| EchoTik product scout | **Live** |
-| Kling 1080p render + loop | **Live** — first clip (`speak_love_loop.mp4`) queued |
-| Seller + Printify | **Waiting** — TikTok Shop signup (owner blocked until unlock) |
-| Zernio autopost | **Waiting** — `accounts.json` after seller TikTok linked |
-| First **own** POD product | **Not started** — next after seller signup |
+| EchoTik scout | **Live** — finds hot products + commission |
+| Kling 1080p clips | **Live** — test clip done |
+| Affiliate TikTok account(s) | **Blocker** — need **1K+** (pilot) or **5K+** (full marketplace) OR acquired account |
+| Seller / Printify | **Parked** — not this path |
+| 3-account post factory | **Ready in code** — needs `accounts.json` + Zernio |
 
 ---
 
-## Top 4 — work these only
+## Top 4
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **TikTok Seller signup + Printify** | Shop bag on profile; can tag products |
-| **2** | **First own product clip posted** | Your Canva design → Printify → bot clip → you post |
-| **3** | **Daily factory loop** | 3–5 clips/day on your listings without manual editing |
-| **4** | **Affiliates + GMV Max on winners** | 5 creators contacted; small ad test on a seller SKU |
-
----
-
-## Bot commands
-
-```bash
-python3 -m shorts_bot.tiktok_shop.factory_cli status
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
-python3 -m shorts_bot.tiktok_shop.factory_cli prep-images --force
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Your product name"
-```
+| **1** | **Affiliate-eligible TikTok(s)** | Account(s) can open Product Marketplace + tag shop products |
+| **2** | **First commission clip live** | Scout pick → bot clip → post with product link |
+| **3** | **Volume factory** | 3 accounts × up to 10 faceless clips/day (variants, not dupes) |
+| **4** | **Double down on winners** | Track which products convert; scout + clip more of those |
 
 ---
 
 ## Stop doing
 
-- Clipping platforms (pay-per-view celebrity clips)
-- Ms. Byte / character Shorts
-- YouTube RTR / InVideo daily loop
-- Pure affiliate model without 5K followers or seller account
-- New Replicate I2V unless owner asks
+- Seller Center / Printify setup (unless owner switches back)
+- GMV Max (seller ads — not affiliate)
+- YouTube RTR / Ms. Byte / clipping marketplaces
+
+---
+
+## Owner doc
+
+`docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`

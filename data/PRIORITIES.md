@@ -1,57 +1,51 @@
 # Priority list — reassess often
 
-**Rule:** Agents and bots may **only** work on the **top 4** items below until the owner changes this file or approves a reorder.
+**North star (affiliate — owner 2026-06-24):** **100% AI-automated TikTok Shop affiliate** — faceless clips promoting trending Shop products, earn commission per sale.
 
-**North star (committed 2026-06-24):** **100% AI-automated TikTok Shop seller business** — Printify POD, faceless product clips, scout → render → post → learn → scale with affiliates + GMV Max.
-
-**Owner decision:** Committed to TikTok Shop. **Not** clipping marketplaces, **not** YouTube RTR/InVideo, **not** Ms. Byte character content — unless owner explicitly reopens.
+**Owner decision:** Affiliate path. **Parked:** seller/Printify, GMV Max, YouTube RTR, Ms. Byte.
 
 **Last assessed:** 2026-06-24
 
 ---
 
-## Top 4 (only these until reassessed)
+## Top 4
 
-| # | Priority | What it means | Done when |
-|---|----------|---------------|-----------|
-| **1** | **Seller + Printify live** | Owner opens TikTok Seller Center, connects Printify, links official TikTok (0 followers OK) | Shop bag on profile; can tag products in drafts |
-| **2** | **First own product + clip posted** | One original POD listing (Canva design), bot renders 1080p clip, owner posts with product tag | One sale attempt in market — not a scout practice SKU |
-| **3** | **Daily clip factory** | EchoTik scout → Kling 1080p → loop → queue → post (3–5/day on seller account) | Autopilot runs without manual ffmpeg |
-| **4** | **Scale winners** | Affiliate outreach (~30%), GMV Max test budget on SKUs that get traction | First 5 creators contacted on a winning product |
-
----
-
-## What “better videos” means (Shop)
-
-1. **9:16 vertical** — product fills phone screen (crop/pad from square mockups)
-2. **1080p Kling pro** — clean pan/zoom, no clutter, no % off spam
-3. **Caption variants** — hook in first line, TikTok Shop safe copy
-4. **Volume on YOUR listings** — 3–5/day before heavy affiliate push
-5. **Learn from views/sales** — double down on designs that convert
+| # | Priority | Done when |
+|---|----------|-----------|
+| **1** | **Affiliate-eligible TikTok account(s)** | Can access Product Marketplace + add product links to posts |
+| **2** | **First affiliate clip posted** | EchoTik product → Kling clip → live post with commission link |
+| **3** | **3-account clip factory** | Up to 10 posts/day per account via bot + Zernio (different products/captions) |
+| **4** | **Learn what converts** | Track sales by product; scout + clip winners harder |
 
 ---
 
-## Backlog (parked — do not build unless owner asks)
+## Follower reality (US, 2026)
 
-- YouTube Rapid Tool Review / InVideo / Peripheral horror Shorts
-- Ms. Byte / character / authentic face content
-- Clipping marketplaces (Whop/Vyro paid-per-view famous people clips)
-- 3× pure affiliate TikTok accounts without follower growth
-- Replicate I2V / new horror renders (`AI_VIDEO_GENERATION_ENABLED=false`)
-- Slack, refactors, docs-for-docs-sake
+| Followers | What you get |
+|-----------|----------------|
+| **0** | No Shop affiliate marketplace — must grow or acquire eligible account |
+| **1,000+** | May enter **Creator Pilot** (limited: ~5 shoppable videos/week, high-rated shops only) |
+| **5,000+** | Full **Affiliate Creator** marketplace access |
 
----
-
-## Owner docs
-
-- Checklist: `data/tiktok_shop/OWNER_NEXT_STEPS.md`
-- Seller setup: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
-- Factory commands: `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`
-- Guru playbook: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`
-- Technical priorities mirror: `docs/PRIORITIES.md`
+See `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md` for account options (grow vs buy — risks documented).
 
 ---
 
-## How we reassess
+## Backlog (parked)
 
-Update this file when the owner shifts focus or a top-4 item is done. Tell the owner in **plain English**.
+- TikTok Shop **Seller** + Printify + POD
+- GMV Max ads (seller-only)
+- YouTube / InVideo / horror Shorts
+- Clipping marketplaces (different model — pay per view for famous people, not Shop commission)
+
+---
+
+## Bot commands
+
+```bash
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Product name"
+python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 5 --confirm
+```
+
+Factory doc: `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`
