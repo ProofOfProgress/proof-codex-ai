@@ -1,5 +1,7 @@
 # TikTok Shop — what you do next (tired-owner checklist)
 
+**We committed to TikTok Shop seller (2026-06-24).** This is the only business we're building. Clipping, YouTube, and character content are parked.
+
 The bot handles scouting, clips, captions, and posting. You only need to finish setup once.
 
 ---

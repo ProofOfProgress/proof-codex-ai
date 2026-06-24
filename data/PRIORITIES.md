@@ -1,44 +1,54 @@
 # Priority list — reassess often
 
-**Rule:** Agents and bots may **only** work on the **top 4** items below until the owner changes this file or approves a reorder. Everything else is backlog.
+**Rule:** Agents and bots may **only** work on the **top 4** items below until the owner changes this file or approves a reorder.
 
-**Goal right now:** **100% automation** + **better videos** (using the most important levers to improve them).
+**North star (committed 2026-06-24):** **100% AI-automated TikTok Shop seller business** — Printify POD, faceless product clips, scout → render → post → learn → scale with affiliates + GMV Max.
 
-**North star (unchanged):** Self-learning, fully autonomous channel that makes a lot of money — automation and quality are how we get there.
+**Owner decision:** Committed to TikTok Shop. **Not** clipping marketplaces, **not** YouTube RTR/InVideo, **not** Ms. Byte character content — unless owner explicitly reopens.
 
-**Last assessed:** 2026-06-11 (Video #1 live — see `data/PRIORITY_14_NOW.md` for full top-14 list)
+**Last assessed:** 2026-06-24
 
 ---
 
 ## Top 4 (only these until reassessed)
 
-| # | Priority | What it means | Most important levers | Status |
-|---|----------|---------------|----------------------|--------|
-| **1** | **100% automation** | Bot runs the full day without you: idea → script → voice → video → quality check → upload → stats sync | `auto_daily`, pipeline resume, auto analytics sync, auto-approve safe learning rules, comment triage | **Mostly built** — must run 24/7 where bot lives; remove any step that still needs a human click |
-| **2** | **Better hooks & scripts** | People swipe away in 1 second if the opening is weak | Jenny hook rules, analytics punish/reward, draft rejections → avoid rules, topic/hook cooldowns | **Built** — needs steady uploads + sync so data flows |
-| **3** | **Better visuals & sync** | Video must *look* right and match the voice beat-by-beat | **Don't Blink horror I2V** (terrifying motion clips, end jumpscare beat), Gemini transcript timing, ffmpeg captions, **vision QC** | **Live** — no stick figures; ai_video only |
-| **4** | **Learn from every video** | Each Short teaches the next one | YouTube retention/views → reflect loop; vision QC fails → avoid rules; approved patterns → repeat rules | **In progress** — close the loop so quality gains compound without you |
+| # | Priority | What it means | Done when |
+|---|----------|---------------|-----------|
+| **1** | **Seller + Printify live** | Owner opens TikTok Seller Center, connects Printify, links official TikTok (0 followers OK) | Shop bag on profile; can tag products in drafts |
+| **2** | **First own product + clip posted** | One original POD listing (Canva design), bot renders 1080p clip, owner posts with product tag | One sale attempt in market — not a scout practice SKU |
+| **3** | **Daily clip factory** | EchoTik scout → Kling 1080p → loop → queue → post (3–5/day on seller account) | Autopilot runs without manual ffmpeg |
+| **4** | **Scale winners** | Affiliate outreach (~30%), GMV Max test budget on SKUs that get traction | First 5 creators contacted on a winning product |
 
 ---
 
-## What “better videos” means (in order of impact)
+## What “better videos” means (Shop)
 
-1. **Hook** — first line earns the next 3 seconds  
-2. **Retention pacing** — 6–8 beats, ~2–3s cuts, concrete protocol payoff  
-3. **Visual sync** — horror motion clips + final scare beat synced to VO  
-4. **Captions** — readable, safe zone, mute-friendly  
-5. **QC before upload** — bot rejects blurry, frozen, or sloppy renders  
-6. **Analytics feedback** — double down on what kept viewers watching  
+1. **9:16 vertical** — product fills phone screen (crop/pad from square mockups)
+2. **1080p Kling pro** — clean pan/zoom, no clutter, no % off spam
+3. **Caption variants** — hook in first line, TikTok Shop safe copy
+4. **Volume on YOUR listings** — 3–5/day before heavy affiliate push
+5. **Learn from views/sales** — double down on designs that convert
 
 ---
 
-## Backlog (not top 4 — do not distract)
+## Backlog (parked — do not build unless owner asks)
 
-- Slack setup in progress — `bash scripts/slack-setup.sh`, docs/SLACK_CURSOR_SETUP.md (owner OAuth)
-- Home PC My Machines, git/ZIP on Windows
-- TikTok account + TikTok Shop (owner setup) — see `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`; bot automation after account + explicit go
-- Cursor API key injection, Enterprise pools
-- CapCut operator, dev queue UI, refactors unless they block top 4
+- YouTube Rapid Tool Review / InVideo / Peripheral horror Shorts
+- Ms. Byte / character / authentic face content
+- Clipping marketplaces (Whop/Vyro paid-per-view famous people clips)
+- 3× pure affiliate TikTok accounts without follower growth
+- Replicate I2V / new horror renders (`AI_VIDEO_GENERATION_ENABLED=false`)
+- Slack, refactors, docs-for-docs-sake
+
+---
+
+## Owner docs
+
+- Checklist: `data/tiktok_shop/OWNER_NEXT_STEPS.md`
+- Seller setup: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
+- Factory commands: `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`
+- Guru playbook: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`
+- Technical priorities mirror: `docs/PRIORITIES.md`
 
 ---
 

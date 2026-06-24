@@ -3,7 +3,7 @@
 ## Owner (read first)
 
 - **Not a developer** — explain in plain English; give exact steps ("open http://localhost:8080 and type `daily`"), not code tours.
-- **North star:** autonomous money-making channel. **Current focus:** **100% automation** + **better videos** (hooks, sync, vision QC, analytics learning). Top 4 only in `data/PRIORITIES.md`.
+- **North star:** autonomous money-making **TikTok Shop seller** channel (Printify POD, faceless clips). **Current focus:** seller signup → own products → daily clip factory → scale winners. Top 4 only in `data/PRIORITIES.md`.
 - **Deprioritize** refactors, docs-for-docs-sake, and features that do not advance autopilot or revenue.
 - **Top 4 only:** see `data/PRIORITIES.md` — work only on those four until reassessed; update the file when priorities shift.
 - **Do it yourself:** external setup (Google Cloud OAuth, YouTube `auth_cli`, provider dashboards) — use **browser + terminal first**; only ask the owner when blocked (wrong account, 2FA, payment). See `data/operating_rules_seed.md` → “Cloud agents — do it yourself first”.
@@ -13,21 +13,19 @@
 
 ### North star (read first)
 
-**Make a lot of money from 100% AI-automated YouTube Shorts** — same channel, **AI/tech rebrand**, InVideo twin production, self-learning from analytics. No “human does 70%.”
+**Make a lot of money from 100% AI-automated TikTok Shop seller business** — Printify POD, faceless product clips, scout → render → post → learn. No “human does 70%.”
 
-**Hardcoded rule:** **InVideo is the soul of our channel** — all video production flows through InVideo; paste-ready agent brief: `docs/CHANNEL_BOT_BRIEF.md`.
+**Owner committed (2026-06-24):** TikTok Shop seller only. **Parked:** clipping marketplaces, YouTube RTR/InVideo, Ms. Byte, pure affiliate without seller account.
 
-**Work rule:** Only the **top 4** items in `docs/PRIORITIES.md` get built. Re-assess often.
+**Work rule:** Only the **top 4** items in `data/PRIORITIES.md` / `docs/PRIORITIES.md` get built.
 
 **User:** Not a coder — explain in plain English, one step at a time.
 
-**Video generation:** Homemade render (Recraft, Blender, ffmpeg) is **retired**. Target: **InVideo AI twin** after owner validates manually. See `data/research/CHANNEL_NICHE_STRATEGY.md`.
+**Video generation (Shop):** Kling 1080p product clips via `shorts_bot.tiktok_shop.factory_cli`. No new Replicate I2V unless owner asks (`AI_VIDEO_GENERATION_ENABLED=false`).
 
 ### Project overview
 
-**Shorts Bot** — autonomous CLI for **AI/tech Shorts** on the existing YouTube channel. Knowledge base: **Codex** (`course/files/` 01–09 — hooks/retention still useful; horror rules deprecated). **Paid stack (target):** **Gemini** (scripts + QC) + **InVideo** (twin + stock + captions) + **YouTube upload API**. Keys via `bash scripts/install.sh`.
-
-**Channel direction:** **AI Product Reviews** — real products, honest Pay/Skip/Wait verdicts. Strategy: `data/research/CHANNEL_NICHE_STRATEGY.md`.
+**Shorts Bot** — factory CLI for **TikTok Shop seller** (EchoTik scout, Kling clips, Zernio post). Guru playbook: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`. Owner setup: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`.
 
 **Codex search (agents only — NOT for the owner):**
 
