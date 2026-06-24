@@ -128,6 +128,12 @@ class Settings(BaseSettings):
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
+    # EchoTik — TikTok Shop product research API (Basic auth)
+    echotik_username: str | None = None
+    echotik_password: str | None = None
+    echotik_api_base: str = "https://open.echotik.live"
+    echotik_region: str = "US"
+
     # InVideo AI — MCP + browser production
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"

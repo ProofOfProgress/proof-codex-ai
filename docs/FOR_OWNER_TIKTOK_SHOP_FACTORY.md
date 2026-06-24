@@ -10,7 +10,7 @@ No character. No VO. Short sale-style captions. Variants (not identical dupes).
 
 1. **3 TikTok accounts** with **Shop Affiliate** turned on  
 2. Connect each to **Zernio** (easiest for multi-account) OR TikTok API tokens  
-3. **Kalodata** trial — pick products using guru filters (see `factory_cli rules`)  
+3. **EchoTik API** — bot scouts products daily (see `docs/FOR_OWNER_ECHOTIK_SETUP.md`)  
 4. Render clips (Kling 5s pan-zoom → bot loops to ~10s)
 
 ---
@@ -48,11 +48,21 @@ python3 -m shorts_bot.zernio.auth_cli status
 python3 -m shorts_bot.tiktok_shop.factory_cli status
 ```
 
-**Kalodata filter cheat sheet:**
+**Kalodata filter cheat sheet (manual UI reference):**
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.factory_cli rules
 ```
+
+**Scout products via EchoTik (automated — use this daily):**
+
+```bash
+python3 -m shorts_bot.tiktok_shop.scout_cli status
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+python3 -m shorts_bot.tiktok_shop.scout_cli list
+```
+
+Setup: `docs/FOR_OWNER_ECHOTIK_SETUP.md`
 
 **Make ~10s clip from 5s Kling export:**
 
@@ -98,7 +108,7 @@ Ramp: first week OK to start at **5/day/account** — edit `daily_limit` in JSON
 
 ## Autopilot (next)
 
-Daily runner will: Kalodata product pick → render → enqueue → post-batch until caps hit.  
+Daily runner will: EchoTik scout → render → enqueue → post-batch until caps hit.  
 For now: manual products + `enqueue` + `post-batch --max 10 --confirm` per account.
 
 Log: `data/tiktok_shop/post_log.jsonl`  
