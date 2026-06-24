@@ -1,22 +1,10 @@
-# Priorities — North Star (affiliate path — owner 2026-06-24)
+# Priorities — North Star (seller — owner 2026-06-24)
 
-**North star:** **100% AI-automated TikTok Shop affiliate** — faceless product clips, EchoTik scout → Kling render → post → commission.
+**North star:** **TikTok Shop seller** — Printify POD, faceless clips, then pay affiliates + ads to scale.
 
-**Owner decision:** **Affiliate**, not seller/Printify. Promote other brands’ products; earn commission per sale.
+**Owner:** Switched back to **seller** after reviewing guru course (was affiliate briefly).
 
-**Rule:** Only the **top 4** below. Mirror: `data/PRIORITIES.md`.
-
----
-
-## Honest status
-
-| Area | Status |
-|------|--------|
-| EchoTik scout | **Live** — finds hot products + commission |
-| Kling 1080p clips | **Live** — test clip done |
-| Affiliate TikTok account(s) | **Blocker** — need **1K+** (pilot) or **5K+** (full marketplace) OR acquired account |
-| Seller / Printify | **Parked** — not this path |
-| 3-account post factory | **Ready in code** — needs `accounts.json` + Zernio |
+**Rule:** Top 4 only. See `data/PRIORITIES.md`.
 
 ---
 
@@ -24,21 +12,26 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Affiliate-eligible TikTok(s)** | Account(s) can open Product Marketplace + tag shop products |
-| **2** | **First commission clip live** | Scout pick → bot clip → post with product link |
-| **3** | **Volume factory** | 3 accounts × up to 10 faceless clips/day (variants, not dupes) |
-| **4** | **Double down on winners** | Track which products convert; scout + clip more of those |
+| **1** | Seller + Printify | Shop live, can tag products |
+| **2** | First **your** product clip posted | Printify SKU + bot video |
+| **3** | 3–5 clips/day on your shop | Factory loop on your listings |
+| **4** | Affiliates + GMV Max on winners | Creators posting for you |
 
 ---
 
 ## Stop doing
 
-- Seller Center / Printify setup (unless owner switches back)
-- GMV Max (seller ads — not affiliate)
-- YouTube RTR / Ms. Byte / clipping marketplaces
+- Buying affiliate accounts  
+- Pure affiliate marketplace grind  
+- Seller is NOT parked anymore
 
 ---
 
-## Owner doc
+## Bot commands (after shop live)
 
-`docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`
+```bash
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10  # research only
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "YOUR product name"
+```
+
+Owner: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`

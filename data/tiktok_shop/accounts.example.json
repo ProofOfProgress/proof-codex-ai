@@ -2,31 +2,13 @@
   "accounts": [
     {
       "id": "shop_1",
-      "label": "Affiliate TikTok 1",
-      "daily_limit": 10,
+      "label": "Seller shop TikTok (official)",
+      "daily_limit": 5,
       "enabled": true,
       "post_via": "zernio",
       "zernio_account_id": "",
       "tiktok_token_path": "data/tiktok_shop/tokens/shop_1.json"
-    },
-    {
-      "id": "shop_2",
-      "label": "Affiliate TikTok 2",
-      "daily_limit": 10,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_2.json"
-    },
-    {
-      "id": "shop_3",
-      "label": "Affiliate TikTok 3",
-      "daily_limit": 10,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_3.json"
     }
   ],
-  "_note": "Affiliate path: up to 3 accounts × 10 faceless clips/day. Each needs 1K+ (pilot) or 5K+ (full) Shop affiliate access. Ramp slowly on new logins."
+  "_note": "Seller path: one official shop TikTok. Ramp 3-5 posts/day. Add accounts only for additional shops later."
 }

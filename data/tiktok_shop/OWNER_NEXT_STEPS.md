@@ -1,43 +1,70 @@
-# TikTok Shop Affiliate — what you do next
+# TikTok Shop Seller — what you do next
 
-**Model:** Promote other brands’ products → earn commission. **Not** seller / Printify.
+**Model:** **You own the store** (Printify). Bot makes videos. Later **you pay affiliates** to post too. Matches the 5-hour guru course.
 
-The bot scouts products and makes clips. **You need affiliate-eligible TikTok account(s) first.**
-
----
-
-## The gate (read this)
-
-| Followers | Can you do Shop affiliate? |
-|-----------|----------------------------|
-| **0** | ❌ No |
-| **1,000+** | ⚠️ Pilot — ~5 shop videos/week |
-| **5,000+** | ✅ Full product marketplace |
-
-Full guide: **`docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`**
+**Not affiliate** — you’re not promoting random other brands for commission.
 
 ---
 
-## Your options
+## Tomorrow (when TikTok unlocks)
 
-1. **Grow** a TikTok to 1K/5K (safest, slow)  
-2. **Buy** 1K or 5K account (fast, ban/scam risk — your call)  
-3. Use an **existing** TikTok if you already have followers  
+### 1. Seller signup (~20 min)
+- https://seller-us.tiktok.com → **Individual seller**
+- Email login, ID, SSN, bank
+- Full steps: **`docs/FOR_OWNER_TIKTOK_SELLER_START.md`**
+
+### 2. Printify (~15 min)
+- https://printify.com → Premium
+- Connect to TikTok Shop in Seller Center
+- Keep **~$100–300** on card for POD charges
+
+### 3. Link TikTok
+- Seller Center → link official account (QR on phone)
+- Confirm **shop bag** on profile
+
+### 4. One product
+- Canva → simple shirt or mug design (**your** phrase, not copied art)
+- Publish to Shop via Printify
+
+### 5. Bot clip
+- Tell me product name → `make-clip` on **your** listing image
+- You post with **your** product tag
 
 ---
 
-## Once Marketplace works on your phone
+## Call tomorrow (Charm / account guy)
 
-```bash
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Product name"
-python3 -m shorts_bot.tiktok_shop.factory_cli post --confirm
-```
+**You don’t need to buy TikTok accounts for seller.** 0 followers is fine.
 
-**3 accounts:** copy `accounts.example.json` → `accounts.json`, fill Zernio IDs, ramp **3–5 posts/day** per account first.
+Ask about:
+- **EchoTik vs Charm** for product *research*
+- **Printify + POD** tips if he knows Shop
+- Skip account-buying pitch unless he’s selling seller consulting
 
 ---
 
-## Parked (not this path)
+## What the bot already does
 
-Seller Center, Printify, GMV Max ads, own POD products.
+| Tool | Seller use |
+|------|------------|
+| EchoTik scout | Find what **niches/designs** sell — research, not your listing |
+| Kling clips | Videos for **your** Printify products |
+| Factory queue | Post 3–5/day on **your** shop TikTok |
+
+---
+
+## Later (week 2+)
+
+1. **3–5 faceless videos/day** warming your listing  
+2. Open **affiliate program ~30%** — *other people* post for you  
+3. **GMV Max ads** on winners  
+
+That's when you become the **advertiser** — on **your** products.
+
+---
+
+## Parked
+
+- Buying 5K follower accounts  
+- Pure affiliate clip factory  
+- 3 random TikToks spamming other brands

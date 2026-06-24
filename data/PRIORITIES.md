@@ -1,8 +1,8 @@
 # Priority list — reassess often
 
-**North star (affiliate — owner 2026-06-24):** **100% AI-automated TikTok Shop affiliate** — faceless clips promoting trending Shop products, earn commission per sale.
+**North star (seller — owner 2026-06-24):** **100% AI-automated TikTok Shop seller** — Printify POD, faceless clips, scout → render → post → recruit affiliates → GMV Max.
 
-**Owner decision:** Affiliate path. **Parked:** seller/Printify, GMV Max, YouTube RTR, Ms. Byte.
+**Owner decision:** **Seller** (matches 5h guru course). **Parked:** pure affiliate, bought accounts, clipping marketplaces, YouTube RTR, Ms. Byte.
 
 **Last assessed:** 2026-06-24
 
@@ -12,40 +12,33 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Affiliate-eligible TikTok account(s)** | Can access Product Marketplace + add product links to posts |
-| **2** | **First affiliate clip posted** | EchoTik product → Kling clip → live post with commission link |
-| **3** | **3-account clip factory** | Up to 10 posts/day per account via bot + Zernio (different products/captions) |
-| **4** | **Learn what converts** | Track sales by product; scout + clip winners harder |
+| **1** | **Seller + Printify live** | Seller Center signup, Printify connected, shop bag on TikTok, can tag products |
+| **2** | **First own product + clip** | One Canva design → Printify listing → bot clip → you post |
+| **3** | **Daily warm-up clips** | 3–5/day on **your** listings (bot makes them) |
+| **4** | **Affiliate army + GMV Max** | 30% collabs + small ad test on a winning SKU |
 
 ---
 
-## Follower reality (US, 2026)
+## Why seller (vs affiliate)
 
-| Followers | What you get |
-|-----------|----------------|
-| **0** | No Shop affiliate marketplace — must grow or acquire eligible account |
-| **1,000+** | May enter **Creator Pilot** (limited: ~5 shoppable videos/week, high-rated shops only) |
-| **5,000+** | Full **Affiliate Creator** marketplace access |
-
-See `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md` for account options (grow vs buy — risks documented).
+- **0 followers OK** — no bought account gamble  
+- Guru course is **100% seller**  
+- You own margin; affiliates promote **for** you later  
+- EchoTik = research; Printify = what you sell  
 
 ---
 
 ## Backlog (parked)
 
-- TikTok Shop **Seller** + Printify + POD
-- GMV Max ads (seller-only)
-- YouTube / InVideo / horror Shorts
-- Clipping marketplaces (different model — pay per view for famous people, not Shop commission)
+- Pure affiliate / buying 5K accounts  
+- 3-account affiliate spam factory  
+- YouTube / InVideo / horror Shorts  
 
 ---
 
-## Bot commands
+## Owner docs
 
-```bash
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Product name"
-python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 5 --confirm
-```
-
-Factory doc: `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`
+- `docs/FOR_OWNER_TIKTOK_SELLER_START.md`  
+- `data/tiktok_shop/OWNER_NEXT_STEPS.md`  
+- `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`  
+- Guru: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`

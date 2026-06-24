@@ -3,7 +3,7 @@
 ## Owner (read first)
 
 - **Not a developer** — explain in plain English; give exact steps ("open http://localhost:8080 and type `daily`"), not code tours.
-- **North star:** autonomous money-making **TikTok Shop affiliate** (faceless clips, commission). **Current focus:** eligible account(s) → scout → clip → post volume. Top 4 only in `data/PRIORITIES.md`.
+- **North star:** autonomous money-making **TikTok Shop seller** (Printify POD, faceless clips → affiliates + ads). **Current focus:** Seller signup tomorrow → first product → bot clips. Top 4 only in `data/PRIORITIES.md`.
 - **Deprioritize** refactors, docs-for-docs-sake, and features that do not advance autopilot or revenue.
 - **Top 4 only:** see `data/PRIORITIES.md` — work only on those four until reassessed; update the file when priorities shift.
 - **Do it yourself:** external setup (Google Cloud OAuth, YouTube `auth_cli`, provider dashboards) — use **browser + terminal first**; only ask the owner when blocked (wrong account, 2FA, payment). See `data/operating_rules_seed.md` → “Cloud agents — do it yourself first”.
@@ -13,9 +13,9 @@
 
 ### North star (read first)
 
-**Make money from 100% AI-automated TikTok Shop affiliate** — faceless product clips, EchoTik scout → Kling render → post → commission. No Printify.
+**Make money from 100% AI-automated TikTok Shop seller business** — Printify POD, faceless clips, scout → render → post → recruit affiliates → GMV Max.
 
-**Owner path (2026-06-24):** Affiliate promoter. **Parked:** seller/Printify, GMV Max. Needs eligible TikTok account(s) — see `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`.
+**Owner path (2026-06-24):** **Seller** (guru course). 0 followers OK. **Parked:** affiliate account buying, pure affiliate grind.
 
 **Codex search (agents only — NOT for the owner):**
 

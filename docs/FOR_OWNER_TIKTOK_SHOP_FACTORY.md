@@ -1,19 +1,19 @@
-# TikTok Shop factory — affiliate faceless clips
+# TikTok Shop factory — seller faceless clips
 
-**Model:** **Affiliate** — promote trending Shop products, earn commission. No Printify, no seller store.
+**Model:** **Seller** — your Printify products, your shop, your margin. Bot makes warm-up videos; later affiliates post for you too.
 
-**Target:** Up to **3 TikTok accounts × 10 faceless videos/day** (different products + captions). Ramp slowly on new accounts.
+**Start with 1 shop TikTok** → **3–5 videos/day** on **your** listings. Ramp after shop is healthy.
 
-Setup: `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`
+Setup: `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
 
 ---
 
 ## What you need first (one-time)
 
-1. **Affiliate-eligible TikTok(s)** — 1K+ (pilot) or 5K+ (full US marketplace) — see `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`
-2. **EchoTik API** — scout hot products + commission
-3. **Kling credits** — 1080p faceless clips
-4. **Zernio** (3 accounts) OR manual post from queue
+1. **TikTok Shop Seller + Printify** (0 followers OK) — `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
+2. **EchoTik API** — research what sells (not what you list verbatim)
+3. **Kling credits** — 1080p vertical clips for **your** products
+4. **Zernio** (optional) OR post manually from queue
 
 ---
 
