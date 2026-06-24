@@ -14,9 +14,9 @@
 - Full steps: **`docs/FOR_OWNER_TIKTOK_SELLER_START.md`**
 
 ### 2. Printify (~15 min)
-- https://printify.com → Premium
-- Connect to TikTok Shop in Seller Center
-- Keep **~$100–300** on card for POD charges
+- https://printify.com → create account
+- **Hook bot to Printify:** `docs/FOR_OWNER_PRINTIFY_API.md` — generate API token → add `PRINTIFY_API_TOKEN` to Cursor Secrets → `bash scripts/install.sh`
+- Connect Printify ↔ TikTok Shop in Seller Center (after seller signup)
 
 ### 3. Link TikTok
 - Seller Center → link official account (QR on phone)

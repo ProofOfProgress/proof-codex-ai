@@ -41,6 +41,8 @@ def render_product_clip(
     *,
     product_id: str = "",
     product_name: str = "",
+    printify_id: str = "",
+    printify_title: str = "",
     image_url: str = "",
     image_path: Path | None = None,
     prompt: str = "",
@@ -48,10 +50,19 @@ def render_product_clip(
     skip_if_exists: bool = True,
 ) -> RenderResult:
     if not kling_client.configured():
-        raise RuntimeError("Kling not configured — add KLING_API_KEY to Secrets")
+        raise RuntimeError("Kling not configured — add KLING_ACCESS_KEY + KLING_SECRET_KEY to Secrets")
 
     row: dict = {}
-    if product_id or product_name:
+    if printify_id or printify_title:
+        from shorts_bot.tiktok_shop import printify_client
+
+        pf = printify_client.find_product(product_id=printify_id, title=printify_title)
+        product_name = product_name or str(pf.get("title") or "")
+        product_id = product_id or str(pf.get("id") or "")
+        image_url = image_url or printify_client.hero_image_url(pf)
+        if not image_url:
+            raise RuntimeError(f"Printify product has no mockup image: {product_name}")
+    elif product_id or product_name:
         for p in load_products():
             if product_id and str(p.get("product_id")) == product_id:
                 row = p

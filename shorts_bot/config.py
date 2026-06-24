@@ -134,6 +134,10 @@ class Settings(BaseSettings):
     echotik_api_base: str = "https://open.echotik.live"
     echotik_region: str = "US"
 
+    # Printify — POD seller API (Bearer token from printify.com/app/account/api)
+    printify_api_token: str | None = None
+    printify_shop_id: str | None = None  # optional; auto-picks first shop if empty
+
     # InVideo AI — MCP + browser production
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
@@ -388,6 +392,14 @@ class Settings(BaseSettings):
         if "your" in key.lower() and "key" in key.lower():
             return False
         return len(key) >= 16
+
+    @property
+    def has_printify(self) -> bool:
+        token = (self.printify_api_token or "").strip()
+        if not token:
+            return False
+        lower = token.lower()
+        return "placeholder" not in lower and "your-" not in lower
 
     @property
     def has_kling_official(self) -> bool:

@@ -26,11 +26,14 @@ def main() -> None:
     render.add_argument("--product-id", default="")
     render.add_argument("--product", default="", help="Product name substring")
     render.add_argument("--no-loop", action="store_true")
-    render.add_argument("--prompt", default="")
+    render.add_argument("--printify-id", default="")
+    render.add_argument("--printify-title", default="")
 
     pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
     pipe.add_argument("--product-id", default="")
     pipe.add_argument("--product", default="")
+    pipe.add_argument("--printify-id", default="", help="Printify product id (your listing)")
+    pipe.add_argument("--printify-title", default="", help="Printify product title substring")
     pipe.add_argument("--confirm-post", action="store_true", help="Also post if queue runs")
 
     enqueue = sub.add_parser("enqueue", help="Add rendered MP4 to post queue")
@@ -89,7 +92,12 @@ def main() -> None:
             console.print("[green]Kling: configured[/green]")
         else:
             console.print("[red]Kling: not configured[/red]")
-        console.print("Owner checklist: [cyan]data/tiktok_shop/OWNER_NEXT_STEPS.md[/cyan]")
+        from shorts_bot.tiktok_shop import printify_client
+
+        if printify_client.configured():
+            console.print("[green]Printify: configured[/green]")
+        else:
+            console.print("[red]Printify: not configured[/red] — docs/FOR_OWNER_PRINTIFY_API.md")
         return
 
     if args.cmd == "rules":
@@ -134,6 +142,8 @@ def main() -> None:
             result = render_product_clip(
                 product_id=args.product_id,
                 product_name=args.product,
+                printify_id=args.printify_id,
+                printify_title=args.printify_title,
                 prompt=args.prompt,
                 loop=not args.no_loop,
             )
@@ -155,6 +165,8 @@ def main() -> None:
             result = render_product_clip(
                 product_id=args.product_id,
                 product_name=args.product,
+                printify_id=args.printify_id,
+                printify_title=args.printify_title,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
