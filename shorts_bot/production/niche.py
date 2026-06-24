@@ -1,50 +1,40 @@
-"""Niche — Rapid Tool Review / Ms. Byte (locked 2026-06)."""
+"""Niche — Rapid Tool Review RETIRED (2026-06-24). See archive/rapid_tool_review/."""
 
 from __future__ import annotations
 
-NICHE_NAME = "Rapid Tool Review"
-NICHE_TAGLINE = "An AI explains AI tools — strengths, weaknesses, you decide."
+from shorts_bot.production.rtr_retired import ARCHIVE_ROOT, RETIRED_LABEL
+
+# Active placeholder until owner locks next sub-niche
+NICHE_NAME = "AI / Tech"
+NICHE_TAGLINE = "AI explains tech — one clear takeaway per Short."
 
 NICHE_POSITIONING = """
-**Rapid Tool Review** (@RapidToolReview) — ~30 second YouTube Shorts reviewing **one real AI product**.
-Host: **Ms. Byte** — saved InVideo library character `RTR_MsByte`, clearly synthetic AI teacher.
+**AI / Tech Shorts** — ~30 second YouTube Shorts on real tools, products, or workflows.
 
-Hierarchy (locked):
+**Rapid Tool Review is RETIRED** (2026-06-24) — same as Peripheral horror. Full RTR kit archived under `archive/rapid_tool_review/`. Do not use RTR branding, @RapidToolReview, Pay/Skip/Wait series framing, or Ms. Byte host specs for new work unless owner revives them.
+
+Hierarchy (placeholder until owner reassesses):
 - Big: **AI / Tech**
-- Sub: **Honest AI tool reviews for normal people**
-- Format: **One strength + one weakness** — viewer decides (NO Pay/Skip/Wait stamps)
-
-Jenny Codex (course/files 02, 05, 06, 09):
-- Hook = price shock or contrarian claim in first 2 seconds — NOT "is X worth it?"
-- 8 beats, 2–4s cuts, CTA before payoff, mute-readable overlays
-- Cause → effect: strength → so (feature depth) → but → so (cost of flaw) → tradeoff → payoff
+- Sub: **TBD** — owner picks next locked sub-niche
+- Format: **Conversational** — one clear takeaway; no Pay/Skip/Wait stamps; no AI twin
 
 Production:
-- InVideo MCP one-prompt ship, Basic tier ≤10 credits, NO AI Twin
-- Ms. Byte ~45–55% on screen; rest = vertical stock + product UI
+- InVideo one-prompt ship, Basic tier ≤10 credits, NO AI Twin
+- Conversational tool-teaching format (see `shorts_bot/invideo/invideo_master_prompt.md`)
 
-Tone: bubbly teacher + skeptical honesty. No hype, no affiliate energy, no fake testing.
-What works: real product names, specific price/limit callouts, Jenny hooks, app UI on screen.
-What fails: generic "worth it" hooks, Pay/Skip/Wait stamps, listicles, horror framing, twin talking heads.
+Tone: honest, direct, no hype. Real product names when reviewing tools.
+What fails: retired RTR/Ms. Byte branding, Pay/Skip/Wait stamps, horror framing, twin talking heads.
 """
 
 DEFAULT_TOPICS = [
-    "ChatGPT Plus — twenty bucks, what the paid tier unlocks",
+    "ChatGPT Plus — what the paid tier actually unlocks",
     "Claude Code — terminal agent honest breakdown",
     "InVideo AI — credit math for daily Shorts",
     "NotebookLM — free tool hidden limits",
-    "Gemini Advanced — twenty vs free Gemini",
+    "Gemini Advanced — paid vs free Gemini",
     "Cursor Pro — inline AI editor breakdown",
-    "Perplexity Pro — ten bucks vs free search",
-    "CapCut AI — watermark trap on export",
-    "ElevenLabs — voice clone credit burn",
-    "HeyGen vs InVideo — avatar Shorts cost",
-    "Midjourney — subscription stack in 2026",
-    "Notion AI — add-on tax on workspace",
-    "Descript — transcript-edit workflow cost",
-    "Runway Gen-3 — credit burn per clip",
-    "Opus Clip — AI clip picks wrong moments",
-    "Grok xAI — thirty bucks for live Twitter data",
+    "Perplexity Pro — search tier comparison",
+    "Grok xAI — live feed vs chat bots",
 ]
 
 SPONSOR_RULES = """
@@ -58,9 +48,13 @@ Sponsor / affiliate rules (future):
 
 def quality_lessons() -> str:
     return (
-        "Better: Jenny hook (price/contrarian first), one named product, specific strength + weakness, "
-        "Ms. Byte host, mute-readable overlays, you decide close. "
-        "Worse: 'Is X worth it?', 'I tested if', Pay/Skip/Wait stamps, vague AI hype, "
-        "multi-product listicles, horror/jumpscare framing. "
-        "Always: 1 product per Short, synthetic disclosure, 1 Short/24h YPP-safe."
+        "Better: strong hook in first 2s, one named product or topic, specific takeaway, "
+        "mute-readable overlays, conversational close. "
+        "Worse: retired Rapid Tool Review branding, Pay/Skip/Wait stamps, Ms. Byte host spec, "
+        "vague AI hype, multi-product listicles, horror/jumpscare framing. "
+        "Always: synthetic disclosure, 1 Short/24h YPP-safe."
     )
+
+
+def retired_rtr_note() -> str:
+    return f"{RETIRED_LABEL} archived at {ARCHIVE_ROOT}/ — reference only."

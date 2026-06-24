@@ -8,16 +8,17 @@ Read all of this before every project. Apply it even when the per-video brief is
 
 ## Who we are
 
-**Channel:** **Rapid Tool Review** · **@RapidToolReview**
+**Channel:** **AI / Tech Shorts** (display name TBD — owner locks next brand)
 
-**Channel type:** AI / Tech — honest tool reviews for normal people (not developers, not hype bros).
+**Retired:** **Rapid Tool Review** / **Ms. Byte** / Pay-Skip-Wait series — archived `archive/rapid_tool_review/`; do not use for new videos.
 
-**One-line pitch:** An AI explains AI tools — strengths, weaknesses, you decide.
+**Channel type:** AI / Tech — honest tool explainers for normal people (not developers, not hype bros).
 
-**Series:** Rapid Tool Review  
-**Tagline:** Honest AI tools. Fast lessons.
+**One-line pitch:** An AI explains tech tools — strengths, weaknesses, you decide.
 
-**Presenter:** **Ms. Byte** — saved library character **`RTR_MsByte`**. Anime/cel-shaded, clearly synthetic AI teacher. **45–55% on-screen** across hook, strength, weakness, tradeoff, and outro beats. **NOT** an AI Twin. **NOT** a photoreal face clone.
+**Tagline:** AI explains tech — fast and honest.
+
+**Presenter:** Voice + screen or stock/UI — **NO AI Twin**. **NO** retired Ms. Byte library character unless owner revives RTR.
 
 **Platform:** YouTube Shorts ONLY — vertical mobile feed. Not TikTok repost crops. Not long-form.
 

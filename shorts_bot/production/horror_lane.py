@@ -1,10 +1,12 @@
-"""Retired horror lane — Rapid Tool Review stub."""
+"""Retired horror + RTR lanes — stubs only."""
 
 from __future__ import annotations
 
+from shorts_bot.production.rtr_retired import rtr_lane_note
+
 
 def horror_lane_for_qc() -> str:
-    return "Rapid Tool Review — Ms. Byte strength/weakness format (horror lane retired)."
+    return f"AI / Tech Shorts (horror + {rtr_lane_note()})"
 
 
 def horror_lane_compact() -> str:

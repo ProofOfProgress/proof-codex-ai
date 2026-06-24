@@ -1,4 +1,4 @@
-"""YouTube upload metadata — Rapid Tool Review / AI product Shorts SEO."""
+"""YouTube upload metadata — AI / Tech Shorts SEO (RTR retired — archive/rapid_tool_review/)."""
 
 from __future__ import annotations
 
@@ -253,7 +253,7 @@ def _is_horror_topic(topic: str) -> bool:
 
 
 def _is_ai_review_topic(topic: str) -> bool:
-    """Rapid Tool Review default — horror archive topics still use horror meta."""
+    """AI / Tech default — horror and retired RTR archive topics use legacy meta."""
     return not _is_horror_topic(topic)
 
 
@@ -288,7 +288,7 @@ def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
         hashtags = " ".join(AI_REVIEW_HASHTAGS)
         lines = [
             hook_line,
-            "Honest ~30s AI tool review — Rapid Tool Review (@RapidToolReview).",
+            "Honest ~30s AI/tech Short — one clear takeaway.",
             "Voice + stock + UI · synthetic media disclosed where applicable.",
             hashtags,
         ]

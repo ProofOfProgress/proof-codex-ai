@@ -1,6 +1,6 @@
 # Priorities — North Star (re-assessed 2026-06-22)
 
-**North star:** Make money from **100% AI-automated** YouTube Shorts — **Rapid Tool Review**, InVideo production, self-learning from **honest** analytics.
+**North star:** Make money from **100% AI-automated** YouTube Shorts — **AI / Tech** (next sub-niche TBD), InVideo production, self-learning from **honest** analytics. **Rapid Tool Review retired** — see `archive/rapid_tool_review/`.
 
 **Rule:** Only the **top 4** below.
 
@@ -26,7 +26,7 @@
 |---|----------|-----------|
 | **1** | **Ship 3/week via autonomous loop** — one InVideo prompt, Basic ≤10 credits, no twin, Drive or browser download | Claude Code + 2 more products published on schedule |
 | **2** | **Honest analytics loop** — `analytics_report_cli --sync`, Studio swipe via `/api/score`, no fake punish | Owner sees real numbers; learning uses swipe when added |
-| **3** | **Upload meta + brand** — AI descriptions/tags (not horror); profile = AI magnifier | Every upload looks like Rapid Tool Review |
+| **3** | **Upload meta + brand** — AI descriptions/tags (not horror/RTR); owner locks next brand | Every upload matches active niche (not retired RTR) |
 | **4** | **Workflow evolution** — hooks/topics from rewards after 5+ niche uploads | Auto-proposals match conversational reviews |
 
 ---
@@ -46,3 +46,4 @@
 - Pro/Ultra tier if credits >10
 - Trusting API avg watch % as "retention graph"
 - Horror upload copy on AI videos
+- Rapid Tool Review / Ms. Byte / Pay-Skip-Wait branding (retired — `archive/rapid_tool_review/`)

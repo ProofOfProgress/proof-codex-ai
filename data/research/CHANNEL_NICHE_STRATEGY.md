@@ -88,16 +88,15 @@ AI / Tech
 - Generic AI news reposts
 - Finance / "make $10k with AI" slop
 - Horror / Peripheral (retired)
+- Rapid Tool Review / Ms. Byte / Pay-Skip-Wait (retired 2026-06-24 → `archive/rapid_tool_review/`)
 
 ---
 
-## Brand (working)
+## Brand (retired — reference only)
 
-**Series name:** Rapid Tool Review (Shorts)  
-**Tagline:** Honest AI tools. Fast verdicts.  
-**Channel name in Studio:** **Rapid Tool Review** · **@RapidToolReview** (owner verified no similar channel on YouTube, 2026-06)
+**Rapid Tool Review** retired 2026-06-24 — same as Peripheral horror. Full kit: `archive/rapid_tool_review/`.
 
-**Bio:** Real AI product reviews — tested, honest, no hype. Pay / Skip / Wait in 30 seconds.
+Owner will lock the next series name, tagline, and Studio display name. Until then: generic **AI / Tech Shorts**.
 
 ---
 

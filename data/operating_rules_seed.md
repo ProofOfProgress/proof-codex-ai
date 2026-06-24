@@ -6,7 +6,9 @@
 
 ## Video generation — InVideo pivot (2026-06)
 
-**Peripheral horror is retired.** Production target: **InVideo AI twin** (script → MP4 → QC → YouTube).
+**Peripheral horror is retired.** **Rapid Tool Review is retired** (2026-06-24) — same treatment: archived under `archive/rapid_tool_review/`, reference only. Do not use RTR branding, @RapidToolReview, Ms. Byte host spec, or Pay/Skip/Wait series for new work unless owner revives.
+
+Production target: **InVideo one-prompt ship** (script → MP4 → QC → YouTube).
 
 - **Do not** invest in Recraft, Replicate I2V, Blender, TurboScribe, or homemade ffmpeg render unless owner explicitly asks
 - Default: `AI_VIDEO_GENERATION_ENABLED=false` for legacy paths
