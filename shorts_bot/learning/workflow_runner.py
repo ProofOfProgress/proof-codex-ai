@@ -56,6 +56,20 @@ def _record_step(step_id: str, ok: bool, detail: str = "", t0: float = 0.0) -> S
     )
 
 
+def invideo_recovery_lines(draft_id: int, project_url: str) -> list[str]:
+    """Commands for recovering an InVideo project after cloud/browser blockers."""
+    lines = [
+        f"Recovery draft #{draft_id}: {project_url}",
+        "Login/check InVideo: python3 -m shorts_bot.invideo.handoff_cli",
+        f"Retry download: python3 -m shorts_bot.invideo.ship_cli --draft-id {draft_id}",
+        (
+            "If exported elsewhere, import it: "
+            f"python3 -m shorts_bot.invideo.fetch_url_cli --draft-id {draft_id} 'DRIVE_OR_MP4_URL'"
+        ),
+    ]
+    return lines
+
+
 def run_daily_invideo_workflow(
     store: MemoryStore,
     *,
@@ -249,7 +263,7 @@ def run_daily_invideo_workflow(
                 msg,
                 detail=(
                     f"draft={draft_id} project={project_url} workflow=v{wf.version} — "
-                    "If credits exhausted: Generate on laptop → Drive inbox folder (or fetch_url_cli)"
+                    " | ".join(invideo_recovery_lines(draft_id, project_url))
                 ),
             )
 
@@ -289,10 +303,11 @@ def run_daily_invideo_workflow(
             messages.append(f"YouTube upload failed: {exc}")
             has_video = False
     elif not has_video:
-        messages.append(
-            "No MP4 on disk — stopped before upload. "
-            "Drop MP4 in Drive inbox or paste Drive link for fetch_url_cli."
-        )
+        messages.append("No MP4 on disk — stopped before upload.")
+        if draft_id and project_url:
+            messages.extend(invideo_recovery_lines(draft_id, project_url))
+        else:
+            messages.append("Drop MP4 in Drive inbox or paste Drive link for fetch_url_cli.")
 
     ok = bool(upload_url) if do_upload else has_video
     return _finalize(

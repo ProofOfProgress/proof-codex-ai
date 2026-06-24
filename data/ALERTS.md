@@ -1,4 +1,6 @@
 # Automation alerts
+- **2026-06-22 16:07 UTC** `invideo_daily`: Not logged in — run handoff_cli or paste Drive link
+  - draft=1 project=https://ai.invideo.io/ai-mcp-video?video=claude-code-qubijb workflow=v1 — Recovery draft #1: https://ai.invideo.io/ai-mcp-video?video=claude-code-qubijb | Login/check InVideo: python3 -m shorts_bot.invideo.handoff_cli | Retry download: python3 -m shorts_bot.invideo.ship_cli --draft-id 1 | If exported elsewhere, import it: python3 -m shorts_bot.invideo.fetch_url_cli --draft-id 1 'DRIVE_OR_MP4_URL'
 - **2026-06-22 07:45 UTC** `claude_code_ship`: **Draft #8 MP4 ready** (44MB, 2 InVideo credits). Upload **queued** for ~2026-06-23 04:45 UTC (21h gap after ChatGPT Plus). Run when due: `python3 -m shorts_bot.youtube.pending_upload_cli process`
 - **2026-06-22 07:22 UTC** `claude_code_ship`: first ship attempt failed — Generate UI loads in ~15s; fixed wait in ship_cli
 - **2026-06-21 06:47 UTC** `auto_daily`: render failed

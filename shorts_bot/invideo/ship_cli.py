@@ -47,7 +47,7 @@ def ship(
             raise RuntimeError(
                 "InVideo credits exhausted on this account — Generate blocked. "
                 "Open the project on your laptop (may share same account) or add credits, "
-                "then paste a Google Drive link: fetch_url_cli --draft-id 6 'URL'"
+                "then paste a Google Drive link: fetch_url_cli --draft-id N 'URL'"
             )
 
         # MCP projects need ~15–30s before Generate appears in the editor UI.
