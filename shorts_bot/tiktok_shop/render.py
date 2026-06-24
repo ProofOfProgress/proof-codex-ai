@@ -13,28 +13,35 @@ from shorts_bot.tiktok_shop.product_scout import load_products
 from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
 
 
+# Tell Kling to avoid the empty gray void / unfinished 3D look.
+NEGATIVE_PROMPT = (
+    "empty void, plain gray background, unfinished 3D render, blender default scene, "
+    "featureless backdrop, flat monochrome wall, low quality, blur, distortion, text, watermark"
+)
+
 DEFAULT_PROMPT = (
-    "Product centered on a polished studio surface with soft neutral gradient backdrop, "
-    "professional three-point e-commerce lighting, subtle shadow and reflection, "
-    "vertical TikTok Shop ad, no text overlays, no people"
+    "Finished e-commerce product shot: item centered on a polished studio surface with "
+    "soft warm gradient backdrop and subtle props, professional three-point lighting, "
+    "real shadow and reflection, vertical TikTok Shop ad, no text overlays, no people"
 )
 
 # Kling background / set dressing — pick per product type (not one void-fits-all).
 PROMPT_STYLES: dict[str, str] = {
     "studio": DEFAULT_PROMPT,
     "vanity": (
-        "Luxury beauty product on marble vanity tray, soft warm bathroom lighting, "
-        "blurred boutique mirror bokeh in background, high-end cosmetics ad, "
+        "Finished luxury beauty ad: product on marble vanity tray with soft warm bathroom "
+        "lighting, blurred boutique mirror and cosmetics bokeh behind, high-end shelf styling, "
         "vertical TikTok Shop, no text, no people"
     ),
     "lifestyle": (
-        "Product on styled home countertop or shelf, natural window light, "
-        "cozy modern interior softly blurred behind, lifestyle e-commerce ad, "
+        "Finished lifestyle product ad: item on styled home countertop or shelf, natural "
+        "window light, cozy modern interior softly blurred behind, lived-in decor cues, "
         "vertical TikTok Shop, no text, no people"
     ),
     "minimal": (
-        "Product on seamless white infinity backdrop, soft studio shadow, "
-        "Apple-style product photography, slow pan, vertical TikTok Shop, no text, no people"
+        "Finished premium product photography: item on seamless white infinity backdrop with "
+        "soft studio shadow and gentle gradient falloff, Apple-style commercial look, "
+        "vertical TikTok Shop, no text, no people"
     ),
 }
 
@@ -146,6 +153,7 @@ def render_product_clip(
         task_id = kling_client.create_image2video(
             image_url=image_for_kling,
             prompt=kling_prompt,
+            negative_prompt=NEGATIVE_PROMPT,
             duration=5,
             mode="pro",  # 1080p vertical
             aspect_ratio="9:16",

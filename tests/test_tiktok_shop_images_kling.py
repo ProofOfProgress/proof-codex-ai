@@ -43,12 +43,52 @@ def test_tiktok_cdn_from_sale_props():
 
 
 def test_suggest_style_beauty_vs_shirt():
-    from shorts_bot.tiktok_shop.render import prompt_for_style, suggest_style
+    from shorts_bot.tiktok_shop.render import NEGATIVE_PROMPT, prompt_for_style, suggest_style
 
     assert suggest_style("Speak Love Lip Balm") == "vanity"
     assert suggest_style("Funny Dog Mom Shirt") == "lifestyle"
     assert suggest_style("Random Gadget") == "studio"
     assert "marble vanity" in prompt_for_style("vanity", product_name="x")
+    assert "void" in NEGATIVE_PROMPT
+
+
+def test_kling_create_image2video_sends_negative_prompt(monkeypatch):
+    captured: dict = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"code": 0, "data": {"task_id": "task-999"}}
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def post(self, url, headers, json):
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.kling_client.httpx.Client", FakeClient)
+    monkeypatch.setattr(
+        "shorts_bot.tiktok_shop.kling_client._auth_header",
+        lambda: {"Authorization": "Bearer test"},
+    )
+
+    task_id = kling_client.create_image2video(
+        image_url="https://example.com/p.jpg",
+        prompt="product on shelf",
+        negative_prompt="empty void, gray background",
+    )
+    assert task_id == "task-999"
+    assert captured["json"]["negative_prompt"] == "empty void, gray background"
 
 
 def test_prepare_vertical_9x16():

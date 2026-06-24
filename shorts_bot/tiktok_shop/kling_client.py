@@ -42,6 +42,7 @@ def create_image2video(
     *,
     image_url: str,
     prompt: str,
+    negative_prompt: str = "",
     duration: int | None = None,
     aspect_ratio: str | None = None,
     mode: str | None = None,
@@ -60,6 +61,9 @@ def create_image2video(
         "aspect_ratio": aspect_ratio or settings.kling_aspect_ratio or "9:16",
         "mode": mode or settings.kling_mode or "std",
     }
+    neg = (negative_prompt or "").strip()
+    if neg:
+        body["negative_prompt"] = neg
     if sound is not None:
         body["sound"] = sound
     elif not settings.kling_generate_audio:
