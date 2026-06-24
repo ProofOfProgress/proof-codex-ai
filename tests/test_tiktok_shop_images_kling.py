@@ -42,6 +42,15 @@ def test_tiktok_cdn_from_sale_props():
     assert "ttcdn-us.com" in tiktok_cdn_url_from_detail(row)
 
 
+def test_suggest_style_beauty_vs_shirt():
+    from shorts_bot.tiktok_shop.render import prompt_for_style, suggest_style
+
+    assert suggest_style("Speak Love Lip Balm") == "vanity"
+    assert suggest_style("Funny Dog Mom Shirt") == "lifestyle"
+    assert suggest_style("Random Gadget") == "studio"
+    assert "marble vanity" in prompt_for_style("vanity", product_name="x")
+
+
 def test_prepare_vertical_9x16():
     from io import BytesIO
 

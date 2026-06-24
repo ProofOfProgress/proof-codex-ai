@@ -28,12 +28,20 @@ def main() -> None:
     render.add_argument("--no-loop", action="store_true")
     render.add_argument("--printify-id", default="")
     render.add_argument("--printify-title", default="")
+    render.add_argument("--prompt", default="", help="Override Kling prompt")
+    render.add_argument(
+        "--style",
+        default="auto",
+        choices=["auto", "studio", "vanity", "lifestyle", "minimal"],
+        help="Background look (auto picks from product name)",
+    )
 
     pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
     pipe.add_argument("--product-id", default="")
     pipe.add_argument("--product", default="")
     pipe.add_argument("--printify-id", default="", help="Printify product id (your listing)")
     pipe.add_argument("--printify-title", default="", help="Printify product title substring")
+    pipe.add_argument("--style", default="auto", choices=["auto", "studio", "vanity", "lifestyle", "minimal"])
     pipe.add_argument("--confirm-post", action="store_true", help="Also post if queue runs")
 
     enqueue = sub.add_parser("enqueue", help="Add rendered MP4 to post queue")
@@ -145,6 +153,7 @@ def main() -> None:
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
                 prompt=args.prompt,
+                style=args.style,
                 loop=not args.no_loop,
             )
         except RuntimeError as exc:
@@ -167,6 +176,7 @@ def main() -> None:
                 product_name=args.product,
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
+                style=args.style,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")

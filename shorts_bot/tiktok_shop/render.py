@@ -14,9 +14,58 @@ from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
 
 
 DEFAULT_PROMPT = (
-    "Slow cinematic pan and zoom on product, clean e-commerce lighting, "
-    "minimal background, vertical TikTok Shop ad style, no text overlays, no people"
+    "Product centered on a polished studio surface with soft neutral gradient backdrop, "
+    "professional three-point e-commerce lighting, subtle shadow and reflection, "
+    "vertical TikTok Shop ad, no text overlays, no people"
 )
+
+# Kling background / set dressing — pick per product type (not one void-fits-all).
+PROMPT_STYLES: dict[str, str] = {
+    "studio": DEFAULT_PROMPT,
+    "vanity": (
+        "Luxury beauty product on marble vanity tray, soft warm bathroom lighting, "
+        "blurred boutique mirror bokeh in background, high-end cosmetics ad, "
+        "vertical TikTok Shop, no text, no people"
+    ),
+    "lifestyle": (
+        "Product on styled home countertop or shelf, natural window light, "
+        "cozy modern interior softly blurred behind, lifestyle e-commerce ad, "
+        "vertical TikTok Shop, no text, no people"
+    ),
+    "minimal": (
+        "Product on seamless white infinity backdrop, soft studio shadow, "
+        "Apple-style product photography, slow pan, vertical TikTok Shop, no text, no people"
+    ),
+}
+
+_BEAUTY_KEYWORDS = (
+    "lip", "lipstick", "balm", "gloss", "makeup", "serum", "cream", "beauty",
+    "skincare", "mascara", "eyeliner", "cosmetic", "perfume",
+)
+_HOME_KEYWORDS = (
+    "mug", "cup", "towel", "pillow", "blanket", "home", "kitchen", "decor",
+    "candle", "organizer",
+)
+_APPAREL_KEYWORDS = ("shirt", "tee", "hoodie", "apparel", "wear", "dress", "hat")
+
+
+def suggest_style(product_name: str) -> str:
+    """Pick a background style from product title keywords."""
+    name = (product_name or "").lower()
+    if any(k in name for k in _BEAUTY_KEYWORDS):
+        return "vanity"
+    if any(k in name for k in _HOME_KEYWORDS):
+        return "lifestyle"
+    if any(k in name for k in _APPAREL_KEYWORDS):
+        return "lifestyle"
+    return "studio"
+
+
+def prompt_for_style(style: str, *, product_name: str = "") -> str:
+    key = (style or "").strip().lower()
+    if key in ("auto", ""):
+        key = suggest_style(product_name)
+    return PROMPT_STYLES.get(key, DEFAULT_PROMPT)
 
 
 @dataclass
@@ -46,6 +95,7 @@ def render_product_clip(
     image_url: str = "",
     image_path: Path | None = None,
     prompt: str = "",
+    style: str = "auto",
     loop: bool = True,
     skip_if_exists: bool = True,
 ) -> RenderResult:
@@ -92,9 +142,10 @@ def render_product_clip(
     if skip_if_exists and raw.is_file() and raw.stat().st_size > 10_000:
         task_id = "cached"
     else:
+        kling_prompt = prompt or prompt_for_style(style, product_name=product_name)
         task_id = kling_client.create_image2video(
             image_url=image_for_kling,
-            prompt=prompt or DEFAULT_PROMPT,
+            prompt=kling_prompt,
             duration=5,
             mode="pro",  # 1080p vertical
             aspect_ratio="9:16",
