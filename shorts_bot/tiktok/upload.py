@@ -22,8 +22,14 @@ class TikTokUploadResult:
     message: str
 
 
-def _api_post(path: str, payload: dict[str, Any], *, token: str | None = None) -> dict[str, Any]:
-    access = token or get_access_token()
+def _api_post(
+    path: str,
+    payload: dict[str, Any],
+    *,
+    token: str | None = None,
+    token_path: Path | None = None,
+) -> dict[str, Any]:
+    access = token or get_access_token(path=token_path)
     with httpx.Client(timeout=120.0) as client:
         resp = client.post(
             f"{API_BASE}{path}",
@@ -45,8 +51,8 @@ def _api_post(path: str, payload: dict[str, Any], *, token: str | None = None) -
     return body
 
 
-def query_creator_info(*, token: str | None = None) -> dict[str, Any]:
-    body = _api_post("/v2/post/publish/creator_info/query/", {}, token=token)
+def query_creator_info(*, token: str | None = None, token_path: Path | None = None) -> dict[str, Any]:
+    body = _api_post("/v2/post/publish/creator_info/query/", {}, token=token, token_path=token_path)
     return body.get("data") or {}
 
 
@@ -76,14 +82,15 @@ def upload_video(
     is_aigc: bool | None = None,
     brand_organic: bool = False,
     poll_timeout_sec: int = 300,
+    token_path: Path | None = None,
 ) -> TikTokUploadResult:
     """Direct post via video.publish — FILE_UPLOAD + status poll."""
     if not video_path.exists():
         raise FileNotFoundError(video_path)
 
     size = video_path.stat().st_size
-    token = get_access_token()
-    creator = query_creator_info(token=token)
+    token = get_access_token(path=token_path)
+    creator = query_creator_info(token=token, token_path=token_path)
     privacy = privacy_level or _pick_privacy(creator)
 
     init_body = _api_post(
@@ -107,6 +114,7 @@ def upload_video(
             },
         },
         token=token,
+        token_path=token_path,
     )
     data = init_body.get("data") or {}
     publish_id = data.get("publish_id")
@@ -135,6 +143,7 @@ def upload_video(
             "/v2/post/publish/status/fetch/",
             {"publish_id": publish_id},
             token=token,
+            token_path=token_path,
         )
         sdata = status_body.get("data") or {}
         last_status = (sdata.get("status") or "UNKNOWN").upper()
