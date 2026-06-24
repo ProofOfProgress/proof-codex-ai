@@ -1,11 +1,11 @@
-"""InVideo creative briefs — delegates to Ms. Byte Jenny format."""
+"""InVideo creative briefs — TikTok Shop gadget demos (Fix It Fast)."""
 
 from __future__ import annotations
 
-from shorts_bot.invideo.ms_byte import MS_BYTE_VISUAL_RULES, ms_byte_brief
+from shorts_bot.invideo.shop_brief import SHOP_VISUAL_RULES, shop_brief
 
 # Legacy alias — daily workflow and tests import from here.
-SHORTS_VISUAL_RULES = MS_BYTE_VISUAL_RULES
+SHORTS_VISUAL_RULES = SHOP_VISUAL_RULES
 
 
 def shorts_product_brief(
@@ -17,23 +17,24 @@ def shorts_product_brief(
     strength_hint: str = "",
     weakness_hint: str = "",
 ) -> str:
-    """Creative brief for InVideo — Ms. Byte strength/weakness format (Jenny 8-beat)."""
+    """Creative brief for InVideo — TikTok Shop problem → demo → cart."""
     angle = extra.strip()
     if verdict_hint.strip() and not strength_hint and not weakness_hint:
-        angle = f"{angle}\nResearch note: {verdict_hint.strip()}".strip()
-    return ms_byte_brief(
+        angle = f"{angle}\nShop note: {verdict_hint.strip()}".strip()
+    return shop_brief(
         product=product,
         hook=hook,
         angle=angle,
         strength_hint=strength_hint,
         weakness_hint=weakness_hint,
+        verdict_hint=verdict_hint,
     )
 
 
-DEFAULT_CHATGPT_PLUS_BRIEF = shorts_product_brief(
-    product="ChatGPT Plus",
-    hook="ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
-    strength_hint="Strong writing, voice, and plugins for daily power users.",
-    weakness_hint="$20/month adds little over free tier for light chat — same model family on both.",
-    extra="Tradeoff vs Gemini free tier for research-heavy workflows.",
+DEFAULT_SHOP_BRIEF = shorts_product_brief(
+    product="Car Seat Gap Filler",
+    hook="Stuff keeps falling between your car seats — this gap filler catches everything.",
+    weakness_hint="Phone, keys, and fries disappear into the seat crack every drive.",
+    strength_hint="Flexible insert fills the gap — stuff sits on top instead of vanishing.",
+    verdict_hint="Linked in the orange cart — tap the shopping bag.",
 )

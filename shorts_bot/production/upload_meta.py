@@ -1,4 +1,4 @@
-"""YouTube upload metadata — AI / Tech Shorts SEO (RTR retired — archive/rapid_tool_review/)."""
+"""YouTube / TikTok upload metadata — Fix It Fast TikTok Shop gadget Shorts."""
 
 from __future__ import annotations
 
@@ -8,15 +8,18 @@ from dataclasses import dataclass
 from pathlib import Path
 
 HORROR_HASHTAGS = ("#Horror", "#HorrorShorts", "#ScaryStories", "#Creepy")
-AI_REVIEW_HASHTAGS = ("#aitools", "#techshorts", "#rapidtoolreview", "#claude", "#ai")
-AI_BACKEND_TAGS = [
-    "ai tools",
-    "tech review",
-    "software review",
-    "ai app review",
-    "honest review",
-    "rapid tool review",
+SHOP_HASHTAGS = ("#tiktokshop", "#gadget", "#homehack", "#fixitfast", "#amazonfinds")
+SHOP_BACKEND_TAGS = [
+    "tiktok shop",
+    "gadget",
+    "home hack",
+    "kitchen hack",
+    "car hack",
+    "problem solved",
+    "fix it fast",
 ]
+AI_REVIEW_HASHTAGS = SHOP_HASHTAGS  # legacy import alias
+AI_BACKEND_TAGS = SHOP_BACKEND_TAGS
 HORROR_HASHTAGS_JUMPSCARE = ("#Horror", "#HorrorShorts", "#Jumpscare", "#ScaryStories", "#Creepy")
 HORROR_BACKEND_TAGS = [
     "horror shorts",
@@ -253,7 +256,7 @@ def _is_horror_topic(topic: str) -> bool:
 
 
 def _is_ai_review_topic(topic: str) -> bool:
-    """AI / Tech default — horror and retired RTR archive topics use legacy meta."""
+    """Fix It Fast Shop default — horror archive topics use legacy meta."""
     return not _is_horror_topic(topic)
 
 
@@ -288,8 +291,8 @@ def _safe_description(topic: str, hook: str, *, draft_id: int = 0) -> str:
         hashtags = " ".join(AI_REVIEW_HASHTAGS)
         lines = [
             hook_line,
-            "Honest ~30s AI/tech Short — one clear takeaway.",
-            "Voice + stock + UI · synthetic media disclosed where applicable.",
+            "Fix It Fast — TikTok Shop gadget demo (~20s). Problem → fix → cart.",
+            "Synthetic/stock visuals disclosed where applicable.",
             hashtags,
         ]
         from shorts_bot.production.description_copy import sanitize_description_text

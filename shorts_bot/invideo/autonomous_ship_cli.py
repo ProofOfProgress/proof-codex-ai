@@ -29,19 +29,19 @@ def conversational_brief(
     hook: str,
     angle: str = "",
 ) -> str:
-    """Single InVideo prompt — Ms. Byte, stock + UI, no twin, Basic tier."""
-    from shorts_bot.invideo.ms_byte import ms_byte_brief
+    """Single InVideo prompt — TikTok Shop gadget demo, no twin, Basic tier."""
+    from shorts_bot.invideo.shop_brief import shop_brief
 
-    return ms_byte_brief(product=product, hook=hook, angle=angle)
+    return shop_brief(product=product, hook=hook, angle=angle)
 
 
 CLAUDE_CODE_BRIEF = conversational_brief(
-    product="Claude Code",
-    hook="Claude Code sounds amazing — but most people should not pay for this.",
+    product="Car Seat Gap Filler",
+    hook="Stuff keeps falling between your car seats — this gap filler catches everything.",
     angle=(
-        "STRENGTH: terminal agent edits multi-file repos, runs tests, git ops. "
-        "WEAKNESS: bundled with Claude Pro; heavy use burns limits; weak value if you don't code. "
-        "TRADEOFF: vs Cursor for editor-native workflows."
+        "PROBLEM: phones and fries vanish into the seat crack. "
+        "DEMO: flexible insert fills gap — items sit on top. "
+        "SHOP CTA: linked in the orange cart."
     ),
 )
 

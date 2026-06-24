@@ -1,60 +1,56 @@
-"""Niche — Rapid Tool Review RETIRED (2026-06-24). See archive/rapid_tool_review/."""
+"""Niche — Fix It Fast · TikTok Shop gadget Shorts (locked 2026-06-24)."""
 
 from __future__ import annotations
 
-from shorts_bot.production.rtr_retired import ARCHIVE_ROOT, RETIRED_LABEL
-
-# Active placeholder until owner locks next sub-niche
-NICHE_NAME = "AI / Tech"
-NICHE_TAGLINE = "AI explains tech — one clear takeaway per Short."
+NICHE_NAME = "Fix It Fast"
+NICHE_TAGLINE = "Problem solved in seconds."
 
 NICHE_POSITIONING = """
-**AI / Tech Shorts** — ~30 second YouTube Shorts on real tools, products, or workflows.
+**Fix It Fast** — TikTok Shop Shorts selling **home, kitchen, and car problem-solver gadgets** (~$15–$35 impulse buys).
 
-**Rapid Tool Review is RETIRED** (2026-06-24) — same as Peripheral horror. Full RTR kit archived under `archive/rapid_tool_review/`. Do not use RTR branding, @RapidToolReview, Pay/Skip/Wait series framing, or Ms. Byte host specs for new work unless owner revives them.
+**Primary platform:** TikTok Shop (orange cart / shopping bag). YouTube repost optional for extra views.
 
-Hierarchy (placeholder until owner reassesses):
-- Big: **AI / Tech**
-- Sub: **TBD** — owner picks next locked sub-niche
-- Format: **Conversational** — one clear takeaway; no Pay/Skip/Wait stamps; no AI twin
+**Not our lane:** AI software reviews, affiliates, Rapid Tool Review (retired → `archive/rapid_tool_review/`), Ms. Byte, Pay/Skip/Wait.
 
-Production:
-- InVideo one-prompt ship, Basic tier ≤10 credits, NO AI Twin
-- Conversational tool-teaching format (see `shorts_bot/invideo/invideo_master_prompt.md`)
+**Format (every Short):**
+1. HOOK — show the problem in 2 seconds (mess, stuck lid, dark closet)
+2. DEMO — hands + product fix it (satisfying before/after)
+3. PAYOFF — one simple benefit line
+4. CTA — "Linked in the orange cart" / "Tap the shopping bag"
 
-Tone: honest, direct, no hype. Real product names when reviewing tools.
-What fails: retired RTR/Ms. Byte branding, Pay/Skip/Wait stamps, horror framing, twin talking heads.
+**Production:** InVideo one-prompt, Basic ≤10 credits, NO AI Twin, NO mascot. Product is the star.
+
+**Business model:** Product-hop constantly — test many SKUs, kill losers, scale winners. Supplier/dropship via TikTok Shop catalog.
+
+Tone: upbeat, visual, satisfying — not medical claims, not listicles, not software UI reviews.
+What fails: AI tool walkthroughs, horror, Ms. Byte, twin talking heads, fake miracle claims.
 """
 
 DEFAULT_TOPICS = [
-    "ChatGPT Plus — what the paid tier actually unlocks",
-    "Claude Code — terminal agent honest breakdown",
-    "InVideo AI — credit math for daily Shorts",
-    "NotebookLM — free tool hidden limits",
-    "Gemini Advanced — paid vs free Gemini",
-    "Cursor Pro — inline AI editor breakdown",
-    "Perplexity Pro — search tier comparison",
-    "Grok xAI — live feed vs chat bots",
+    "Car Seat Gap Filler — stops stuff falling between seats",
+    "Jar Grip Opener — pops stuck lids in seconds",
+    "Magnetic Cable Clips — desk cable mess fix",
+    "Motion Sensor LED Strip — dark closet fix",
+    "Mini Car Vacuum — crumbled chips and dust gone fast",
+    "Sink Drain Hair Catcher — shower clog prevention",
+    "Car Sunshade Umbrella — hot steering wheel fix",
+    "Vegetable Chopper — dice onions without crying",
 ]
 
-SPONSOR_RULES = """
-Sponsor / affiliate rules (future):
-- Disclose paid partnerships in video and description (#ad).
-- Organic reviews and sponsored content use separate queues.
-- Sponsored scripts require owner approval.
-- Affiliate links only for products we'd honestly recommend; disclose commission.
+SHOP_RULES = """
+TikTok Shop rules:
+- ONE physical product per Short — pin Shop product link when listing exists
+- Honest demo — show real use case, no fake before/after
+- Disclose #ad if TikTok marks as sponsored
+- Kill products that don't convert after fair test volume; hop to next SKU
 """
 
 
 def quality_lessons() -> str:
     return (
-        "Better: strong hook in first 2s, one named product or topic, specific takeaway, "
-        "mute-readable overlays, conversational close. "
-        "Worse: retired Rapid Tool Review branding, Pay/Skip/Wait stamps, Ms. Byte host spec, "
-        "vague AI hype, multi-product listicles, horror/jumpscare framing. "
-        "Always: synthetic disclosure, 1 Short/24h YPP-safe."
+        "Better: problem visible in first 2s, hands/product demo, satisfying fix, clear Shop CTA, "
+        "mute-readable text overlays, 15-30s tight. "
+        "Worse: AI tool UI reviews, Ms. Byte/RTR branding, listicles, no product on screen, "
+        "slow 5s intros, horror framing, medical miracle claims. "
+        "Always: 1 product per Short, synthetic disclosure when applicable."
     )
-
-
-def retired_rtr_note() -> str:
-    return f"{RETIRED_LABEL} archived at {ARCHIVE_ROOT}/ — reference only."

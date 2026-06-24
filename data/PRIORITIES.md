@@ -10,14 +10,16 @@
 
 ---
 
+**North star (reassessed 2026-06-24):** **TikTok Shop** gadget sales via **Fix It Fast** Shorts — 100% automation + product-hop learning.
+
 ## Top 4 (only these until reassessed)
 
-| # | Priority | What it means | Most important levers | Status |
-|---|----------|---------------|----------------------|--------|
-| **1** | **100% automation** | Bot runs the full day without you: idea → script → voice → video → quality check → upload → stats sync | `auto_daily`, pipeline resume, auto analytics sync, auto-approve safe learning rules, comment triage | **Mostly built** — must run 24/7 where bot lives; remove any step that still needs a human click |
-| **2** | **Better hooks & scripts** | People swipe away in 1 second if the opening is weak | Jenny hook rules, analytics punish/reward, draft rejections → avoid rules, topic/hook cooldowns | **Built** — needs steady uploads + sync so data flows |
-| **3** | **Better visuals & sync** | Video must *look* right and match the voice beat-by-beat | **Don't Blink horror I2V** (terrifying motion clips, end jumpscare beat), Gemini transcript timing, ffmpeg captions, **vision QC** | **Live** — no stick figures; ai_video only |
-| **4** | **Learn from every video** | Each Short teaches the next one | YouTube retention/views → reflect loop; vision QC fails → avoid rules; approved patterns → repeat rules | **In progress** — close the loop so quality gains compound without you |
+| # | Priority | What it means | Status |
+|---|----------|---------------|--------|
+| **1** | **TikTok Shop Shorts** | Problem→demo→cart videos, 3/week, InVideo ≤10 credits | **Locked** — see `data/research/TIKTOK_SHOP_STRATEGY.md` |
+| **2** | **Seller setup** | Shop account, SKUs listed, upload API | **Owner** — `docs/FOR_OWNER_TIKTOK_SHOP.md` |
+| **3** | **Product-hop loop** | Queue rotates, kill losers, scale winners | **Queue live** — `data/product_queue.json` |
+| **4** | **Fix It Fast brand** | Same voice, hooks, captions every Short | **Locked** — `channel/brand/` |
 
 ---
 

@@ -17,8 +17,15 @@ _TTS_X_AS_WORD = re.compile(
     re.I,
 )
 # Ms. Byte brief template includes negation examples — strip before verdict/TTS scans.
+_SHOP_MARKERS = re.compile(r"\b(problem|demo|shop cta|orange cart|shopping bag|fix it fast)\b", re.I)
+
+
+def _is_shop_brief(brief: str) -> bool:
+    return bool(_SHOP_MARKERS.search(brief[:800]))
+
+
 _BRIEF_BOILERPLATE = re.compile(
-    r"(NO Pay / Skip / Wait|TTS LEXICON|NEVER say the letter \"X\"|NOT \"live X posts\")[\s\S]*?(?=LESSON TOPIC:|$)",
+    r"(NO Pay / Skip / Wait|NO AI Twin|DO NOT:)[\s\S]*?(?=PRODUCT:|LESSON TOPIC:|$)",
     re.I,
 )
 
@@ -70,26 +77,37 @@ def _offline_qc(*, product: str, hook: str, brief: str, verdict_hint: str) -> Sc
     if len(hook.split()) > 18:
         issues.append("Hook too long for Shorts opener")
         score -= 2
-    if product.lower() not in hook.lower() and product.lower() not in brief.lower()[:300]:
-        issues.append("Product name missing from hook/opening")
-        score -= 2
+    if product.lower() not in hook.lower() and product.lower() not in brief.lower()[:400]:
+        parts = [w for w in re.findall(r"[a-z0-9]+", product.lower()) if len(w) > 3]
+        if parts and not any(p in hook.lower() or p in brief.lower()[:400] for p in parts):
+            issues.append("Product name missing from hook/opening")
+            score -= 2
     if _has_verdict_stamp(_brief_for_qc(brief)) or _has_verdict_stamp(verdict_hint):
-        issues.append("Pay/Skip/Wait language — Ms. Byte uses strength/weakness format")
+        issues.append("Pay/Skip/Wait language — use Shop problem/demo format")
         score -= 3
-    if not _STRENGTH_WEAKNESS.search(brief):
-        issues.append("Missing strength/weakness framing")
+    if _is_shop_brief(brief):
+        if not _SHOP_MARKERS.search(brief):
+            issues.append("Missing Shop demo/CTA framing")
+            score -= 2
+    elif not _STRENGTH_WEAKNESS.search(brief):
+        issues.append("Missing problem/demo framing")
         score -= 3
-    if not _JENNY_MARKERS.search(brief):
-        issues.append("Missing Jenny but/so or 'you decide' movement")
+    if _is_shop_brief(brief):
+        body = _brief_for_qc(brief).lower()
+        if "horror" in body or "jumpscare" in body:
+            issues.append("Horror cruft in brief — wrong niche")
+            score -= 4
+        if re.search(r"\bms\. byte\b", body) and "no ms. byte" not in body:
+            issues.append("Ms. Byte cruft — retired format")
+            score -= 4
+    elif not _JENNY_MARKERS.search(brief):
+        issues.append("Missing conversational movement (but/so or you decide)")
         score -= 1
     if _TTS_X_AS_WORD.search(hook):
         issues.append('TTS risk: say "Twitter" not "X" as a spoken word')
         score -= 2
-    if "horror" in brief.lower() or "jumpscare" in brief.lower():
-        issues.append("Horror cruft in brief — wrong niche")
-        score -= 4
     if "class is in session" in hook.lower()[:40]:
-        issues.append("Hook starts with classroom warm-up — curiosity should come first (Jenny 02)")
+        issues.append("Hook starts with classroom warm-up — show problem first")
         score -= 2
     hook_score, hook_issues = score_hook(hook)
     if hook_score < 7.0:
@@ -129,19 +147,18 @@ def score_script_brief(
 
 
 def _llm_qc(*, product: str, hook: str, brief: str, verdict_hint: str) -> ScriptQCResult:
-    prompt = f"""Score this YouTube Short product review brief (1-10).
+    prompt = f"""Score this TikTok Shop gadget Short brief (1-10).
 
 Product: {product}
 Hook: {hook}
 Brief:
 {brief[:2000]}
 
-Rules: Ms. Byte format — ONE strength + ONE weakness, Jenny 8-beat structure,
-curiosity hook BEFORE host intro (price shock, feature fact, or what breaks),
-teach the TOOL not buyer personas — NO "most shouldn't pay", NO "if your job is", NO "who it's for",
-NO generic "is X worth it" or "I tested if", CTA before payoff, ~30s, NO Pay/Skip/Wait stamps,
-NO horror, hook under 15 words ideal, say "Twitter" not "X" as spoken word in VO.
-Verdict hint (legacy, penalize if Pay/Skip/Wait): {verdict_hint}
+Rules: Fix It Fast format — ONE physical product, problem visible in hook,
+hands/product demo, satisfying fix, Shop CTA (orange cart / shopping bag),
+15-30s, 9:16 vertical, NO AI tool reviews, NO Ms. Byte, NO Pay/Skip/Wait,
+NO listicles, NO horror, hook under 18 words ideal.
+Shop note: {verdict_hint}
 
 Return JSON only:
 {{"score": 8.5, "passed": true, "issues": ["..."], "summary": "one line"}}

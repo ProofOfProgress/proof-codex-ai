@@ -8,7 +8,7 @@ from pathlib import Path
 
 from shorts_bot.config import settings
 from shorts_bot.invideo.generate import generate_from_prompt
-from shorts_bot.invideo.ms_byte import ms_byte_brief
+from shorts_bot.invideo.shop_brief import shop_brief
 from shorts_bot.invideo.script_pack import draft_pack_dir
 from shorts_bot.learning.workflow import (
     HOOK_TEMPLATES,
@@ -100,6 +100,7 @@ def run_daily_invideo_workflow(
             hook_tpl = str(brief_step.params.get("hook_template", HOOK_TEMPLATES[0]))
             strength_hint = str(brief_step.params.get("strength_hint", ""))
             weakness_hint = str(brief_step.params.get("weakness_hint", ""))
+            verdict_hint = str(brief_step.params.get("verdict_hint", ""))
             pending = consume_pending_queue_item(store)
             if pending:
                 if pending.get("hook"):
@@ -111,11 +112,12 @@ def run_daily_invideo_workflow(
                 verdict_hint = str(pending.get("verdict_hint") or "")
             else:
                 hook = hook_for_product(product) if product else hook_tpl.format(product=product)
-            brief = ms_byte_brief(
+            brief = shop_brief(
                 product=product,
                 hook=hook,
                 strength_hint=strength_hint,
                 weakness_hint=weakness_hint,
+                verdict_hint=verdict_hint,
                 angle=f"Topic line for upload: {topic}",
             )
             step_results.append(_record_step("build_brief", True, hook[:120], t0))
@@ -164,7 +166,7 @@ def run_daily_invideo_workflow(
                 topic=topic or product,
                 script=brief,
                 hook=hook,
-                help_angle=f"Strength/weakness review — {product}",
+                help_angle=f"TikTok Shop demo — {product}",
                 quality_notes=f"InVideo daily workflow v{wf.version}",
             )
             draft_id = draft.id

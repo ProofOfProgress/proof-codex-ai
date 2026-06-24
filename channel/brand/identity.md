@@ -1,11 +1,33 @@
-# Channel identity — RETIRED (Rapid Tool Review)
+# Channel identity — Fix It Fast (TikTok Shop)
 
-**Rapid Tool Review retired 2026-06-24** — same as Peripheral horror. Do not use for new videos, uploads, or branding.
+> **Locked 2026-06-24.** **Fix It Fast** · TikTok Shop gadget Shorts · Strategy: `data/research/TIKTOK_SHOP_STRATEGY.md`
 
-**Full archived kit:** `archive/rapid_tool_review/brand/identity.md`
+## One-line pitch
 
-**Active placeholder:** AI / Tech Shorts — owner will lock the next sub-niche and display name.
+**Fix It Fast — annoying problem, satisfying fix, link in the cart.**
 
-**Niche code:** `shorts_bot/production/niche.py`
+## Niche hierarchy
 
-**Also retired:** Peripheral horror → `archive/peripheral/`
+| Level | Name |
+|-------|------|
+| Big | Home / car / kitchen gadgets |
+| Sub | Problem-solver impulse buys (~$15–$35) |
+| Format | Problem → demo → TikTok Shop CTA (~20s) |
+
+## Platform
+
+**TikTok Shop primary.** YouTube repost optional. Product-hop — test SKUs, kill losers, scale winners.
+
+## Presenter
+
+**No mascot.** Hands + product on screen. Same voice + caption style every video = brand.
+
+## Retired (do not use)
+
+- Rapid Tool Review / Ms. Byte → `archive/rapid_tool_review/`
+- Peripheral horror → `archive/peripheral/`
+- AI software affiliate reviews
+
+## Code
+
+`shorts_bot/production/niche.py` · `data/product_queue.json`

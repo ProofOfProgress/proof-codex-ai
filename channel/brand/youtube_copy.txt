@@ -1,24 +1,28 @@
-CHANNEL NAME: AI / Tech Shorts
+CHANNEL NAME: Fix It Fast
 
 DESCRIPTION:
-AI and tech Shorts — one clear takeaway per video.
+Home, kitchen, and car gadgets that fix annoying problems in seconds.
 
-New niche and channel copy TBD by owner. Rapid Tool Review branding is retired (see archive/rapid_tool_review/).
+TikTok Shop — tap the orange cart. New product tests every day. If it works, we keep it. If not, next one.
 
-TAGLINE: AI explains tech — fast and honest.
+Problem → demo → cart. No fluff.
 
-SERIES: AI / Tech
+TAGLINE: Problem solved in seconds.
 
-KEYWORDS: ai tech shorts software tools automation honest review
+SERIES: Fix It Fast
 
-PINNED COMMENT: What should we cover next?
+KEYWORDS: tiktok shop gadget hack car hack kitchen hack home organization problem solved fix it fast amazon finds
 
-TITLE SUFFIX:
+PINNED COMMENT: What problem should we fix next? Comment below.
 
-BANNER HEADLINE: AI / Tech
-BANNER SUBLINE: Shorts · one takeaway
+TITLE SUFFIX: | Fix It Fast
+
+BANNER HEADLINE: Fix It Fast
+BANNER SUBLINE: Problem → fix → cart
 
 UPLOAD DESCRIPTION TEMPLATE:
-{product} — {takeaway}
+{product} — {hook}
 
-#ai #techshorts
+TikTok Shop · Fix It Fast
+
+#tiktokshop #gadget #homehack #fixitfast
