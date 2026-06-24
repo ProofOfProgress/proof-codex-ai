@@ -22,26 +22,25 @@ from shorts_bot.production.niche import NICHE_POSITIONING, quality_lessons
 from shorts_bot.production.script_humanize import finalize_script
 
 
-SYSTEM_PROMPT = f"""You write YouTube Shorts scripts (~25-35 seconds) for **Rapid Tool Review**.
+SYSTEM_PROMPT = f"""You write YouTube Shorts scripts (~25-35 seconds) for **AI / Tech** channel.
 
 {NICHE_POSITIONING}
 
-CHANNEL HOST: **Ms. Byte** — clearly synthetic AI teacher (InVideo library character RTR_MsByte).
-**Jenny Codex law:** curiosity hook FIRST (price shock or contrarian claim), then host tag.
+**Jenny Codex law:** curiosity hook FIRST (price shock or contrarian claim).
 
-FORMAT (8 beats — Ms. Byte teaches the tool, NOT Pay/Skip/Wait, NOT "who it's for"):
+FORMAT (8 beats — conversational tool teaching, NOT Pay/Skip/Wait, NOT "who it's for"):
 1. HOOK (0-2s): price shock, feature surprise, or what breaks — NOT "is X worth it?" or "I tested if"
-2. SETUP: "I'm Ms. Byte — an AI…" + product name
+2. SETUP: product name + what you'll learn
 3. STRENGTH: one specific win (feature fact)
 4. BUT: price, limit, or flaw
 5. TRADEOFF: vs one competitor on one axis
 6. PAYOFF: best tool fact last — viewer decides
-7. Close: "Which tool next? Comment below — you decide."
+7. Close: "Which tool next? Comment below."
 
 TTS: say "Twitter" not "X" as a spoken word.
 ~70-110 words. Bold caption-friendly lines. 9:16 vertical. ONE named product only.
 
-Return JSON: hook, script, help_angle (strength + weakness one-liner), visual_beats (6-8 — product UI, pricing, Ms. Byte poses)."""
+Return JSON: hook, script, help_angle (strength + weakness one-liner), visual_beats (6-8 — product UI, pricing, screen captures)."""
 
 
 def _system_prompt(store: MemoryStore | None = None, *, draft_id: int | None = None) -> str:
@@ -104,7 +103,7 @@ class DraftGenerator:
         return "\n\n".join(parts) if parts else "No approval history yet."
 
     def _course_context(self, topic: str) -> str:
-        base = f"RAPID TOOL REVIEW FORMAT:\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
+        base = f"AI/TECH SHORTS FORMAT:\n{NICHE_POSITIONING.strip()}\n\n{quality_lessons()}"
         if self.router:
             from shorts_bot.production.jenny_checks import jenny_retention_guidance
 
@@ -169,7 +168,7 @@ Optional angle: {angle or "none"}
 {research_block}
 {self._feedback_context()}
 
-CHANNEL BRAND (Rapid Tool Review — Ms. Byte hosts):
+CHANNEL BRAND (AI / Tech — conversational; RTR/Ms. Byte retired):
 {self.brand.draft_instructions()[:1800]}
 
 HOOK RULES (Jenny 02 — critical):
@@ -183,9 +182,9 @@ FORMAT RULES FOR THIS DRAFT:
 
 Return JSON with keys:
 - hook: first spoken line (curiosity FIRST — not host intro)
-- script: full Ms. Byte voiceover (25-35s when read aloud, 8 beats)
+- script: full voiceover (25-35s when read aloud, 8 beats)
 - help_angle: one sentence — main strength + main weakness
-- visual_beats: list of 6-8 shots (product UI, pricing page, STRENGTH/WEAKNESS cards, Ms. Byte poses)
+- visual_beats: list of 6-8 shots (product UI, pricing page, STRENGTH/WEAKNESS cards, screen captures)
 """
         response = self.client.chat.completions.create(
             model=self.model,

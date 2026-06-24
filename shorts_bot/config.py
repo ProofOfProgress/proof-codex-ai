@@ -52,9 +52,9 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "Rapid Tool Review"
-    channel_series_name: str = "Rapid Tool Review"
-    channel_tagline: str = "Honest AI tools. Fast verdicts."
+    youtube_channel_name: str = "AI / Tech Shorts"
+    channel_series_name: str = "AI / Tech"
+    channel_tagline: str = "AI explains tech — one clear takeaway."
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes

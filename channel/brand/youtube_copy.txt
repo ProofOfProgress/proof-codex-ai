@@ -1,40 +1,24 @@
-CHANNEL NAME: Rapid Tool Review
-YOUTUBE HANDLE: @RapidToolReview
-URL: https://www.youtube.com/@RapidToolReview
+CHANNEL NAME: AI / Tech Shorts
 
 DESCRIPTION:
-Honest AI tool reviews in ~30 seconds — real products, real verdicts, no hype.
+AI and tech Shorts — one clear takeaway per video.
 
-You're here if you're tired of "THIS CHANGES EVERYTHING" and want someone to actually test the tool before you pay.
+New niche and channel copy TBD by owner. Rapid Tool Review branding is retired (see archive/rapid_tool_review/).
 
-What you'll get:
-• ~30s reviews of real AI tools (ChatGPT, InVideo, Notion AI, and whatever launches next)
-• Clear verdict every time: Pay, Skip, or Wait
-• New Shorts regularly
+TAGLINE: AI explains tech — fast and honest.
 
-Voice + screen reviews · synthetic media disclosed per YouTube policy when applicable
+SERIES: AI / Tech
 
-💬 Which AI tool should I review next? One sentence in the comments.
+KEYWORDS: ai tech shorts software tools automation honest review
 
-TAGLINE: Honest AI tools. Fast verdicts.
+PINNED COMMENT: What should we cover next?
 
-SERIES: Rapid Tool Review
+TITLE SUFFIX:
 
-KEYWORDS: rapid tool review ai tool review chatgpt review invideo review tech shorts honest ai review ai app review software review pay skip wait ai tools 2026
-
-PINNED COMMENT: What AI tool should I review next? Name one — Pay, Skip, or Wait in 30 seconds.
-
-TITLE SUFFIX: | Rapid Tool Review
-
-BANNER HEADLINE: Rapid Tool Review
-BANNER SUBLINE: Honest AI tools · Fast verdicts · ~30 seconds
+BANNER HEADLINE: AI / Tech
+BANNER SUBLINE: Shorts · one takeaway
 
 UPLOAD DESCRIPTION TEMPLATE:
-Honest 30-second AI tool review — Pay, Skip, or Wait.
+{product} — {takeaway}
 
-🔧 Tool: {product}
-✅ Verdict: {verdict}
-
-Subscribe for daily AI tool verdicts: @RapidToolReview
-
-#aitools #techshorts #rapidtoolreview
+#ai #techshorts

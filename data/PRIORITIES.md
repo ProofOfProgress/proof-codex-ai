@@ -6,7 +6,7 @@
 
 **North star (unchanged):** Self-learning, fully autonomous channel that makes a lot of money — automation and quality are how we get there.
 
-**Last assessed:** 2026-06-11 (Video #1 live — see `data/PRIORITY_14_NOW.md` for full top-14 list)
+**Last assessed:** 2026-06-24 (Rapid Tool Review retired → `archive/rapid_tool_review/`)
 
 ---
 
@@ -37,7 +37,7 @@
 - Slack setup in progress — `bash scripts/slack-setup.sh`, docs/SLACK_CURSOR_SETUP.md (owner OAuth)
 - Home PC My Machines, git/ZIP on Windows
 - TikTok account + TikTok Shop (owner setup) — see `data/research/PERIPHERAL_BIKER_MERCH_TIKTOK.md`; bot automation after account + explicit go
-- Cursor API key injection, Enterprise pools
+- Rapid Tool Review / Ms. Byte brand (retired 2026-06-24 — `archive/rapid_tool_review/`)
 - CapCut operator, dev queue UI, refactors unless they block top 4
 
 ---

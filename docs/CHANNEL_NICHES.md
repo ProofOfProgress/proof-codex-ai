@@ -1,42 +1,35 @@
-# Channel niche — AI Product Reviews (locked)
+# Channel niche — AI / Tech (sub-niche TBD)
 
-**Same YouTube channel.** Peripheral retired. **Sub-sub-niche locked:** honest AI product tech reviews.
+**Same YouTube channel.** Peripheral horror retired. **Rapid Tool Review retired** (2026-06-24) — archived at `archive/rapid_tool_review/`.
+
+Owner will lock the next sub-sub-niche. Until then: **AI / Tech Shorts**, conversational format, one clear takeaway.
 
 ---
 
-## Hierarchy
+## Hierarchy (placeholder)
 
 ```
 AI / Tech
-    └── AI product reviews
-            └── Honest 30s verdict — Pay / Skip / Wait
+    └── (sub-niche TBD by owner)
+            └── ~30s Short, one takeaway
 ```
 
-Full playbook: `data/research/CHANNEL_NICHE_STRATEGY.md`
+Full playbook (being updated): `data/research/CHANNEL_NICHE_STRATEGY.md`
 
 ---
 
 ## Production stack
 
-1. **Product** — real named AI tool (launch, owner pick, or comment request)
-2. **Script** — Gemini, product review template (~30s, one verdict)
-3. **Video** — InVideo twin + product UI B-roll + captions
+1. **Topic** — real named AI tool or workflow (launch, owner pick, or comment request)
+2. **Script** — Gemini, conversational template (~30s)
+3. **Video** — InVideo one-prompt, Basic ≤10 credits, NO AI Twin
 4. **QC** — duration, captions, watermark
 5. **Upload** — YouTube API, synthetic disclosure, 1 Short / 24h
-6. **Learn** — analytics → which products and hooks win
-
----
-
-## Monetization (order)
-
-1. Shorts RPM (tech/product reviews)
-2. Affiliate links (disclosed, honest picks only)
-3. Sponsored reviews (disclosed, owner-approved scripts)
-4. Long-form / course later
+6. **Learn** — analytics → which topics and hooks win
 
 ---
 
 ## Code
 
-- `shorts_bot/production/niche.py` — topics, positioning, sponsor rules
-- `data/research/CHANNEL_NICHE_STRATEGY.md` — format + sponsor policy
+- `shorts_bot/production/niche.py` — active placeholder + retired RTR note
+- `archive/rapid_tool_review/` — retired brand kit (reference only)
