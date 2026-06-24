@@ -31,7 +31,7 @@ def next_product_topic(store: MemoryStore) -> str:
                 }
             ),
         )
-        store.set_channel_state("niche_version", "ai_product_reviews_v2")
+        store.set_channel_state("niche_version", "tiktok_shop_fix_it_fast_v1")
         store.set_channel_state(
             "last_topic_pick",
             json.dumps(

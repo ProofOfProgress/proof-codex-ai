@@ -1,4 +1,4 @@
-"""Tests for Jenny hook templates and weak-hook detection."""
+"""Tests for Shop hook templates and weak-hook detection."""
 
 from shorts_bot.production.hooks import (
     HOOK_TEMPLATES,
@@ -9,20 +9,20 @@ from shorts_bot.production.hooks import (
 
 
 def test_curated_hook_not_weak():
-    hook = hook_for_product("ChatGPT Plus")
+    hook = hook_for_product("Car Seat Gap Filler")
     score, issues = score_hook(hook)
     assert score >= 7.0
     assert not issues
 
 
 def test_weak_is_worth_it_hook_fails():
-    score, issues = score_hook("Is ChatGPT Plus worth it?")
+    score, issues = score_hook("Is this gadget worth it?")
     assert score < 7.0
     assert issues
 
 
-def test_weak_everyone_paying_fails():
-    score, issues = score_hook("Everyone's paying for ChatGPT Plus — I tested if it's worth it.")
+def test_weak_listicle_fails():
+    score, issues = score_hook("5 gadgets you need in 2026")
     assert score < 7.0
 
 

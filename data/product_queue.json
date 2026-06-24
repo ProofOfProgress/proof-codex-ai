@@ -1,146 +1,74 @@
 [
   {
     "id": 1,
-    "product": "ChatGPT Plus",
-    "topic": "ChatGPT Plus — $20/month what the paid tier unlocks",
-    "hook": "ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
-    "strength_hint": "GPT-4o, plugins, voice, and memory for daily power users.",
-    "weakness_hint": "$20 adds little over free tier for light chat — same model family on both.",
-    "verdict_hint": "Skip unless you hit limits daily"
+    "product": "Car Seat Gap Filler",
+    "topic": "Car Seat Gap Filler — stops stuff falling between seats",
+    "hook": "Stuff keeps falling between your car seats — this gap filler catches everything.",
+    "strength_hint": "Flexible strip fills the crack — phone and keys sit on top instead of vanishing.",
+    "weakness_hint": "Phones, fries, and change disappear into the seat gap every single drive.",
+    "verdict_hint": "Linked in the orange cart — tap the shopping bag."
   },
   {
     "id": 2,
-    "product": "Claude Code",
-    "topic": "Claude Code — terminal agent honest breakdown",
-    "hook": "Claude Code runs in your terminal — and it burns through Pro limits fast.",
-    "strength_hint": "Terminal agent edits multi-file repos, runs tests, git ops.",
-    "weakness_hint": "Bundled with Claude Pro; heavy use burns limits; weak for non-code tasks.",
-    "verdict_hint": "Pay if you code in terminal daily; Skip otherwise"
+    "product": "Jar Grip Opener",
+    "topic": "Jar Grip Opener — pops stuck lids in seconds",
+    "hook": "Jar lid won't budge? This grip tool pops it open in three seconds.",
+    "strength_hint": "Rubber grip bites the lid — leverage pops it without banging the jar.",
+    "weakness_hint": "Stuck pickle jars and tight soda caps ruin cooking flow.",
+    "verdict_hint": "Shop tag below — orange cart."
   },
   {
     "id": 3,
-    "product": "Claude Pro",
-    "topic": "Claude Pro vs ChatGPT Plus — one axis each wins",
-    "hook": "Claude Pro is twenty a month — here's where it beats ChatGPT on writing.",
-    "strength_hint": "Cleaner long-form writing and document analysis.",
-    "weakness_hint": "Same $20 as ChatGPT — no clear win on casual chat or plugins.",
-    "verdict_hint": "Pay for writers; Skip for casual chat"
-  },
-  {
-    "id": 16,
-    "product": "Google Gemini Advanced",
-    "topic": "Gemini Advanced — $20 vs free Gemini",
-    "hook": "Gemini Advanced bundles two terabytes — the AI upgrade isn't always the win.",
-    "strength_hint": "Deep Google Workspace integration and 2TB storage bundle.",
-    "weakness_hint": "Free Gemini 2.x covers most research and chat — AI bump is incremental.",
-    "verdict_hint": "Wait if free Gemini is enough"
+    "product": "Magnetic Cable Clips",
+    "topic": "Magnetic Cable Clips — desk cable mess fix",
+    "hook": "Desk cables look like this? These magnetic clips clean it up in ten seconds.",
+    "strength_hint": "Peel-and-stick base — cables snap in and stay routed.",
+    "weakness_hint": "Charging cables tangle and fall behind the desk daily.",
+    "verdict_hint": "Tap the shopping bag — link in cart."
   },
   {
     "id": 4,
-    "product": "InVideo AI",
-    "topic": "InVideo AI for daily Shorts — credit math honest check",
-    "hook": "InVideo can ship a Short in minutes — but the credit math catches people.",
-    "strength_hint": "Script-to-Shorts speed with stock, captions, and Ms. Byte-style hosts.",
-    "weakness_hint": "Credits burn fast; horizontal stock crops look broken in 9:16.",
-    "verdict_hint": "Pay if you ship daily Shorts"
+    "product": "Motion Sensor LED Strip",
+    "topic": "Motion Sensor LED Strip — dark closet fix",
+    "hook": "Why is your closet pitch black every morning? This motion LED fixes it.",
+    "strength_hint": "Walk in — light turns on. Walk out — off. No switch hunting.",
+    "weakness_hint": "Pantry and closet shelves invisible until you fumble for a phone flashlight.",
+    "verdict_hint": "Linked in the orange cart."
   },
   {
     "id": 5,
-    "product": "Cursor Pro",
-    "topic": "Cursor Pro — inline AI editor breakdown",
-    "hook": "Cursor Pro rewrites your whole codebase inline — the subscription adds up fast.",
-    "strength_hint": "Inline AI edits across your whole codebase in the editor.",
-    "weakness_hint": "$20/mo per seat — overkill if you only tweak small scripts.",
-    "verdict_hint": "Skip unless you code every day"
+    "product": "Mini Car Vacuum",
+    "topic": "Mini Car Vacuum — crumbled chips and dust gone fast",
+    "hook": "Crushed chips in the car seat? This mini vacuum pulls it out in seconds.",
+    "strength_hint": "Handheld suction reaches seat cracks and cup holders.",
+    "weakness_hint": "Car floor looks clean until you lift the mat — crumbs everywhere.",
+    "verdict_hint": "Shop tag below — tap the bag."
   },
   {
     "id": 6,
-    "product": "Perplexity Pro",
-    "topic": "Perplexity Pro vs free search — research feature check",
-    "hook": "Perplexity Pro adds cited research mode — free search already got scary good.",
-    "strength_hint": "Cited sources and deep research mode for news-heavy workflows.",
-    "weakness_hint": "Free tier + Google often enough for one-off questions.",
-    "verdict_hint": "Pay if research is your job"
+    "product": "Sink Drain Hair Catcher",
+    "topic": "Sink Drain Hair Catcher — shower clog prevention",
+    "hook": "Shower drain clogging again? This catcher stops hair before it sinks.",
+    "strength_hint": "Silicone mesh sits flat — hair lifts out in one peel.",
+    "weakness_hint": "Slow drain and gross hair clumps after every wash day.",
+    "verdict_hint": "Orange cart — link below."
   },
   {
     "id": 7,
-    "product": "NotebookLM",
-    "topic": "NotebookLM — free tool, hidden limits",
-    "hook": "NotebookLM reads your PDFs and cites them back — it just can't browse the web.",
-    "strength_hint": "Upload PDFs and get cited answers from YOUR documents only.",
-    "weakness_hint": "Weak for live web; best when you already have source material.",
-    "verdict_hint": "Pay N/A — free tier first"
+    "product": "Car Sunshade Umbrella",
+    "topic": "Car Sunshade Umbrella — hot steering wheel fix",
+    "hook": "Steering wheel too hot to touch? This fold umbrella shade blocks it.",
+    "strength_hint": "Opens like an umbrella inside the windshield — blocks direct sun.",
+    "weakness_hint": "Summer parking turns the cabin into an oven in ten minutes.",
+    "verdict_hint": "Tap the shopping bag."
   },
   {
     "id": 8,
-    "product": "CapCut AI",
-    "topic": "CapCut AI features — free tier traps",
-    "hook": "CapCut AI is bundled free — until you need export without a watermark.",
-    "strength_hint": "Auto captions, AI cuts, and templates inside a free editor.",
-    "weakness_hint": "Watermarks and export limits push you to Pro fast.",
-    "verdict_hint": "Skip unless you edit daily"
-  },
-  {
-    "id": 9,
-    "product": "ElevenLabs",
-    "topic": "ElevenLabs voice for Shorts — credit burn check",
-    "hook": "ElevenLabs voice clones sound human — until you check the price meter.",
-    "strength_hint": "Best-in-class voice clone quality for narration-heavy Shorts.",
-    "weakness_hint": "Character credits vanish fast on daily uploads.",
-    "verdict_hint": "Pay for voice-only workflows"
-  },
-  {
-    "id": 10,
-    "product": "HeyGen",
-    "topic": "HeyGen vs InVideo for AI avatar Shorts",
-    "hook": "HeyGen's AI avatars look real — InVideo does Shorts for half the burn.",
-    "strength_hint": "Polished talking-head avatars with lip sync.",
-    "weakness_hint": "Higher credit cost than InVideo for daily Shorts volume.",
-    "verdict_hint": "Skip if InVideo is your stack"
-  },
-  {
-    "id": 11,
-    "product": "Midjourney",
-    "topic": "Midjourney in 2026 — subscription stack check",
-    "hook": "Midjourney still wins on art — but the subscription stack adds up fast.",
-    "strength_hint": "Still top-tier aesthetic for stylized stills and concept art.",
-    "weakness_hint": "$10–30/mo plus Discord friction; free alternatives caught up for drafts.",
-    "verdict_hint": "Wait — test free alternatives first"
-  },
-  {
-    "id": 12,
-    "product": "Notion AI",
-    "topic": "Notion AI add-on — workspace tax check",
-    "hook": "Notion AI sits inside your notes — but the add-on price adds up.",
-    "strength_hint": "Summarize and rewrite inside docs you already live in.",
-    "weakness_hint": "Per-seat add-on on top of Notion — ChatGPT sidebar is cheaper.",
-    "verdict_hint": "Skip unless you live in Notion"
-  },
-  {
-    "id": 13,
-    "product": "Descript",
-    "topic": "Descript for podcast-to-Shorts workflow",
-    "hook": "Descript edits video by deleting words from the transcript — the subscription is steep.",
-    "strength_hint": "Text-based audio/video edit — delete words from transcript.",
-    "weakness_hint": "Heavy subscription for a 30-second vertical workflow.",
-    "verdict_hint": "Pay if you edit long-form talk"
-  },
-  {
-    "id": 14,
-    "product": "Runway Gen-3",
-    "topic": "Runway AI video clips — honest cost check",
-    "hook": "Runway looks amazing — but the credit burn adds up fast.",
-    "strength_hint": "Gen-3 video clips with cinematic motion control.",
-    "weakness_hint": "Credits per second make daily Shorts budgets impossible.",
-    "verdict_hint": "Skip for daily Shorts budgets"
-  },
-  {
-    "id": 15,
-    "product": "Opus Clip",
-    "topic": "Opus Clip — auto Shorts from long video",
-    "hook": "Opus Clip chops long videos into Shorts — if the AI picks wrong, you're sunk.",
-    "strength_hint": "Auto-finds viral moments in long podcasts and webinars.",
-    "weakness_hint": "Bad clip selection means more fix-up time than manual cuts.",
-    "verdict_hint": "Pay if you have long videos to chop"
+    "product": "Vegetable Chopper",
+    "topic": "Vegetable Chopper — dice onions without crying",
+    "hook": "Dicing onions takes forever — this chopper does it in one press.",
+    "strength_hint": "Push-down blade grid — even cubes in one motion.",
+    "weakness_hint": "Knife prep burns ten minutes on every weeknight meal.",
+    "verdict_hint": "Linked in the orange cart."
   }
 ]

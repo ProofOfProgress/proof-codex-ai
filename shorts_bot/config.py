@@ -52,9 +52,9 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "AI / Tech Shorts"
-    channel_series_name: str = "AI / Tech"
-    channel_tagline: str = "AI explains tech — one clear takeaway."
+    youtube_channel_name: str = "Fix It Fast"
+    channel_series_name: str = "Fix It Fast"
+    channel_tagline: str = "Problem solved in seconds."
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
@@ -154,7 +154,7 @@ class Settings(BaseSettings):
     resemble_project_uuid: str | None = None
     resemble_sample_rate: int = 44100
     resemble_use_hd: bool = True
-    tts_voice: str = "en-GB-SoniaNeural"  # Ms. Byte — light British female (edge-tts fallback)
+    tts_voice: str = "en-US-JennyNeural"  # Fix It Fast — US upbeat (edge-tts fallback)
     tts_rate: str = "+8%"  # perky Shorts pacing
     tts_pitch: str = "+2Hz"
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts

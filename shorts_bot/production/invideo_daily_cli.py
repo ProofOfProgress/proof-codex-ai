@@ -11,7 +11,7 @@ console = Console()
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Daily AI product review: InVideo → MP4 → YouTube"
+        description="Daily TikTok Shop gadget Short: InVideo → MP4 → upload"
     )
     parser.add_argument("--topic", default=None, help="Override product topic")
     parser.add_argument("--no-upload", action="store_true")

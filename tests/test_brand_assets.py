@@ -14,5 +14,5 @@ def test_youtube_copy_series_field():
     from shorts_bot.brand.loader import ChannelBrand
 
     fields = ChannelBrand().youtube_fields()
-    assert fields.series == "AI / Tech"
-    assert "product" in fields.description.lower() or "review" in fields.description.lower()
+    assert fields.series == "Fix It Fast"
+    assert "gadget" in fields.description.lower() or "problem" in fields.description.lower() or "cart" in fields.description.lower()

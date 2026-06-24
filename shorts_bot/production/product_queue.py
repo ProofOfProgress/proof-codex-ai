@@ -76,7 +76,7 @@ def queue_item_by_product(product: str) -> ProductQueueItem | None:
 
 
 def queue_summary(limit: int = 15) -> str:
-    lines = ["Product queue (Ms. Byte — strength/weakness):"]
+    lines = ["Product queue (Fix It Fast — TikTok Shop):"]
     for item in load_product_queue()[:limit]:
         hook_preview = item.hook[:55] + "…" if len(item.hook) > 55 else item.hook
         lines.append(f"  #{item.id} {item.product} — {hook_preview}")

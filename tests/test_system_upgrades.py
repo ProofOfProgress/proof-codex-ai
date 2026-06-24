@@ -13,7 +13,7 @@ from shorts_bot.production.product_queue import load_product_queue, next_queue_i
 
 def test_product_queue_loads():
     q = load_product_queue(Path("data/product_queue.json"))
-    assert len(q) >= 10
+    assert len(q) >= 8
     assert q[0].product
     assert q[0].hook
     assert q[0].strength_hint or q[0].weakness_hint
@@ -37,13 +37,12 @@ def test_next_queue_item(tmp_path: Path):
 
 def test_script_qc_offline_passes():
     brief = (
-        "ChatGPT Plus costs twenty a month. Strength: best writing and plugins in the paid tier. "
-        "Weakness: free tier covers light chat on the same model family. Tradeoff vs Gemini free. "
-        "Which tool next? You decide."
+        "Jar lid won't budge? PROBLEM: stuck lids. DEMO: rubber grip pops lid. "
+        "SHOP CTA: linked in the orange cart. Fix It Fast TikTok Shop gadget."
     )
     r = score_script_brief(
-        product="ChatGPT Plus",
-        hook="ChatGPT Plus costs twenty a month — here's what the paid tier unlocks.",
+        product="Jar Grip Opener",
+        hook="Jar lid won't budge? This grip tool pops it open in three seconds.",
         brief=brief,
     )
     assert r.score >= 7.0

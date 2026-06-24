@@ -1,19 +1,20 @@
 from unittest.mock import patch
 
+from shorts_bot.invideo.shop_brief import shop_brief
 from shorts_bot.learning.script_qc import _offline_qc, score_script_brief
-from shorts_bot.invideo.ms_byte import ms_byte_brief
 
 
-def test_script_qc_ms_byte_format_passes_offline():
-    brief = ms_byte_brief(
-        product="Claude Code",
-        hook="Claude Code sounds free — until your Pro limits vanish.",
-        strength_hint="Terminal agent edits repos fast.",
-        weakness_hint="Heavy use burns Pro limits.",
+def test_script_qc_shop_format_passes_offline():
+    brief = shop_brief(
+        product="Jar Grip Opener",
+        hook="Jar lid won't budge? This grip tool pops it open in three seconds.",
+        weakness_hint="Stuck lids ruin cooking flow.",
+        strength_hint="Rubber grip pops lid with leverage.",
+        verdict_hint="Linked in the orange cart.",
     )
     qc = _offline_qc(
-        product="Claude Code",
-        hook="Claude Code sounds free — until your Pro limits vanish.",
+        product="Jar Grip Opener",
+        hook="Jar lid won't budge? This grip tool pops it open in three seconds.",
         brief=brief,
         verdict_hint="",
     )
@@ -22,21 +23,11 @@ def test_script_qc_ms_byte_format_passes_offline():
     assert not any("Pay/Skip/Wait" in i for i in qc.issues)
 
 
-def test_script_qc_flags_tts_x_as_word_offline():
-    brief = ms_byte_brief(
-        product="Grok",
-        hook="Trends on X matter.",
-        strength_hint="live X posts",
-    )
-    qc = _offline_qc(product="Grok", hook="Trends on X matter.", brief=brief, verdict_hint="")
-    assert any("Twitter" in i or "TTS" in i for i in qc.issues)
-
-
 def test_script_qc_penalizes_pay_skip_wait():
-    bad = "Review ChatGPT. Verdict: Pay if you write daily. Skip otherwise."
+    bad = "Review gadget. Verdict: Pay if you cook daily. Skip otherwise."
     qc = _offline_qc(
-        product="ChatGPT Plus",
-        hook="Is ChatGPT worth it?",
+        product="Jar Grip Opener",
+        hook="Is this worth it?",
         brief=bad,
         verdict_hint="Pay or Skip",
     )
