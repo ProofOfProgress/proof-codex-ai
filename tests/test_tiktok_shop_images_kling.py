@@ -42,6 +42,21 @@ def test_tiktok_cdn_from_sale_props():
     assert "ttcdn-us.com" in tiktok_cdn_url_from_detail(row)
 
 
+def test_prepare_vertical_9x16():
+    from io import BytesIO
+
+    from PIL import Image
+
+    from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16
+
+    square = Image.new("RGB", (1000, 1000), color=(255, 0, 0))
+    buf = BytesIO()
+    square.save(buf, format="JPEG")
+    out = prepare_vertical_9x16(buf.getvalue(), width=1080, height=1920)
+    result = Image.open(BytesIO(out))
+    assert result.size == (1080, 1920)
+
+
 def test_download_cover_skips_on_403(tmp_path, monkeypatch):
     fake_settings = type("S", (), {"data_dir": tmp_path})()
     monkeypatch.setattr("shorts_bot.tiktok_shop.product_images.settings", fake_settings)

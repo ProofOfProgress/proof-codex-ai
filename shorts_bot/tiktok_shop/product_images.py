@@ -92,11 +92,35 @@ def load_image_bytes_for_kling(*, product_id: str = "", cover_url: str = "") -> 
     )
 
 
+def prepare_vertical_9x16(image_bytes: bytes, *, width: int = 1080, height: int = 1920) -> bytes:
+    """Center-crop to 9:16 and resize for TikTok vertical (Kling + phone feed)."""
+    from io import BytesIO
+
+    from PIL import Image
+
+    img = Image.open(BytesIO(image_bytes)).convert("RGB")
+    w, h = img.size
+    target_ratio = 9 / 16
+    current = w / h
+    if current > target_ratio:
+        new_w = int(h * target_ratio)
+        left = (w - new_w) // 2
+        img = img.crop((left, 0, left + new_w, h))
+    else:
+        new_h = int(w / target_ratio)
+        top = (h - new_h) // 2
+        img = img.crop((0, top, w, top + new_h))
+    img = img.resize((width, height), Image.Resampling.LANCZOS)
+    out = BytesIO()
+    img.save(out, format="JPEG", quality=92)
+    return out.getvalue()
+
+
 def image_payload_for_kling(*, product_id: str = "", cover_url: str = "") -> str:
     """Raw base64 for Kling image2video (no data: prefix)."""
     import base64
 
-    data = load_image_bytes_for_kling(product_id=product_id, cover_url=cover_url)
+    data = prepare_vertical_9x16(load_image_bytes_for_kling(product_id=product_id, cover_url=cover_url))
     if len(data) > 10 * 1024 * 1024:
         raise RuntimeError("Product image exceeds Kling 10MB limit")
     return base64.standard_b64encode(data).decode("ascii")
