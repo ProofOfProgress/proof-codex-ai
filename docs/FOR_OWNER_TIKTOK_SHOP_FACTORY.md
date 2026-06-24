@@ -1,8 +1,10 @@
-# TikTok Shop factory — 3 accounts, 10 videos/day each
+# TikTok Shop factory — faceless product clips
 
-**Target:** 3 Shop affiliate accounts × **10 faceless product videos per day** = **30 total/day**.
+**Start with 1 account.** One seller-linked TikTok → **3–5 product videos/day** on **your** listings.
 
-No character. No VO. Short sale-style captions. Variants (not identical dupes).
+The old “3 accounts × 10/day” plan was for **affiliate** spam across multiple TikToks. **Seller path** = one official shop TikTok (0 followers OK). Scale volume later with **affiliates** posting for you, not 3 of your own accounts on day one.
+
+No character. No VO. Short sale-style captions.
 
 ---
 
@@ -10,28 +12,28 @@ No character. No VO. Short sale-style captions. Variants (not identical dupes).
 
 1. **TikTok Shop Seller account** (0 followers OK) — see `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
 2. **Printify** connected in Seller Center (POD)
-3. **EchoTik API** — bot scouts products daily (see `docs/FOR_OWNER_ECHOTIK_SETUP.md`)
-4. **Kling API key** + credits — `KLING_API_KEY` in Secrets; add balance at app.klingai.com
-5. **Zernio** (optional multi-account post) OR TikTok API tokens
+3. **EchoTik API** — bot scouts product ideas (see `docs/FOR_OWNER_ECHOTIK_SETUP.md`)
+4. **Kling credits** — bot renders 1080p clips
+5. **Zernio** (optional autopost) OR post manually from the queue
 
 ---
 
-## Configure accounts
-
-Copy the example and fill in Zernio account IDs:
+## Configure accounts (one is enough)
 
 ```bash
 cp data/tiktok_shop/accounts.example.json data/tiktok_shop/accounts.json
 ```
 
-Edit `data/tiktok_shop/accounts.json`:
+Edit `data/tiktok_shop/accounts.json` — **only `shop_1` needs to be filled** to start:
 
 | Field | What to put |
 |-------|-------------|
-| `id` | `shop_1`, `shop_2`, `shop_3` |
-| `daily_limit` | `10` (leave as-is) |
-| `zernio_account_id` | From zernio.com dashboard for each TikTok |
-| `post_via` | `zernio` (recommended) or `tiktok_api` |
+| `id` | `shop_1` |
+| `daily_limit` | `5` to start (ramp to 10 later) |
+| `zernio_account_id` | From zernio.com for your **seller** TikTok |
+| `post_via` | `zernio` or post manually |
+
+Disable or delete `shop_2` / `shop_3` until you open a **second shop** (different brand) on purpose.
 
 Find Zernio IDs:
 

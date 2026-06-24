@@ -2,30 +2,13 @@
   "accounts": [
     {
       "id": "shop_1",
-      "label": "Shop account 1",
-      "daily_limit": 10,
+      "label": "Seller TikTok (official shop account)",
+      "daily_limit": 5,
       "enabled": true,
       "post_via": "zernio",
       "zernio_account_id": "",
       "tiktok_token_path": "data/tiktok_shop/tokens/shop_1.json"
-    },
-    {
-      "id": "shop_2",
-      "label": "Shop account 2",
-      "daily_limit": 10,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_2.json"
-    },
-    {
-      "id": "shop_3",
-      "label": "Shop account 3",
-      "daily_limit": 10,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_3.json"
     }
-  ]
+  ],
+  "_note": "Start with one seller-linked TikTok. Add shop_2/shop_3 only if you open additional shops later."
 }
