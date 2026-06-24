@@ -135,6 +135,23 @@ def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
         if not batch:
             break
         rows.extend(batch)
+
+    # EchoTik weekly ranklist is often empty for the current week — fall back to yesterday.
+    if not rows and preset == "middle_core":
+        rank_date = _yesterday_str()
+        rank_type = 1
+        for page in range(1, pages + 1):
+            batch = echotik_client.product_ranklist(
+                date=rank_date,
+                rank_type=rank_type,
+                product_rank_field=1,
+                page_num=page,
+                page_size=10,
+            )
+            if not batch:
+                break
+            rows.extend(batch)
+
     return rows
 
 
