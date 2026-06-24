@@ -10,6 +10,7 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.tiktok_shop import echotik_client
 from shorts_bot.tiktok_shop.kalodata_rules import PRESET_200_METHOD, PRESET_MIDDLE_CORE
+from shorts_bot.tiktok_shop.product_images import parse_cover_url
 
 
 @dataclass
@@ -195,10 +196,54 @@ def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[Scou
                 videos=videos,
                 preset=preset,
                 score=score,
-                cover_url=str(row.get("cover_url") or ""),
+                cover_url=parse_cover_url(row.get("cover_url")),
                 region=str(row.get("region") or settings.echotik_region or "US"),
             )
         )
+
+    # EchoTik detail batches can omit cover_url — re-fetch for final picks only.
+    if out:
+        final_ids = [p.product_id for p in out if p.product_id]
+        final_details: dict[str, dict] = {}
+        for i in range(0, len(final_ids), 10):
+            for detail_row in echotik_client.product_detail(final_ids[i : i + 10]):
+                pid = str(detail_row.get("product_id") or "")
+                if pid:
+                    final_details[pid] = detail_row
+        for product in out:
+            url = parse_cover_url(final_details.get(product.product_id, {}).get("cover_url"))
+            if url:
+                product.cover_url = url
+
+    return out
+
+
+def enrich_cover_urls(products: list[dict]) -> list[dict]:
+    """Backfill cover_url from EchoTik product/detail for rows missing it."""
+    missing = [
+        str(p.get("product_id") or "")
+        for p in products
+        if p.get("product_id") and not parse_cover_url(p.get("cover_url"))
+    ]
+    if not missing or not echotik_client.configured():
+        return products
+
+    details: dict[str, dict] = {}
+    for i in range(0, len(missing), 10):
+        chunk = missing[i : i + 10]
+        for row in echotik_client.product_detail(chunk):
+            pid = str(row.get("product_id") or "")
+            if pid:
+                details[pid] = row
+
+    out: list[dict] = []
+    for row in products:
+        pid = str(row.get("product_id") or "")
+        merged = {**row, **details.get(pid, {})}
+        url = parse_cover_url(merged.get("cover_url"))
+        if url:
+            merged["cover_url"] = url
+        out.append(merged)
     return out
 
 
@@ -213,6 +258,13 @@ def save_products(products: list[ScoutProduct]) -> Path:
         json.dumps([p.to_dict() for p in products], indent=2) + "\n",
         encoding="utf-8",
     )
+    return path
+
+
+def save_product_dicts(products: list[dict]) -> Path:
+    path = products_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(products, indent=2) + "\n", encoding="utf-8")
     return path
 
 

@@ -8,10 +8,11 @@ No character. No VO. Short sale-style captions. Variants (not identical dupes).
 
 ## What you need first (one-time)
 
-1. **3 TikTok accounts** with **Shop Affiliate** turned on  
-2. Connect each to **Zernio** (easiest for multi-account) OR TikTok API tokens  
-3. **EchoTik API** — bot scouts products daily (see `docs/FOR_OWNER_ECHOTIK_SETUP.md`)  
-4. Render clips (Kling 5s pan-zoom → bot loops to ~10s)
+1. **TikTok Shop Seller account** (0 followers OK) — see `docs/FOR_OWNER_TIKTOK_SELLER_START.md`
+2. **Printify** connected in Seller Center (POD)
+3. **EchoTik API** — bot scouts products daily (see `docs/FOR_OWNER_ECHOTIK_SETUP.md`)
+4. **Kling API key** + credits — `KLING_API_KEY` in Secrets; add balance at app.klingai.com
+5. **Zernio** (optional multi-account post) OR TikTok API tokens
 
 ---
 
@@ -64,7 +65,22 @@ python3 -m shorts_bot.tiktok_shop.scout_cli list
 
 Setup: `docs/FOR_OWNER_ECHOTIK_SETUP.md`
 
-**Make ~10s clip from 5s Kling export:**
+**Download product images + refresh cover URLs:**
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli prep-images --force
+```
+
+**Kling render (one product):**
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "Car phone mount"
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Car phone mount"
+```
+
+`make-clip` = render + loop + enqueue in one step.
+
+**Make ~10s clip from 5s Kling export (manual):**
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.factory_cli loop-clip \

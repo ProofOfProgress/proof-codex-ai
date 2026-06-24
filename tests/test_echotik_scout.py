@@ -102,3 +102,4 @@ def test_scout_products_filters_and_saves(tmp_path: Path, monkeypatch):
     assert path.is_file()
     loaded = load_products()
     assert loaded[0]["product_name"] == "Car phone mount"
+    assert loaded[0]["cover_url"] == "https://example.com/cover.jpg"

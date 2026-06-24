@@ -19,6 +19,20 @@ def main() -> None:
     sub.add_parser("status", help="Accounts + posts sent today")
     sub.add_parser("rules", help="Kalodata filter presets")
 
+    prep = sub.add_parser("prep-images", help="Download product cover images from scout list")
+    prep.add_argument("--force", action="store_true")
+
+    render = sub.add_parser("render", help="Kling image→video for a scouted product")
+    render.add_argument("--product-id", default="")
+    render.add_argument("--product", default="", help="Product name substring")
+    render.add_argument("--no-loop", action="store_true")
+    render.add_argument("--prompt", default="")
+
+    pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
+    pipe.add_argument("--product-id", default="")
+    pipe.add_argument("--product", default="")
+    pipe.add_argument("--confirm-post", action="store_true", help="Also post if queue runs")
+
     enqueue = sub.add_parser("enqueue", help="Add rendered MP4 to post queue")
     enqueue.add_argument("--video", required=True)
     enqueue.add_argument("--product", required=True)
@@ -47,7 +61,7 @@ def main() -> None:
         from shorts_bot.tiktok_shop.accounts import load_accounts, total_daily_cap
         from shorts_bot.tiktok_shop.quota import status_rows
 
-        table = Table(title="TikTok Shop factory (3 × 10/day target)")
+        table = Table(title="TikTok Shop factory (seller + clip pipeline)")
         table.add_column("Account")
         table.add_column("Sent today")
         table.add_column("Limit")
@@ -65,6 +79,17 @@ def main() -> None:
         console.print(f"Total daily cap: [cyan]{total_daily_cap()}[/cyan] videos")
         pending = __import__("shorts_bot.tiktok_shop.queue", fromlist=["pending_posts"]).pending_posts()
         console.print(f"Queue pending: [cyan]{len(pending)}[/cyan]")
+        from shorts_bot.tiktok_shop import echotik_client, kling_client
+
+        if echotik_client.configured():
+            console.print("[green]EchoTik: configured[/green]")
+        else:
+            console.print("[red]EchoTik: not configured[/red]")
+        if kling_client.configured():
+            console.print("[green]Kling: configured[/green]")
+        else:
+            console.print("[red]Kling: not configured[/red]")
+        console.print("Owner checklist: [cyan]data/tiktok_shop/OWNER_NEXT_STEPS.md[/cyan]")
         return
 
     if args.cmd == "rules":
@@ -75,6 +100,72 @@ def main() -> None:
         console.print("Product checks:")
         for line in rules.PRODUCT_CHECKS:
             console.print(f"  • {line}")
+        return
+
+    if args.cmd == "prep-images":
+        from shorts_bot.tiktok_shop.product_images import download_for_products
+        from shorts_bot.tiktok_shop.product_scout import (
+            enrich_cover_urls,
+            load_products,
+            save_product_dicts,
+            save_products,
+            scout_products,
+        )
+
+        rows = load_products()
+        if not rows or args.force:
+            console.print("[cyan]Running scout to refresh products…[/cyan]")
+            products = scout_products(limit=10)
+            save_products(products)
+            rows = [p.to_dict() for p in products]
+        else:
+            rows = enrich_cover_urls(rows)
+            save_product_dicts(rows)
+        paths = download_for_products(rows, force=args.force)
+        with_url = sum(1 for r in rows if r.get("cover_url"))
+        console.print(f"[green]{with_url}[/green] products have cover URLs")
+        console.print(f"[green]Downloaded {len(paths)}[/green] local images → data/tiktok_shop/images/")
+        return
+
+    if args.cmd == "render":
+        from shorts_bot.tiktok_shop.render import render_product_clip
+
+        try:
+            result = render_product_clip(
+                product_id=args.product_id,
+                product_name=args.product,
+                prompt=args.prompt,
+                loop=not args.no_loop,
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+        console.print(f"[green]Raw:[/green] {result.raw_mp4}")
+        if result.loop_mp4:
+            console.print(f"[green]Loop:[/green] {result.loop_mp4}")
+        console.print(f"Task: {result.task_id}")
+        return
+
+    if args.cmd == "make-clip":
+        from shorts_bot.tiktok_shop.captions import caption_variants, sanitize_caption
+        from shorts_bot.tiktok_shop.queue import enqueue_video
+        from shorts_bot.tiktok_shop.render import render_product_clip
+
+        try:
+            result = render_product_clip(
+                product_id=args.product_id,
+                product_name=args.product,
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+        video = result.loop_mp4 or result.raw_mp4
+        name = result.product_name or args.product or "product"
+        cap = sanitize_caption(caption_variants(name, limit=1)[0])
+        idx = enqueue_video(video_path=str(video), product=name, caption=cap)
+        console.print(f"[green]Queued[/green] #{idx} → {video}")
+        if args.confirm_post:
+            console.print("[dim]Run: factory_cli post --confirm[/dim]")
         return
 
     if args.cmd == "captions":

@@ -1,0 +1,97 @@
+# Tests for TikTok Shop image parsing + Kling client helpers
+
+import json
+from unittest.mock import MagicMock, patch
+
+import httpx
+
+from shorts_bot.tiktok_shop import kling_client
+from shorts_bot.tiktok_shop.product_images import download_cover, parse_cover_url
+from shorts_bot.tiktok_shop.product_scout import enrich_cover_urls
+
+
+def test_parse_cover_url_json_list():
+    raw = json.dumps([{"url": "https://cdn.example/a.jpg", "index": 0}])
+    assert parse_cover_url(raw) == "https://cdn.example/a.jpg"
+
+
+def test_parse_cover_url_plain():
+    assert parse_cover_url("https://cdn.example/b.png") == "https://cdn.example/b.png"
+
+
+def test_parse_cover_url_empty():
+    assert parse_cover_url("") == ""
+    assert parse_cover_url(None) == ""
+
+
+def test_download_cover_skips_on_403(tmp_path, monkeypatch):
+    fake_settings = type("S", (), {"data_dir": tmp_path})()
+    monkeypatch.setattr("shorts_bot.tiktok_shop.product_images.settings", fake_settings)
+
+    response = MagicMock()
+    response.status_code = 403
+    response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "403",
+        request=MagicMock(),
+        response=response,
+    )
+
+    with patch("shorts_bot.tiktok_shop.product_images.httpx.Client") as client_cls:
+        client = MagicMock()
+        client.__enter__.return_value = client
+        client.get.return_value = response
+        client_cls.return_value = client
+
+        result = download_cover(
+            product_id="123",
+            cover_url="https://cdn.example/x.jpg",
+        )
+
+    assert result is None
+
+
+def test_enrich_cover_urls_fills_missing(monkeypatch):
+    rows = [{"product_id": "111", "cover_url": ""}]
+    detail = [{"product_id": "111", "cover_url": '[{"url":"https://cdn.example/z.jpg","index":0}]'}]
+
+    monkeypatch.setattr(
+        "shorts_bot.tiktok_shop.product_scout.echotik_client.configured",
+        lambda: True,
+    )
+    monkeypatch.setattr(
+        "shorts_bot.tiktok_shop.product_scout.echotik_client.product_detail",
+        lambda ids: detail,
+    )
+
+    out = enrich_cover_urls(rows)
+    assert out[0]["cover_url"] == "https://cdn.example/z.jpg"
+
+
+def test_kling_task_id_from_data():
+    body = {"data": {"task_id": "abc-123"}}
+    assert kling_client._task_id(body) == "abc-123"
+
+
+def test_kling_video_url_from_nested_result():
+    body = {
+        "data": {
+            "task_result": {
+                "videos": [{"url": "https://video.example/out.mp4"}],
+            }
+        }
+    }
+    assert kling_client._video_url(body) == "https://video.example/out.mp4"
+
+
+def test_kling_configured_with_api_key(monkeypatch):
+    class FakeSettings:
+        kling_api_key = "api-key-kling-test"
+        kling_access_key = ""
+        kling_secret_key = ""
+
+        @property
+        def has_kling_official(self) -> bool:
+            return bool(self.kling_api_key)
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.kling_client.settings", FakeSettings())
+    assert kling_client.configured() is True

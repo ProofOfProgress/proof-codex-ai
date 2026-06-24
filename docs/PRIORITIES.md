@@ -1,22 +1,20 @@
-# Priorities — North Star (re-assessed 2026-06-22)
+# Priorities — North Star (re-assessed 2026-06-24)
 
-**North star:** Make money from **100% AI-automated** YouTube Shorts — **Rapid Tool Review**, InVideo production, self-learning from **honest** analytics.
+**North star:** Make money from **100% AI-automated TikTok Shop** — seller model, faceless product clips, scout → render → post → learn.
 
 **Rule:** Only the **top 4** below.
 
 ---
 
-## Honest status (2026-06-22)
+## Honest status (2026-06-24)
 
 | Area | Status |
 |------|--------|
-| InVideo one-prompt ship | **Live** — `invideo/autonomous_ship_cli` + credit guard ≤10 |
-| Drive inbox handoff | **Live** — folder + OAuth |
-| YouTube upload + schedule | **Live** — API + publishAt |
-| Analytics viewing | **Fixed** — honest labels; swipe Studio-only; merge on sync |
-| Analytics → learning | **Partial** — needs Studio swipe pasted for hook learning |
-| Daily /loop on laptop | **Doc ready** — `docs/FOR_OWNER_LOOP.md` |
-| Conversational format | **Locked** — no Pay/Skip/Wait headers, no twin |
+| EchoTik product scout | **Live** — credentials + `scout_cli run/list` |
+| Kling render pipeline | **Built** — `factory_cli render/make-clip`; **blocked on Kling credits** |
+| Seller path playbook | **Ingested** — guru transcript + operating rules in agent memory |
+| Zernio autopost | **Waiting** — need `accounts.json` + owner Seller signup |
+| YouTube / RTR / InVideo | **Parked** — not current focus |
 
 ---
 
@@ -24,25 +22,29 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Ship 3/week via autonomous loop** — one InVideo prompt, Basic ≤10 credits, no twin, Drive or browser download | Claude Code + 2 more products published on schedule |
-| **2** | **Honest analytics loop** — `analytics_report_cli --sync`, Studio swipe via `/api/score`, no fake punish | Owner sees real numbers; learning uses swipe when added |
-| **3** | **Upload meta + brand** — AI descriptions/tags (not horror); profile = AI magnifier | Every upload looks like Rapid Tool Review |
-| **4** | **Workflow evolution** — hooks/topics from rewards after 5+ niche uploads | Auto-proposals match conversational reviews |
+| **1** | **TikTok Seller signup + Printify** — owner opens Seller Center, links TikTok + Printify | Shop bag on profile; can tag products in drafts |
+| **2** | **Clip factory end-to-end** — scout → Kling 5s → loop → queue → post (1 account first) | One product clip rendered and posted without manual ffmpeg |
+| **3** | **Kling credits + daily scout loop** — `prep-images` + `make-clip` on autopilot schedule | 3–5 clips/day queued for seller TikTok |
+| **4** | **Affiliate recruitment playbook** — 30% collab messages + GMV Max test budget doc | First 5 affiliate creators contacted on a winning SKU |
 
 ---
 
-## Tonight (agent autonomous)
+## Bot commands (owner)
 
-1. Claude Code Short — research → one MCP brief → Generate (≤10 credits) → schedule ~21h out
-2. Analytics fixes merged + report CLI
-3. `/loop` prompt updated in `docs/FOR_OWNER_LOOP.md`
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli status
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+python3 -m shorts_bot.tiktok_shop.factory_cli prep-images --force
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "Product name"
+```
+
+Owner checklist: `data/tiktok_shop/OWNER_NEXT_STEPS.md`
 
 ---
 
 ## Stop doing
 
-- Agent One multi-turn
-- AI twin in InVideo
-- Pro/Ultra tier if credits >10
-- Trusting API avg watch % as "retention graph"
-- Horror upload copy on AI videos
+- Ms. Byte / character Shorts (authenticity gap)
+- New Replicate I2V unless owner asks (`AI_VIDEO_GENERATION_ENABLED=false`)
+- 3× affiliate account model without follower growth or bought accounts
+- YouTube RTR daily loop until Shop path is earning
