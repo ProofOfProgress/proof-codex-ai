@@ -263,6 +263,12 @@ class Settings(BaseSettings):
     vision_qc_jpeg_quality: int = 72
     gemini_vision_model: str = ""  # empty = use gemini_model (flash-lite)
 
+    # Module 1 course QC — mandatory before every TikTok Shop upload (zero ban triggers)
+    module1_qc_enabled: bool = True
+    module1_qc_blocks_upload: bool = True
+    module1_min_video_seconds: float = 7.0
+    module1_min_post_interval_minutes: int = 30
+
     # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
     production_variety_enabled: bool = True
 

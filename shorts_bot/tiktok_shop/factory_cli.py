@@ -19,6 +19,12 @@ def main() -> None:
     sub.add_parser("status", help="Accounts + posts sent today")
     sub.add_parser("rules", help="Kalodata filter presets")
 
+    qc = sub.add_parser("qc", help="Module 1 mandatory QC (run before upload)")
+    qc.add_argument("--video", required=True)
+    qc.add_argument("--product", default="")
+    qc.add_argument("--caption", default="")
+    qc.add_argument("--account", default="")
+
     prep = sub.add_parser("prep-images", help="Download product cover images from scout list")
     prep.add_argument("--force", action="store_true")
 
@@ -117,6 +123,26 @@ def main() -> None:
         for line in rules.PRODUCT_CHECKS:
             console.print(f"  • {line}")
         return
+
+    if args.cmd == "qc":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.module1_qc import run_module1_qc
+
+        report = run_module1_qc(
+            Path(args.video),
+            caption=args.caption,
+            product=args.product,
+            account_id=args.account,
+        )
+        console.print(report.summary())
+        if report.violations:
+            for v in report.violations:
+                console.print(f"[red]• {v}[/red]")
+        if report.warnings:
+            for w in report.warnings:
+                console.print(f"[yellow]• {w}[/yellow]")
+        raise SystemExit(0 if report.passed else 1)
 
     if args.cmd == "prep-images":
         from shorts_bot.tiktok_shop.product_images import download_for_products
@@ -263,8 +289,24 @@ def main() -> None:
             product = str(row.get("product") or "")
             console.print(Panel(f"{account.label}\n{video.name}\n{caption[:120]}", title="Next post"))
 
+            from shorts_bot.tiktok_shop.module1_qc import run_module1_qc
+
+            qc = run_module1_qc(
+                video,
+                caption=caption,
+                product=product,
+                account_id=account.id,
+            )
+            console.print(qc.summary())
+            if not qc.passed:
+                console.print("[red]Upload blocked — fix violations and regenerate video[/red]")
+                if qc.violations:
+                    for v in qc.violations:
+                        console.print(f"  • {v}")
+                break
+
             if not args.confirm:
-                console.print("[yellow]Dry run — add --confirm to upload[/yellow]")
+                console.print("[yellow]Dry run — Module 1 QC passed; add --confirm to upload[/yellow]")
                 break
 
             ok, msg, pub = post_clip(account, video_path=video, caption=caption, product=product)

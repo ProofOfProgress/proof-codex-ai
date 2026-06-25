@@ -10,6 +10,15 @@
 
 When course modules are pasted → save verbatim to `data/research/course/` → build a structured playbook → **inject that playbook into every factory step** (scout filters, hooks, captions, render style, posting SOP).
 
+## Mandatory pre-upload QC (Module 1)
+
+**REQUIRED before every video upload.** Run Module 1 checklist — **zero** Video Don'ts and Posting Don'ts or upload is blocked.
+
+- Code: `shorts_bot/tiktok_shop/module1_qc.py`
+- Enforced in `post_clip()` — no upload without pass
+- Course reference: `data/research/course/module_01_read_before_anything.md`
+- Never skip unless owner explicitly disables in `.env` (emergency only)
+
 ## Owner
 
 Not a developer. Plain English. One step at a time.

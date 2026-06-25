@@ -75,3 +75,14 @@ Four rules that govern everything, then a full list of what gets your account ba
 - Posting any sooner than 30 minutes apart
 - Posting more than 30 times a day
 - Posting the same product more than once in a day
+
+---
+
+## Bot enforcement (mandatory)
+
+Before **every** upload, the factory runs Module 1 QC (`shorts_bot/tiktok_shop/module1_qc.py`).
+
+- **Zero tolerance** for any Video Don't or Posting Don't above.
+- Upload is **blocked** until violations = 0 (regenerate video if needed).
+- CLI: `python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."`
+- No skip unless owner explicitly disables `MODULE1_QC_ENABLED` in `.env` (emergency only).

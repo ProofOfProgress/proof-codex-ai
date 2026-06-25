@@ -27,7 +27,8 @@ python3 -m shorts_bot.web   # http://127.0.0.1:8080/api/status
 | Video gen helpers | `shorts_bot/production/images/`, `ai_video_prompts.py` |
 | Posting helpers | `shorts_bot/zernio/`, `shorts_bot/integrations/` |
 | Browser login handoff | `shorts_bot/browser/` |
-| Self-learning loop | `shorts_bot/rewards/`, `shorts_bot/learning/`, `shorts_bot/training/`, `shorts_bot/memory/` — see `docs/SELF_LEARNING.md` |
+| Self-learning loop | `shorts_bot/rewards/`, `shorts_bot/learning/`, `shorts_bot/training/`, `shorts_bot/memory/` — optional; course is strategy source |
+| **Module 1 QC (mandatory)** | `shorts_bot/tiktok_shop/module1_qc.py` — **blocks upload** if any ban trigger; run before every post |
 
 ## Course ingest
 

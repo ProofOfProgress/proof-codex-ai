@@ -15,9 +15,32 @@ def post_clip(
     video_path: Path,
     caption: str,
     product: str = "",
+    skip_module1_qc: bool = False,
 ) -> tuple[bool, str, str]:
     """Returns (ok, message, publish_id)."""
     caption = caption.strip()[:2200]
+
+    if not skip_module1_qc:
+        from shorts_bot.tiktok_shop.module1_qc import enforce_module1_before_upload
+
+        qc = enforce_module1_before_upload(
+            video_path,
+            caption=caption,
+            product=product,
+            account_id=account.id,
+        )
+        if not qc.passed:
+            msg = qc.summary()
+            log_post(
+                account_id=account.id,
+                video_path=str(video_path),
+                caption=caption,
+                product=product,
+                ok=False,
+                error=msg[:300],
+            )
+            return False, msg, ""
+
     if account.post_via == "tiktok_api":
         from shorts_bot.tiktok.upload import upload_video
 
