@@ -1,6 +1,8 @@
-# Self-learning loop (TikTok Shop)
+# Self-learning loop (optional)
 
-The bot learns from **clip performance** and **your feedback** — no model fine-tuning, just rules + memory.
+**Default: off.** Strategy comes from the **owner's paid course**, not analytics.
+
+Enable only if the owner wants a secondary analytics loop: `SELF_TRAINING_ENABLED=true` in `.env`.
 
 ## What runs
 

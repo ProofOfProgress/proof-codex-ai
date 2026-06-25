@@ -302,7 +302,7 @@ class Settings(BaseSettings):
     auto_approve_improvements: bool = True
     auto_approve_dev_tasks: bool = True
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
-    self_training_enabled: bool = True
+    self_training_enabled: bool = False  # course is strategy source; enable only if owner wants analytics loop
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
     workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
     mem0_enabled: bool = True  # Mem0 long-term memory (public system)
