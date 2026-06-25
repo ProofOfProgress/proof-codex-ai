@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from shorts_bot.automation.auto_approve import improvement_is_auto_approvable
+from shorts_bot.training.auto_approve import improvement_is_auto_approvable
 from shorts_bot.config import settings
 from shorts_bot.learning.learned_file import LearnedFile
 from shorts_bot.learning.reflect import consolidate_draft_feedback
