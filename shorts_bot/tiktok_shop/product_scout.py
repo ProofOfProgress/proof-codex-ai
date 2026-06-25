@@ -1,4 +1,4 @@
-"""Score EchoTik products using guru-style Shop filters."""
+"""Score EchoTik products using configurable Shop filters."""
 
 from __future__ import annotations
 

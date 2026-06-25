@@ -1,5 +1,5 @@
-# Priorities — TikTok Shop
+# Priorities
 
-See **`data/PRIORITIES.md`** (canonical).
+See **`data/PRIORITIES.md`**.
 
-North star: TikTok Shop revenue ($5–10K/mo target). Legacy YouTube/horror priorities removed.
+Strategy = owner's course. Repo = APIs + clips only until course is ingested.

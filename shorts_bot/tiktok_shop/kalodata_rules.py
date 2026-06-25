@@ -1,4 +1,4 @@
-"""Kalodata filter presets from guru playbooks (manual apply in UI for now)."""
+"""Kalodata-style filter presets for EchoTik scout (tunable)."""
 
 from __future__ import annotations
 
