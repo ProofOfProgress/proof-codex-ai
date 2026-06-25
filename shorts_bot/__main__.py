@@ -1,4 +1,4 @@
-from shorts_bot.bot.cli import main
+from shorts_bot.tiktok_shop.factory_cli import main
 
 if __name__ == "__main__":
     main()

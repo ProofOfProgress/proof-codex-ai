@@ -1,10 +1,10 @@
-# Priority list — reassess often
+# Priority list — TikTok Shop only
 
-**North star (seller — owner 2026-06-24):** **100% AI-automated TikTok Shop seller** — Printify POD, faceless clips, scout → render → post → recruit affiliates → GMV Max.
+**North star:** **$5–10K/mo** from TikTok Shop — winning product + video volume + affiliates (+ GMV Max later).
 
-**Owner decision:** **Seller** (matches 5h guru course). **Parked:** pure affiliate, bought accounts, clipping marketplaces, YouTube RTR, Ms. Byte.
+**Owner path (2026):** Paid **affiliate course** — organic growth to 5K, faceless clips, multi-channel volume. Printify/seller optional later.
 
-**Last assessed:** 2026-06-24
+**Last assessed:** 2026-06-25
 
 ---
 
@@ -12,33 +12,28 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Seller + Printify live** | Seller Center signup, Printify connected, shop bag on TikTok, can tag products |
-| **2** | **First own product + clip** | One Canva design → Printify listing → bot clip → you post |
-| **3** | **Daily warm-up clips** | 3–5/day on **your** listings (bot makes them) |
-| **4** | **Affiliate army + GMV Max** | 30% collabs + small ad test on a winning SKU |
+| **1** | **Eligible TikTok + course playbook** | Marketplace or pilot open; posting daily per course SOP |
+| **2** | **Clip factory** | EchoTik pick → Kling render → loop → queue; 3–5/day per channel |
+| **3** | **First $1K month trajectory** | Track product + channel winners; double down one niche |
+| **4** | **Scale** | More channels / affiliates / small GMV Max if seller SKU exists |
 
 ---
 
-## Why seller (vs affiliate)
+## Parked forever (archived in `archive/legacy/`)
 
-- **0 followers OK** — no bought account gamble  
-- Guru course is **100% seller**  
-- You own margin; affiliates promote **for** you later  
-- EchoTik = research; Printify = what you sell  
-
----
-
-## Backlog (parked)
-
-- Pure affiliate / buying 5K accounts  
-- 3-account affiliate spam factory  
-- YouTube / InVideo / horror Shorts  
+- Peripheral horror YouTube Shorts  
+- Ms Byte / InVideo / Rapid Tool Review  
+- B2B outreach, Blender, Codex Jenny course  
+- AlphaBeta001 agent manager as primary UI  
 
 ---
 
 ## Owner docs
 
-- `docs/FOR_OWNER_TIKTOK_SELLER_START.md`  
-- `data/tiktok_shop/OWNER_NEXT_STEPS.md`  
+- `docs/FOR_OWNER_TIKTOK_AFFILIATE_START.md`  
 - `docs/FOR_OWNER_TIKTOK_SHOP_FACTORY.md`  
-- Guru: `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md`
+- `docs/FOR_OWNER_ECHOTIK_SETUP.md`  
+- `docs/FOR_OWNER_KLING_SETUP.md`  
+- `docs/FOR_OWNER_PRINTIFY_API.md`  
+- `data/research/TIKTOK_SHOP_GURU_PLAYBOOK.md` (free seller reference)  
+- Course transcripts → `data/research/` when owner pastes them  
