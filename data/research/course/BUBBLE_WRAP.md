@@ -38,8 +38,8 @@ Other hooks that still work: `Pop The Bubble Wrap`, `Great for ADHD`, labeled bu
 
 ### Sample references
 
-- **Owner samples (10/11):** [Google Drive folder](https://drive.google.com/drive/folders/1drt1xcaakCDMQ2ABJsJpeOYW7XDnHqDB) — folder ID `1drt1xcaakCDMQ2ABJsJpeOYW7XDnHqDB`  
-  Local sync path (when accessible): `data/research/course/_media/bubble_wrap/samples/`
+- **Owner samples (11 PNGs):** [Google Drive](https://drive.google.com/drive/folders/1drt1xcaakCDMQ2ABJsJpeOYW7XDnHqDB) · catalog: `BUBBLE_WRAP_SAMPLES.md`  
+  Local: `data/research/course/_media/bubble_wrap/samples/` (synced via gdown)
 - Course reference account: [@buck.finds](https://www.tiktok.com/@buck.finds)
 - Full Loom playbook: `module_02_best_practices.md`
 
