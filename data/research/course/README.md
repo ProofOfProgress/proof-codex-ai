@@ -9,5 +9,9 @@ The following text is from video guides that we are supposed to study before we 
 | 3 | `module_03_product_research_strategies.md` | Product research (Loom transcript) |
 | 4 | `module_04_ai_image_generation.md` | Image gen — product vs reference; prompts via **ChatGPT builder** (not sheet) |
 | 5 | `module_05_ai_video_generation.md` | Video gen — Higgsfield + Kling 2.6, 5s, fixed arc-camera prompt |
+| 6 | `module_06_editing.md` | Editing — pan loop + on-screen caption (CapCut → **AI editor**) |
+
+**Course name:** Momentum Academy  
+**Owner overrides:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`
 
 Add new modules in chronological order as `module_XX_*.md`.
