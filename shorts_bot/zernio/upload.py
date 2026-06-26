@@ -51,6 +51,12 @@ def _platform_targets(*, tiktok: bool = True, facebook: bool = True) -> list[dic
     return platforms
 
 
+def _tiktok_privacy(*, private: bool = False) -> str:
+    if private:
+        return "SELF_ONLY"
+    return settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE"
+
+
 def upload_video(
     video_path: Path,
     *,
@@ -58,6 +64,7 @@ def upload_video(
     tiktok: bool = True,
     facebook: bool = True,
     publish_now: bool = True,
+    private: bool = False,
 ) -> ZernioPostResult:
     """Presign MP4, upload to Zernio CDN, post to connected platforms."""
     if not credentials_configured():
@@ -73,7 +80,7 @@ def upload_video(
         "mediaItems": [{"type": "video", "url": public_url}],
         "platforms": _platform_targets(tiktok=tiktok, facebook=facebook),
         "tiktokSettings": {
-            "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
+            "privacy_level": _tiktok_privacy(private=private),
             "allow_comment": True,
             "allow_duet": True,
             "allow_stitch": True,
@@ -100,10 +107,11 @@ def upload_video(
 
     status = str(post.get("status") or body.get("status") or "submitted")
     names = ", ".join(p["platform"] for p in payload["platforms"])
+    vis = "private" if private else "public"
     return ZernioPostResult(
         post_id=post_id,
         status=status,
-        message=f"Zernio posted to {names}",
+        message=f"Zernio posted to {names} ({vis})",
         platform_urls=platform_urls,
     )
 
@@ -118,6 +126,7 @@ def upload_photo_carousel(
     facebook: bool = False,
     publish_now: bool = True,
     draft: bool = False,
+    private: bool = False,
     auto_add_music: bool = False,
 ) -> ZernioPostResult:
     """Upload 2+ images as a TikTok photo carousel via Zernio."""
@@ -149,7 +158,7 @@ def upload_photo_carousel(
         raise RuntimeError("No Zernio platforms enabled for photo carousel")
 
     tiktok_settings: dict[str, Any] = {
-        "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
+        "privacy_level": _tiktok_privacy(private=private),
         "allow_comment": True,
         "media_type": "photo",
         "photo_cover_index": 0,
@@ -186,7 +195,12 @@ def upload_photo_carousel(
             platform_urls[plat] = str(url)
 
     status = str(post.get("status") or body.get("status") or "submitted")
-    mode = "draft inbox" if draft else "posted"
+    if draft:
+        mode = "draft inbox"
+    elif private:
+        mode = "private"
+    else:
+        mode = "public"
     return ZernioPostResult(
         post_id=post_id,
         status=status,

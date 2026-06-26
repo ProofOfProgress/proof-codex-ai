@@ -75,7 +75,8 @@ python3 -m pytest tests/ -q                     # Smoke tests
 | Format | `BUBBLE_WRAP.md` — **2-photo manual-swipe slideshow** + Mackenzie sound |
 | Samples | Owner Drive + `BUBBLE_WRAP_SAMPLES.md` |
 | Posting | **Zernio** (`docs/FOR_OWNER_ZERNIO_SETUP.md`) — not direct TikTok API |
-| Sound | API can't pick Mackenzie auto — inbox draft + add sound in app, or manual |
+| Sound | API can't pick Mackenzie auto — add sound in TikTok app after upload |
+| Test uploads | **Always `--private`** via Zernio — draft inbox often doesn't show |
 
 **Do not** export auto-playing MP4 slideshows for bubble wrap — use **photo carousel**.
 

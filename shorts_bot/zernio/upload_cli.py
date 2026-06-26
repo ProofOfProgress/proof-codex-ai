@@ -10,6 +10,14 @@ from rich.console import Console
 console = Console()
 
 
+def _add_private_flag(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--private",
+        action="store_true",
+        help="Post as private (SELF_ONLY). Use for all test uploads.",
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Upload to TikTok via Zernio")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -19,16 +27,18 @@ def main() -> None:
     video.add_argument("--caption", required=True, help="Caption / title with hashtags")
     video.add_argument("--tiktok-only", action="store_true")
     video.add_argument("--facebook-only", action="store_true")
+    _add_private_flag(video)
 
     carousel = sub.add_parser("slideshow", help="Upload a 2+ image photo carousel")
     carousel.add_argument("images", type=Path, nargs="+", help="Image paths in slide order")
     carousel.add_argument("--title", required=True, help="Photo title (90 chars max)")
     carousel.add_argument("--caption", default="", help="Full caption / description")
     carousel.add_argument("--account-id", default="", help="Zernio TikTok account id")
+    _add_private_flag(carousel)
     carousel.add_argument(
         "--draft",
         action="store_true",
-        help="Send to TikTok inbox as draft (add sound in app before publishing)",
+        help="Send to TikTok inbox as draft (often unreliable — prefer --private for tests)",
     )
     carousel.add_argument(
         "--auto-music",
@@ -43,7 +53,13 @@ def main() -> None:
 
         tiktok = not args.facebook_only
         facebook = not args.tiktok_only
-        result = upload_video(args.video, caption=args.caption, tiktok=tiktok, facebook=facebook)
+        result = upload_video(
+            args.video,
+            caption=args.caption,
+            tiktok=tiktok,
+            facebook=facebook,
+            private=args.private,
+        )
     else:
         from shorts_bot.zernio.upload import upload_photo_carousel
 
@@ -53,6 +69,7 @@ def main() -> None:
             caption=args.caption,
             tiktok_account_id=args.account_id or None,
             draft=args.draft,
+            private=args.private,
             auto_add_music=args.auto_music,
         )
 
