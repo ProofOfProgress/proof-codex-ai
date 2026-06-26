@@ -63,17 +63,26 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 
 ## Recommended — TikTok Shop (current project)
 
-| Secret name | Cursor type | Value type | Example (filler) | Notes |
-|-------------|-------------|------------|------------------|-------|
-| `WEB_API_TOKEN` | Runtime Secret | Random token (string, 32+ chars, you generate) | `sc________________________________` | Locks mutating `/api/*` on web UI |
-| `RESEMBLE_PROJECT_UUID` | Runtime Secret | UUID (string) | `________-____-____-____-____________` | Optional Resemble project |
-| `TTS_PROVIDER` | Environment Variable | Enum: `resemble` \| `edge` | `resemble` | Voice backend |
-| `REPLICATE_API_TOKEN` | Runtime Secret | API token (string, starts `r8_`) | `r8________________________________` | **Required for Kling** — https://replicate.com/account/api-tokens |
-| `AI_VIDEO_GENERATION_ENABLED` | Environment Variable | `true` \| `false` | `true` | **Must be `true`** for Kling to run (costs ~2 Replicate calls per Short) |
-| `KLING_ACCESS_KEY` | Runtime Secret | Access key from Kling dev console | `A4mn…` | https://app.klingai.com/global/dev → API Keys |
-| `KLING_SECRET_KEY` | Runtime Secret | Secret key (shown once at create) | `RGbK…` | Same — **never paste in chat** |
-| `KLING_PROVIDER` | Environment Variable | `official` \| `replicate` | `official` | Use `official` with your Kling subscription API |
-| `KLING_MODEL` | Environment Variable | Official model slug | `kling-v2-6` | Native audio + 15s on v2.6+ |
+| Secret name | Cursor type | Notes |
+|-------------|-------------|-------|
+| `ZERNIO_API_TOKEN` | Runtime Secret | **Owner name** for Zernio API key — also accepts `ZERNIO_API_KEY`. TikTok multi-account posting. |
+| `GEMINI_API_KEY` | Runtime Secret | QC, scripts, vision |
+| `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
+| `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
+| `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |
+| `ECHOTIK_PASSWORD` | Runtime Secret | Pair with username |
+
+## Recommended — other
+
+| Secret name | Cursor type | Notes |
+|-------------|-------------|-------|
+| `WEB_API_TOKEN` | Runtime Secret | Locks mutating `/api/*` on web UI |
+| `RESEMBLE_PROJECT_UUID` | Runtime Secret | Optional Resemble project |
+| `TTS_PROVIDER` | Environment Variable | `resemble` \| `edge` |
+| `REPLICATE_API_TOKEN` | Runtime Secret | Replicate fallback for Kling |
+| `AI_VIDEO_GENERATION_ENABLED` | Environment Variable | Default `false` — owner must ask to enable |
+| `KLING_PROVIDER` | Environment Variable | `official` \| `replicate` |
+| `KLING_MODEL` | Environment Variable | e.g. `kling-v2-6` |
 
 ---
 
