@@ -5,7 +5,7 @@ The following text is from video guides that we are supposed to study before we 
 | Module | File | Topic |
 |--------|------|--------|
 | 1 | `module_01_read_before_anything.md` | Rules & violations (read before anything) |
-| 2 | `module_02_best_practices.md` | Best practices — bubble wrap method |
+| 2 | `module_02_best_practices.md` | **Bubble wrap → 1k followers** (separate from affiliate posts) |
 | 3 | `module_03_product_research_strategies.md` | Product research (Loom transcript) |
 | 4 | `module_04_ai_image_generation.md` | Image gen — product vs reference; prompts via **ChatGPT builder** (not sheet) |
 | 5 | `module_05_ai_video_generation.md` | Video gen — Higgsfield + Kling 2.6, 5s, fixed arc-camera prompt |
@@ -16,7 +16,7 @@ The following text is from video guides that we are supposed to study before we 
 **Getting-started video guide:** Modules **1–8** complete (Module 1 = written rules; Modules 2–8 = Loom guides).
 
 **Course name:** Momentum Academy  
-**Owner overrides:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`  
+**Owner overrides:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `BUBBLE_WRAP.md`  
 **Live updates:** `GROUP_CALLS.md` — owner reports group-call changes after each call
 
 Add new modules in chronological order as `module_XX_*.md`.
