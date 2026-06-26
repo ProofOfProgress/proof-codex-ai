@@ -144,11 +144,11 @@ def main() -> None:
         if echotik_client.configured():
             console.print("[green]EchoTik: configured[/green]")
         else:
-            console.print("[red]EchoTik: not configured[/red]")
+            console.print("[dim]EchoTik: deferred — affiliate phase after ~1k followers[/dim]")
         if kling_client.configured():
             console.print("[green]Kling: configured[/green]")
         else:
-            console.print("[red]Kling: not configured[/red]")
+            console.print("[dim]Kling: deferred — affiliate phase after ~1k followers[/dim]")
         from shorts_bot.tiktok_shop import printify_client
 
         if printify_client.configured():

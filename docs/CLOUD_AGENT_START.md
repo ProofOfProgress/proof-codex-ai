@@ -47,8 +47,8 @@ Add in **Cursor → Cloud Agent → Secrets** (exact names):
 |--------|---------|
 | `GEMINI_API_KEY` | Scripts, QC, image help |
 | `ZERNIO_API_TOKEN` | **TikTok posting** (owner uses this name — also accepts `ZERNIO_API_KEY`) |
-| `KLING_ACCESS_KEY` + `KLING_SECRET_KEY` | Video clips (affiliate phase later) |
-| `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` | Product scout (affiliate phase later) |
+| `KLING_API_KEY` | Kling video — **affiliate phase only** (after ~1k followers) |
+| `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` | Product scout — **affiliate phase only** (not needed for bubble wrap) |
 
 Full list: `docs/CURSOR_SECRETS.md`
 

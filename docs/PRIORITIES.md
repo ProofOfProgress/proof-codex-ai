@@ -6,21 +6,13 @@
 
 TikTok Shop affiliate revenue using the owner's **Momentum Academy** course (`data/research/course/`).
 
-## Knowledge split
+## Current phase: bubble wrap (0 → ~1k followers)
 
-- **Course (~90%)** — hooks, images, video, editing, growth, violations
-- **Repo (~10%)** — APIs, Kling render, Module 1 QC, posting
+Work the **bubble wrap Top 4** in `data/PRIORITIES.md`. EchoTik and `make-clip` are **not** current priorities.
 
-See `data/research/course/KNOWLEDGE.md`.
+## Affiliate phase (after ~1k)
 
-## Top 4 (only these until reassessed)
-
-| # | Priority | Done when |
-|---|----------|-----------|
-| **1** | **APIs live** | EchoTik + Kling + TikTok OAuth configured |
-| **2** | **Clip pipeline** | `make-clip` works from a product image |
-| **3** | **Course ingest** | Modules in `data/research/course/` |
-| **4** | **Daily ops** | Posting queue matches course SOP |
+EchoTik, Kling clip pipeline, Module 1 QC, affiliate daily ops — see affiliate Top 4 in `data/PRIORITIES.md`.
 
 ## Dead — do not build
 
