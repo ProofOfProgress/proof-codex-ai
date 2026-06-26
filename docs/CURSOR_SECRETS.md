@@ -48,7 +48,20 @@ Powers Cloud Agent API (`https://api.cursor.com/v1/…`) and headless `agent` CL
 
 ---
 
-## Recommended
+## New cloud agent run (read first)
+
+Secrets are injected **when the agent starts**. If you add or change a secret while a chat is running, **start a new cloud agent run** — then on the VM:
+
+```bash
+bash scripts/install.sh
+python3 -m shorts_bot.cloud_secrets
+```
+
+Full checklist: **`docs/CLOUD_AGENT_START.md`**
+
+---
+
+## Recommended — TikTok Shop (current project)
 
 | Secret name | Cursor type | Value type | Example (filler) | Notes |
 |-------------|-------------|------------|------------------|-------|

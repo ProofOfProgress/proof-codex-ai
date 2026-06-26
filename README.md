@@ -4,9 +4,9 @@ Automated TikTok Shop affiliate pipeline. **Creative playbook = course only.**
 
 ## New chat? Start here
 
-1. Read **`AGENTS.md`** — what we work on, what's dead, commands
-2. Read **`data/research/course/KNOWLEDGE.md`** — creative vs automation split
-3. Read **`data/PRIORITIES.md`** — top 4 build order
+1. Read **`AGENTS.md`**
+2. New cloud agent? **`docs/CLOUD_AGENT_START.md`** (secrets + bootstrap)
+3. Read **`data/research/course/KNOWLEDGE.md`**
 
 ## What this does
 

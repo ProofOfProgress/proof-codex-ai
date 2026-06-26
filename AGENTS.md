@@ -1,5 +1,8 @@
 # AGENTS.md — read this first (every new chat)
 
+> **New cloud agent?** Run the bootstrap checklist: **`docs/CLOUD_AGENT_START.md`**  
+> **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.
+
 ## What this repo is
 
 **TikTok Shop affiliate bot** — automation only. Connects APIs, generates clips, runs Module 1 QC, posts.
