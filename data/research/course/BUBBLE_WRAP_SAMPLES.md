@@ -6,70 +6,62 @@
 
 ---
 
-## Two post formats (from samples)
+## How samples map to the 2-slide slideshow
 
-### Format A — Hook frame only
+Every post = **2 images**. Owner samples mix hook-only and CTA-only frames — **pair them**, don’t post as single-image unless re-exporting for tests.
 
-One image. Subject in bubble wrap + ASMR hook. Sound does the pop on interaction.
+| Slide | Job | Example from samples |
+|-------|-----|----------------------|
+| **1 — Hook** | Subject + ASMR hook text only | `bubble wrap7.png` — `FROG BUBBLE WRAP ASMR >>>` |
+| **2 — CTA** | Interaction lines + pop emojis | `bubble wrap10.png` — Pause 💥 / Follow 🔊 / Share 🦖 / Comment 🐆 |
 
-| Pattern | Example from samples |
-|---------|---------------------|
-| `[SUBJECT] BUBBLE WRAP ASMR >>>` | `FROG BUBBLE WRAP ASMR >>>` |
-| `POP [SUBJECT] BUBBLE WRAP` + subline | `POP USA BUBBLE WRAP ⚽` / `Pause To Pop 💥` |
-| `POP THE BUBBLES!!!` | Yellow wrap + finger popping |
+**Slide 1 examples (hook only):**
 
-**Text style:** Bold white, thick black outline, centered.
+- `FROG BUBBLE WRAP ASMR >>>` (frogs in bubbles)
+- `POP USA BUBBLE WRAP ⚽` + `Pause To Pop 💥` (can trim to hook on slide 1)
+- `POP THE BUBBLES!!!` (yellow wrap + finger)
 
-### Format B — Hook + interaction list (same image)
-
-Subject + engagement lines. Explosion 💥 scale OR alternate emojis on biggest pops.
-
-**Standard (course + samples):**
+**Slide 2 examples (CTA only):**
 
 ```
 Pause = Pop 💥
-Follow = Weird pop 💥💥
-Comment = Big pop 💥💥
-Share = Loud pop 💥💥💥
+Follow = Loud pop 🔊
+Share = Giant pop 🦖
+Comment = Wild pop 🐆
 ```
 
-**Variants seen in samples:**
+Also seen: `Tap= POP` / `Follow= LOUD POP` / `Share= SQUEEK` · `TAP IT !!!!` + four-line pause/follow/comment/share list.
 
-| Sample | Lines |
-|--------|-------|
-| bubble wrap.png | `Tap= POP` / `Follow= LOUD POP` / `Share= SQUEEK` + top banner `POP THE BUBBLES!!!` |
-| bubble wrap3.png | `TAP IT !!!!` + Pause/Follow/Comment/Share = pop labels |
-| bubble wrap10.png | Pause 💥 / Follow 🔊 / Share 🦖 / Comment 🐆 (emoji = pop intensity) |
+### Emoji rules
 
-**Rule:** 1–3 💥 = small → giant pop. Samples sometimes swap 🔊🦖🐆 for the biggest actions — match viral page if unsure.
-
----
-
-## Subject ideas (from 11 samples)
-
-| File | Subject |
-|------|---------|
-| bubble wrap.png | Yellow bubble wrap sheet + finger pop |
-| bubble wrap1.png | USA soccer jersey roll + flag bubble wrap |
-| bubble wrap2.png | *(review locally)* |
-| bubble wrap3.png | Green tree frog inside bubble |
-| bubble wrap4.png | *(review locally)* |
-| bubble wrap5.png | Minecraft golden apple inside bubble + `POP THE BUBBLES!!!` |
-| bubble wrap6.png | *(review locally)* |
-| bubble wrap7.png | Many frogs in bubbles — `FROG BUBBLE WRAP ASMR >>>` |
-| bubble wrap8.png | *(review locally)* |
-| bubble wrap9.png | *(review locally)* |
-| bubble wrap10.png | Strawberry shortcake wrapped in bubble wrap + 4-line CTA |
-
-**Creative rule:** Absurd / satisfying subject fully wrapped or embedded in bubbles. ChatGPT: screenshot viral → change one detail.
+- **Small pop:** 💥  
+- **Bigger pops:** 💥💥 or 🔊 (loud)  
+- **Biggest pops:** 🦖 🐆 etc. — intense/loud, **not random food/objects**  
+- **Exception:** subject emoji (⚽ on USA wrap, 🐸 on frog) on **slide 1 hook** is fine  
+- **Bad:** 🥧 on “giant pop” unless the video is literally bubble-wrapped pie  
 
 ---
 
-## Production checklist (agent)
+## Subjects in the 11 samples
 
-1. Pick format A or B (or pair as 2-slide post if TikTok carousel)  
-2. Generate unique wrapped-subject image (9:16 friendly, ~1206×1200–1700 px from samples)  
-3. Burn in hook and/or interaction text (white + black outline, bold)  
-4. Export static image or 3–5s MP4 (ffmpeg)  
-5. Post with Mackenzie sound: https://www.tiktok.com/music/original-sound-7418286946344340256  
-6. Hashtags from sound page: `#asmr` `#satisfying` `#bubblewrap` `#fyp`
+| File | Best use | Subject |
+|------|----------|---------|
+| bubble wrap.png | Slide 2 or 1 | Yellow wrap + finger — `POP THE BUBBLES!!!` |
+| bubble wrap1.png | Slide 1 | USA soccer bubble wrap roll |
+| bubble wrap3.png | Slide 2 | Frog in bubble + `TAP IT !!!!` + action list |
+| bubble wrap5.png | Slide 1 or 2 | Minecraft apple in bubble |
+| bubble wrap7.png | **Slide 1** | Frogs — `FROG BUBBLE WRAP ASMR >>>` |
+| bubble wrap10.png | **Slide 2** | Cake in wrap + Pause/Follow/Share/Comment + 🔊🦖🐆 |
+
+Generate **new** pairs: same format, swap one detail (ChatGPT screenshot workflow from Module 2).
+
+---
+
+## Agent production checklist
+
+1. Generate **slide 1** — wrapped subject + hook text only  
+2. Generate **slide 2** — same/variant subject + CTA lines + appropriate emojis  
+3. Export **2-image slideshow** (or short MP4 slideshow via ffmpeg)  
+4. Post with Mackenzie sound  
+5. Hashtags: `#asmr` `#satisfying` `#bubblewrap` `#fyp`  
+6. **Never** reuse the same image pair across accounts  
