@@ -29,3 +29,6 @@ data/tiktok_shop/tokens/
 data/tiktok_shop/post_log.jsonl
 data/tiktok_shop/queue.json
 data/facebook_api.json
+
+# Course video downloads (transcripts live in module_*.md)
+data/research/course/_media/
