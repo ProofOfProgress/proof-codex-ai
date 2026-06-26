@@ -41,6 +41,14 @@ class AgentMemoryStore:
         self._ensure_mission_rules()
         self._ensure_codex_rules()
 
+    def _legacy_module_available(self, dotted: str) -> bool:
+        import importlib.util
+
+        try:
+            return importlib.util.find_spec(dotted) is not None
+        except ModuleNotFoundError:
+            return False
+
     def _conn(self):
         return self.store._connect()
 
@@ -71,7 +79,9 @@ class AgentMemoryStore:
             self._seed_builtin()
 
     def _ensure_ypp_rules(self) -> None:
-        """Idempotent — add YPP counter-rules for existing agent memory DBs."""
+        """Idempotent — add YPP counter-rules when YouTube compliance module is present."""
+        if not self._legacy_module_available("shorts_bot.compliance.inauthentic_rules"):
+            return
         mems = self.list_memories(limit=100)
         if any(
             "ypp" in m.title.lower() or "inauthentic" in m.content.lower()[:80]
@@ -89,7 +99,9 @@ class AgentMemoryStore:
         )
 
     def _ensure_codex_rules(self) -> None:
-        """Idempotent — when to query Codex (Chief Manager + all agents)."""
+        """Idempotent — when to query Codex (legacy YouTube stack only)."""
+        if not self._legacy_module_available("shorts_bot.codex"):
+            return
         mems = self.list_memories(limit=100)
         if any(
             "codex" in m.title.lower() and ("internal" in m.content.lower() or "query codex" in m.title.lower())
@@ -110,28 +122,16 @@ class AgentMemoryStore:
         )
 
     def _ensure_mission_rules(self) -> None:
-        """Idempotent — loyal-subscriber mission + TikTok pending reminder."""
+        """Idempotent — channel mission reminder."""
         mems = self.list_memories(limit=100)
-        if any("loyal subscriber" in m.content.lower() or "tiktok" in m.title.lower() for m in mems):
+        if any("tiktok shop" in m.title.lower() for m in mems):
             return
         self.add_memory(
             category="operating_rule",
-            title="Mission — help people",
+            title="Mission — TikTok Shop clips",
             content=(
-                "Primary goal: loyal subscriber base, not one-off viral hits. "
-                "Every Short must actually help — one specific minute, one concrete protocol. "
-                "Optimize for return viewers and trust; serious comments stay human."
-            ),
-            source="seed",
-            pinned=True,
-        )
-        self.add_memory(
-            category="fact",
-            title="TikTok — not yet",
-            content=(
-                "User plans a TikTok account for the bot later. "
-                "Do NOT build TikTok login/upload/automation until user explicitly says go. "
-                "Nudge user about TikTok setup only when they ask about distribution expansion."
+                "Primary goal: repeatable affiliate clips that convert — strong hook, product visible early, "
+                "honest claims. Score every post and feed learnings back into hooks and product picks."
             ),
             source="seed",
             pinned=True,
@@ -141,42 +141,20 @@ class AgentMemoryStore:
         defaults = [
             (
                 "operating_rule",
-                "Niche v2",
-                "Channel niche is Don't Blink — one specific high-stakes moment, one concrete fix. "
-                "Not generic sleep/anxiety lists.",
+                "TikTok Shop focus",
+                "Scout products (EchoTik), render clips (Kling), post via TikTok OAuth. "
+                "Score every clip and feed learnings into hooks and product picks.",
             ),
             (
                 "operating_rule",
-                "Pipeline",
-                "Paid stack: Gemini → Resemble voice → TurboScribe (or script timing) → AI images → "
-                "ffmpeg ASS captions → YouTube API upload. API first; use Playwright browser "
-                "for vidIQ, Trends, logins, and pages that block HTTP.",
+                "Course is source of truth",
+                "Owner's paid TikTok Shop course wins when transcribed. "
+                "Do not contradict it with archived guru docs.",
             ),
             (
                 "operating_rule",
-                "Captions",
-                "CAPTION_MODE=ffmpeg — Jenny 05 safe zone (~320px above bottom). Subject in upper 60% of frame.",
-            ),
-            (
-                "operating_rule",
-                "Accounts",
-                "Google/YouTube/Gemini: paypalacc4progress@gmail.com. Channel: Don't Blink.",
-            ),
-            (
-                "operating_rule",
-                "Strategist behavior",
+                "Agent behavior",
                 "Do not ask clarifying questions unless impossible to proceed. Infer intent and act.",
-            ),
-            (
-                "preference",
-                "Web control",
-                "User controls pipeline via web UI chat: daily, research, apply brand, finish video.",
-            ),
-            (
-                "operating_rule",
-                "Deep research",
-                "Deep research = web browse + Google Trends + YouTube competitors + Jenny course synthesis. "
-                "No paid vidIQ — use browser for keyword pages if needed. Include recommended_path.",
             ),
         ]
         for cat, title, content in defaults:

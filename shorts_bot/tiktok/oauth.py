@@ -62,8 +62,8 @@ def requested_scopes() -> list[str]:
     return [s.strip() for s in raw.split(",") if s.strip()]
 
 
-def load_token_data() -> dict[str, Any]:
-    path = token_path()
+def load_token_data(path: Path | None = None) -> dict[str, Any]:
+    path = path or token_path()
     if not path.exists():
         return {}
     try:
@@ -80,8 +80,8 @@ def save_token_data(data: dict[str, Any]) -> Path:
     return path
 
 
-def token_exists() -> bool:
-    data = load_token_data()
+def token_exists(path: Path | None = None) -> bool:
+    data = load_token_data(path)
     return bool(data.get("access_token"))
 
 
@@ -234,13 +234,14 @@ def refresh_access_token() -> dict[str, Any]:
     return merged
 
 
-def get_access_token(*, force_refresh: bool = False) -> str:
+def get_access_token(*, force_refresh: bool = False, path: Path | None = None) -> str:
     if force_refresh:
         return refresh_access_token()["access_token"]
-    data = load_token_data()
+    data = load_token_data(path)
     token = (data.get("access_token") or "").strip()
     if not token:
-        raise RuntimeError("TikTok not connected — python3 -m shorts_bot.tiktok.auth_cli connect")
+        label = path or token_path()
+        raise RuntimeError(f"TikTok not connected — token missing at {label}")
     return token
 
 

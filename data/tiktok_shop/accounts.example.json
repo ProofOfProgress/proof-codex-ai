@@ -1,0 +1,14 @@
+{
+  "accounts": [
+    {
+      "id": "shop_1",
+      "label": "Affiliate TikTok account 1",
+      "daily_limit": 8,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "",
+      "tiktok_token_path": "data/tiktok_shop/tokens/shop_1.json"
+    }
+  ],
+  "_note": "Affiliate path per course Module 1: 8-10 posts/day until Platinum Tier."
+}

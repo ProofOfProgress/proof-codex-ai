@@ -41,7 +41,7 @@ def _platform_targets(*, tiktok: bool = True, facebook: bool = True) -> list[dic
                 "accountId": fid,
                 "platformSpecificData": {
                     "contentType": "reel",
-                    "title": settings.zernio_facebook_reel_title or "Rapid Tool Review",
+                    "title": settings.zernio_facebook_reel_title or "TikTok Shop",
                 },
             }
         )

@@ -1,4 +1,4 @@
-"""Live integration status — keys present vs actually working."""
+"""Live integration status — TikTok Shop APIs only."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from shorts_bot.config import settings
-from shorts_bot.youtube.google_auth import auth_status
 
 
 @dataclass
@@ -19,460 +18,72 @@ class ServiceStatus:
     action: str | None = None
 
 
-def _probe_llm(provider: str, api_key: str, model: str, base_url: str | None = None) -> ServiceStatus:
-    label = "Gemini chat (free)" if provider == "gemini" else "OpenAI chat"
-    try:
-        from openai import OpenAI
+def _check_echotik() -> ServiceStatus:
+    from shorts_bot.tiktok_shop import echotik_client
 
-        kwargs: dict = {"api_key": api_key}
-        if base_url:
-            kwargs["base_url"] = base_url
-        client = OpenAI(**kwargs)
-        client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": "ping"}],
-            max_tokens=3,
-        )
-        return ServiceStatus(provider, label, True, f"{model} works")
-    except Exception as exc:
-        msg = str(exc)
-        if "429" in msg or "quota" in msg.lower():
-            return ServiceStatus(
-                provider,
-                label,
-                False,
-                "Key saved but quota exceeded",
-                "https://aistudio.google.com/apikey" if provider == "gemini" else "docs/CHAT_TONIGHT.md",
-            )
-        return ServiceStatus(provider, label, False, msg[:120], "docs/CHAT_TONIGHT.md")
-
-
-def _check_chat() -> ServiceStatus:
-    from shorts_bot.llm.provider import GEMINI_OPENAI_BASE
-
-    if settings.has_gemini:
-        return _probe_llm(
-            "gemini",
-            settings.gemini_api_key or "",
-            settings.gemini_model,
-            GEMINI_OPENAI_BASE,
-        )
-    if settings.has_openai:
-        return _probe_llm("openai", settings.openai_api_key or "", settings.openai_model)
+    if echotik_client.configured():
+        return ServiceStatus("echotik", "EchoTik scout", True, "Credentials configured")
     return ServiceStatus(
-        "chat",
-        "AI chat",
+        "echotik",
+        "EchoTik scout",
         False,
-        "No GEMINI_API_KEY or OPENAI_API_KEY",
-        "https://aistudio.google.com/apikey",
+        "ECHOTIK_USERNAME + ECHOTIK_PASSWORD missing",
+        "docs/FOR_OWNER_ECHOTIK_SETUP.md",
     )
 
 
-def _check_youtube_oauth() -> ServiceStatus:
-    yt = auth_status()
-    if not yt.get("ready"):
+def _check_kling() -> ServiceStatus:
+    from shorts_bot.tiktok_shop import kling_client
+
+    if kling_client.configured():
+        return ServiceStatus("kling", "Kling video API", True, "JWT or API key configured")
+    return ServiceStatus(
+        "kling",
+        "Kling video API",
+        False,
+        "KLING_ACCESS_KEY + KLING_SECRET_KEY missing",
+        "docs/FOR_OWNER_KLING_SETUP.md",
+    )
+
+
+def _check_printify() -> ServiceStatus:
+    from shorts_bot.tiktok_shop import printify_client
+
+    if not printify_client.configured():
         return ServiceStatus(
-            "youtube_oauth",
-            "YouTube Analytics API",
+            "printify",
+            "Printify API",
             False,
-            "OAuth token missing",
-            "python3 -m shorts_bot.youtube.auth_cli",
+            "PRINTIFY_API_TOKEN missing",
+            "docs/FOR_OWNER_PRINTIFY_API.md",
         )
     try:
-        from shorts_bot.web.deps import get_analytics_sync
-
-        result = get_analytics_sync().run(max_videos=1)
-        if result.ok:
-            return ServiceStatus(
-                "youtube_oauth",
-                "YouTube Analytics API",
-                True,
-                result.message,
-            )
-        return ServiceStatus(
-            "youtube_oauth",
-            "YouTube Analytics API",
-            False,
-            result.message,
-            "python3 -m shorts_bot.youtube.auth_cli",
-        )
+        shops = printify_client.list_shops()
+        return ServiceStatus("printify", "Printify API", True, f"{len(shops)} shop(s) connected")
     except Exception as exc:
-        return ServiceStatus(
-            "youtube_oauth",
-            "YouTube Analytics API",
-            False,
-            str(exc)[:120],
-            "python3 -m shorts_bot.youtube.auth_cli",
-        )
+        return ServiceStatus("printify", "Printify API", False, str(exc)[:120], "docs/FOR_OWNER_PRINTIFY_API.md")
 
 
-def _check_studio() -> ServiceStatus:
-    try:
-        from shorts_bot.youtube.studio import check_studio
-
-        live = check_studio(settings.browser_profile_dir, headless=True)
-        if live.logged_in and live.in_studio:
-            name = live.channel_name or settings.youtube_channel_name
-            return ServiceStatus(
-                "youtube_studio",
-                "YouTube Studio (browser)",
-                True,
-                f"Logged in — {name}",
-            )
-        return ServiceStatus(
-            "youtube_studio",
-            "YouTube Studio (browser)",
-            False,
-            live.message or "Not signed in",
-            "python3 -m shorts_bot.youtube.keep_browser_open",
-        )
-    except Exception as exc:
-        return ServiceStatus(
-            "youtube_studio",
-            "YouTube Studio (browser)",
-            False,
-            str(exc)[:120],
-            "python3 -m shorts_bot.youtube.keep_browser_open",
-        )
-
-
-def _check_web_ui() -> ServiceStatus:
-    return ServiceStatus(
-        "web",
-        "Web UI",
-        True,
-        f"http://localhost:{settings.web_port}",
-        "python3 -m shorts_bot.web",
-    )
-
-
-def _check_slack_webhook() -> ServiceStatus:
-    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
-
-    ch = settings.slack_channel_name
-    if has_slack_bot():
-        return ServiceStatus(
-            "slack_bot",
-            f"Slack bot ({settings.slack_bot_display_name})",
-            True,
-            f"#{ch} — bot token",
-            "python3 -m shorts_bot.integrations test",
-        )
-    if has_slack_webhook():
-        enabled = "on" if settings.slack_notify_enabled else "off"
-        return ServiceStatus(
-            "slack_webhook",
-            "Slack alerts (webhook)",
-            True,
-            f"#{ch} — notify {enabled}",
-            "python3 -m shorts_bot.integrations test",
-        )
-    return ServiceStatus(
-        "slack_bot",
-        f"Slack bot ({settings.slack_bot_display_name})",
-        False,
-        "SLACK_BOT_TOKEN + SLACK_CHANNEL_ID or webhook",
-        "docs/FOR_OWNER_SLACK_BOT.md",
-    )
-
-
-def _check_slack_cursor() -> ServiceStatus:
-    from shorts_bot.integrations.slack import slack_cursor_linked
-
-    if slack_cursor_linked():
-        ch = settings.slack_channel_name
-        return ServiceStatus(
-            "slack_cursor",
-            "Slack @cursor (Cloud Agents)",
-            True,
-            f"Linked — use #{ch}",
-            "docs/FOR_OWNER_SLACK.md",
-        )
-    return ServiceStatus(
-        "slack_cursor",
-        "Slack @cursor (Cloud Agents)",
-        False,
-        "Install app + Link Account — then SLACK_CURSOR_LINKED=true",
-        "docs/FOR_OWNER_SLACK.md",
-    )
-
-
-def _check_browser_site(
-    id_: str,
-    label: str,
-    url: str,
-    *,
-    logged_in_hint: str,
-    fallback_note: str,
-) -> ServiceStatus:
-    try:
-        from playwright.sync_api import sync_playwright
-
-        with sync_playwright() as p:
-            context = p.chromium.launch_persistent_context(
-                user_data_dir=str(settings.browser_profile_dir),
-                headless=True,
-                viewport={"width": 1280, "height": 900},
-            )
-            page = context.pages[0] if context.pages else context.new_page()
-            page.goto(url, wait_until="domcontentloaded", timeout=90000)
-            body = (page.inner_text("body") or "").lower()
-            context.close()
-        if logged_in_hint.lower() in body or "sign out" in body or "log out" in body:
-            return ServiceStatus(id_, label, True, "Browser session saved")
-        if "sign in" in body or "log in" in body or "sign up" in body:
-            return ServiceStatus(
-                id_,
-                label,
-                False,
-                "Not signed in",
-                f"python3 -m shorts_bot.login_handoff --only {id_}",
-            )
-        return ServiceStatus(id_, label, True, "Page loaded (session likely active)")
-    except Exception as exc:
-        return ServiceStatus(
-            id_,
-            label,
-            False,
-            fallback_note,
-            f"python3 -m shorts_bot.login_handoff --only {id_} ({exc})",
-        )
-
-
-def _check_image_api() -> ServiceStatus:
-    provider = (settings.image_provider or "replicate").strip().lower()
-    if provider == "fal" and settings.has_fal_images:
-        from shorts_bot.production.images.fal import probe_fal
-
-        ok, detail = probe_fal(settings.fal_api_key or "")
-        return ServiceStatus("fal_images", "Fal.ai image API", ok, detail, "https://fal.ai/dashboard/keys")
-    if settings.has_replicate_images:
-        from shorts_bot.production.images.replicate import probe_replicate
-
-        ok, detail = probe_replicate(
-            settings.replicate_api_token or "",
-            settings.replicate_image_model,
-        )
-        return ServiceStatus(
-            "replicate_images",
-            "Replicate image API",
-            ok,
-            detail,
-            "https://replicate.com/account/api-tokens",
-        )
-    return ServiceStatus(
-        "image_api",
-        "Paid image API",
-        False,
-        "REPLICATE_API_TOKEN or FAL_API_KEY missing",
-        "https://replicate.com/account/api-tokens",
-    )
-
-
-def _check_transcript_sync() -> ServiceStatus:
-    provider = (settings.transcript_provider or "gemini").strip().lower()
-    if provider == "assemblyai" and settings.has_assemblyai:
-        model = settings.assemblyai_speech_model or "universal"
-        return ServiceStatus(
-            "transcript",
-            "AssemblyAI transcript (optional)",
-            True,
-            f"API key configured ({model})",
-        )
-    if settings.has_gemini:
-        model = (settings.gemini_transcript_model or settings.gemini_model).strip()
-        return ServiceStatus(
-            "transcript",
-            "Gemini audio transcript",
-            True,
-            f"{model} — same GEMINI_API_KEY as chat/vision",
-        )
-    return ServiceStatus(
-        "transcript",
-        "Gemini audio transcript",
-        False,
-        "GEMINI_API_KEY missing",
-        "https://aistudio.google.com/apikey",
-    )
-
-
-def _check_youtube_upload() -> ServiceStatus:
-    from shorts_bot.youtube.google_auth import auth_status, upload_ready
+def _check_tiktok_oauth() -> ServiceStatus:
+    from shorts_bot.tiktok.oauth import auth_status, upload_ready
 
     st = auth_status()
-    if not st["credentials_configured"]:
-        return ServiceStatus(
-            "youtube_upload",
-            "YouTube API upload",
-            False,
-            auth_status().get("credentials_message", "GOOGLE_CLIENT_ID/SECRET missing"),
-            "Cursor → Cloud Agent → Secrets → GOOGLE_* → bash scripts/install.sh",
-        )
-    if not st["token_saved"]:
-        return ServiceStatus(
-            "youtube_upload",
-            "YouTube API upload",
-            False,
-            "OAuth token missing — use API connect (not Studio browser)",
-            "python3 -m shorts_bot.youtube.auth_cli connect",
-        )
-    if st.get("needs_upload_reauth"):
-        return ServiceStatus(
-            "youtube_upload",
-            "YouTube API upload",
-            False,
-            "Token lacks upload scope",
-            "python3 -m shorts_bot.youtube.auth_cli",
-        )
     if upload_ready():
+        return ServiceStatus("tiktok_oauth", "TikTok OAuth upload", True, "Content Posting API ready")
+    if st.get("credentials_configured"):
         return ServiceStatus(
-            "youtube_upload",
-            "YouTube API upload",
-            True,
-            "Ready — no Studio browser needed",
+            "tiktok_oauth",
+            "TikTok OAuth upload",
+            False,
+            "Run OAuth connect",
+            "docs/FOR_OWNER_TIKTOK_SETUP.md",
         )
     return ServiceStatus(
-        "youtube_upload",
-        "YouTube API upload",
+        "tiktok_oauth",
+        "TikTok OAuth upload",
         False,
-        "Upload credentials unavailable",
-        "python3 -m shorts_bot.youtube.auth_cli",
-    )
-
-
-def _check_drive_inbox() -> ServiceStatus:
-    from shorts_bot.drive.client import drive_configured, drive_status_message
-    from shorts_bot.youtube.google_auth import auth_status
-
-    if not settings.google_drive_inbox_enabled:
-        return ServiceStatus(
-            "drive_inbox",
-            "Google Drive inbox",
-            False,
-            "Disabled",
-            "Set GOOGLE_DRIVE_INBOX_ENABLED=true",
-        )
-    if not settings.google_drive_folder_id:
-        return ServiceStatus(
-            "drive_inbox",
-            "Google Drive inbox",
-            False,
-            "Folder ID not set",
-            "docs/FOR_OWNER_DRIVE_SETUP.md",
-        )
-    st = auth_status()
-    if st.get("needs_drive_reauth"):
-        return ServiceStatus(
-            "drive_inbox",
-            "Google Drive inbox",
-            False,
-            "Token needs Drive scope",
-            "python3 -m shorts_bot.youtube.auth_cli connect",
-        )
-    if drive_configured() and st.get("drive_ready"):
-        return ServiceStatus(
-            "drive_inbox",
-            "Google Drive inbox",
-            True,
-            drive_status_message(),
-        )
-    return ServiceStatus(
-        "drive_inbox",
-        "Google Drive inbox",
-        False,
-        drive_status_message(),
-        "docs/FOR_OWNER_DRIVE_SETUP.md",
-    )
-
-
-def _check_vision_qc() -> ServiceStatus:
-    if not settings.vision_qc_enabled:
-        return ServiceStatus("vision_qc", "Gemini vision QC", False, "Disabled", None)
-    if settings.has_gemini:
-        model = (settings.gemini_vision_model or settings.gemini_model).strip()
-        return ServiceStatus(
-            "vision_qc",
-            "Gemini vision QC",
-            True,
-            f"{model} — {settings.vision_qc_max_frames} frames/Short",
-        )
-    return ServiceStatus(
-        "vision_qc",
-        "Gemini vision QC",
-        False,
-        "GEMINI_API_KEY missing",
-        "https://aistudio.google.com/apikey",
-    )
-
-
-def _check_resemble() -> ServiceStatus:
-    if not settings.has_resemble:
-        return ServiceStatus(
-            "resemble",
-            "Resemble voice clone",
-            False,
-            "RESEMBLE_API_KEY or RESEMBLE_VOICE_UUID missing",
-            "https://app.resemble.ai/account/api",
-        )
-    from shorts_bot.production.tts.resemble import probe_resemble
-
-    ok, detail = probe_resemble(settings.resemble_api_key or "", settings.resemble_voice_uuid or "")
-    return ServiceStatus(
-        "resemble",
-        "Resemble voice clone",
-        ok,
-        detail,
-        None if ok else "python3 -m shorts_bot.production.voice_clone_cli test",
-    )
-
-
-def _check_tiktok_upload() -> ServiceStatus:
-    from shorts_bot.zernio.auth_cli import status_dict
-
-    st = status_dict()
-    if st["configured"] and st["tiktok_ready"]:
-        names = ", ".join(
-            a["name"] for a in st["accounts"] if a["platform"] == "tiktok" and a["active"]
-        )
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok upload (Zernio)",
-            True,
-            f"Ready — {names or 'connected'}",
-        )
-    if st["configured"]:
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok upload (Zernio)",
-            False,
-            "Zernio key OK but TikTok not connected",
-            "https://zernio.com",
-        )
-
-    from shorts_bot.tiktok.oauth import auth_status, credentials_status_message, upload_ready
-
-    legacy = auth_status()
-    if legacy["upload_ready"]:
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok API upload (legacy)",
-            True,
-            "Ready — Content Posting API",
-        )
-    if legacy["credentials_configured"]:
-        return ServiceStatus(
-            "tiktok_upload",
-            "TikTok upload",
-            False,
-            "Add ZERNIO_API_KEY (recommended) or finish TikTok OAuth",
-            "python3 -m shorts_bot.zernio.auth_cli status",
-        )
-    return ServiceStatus(
-        "tiktok_upload",
-        "TikTok upload",
-        False,
-        credentials_status_message(),
-        "python3 -m shorts_bot.zernio.auth_cli status",
+        "TIKTOK_CLIENT_KEY + SECRET missing",
+        "docs/FOR_OWNER_TIKTOK_SETUP.md",
     )
 
 
@@ -481,127 +92,63 @@ def _check_zernio() -> ServiceStatus:
 
     st = status_dict()
     if not st["configured"]:
-        return ServiceStatus(
-            "zernio",
-            "Zernio cross-post",
-            False,
-            "ZERNIO_API_KEY missing",
-            "https://zernio.com",
-        )
-    parts = []
+        return ServiceStatus("zernio", "Zernio cross-post", False, "ZERNIO_API_KEY missing", "https://zernio.com")
     if st["tiktok_ready"]:
-        parts.append("TikTok")
-    if st["facebook_ready"]:
-        parts.append("Facebook")
-    if parts:
-        return ServiceStatus(
-            "zernio",
-            "Zernio cross-post",
-            True,
-            f"Ready — {', '.join(parts)}",
-        )
+        return ServiceStatus("zernio", "Zernio cross-post", True, "TikTok connected")
     return ServiceStatus(
         "zernio",
         "Zernio cross-post",
         False,
-        "API key OK — connect accounts at zernio.com",
+        "API key OK — connect TikTok at zernio.com",
         "python3 -m shorts_bot.zernio.auth_cli status",
     )
 
 
-def _check_invideo() -> ServiceStatus:
-    from shorts_bot.invideo.auth import auth_status
+def _check_slack() -> ServiceStatus:
+    from shorts_bot.integrations.slack import has_slack_bot, has_slack_webhook
 
-    st = auth_status()
-    if st["production_ready"]:
-        return ServiceStatus(
-            "invideo",
-            "InVideo AI production",
-            True,
-            "Agent One session + MCP OK",
-        )
-    parts = []
-    if not st["browser_logged_in"]:
-        parts.append("browser login needed")
-    if not st["mcp_ready"]:
-        parts.append(f"MCP: {st['mcp_detail'][:60]}")
-    detail = "; ".join(parts) if parts else st["browser_detail"]
+    if has_slack_bot() or has_slack_webhook():
+        return ServiceStatus("slack", "Slack alerts", True, f"#{settings.slack_channel_name}")
+    return ServiceStatus("slack", "Slack alerts", False, "Optional — not configured", "data/SLACK_SETUP_CHECKLIST.md")
+
+
+def _check_web() -> ServiceStatus:
+    return ServiceStatus("web", "Web status API", True, f"http://{settings.web_host}:{settings.web_port}")
+
+
+def _check_image_api() -> ServiceStatus:
+    if settings.has_replicate_images:
+        return ServiceStatus("replicate", "Replicate (video gen)", True, "Token configured")
+    if settings.has_fal_images:
+        return ServiceStatus("fal", "Fal.ai (video gen)", True, "Key configured")
     return ServiceStatus(
-        "invideo",
-        "InVideo AI production",
+        "image_api",
+        "Replicate/Fal (optional)",
         False,
-        detail,
-        "python3 -m shorts_bot.invideo.handoff_cli",
+        "Not configured",
+        "docs/CURSOR_SECRETS.md",
     )
-
-
-def _check_vidiq() -> ServiceStatus:
-    if not settings.vidiq_enabled:
-        return ServiceStatus("vidiq", "vidIQ keyword research", False, "Disabled", None)
-    if (settings.vidiq_api_key or "").strip():
-        return ServiceStatus(
-            "vidiq",
-            "vidIQ (MCP API key)",
-            True,
-            "VIDIQ_API_KEY set — deep research uses MCP",
-            "https://vidiq.com/mcp/",
-        )
-    try:
-        from shorts_bot.research.vidiq import check_vidiq_session
-
-        ok, detail = check_vidiq_session()
-        return ServiceStatus(
-            "vidiq",
-            "vidIQ keyword research",
-            ok,
-            detail,
-            None if ok else "python3 -m shorts_bot.login_handoff --only vidiq",
-        )
-    except Exception as exc:
-        return ServiceStatus(
-            "vidiq",
-            "vidIQ keyword research",
-            False,
-            str(exc)[:120],
-            "python3 -m shorts_bot.login_handoff --only vidiq",
-        )
 
 
 def _check_playwright() -> ServiceStatus:
     from shorts_bot.browser.session import is_playwright_ready
 
     ok, detail = is_playwright_ready()
-    return ServiceStatus(
-        "playwright",
-        "Playwright browser",
-        ok,
-        detail,
-        None if ok else "python3 -m playwright install chromium",
-    )
+    return ServiceStatus("playwright", "Playwright browser", ok, detail)
 
 
-def full_status(*, include_studio: bool = True) -> list[dict[str, Any]]:
-    """Return live status for all integrations."""
+def full_status() -> list[dict[str, Any]]:
     items = [
-        _check_web_ui(),
-        _check_slack_cursor(),
-        _check_slack_webhook(),
-        _check_playwright(),
-        _check_chat(),
-        _check_resemble(),
-        _check_transcript_sync(),
-        _check_vision_qc(),
-        _check_image_api(),
-        _check_youtube_oauth(),
-        _check_youtube_upload(),
-        _check_drive_inbox(),
-        _check_tiktok_upload(),
+        _check_web(),
+        _check_echotik(),
+        _check_kling(),
+        _check_printify(),
+        _check_tiktok_oauth(),
         _check_zernio(),
-        _check_invideo(),
+        _check_slack(),
+        _check_image_api(),
+        _check_playwright(),
     ]
-    if include_studio:
-        items.append(_check_studio())
-    items.append(_check_vidiq())
     return [asdict(s) for s in items]
 
 
@@ -610,7 +157,7 @@ def print_report() -> int:
     from rich.table import Table
 
     console = Console()
-    table = Table(title="Don't Blink — live login status")
+    table = Table(title="TikTok Shop — connection status")
     table.add_column("Service")
     table.add_column("Ready")
     table.add_column("Detail")
@@ -624,7 +171,7 @@ def print_report() -> int:
         table.add_row(row["label"], ready, row["detail"], row.get("action") or "")
     console.print(table)
     console.print(f"\n[bold]{len(full_status()) - not_ready}[/bold] ready, [yellow]{not_ready}[/yellow] need attention")
-    return 0 if not_ready <= 2 else 1  # turboscribe+capcut are optional manual
+    return 0 if not_ready == 0 else 1
 
 
 if __name__ == "__main__":

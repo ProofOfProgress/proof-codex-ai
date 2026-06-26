@@ -52,9 +52,9 @@ class Settings(BaseSettings):
     browser_use_for_research: bool = True
     browser_save_screenshots: bool = False
     browser_open_minutes: int = 15
-    youtube_channel_name: str = "Fix It Fast"
-    channel_series_name: str = "Fix It Fast"
-    channel_tagline: str = "Problem solved in seconds."
+    youtube_channel_name: str = "TikTok Shop"
+    channel_series_name: str = "TikTok Shop"
+    channel_tagline: str = ""
     web_host: str = "127.0.0.1"
     web_port: int = 8080
     web_api_token: str | None = None  # Bearer / X-API-Token for mutating /api/* routes
@@ -78,9 +78,9 @@ class Settings(BaseSettings):
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
 
-    # Google Drive inbox — owner drops InVideo MP4s; agent polls folder (no paste-link step)
+    # Google Drive inbox — legacy InVideo drop folder (retired)
     google_drive_folder_id: str | None = None
-    google_drive_inbox_enabled: bool = True
+    google_drive_inbox_enabled: bool = False
     google_drive_state_path: Path = Path("data/drive_inbox_state.json")
     google_drive_config_path: Path = Path("data/drive_inbox_config.json")
 
@@ -124,21 +124,31 @@ class Settings(BaseSettings):
     zernio_post_tiktok: bool = True
     zernio_post_facebook: bool = True
     zernio_tiktok_privacy: str = "PUBLIC_TO_EVERYONE"
-    zernio_facebook_reel_title: str = "Rapid Tool Review"
+    zernio_facebook_reel_title: str = "TikTok Shop"
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
-    # InVideo AI — MCP + browser production
+    # EchoTik — TikTok Shop product research API (Basic auth)
+    echotik_username: str | None = None
+    echotik_password: str | None = None
+    echotik_api_base: str = "https://open.echotik.live"
+    echotik_region: str = "US"
+
+    # Printify — POD seller API (Bearer token from printify.com/app/account/api)
+    printify_api_token: str | None = None
+    printify_shop_id: str | None = None  # optional; auto-picks first shop if empty
+
+    # InVideo AI — RETIRED (Fix It Fast / Ms. Byte lane). Keys ignored unless re-enabled by owner.
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
     invideo_app_url: str = "https://ai.invideo.io"
     invideo_default_platform: str = "youtube_shorts"
     invideo_default_vibe: str = "professional"
     invideo_default_audience: str = "AI curious adults"
-    invideo_twin_enabled: bool = True
+    invideo_twin_enabled: bool = False
     invideo_copilot_url: str = ""  # saved workspace .../v40-copilot URL
     invideo_max_generate_credits: int = 10  # refuse Generate if button shows more
-    invideo_autonomous_enabled: bool = True  # owner approved one-prompt ship
+    invideo_autonomous_enabled: bool = False
 
     # Paid production stack — Resemble + AssemblyAI transcript + Gemini vision QC
     require_paid_stack: bool = True
@@ -154,7 +164,7 @@ class Settings(BaseSettings):
     resemble_project_uuid: str | None = None
     resemble_sample_rate: int = 44100
     resemble_use_hd: bool = True
-    tts_voice: str = "en-US-JennyNeural"  # Fix It Fast — US upbeat (edge-tts fallback)
+    tts_voice: str = "en-US-JennyNeural"  # edge-tts fallback; course defines VO style
     tts_rate: str = "+8%"  # perky Shorts pacing
     tts_pitch: str = "+2Hz"
     tts_horror_delivery: bool = True  # SSML dread pacing for Don't Blink scripts
@@ -182,6 +192,7 @@ class Settings(BaseSettings):
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
     video_backend: str = "blender"
     kling_provider: str = "official"  # official | replicate | fal
+    kling_api_key: str | None = None  # single bearer key (api-key-kling-...)
     kling_access_key: str | None = None
     kling_secret_key: str | None = None
     kling_model: str = "kling-v2-6"  # official API model_name; replicate uses kwaivgi/kling-v3-video
@@ -252,6 +263,12 @@ class Settings(BaseSettings):
     vision_qc_jpeg_quality: int = 72
     gemini_vision_model: str = ""  # empty = use gemini_model (flash-lite)
 
+    # Module 1 course QC — mandatory before every TikTok Shop upload (zero ban triggers)
+    module1_qc_enabled: bool = True
+    module1_qc_blocks_upload: bool = True
+    module1_min_video_seconds: float = 7.0
+    module1_min_post_interval_minutes: int = 30
+
     # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
     production_variety_enabled: bool = True
 
@@ -291,20 +308,20 @@ class Settings(BaseSettings):
     auto_approve_improvements: bool = True
     auto_approve_dev_tasks: bool = True
     # Autonomous self-training — reflective memory loop after sync + draft feedback (no LLM weight updates)
-    self_training_enabled: bool = True
+    self_training_enabled: bool = False  # course is strategy source; enable only if owner wants analytics loop
     self_training_promote_threshold: int = 2  # reward hits before rule → agent_memories
-    workflow_evolution_enabled: bool = True  # daily loop steps/params evolve from runs + analytics
+    workflow_evolution_enabled: bool = False  # legacy InVideo daily loop — retired
     mem0_enabled: bool = True  # Mem0 long-term memory (public system)
     textgrad_evolution_enabled: bool = True  # TextGrad hook evolution (EvoAgentX stack)
-    script_qc_enabled: bool = True  # Gemini/heuristic brief QC before InVideo
+    script_qc_enabled: bool = False  # retired — use module1_qc + course modules 7–8
     script_qc_min_score: float = 7.0
     run_telemetry_enabled: bool = True  # JSONL run log under data/telemetry/
     owner_signals_enabled: bool = True  # Reflexio-style chat corrections → Mem0
     invideo_render_retries: int = 2
-    auto_daily_enabled: bool = False  # enable only with human upload approval workflow
+    auto_daily_enabled: bool = False  # legacy InVideo daily — retired
     auto_daily_hour: int = 11
     auto_daily_minute: int = 0
-    pipeline_backend: str = "invideo"  # invideo | legacy (homemade render — retired)
+    pipeline_backend: str = "tiktok_shop"  # course + Kling factory — invideo retired
     daily_research_force_refresh: bool = True  # refresh competitor/trends each daily run
     auto_publish_hours: int = 0  # 0 = keep upload visibility (unlisted for manual review)
     quality_gate_blocks_upload: bool = True
@@ -383,7 +400,18 @@ class Settings(BaseSettings):
         return len(key) >= 16
 
     @property
+    def has_printify(self) -> bool:
+        token = (self.printify_api_token or "").strip()
+        if not token:
+            return False
+        lower = token.lower()
+        return "placeholder" not in lower and "your-" not in lower
+
+    @property
     def has_kling_official(self) -> bool:
+        bearer = (self.kling_api_key or "").strip()
+        if bearer and "your" not in bearer.lower() and len(bearer) >= 16:
+            return True
         ak = (self.kling_access_key or "").strip()
         sk = (self.kling_secret_key or "").strip()
         return len(ak) >= 8 and len(sk) >= 8 and "your" not in ak.lower()

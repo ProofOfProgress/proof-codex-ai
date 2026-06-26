@@ -211,7 +211,7 @@ class MemoryExtensions:
             rows = conn.execute(
                 "SELECT video_label, metrics_json FROM analytics_records ORDER BY id DESC LIMIT 50"
             ).fetchall()
-        from shorts_bot.youtube.analytics_merge import merge_metrics
+        from shorts_bot.learning.analytics_merge import merge_metrics
 
         existing: dict[str, Any] | None = None
         for r in rows:

@@ -1,317 +1,114 @@
+"""TikTok Shop factory — minimal API (no horror/YouTube UI)."""
+
 from __future__ import annotations
 
-import asyncio
-from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
 from shorts_bot.__version__ import __version__
 from shorts_bot.config import settings
-from shorts_bot.learning.learned_file import LearnedFile
-from shorts_bot.web.deps import (
-    get_agent,
-    get_analytics_sync,
-    get_memory,
-    get_proposer,
-    get_reward_engine,
-    get_store,
-    run_full_automation,
-)
 from shorts_bot.web.auth import ApiTokenMiddleware
-from shorts_bot.youtube.google_auth import auth_status
+from shorts_bot.web.deps import get_memory, get_proposer, get_reward_engine
 
-TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
-
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    from shorts_bot.automation.background import start_background_automation
-
-    stop = await start_background_automation()
-    yield
-    stop.set()
-    from shorts_bot.automation.background import _stop_slack_autonomy_bus
-
-    await asyncio.to_thread(_stop_slack_autonomy_bus)
-    await asyncio.sleep(0.1)
-
-
-app = FastAPI(title="Peripheral Operator", version="0.7.0", lifespan=lifespan)
+app = FastAPI(title="TikTok Shop Factory", version=__version__)
 app.add_middleware(ApiTokenMiddleware)
-
-
-@app.exception_handler(Exception)
-async def unhandled_exception(_request: Request, exc: Exception) -> JSONResponse:
-    if isinstance(exc, HTTPException):
-        raise exc
-    return JSONResponse(
-        status_code=500,
-        content={"error": str(exc), "message": "Something went wrong — try again."},
-    )
-
-
-static_dir = Path(__file__).parent / "static"
-if static_dir.exists():
-    app.mount("/static", StaticFiles(directory=static_dir), name="static")
-
-
-class ChatRequest(BaseModel):
-    message: str
-
-
-class ManagerRequest(BaseModel):
-    message: str
-    force_async: bool = False
-
-
-class ImprovementDecision(BaseModel):
-    note: str = ""
 
 
 class ScoreRequest(BaseModel):
     video_label: str
+    video_id: str | None = None
     viewed_vs_swiped_away: float | None = None
     retention_rate: float | None = None
     views: int = 0
     likes: int = 0
     comments: int = 0
+    swipe_source: str = "manual"
+    retention_source: str = "manual"
 
 
-class DevRequest(BaseModel):
-    title: str
-    description: str
-
-
-class ProductionRequest(BaseModel):
-    draft_id: int
-    turboscribe_text: str = Field(min_length=10)
-
-
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request) -> HTMLResponse:
-    memory = get_memory()
-    store = get_store()
-    learned = LearnedFile(settings.learned_path)
-    from shorts_bot.services.ops import BotOperations
-
-    pending_imps = memory.list_improvements(status="pending")
-    from shorts_bot.agents.identity import manager_name
-
-    return TEMPLATES.TemplateResponse(
-        request,
-        "index.html",
-        {
-            "manager_name": manager_name(),
-            "has_openai": settings.has_full_chat,
-            "chat_provider": settings.chat_provider,
-            "channel": store.channel_summary(),
-            "checklist": BotOperations().setup_checklist(),
-            "first_improvement": pending_imps[0] if pending_imps else None,
-            "improvements": pending_imps,
-            "drafts": store.list_drafts(status="pending"),
-            "dev_tasks": memory.list_dev_tasks(status="pending"),
-            "rewards": memory.recent_rewards(limit=8),
-            "journal": memory.learning_journal(limit=10),
-            "learned_preview": learned.read_tail(3500),
-            "youtube": auth_status(),
-            "pending_count": len(memory.list_improvements(status="pending")),
-            "pending_drafts": len(store.list_drafts(status="pending")),
-            "pending_dev": len(memory.list_dev_tasks(status="pending")),
-            "version": __version__,
-            "api_token": (settings.web_api_token or "").strip() or None,
-        },
-    )
+class FeedbackRequest(BaseModel):
+    topic: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+    decision: str = Field(..., pattern="^(approved|rejected)$")
 
 
 @app.get("/health")
-async def health() -> dict:
-    store = get_store()
-    memory = get_memory()
+def health() -> dict:
+    return {"ok": True, "service": "tiktok-shop-factory"}
+
+
+@app.get("/api/status")
+def api_status() -> dict:
+    from shorts_bot.tiktok_shop import echotik_client, kling_client
+    from shorts_bot.tiktok_shop import printify_client
+
     return {
-        "ok": True,
         "version": __version__,
-        "openai": settings.has_full_chat,
-        "chat_provider": settings.chat_provider,
-        "gemini": settings.has_gemini,
-        "pending_improvements": len(memory.list_improvements(status="pending")),
-        "pending_drafts": len(store.list_drafts(status="pending")),
-        "pending_dev": len(memory.list_dev_tasks(status="pending")),
-        "youtube": auth_status(),
+        "echotik": echotik_client.configured(),
+        "kling": kling_client.configured(),
+        "printify": printify_client.configured(),
     }
 
 
-@app.post("/api/chat")
-async def chat(body: ChatRequest) -> dict:
-    if not body.message.strip():
-        raise HTTPException(400, "Empty message")
-    if len(body.message) > 8000:
-        raise HTTPException(400, "Message too long (max 8000 chars)")
-    try:
-        from shorts_bot.agents.duration import parse_work_duration
-        from shorts_bot.agents.manager import should_use_manager
-        from shorts_bot.services.ops import BotOperations
+@app.get("/api/tiktok-shop/status")
+def tiktok_shop_status() -> dict:
+    from shorts_bot.tiktok_shop.accounts import load_accounts, total_daily_cap
+    from shorts_bot.tiktok_shop.quota import status_rows
 
-        msg = body.message.strip()
-        if should_use_manager(msg):
-            parsed = parse_work_duration(msg)
-            budget = parsed.work_seconds or 0
-            if budget >= settings.manager_async_threshold_seconds:
-                return await manager_run(
-                    ManagerRequest(message=msg, force_async=True),
-                )
-            result = BotOperations().manager_chat(msg)
-            return {"reply": result["reply"], "manager": result}
-        reply = BotOperations().chat(msg)
-        return {"reply": reply}
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(500, f"Chat error: {exc}") from exc
-
-
-@app.post("/api/manager/run")
-async def manager_run(body: ManagerRequest) -> dict:
-    """Chief Manager — sync for short budgets, async job for long work."""
-    if not body.message.strip():
-        raise HTTPException(400, "Empty message")
-    if len(body.message) > 8000:
-        raise HTTPException(400, "Message too long")
-
-    from shorts_bot.agents.duration import clamp_work_seconds, parse_work_duration
-    from shorts_bot.agents.job_runner import start_manager_job
-    from shorts_bot.agents.job_store import ManagerJobStore
-    from shorts_bot.agents.manager import strip_manager_prefix
-    from shorts_bot.services.ops import BotOperations
-
-    msg = body.message.strip()
-    parsed = parse_work_duration(strip_manager_prefix(msg))
-    budget = parsed.work_seconds or 0
-
-    use_async = body.force_async or budget >= settings.manager_async_threshold_seconds
-
-    if use_async and budget > 0:
-        store = ManagerJobStore(settings.database_path)
-        job = store.create(msg, work_seconds=budget)
-        start_manager_job(store, job.id)
-        return {
-            "async": True,
-            "job_id": job.id,
-            "status": "queued",
-            "work_seconds": budget,
-            "poll": f"/api/manager/jobs/{job.id}",
-        }
-
-    result = await asyncio.to_thread(BotOperations().manager_chat, msg)
-    return {"async": False, "manager": result, "reply": result["reply"]}
-
-
-@app.get("/api/manager/jobs/{job_id}")
-async def manager_job(job_id: str) -> dict:
-    from shorts_bot.agents.job_store import ManagerJobStore
-
-    try:
-        job = ManagerJobStore(settings.database_path).get(job_id)
-    except KeyError as exc:
-        raise HTTPException(404, "Job not found") from exc
-    return job.to_dict()
-
-
-@app.get("/api/manager/jobs")
-async def manager_jobs_list() -> dict:
-    from shorts_bot.agents.job_store import ManagerJobStore
-
-    jobs = ManagerJobStore(settings.database_path).list_recent(limit=20)
-    return {"jobs": [j.to_dict() for j in jobs]}
-
-
-@app.get("/api/improvements")
-async def list_improvements() -> dict:
-    memory = get_memory()
-    pending = memory.list_improvements(status="pending")
+    accounts = load_accounts()
     return {
-        "pending": [
-            {
-                "id": i.id,
-                "title": i.title,
-                "category": i.category,
-                "description": i.description,
-                "pros": i.pros,
-                "cons": i.cons,
-                "source": i.source,
-            }
-            for i in pending
-        ]
+        "accounts": len(accounts),
+        "daily_cap": total_daily_cap(),
+        "quota": status_rows(),
     }
 
 
-@app.post("/api/improvements/{improvement_id}/yes")
-async def approve_improvement(improvement_id: int, body: ImprovementDecision) -> dict:
-    memory = get_memory()
+@app.get("/api/printify/status")
+def printify_status() -> dict:
+    from shorts_bot.tiktok_shop import printify_client
+
+    if not printify_client.configured():
+        return {"configured": False}
     try:
-        imp = memory.review_improvement(improvement_id, approved=True, note=body.note or "Approved.")
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    LearnedFile(settings.learned_path).record_improvement(imp, approved=True)
-    return {"status": imp.status, "title": imp.title}
+        shops = printify_client.list_shops()
+        return {"configured": True, "shops": len(shops), "shop_ids": [s.get("id") for s in shops[:5]]}
+    except Exception as exc:
+        return {"configured": True, "error": str(exc)}
 
 
-@app.post("/api/improvements/{improvement_id}/no")
-async def reject_improvement(improvement_id: int, body: ImprovementDecision) -> dict:
-    memory = get_memory()
-    try:
-        imp = memory.review_improvement(improvement_id, approved=False, note=body.note or "Rejected.")
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    return {"status": imp.status, "title": imp.title}
+@app.get("/api/kling/status")
+def kling_status() -> dict:
+    from shorts_bot.tiktok_shop import kling_client
 
-
-@app.post("/api/drafts/{draft_id}/yes")
-async def approve_draft(draft_id: int, body: ImprovementDecision) -> dict:
-    store = get_store()
-    try:
-        d = store.review_draft(draft_id, "approved", body.note or "Approved.")
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    from shorts_bot.learning.feedback import learn_from_draft
-
-    learn_from_draft(get_memory(), d.topic, body.note or "Approved", "approved")
-    return {"status": d.status}
-
-
-@app.post("/api/drafts/{draft_id}/no")
-async def reject_draft(draft_id: int, body: ImprovementDecision) -> dict:
-    store = get_store()
-    if not body.note.strip():
-        raise HTTPException(400, "Rejection reason required")
-    try:
-        d = store.review_draft(draft_id, "rejected", body.note)
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    from shorts_bot.learning.feedback import learn_from_draft
-
-    learn_from_draft(get_memory(), d.topic, body.note, "rejected")
-    return {"status": d.status}
+    return {"configured": kling_client.configured()}
 
 
 @app.post("/api/score")
-async def score_video(body: ScoreRequest) -> dict:
+def score_video(body: ScoreRequest) -> dict:
+    """Score clip metrics → reward/punish → optional improvement proposal."""
+    from shorts_bot.learning.reflect import reflect_after_sync
+    from shorts_bot.learning.score_helpers import propose_reward_improvement
+    from shorts_bot.web.deps import get_agent_memory
+
     metrics = {
         k: v
         for k, v in body.model_dump().items()
         if k != "video_label" and v is not None
     }
-    from shorts_bot.learning.score_helpers import propose_reward_improvement
-
+    metrics.setdefault("metrics_source", "score_api")
     engine = get_reward_engine()
     result = engine.score(body.video_label, metrics)
     improvement = None
-    proposer = get_proposer()
-    imp = propose_reward_improvement(get_memory(), proposer, result)
+    imp = propose_reward_improvement(get_memory(), get_proposer(), result)
     if imp:
         improvement = {"id": imp.id, "title": imp.title, "pros": imp.pros, "cons": imp.cons}
+    reflect_summary = None
+    if settings.self_training_enabled:
+        reflect = reflect_after_sync(get_memory(), [result], agent_memory_store=get_agent_memory())
+        reflect_summary = reflect.summary()
     return {
         "score": result.score,
         "verdict": result.verdict,
@@ -319,207 +116,49 @@ async def score_video(body: ScoreRequest) -> dict:
         "diagnosis": result.diagnosis,
         "breakdown": result.breakdown,
         "improvement": improvement,
+        "reflect": reflect_summary,
     }
 
 
-@app.get("/api/briefing")
-async def morning_briefing() -> dict:
-    from shorts_bot.briefing.builder import build_morning_briefing
+@app.post("/api/feedback")
+def clip_feedback(body: FeedbackRequest) -> dict:
+    """Record approve/reject feedback on a clip concept — feeds avoid/repeat rules."""
+    from shorts_bot.learning.feedback import learn_from_draft
 
-    text = build_morning_briefing()
-    return {"briefing": text}
-
-
-@app.get("/api/slack/status")
-async def slack_status() -> dict:
-    from shorts_bot.integrations.slack import slack_setup_status
-
-    return slack_setup_status()
+    msg = learn_from_draft(get_memory(), body.topic, body.reason, body.decision)
+    return {"ok": True, "message": msg}
 
 
-@app.post("/api/slack/test")
-async def slack_test_webhook() -> dict:
-    from shorts_bot.integrations.slack import send_test_message
-
-    ok, message = send_test_message()
-    if not ok:
-        raise HTTPException(status_code=400, detail=message)
-    return {"ok": True, "message": message}
-
-
-class SlackAutonomyRequest(BaseModel):
-    command: str = Field(..., min_length=1, max_length=2000)
-    note: str = ""
-    thread_ts: str | None = None
-
-
-@app.post("/api/slack/autonomy")
-async def slack_autonomy_enqueue(body: SlackAutonomyRequest) -> dict:
-    """Post [autonomy] command to Slack — Socket Mode listener executes it."""
-    from shorts_bot.integrations.slack_autonomy import post_autonomy_command
-
-    ok, message = post_autonomy_command(
-        body.command,
-        note=body.note,
-        thread_ts=body.thread_ts,
-    )
-    if not ok:
-        raise HTTPException(status_code=400, detail=message)
-    return {"ok": True, "message": message}
-
-
-@app.get("/api/checklist")
-async def setup_checklist() -> dict:
-    from shorts_bot.services.ops import BotOperations
-
-    return {"items": BotOperations().setup_checklist()}
-
-
-@app.get("/api/status")
-async def status() -> dict:
-    store = get_store()
+@app.get("/api/learning/status")
+def learning_status() -> dict:
     memory = get_memory()
+    pending = memory.list_improvements(status="pending", limit=20)
     return {
-        "openai": settings.has_full_chat,
-        "chat_provider": settings.chat_provider,
-        "gemini": settings.has_gemini,
-        "channel": store.channel_summary(),
-        "stats": store.stats(),
-        "pending_improvements": len(memory.list_improvements(status="pending")),
-        "pending_drafts": len(store.list_drafts(status="pending")),
-        "pending_dev": len(memory.list_dev_tasks(status="pending")),
-        "applied_training": memory.applied_improvements(),
-        "youtube": auth_status(),
+        "self_training_enabled": settings.self_training_enabled,
+        "pending_improvements": len(pending),
+        "recent_rewards": memory.recent_rewards(limit=5),
     }
 
 
-@app.get("/api/youtube/status")
-async def youtube_status() -> dict:
-    return auth_status()
+@app.get("/", response_class=HTMLResponse)
+def home() -> str:
+    return """<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>TikTok Shop Factory</title></head>
+<body style="font-family:system-ui;max-width:640px;margin:2rem auto;padding:0 1rem">
+<h1>TikTok Shop Factory</h1>
+<p>API-only UI. Check status:</p>
+<ul>
+<li><a href="/api/status">/api/status</a></li>
+<li><a href="/api/tiktok-shop/status">/api/tiktok-shop/status</a></li>
+<li><a href="/api/printify/status">/api/printify/status</a></li>
+<li><a href="/api/learning/status">/api/learning/status</a></li>
+</ul>
+<p>Self-learning: POST <code>/api/score</code> with clip metrics from TikTok analytics.</p>
+<p>CLI: <code>python3 -m shorts_bot.tiktok_shop status</code></p>
+<p>Score CLI: <code>python3 -m shorts_bot.learning.score_cli score --label "Product clip" --swipe 65 --retention 40 --views 1200 --reflect</code></p>
+</body></html>"""
 
 
-@app.get("/api/login-status")
-async def login_status() -> dict:
-    import asyncio
-
-    from shorts_bot.login_status import full_status
-
-    rows = await asyncio.to_thread(full_status)
-    ready = sum(1 for r in rows if r["ready"])
-    return {"ready": ready, "total": len(rows), "services": rows}
-
-
-@app.get("/api/learned")
-async def learned_file() -> dict:
-    return {"content": LearnedFile(settings.learned_path).read_tail()}
-
-
-@app.get("/api/journal")
-async def journal() -> dict:
-    return {"entries": get_memory().learning_journal(limit=20)}
-
-
-@app.get("/api/dev")
-async def list_dev() -> dict:
-    memory = get_memory()
-    return {
-        "pending": [
-            {
-                "id": t.id,
-                "title": t.title,
-                "description": t.description,
-                "pros": t.pros,
-                "cons": t.cons,
-            }
-            for t in memory.list_dev_tasks(status="pending")
-        ]
-    }
-
-
-@app.post("/api/dev")
-async def create_dev(body: DevRequest) -> dict:
-    if not body.title.strip() or not body.description.strip():
-        raise HTTPException(400, "Title and description required")
-    task = get_memory().create_dev_task(title=body.title.strip(), description=body.description.strip())
-    return {"id": task.id, "message": f"Dev task #{task.id} queued for approval"}
-
-
-@app.post("/api/dev/{task_id}/yes")
-async def approve_dev(task_id: int, body: ImprovementDecision) -> dict:
-    memory = get_memory()
-    try:
-        task = memory.review_dev_task(task_id, approved=True, note=body.note or "Approved.")
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    LearnedFile(settings.learned_path).record_dev_task(task, approved=True)
-    return {"status": task.status, "title": task.title}
-
-
-@app.post("/api/dev/{task_id}/no")
-async def reject_dev(task_id: int, body: ImprovementDecision) -> dict:
-    memory = get_memory()
-    try:
-        task = memory.review_dev_task(task_id, approved=False, note=body.note or "Rejected.")
-    except KeyError:
-        raise HTTPException(404, "Not found") from None
-    return {"status": task.status, "title": task.title}
-
-
-@app.post("/api/production")
-async def create_production_pack(body: ProductionRequest) -> dict:
-    from shorts_bot.services.ops import BotOperations
-
-    return BotOperations().prepare_video_production(body.draft_id, body.turboscribe_text)
-
-
-@app.post("/api/production/auto/{draft_id}")
-async def auto_production(draft_id: int) -> dict:
-    from shorts_bot.services.ops import BotOperations
-
-    return BotOperations().auto_make_video(draft_id)
-
-
-@app.post("/api/youtube/apply-brand")
-async def youtube_apply_brand() -> dict:
-    from shorts_bot.services.ops import BotOperations
-
-    result = BotOperations().apply_channel_branding()
-    return result
-
-
-@app.post("/api/youtube/comments")
-async def youtube_comments() -> dict:
-    from shorts_bot.services.ops import BotOperations
-
-    result = await asyncio.to_thread(BotOperations().run_comment_replies)
-    return result
-
-
-@app.get("/api/youtube/comments/pending")
-async def youtube_comments_pending() -> dict:
-    memory = get_memory()
-    return {
-        "pending": memory.count_comments_needing_human(),
-        "items": memory.list_comments_needing_human(limit=20),
-    }
-
-
-@app.post("/api/youtube/sync")
-async def youtube_sync() -> dict:
-    automation = await asyncio.to_thread(run_full_automation)
-    result = automation.sync
-    pending = len(get_memory().list_improvements(status="pending"))
-    msg = result.message
-    if automation.improvements_auto_approved:
-        msg += f" (auto-approved {automation.improvements_auto_approved})"
-    return {
-        "ok": result.ok,
-        "message": msg,
-        "videos_scored": result.videos_scored,
-        "improvements_created": result.improvements_created,
-        "improvements_auto_approved": automation.improvements_auto_approved,
-        "videos_published": automation.videos_published,
-        "rewards": result.rewards or [],
-        "pending_improvements": pending,
-        "sign_off_hint": "Tap Yes on risky proposals only." if pending else None,
-    }
+@app.exception_handler(Exception)
+async def unhandled_exception(_request, exc: Exception) -> JSONResponse:
+    return JSONResponse(status_code=500, content={"error": str(exc)})

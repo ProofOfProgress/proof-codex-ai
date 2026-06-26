@@ -1,12 +1,21 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from shorts_bot.learning.feedback import learn_from_draft
 from shorts_bot.learning.reflect import reflect_after_sync
 from shorts_bot.memory.agent_memory import AgentMemoryStore
 from shorts_bot.memory.extensions import MemoryExtensions
 from shorts_bot.memory.store import MemoryStore
 from shorts_bot.rewards.engine import RewardEngine
+
+
+@pytest.fixture(autouse=True)
+def _self_training_on(monkeypatch):
+    from shorts_bot import config
+
+    monkeypatch.setattr(config.settings, "self_training_enabled", True)
 
 
 def test_upload_snapshots_active_rules(tmp_path: Path):

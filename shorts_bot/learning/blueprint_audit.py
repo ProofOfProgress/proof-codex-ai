@@ -148,9 +148,9 @@ def run_blueprint_audit(*, store: MemoryStore | None = None) -> list[AuditCheck]
     checks.append(
         AuditCheck(
             "daily_operational",
-            "Daily autopilot running (needs InVideo credits + phone)",
+            "Legacy InVideo daily loop (retired — use tiktok_shop + course)",
             not daily_blocked,
-            f"auto_daily_enabled={settings.auto_daily_enabled} pipeline={settings.pipeline_backend}",
+            f"auto_daily_enabled={settings.auto_daily_enabled} pipeline={settings.pipeline_backend} (expected: tiktok_shop, auto_daily=false)",
             kind="operational",
         )
     )
