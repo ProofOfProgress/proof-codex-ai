@@ -4,7 +4,9 @@
 
 **North star:** TikTok Shop affiliate revenue.
 
-**Bot job:** Connect APIs → scout → render clips → queue/post per course modules.
+**Knowledge split:** Course = creative (hooks, video, growth, violations). Repo = automation (APIs, Kling, QC, post). See `data/research/course/KNOWLEDGE.md`.
+
+**Bot job:** Connect APIs → scout → render clips → queue/post **per course modules** — never per retired lanes (Fix It Fast, InVideo, Ms. Byte, etc.).
 
 ---
 

@@ -16,6 +16,7 @@ The following text is from video guides that we are supposed to study before we 
 **Getting-started video guide:** Modules **1–8** complete (Module 1 = written rules; Modules 2–8 = Loom guides).
 
 **Course name:** Momentum Academy  
+**Knowledge hierarchy:** `KNOWLEDGE.md` — course = creative (~90%); repo = automation only  
 **Owner overrides:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `BUBBLE_WRAP.md`  
 **Growth funnel (reference):** `BUBBLE_WRAP.md` (0→1k) → `ADS_1K_TO_5K.md` (1k→5k, **deferred — use later**)  
 **Live updates:** `GROUP_CALLS.md` — owner reports group-call changes after each call

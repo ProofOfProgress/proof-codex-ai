@@ -2,10 +2,17 @@
 
 ## Strategy source (supreme)
 
-**Owner's paid TikTok Shop affiliate course** — modules in `data/research/course/` are the **only** playbook.
+**Owner's paid TikTok Shop affiliate course** — `data/research/course/` is the **only** creative playbook.
 
+- **~90% of agent knowledge** for content (hooks, visuals, captions, growth, compliance) must come from the course modules.
+- **Repo code** is for automation only (APIs, render, QC gate, queue) — not for inventing strategy.
 - **Never contradict the course** unless the **owner** gives a direct override.
 - No other strategy docs, guru content, or old courses in this repo.
+- Hierarchy: `data/research/course/KNOWLEDGE.md`
+
+## Retired (dead — do not reference)
+
+Fix It Fast · Rapid Tool Review · Ms. Byte · InVideo daily workflow · Peripheral horror · any deleted `archive/` strategy not re-ingested into `course/`.
 
 ## Mandatory pre-upload QC (Module 1)
 

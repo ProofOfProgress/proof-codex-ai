@@ -1,6 +1,6 @@
 # TikTok Shop Factory
 
-API connections + clip pipeline. Strategy = `data/research/course/` only.
+API connections + clip pipeline. **Creative playbook = `data/research/course/` only** (see `KNOWLEDGE.md`).
 
 ```bash
 bash scripts/install.sh

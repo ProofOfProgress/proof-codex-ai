@@ -3,8 +3,18 @@
 ## Owner
 
 - Not a developer — plain English, exact steps.
-- **Only knowledge source:** `data/research/course/` (owner's paid affiliate course).
 - **Top 4:** `data/PRIORITIES.md`
+
+## Knowledge (read this first)
+
+| Layer | Source | What it covers |
+|-------|--------|----------------|
+| **Creative (~90%)** | `data/research/course/` | Hooks, images, video, editing, growth, violations, appeals |
+| **Automation (~10%)** | `shorts_bot/tiktok_shop/`, APIs | EchoTik, Kling, OAuth, Module 1 QC gate, posting mechanics |
+
+Full hierarchy: `data/research/course/KNOWLEDGE.md`
+
+**Dead brands — never use for creative direction:** Fix It Fast, Rapid Tool Review, Ms. Byte, InVideo, Peripheral horror.
 
 ## Commands
 
