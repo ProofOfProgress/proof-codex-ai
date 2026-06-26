@@ -6,6 +6,19 @@
 
 ---
 
+## Owner override — do NOT use auto-prompter sheet
+
+The video references a **NanoBanana Pro Auto Prompter Google Sheet**. **We skip that.**
+
+**Use instead:** ChatGPT **Product Video Prompt Builder**  
+https://chatgpt.com/g/g-69ba84bb288481919efbb9d1b7aad690-product-video-prompt-builder
+
+See `data/research/course/PROMPT_BUILDER.md`.
+
+Everything below is **course transcript** (kept for product vs reference image definitions and Higgsfield settings). Ignore sheet-specific steps unless owner says otherwise.
+
+---
+
 ## Key definitions (owner note)
 
 - **Product image** — the product on a **blank/white background** (isolated). Example: Kalodata listing photo with white background.

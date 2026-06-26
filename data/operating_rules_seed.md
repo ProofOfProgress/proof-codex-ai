@@ -14,6 +14,12 @@
 - Code: `shorts_bot/tiktok_shop/module1_qc.py`
 - Course: `data/research/course/module_01_read_before_anything.md`
 
+## Prompt builder (owner override)
+
+**Do not use** the course Google Sheet auto-prompter.
+
+**Use** ChatGPT Product Video Prompt Builder — see `data/research/course/PROMPT_BUILDER.md`.
+
 ## Owner
 
 Not a developer. Plain English. One step at a time.

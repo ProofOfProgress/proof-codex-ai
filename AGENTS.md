@@ -27,4 +27,4 @@ python3 -m pytest tests/ -q
 
 ## Course
 
-Add modules to `data/research/course/` in order. Do not add strategy docs elsewhere.
+Modules in `data/research/course/`. Prompts: **ChatGPT Product Video Prompt Builder** (`PROMPT_BUILDER.md`) — not the course Google Sheet.
