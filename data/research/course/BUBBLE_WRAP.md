@@ -38,7 +38,8 @@ Other hooks that still work: `Pop The Bubble Wrap`, `Great for ADHD`, labeled bu
 
 ### Sample references
 
-- Owner uploaded **10/11 sample images** to Drive — use as style reference when generating
+- **Owner samples (10/11):** [Google Drive folder](https://drive.google.com/drive/folders/1drt1xcaakCDMQ2ABJsJpeOYW7XDnHqDB) — folder ID `1drt1xcaakCDMQ2ABJsJpeOYW7XDnHqDB`  
+  Local sync path (when accessible): `data/research/course/_media/bubble_wrap/samples/`
 - Course reference account: [@buck.finds](https://www.tiktok.com/@buck.finds)
 - Full Loom playbook: `module_02_best_practices.md`
 
