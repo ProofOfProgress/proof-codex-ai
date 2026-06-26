@@ -19,11 +19,13 @@ The agent should:
 - On-screen **caption / prompt text** styles (Module 6)
 - **Banned or risky words** (Module 7)
 - Product research filters (Module 3)
-- Violation / appeal tactics (Module 8 when ingested)
+- Violation / appeal tactics (Module 8)
+- **Violation waves** — wait for coach playbook; owner logs in GROUP_CALLS
 
 ## Modules that explicitly say “join group calls”
 
 - Module 6 — caption prompt copy  
 - Module 7 — avoiding violations & misinformation wording  
+- Module 8 — violation waves + appeal strategy updates
 
 Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
