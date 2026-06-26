@@ -141,6 +141,8 @@ Text isn’t a rigid script — match the **viral format** on the sound page. **
 
 Then switch focus to **affiliate product content** (Modules 3–8) on warmed accounts.
 
+**Optional next step (1k → 5k):** paid **follow** ads using the “journey with this app” mirror video — full playbook in **`ADS_1K_TO_5K.md`**. **Deferred** until an account hits ~1k; owner verifies trend sound at run time.
+
 ---
 
 ## What “good” looks like on the sound page

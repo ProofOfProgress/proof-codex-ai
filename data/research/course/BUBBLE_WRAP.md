@@ -11,7 +11,8 @@
 5. Add interaction text (Pause/Follow/Share/Comment → Pop)  
 6. Post with **Mackenzie original sound**  
 7. **3–5 accounts**, unique images each, mix 1 vs 5–10 posts/day until **1k**  
-8. Then → affiliate pipeline + Module 1 QC on Shop videos  
+8. **Later (optional):** 1k → 5k follow ads → see `ADS_1K_TO_5K.md` (not needed until ~1k)  
+9. Then → affiliate pipeline + Module 1 QC on Shop videos  
 
 **Example account:** @buck.finds
 
