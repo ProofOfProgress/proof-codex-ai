@@ -9,6 +9,8 @@ data/*.db-shm
 data/production/
 data/*.sqlite
 data/browser_profile/
+data/browser_profile_b2b_outreach/
+data/b2b/gmail_setup_handoff.json
 data/screenshots/
 data/youtube_token.json
 data/LEARNED.md
