@@ -35,7 +35,7 @@ Cursor → Secrets → add:
 
 | Secret | Value |
 |--------|--------|
-| `ZERNIO_API_KEY` | your key |
+| `ZERNIO_API_KEY` or `ZERNIO_API_TOKEN` | your key |
 
 Then:
 

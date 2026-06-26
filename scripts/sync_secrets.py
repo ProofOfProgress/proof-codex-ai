@@ -60,6 +60,7 @@ SYNC_VARS = (
     "TIKTOK_CLIENT_KEY",
     "TIKTOK_CLIENT_SECRET",
     "ZERNIO_API_KEY",
+    "ZERNIO_API_TOKEN",
     "ECHOTIK_USERNAME",
     "ECHOTIK_PASSWORD",
     "ECHOTIK_REGION",
@@ -186,8 +187,9 @@ def sync(*, quiet: bool = False) -> list[str]:
         raw = os.environ.get(key)
         if raw is None or not _is_real_value(key, raw):
             continue
-        lines = _upsert(lines, key, raw.strip())
-        written.append(key)
+        target = "ZERNIO_API_KEY" if key == "ZERNIO_API_TOKEN" else key
+        lines = _upsert(lines, target, raw.strip())
+        written.append(key if target == key else f"{key}→{target}")
 
     for key, value in DEFAULT_ENV.items():
         if not _has_key(lines, key):

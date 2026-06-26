@@ -53,7 +53,7 @@ def main() -> None:
         return
 
     if not st["configured"]:
-        console.print(Panel("Add ZERNIO_API_KEY to Cursor Secrets or .env", title="Zernio"))
+        console.print(Panel("Add ZERNIO_API_KEY or ZERNIO_API_TOKEN to Cursor Secrets or .env", title="Zernio"))
         return
 
     table = Table(title="Zernio connected accounts")

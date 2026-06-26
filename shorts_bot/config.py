@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -117,8 +117,8 @@ class Settings(BaseSettings):
     tiktok_disable_comment: bool = False
     auto_upload_tiktok: bool = False
 
-    # Zernio — cheap multi-platform upload (TikTok, Facebook Reels, etc.)
     zernio_api_key: str | None = None
+    zernio_api_token: str | None = None  # Cursor secret alias → same as zernio_api_key
     zernio_tiktok_account_id: str | None = None
     zernio_facebook_account_id: str | None = None
     zernio_post_tiktok: bool = True
@@ -431,6 +431,12 @@ class Settings(BaseSettings):
             and bool(self.kling_generate_audio)
             and bool(self.kling_skip_narrator_tts)
         )
+
+    @model_validator(mode="after")
+    def _merge_zernio_api_key(self) -> "Settings":
+        if not self.zernio_api_key and self.zernio_api_token:
+            object.__setattr__(self, "zernio_api_key", self.zernio_api_token)
+        return self
 
     @property
     def has_resemble(self) -> bool:
