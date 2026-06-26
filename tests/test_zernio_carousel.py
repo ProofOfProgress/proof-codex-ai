@@ -42,3 +42,4 @@ def test_upload_photo_carousel_builds_image_payload(tmp_path, monkeypatch):
     assert payload["mediaItems"][0]["type"] == "image"
     assert payload["tiktokSettings"]["media_type"] == "photo"
     assert payload["tiktokSettings"]["auto_add_music"] is False
+    assert payload["tiktokSettings"]["video_made_with_ai"] is True

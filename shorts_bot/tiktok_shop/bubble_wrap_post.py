@@ -17,6 +17,7 @@ def post_bubble_wrap_carousel(
     description: str = "",
     auto_add_music: bool = False,
     publish_now: bool = True,
+    draft: bool = False,
 ) -> tuple[bool, str, str]:
     """Upload hook + CTA PNGs as TikTok photo carousel. Returns (ok, message, post_id)."""
     zid = (account.zernio_account_id or "").strip()
@@ -32,6 +33,7 @@ def post_bubble_wrap_carousel(
             photo_cover_index=0,
             auto_add_music=auto_add_music,
             publish_now=publish_now,
+            draft=draft,
         )
         return True, result.message, result.post_id
     except Exception as exc:  # noqa: BLE001
