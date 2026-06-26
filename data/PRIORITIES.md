@@ -2,7 +2,9 @@
 
 **Strategy:** Owner's **paid affiliate course** only — `data/research/course/`
 
-**North star:** TikTok Shop affiliate revenue.
+**North star:** TikTok Shop affiliate revenue (after accounts are warmed).
+
+**Current phase:** **Bubble wrap only** until ~**1k followers** per account — then affiliate Modules 3–8.
 
 **Knowledge split:** Course = creative (hooks, video, growth, violations). Repo = automation (APIs, Kling, QC, post). See `data/research/course/KNOWLEDGE.md`.
 
