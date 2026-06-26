@@ -26,8 +26,10 @@ def save_queue(rows: list[dict]) -> None:
     path.write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8")
 
 
-def pending_posts(*, account_id: str | None = None) -> list[dict]:
+def pending_posts(*, account_id: str | None = None, media_type: str | None = None) -> list[dict]:
     rows = [r for r in load_queue() if r.get("status", "pending") == "pending"]
+    if media_type:
+        rows = [r for r in rows if r.get("media_type", "video") == media_type]
     if account_id:
         rows = [r for r in rows if not r.get("account_id") or r.get("account_id") == account_id]
     return rows
@@ -42,8 +44,31 @@ def enqueue_video(
 ) -> int:
     rows = load_queue()
     rows.append({
+        "media_type": "video",
         "video_path": video_path,
         "product": product,
+        "caption": caption,
+        "account_id": account_id,
+        "status": "pending",
+    })
+    save_queue(rows)
+    return len(rows) - 1
+
+
+def enqueue_carousel(
+    *,
+    slide1_path: str,
+    slide2_path: str,
+    title: str,
+    caption: str = "",
+    account_id: str = "",
+) -> int:
+    rows = load_queue()
+    rows.append({
+        "media_type": "carousel",
+        "slide1_path": slide1_path,
+        "slide2_path": slide2_path,
+        "title": title,
         "caption": caption,
         "account_id": account_id,
         "status": "pending",

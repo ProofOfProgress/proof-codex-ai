@@ -18,6 +18,7 @@ class ShopAccount:
     tiktok_token_path: Path | None = None
     zernio_account_id: str | None = None
     post_via: str = "zernio"  # zernio | tiktok_api
+    track: str = "affiliate"  # bubble | affiliate
 
     def resolved_token_path(self) -> Path | None:
         if self.tiktok_token_path:
@@ -51,17 +52,22 @@ def load_accounts() -> list[ShopAccount]:
                 tiktok_token_path=Path(token) if token else None,
                 zernio_account_id=(row.get("zernio_account_id") or None),
                 post_via=str(row.get("post_via") or "zernio").strip().lower(),
+                track=str(row.get("track") or "affiliate").strip().lower(),
             )
         )
     return [a for a in out if a.id and a.enabled]
 
 
+def accounts_config_exists() -> bool:
+    return accounts_config_path().is_file()
+
+
 def _default_accounts() -> list[ShopAccount]:
-    base = settings.data_dir / "tiktok_shop" / "tokens"
+    """Fallback when accounts.json is missing — Zernio ids must be set in accounts.json."""
     return [
-        ShopAccount(id="shop_1", label="Shop account 1", tiktok_token_path=base / "shop_1.json"),
-        ShopAccount(id="shop_2", label="Shop account 2", tiktok_token_path=base / "shop_2.json"),
-        ShopAccount(id="shop_3", label="Shop account 3", tiktok_token_path=base / "shop_3.json"),
+        ShopAccount(id="shop_1", label="Shop account 1 (configure accounts.json)", post_via="zernio"),
+        ShopAccount(id="shop_2", label="Shop account 2 (configure accounts.json)", post_via="zernio"),
+        ShopAccount(id="shop_3", label="Shop account 3 (configure accounts.json)", post_via="zernio"),
     ]
 
 

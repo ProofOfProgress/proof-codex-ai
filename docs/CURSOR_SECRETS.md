@@ -67,7 +67,8 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 |-------------|-------------|-------|
 | `ZERNIO_API_TOKEN` | Runtime Secret | **Owner name** for Zernio API key — also accepts `ZERNIO_API_KEY`. TikTok multi-account posting. |
 | `GEMINI_API_KEY` | Runtime Secret | QC, scripts, vision |
-| `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
+| `KLING_API_KEY` | Runtime Secret | Official Kling API key (single key from klingai.com) |
+| `KLING_ACCESS_KEY` | Runtime Secret | Optional pair with KLING_SECRET_KEY instead of KLING_API_KEY |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
 | `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |
 | `ECHOTIK_PASSWORD` | Runtime Secret | Pair with username |

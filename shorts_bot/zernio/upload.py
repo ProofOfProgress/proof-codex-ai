@@ -65,6 +65,7 @@ def upload_video(
     facebook: bool = True,
     publish_now: bool = True,
     private: bool = False,
+    tiktok_account_id: str | None = None,
 ) -> ZernioPostResult:
     """Presign MP4, upload to Zernio CDN, post to connected platforms."""
     if not credentials_configured():
@@ -75,10 +76,19 @@ def upload_video(
     upload_url, public_url = presign_video(video_path)
     upload_file_to_presigned(upload_url, video_path)
 
+    tid = (tiktok_account_id or "").strip()
+    if tiktok:
+        if tid:
+            platforms = [{"platform": "tiktok", "accountId": tid}]
+        else:
+            platforms = _platform_targets(tiktok=True, facebook=facebook)
+    else:
+        platforms = _platform_targets(tiktok=False, facebook=facebook)
+
     payload: dict[str, Any] = {
         "content": caption[:2200],
         "mediaItems": [{"type": "video", "url": public_url}],
-        "platforms": _platform_targets(tiktok=tiktok, facebook=facebook),
+        "platforms": platforms,
         "tiktokSettings": {
             "privacy_level": _tiktok_privacy(private=private),
             "allow_comment": True,

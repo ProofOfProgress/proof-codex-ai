@@ -72,11 +72,15 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 ```bash
 bash scripts/install.sh
 python3 -m shorts_bot.tiktok_shop status
+python3 -m shorts_bot.tiktok_shop.factory_cli status
+python3 -m shorts_bot.tiktok_shop.factory_cli post-slideshow S1.png S2.png --title "HOOK" --account bubble_1 --private --confirm
 python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
 python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."
 python3 -m pytest tests/ -q
 python3 -m shorts_bot.web   # http://127.0.0.1:8080/api/status
 ```
+
+Bubble wrap SOP: `docs/FOR_OWNER_BUBBLE_WRAP_OPS.md` · **Test uploads always `--private`**
 
 Owner setup: `docs/FOR_OWNER_BASICS.md` · **New agent bootstrap:** `docs/CLOUD_AGENT_START.md` · Secrets: `docs/CURSOR_SECRETS.md`
 
