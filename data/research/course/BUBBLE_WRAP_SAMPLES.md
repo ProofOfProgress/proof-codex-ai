@@ -61,7 +61,7 @@ Generate **new** pairs: same format, swap one detail (ChatGPT screenshot workflo
 
 1. Generate **slide 1** — wrapped subject + hook text only  
 2. Generate **slide 2** — same/variant subject + CTA lines + appropriate emojis  
-3. Export **2-image slideshow** (or short MP4 slideshow via ffmpeg)  
-4. Post with Mackenzie sound  
+3. Export **2-image photo carousel** — **not** an auto-swipe MP4  
+4. Post via TikTok **Photo Mode** API (manual swipe) + Mackenzie sound (inbox draft if needed)  
 5. Hashtags: `#asmr` `#satisfying` `#bubblewrap` `#fyp`  
 6. **Never** reuse the same image pair across accounts  

@@ -76,3 +76,37 @@ Line order and exact words can match what’s viral on the sound page — keep t
 9. Then affiliate + Module 1 QC (Modules 3–8)  
 
 Live changes → owner reports on `GROUP_CALLS.md`.
+
+---
+
+## Posting format — manual swipe (critical)
+
+Bubble wrap posts must be TikTok **photo carousels** (Photo Mode) — the viewer **swipes** slide 1 → slide 2 themselves.
+
+| ✅ Correct | ❌ Wrong |
+|-----------|---------|
+| **2-photo carousel** — manual swipe | MP4 video that **auto-advances** between frames |
+| Native TikTok slideshow / photo mode | Stitched slideshow exported as one video file |
+
+**Do not** export a single auto-playing video for bubble wrap. That is not the same format as viral posts on the sound page.
+
+### Can the bot API do this?
+
+**Yes — TikTok Content Posting API supports photo carousels** (`media_type: PHOTO`, 2–35 images) via:
+
+`POST /v2/post/publish/content/init/`
+
+Our repo **does not implement this yet** — today we only upload **MP4 video** (`/v2/post/publish/video/init/`). Bubble wrap needs a new **`upload_photo_carousel`** path.
+
+### Mackenzie sound + API (important)
+
+The API **cannot attach a specific TikTok sound ID** (like Mackenzie) on direct photo post. Options:
+
+| Mode | What happens |
+|------|----------------|
+| **`MEDIA_UPLOAD`** (recommended for bubble wrap) | 2 images land in TikTok **inbox as draft** → open in app → add Mackenzie sound → publish |
+| **`DIRECT_POST`** | Goes live immediately but only **`auto_add_music`** — **not** the required sound |
+
+**Practical workflow until full automation:** bot uploads 2-image carousel to inbox → you (or agent via phone handoff) add Mackenzie sound in TikTok → publish.
+
+See `docs/FOR_OWNER_TIKTOK_SETUP.md` · build target: `shorts_bot/tiktok/upload.py` → `upload_photo_carousel()`.
