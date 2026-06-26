@@ -1,0 +1,37 @@
+{
+  "accounts": [
+    {
+      "id": "bubble_isaac",
+      "label": "Isaac",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dff2b9d9472faaeeca069"
+    },
+    {
+      "id": "bubble_playstation",
+      "label": "playstationaccou2171",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3e03579d9472faaeecbab6"
+    },
+    {
+      "id": "bubble_proof",
+      "label": "Proof Of Progress (YT)",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dfd469d9472faaeec9397"
+    },
+    {
+      "id": "bubble_msbyte",
+      "label": "Ms. Byte",
+      "daily_limit": 10,
+      "enabled": false,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b"
+    }
+  ],
+  "_note": "Bubble wrap carousels — 2 PNGs with baked captions per BUBBLE_WRAP.md. All Zernio TikToks except legacy Ms. Byte disabled."
+}

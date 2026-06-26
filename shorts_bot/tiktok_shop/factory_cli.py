@@ -84,6 +84,13 @@ def main() -> None:
     loop.add_argument("--in", dest="inp", required=True)
     loop.add_argument("--out", required=True)
 
+    carousel = sub.add_parser("post-carousel", help="Bubble wrap — 2 PNGs → Zernio photo carousel")
+    carousel.add_argument("--slide1", required=True, type=Path, help="Hook slide (caption baked in)")
+    carousel.add_argument("--slide2", required=True, type=Path, help="CTA slide (caption baked in)")
+    carousel.add_argument("--account", default="", help="Shop account id from accounts.json")
+    carousel.add_argument("--title", default="Bubble wrap ASMR")
+    carousel.add_argument("--confirm", action="store_true", help="Actually upload")
+
     post = sub.add_parser("post", help="Post next queued video (respects daily cap)")
     post.add_argument("--account", default="", help="Force account id")
     post.add_argument("--confirm", action="store_true", help="Actually upload")
@@ -273,6 +280,35 @@ def main() -> None:
 
         out = make_pan_loop_clip(Path(args.inp), Path(args.out))
         console.print(f"[green]Wrote[/green] {out}")
+        return
+
+    if args.cmd == "post-carousel":
+        from shorts_bot.tiktok_shop.accounts import load_accounts
+        from shorts_bot.tiktok_shop.bubble_wrap_post import post_bubble_wrap_carousel
+
+        accounts = load_accounts()
+        if not accounts:
+            console.print("[red]No accounts in data/tiktok_shop/accounts.json[/red]")
+            raise SystemExit(1)
+        account = next((a for a in accounts if a.id == args.account), None) if args.account else accounts[0]
+        if not account:
+            console.print(f"[red]Unknown account {args.account}[/red]")
+            raise SystemExit(1)
+        console.print(Panel(f"{account.label}\n{args.slide1}\n{args.slide2}", title="Bubble wrap carousel"))
+        if not args.confirm:
+            console.print("[yellow]Dry run — add --confirm to upload 2 PNGs to Zernio[/yellow]")
+            return
+        ok, msg, post_id = post_bubble_wrap_carousel(
+            account,
+            slide1=args.slide1,
+            slide2=args.slide2,
+            title=args.title,
+        )
+        if ok:
+            console.print(f"[green]{msg}[/green] post_id={post_id}")
+        else:
+            console.print(f"[red]{msg}[/red]")
+            raise SystemExit(1)
         return
 
     if args.cmd == "enqueue":
