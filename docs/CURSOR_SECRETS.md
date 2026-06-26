@@ -66,7 +66,10 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | Secret name | Cursor type | Notes |
 |-------------|-------------|-------|
 | `ZERNIO_API_TOKEN` | Runtime Secret | **Owner name** for Zernio API key — also accepts `ZERNIO_API_KEY`. TikTok multi-account posting. |
-| `GEMINI_API_KEY` | Runtime Secret | QC, scripts, vision |
+| `GEMINI_API_KEY` | Runtime Secret | QC, scripts, vision, **Module 4 images** (Nano Banana Pro) |
+| `GEMINI_IMAGE_MODEL` | Environment Variable | Default `gemini-3-pro-image-preview` |
+| `GEMINI_IMAGE_SIZE` | Environment Variable | `2K` (Module 4 default) |
+| `IMAGE_PROVIDER` | Environment Variable | `gemini` (recommended) \| `replicate` \| `fal` |
 | `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
 | `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |

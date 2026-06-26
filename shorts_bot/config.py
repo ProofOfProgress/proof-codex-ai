@@ -185,10 +185,13 @@ class Settings(BaseSettings):
     # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
     ai_video_generation_enabled: bool = False
 
-    # Paid image generation (Replicate FLUX or Fal.ai)
-    image_provider: str = "replicate"  # replicate | fal
+    # Paid image generation — gemini (Nano Banana Pro) | replicate | fal
+    image_provider: str = "gemini"  # gemini | replicate | fal
+    gemini_image_model: str = "gemini-3-pro-image-preview"  # Nano Banana Pro
+    gemini_image_fast_model: str = "gemini-3.1-flash-image-preview"  # Nano Banana 2
+    gemini_image_size: str = "2K"  # Module 4 — 1K | 2K | 4K
     replicate_api_token: str | None = None
-    replicate_image_model: str = "black-forest-labs/flux-schnell"
+    replicate_image_model: str = "google/nano-banana-pro"
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
     video_backend: str = "blender"
     kling_provider: str = "official"  # official | replicate | fal
@@ -387,8 +390,12 @@ class Settings(BaseSettings):
         return bool(key) and len(key) >= 8 and "your" not in key.lower()
 
     @property
+    def has_gemini_images(self) -> bool:
+        return self.has_gemini
+
+    @property
     def has_paid_images(self) -> bool:
-        return self.has_replicate_images or self.has_fal_images
+        return self.has_gemini_images or self.has_replicate_images or self.has_fal_images
 
     @property
     def has_assemblyai(self) -> bool:

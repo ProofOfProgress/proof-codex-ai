@@ -25,6 +25,26 @@ def main() -> None:
     qc.add_argument("--caption", default="")
     qc.add_argument("--account", default="")
 
+    gen_img = sub.add_parser("gen-image", help="Module 4 product image (Gemini Nano Banana Pro)")
+    gen_img.add_argument("--prompt", required=True, help="ChatGPT Prompt Builder output")
+    gen_img.add_argument("--out", default="", help="Output PNG path")
+    gen_img.add_argument("--slug", default="product", help="Filename stem if --out omitted")
+    gen_img.add_argument(
+        "--reference",
+        action="append",
+        default=[],
+        dest="references",
+        help="Reference image (in-context scale) — repeat flag",
+    )
+    gen_img.add_argument(
+        "--product-image",
+        action="append",
+        default=[],
+        dest="product_images",
+        help="Isolated product on white — repeat flag",
+    )
+    gen_img.add_argument("--fast", action="store_true", help="Use Nano Banana 2 (faster model)")
+
     prep = sub.add_parser("prep-images", help="Download product cover images from scout list")
     prep.add_argument("--force", action="store_true")
 
@@ -143,6 +163,29 @@ def main() -> None:
             for w in report.warnings:
                 console.print(f"[yellow]• {w}[/yellow]")
         raise SystemExit(0 if report.passed else 1)
+
+    if args.cmd == "gen-image":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.image_gen import generate_product_image
+
+        refs = [Path(p) for p in args.references]
+        products = [Path(p) for p in args.product_images]
+        out = Path(args.out) if args.out else None
+        try:
+            path = generate_product_image(
+                args.prompt,
+                out,
+                slug=args.slug,
+                reference_images=refs or None,
+                product_images=products or None,
+                fast=args.fast,
+            )
+        except Exception as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+        console.print(f"[green]Saved[/green] {path}")
+        return
 
     if args.cmd == "prep-images":
         from shorts_bot.tiktok_shop.product_images import download_for_products
