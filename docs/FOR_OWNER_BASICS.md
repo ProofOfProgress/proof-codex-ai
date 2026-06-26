@@ -1,6 +1,6 @@
 # TikTok Shop bot — basics only
 
-**Strategy comes from your paid course**, not this file.
+**Strategy:** `data/research/course/` only.
 
 ## One-time setup
 
@@ -29,7 +29,3 @@ python3 -m shorts_bot.web
 ```
 
 Open http://127.0.0.1:8080/api/status
-
-## Course transcripts
-
-Paste modules into `data/research/course/` and tell the agent **ingest the course**.

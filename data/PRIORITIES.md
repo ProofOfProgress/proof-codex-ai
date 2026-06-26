@@ -1,26 +1,18 @@
 # Priorities
 
-**Strategy:** Owner's **paid course** (transcripts → `data/research/course/` when ready).
+**Strategy:** Owner's **paid affiliate course** only — `data/research/course/`
 
-**North star:** TikTok Shop revenue. Target set by owner.
+**North star:** TikTok Shop affiliate revenue.
 
-**Bot job:** Connect to APIs, scout, render clips, queue posts — **not** pick the business playbook until course is ingested.
+**Bot job:** Connect APIs → scout → render clips → queue/post per course modules.
 
 ---
 
-## Top 4 (technical — reassess when course is ingested)
+## Top 4 (technical)
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **APIs live** | EchoTik + Kling + TikTok OAuth configured (`install.sh`, secrets) |
+| **1** | **APIs live** | EchoTik + Kling + TikTok OAuth configured |
 | **2** | **Clip pipeline** | `make-clip` works from a product image |
-| **3** | **Course ingest** | Owner transcripts → playbook in `data/research/course/` |
-| **4** | **Daily ops** | Posting queue matches **course SOP** (after ingest) |
-
----
-
-## Do not use (removed / archived)
-
-- Free 5h seller guru course  
-- Old affiliate vs seller war in repo docs  
-- Peripheral / YouTube / InVideo — `archive/legacy/`
+| **3** | **Course ingest** | Modules in `data/research/course/` |
+| **4** | **Daily ops** | Posting queue matches course SOP |
