@@ -24,7 +24,7 @@ Everything below is **course transcript** (kept for product vs reference image d
 - **Product image** — the product on a **blank/white background** (isolated). Example: Kalodata listing photo with white background.
 - **Reference image** — the product in a **natural setting** so the AI understands **real-world size/scale**. Without this, generated size can be wrong (product looks huge or tiny).
 
-In the auto-prompter sheet: **product images** = isolated; **reference images** = in-context setting. Reference goes **leftmost** in the image set when both are used.
+In prompts to the ChatGPT builder: **product images** = isolated; **reference images** = in-context setting. Reference goes **leftmost** when both are used.
 
 ---
 

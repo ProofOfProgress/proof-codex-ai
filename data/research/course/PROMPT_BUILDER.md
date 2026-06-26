@@ -12,6 +12,10 @@ https://chatgpt.com/g/g-69ba84bb288481919efbb9d1b7aad690-product-video-prompt-bu
 2. Use the GPT output as the prompt for image/video generation (Higgsfield / Kling per module).
 3. Still follow Module 1 QC before any upload.
 
+## Video prompt (Module 5 — separate from GPT)
+
+After the image is ready, video generation uses a **fixed all-purpose prompt** in Higgsfield/Kling 2.6 — see `module_05_ai_video_generation.md`. Do not run that through the ChatGPT builder.
+
 ## Bot wiring
 
 When owner provides the GPT **Instructions** text (Edit GPT screen) or **example prompts** (product in → prompt out), save verbatim here and encode in `shorts_bot/tiktok_shop/` prompt builder — **do not** use the Google Sheet.

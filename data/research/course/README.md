@@ -8,5 +8,6 @@ The following text is from video guides that we are supposed to study before we 
 | 2 | `module_02_best_practices.md` | Best practices — bubble wrap method |
 | 3 | `module_03_product_research_strategies.md` | Product research (Loom transcript) |
 | 4 | `module_04_ai_image_generation.md` | Image gen — product vs reference; prompts via **ChatGPT builder** (not sheet) |
+| 5 | `module_05_ai_video_generation.md` | Video gen — Higgsfield + Kling 2.6, 5s, fixed arc-camera prompt |
 
 Add new modules in chronological order as `module_XX_*.md`.
