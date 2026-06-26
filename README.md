@@ -26,7 +26,7 @@ python3 -m shorts_bot.tiktok_shop status
 python3 -m pytest tests/ -q
 ```
 
-Owner setup: `docs/FOR_OWNER_BASICS.md` · Secrets: `docs/CURSOR_SECRETS.md`
+Owner setup: `docs/FOR_OWNER_BASICS.md` · **TikTok posting (easy):** `docs/FOR_OWNER_ZERNIO_SETUP.md` · Secrets: `docs/CURSOR_SECRETS.md`
 
 ## Course modules
 

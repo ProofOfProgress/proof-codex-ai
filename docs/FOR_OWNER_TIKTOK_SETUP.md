@@ -1,5 +1,8 @@
 # TikTok login — posting API
 
+> **Recommended:** Use **Zernio** instead — `docs/FOR_OWNER_ZERNIO_SETUP.md`  
+> Direct TikTok API below is **hard mode** (developer app, OAuth, tokens per account).
+
 Connect TikTok so the bot can upload clips.
 
 **Time:** ~15 minutes first time.
