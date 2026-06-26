@@ -78,7 +78,7 @@ python3 -m pytest tests/ -q
 python3 -m shorts_bot.web   # http://127.0.0.1:8080/api/status
 ```
 
-Owner setup: `docs/FOR_OWNER_BASICS.md` · Secrets: `docs/CURSOR_SECRETS.md`
+Owner setup: `docs/FOR_OWNER_BASICS.md` · **New agent bootstrap:** `docs/CLOUD_AGENT_START.md` · Secrets: `docs/CURSOR_SECRETS.md`
 
 ---
 
