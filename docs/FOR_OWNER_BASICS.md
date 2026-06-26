@@ -14,7 +14,8 @@ Secrets checklist: `docs/CURSOR_SECRETS.md`
 EchoTik: `docs/FOR_OWNER_ECHOTIK_SETUP.md`  
 Kling: `docs/FOR_OWNER_KLING_SETUP.md`  
 Printify: `docs/FOR_OWNER_PRINTIFY_API.md`  
-TikTok login: `docs/FOR_OWNER_TIKTOK_SETUP.md`
+TikTok posting (easy): `docs/FOR_OWNER_ZERNIO_SETUP.md`  
+TikTok direct API (hard mode): `docs/FOR_OWNER_TIKTOK_SETUP.md`
 
 ## Make a clip (no strategy — just the button)
 
