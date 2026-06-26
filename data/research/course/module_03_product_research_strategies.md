@@ -1,4 +1,4 @@
-# Module 02 — Product Research Strategies for TikTok Shop
+# Module 03 — Product Research Strategies for TikTok Shop
 
 **Source:** https://www.loom.com/share/10b8ec5579f841ec96c3da9b395e4c6f  
 **Title:** Product Research Strategies for TikTok Shop  
