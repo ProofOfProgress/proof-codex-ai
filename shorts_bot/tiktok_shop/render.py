@@ -16,13 +16,22 @@ from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
 # Tell Kling to avoid the empty gray void / unfinished 3D look.
 NEGATIVE_PROMPT = (
     "empty void, plain gray background, unfinished 3D render, blender default scene, "
-    "featureless backdrop, flat monochrome wall, low quality, blur, distortion, text, watermark"
+    "featureless backdrop, flat monochrome wall, low quality, blur, distortion, text, watermark, "
+    "extreme close-up, tight crop, product fills entire frame, zoomed in, macro shot"
 )
 
 DEFAULT_PROMPT = (
-    "Finished e-commerce product shot: item centered on a polished studio surface with "
-    "soft warm gradient backdrop and subtle props, professional three-point lighting, "
-    "real shadow and reflection, vertical TikTok Shop ad, no text overlays, no people"
+    "Finished e-commerce product shot: item centered with breathing room around it on a polished "
+    "studio surface, medium shot not extreme close-up, soft warm gradient backdrop and subtle "
+    "props, professional three-point lighting, real shadow and reflection, vertical TikTok Shop "
+    "ad, no text overlays, no people"
+)
+
+# Module 5 — fixed arc-camera (course); used when --prompt not passed
+ARC_CAMERA_PROMPT = (
+    "Arc Camera Shot from left to right, handheld but naturally stabilized. Motion is smooth and "
+    "organic with gentle human drift, not shaky. Keep all of the products stationary and in the "
+    "center of the shot."
 )
 
 # Kling background / set dressing — pick per product type (not one void-fits-all).
@@ -104,6 +113,7 @@ def render_product_clip(
     prompt: str = "",
     style: str = "auto",
     loop: bool = True,
+    on_screen_caption: str = "",
     skip_if_exists: bool = True,
 ) -> RenderResult:
     if not kling_client.configured():
@@ -145,11 +155,12 @@ def render_product_clip(
     slug = _slug(product_name or product_id)
     raw = out_dir / f"{slug}_raw.mp4"
     loop_path = out_dir / f"{slug}_loop.mp4"
+    final_path = out_dir / f"{slug}_final.mp4"
 
     if skip_if_exists and raw.is_file() and raw.stat().st_size > 10_000:
         task_id = "cached"
     else:
-        kling_prompt = prompt or prompt_for_style(style, product_name=product_name)
+        kling_prompt = prompt or ARC_CAMERA_PROMPT
         task_id = kling_client.create_image2video(
             image_url=image_for_kling,
             prompt=kling_prompt,
@@ -168,6 +179,15 @@ def render_product_clip(
             loop_out = loop_path
         else:
             loop_out = make_pan_loop_clip(raw, loop_path)
+
+    caption_text = (on_screen_caption or "").strip()
+    if loop_out and caption_text:
+        from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
+
+        if skip_if_exists and final_path.is_file() and final_path.stat().st_size > 10_000:
+            loop_out = final_path
+        else:
+            loop_out = burn_on_screen_caption(loop_out, final_path, caption_text)
 
     return RenderResult(
         product_id=product_id,
