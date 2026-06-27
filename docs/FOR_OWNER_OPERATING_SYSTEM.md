@@ -11,10 +11,18 @@ Plain English guide for how the bot **learns your rules** and **checks videos be
 | **Skills** (`.cursor/skills/`) | Yes — commit to repo | Nothing |
 | **Operating tips** (`data/operating_tips.json`) | Yes | You review tips |
 | **Agent memory** (`memory_cli`, `MEMORY.md`) | Yes | You say what to remember |
-| **Pre-publish Python gate** | Yes | Nothing |
+| **Pre-publish Python gate** | Yes — blocks upload via repo code | Nothing |
+| **Cursor rules** (`.cursor/rules/`) | Yes — always-on agent constraints | Nothing |
 | **MCP marketplace plugins** | Add config to repo | **OAuth** in Cursor Desktop + Dashboard Integrations + new agent run |
 
-MCP does not give “more memory.” **Tips + skills + memory** hold rules. **Python gate** enforces checks without the agent “thinking” through every frame in chat.
+### Two control planes (read this)
+
+| Plane | Controls | Does **not** control |
+|-------|----------|----------------------|
+| **Python** (`upload_guard` in Zernio/TikTok upload functions) | Publish through `shorts_bot` upload code | Agent reasoning in chat; raw `curl` to Zernio |
+| **Cursor** (`AGENTS.md`, `.cursor/rules/`, skills, tips) | How the agent should behave | A human running curl in a terminal |
+
+MCP does not give “more memory.” **Tips + rules + skills** steer the agent; **upload_guard** blocks bad publishes when upload goes through the repo’s Python paths.
 
 ---
 
