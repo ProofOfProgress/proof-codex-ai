@@ -155,7 +155,7 @@ def render_product_clip(
             prompt=kling_prompt,
             negative_prompt=NEGATIVE_PROMPT,
             duration=5,
-            mode="pro",  # 1080p vertical
+            mode=(settings.kling_mode or "std").strip().lower(),  # std=720p (cheaper; use pro when scaling)
             aspect_ratio="9:16",
             sound="off",
         )
