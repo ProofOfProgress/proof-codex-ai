@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from shorts_bot.tiktok_shop.accounts import ShopAccount
+from shorts_bot.tiktok_shop.pre_publish_gate import run_pre_publish_gate, enforce_before_upload
 from shorts_bot.zernio.upload import upload_photo_carousel
 
 
@@ -25,6 +26,15 @@ def post_bubble_wrap_carousel(
         return False, f"Account {account.id} needs zernio_account_id in accounts.json", ""
 
     try:
+        gate = run_pre_publish_gate(
+            "carousel",
+            slide1=slide1,
+            slide2=slide2,
+            title=title,
+            account_id=account.id,
+        )
+        enforce_before_upload(gate)
+
         result = upload_photo_carousel(
             [slide1, slide2],
             title=title,

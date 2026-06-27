@@ -65,6 +65,8 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 
 **Mandatory QC:** `shorts_bot/tiktok_shop/module1_qc.py` — zero Module 1 violations or upload blocked.
 
+**Operating tips + cheap pre-publish:** `data/operating_tips.json` · `docs/FOR_OWNER_OPERATING_SYSTEM.md` · `python3 scripts/pre_publish_gate.py`
+
 ---
 
 ## Commands

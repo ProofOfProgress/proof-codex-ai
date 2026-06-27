@@ -94,6 +94,8 @@ def main() -> None:
 
         if not pack_ok:
             continue
+
+        if not args.confirm:
             console.print("[yellow]Dry run — add --confirm to post[/yellow]")
             continue
 

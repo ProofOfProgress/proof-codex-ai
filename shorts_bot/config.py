@@ -269,6 +269,11 @@ class Settings(BaseSettings):
     # Module 1 course QC — mandatory before every TikTok Shop upload (zero ban triggers)
     module1_qc_enabled: bool = True
     module1_qc_blocks_upload: bool = True
+    module1_vision_qc_enabled: bool = True  # false = skip Gemini vision in Module 1 / pre-publish standard tier
+
+    # Pre-publish gate — tier fast = no vision (cheap); standard = vision when enabled
+    pre_publish_default_tier: str = "standard"  # fast | standard | full
+    pre_publish_blocks_upload: bool = True
     module1_min_video_seconds: float = 7.0
     module1_min_post_interval_minutes: int = 30
 

@@ -321,7 +321,7 @@ def run_module1_qc(
         frames.append((t, path))
 
     vision_ran = False
-    if settings.has_gemini:
+    if settings.module1_vision_qc_enabled and settings.has_gemini:
         try:
             vis_v, vis_w = _gemini_check_frames(frames, product=product)
             violations.extend(vis_v)
@@ -332,10 +332,14 @@ def run_module1_qc(
                 violations.append(f"Module 1 vision QC failed: {exc}")
             else:
                 warnings.append(f"Vision QC skipped: {exc}")
-    elif settings.module1_qc_blocks_upload:
+    elif settings.module1_qc_blocks_upload and settings.module1_vision_qc_enabled and not settings.has_gemini:
         violations.append(
             "GEMINI_API_KEY missing — cannot run mandatory Module 1 vision QC before upload"
         )
+    elif settings.module1_vision_qc_enabled and not settings.has_gemini:
+        warnings.append("GEMINI_API_KEY missing — vision QC skipped")
+    else:
+        warnings.append("Module 1 vision QC disabled (MODULE1_VISION_QC_ENABLED=false)")
 
     # Deduplicate while preserving order
     seen: set[str] = set()

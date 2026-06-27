@@ -1,0 +1,81 @@
+{
+  "_comment": "Owner tips — add rows here. enforcement: code (Python gate) | agent (skill/memory only) | both",
+  "tips": [
+    {
+      "id": "T001",
+      "title": "Course is creative source",
+      "applies_to": ["video", "carousel", "affiliate", "agent"],
+      "enforcement": "agent",
+      "content": "Creative direction comes from data/research/course/ only — not config defaults or retired lanes."
+    },
+    {
+      "id": "T002",
+      "title": "Disclose AI generated",
+      "applies_to": ["video", "carousel", "affiliate"],
+      "enforcement": "both",
+      "code_check": "aigc_configured",
+      "content": "Module 1: disclose all content as AI-generated on every upload (ZERNIO_DECLARE_AIGC / TikTok is_aigc)."
+    },
+    {
+      "id": "T003",
+      "title": "Module 1 QC before upload",
+      "applies_to": ["video", "affiliate"],
+      "enforcement": "both",
+      "code_check": "module1_video",
+      "content": "Zero Module 1 Video Don'ts and Posting Don'ts — run module1_qc before any video upload."
+    },
+    {
+      "id": "T004",
+      "title": "Bubble wrap is 2-photo carousel",
+      "applies_to": ["carousel"],
+      "enforcement": "both",
+      "code_check": "carousel_two_slides",
+      "content": "Bubble wrap = 2 PNGs with captions baked in, Zernio photo carousel — never auto-play MP4 slideshow."
+    },
+    {
+      "id": "T005",
+      "title": "Bubble slide QC",
+      "applies_to": ["carousel"],
+      "enforcement": "both",
+      "code_check": "bubble_slides",
+      "content": "Run bubble_wrap slide QC on hook + CTA PNGs before carousel upload."
+    },
+    {
+      "id": "T006",
+      "title": "Banned caption phrases",
+      "applies_to": ["video", "carousel", "affiliate"],
+      "enforcement": "code",
+      "code_check": "caption_bans",
+      "content": "No sale/price/discount bait in captions (triple discount, flash sale, coupon glitch, etc.)."
+    },
+    {
+      "id": "T007",
+      "title": "Posting spacing rules",
+      "applies_to": ["video", "carousel", "affiliate"],
+      "enforcement": "code",
+      "code_check": "posting_rules",
+      "content": "Respect per-account post interval and no duplicate product same day (Module 1 posting don'ts)."
+    },
+    {
+      "id": "T008",
+      "title": "Mackenzie sound handoff",
+      "applies_to": ["carousel"],
+      "enforcement": "agent",
+      "content": "API cannot attach Mackenzie sound — owner finishes in TikTok app (inbox draft or edit after post)."
+    },
+    {
+      "id": "T009",
+      "title": "Plain English for owner",
+      "applies_to": ["agent"],
+      "enforcement": "agent",
+      "content": "Owner is not a developer — one step at a time, plain English, no jargon dumps."
+    },
+    {
+      "id": "T010",
+      "title": "No inventing strategy",
+      "applies_to": ["agent"],
+      "enforcement": "agent",
+      "content": "Execute orders from course + owner overrides — rare creativity only when explicitly asked."
+    }
+  ]
+}
