@@ -6,7 +6,7 @@
       "daily_limit": 10,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": ""
+      "zernio_account_id": "6a3e03579d9472faaeecbab6"
     }
   ],
   "_note": "affiliate_test = TikTok @gspgsgsorip1 — private Kling/affiliate pipeline tests only. Paste zernio_account_id after: python3 -m shorts_bot.zernio.auth_cli --json. While testing: ZERNIO_TIKTOK_PRIVACY=SELF_ONLY (or SELF_ONLY in TikTok API privacy)."
