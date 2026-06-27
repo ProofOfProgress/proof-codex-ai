@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Isaac's Business Plan — For Nana</title>
+  <title>Nana — business plan</title>
   <style>
     :root {
       --bg: #f7f4ef;
-      --bg-warm: #fff9f2;
       --card: #ffffff;
       --text: #1c2b36;
       --text-soft: #4a5d6b;
@@ -17,8 +16,7 @@
       --highlight: #c96b4a;
       --highlight-soft: #fdf0ea;
       --border: #e2ddd4;
-      --shadow: 0 8px 32px rgba(28, 43, 54, 0.08);
-      --shadow-sm: 0 2px 12px rgba(28, 43, 54, 0.06);
+      --nav-h: 88px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,626 +26,397 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      font-size: 20px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
+      font-size: 19px;
+      line-height: 1.6;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 10% 0%, rgba(42, 107, 90, 0.07), transparent 50%),
-        radial-gradient(ellipse 60% 40% at 90% 100%, rgba(201, 107, 74, 0.06), transparent 50%);
-      pointer-events: none;
-      z-index: 0;
+    .deck {
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
     }
 
-    .deck { height: 100%; overflow: hidden; position: relative; z-index: 1; }
-
+  /* Each slide scrolls if content is tall — fixes cut-off on slides 4 & 6 */
     .slide {
       display: none;
-      height: 100%;
-      padding: 48px 56px 120px;
-      flex-direction: column;
-      justify-content: center;
-      max-width: 920px;
-      margin: 0 auto;
-      animation: fadeIn 0.35s ease;
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 28px 32px calc(var(--nav-h) + 24px);
     }
 
-    .slide.active { display: flex; }
+    .slide.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .slide-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    .slide-title {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 2.75rem;
-      line-height: 1.15;
+    h1 {
+      font-family: Georgia, serif;
+      font-size: 2.1rem;
       color: var(--accent-dark);
-      margin-bottom: 12px;
-      font-weight: 400;
+      margin-bottom: 16px;
+      line-height: 1.25;
     }
 
-    .slide-subtitle {
-      font-size: 1.35rem;
-      color: var(--text-soft);
-      margin-bottom: 32px;
-      max-width: 640px;
-    }
-
-    h2.slide-heading {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 2.25rem;
+    h2 {
+      font-family: Georgia, serif;
+      font-size: 1.85rem;
       color: var(--accent-dark);
-      margin-bottom: 28px;
-      font-weight: 400;
+      margin-bottom: 18px;
+      line-height: 1.25;
     }
 
-    p { color: var(--text-soft); font-size: 1.2rem; }
-    p strong, li strong { color: var(--text); font-weight: 600; }
+    p { color: var(--text-soft); font-size: 1.1rem; margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+    p strong, li strong { color: var(--text); }
 
-    ul.plain-list {
+    .talk {
+      font-size: 1.12rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    ul.simple {
       list-style: none;
       padding: 0;
+      margin: 12px 0;
     }
 
-    ul.plain-list li {
-      position: relative;
-      padding: 14px 0 14px 44px;
-      font-size: 1.2rem;
-      color: var(--text-soft);
+    ul.simple li {
+      padding: 10px 0;
       border-bottom: 1px solid var(--border);
-    }
-
-    ul.plain-list li:last-child { border-bottom: none; }
-
-    ul.plain-list li::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 22px;
-      width: 12px;
-      height: 12px;
-      background: var(--accent);
-      border-radius: 50%;
-    }
-
-    .pill {
-      display: inline-block;
-      background: var(--accent-light);
-      color: var(--accent-dark);
-      padding: 10px 22px;
-      border-radius: 999px;
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 24px;
-    }
-
-    .hero-number {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 4.5rem;
-      color: var(--highlight);
-      line-height: 1;
-      margin: 16px 0 8px;
-    }
-
-    .hero-label {
-      font-size: 1.35rem;
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 8px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px 22px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .card-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--accent-light);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 12px;
-    }
-
-    .card-title {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    .card-desc {
-      font-size: 1rem;
+      font-size: 1.08rem;
       color: var(--text-soft);
-      line-height: 1.5;
     }
 
-    .card-amount {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.75rem;
-      color: var(--accent-dark);
-      margin-top: 10px;
-    }
+    ul.simple li:last-child { border-bottom: none; }
 
-    .card-wide {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 22px 24px;
-    }
-
-    .card-wide .card-icon { margin-bottom: 0; flex-shrink: 0; }
-    .card-wide .card-body { flex: 1; }
-
-    .money-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .box {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 18px 24px;
-      margin-bottom: 10px;
-      box-shadow: var(--shadow-sm);
-      font-size: 1.15rem;
-    }
-
-    .money-row span:first-child { color: var(--text); font-weight: 500; }
-    .money-row span:last-child {
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--accent-dark);
-    }
-
-    .money-row.total {
-      background: var(--accent);
-      border-color: var(--accent);
-      margin-top: 16px;
-    }
-
-    .money-row.total span {
-      color: #fff !important;
-      font-size: 1.3rem;
-    }
-
-    .flow-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 8px;
-    }
-
-    .flow-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 18px 0;
-    }
-
-    .flow-num {
-      flex-shrink: 0;
-      width: 44px;
-      height: 44px;
-      background: var(--accent);
-      color: #fff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.2rem;
-    }
-
-    .flow-text {
-      font-size: 1.2rem;
+      padding: 18px 20px;
+      margin: 16px 0;
+      font-size: 1.08rem;
       color: var(--text);
-      font-weight: 500;
-      padding-top: 8px;
+      line-height: 1.55;
     }
 
-    .flow-line {
-      width: 2px;
-      height: 20px;
-      background: var(--border);
-      margin-left: 21px;
-    }
-
-    .callout {
-      background: var(--highlight-soft);
-      border: 2px solid rgba(201, 107, 74, 0.25);
-      border-radius: 16px;
-      padding: 22px 26px;
-      margin-top: 28px;
-      font-size: 1.15rem;
-      color: var(--text);
-    }
-
-    .callout.green {
+    .box.warm {
       background: var(--accent-light);
-      border-color: rgba(42, 107, 90, 0.25);
+      border-color: rgba(42, 107, 90, 0.3);
     }
 
-    .callout strong { color: var(--accent-dark); }
-
-    .thank-you {
-      text-align: center;
-      padding: 20px 0;
+    .box.soft {
+      background: var(--highlight-soft);
+      border-color: rgba(201, 107, 74, 0.25);
     }
 
-    .thank-you .slide-title { font-size: 3.25rem; margin-bottom: 24px; }
+    .big-num {
+      font-family: Georgia, serif;
+      font-size: 3.5rem;
+      color: var(--highlight);
+      line-height: 1;
+      margin: 8px 0;
+    }
 
-    .bank-quote {
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background: var(--card);
-      border: 2px solid var(--accent);
-      border-radius: 20px;
-      padding: 32px 36px;
-      font-size: 1.3rem;
-      line-height: 1.6;
-      color: var(--text);
-      box-shadow: var(--shadow);
-      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
     }
 
-    /* Navigation — large, easy to click */
+    .row span:first-child { color: var(--text); }
+    .row span:last-child { font-weight: 700; color: var(--accent-dark); font-size: 1.1rem; }
+
+    .row.total {
+      background: var(--accent);
+      border: none;
+      margin-top: 12px;
+    }
+
+    .row.total span { color: #fff !important; }
+
+    .scroll-hint {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-top: 12px;
+      text-align: center;
+    }
+
     .nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
+      height: var(--nav-h);
       z-index: 100;
       background: var(--card);
       border-top: 1px solid var(--border);
-      padding: 16px 24px;
+      padding: 12px 20px;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 20px;
-      box-shadow: 0 -4px 24px rgba(0,0,0,0.06);
+      gap: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
     }
 
     .nav button {
       background: var(--accent);
       color: #fff;
       border: none;
-      padding: 16px 32px;
+      padding: 14px 28px;
       border-radius: 12px;
       cursor: pointer;
       font-weight: 700;
-      font-size: 1.15rem;
-      min-height: 52px;
-      min-width: 140px;
-      font-family: inherit;
-      transition: background 0.2s, transform 0.1s;
+      font-size: 1.05rem;
+      min-height: 48px;
+      min-width: 120px;
     }
 
-    .nav button:hover { background: var(--accent-dark); }
-    .nav button:active { transform: scale(0.98); }
-    .nav button:disabled {
-      background: #c5cdd2;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .dots {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--border);
-      transition: all 0.2s;
-    }
-
-    .dot.active {
-      background: var(--accent);
-      width: 28px;
-      border-radius: 5px;
-    }
+    .nav button:disabled { background: #b8c4cc; cursor: not-allowed; }
 
     .progress-text {
       font-weight: 600;
-      font-size: 1.1rem;
       color: var(--text-soft);
-      min-width: 70px;
-      text-align: center;
-    }
-
-    .hint {
       font-size: 1rem;
-      color: var(--text-soft);
-      margin-top: 32px;
-      padding-top: 20px;
-      border-top: 1px dashed var(--border);
     }
 
-    @media (max-width: 768px) {
-      html, body { font-size: 18px; }
-      .slide { padding: 32px 24px 130px; }
-      .slide-title { font-size: 2rem; }
-      h2.slide-heading { font-size: 1.75rem; }
-      .hero-number { font-size: 3.25rem; }
-      .card-grid { grid-template-columns: 1fr; }
-      .nav button { min-width: 110px; padding: 14px 20px; font-size: 1rem; }
+    .center { text-align: center; }
+
+    @media (max-width: 600px) {
+      .slide { padding: 20px 18px calc(var(--nav-h) + 16px); }
+      h1 { font-size: 1.75rem; }
+      h2 { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
   <div class="deck" id="deck">
 
-    <!-- 1 Welcome -->
     <section class="slide active">
-      <span class="pill">For Nana · 2026</span>
-      <h1 class="slide-title">Hi Nana — here's the plan</h1>
-      <p class="slide-subtitle">
-        Isaac's online sales business, explained in plain English.
-        This takes about <strong>5 minutes</strong> to flip through.
-      </p>
-      <div class="callout green">
-        <strong>The ask:</strong> co-sign a <strong>~$2,500 bank loan</strong> with Isaac —
-        <strong>not</strong> money from your savings account.
-      </div>
-      <p class="hint">Tap <strong>Next</strong> below (or press the right arrow key).</p>
-    </section>
-
-    <!-- 2 What it is -->
-    <section class="slide">
-      <h2 class="slide-heading">What is this business?</h2>
-      <ul class="plain-list">
-        <li><strong>Short videos</strong> that show products people can buy inside the TikTok app.</li>
-        <li>When someone buys, Isaac earns a <strong>commission</strong> — like a sales cut.</li>
-        <li>Isaac makes the videos with software; <strong>phones post them</strong> automatically.</li>
-        <li>He already runs <strong>four small accounts</strong>. This loan adds <strong>two bigger, established accounts</strong> to grow faster.</li>
-      </ul>
-      <div class="callout">
-        You don't need to learn the apps. You need to know: <strong>steady loan payment</strong>, <strong>payouts come to you</strong>, and Isaac pays the bills even if sales start slow.
-      </div>
-    </section>
-
-    <!-- 3 The ask -->
-    <section class="slide">
-      <h2 class="slide-heading">What we're asking</h2>
-      <p class="hero-number">$2,500</p>
-      <p class="hero-label">Bank loan · co-signed together · about $80 per month</p>
-      <ul class="plain-list" style="margin-top: 28px;">
-        <li><strong>Not</strong> asking you to hand over savings or "invest in TikTok."</li>
-        <li><strong>Not</strong> promising millions — it's a small business with real monthly bills.</li>
-        <li>Isaac puts in <strong>~$400</strong> of his own money for software.</li>
-        <li>After the loan is paid + <strong>$400 for your TV</strong>, profits mostly go back into the business.</li>
-      </ul>
-    </section>
-
-    <!-- 4 One-time spending overview -->
-    <section class="slide">
-      <h2 class="slide-heading">Where the $2,500 goes (one time)</h2>
-      <div class="card-grid">
-        <div class="card">
-          <div class="card-icon">📱</div>
-          <div class="card-title">2 seller accounts</div>
-          <div class="card-desc">Already grown · 14-day warranty</div>
-          <div class="card-amount">$1,260</div>
-        </div>
-        <div class="card">
-          <div class="card-icon">📲</div>
-          <div class="card-title">2 phones + data</div>
-          <div class="card-desc">One phone per account · own phone line each</div>
-          <div class="card-amount">$340</div>
-        </div>
-        <div class="card">
-          <div class="card-icon">🖥️</div>
-          <div class="card-title">Small computer</div>
-          <div class="card-desc">Runs posting overnight · plugs into phones</div>
-          <div class="card-amount">$300</div>
-        </div>
-        <div class="card">
-          <div class="card-icon">💻</div>
-          <div class="card-title">Business software</div>
-          <div class="card-desc">2 months runway while sales start</div>
-          <div class="card-amount">$400</div>
-        </div>
-        <div class="card">
-          <div class="card-icon">🎬</div>
-          <div class="card-title">Video creation buffer</div>
-          <div class="card-desc">Pre-paid credits for making clips</div>
-          <div class="card-amount">$150</div>
-        </div>
-        <div class="card">
-          <div class="card-icon">🛡️</div>
-          <div class="card-title">Safety buffer</div>
-          <div class="card-desc">3 loan payments + cables & extras</div>
-          <div class="card-amount">$340</div>
+      <div class="slide-inner">
+        <h1>Hey Nana</h1>
+        <p class="talk">I put this together so you can see what I'm trying to do and what I'd need from you. It's not as crazy as it sounds on paper — but I get why it might look that way at first. I was pretty skeptical myself before I dug into it.</p>
+        <p class="talk">Flip through with the buttons below. Takes like 5 minutes.</p>
+        <div class="box warm">
+          <strong>Main thing:</strong> I'm not asking you to pull money out of your account. I'd want you to <strong>co-sign a bank loan</strong> with me — about <strong>$2,500</strong>. I pay it every month from what the business earns.
         </div>
       </div>
     </section>
 
-    <!-- 5 What we buy detail -->
     <section class="slide">
-      <h2 class="slide-heading">What we're buying</h2>
-      <div class="money-row"><span>Account 1 — main earner</span><span>~$630</span></div>
-      <div class="money-row"><span>Account 2 — backup</span><span>~$630</span></div>
-      <div class="money-row"><span>Phone 1 + phone plan</span><span>~$170</span></div>
-      <div class="money-row"><span>Phone 2 + phone plan</span><span>~$170</span></div>
-      <div class="money-row"><span>Small computer + cables</span><span>~$360</span></div>
-      <div class="callout green" style="margin-top: 20px;">
-        <strong>Why two accounts?</strong> If one has a problem, the other keeps earning. If one phone breaks, the other keeps posting.
+      <div class="slide-inner">
+        <h2>Why I'm not just winging it</h2>
+        <p class="talk">I paid for a course (Momentum Academy). That's a big part of why I actually trust this.</p>
+        <ul class="simple">
+          <li><strong>1-on-1 help</strong> from someone who already makes a living doing this exact thing — not some random YouTube guy.</li>
+          <li><strong>All the resources</strong> — how to pick products, make videos, post, stay within the rules, all of it.</li>
+          <li><strong>A community</strong> of other people running the same kind of accounts. I can see what's working for them right now.</li>
+          <li><strong>Group calls</strong> when something changes or I get stuck.</li>
+        </ul>
+        <div class="box">
+          I'm not guessing. I'm following a system that other people are already making money with. Someone in the group bought an account for $630 and still has it up. That's the same kind of thing I'd buy with this loan.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>What I actually do (simple version)</h2>
+        <p class="talk">I make short product videos on TikTok. When someone buys through my link, I get a cut. That's the whole business.</p>
+        <ul class="simple">
+          <li>I already have <strong>four smaller accounts</strong> I'm growing.</li>
+          <li>This loan would get me <strong>two bigger accounts</strong> that are already established — so I'm not starting from zero on those.</li>
+          <li>Phones post the videos so it runs without me sitting there tapping post all day.</li>
+          <li>Shop money would still go to <strong>you</strong> first (same as we've talked about).</li>
+        </ul>
+        <p class="talk">I'm working on this basically full time. This isn't a hobby I forgot about after a week.</p>
       </div>
     </section>
 
-    <!-- 6 Monthly -->
     <section class="slide">
-      <h2 class="slide-heading">Every month (once both accounts are running)</h2>
-      <div class="money-row"><span>Bank loan payment</span><span>~$80</span></div>
-      <div class="money-row"><span>Automation software</span><span>$200</span></div>
-      <div class="money-row"><span>Product research tool</span><span>~$200</span></div>
-      <div class="money-row"><span>Video creation (up to 600 clips)</span><span>~$210</span></div>
-      <div class="money-row"><span>Product photos (estimate)</span><span>~$30</span></div>
-      <div class="money-row"><span>Two phone plans</span><span>~$50</span></div>
-      <div class="money-row total"><span>Total per month</span><span>~$770</span></div>
-      <p style="margin-top: 20px; text-align: center; font-size: 1.1rem;">
-        That's about <strong>$25 a day</strong> to keep the business running — before profit.
-      </p>
-    </section>
-
-    <!-- 7 Video costs simplified -->
-    <section class="slide">
-      <h2 class="slide-heading">Video costs (simple version)</h2>
-      <div class="card card-wide">
-        <div class="card-icon">🎥</div>
-        <div class="card-body">
-          <div class="card-title">About 35 cents per short video</div>
-          <div class="card-desc">5 seconds each · no robot voice · same method the course teaches</div>
+      <div class="slide-inner">
+        <h2>Why I think it's worth doing</h2>
+        <p class="talk">I'm not gonna sit here and promise you millions. I don't know exactly how fast it'll pay off. Nobody honest does.</p>
+        <p class="talk">But here's what I do know:</p>
+        <ul class="simple">
+          <li>Real people in the course are making real shop money — not just views.</li>
+          <li>I have the course, the automation, and I've already been building for months.</li>
+          <li>Two accounts means if one has issues, the other can keep going.</li>
+          <li>Both accounts come with a <strong>14-day warranty</strong> from the seller — if something's wrong, we deal with it fast.</li>
+        </ul>
+        <div class="box warm">
+          I'm asking because I believe I can pay this loan. And I'd rather build something real than wait until I'm 18 and wish I'd started.
         </div>
-        <div class="card-amount">$0.35</div>
-      </div>
-      <ul class="plain-list" style="margin-top: 24px;">
-        <li><strong>10 videos per day</strong> on each account = up to <strong>600 videos a month</strong>.</li>
-        <li>600 videos × 35¢ ≈ <strong>$210 per month</strong> for video creation.</li>
-        <li>The <strong>first month costs less</strong> while posting ramps up slowly.</li>
-      </ul>
-    </section>
-
-    <!-- 8 Money flow -->
-    <section class="slide">
-      <h2 class="slide-heading">How money moves</h2>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-num">1</div>
-          <div class="flow-text">Someone buys a product from Isaac's video</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step">
-          <div class="flow-num">2</div>
-          <div class="flow-text">Commission payout goes to <strong>you (Nana)</strong></div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step">
-          <div class="flow-num">3</div>
-          <div class="flow-text"><strong>Loan payment</strong> comes out first (~$80)</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step">
-          <div class="flow-num">4</div>
-          <div class="flow-text">Software & phone bills get paid</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step">
-          <div class="flow-num">5</div>
-          <div class="flow-text"><strong>$400 for your TV</strong> (when we agreed)</div>
-        </div>
-        <div class="flow-line"></div>
-        <div class="flow-step">
-          <div class="flow-num">6</div>
-          <div class="flow-text">Rest → grow the business / Isaac's share</div>
-        </div>
-      </div>
-      <p style="margin-top: 20px; font-size: 1.1rem;">
-        If sales are strong, Isaac can <strong>pay off the loan early</strong> and save on bank interest.
-      </p>
-    </section>
-
-    <!-- 9 Timeline -->
-    <section class="slide">
-      <h2 class="slide-heading">First two weeks</h2>
-      <ul class="plain-list">
-        <li><strong>Days 1–5:</strong> Warm-up only — use TikTok like normal. Don't change settings.</li>
-        <li>Isaac sets up phones, the small computer, and posting software.</li>
-        <li><strong>Test:</strong> one real video with a working buy link.</li>
-        <li>Then posting grows slowly: <strong>4 → 7 → 10 videos per day</strong> per account.</li>
-      </ul>
-      <div class="callout green">
-        Accounts have a <strong>14-day warranty</strong>. We prove everything works inside that window.
       </div>
     </section>
 
-    <!-- 10 Risks -->
     <section class="slide">
-      <h2 class="slide-heading">Being honest about risk</h2>
-      <ul class="plain-list">
-        <li><strong>Co-signing:</strong> if Isaac ever stopped paying, the bank would still expect payment — that could affect your credit score.</li>
-        <li><strong>Slow start:</strong> sales may take time; the loan includes a buffer for early months.</li>
-        <li><strong>Backup:</strong> second account + warranty + Isaac keeps paying the loan either way.</li>
-        <li><strong>No ad spending</strong> in this plan — growth comes from videos and established accounts.</li>
-      </ul>
-    </section>
-
-    <!-- 11 Not buying too much -->
-    <section class="slide">
-      <h2 class="slide-heading">We're not over-buying</h2>
-      <ul class="plain-list">
-        <li>This loan is only for <strong>2 accounts</strong> — not four or ten.</li>
-        <li>More accounts only after these two earn reliably.</li>
-        <li>Four smaller accounts Isaac already has keep running (no new purchase cost).</li>
-        <li>Isaac pays the <strong>$200/month software bill</strong> himself when he can.</li>
-      </ul>
-    </section>
-
-    <!-- 12 Thank you -->
-    <section class="slide thank-you">
-      <span class="pill">Summary</span>
-      <h1 class="slide-title">One sentence for the bank</h1>
-      <div class="bank-quote">
-        "Co-sign a <strong>~$2,500</strong> loan for business equipment and two established seller accounts.
-        Isaac pays <strong>about $80 a month</strong> from shop earnings that deposit to Nana."
+      <div class="slide-inner">
+        <h2>What I need from you</h2>
+        <p class="big-num">~$2,500</p>
+        <p class="talk"><strong>Bank loan.</strong> Co-signed together. About <strong>$80 a month</strong> to pay it back.</p>
+        <ul class="simple">
+          <li>Not cash from your savings.</li>
+          <li>I'm putting in <strong>~$400 of my own money</strong> for software bills too.</li>
+          <li>After the loan is paid off + <strong>$400 for your TV</strong>, most money goes back into growing the business.</li>
+          <li>If we do well, I can pay the loan off early and save on interest.</li>
+        </ul>
       </div>
-      <p style="margin-top: 40px; font-family: Georgia, 'Times New Roman', serif; font-size: 2.5rem; color: var(--accent-dark);">
-        Thank you, Nana.
-      </p>
-      <p style="margin-top: 12px; font-size: 1.15rem;">— Isaac</p>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Where the $2,500 goes (part 1)</h2>
+        <div class="row"><span>Account 1 (main)</span><span>~$630</span></div>
+        <div class="row"><span>Account 2 (backup)</span><span>~$630</span></div>
+        <div class="row"><span>Phone 1 + its own data plan</span><span>~$170</span></div>
+        <div class="row"><span>Phone 2 + its own data plan</span><span>~$170</span></div>
+        <p class="talk" style="margin-top: 14px;">Each account gets its own phone and its own phone line. That's on purpose — safer and how the course people do it.</p>
+        <p class="scroll-hint">Scroll down if you need to ↑</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Where the $2,500 goes (part 2)</h2>
+        <div class="row"><span>Small computer (runs posting overnight)</span><span>~$300</span></div>
+        <div class="row"><span>Business software (2 months)</span><span>~$400</span></div>
+        <div class="row"><span>Video-making credits (buffer)</span><span>~$150</span></div>
+        <div class="row"><span>3 months of loan payments saved up</span><span>~$240</span></div>
+        <div class="row"><span>Cables, extras, little buffer</span><span>~$100</span></div>
+        <div class="box soft">
+          The "loan payments saved up" part matters — sales might be slow the first month or two. I built that in so we're not scrambling to pay the bank before money comes in.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Monthly bills (part 1)</h2>
+        <p class="talk">Once both accounts are posting every day, about how much it costs to run:</p>
+        <div class="row"><span>Loan payment</span><span>~$80</span></div>
+        <div class="row"><span>Software I use to automate stuff</span><span>$200</span></div>
+        <div class="row"><span>Product research tool</span><span>~$200</span></div>
+        <p class="scroll-hint">Next slide has the rest ↑</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Monthly bills (part 2)</h2>
+        <div class="row"><span>Making the videos (both accounts)</span><span>~$210</span></div>
+        <div class="row"><span>Product photos</span><span>~$30</span></div>
+        <div class="row"><span>Two phone plans</span><span>~$50</span></div>
+        <div class="row total"><span>About per month total</span><span>~$770</span></div>
+        <p class="talk" style="margin-top: 16px;">That's roughly <strong>$25 a day</strong> to keep everything running — before profit. The course taught me the math so I'm not guessing on that.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>How you'd get paid</h2>
+        <p class="talk">Order I want to stick to:</p>
+        <ul class="simple">
+          <li><strong>1.</strong> Shop pays you</li>
+          <li><strong>2.</strong> Loan payment comes out (~$80)</li>
+          <li><strong>3.</strong> Software + phone bills</li>
+          <li><strong>4.</strong> $400 for your TV when we get there</li>
+          <li><strong>5.</strong> Rest goes back into the business / me later</li>
+        </ul>
+        <p class="talk">You wouldn't be chasing me for the loan payment — I'd want it set up so that happens first, automatically, from the shop payouts.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>First couple weeks</h2>
+        <ul class="simple">
+          <li>First <strong>5 days</strong> on new accounts: just use TikTok normally. Don't change settings.</li>
+          <li>I set up the phones and computer and make sure posting actually works.</li>
+          <li>Test one real video with a real buy link before we go hard.</li>
+          <li>Then ramp up slowly: a few posts a day → more → up to <strong>10 a day</strong> per account.</li>
+        </ul>
+        <div class="box warm">
+          14-day warranty on the accounts. If something's wrong, we catch it in that window — not months later.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>I want to be honest with you</h2>
+        <p class="talk">Co-signing means if I ever stopped paying, the bank would still want that money — and that could hit your credit. I'm not gonna pretend that's not real.</p>
+        <p class="talk">That's why I'm not asking for a huge loan. Two accounts, not ten. Buffer built in. Backup account. Warranty. And I pay even if it's slow at first — that's on me, not you hoping it works.</p>
+        <div class="box">
+          I'm 16. I know I have to attach family to big stuff right now. I'd rather do it right with you than blow it on something dumb or give up on the whole thing.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>I'm not over-buying</h2>
+        <ul class="simple">
+          <li>Just <strong>2 accounts</strong> in this loan — not 4 or 8.</li>
+          <li>More only if these two are actually working and paying the bills.</li>
+          <li>My four smaller accounts keep running — no extra purchase cost on those.</li>
+          <li>No ad budget in this plan.</li>
+          <li>I pay the $200 software bill myself when I can.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner center">
+        <h2>For the bank (one sentence)</h2>
+        <div class="box warm" style="text-align: left; font-size: 1.12rem;">
+          Co-sign about a <strong>$2,500</strong> loan for business equipment and two established seller accounts. Isaac pays about <strong>$80 a month</strong> from shop earnings that deposit to Nana.
+        </div>
+        <p class="talk" style="margin-top: 32px; font-size: 1.35rem; color: var(--accent-dark);">
+          Thank you for even reading all this, Nana.
+        </p>
+        <p class="talk">— Isaac</p>
+      </div>
     </section>
 
   </div>
 
-  <nav class="nav" aria-label="Slide navigation">
-    <button type="button" id="prev" aria-label="Previous slide">← Back</button>
-    <span class="progress-text" id="progress">1 / 12</span>
-    <div class="dots" id="dots" aria-hidden="true"></div>
-    <button type="button" id="next" aria-label="Next slide">Next →</button>
+  <nav class="nav">
+    <button type="button" id="prev">← Back</button>
+    <span class="progress-text" id="progress">1 / 14</span>
+    <button type="button" id="next">Next →</button>
   </nav>
 
   <script>
     const slides = document.querySelectorAll(".slide");
-    const dotsContainer = document.getElementById("dots");
     let i = 0;
-
-    slides.forEach((_, j) => {
-      const d = document.createElement("span");
-      d.className = "dot" + (j === 0 ? " active" : "");
-      dotsContainer.appendChild(d);
-    });
-
-    const dots = dotsContainer.querySelectorAll(".dot");
 
     function show(n) {
       i = Math.max(0, Math.min(n, slides.length - 1));
       slides.forEach((s, j) => s.classList.toggle("active", j === i));
-      dots.forEach((d, j) => d.classList.toggle("active", j === i));
       document.getElementById("progress").textContent = `${i + 1} / ${slides.length}`;
       document.getElementById("prev").disabled = i === 0;
       document.getElementById("next").disabled = i === slides.length - 1;
+      slides[i].scrollTop = 0;
     }
 
     document.getElementById("prev").onclick = () => show(i - 1);
