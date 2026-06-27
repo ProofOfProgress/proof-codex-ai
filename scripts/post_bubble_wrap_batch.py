@@ -18,6 +18,8 @@ from rich.console import Console
 from shorts_bot.tiktok_shop.accounts import load_accounts
 from shorts_bot.tiktok_shop.bubble_wrap_gen import generate_bubble_pair, qc_bubble_slide
 from shorts_bot.tiktok_shop.bubble_wrap_post import post_bubble_wrap_carousel
+from shorts_bot.tiktok.phone_queue import enqueue_job
+from shorts_bot.tiktok.sounds import MACKENZIE_SOUND_ID
 
 console = Console()
 
@@ -50,6 +52,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--confirm", action="store_true", help="Upload after QC")
     parser.add_argument("--skip-gen", action="store_true", help="Use existing PNGs only")
+    parser.add_argument(
+        "--phone-queue",
+        action="store_true",
+        help="Enqueue Mackenzie phone jobs (run phone_worker on laptop — free emulator path)",
+    )
     args = parser.parse_args()
 
     accounts = {a.id: a for a in load_accounts()}
@@ -96,7 +103,27 @@ def main() -> None:
             continue
 
         if not args.confirm:
-            console.print("[yellow]Dry run — add --confirm to post[/yellow]")
+            if args.phone_queue:
+                console.print("[yellow]Add --confirm to enqueue phone jobs[/yellow]")
+            else:
+                console.print("[yellow]Dry run — add --confirm to post[/yellow]")
+            continue
+
+        if args.phone_queue:
+            switch_label = (
+                account.tiktok_switch_label or account.label or account.id
+            )
+            job = enqueue_job(
+                account_id=account.id,
+                switch_label=switch_label,
+                slide1=hook,
+                slide2=cta,
+                sound_id=MACKENZIE_SOUND_ID,
+            )
+            console.print(
+                f"[green]Queued phone job {job.id}[/green] "
+                f"switch={switch_label} — run phone_worker on laptop"
+            )
             continue
 
         ok, msg, post_id = post_bubble_wrap_carousel(

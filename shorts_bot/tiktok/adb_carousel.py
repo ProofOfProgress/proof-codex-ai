@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from shorts_bot.config import settings
+from shorts_bot.tiktok.account_switch import switch_tiktok_account
 from shorts_bot.tiktok.adb import AdbClient, AdbError
 from shorts_bot.tiktok.sounds import (
     MACKENZIE_SOUND_ID,
@@ -94,10 +95,13 @@ def _push_carousel_images(adb: AdbClient, image_paths: list[Path]) -> list[str]:
     return remote_names
 
 
-def _open_sound_and_use(device: Any, sound_id: str, steps: list[str]) -> None:
+def _open_sound_and_use(
+    adb: AdbClient,
+    device: Any,
+    sound_id: str,
+    steps: list[str],
+) -> None:
     uri = sound_deep_link_uri(sound_id)
-    adb = AdbClient(device_id=settings.tiktok_adb_device_id or None)
-    adb.ensure_device()
     package = adb.open_deep_link(uri)
     steps.append(f"Opened {uri} via {package}")
     time.sleep(3.0)
@@ -184,6 +188,7 @@ def post_carousel_with_sound(
     *,
     sound_id: str | None = None,
     device_id: str | None = None,
+    switch_label: str | None = None,
     draft: bool = False,
     dry_run: bool = False,
 ) -> CarouselPostResult:
@@ -203,6 +208,8 @@ def post_carousel_with_sound(
 
     if dry_run:
         steps.append(f"DRY RUN — would open {uri}")
+        if switch_label:
+            steps.append(f"DRY RUN — would switch to account '{switch_label}'")
         steps.append(f"DRY RUN — would push {len(paths)} images to /sdcard/{PHONE_UPLOAD_DIR}")
         steps.append("DRY RUN — would tap Use this sound → gallery → photo mode → post")
         return CarouselPostResult(
@@ -218,10 +225,13 @@ def post_carousel_with_sound(
     u2 = _require_u2()
     device = u2.connect(serial)
 
+    if switch_label:
+        switch_tiktok_account(device, switch_label, steps)
+
     _push_carousel_images(adb, paths)
     steps.append(f"Pushed {len(paths)} images to phone")
 
-    _open_sound_and_use(device, sid, steps)
+    _open_sound_and_use(adb, device, sid, steps)
     time.sleep(2.0)
 
     _open_gallery_multi_select(device, len(paths), steps)
@@ -251,6 +261,7 @@ def post_bubble_wrap_via_adb(
     slide2: Path,
     *,
     device_id: str | None = None,
+    switch_label: str | None = None,
     draft: bool = False,
     dry_run: bool = False,
 ) -> CarouselPostResult:
@@ -260,6 +271,7 @@ def post_bubble_wrap_via_adb(
             [slide1, slide2],
             sound_id=MACKENZIE_SOUND_ID,
             device_id=device_id,
+            switch_label=switch_label,
             draft=draft,
             dry_run=dry_run,
         )

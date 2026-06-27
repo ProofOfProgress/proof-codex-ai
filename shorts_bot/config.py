@@ -119,6 +119,8 @@ class Settings(BaseSettings):
     # Android ADB — Mackenzie sound-first carousel (Lead 3)
     tiktok_adb_device_id: str | None = None
     tiktok_bubble_wrap_sound_id: str = "7418286946344340256"
+    phone_queue_path: Path = Path("data/tiktok_shop/phone_queue.json")
+    phone_worker_pause_between_accounts_sec: int = 45
 
     zernio_api_key: str | None = None
     zernio_api_token: str | None = None  # Cursor secret alias → same as zernio_api_key

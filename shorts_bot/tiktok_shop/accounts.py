@@ -18,6 +18,7 @@ class ShopAccount:
     tiktok_token_path: Path | None = None
     zernio_account_id: str | None = None
     post_via: str = "zernio"  # zernio | tiktok_api
+    tiktok_switch_label: str | None = None  # TikTok account center display name for phone worker
 
     def resolved_token_path(self) -> Path | None:
         if self.tiktok_token_path:
@@ -51,6 +52,9 @@ def load_accounts() -> list[ShopAccount]:
                 tiktok_token_path=Path(token) if token else None,
                 zernio_account_id=(row.get("zernio_account_id") or None),
                 post_via=str(row.get("post_via") or "zernio").strip().lower(),
+                tiktok_switch_label=(
+                    str(row.get("tiktok_switch_label") or row.get("label") or "").strip() or None
+                ),
             )
         )
     return [a for a in out if a.id and a.enabled]
