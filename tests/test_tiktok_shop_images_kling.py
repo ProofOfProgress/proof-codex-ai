@@ -120,7 +120,13 @@ def test_wrap_on_screen_caption():
 
 
 def test_burn_on_screen_caption(tmp_path):
-    from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
+    import shutil
+
+    if not shutil.which("ffmpeg"):
+        import pytest
+
+        pytest.skip("ffmpeg not installed")
+
     from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
 
     # Tiny synthetic clip — ffmpeg required
