@@ -53,19 +53,24 @@ def pick_account_for_post(accounts: list[ShopAccount] | None = None) -> ShopAcco
 def log_post(
     *,
     account_id: str,
-    video_path: str,
     caption: str,
-    product: str = "",
     ok: bool,
+    media_path: str = "",
+    video_path: str = "",
+    product: str = "",
     error: str = "",
     publish_id: str = "",
+    post_type: str = "video",
 ) -> None:
     path = _log_path()
     path.parent.mkdir(parents=True, exist_ok=True)
+    asset = media_path or video_path
     row = {
         "at": datetime.now(timezone.utc).isoformat(),
         "account_id": account_id,
-        "video": video_path,
+        "post_type": post_type,
+        "media": asset,
+        "video": asset,
         "caption": caption[:300],
         "product": product,
         "ok": ok,
@@ -80,12 +85,15 @@ def status_rows() -> list[dict]:
     rows = []
     for acct in load_accounts():
         sent = posts_today(acct.id)
+        zid = (acct.zernio_account_id or "").strip()
         rows.append({
             "id": acct.id,
             "label": acct.label,
+            "track": acct.track,
             "sent_today": sent,
             "limit": acct.daily_limit,
             "remaining": max(0, acct.daily_limit - sent),
             "post_via": acct.post_via,
+            "zernio_ok": bool(zid) if acct.post_via == "zernio" else True,
         })
     return rows

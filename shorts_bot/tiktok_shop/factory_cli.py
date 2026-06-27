@@ -72,40 +72,83 @@ def main() -> None:
     batch.add_argument("--max", type=int, default=1, help="Max posts this run")
     batch.add_argument("--confirm", action="store_true")
 
+    slideshow = sub.add_parser("post-slideshow", help="Post 2-image bubble wrap carousel via Zernio")
+    slideshow.add_argument("slide1", help="Hook slide image path")
+    slideshow.add_argument("slide2", help="CTA slide image path")
+    slideshow.add_argument("--title", required=True, help="Photo title (hook text, 90 chars)")
+    slideshow.add_argument("--caption", default="", help="Caption / hashtags")
+    slideshow.add_argument("--account", required=True, help="Account id from accounts.json")
+    slideshow.add_argument("--private", action="store_true", help="Only me — use for test uploads")
+    slideshow.add_argument("--confirm", action="store_true", help="Actually upload")
+
+    enslide = sub.add_parser("enqueue-slideshow", help="Queue a 2-image carousel for later posting")
+    enslide.add_argument("slide1")
+    enslide.add_argument("slide2")
+    enslide.add_argument("--title", required=True)
+    enslide.add_argument("--caption", default="")
+    enslide.add_argument("--account", default="")
+
+    slidebatch = sub.add_parser("post-slideshow-batch", help="Post up to N queued carousels")
+    slidebatch.add_argument("--max", type=int, default=1)
+    slidebatch.add_argument("--private", action="store_true")
+    slidebatch.add_argument("--confirm", action="store_true")
+
+    sample = sub.add_parser("bubble-sample", help="Show a sample slide pair from owner catalog")
+    sample.add_argument("--pair", default="frog", help="Partial match: frog, usa, bubbles, …")
+
     args = parser.parse_args()
 
     if args.cmd == "status":
-        from shorts_bot.tiktok_shop.accounts import load_accounts, total_daily_cap
+        from shorts_bot.tiktok_shop.accounts import accounts_config_exists, load_accounts, total_daily_cap
         from shorts_bot.tiktok_shop.quota import status_rows
+        from shorts_bot.zernio.client import credentials_configured
+
+        if not accounts_config_exists():
+            console.print(
+                "[yellow]accounts.json missing[/yellow] — run: "
+                "python3 -m shorts_bot.tiktok_shop.accounts_cli scaffold"
+            )
 
         table = Table(title="TikTok Shop factory (seller + clip pipeline)")
         table.add_column("Account")
+        table.add_column("Track")
         table.add_column("Sent today")
         table.add_column("Limit")
         table.add_column("Remaining")
+        table.add_column("Zernio")
         table.add_column("Via")
         for row in status_rows():
+            zernio_cell = "✓" if row["zernio_ok"] else "—"
             table.add_row(
                 f"{row['label']} ({row['id']})",
+                row.get("track", "affiliate"),
                 str(row["sent_today"]),
                 str(row["limit"]),
                 str(row["remaining"]),
+                zernio_cell,
                 row["post_via"],
             )
         console.print(table)
-        console.print(f"Total daily cap: [cyan]{total_daily_cap()}[/cyan] videos")
-        pending = __import__("shorts_bot.tiktok_shop.queue", fromlist=["pending_posts"]).pending_posts()
-        console.print(f"Queue pending: [cyan]{len(pending)}[/cyan]")
+        console.print(f"Total daily cap: [cyan]{total_daily_cap()}[/cyan] posts")
+        from shorts_bot.tiktok_shop import queue as qmod
+
+        pending_v = qmod.pending_posts(media_type="video")
+        pending_c = qmod.pending_posts(media_type="carousel")
+        console.print(f"Video queue: [cyan]{len(pending_v)}[/cyan] · Carousel queue: [cyan]{len(pending_c)}[/cyan]")
+        if credentials_configured():
+            console.print("[green]Zernio API: configured[/green]")
+        else:
+            console.print("[red]Zernio API: not configured[/red]")
         from shorts_bot.tiktok_shop import echotik_client, kling_client
 
         if echotik_client.configured():
             console.print("[green]EchoTik: configured[/green]")
         else:
-            console.print("[red]EchoTik: not configured[/red]")
+            console.print("[dim]EchoTik: deferred — affiliate phase after ~1k followers[/dim]")
         if kling_client.configured():
             console.print("[green]Kling: configured[/green]")
         else:
-            console.print("[red]Kling: not configured[/red]")
+            console.print("[dim]Kling: deferred — affiliate phase after ~1k followers[/dim]")
         from shorts_bot.tiktok_shop import printify_client
 
         if printify_client.configured():
@@ -261,7 +304,11 @@ def main() -> None:
         for _ in range(max_posts):
             rows = load_queue()
             pending_idx = next(
-                (i for i, r in enumerate(rows) if r.get("status") == "pending"),
+                (
+                    i
+                    for i, r in enumerate(rows)
+                    if r.get("status") == "pending" and r.get("media_type", "video") == "video"
+                ),
                 None,
             )
             if pending_idx is None:
@@ -310,6 +357,151 @@ def main() -> None:
                 break
 
             ok, msg, pub = post_clip(account, video_path=video, caption=caption, product=product)
+            if ok:
+                rows[pending_idx]["status"] = "posted"
+                rows[pending_idx]["account_id"] = account.id
+                rows[pending_idx]["publish_id"] = pub
+                save_queue(rows)
+                console.print(f"[green]Posted[/green] {msg}")
+                posted += 1
+            else:
+                console.print(f"[red]Failed:[/red] {msg}")
+                break
+
+        console.print(f"Posted this run: {posted}")
+        return
+
+    if args.cmd == "bubble-sample":
+        from shorts_bot.tiktok_shop.bubble_wrap import resolve_sample_pair
+
+        hit = resolve_sample_pair(args.pair)
+        if not hit:
+            console.print(f"[red]No sample pair matching {args.pair!r}[/red]")
+            raise SystemExit(1)
+        s1, s2, title = hit
+        console.print(f"Title: [cyan]{title}[/cyan]")
+        console.print(f"Slide 1: {s1} ({'OK' if s1.is_file() else 'missing'})")
+        console.print(f"Slide 2: {s2} ({'OK' if s2.is_file() else 'missing'})")
+        console.print(
+            "[dim]Post: factory_cli post-slideshow SLIDE1 SLIDE2 --title ... --account ... --private --confirm[/dim]"
+        )
+        return
+
+    if args.cmd == "enqueue-slideshow":
+        from shorts_bot.tiktok_shop.bubble_wrap import default_caption
+        from shorts_bot.tiktok_shop.queue import enqueue_carousel
+
+        cap = args.caption or default_caption()
+        idx = enqueue_carousel(
+            slide1_path=args.slide1,
+            slide2_path=args.slide2,
+            title=args.title,
+            caption=cap,
+            account_id=args.account,
+        )
+        console.print(f"[green]Queued carousel[/green] index {idx}")
+        return
+
+    if args.cmd == "post-slideshow":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.accounts import load_accounts
+        from shorts_bot.tiktok_shop.bubble_wrap import MACKENZIE_SOUND_URL, default_caption
+        from shorts_bot.tiktok_shop.poster import post_carousel
+
+        accounts = {a.id: a for a in load_accounts()}
+        account = accounts.get(args.account)
+        if not account:
+            console.print(f"[red]Unknown account {args.account}[/red]")
+            raise SystemExit(1)
+
+        cap = args.caption or default_caption()
+        console.print(Panel(
+            f"{account.label}\n{args.title}\n{cap[:120]}\nPrivate: {args.private}",
+            title="Bubble wrap slideshow",
+        ))
+        console.print(f"[dim]Add Mackenzie sound in TikTok app after upload: {MACKENZIE_SOUND_URL}[/dim]")
+
+        if not args.confirm:
+            console.print("[yellow]Dry run — add --confirm to upload[/yellow]")
+            return
+
+        ok, msg, pub = post_carousel(
+            account,
+            slide1=Path(args.slide1),
+            slide2=Path(args.slide2),
+            title=args.title,
+            caption=cap,
+            private=args.private,
+        )
+        if ok:
+            console.print(f"[green]{msg}[/green] ({pub})")
+        else:
+            console.print(f"[red]{msg}[/red]")
+            raise SystemExit(1)
+        return
+
+    if args.cmd == "post-slideshow-batch":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.accounts import load_accounts
+        from shorts_bot.tiktok_shop.poster import post_carousel
+        from shorts_bot.tiktok_shop.queue import load_queue, save_queue
+        from shorts_bot.tiktok_shop.quota import pick_account_for_post, remaining_today
+
+        max_posts = max(1, args.max)
+        posted = 0
+        accounts = {a.id: a for a in load_accounts()}
+
+        for _ in range(max_posts):
+            rows = load_queue()
+            pending_idx = next(
+                (
+                    i
+                    for i, r in enumerate(rows)
+                    if r.get("status") == "pending" and r.get("media_type") == "carousel"
+                ),
+                None,
+            )
+            if pending_idx is None:
+                console.print("[yellow]Carousel queue empty[/yellow]")
+                break
+
+            row = rows[pending_idx]
+            acct_id = (row.get("account_id") or "").strip()
+            if acct_id:
+                account = accounts.get(acct_id)
+                if not account:
+                    console.print(f"[red]Unknown account {acct_id}[/red]")
+                    break
+            else:
+                bubble_accts = [a for a in accounts.values() if a.track == "bubble"]
+                account = pick_account_for_post(bubble_accts or list(accounts.values()))
+            if not account:
+                console.print("[red]All accounts at daily cap[/red]")
+                break
+            if remaining_today(account) <= 0:
+                console.print(f"[red]{account.id} at cap[/red]")
+                break
+
+            s1 = Path(str(row.get("slide1_path") or ""))
+            s2 = Path(str(row.get("slide2_path") or ""))
+            title = str(row.get("title") or "")
+            caption = str(row.get("caption") or "")
+            console.print(Panel(f"{account.label}\n{title}", title="Next carousel"))
+
+            if not args.confirm:
+                console.print("[yellow]Dry run — add --confirm to upload[/yellow]")
+                break
+
+            ok, msg, pub = post_carousel(
+                account,
+                slide1=s1,
+                slide2=s2,
+                title=title,
+                caption=caption,
+                private=args.private,
+            )
             if ok:
                 rows[pending_idx]["status"] = "posted"
                 rows[pending_idx]["account_id"] = account.id

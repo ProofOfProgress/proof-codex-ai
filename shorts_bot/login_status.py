@@ -41,7 +41,7 @@ def _check_kling() -> ServiceStatus:
         "kling",
         "Kling video API",
         False,
-        "KLING_ACCESS_KEY + KLING_SECRET_KEY missing",
+        "KLING_API_KEY or KLING_ACCESS_KEY + KLING_SECRET_KEY missing",
         "docs/FOR_OWNER_KLING_SETUP.md",
     )
 

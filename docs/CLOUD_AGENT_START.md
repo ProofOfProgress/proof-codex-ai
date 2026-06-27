@@ -47,8 +47,10 @@ Add in **Cursor → Cloud Agent → Secrets** (exact names):
 |--------|---------|
 | `GEMINI_API_KEY` | Scripts, QC, image help |
 | `ZERNIO_API_TOKEN` | **TikTok posting** (owner uses this name — also accepts `ZERNIO_API_KEY`) |
-| `KLING_ACCESS_KEY` + `KLING_SECRET_KEY` | Video clips (affiliate phase later) |
-| `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` | Product scout (affiliate phase later) |
+| `FAL_API_KEY` + `IMAGE_PROVIDER=fal` | **Pay-as-you-go image gen** (bubble wrap stills) — `docs/FOR_OWNER_IMAGE_GEN.md` |
+| `REPLICATE_API_TOKEN` + `IMAGE_PROVIDER=replicate` | Same, via Replicate |
+| `KLING_API_KEY` | Kling video — **affiliate phase only** (after ~1k followers) |
+| `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` | Product scout — **affiliate phase only** (not needed for bubble wrap) |
 
 Full list: `docs/CURSOR_SECRETS.md`
 
@@ -74,8 +76,9 @@ python3 -m pytest tests/ -q                     # Smoke tests
 |------|-----|
 | Format | `BUBBLE_WRAP.md` — **2-photo manual-swipe slideshow** + Mackenzie sound |
 | Samples | Owner Drive + `BUBBLE_WRAP_SAMPLES.md` |
-| Posting | **Zernio** (`docs/FOR_OWNER_ZERNIO_SETUP.md`) — not direct TikTok API |
-| Sound | API can't pick Mackenzie auto — inbox draft + add sound in app, or manual |
+| Posting | **Zernio** — `docs/FOR_OWNER_BUBBLE_WRAP_OPS.md` |
+| Sound | API can't pick Mackenzie auto — add sound in TikTok app after upload |
+| Test uploads | **Always `--private`** via Zernio — draft inbox often doesn't show |
 
 **Do not** export auto-playing MP4 slideshows for bubble wrap — use **photo carousel**.
 

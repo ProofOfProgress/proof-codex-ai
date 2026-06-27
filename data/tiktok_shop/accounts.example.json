@@ -1,14 +1,41 @@
 {
   "accounts": [
     {
-      "id": "shop_1",
-      "label": "Affiliate TikTok account 1",
+      "id": "bubble_1",
+      "label": "Ms. Byte",
+      "track": "bubble",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b"
+    },
+    {
+      "id": "bubble_2",
+      "label": "Proof Of Progress",
+      "track": "bubble",
+      "daily_limit": 1,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dfd469d9472faaeec9397"
+    },
+    {
+      "id": "bubble_3",
+      "label": "Isaac",
+      "track": "bubble",
+      "daily_limit": 5,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dff2b9d9472faaeeca069"
+    },
+    {
+      "id": "bubble_4",
+      "label": "playstationaccou2171",
+      "track": "bubble",
       "daily_limit": 8,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_1.json"
+      "zernio_account_id": "6a3e03579d9472faaeecbab6"
     }
   ],
-  "_note": "Affiliate path per course Module 1: 8-10 posts/day until Platinum Tier."
+  "_note": "Bubble wrap phase — 0→1k followers. Test uploads: --private. Add Mackenzie sound in TikTok app."
 }

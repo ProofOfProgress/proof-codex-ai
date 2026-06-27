@@ -92,8 +92,14 @@ Copy `data/tiktok_shop/accounts.example.json` → `data/tiktok_shop/accounts.jso
 ## Posting
 
 ```bash
-python3 -m shorts_bot.tiktok_shop.factory_cli post --account bubble_1 --video PATH --caption "..."
+python3 -m shorts_bot.tiktok_shop.factory_cli post-slideshow SLIDE1 SLIDE2 \
+  --title "FROG BUBBLE WRAP ASMR" \
+  --caption "#asmr #satisfying #bubblewrap #fyp" \
+  --account bubble_1 \
+  --private --confirm
 ```
+
+Affiliate MP4 queue: `factory_cli post --confirm` (pulls from video queue).
 
 ---
 
@@ -101,8 +107,30 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post --account bubble_1 --video PA
 
 Zernio uses the same TikTok limits underneath:
 
-- **Specific sound (Mackenzie):** still not fully automatic — inbox draft + add sound in app, or manual finish  
-- **2-photo manual swipe:** needs photo carousel support (we’re building this; today both paths are mostly video)
+- **Specific sound (Mackenzie):** add manually in TikTok app after posting
+- **2-photo manual swipe:** `upload_cli slideshow` (see below)
+
+### Test uploads → always private
+
+Draft inbox via API is **unreliable** (posts may not appear). For any **test** upload (video or slideshow), pass **`--private`**:
+
+```bash
+python3 -m shorts_bot.zernio.upload_cli slideshow slide1.png slide2.png \
+  --title "Hook text" --caption "#asmr #fyp" \
+  --account-id YOUR_ZERNIO_ID --private
+```
+
+`--private` = TikTok **Only me** (`SELF_ONLY`). Check profile → private posts.
+
+### Slideshow example
+
+```bash
+python3 -m shorts_bot.zernio.upload_cli slideshow hook.png cta.png \
+  --title "FROG BUBBLE WRAP ASMR" \
+  --caption "#asmr #satisfying #bubblewrap #fyp" \
+  --account-id PASTE_ZERNIO_ID \
+  --private
+```
 
 ---
 
