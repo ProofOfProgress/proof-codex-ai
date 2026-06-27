@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Business Plan — Co-Signed Loan (~$2,500)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #3d9cf5;
+      --accent2: #5eead4;
+      --warn: #fbbf24;
+      --good: #34d399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    .deck { height: 100%; overflow: hidden; }
+    .slide {
+      display: none;
+      height: 100%;
+      padding: 48px 64px 80px;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .slide.active { display: flex; }
+    h1 { font-size: 2.4rem; line-height: 1.2; margin-bottom: 16px; font-weight: 700; }
+    h2 { font-size: 1.75rem; margin-bottom: 20px; color: var(--accent2); font-weight: 600; }
+    p, li { font-size: 1.15rem; line-height: 1.55; color: var(--muted); }
+    p strong, li strong { color: var(--text); }
+    ul { margin: 12px 0; padding-left: 1.4rem; }
+    li { margin: 8px 0; }
+    .tag { display: inline-block; background: var(--card); border: 1px solid #2a3a52; padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; color: var(--accent); margin-bottom: 20px; }
+    .big { font-size: 2.8rem; font-weight: 800; color: var(--text); margin: 8px 0; }
+    .sub { font-size: 1rem; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 1rem; }
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #2a3a52; }
+    th { color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+    td:last-child, th:last-child { text-align: right; }
+    tr.total td { font-weight: 700; color: var(--accent2); border-top: 2px solid #2a3a52; }
+    .bar-row { display: flex; align-items: center; gap: 12px; margin: 10px 0; font-size: 0.95rem; }
+    .bar-label { width: 140px; color: var(--muted); flex-shrink: 0; }
+    .bar-track { flex: 1; height: 28px; background: #1a2332; border-radius: 6px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #6366f1); border-radius: 6px; }
+    .bar-amt { width: 72px; text-align: right; font-weight: 600; }
+    .flow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .flow span { background: var(--card); padding: 10px 16px; border-radius: 8px; border: 1px solid #2a3a52; font-size: 0.95rem; }
+    .flow .arrow { color: var(--accent); padding: 10px 4px; border: none; background: none; }
+    .note { margin-top: 20px; padding: 14px 18px; background: var(--card); border-left: 4px solid var(--warn); border-radius: 0 8px 8px 0; font-size: 0.95rem; }
+    .nav {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 12px; align-items: center; background: var(--card);
+      padding: 10px 20px; border-radius: 999px; border: 1px solid #2a3a52;
+      font-size: 0.9rem; color: var(--muted);
+    }
+    .nav button {
+      background: var(--accent); color: #fff; border: none; padding: 8px 18px;
+      border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+    }
+    .nav button:hover { filter: brightness(1.1); }
+    .progress { color: var(--text); font-weight: 600; min-width: 48px; text-align: center; }
+    @media (max-width: 700px) {
+      .slide { padding: 32px 24px 100px; }
+      h1 { font-size: 1.75rem; }
+      .big { font-size: 2rem; }
+      .bar-label { width: 100px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <section class="slide active">
+      <span class="tag">Isaac · 2026</span>
+      <h1>Online sales business plan</h1>
+      <p><strong>Ask:</strong> co-sign a <strong>~$2,500 bank loan</strong> — not cash from savings.</p>
+      <p style="margin-top: 16px;">Shop payouts go to you first. Loan gets paid every month before Isaac takes spending money.</p>
+      <p class="sub" style="margin-top: 24px;">Arrow keys or buttons below to move slides.</p>
+    </section>
+
+    <section class="slide">
+      <h2>What this business is (plain English)</h2>
+      <ul>
+        <li><strong>Short videos</strong> on TikTok that link to products people can buy in the app.</li>
+        <li>Isaac builds the videos with software; <strong>phones post them</strong> like a normal user.</li>
+        <li>Money comes from <strong>sales commissions</strong> when viewers buy — not from views alone.</li>
+        <li>Isaac already runs <strong>four smaller accounts</strong> warming up; this loan adds <strong>two established accounts</strong> to earn faster.</li>
+      </ul>
+      <div class="note">You don’t need to understand the apps. You need to know: fixed loan payment, payouts to you, Isaac pays even if growth is slow.</div>
+    </section>
+
+    <section class="slide">
+      <h2>What we’re asking for</h2>
+      <p class="big">~$2,500 loan</p>
+      <p class="sub">Co-signed at the local bank · ~36 months · about <strong>$80/month</strong></p>
+      <ul style="margin-top: 20px;">
+        <li><strong>Not</strong> asking you to withdraw savings or “invest” in TikTok.</li>
+        <li><strong>Not</strong> promising overnight riches — this is a real small business with real costs.</li>
+        <li>Isaac puts in <strong>~$400</strong> of his own money (software bills).</li>
+        <li>After loan + <strong>$400 TV replacement</strong>, profits mostly get reinvested.</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Where the ~$2,500 goes (one time)</h2>
+      <div class="bar-row"><span class="bar-label">2 accounts</span><div class="bar-track"><div class="bar-fill" style="width: 48%"></div></div><span class="bar-amt">$1,260</span></div>
+      <div class="bar-row"><span class="bar-label">2 phones</span><div class="bar-track"><div class="bar-fill" style="width: 8%"></div></div><span class="bar-amt">$140</span></div>
+      <div class="bar-row"><span class="bar-label">Farm PC</span><div class="bar-track"><div class="bar-fill" style="width: 12%"></div></div><span class="bar-amt">$300</span></div>
+      <div class="bar-row"><span class="bar-label">Software ×2 mo</span><div class="bar-track"><div class="bar-fill" style="width: 16%"></div></div><span class="bar-amt">$400</span></div>
+      <div class="bar-row"><span class="bar-label">Phone data ×2</span><div class="bar-track"><div class="bar-fill" style="width: 8%"></div></div><span class="bar-amt">$200</span></div>
+      <div class="bar-row"><span class="bar-label">Video API buffer</span><div class="bar-track"><div class="bar-fill" style="width: 6%"></div></div><span class="bar-amt">$150</span></div>
+      <div class="bar-row"><span class="bar-label">Loan reserve</span><div class="bar-track"><div class="bar-fill" style="width: 10%"></div></div><span class="bar-amt">$240</span></div>
+      <div class="bar-row"><span class="bar-label">Misc buffer</span><div class="bar-track"><div class="bar-fill" style="width: 4%"></div></div><span class="bar-amt">$100</span></div>
+      <p class="sub" style="margin-top: 12px;">Loan reserve = 3 months of bank payments while sales ramp up.</p>
+    </section>
+
+    <section class="slide">
+      <h2>What we’re buying</h2>
+      <table>
+        <tr><th>Item</th><th>Why</th><th>$</th></tr>
+        <tr><td>Account 1</td><td>Main earner — already grown, 14-day warranty</td><td>~$630</td></tr>
+        <tr><td>Account 2</td><td>Backup if one account has problems</td><td>~$630</td></tr>
+        <tr><td>Phone 1 + SIM</td><td>Posts for account 1, own internet line</td><td>~$170</td></tr>
+        <tr><td>Phone 2 + SIM</td><td>Posts for account 2, own internet line</td><td>~$170</td></tr>
+        <tr><td>Small computer</td><td>Runs posting 24/7, plugged into phones</td><td>~$300</td></tr>
+        <tr><td>Cables & hub</td><td>Power both phones reliably</td><td>~$60</td></tr>
+      </table>
+    </section>
+
+    <section class="slide">
+      <h2>Every month (steady — both accounts posting)</h2>
+      <table>
+        <tr><th>Bill</th><th>$ / month</th></tr>
+        <tr><td>Bank loan payment</td><td>~$80</td></tr>
+        <tr><td>Automation software (Cursor)</td><td>$200</td></tr>
+        <tr><td>Product research (Kalodata)</td><td>~$200</td></tr>
+        <tr><td>Video generation API (Kling)</td><td>~$210</td></tr>
+        <tr><td>Product images (estimate)</td><td>~$30</td></tr>
+        <tr><td>2 phone data plans</td><td>~$50</td></tr>
+        <tr class="total"><td>Total operating cost</td><td>~$770</td></tr>
+      </table>
+      <p class="sub" style="margin-top: 12px;">~$770 ÷ 30 ≈ <strong>$25/day</strong> to keep everything running before profit.</p>
+    </section>
+
+    <section class="slide">
+      <h2>Video API math (Kling v2.6)</h2>
+      <ul>
+        <li><strong>5-second clips</strong>, no AI voice — matches course method.</li>
+        <li><strong>~$0.35 per video</strong> (1080p).</li>
+        <li><strong>10 videos/day × 2 accounts</strong> = up to 600 videos/month → <strong>~$210/mo</strong>.</li>
+        <li>First month is lower (ramp: 4 → 7 → 10 posts per day).</li>
+      </ul>
+      <p class="sub" style="margin-top: 16px;">Cheaper 720p option (~$126/mo) if we need to cut costs.</p>
+    </section>
+
+    <section class="slide">
+      <h2>How money moves</h2>
+      <div class="flow">
+        <span>Shop sales commission</span>
+        <span class="arrow">→</span>
+        <span>Payout to Nana</span>
+        <span class="arrow">→</span>
+        <span>Loan payment (~$80)</span>
+        <span class="arrow">→</span>
+        <span>Software & phone bills</span>
+        <span class="arrow">→</span>
+        <span>$400 TV</span>
+        <span class="arrow">→</span>
+        <span>Reinvest / Isaac</span>
+      </div>
+      <p style="margin-top: 24px;">Isaac can <strong>pay the loan off early</strong> if sales are strong — less interest paid to the bank.</p>
+    </section>
+
+    <section class="slide">
+      <h2>First 5 days after buying accounts</h2>
+      <ul>
+        <li><strong>Warm-up only</strong> — use TikTok normally, don’t change account settings.</li>
+        <li>Isaac sets up phones, small computer, and posting software.</li>
+        <li>Test: one real product video with a <strong>buy link attached</strong>.</li>
+        <li>Then ramp posting: ~4 → ~7 → <strong>10 per day</strong> per account.</li>
+      </ul>
+      <div class="note">14-day warranty on accounts — we prove everything works inside that window.</div>
+    </section>
+
+    <section class="slide">
+      <h2>Risks (honest)</h2>
+      <ul>
+        <li><strong>Co-sign risk:</strong> if Isaac stops paying, the bank still expects payment — that affects your credit.</li>
+        <li><strong>Business risk:</strong> sales can be slow at first; buffer in the loan covers early months.</li>
+        <li><strong>Backup plan:</strong> second account + warranty; Isaac keeps paying loan even if sales lag.</li>
+        <li><strong>No ads budget</strong> — growth comes from content and established accounts.</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2>Before we buy more</h2>
+      <ul>
+        <li>Only <strong>2 accounts</strong> in this loan — not 4.</li>
+        <li>Account 3 & 4 only after these two post reliably and pay the bills.</li>
+        <li>Four other accounts keep running at lower priority (no extra purchase cost).</li>
+        <li>Isaac pays <strong>Cursor (~$200/mo)</strong> himself when possible.</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <span class="tag">Summary</span>
+      <h1>One sentence for the bank</h1>
+      <p style="font-size: 1.25rem; color: var(--text); margin-top: 16px;">
+        Co-sign a <strong>~$2,500</strong> personal loan for business equipment and established seller accounts;
+        Isaac pays <strong>~$80/month</strong> from shop earnings deposited to Nana.
+      </p>
+      <p class="big" style="margin-top: 32px; color: var(--accent2);">Thank you.</p>
+    </section>
+
+  </div>
+
+  <nav class="nav" aria-label="Slide navigation">
+    <button type="button" id="prev" aria-label="Previous">← Back</button>
+    <span class="progress" id="progress">1 / 12</span>
+    <button type="button" id="next" aria-label="Next">Next →</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    let i = 0;
+    function show(n) {
+      i = Math.max(0, Math.min(n, slides.length - 1));
+      slides.forEach((s, j) => s.classList.toggle("active", j === i));
+      document.getElementById("progress").textContent = `${i + 1} / ${slides.length}`;
+    }
+    document.getElementById("prev").onclick = () => show(i - 1);
+    document.getElementById("next").onclick = () => show(i + 1);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); show(i + 1); }
+      if (e.key === "ArrowLeft") show(i - 1);
+    });
+  </script>
+</body>
+</html>
