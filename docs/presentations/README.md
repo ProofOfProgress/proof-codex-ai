@@ -12,6 +12,7 @@
 
 ### Presenting to Nana
 
+- **Large text**, warm light colors, easy **Back / Next** buttons (good for reading on a laptop together).
 - Full screen: press **F11** in the browser (Windows) or use browser full-screen.
 - Slides use **plain English** — no TikTok jargon required.
 - Numbers match the ~$2,500 co-signed loan plan (2 accounts, 2 phones, Kalodata ~$200/mo, Kling v2.6 pricing).
