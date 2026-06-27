@@ -274,6 +274,7 @@ class Settings(BaseSettings):
     # Pre-publish gate — tier fast = no vision (cheap); standard = vision when enabled
     pre_publish_default_tier: str = "standard"  # fast | standard | full
     pre_publish_blocks_upload: bool = True
+    pre_publish_allow_bypass: bool = False  # tests only — never enable in production
     module1_min_video_seconds: float = 7.0
     module1_min_post_interval_minutes: int = 30
 

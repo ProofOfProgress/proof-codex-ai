@@ -29,6 +29,7 @@ def test_upload_photo_carousel_builds_image_payload(tmp_path, monkeypatch):
     monkeypatch.setattr("shorts_bot.zernio.upload._request", fake_request)
     monkeypatch.setattr("shorts_bot.zernio.upload.credentials_configured", lambda: True)
     monkeypatch.setattr("shorts_bot.zernio.upload._tiktok_platform_entry", lambda account_id=None: {"platform": "tiktok", "accountId": "acct-1"})
+    monkeypatch.setattr("shorts_bot.zernio.upload.require_pre_publish", lambda *a, **k: None)
 
     result = upload_photo_carousel(
         [img1, img2],

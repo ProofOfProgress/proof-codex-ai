@@ -20,27 +20,6 @@ def post_clip(
     """Returns (ok, message, publish_id)."""
     caption = caption.strip()[:2200]
 
-    if not skip_module1_qc:
-        from shorts_bot.tiktok_shop.module1_qc import enforce_module1_before_upload
-
-        qc = enforce_module1_before_upload(
-            video_path,
-            caption=caption,
-            product=product,
-            account_id=account.id,
-        )
-        if not qc.passed:
-            msg = qc.summary()
-            log_post(
-                account_id=account.id,
-                video_path=str(video_path),
-                caption=caption,
-                product=product,
-                ok=False,
-                error=msg[:300],
-            )
-            return False, msg, ""
-
     if account.post_via == "tiktok_api":
         from shorts_bot.tiktok.upload import upload_video
 
@@ -48,7 +27,14 @@ def post_clip(
         if not token_path or not token_path.is_file():
             return False, f"No token at {token_path}", ""
         try:
-            result = upload_video(video_path, title=caption, token_path=token_path)
+            result = upload_video(
+                video_path,
+                title=caption,
+                token_path=token_path,
+                product=product,
+                shop_account_id=account.id,
+                skip_pre_publish=skip_module1_qc,
+            )
             log_post(
                 account_id=account.id,
                 video_path=str(video_path),
@@ -69,34 +55,25 @@ def post_clip(
             )
             return False, str(exc), ""
 
-    # Default: Zernio with per-account id
+    # Zernio — single upload path (gate runs inside zernio.upload.upload_video)
     from shorts_bot.zernio.upload import upload_video as zernio_upload
 
     zid = (account.zernio_account_id or "").strip()
     if not zid:
         return False, f"Account {account.id} needs zernio_account_id in accounts.json", ""
     try:
-        # Temporarily override env account — use direct API call
-        from shorts_bot.zernio.client import _request, presign_video, upload_file_to_presigned
-
-        upload_url, public_url = presign_video(video_path)
-        upload_file_to_presigned(upload_url, video_path)
-        payload = {
-            "content": caption,
-            "mediaItems": [{"type": "video", "url": public_url}],
-            "platforms": [{"platform": "tiktok", "accountId": zid}],
-            "tiktokSettings": {
-                "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
-                "allow_comment": True,
-                "allow_duet": True,
-                "allow_stitch": True,
-                "content_preview_confirmed": True,
-                "express_consent_given": True,
-            },
-            "publishNow": True,
-        }
-        body = _request("POST", "/posts", json=payload)
-        post_id = str(body.get("postId") or body.get("_id") or body.get("id") or "")
+        result = zernio_upload(
+            video_path,
+            caption=caption,
+            tiktok=True,
+            facebook=False,
+            publish_now=True,
+            tiktok_account_id=zid,
+            shop_account_id=account.id,
+            product=product,
+            skip_pre_publish=skip_module1_qc,
+        )
+        post_id = result.post_id
         log_post(
             account_id=account.id,
             video_path=str(video_path),
@@ -105,7 +82,7 @@ def post_clip(
             ok=True,
             publish_id=post_id,
         )
-        return True, f"Zernio posted → {post_id}", post_id
+        return True, result.message, post_id
     except Exception as exc:  # noqa: BLE001
         log_post(
             account_id=account.id,

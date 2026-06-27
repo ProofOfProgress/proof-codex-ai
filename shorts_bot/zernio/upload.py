@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from shorts_bot.config import settings
+from shorts_bot.tiktok_shop.upload_guard import require_pre_publish
 from shorts_bot.zernio.client import (
     _request,
     account_id_for,
@@ -68,6 +69,10 @@ def upload_photo_carousel(
     auto_add_music: bool = False,
     publish_now: bool = True,
     draft: bool = False,
+    shop_account_id: str = "",
+    product: str = "",
+    pre_publish_tier: str | None = None,
+    skip_pre_publish: bool = False,
 ) -> ZernioPostResult:
     """
     Post a TikTok photo carousel (2+ images) — bubble wrap slideshow format.
@@ -81,6 +86,17 @@ def upload_photo_carousel(
     for p in paths:
         if not p.is_file():
             raise FileNotFoundError(p)
+
+    require_pre_publish(
+        "carousel",
+        image_paths=paths,
+        caption=description,
+        title=title,
+        product=product,
+        shop_account_id=shop_account_id,
+        tier=pre_publish_tier,
+        skip=skip_pre_publish,
+    )
 
     media_items: list[dict[str, str]] = []
     for p in paths:
@@ -144,6 +160,11 @@ def upload_video(
     tiktok: bool = True,
     facebook: bool = True,
     publish_now: bool = True,
+    tiktok_account_id: str | None = None,
+    shop_account_id: str = "",
+    product: str = "",
+    pre_publish_tier: str | None = None,
+    skip_pre_publish: bool = False,
 ) -> ZernioPostResult:
     """Presign MP4, upload to Zernio CDN, post to connected platforms."""
     if not credentials_configured():
@@ -151,13 +172,31 @@ def upload_video(
     if not video_path.exists():
         raise FileNotFoundError(video_path)
 
+    require_pre_publish(
+        "video",
+        video_path=video_path,
+        caption=caption,
+        product=product,
+        shop_account_id=shop_account_id,
+        tier=pre_publish_tier,
+        skip=skip_pre_publish,
+    )
+
     upload_url, public_url = presign_video(video_path)
     upload_file_to_presigned(upload_url, video_path)
+
+    zid = (tiktok_account_id or "").strip()
+    if zid and tiktok:
+        platforms: list[dict[str, Any]] = [{"platform": "tiktok", "accountId": zid}]
+        if facebook and settings.zernio_post_facebook:
+            platforms.extend(_platform_targets(tiktok=False, facebook=True))
+    else:
+        platforms = _platform_targets(tiktok=tiktok, facebook=facebook)
 
     payload: dict[str, Any] = {
         "content": caption[:2200],
         "mediaItems": [{"type": "video", "url": public_url}],
-        "platforms": _platform_targets(tiktok=tiktok, facebook=facebook),
+        "platforms": platforms,
         "tiktokSettings": {
             "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
             "allow_comment": True,
