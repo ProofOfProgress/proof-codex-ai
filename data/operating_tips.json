@@ -61,7 +61,7 @@
       "title": "Mackenzie sound handoff",
       "applies_to": ["carousel"],
       "enforcement": "agent",
-      "content": "API cannot attach Mackenzie sound — owner finishes in TikTok app (inbox draft or edit after post)."
+    "content": "Mackenzie via phone: python3 -m shorts_bot.tiktok.adb_carousel_cli post --slide1 ... --slide2 ... (Android + USB debugging). Opens tiktok://music/7418286946344340256 first."
     },
     {
       "id": "T009",

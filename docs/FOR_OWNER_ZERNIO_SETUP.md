@@ -101,7 +101,7 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post --account bubble_1 --video PA
 
 Zernio uses the same TikTok limits underneath:
 
-- **Specific sound (Mackenzie):** still not fully automatic — inbox draft + add sound in app, or manual finish  
+- **Specific sound (Mackenzie):** use **ADB Lead 3** on a logged-in Android phone — `python3 -m shorts_bot.tiktok.adb_carousel_cli post --slide1 ... --slide2 ...` (opens Mackenzie deep link → Use sound → 2 photos). Or inbox draft + manual finish in app.
 - **2-photo manual swipe:** needs photo carousel support (we’re building this; today both paths are mostly video)
 
 ---

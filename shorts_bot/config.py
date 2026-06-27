@@ -116,6 +116,9 @@ class Settings(BaseSettings):
     tiktok_disable_stitch: bool = False
     tiktok_disable_comment: bool = False
     auto_upload_tiktok: bool = False
+    # Android ADB — Mackenzie sound-first carousel (Lead 3)
+    tiktok_adb_device_id: str | None = None
+    tiktok_bubble_wrap_sound_id: str = "7418286946344340256"
 
     zernio_api_key: str | None = None
     zernio_api_token: str | None = None  # Cursor secret alias → same as zernio_api_key
