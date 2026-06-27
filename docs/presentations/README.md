@@ -2,21 +2,44 @@
 
 ## Loan plan slideshow (for Nana / bank)
 
-**File:** `loan-plan-slideshow.html`
+### Open in browser (click this link)
 
-### How to open
+**Works from any phone or laptop — no download required:**
 
-1. On your laptop, go to this folder in the project: `docs/presentations/`
-2. Double-click `loan-plan-slideshow.html` — it opens in your browser (Chrome or Edge is fine).
-3. Use **Next →** / **← Back** or keyboard **arrow keys** to move slides.
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/ProofOfProgress/proof-codex-ai/main/docs/presentations/loan-plan-slideshow.html
+
+After GitHub Pages is enabled, this may also work:
+
+https://proofofprogress.github.io/proof-codex-ai/loan-plan-slideshow.html
+
+*(If that second link 404s, use the htmlpreview link above — it always works once the file is on `main`.)*
+
+---
+
+### Open on your laptop (best quality)
+
+1. Open folder: `docs/presentations/`
+2. Double-click **`loan-plan-slideshow.html`** (Chrome or Edge).
+3. Press **F11** for full screen when showing Nana.
+4. Use **Next →** / **← Back** at the bottom.
+
+**Do not** use the normal GitHub file page — it shows code, not the slideshow.
+
+---
 
 ### Presenting to Nana
 
-- **Large text**, warm light colors, easy **Back / Next** buttons (good for reading on a laptop together).
-- Full screen: press **F11** in the browser (Windows) or use browser full-screen.
-- Slides use **plain English** — no TikTok jargon required.
-- Numbers match the ~$2,500 co-signed loan plan (2 accounts, 2 phones, Kalodata ~$200/mo, Kling v2.6 pricing).
+- Large text, warm colors, big **Back / Next** buttons.
+- About **5 minutes**, **12 slides**.
+- Plain English — no TikTok jargon.
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `loan-plan-slideshow.html` | The presentation |
+| `index.html` | Redirects to the slideshow |
 
 ### Updating numbers
 
-Edit `loan-plan-slideshow.html` directly, or ask a cloud agent to refresh figures if the loan amount or monthly costs change.
+Edit `loan-plan-slideshow.html`, or ask a cloud agent to refresh figures.
