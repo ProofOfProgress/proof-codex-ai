@@ -74,3 +74,12 @@ def test_short_video_blocked(tmp_path, monkeypatch):
 
 def test_banned_phrases_list_matches_course():
     assert "flash sale" in BANNED_CAPTION_PHRASES
+
+
+def test_module1_includes_brand_and_phone_rules():
+    from shorts_bot.tiktok_shop.module1_qc import MODULE1_VIDEO_VIOLATIONS
+
+    joined = " ".join(MODULE1_VIDEO_VIOLATIONS).lower()
+    assert "phone screens" in joined
+    assert "third-party brands" in joined
+    assert "app icons" in joined

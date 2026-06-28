@@ -32,6 +32,18 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 ---
 
+## 2026-06-28 — Module 1 brand + phone screen rules (owner)
+
+**Only the advertised product's brand** may appear in frame — no recognizable third-party logos (Apple, MacBook, Instagram, Nike, competitors, etc.).
+
+**No phone screens** — home screen, app icons, notifications, lit mobile UI. Treat as banned **even if static** (not just "moving screens").
+
+**No recognizable apps** in frame.
+
+Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample prompts, Kling negatives, `product-video-prompt-builder`.
+
+---
+
 ## 2026-06-28 — Operating strategy (owner)
 
 **Parallel tracks:** 4 bubble-wrap growth accounts **and** affiliate revenue posting — not either/or.

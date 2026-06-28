@@ -81,7 +81,10 @@ def build_sample_prompt(
         "NO empty padding. Product must be fully visible, centered, correct scale, and sharp. "
         f"Place the product in a rich staged scene: {scene}. "
         "Soft natural lighting with matching shadows on product and surface. "
-        "No people, no hands, no pets, no animated phone screens, no TVs/monitors with UI, "
+        "No people, no hands, no pets, no phone screens or mobile app UI of any kind, "
+        "no laptops or tablets with visible screens, no TVs/monitors with UI, "
+        "no recognizable third-party brands or logos except on the advertised product itself "
+        "(no Apple, MacBook, Instagram, Facebook, Nike, etc. in frame), "
         "no steam, no water, no text overlays, no sale tags, no price signs. "
         "Preserve exact product shape, color, branding, label text, materials, and packaging from the reference."
     )

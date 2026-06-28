@@ -40,6 +40,9 @@ Source: `data/research/course/module_01_read_before_anything.md` · enforced in 
 - Moving water, moving fire, steam, dirt, sand, or powder
 - Pulsing light or neon light washes
 - Electronic screens with movement (TVs, phones with animated UI, monitors)
+- **Phone screens visible at all** — no home screen, app icons, notifications, or lit mobile UI (owner 2026-06-28: static screens still banned)
+- **Recognizable third-party brands or logos** — only the **advertised product's** brand allowed (no Apple, MacBook, Instagram, Nike, competitor marks, etc.)
+- **Mobile app icons or recognizable apps** anywhere in frame
 - Mismatching lighting between product and environment
 - Same lighting or same environment as the TikTok Shop **listing image**
 - Hieroglyphic, scrambled, invented, or illegible text (preserve label text exactly; never ask the model to add new text)
@@ -55,7 +58,7 @@ Source: `data/research/course/module_01_read_before_anything.md` · enforced in 
 - **Static camera** — no locked-off tripod with zero motion (Module 1 violation)
 - Camera movement in **only one axis** — no pure slider, pure push-in-only, or robotic single-axis track
 - Exaggerated human bobbing or shaky cam that warps the product
-- Other brand titles, competitor logos, or fake brand names in frame
+- Other brand titles, competitor logos, or fake brand names in frame *(only advertised product branding)*
 - Prices, sale tags, discount messaging, or retail signage in the background
 - Mirrors or human reflections
 - Levitating, floating, or physics-breaking product orientation

@@ -146,7 +146,8 @@ def review_reference_image(
         "Judge whether this image will produce a GOOD 5s product clip with an arc-camera prompt.\n"
         "Check: staged environment with visible depth/texture (NOT plain white listing box or gray void), "
         "9:16 full-bleed framing, product fully visible and stationary-ready, "
-        "no humans/hands, no screens with UI, no illegible fake text, not overly tight crop, "
+        "no humans/hands, no screens with UI, no phone screens or app icons, "
+        "no third-party brand logos except on the advertised product, "
         "lighting suitable for believable set extension with parallax for arc-camera motion.\n\n"
         "Return ONLY JSON:\n"
         '{"score": number 1-10, "ready_for_kling": bool, "good_enough": bool, '
@@ -225,7 +226,8 @@ def review_video(
         "Focus on: visible arc/multi-axis camera (NOT static tripod), product stationary, "
         "product matches reference, readable branding, rich staged background with parallax "
         "(NOT plain white box, gray letterbox bars, or frozen still photograph), "
-        "believable lighting, no obvious AI glitches.\n\n"
+        "believable lighting, no obvious AI glitches, no phone/laptop screens with UI, "
+        "no third-party brand logos besides advertised product.\n\n"
         "Return ONLY JSON:\n"
         '{"score": number 1-10, "good_enough": bool, "commercial_ready": bool, '
         '"summary": string, "issues": string[], "prompt_fixes": string[], '

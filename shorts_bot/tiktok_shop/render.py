@@ -18,8 +18,10 @@ NEGATIVE_PROMPT = (
     "empty void, plain gray background, gray border, letterbox bars, black bars, padded frame, "
     "unfinished 3D render, blender default scene, featureless backdrop, flat monochrome wall, "
     "plain white box, isolated product on white, static photograph, frozen still image, "
-    "no camera motion, locked tripod, product moving, product rotating, low quality, blur, "
-    "distortion, text, watermark, extreme close-up, tight crop, product fills entire frame"
+    "no camera motion, locked tripod, product moving, product rotating, "
+    "phone screen, mobile app icons, home screen UI, laptop screen with UI, MacBook logo, "
+    "Apple logo, Instagram logo, third-party brand logos, competitor branding, "
+    "low quality, blur, distortion, text, watermark, extreme close-up, tight crop, product fills entire frame"
 )
 
 # Fallback only when --allow-default-prompt (tests / emergency)
