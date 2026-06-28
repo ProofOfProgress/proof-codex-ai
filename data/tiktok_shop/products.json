@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "product_id": "dry_run_tumbler",
+    "product_name": "Insulated Tumbler",
+    "price": 24.99,
+    "commission_rate": 0.25,
+    "commission_usd": 6.25,
+    "gmv_period": 12000,
+    "creators": 45,
+    "videos": 8,
+    "preset": "middle_core",
+    "score": 0,
+    "cover_url": "",
+    "region": "US",
+    "_note": "Launch dry run sample — replace with FastMoss picks before launch"
+  }
+]

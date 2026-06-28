@@ -53,7 +53,7 @@ Nothing else on this list matters until these are done **in order**:
 | ✅ | Agent team + mission log (`agent_ops`) |
 | ✅ | Knowledge Gatherer (`/knowledge-gather`) |
 | ✅ | Launch budget, todo, midnight rules, pipeline design |
-| ✅ | Cursor project rules (`.cursor/rules/*.mdc`) |
+| ✅ | Launch dry run: Kling render + pan loop + caption pipeline tested (`data/tiktok_shop/clips/`) |
 
 ---
 

@@ -1,79 +1,62 @@
-# Kling setup — for the owner (plain English)
+# Kling setup — TikTok Shop affiliate (official API)
 
-Kling runs through **Replicate**. You already have a Replicate token on this agent. One switch was missing — **turn generation on**.
-
----
-
-## Step 1 — Cursor Secrets (do this once)
-
-Open **Cursor → your Cloud Agent → Secrets** and add or fix these:
-
-| Secret name | Set to |
-|-------------|--------|
-| `REPLICATE_API_TOKEN` | Your token from https://replicate.com/account/api-tokens (starts with `r8_`) — **you likely have this already** |
-| `AI_VIDEO_GENERATION_ENABLED` | `true` |
-| `VIDEO_BACKEND` | `kling` |
-| `VISUAL_STYLE` | `ai_video` |
-
-Optional (defaults are fine):
-
-| Secret name | Default |
-|-------------|---------|
-| `KLING_MODEL` | `kwaivgi/kling-v3-video` |
-| `KLING_CLIP_SECONDS` | `15` |
-| `KLING_CLIPS_PER_SHORT` | `2` |
+**Model guide:** `docs/KLING_MODEL_GUIDE.md` — read this for which Kling version to use.
 
 ---
 
-## Step 2 — Replicate billing
+## What you need
 
-Kling costs money per run (~2 calls per Short).
+| Secret | Purpose |
+|--------|---------|
+| `KLING_ACCESS_KEY` + `KLING_SECRET_KEY` | Official API (JWT) — **preferred** |
+| or `KLING_API_KEY` | Single bearer key |
+| `KLING_PROVIDER` | `official` |
+| `KLING_MODEL` | `kling-v2-6` |
+| `KLING_MODE` | `std` (720p, ~$0.21/5s) for launch |
+| `KLING_CLIP_SECONDS` | `5` (course Module 5) |
 
-1. Go to https://replicate.com/account/billing  
-2. Add a payment method or credits  
-3. Without billing, generations fail even with a valid token
+After saving secrets → **new cloud agent run** → `bash scripts/install.sh`
 
 ---
 
-## Step 3 — Sync on the agent
-
-After saving secrets, start a **new agent run** (or tell the agent):
+## Verify
 
 ```bash
-bash scripts/install.sh
-python3 -m shorts_bot.production.kling_setup_cli
+python3 -m shorts_bot.tiktok_shop status
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH/TO/module4.jpg --force
 ```
-
-You want all rows **OK** in green.
 
 ---
 
-## Step 4 — Test one Short (no upload)
+## Course alignment
+
+- **Model:** Kling **2.6** (`kling-v2-6`)
+- **Duration:** 5 seconds
+- **Audio:** off
+- **Prompt:** fixed arc-camera text in Module 5 (or Product Video Prompt Builder for custom sets)
+
+---
+
+## Dry run (no FastMoss yet)
 
 ```bash
-python3 -m shorts_bot.production.daily_cli --topic "village eye dream" --no-upload
+python3 -m shorts_bot.tiktok_shop.factory_cli render \
+  --product "Your Product" \
+  --image data/tiktok_shop/images/your_module4_image.jpg \
+  --force
+python3 -m shorts_bot.tiktok_shop.factory_cli qc \
+  --video data/tiktok_shop/clips/your_product_final.mp4 \
+  --product "Your Product" \
+  --caption "..." \
+  --account affiliate_main
 ```
 
-When it finishes, open the video file it prints (under `data/production/draft_N/final_short.mp4`) and watch locally before posting.
+Outputs: `data/tiktok_shop/clips/` (raw 5s → loop ~10s → final with caption)
 
 ---
 
-## What Kling does for PERIPHERAL
+## Billing
 
-- **2 clips × 15 seconds** → ~30s Short, **one stitch**
-- **Character voices in the video** (lip sync) — no narrator robot voice
-- **Subtitles** still added after (burned in)
-- **Horror sound effects** layered on top at the end
+Add credits at https://klingai.com — without credits, render fails even with valid keys.
 
----
-
-## If something fails
-
-| Error | Fix |
-|-------|-----|
-| "AI video generation is disabled" | Set `AI_VIDEO_GENERATION_ENABLED=true` in Secrets |
-| "Kling requires REPLICATE_API_TOKEN" | Add token in Secrets, re-run install |
-| Replicate 402 / payment | Add billing at replicate.com |
-| Generation timeout | Normal — each clip can take several minutes; agent runs in background |
-
-Full technical doc: `docs/KLING_VIDEO_PIPELINE.md`
+**Do not** use Replicate `kwaivgi/kling-v3-video` slug with the official API — the bot maps it to `kling-v2-6` automatically.
