@@ -1,0 +1,42 @@
+---
+description: Momentum Academy course knowledge — creative rules, modules, owner overrides
+globs: data/research/course/**,data/research/**
+alwaysApply: false
+---
+
+# Course creative knowledge
+
+Index: **`data/research/course/KNOWLEDGE.md`**
+
+## Hierarchy
+
+1. **`GROUP_CALLS.md`** — live owner updates beat stale module text
+2. Owner overrides: `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `PRODUCT_RESEARCH.md`, `BUBBLE_WRAP.md`
+3. Modules 1–8 (`module_*.md`)
+
+## When editing course files
+
+- Owner reports group-call changes → append dated note to `GROUP_CALLS.md`
+- Do not guess course rules — encode only what owner or modules state
+- Do not merge dead strategy (Fix It Fast, Ms. Byte lane, InVideo, Peripheral) into course
+
+## Module quick map
+
+| Module | Topic |
+|--------|--------|
+| 1 | Violations — QC mandatory |
+| 2–3 | Bubble / product research |
+| 4–5 | Image + Kling video |
+| 6 | Edit + caption |
+| 7 | CTR ≥5%, misinformation words |
+| 8 | Appeals |
+
+## Research questions
+
+Delegate **`knowledge-gatherer`** for briefings from files — `/knowledge-gather`
+
+## Bot alignment
+
+When course rules change, update bot enforcement if needed: `module1_qc.py`, `captions.py`, prompt templates in `.cursor/agents/`
+
+Do **not** invent hooks or product filters not in course + owner overrides.

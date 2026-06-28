@@ -1,7 +1,8 @@
 # AGENTS.md — read this first (every new chat)
 
 > **New cloud agent?** Run the bootstrap checklist: **`docs/CLOUD_AGENT_START.md`**  
-> **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.
+> **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.  
+> **Cursor rules:** `.cursor/rules/*.mdc` (see https://cursor.com/docs/rules) · **Pipeline:** `docs/PIPELINE_SYSTEM_DESIGN.md` · **Launch status:** `docs/LAUNCH_PREP_BRIEF.md`
 
 ## What this repo is
 
@@ -81,7 +82,7 @@ Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work an
 |----------|-------|-----|-------------|
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
 | Product Researcher | `/product-research` | Module 3 EchoTik scout + ranked picks | **Yes** |
-| **Knowledge Gatherer** | `/knowledge-gather` | Read course + launch docs; plain-English briefings | **Yes** |
+| Knowledge Gatherer | `/knowledge-gather` | Read course + launch docs; plain-English briefings | **Yes** |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | Video Editor | `/video-editor` | Module 6 pan loop + caption burn | **Yes** |
 | Module 1 QC Runner | `/module1-qc-runner` | Pre-upload QC | **Yes** |

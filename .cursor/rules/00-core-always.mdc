@@ -1,0 +1,55 @@
+---
+description: Core TikTok Shop affiliate project context — always on
+alwaysApply: true
+---
+
+# Proof Codex AI — core rules
+
+Read **`AGENTS.md`** first for full map. This rule is the always-on summary.
+
+## What this repo is
+
+- **TikTok Shop affiliate automation** — not creative strategy
+- **~90% creative** lives in `data/research/course/` (Momentum Academy)
+- **Owner is not a developer** — plain English, one step at a time
+
+## North star (2026)
+
+- **Affiliate:** 8–10 GOOD posts/day on purchased account · full pipeline at go-live
+- **Bubble wrap:** 4 accounts parallel — does not block affiliate launch
+- **Week 1:** $1k commission in **7 calendar days** from **12:00 AM Launch Date** → $500 bonus
+
+## Knowledge hierarchy
+
+1. **Owner overrides:** `GROUP_CALLS.md`, `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `PRODUCT_RESEARCH.md`
+2. **Course modules** 1–8 in `data/research/course/`
+3. **Automation:** `shorts_bot/tiktok_shop/`
+4. **Pipeline design:** `docs/PIPELINE_SYSTEM_DESIGN.md`
+5. **Launch order:** `docs/LAUNCH_TODO.md`
+
+## DEAD — never suggest or build
+
+Fix It Fast · Rapid Tool Review · Ms. Byte content lane · InVideo daily · Peripheral horror · Jenny Codex · AlphaBeta001 · deleted `archive/` not in `course/`
+
+## CEO model
+
+- **Main agent = CEO** — no affiliate-ceo subagent
+- **Delegate** to `.cursor/agents/*` — paste full context every dispatch (subagents have no chat memory)
+- **Log missions:** `python3 -m shorts_bot.agent_ops mission new` + log every dispatch
+
+## Hard gates
+
+- **Module 1 QC** zero violations before upload (`module1_qc.py`)
+- **Never freestyle Module 5 video prompts** — use `product-video-prompt-builder`
+- **EchoTik day 1** at affiliate launch — not Kalodata-as-primary
+- **Launch night:** post #1 at midnight; ≥30m spacing; no `post-batch` for launch night
+
+## Bootstrap (cloud VM)
+
+```bash
+bash scripts/install.sh
+python3 -m shorts_bot.cloud_secrets
+python3 -m shorts_bot.tiktok_shop status
+```
+
+Secrets: `docs/CURSOR_SECRETS.md` · New agent: `docs/CLOUD_AGENT_START.md`

@@ -11,12 +11,16 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 | 1 | `AGENTS.md` | What we work on, what's dead, commands |
 | 2 | `data/research/course/KNOWLEDGE.md` | Course = creative (~90%), repo = automation |
 | 3 | `data/PRIORITIES.md` | Top 4 build order |
+| 4 | `docs/LAUNCH_PREP_BRIEF.md` | Launch blockers + critical path |
+| 5 | `docs/PIPELINE_SYSTEM_DESIGN.md` | Exact CEO ↔ employee pipeline |
 
-**Current phase:** **Bubble wrap only** until ~1k followers per account → `data/research/course/BUBBLE_WRAP.md`
+**Cursor project rules:** `.cursor/rules/*.mdc` — always-on context + pipeline/launch rules.
 
-**Agent team (affiliate clips):** `docs/FOR_OWNER_AGENT_TEAM.md` — `/affiliate-ceo` or `/team`.
+**Current phase:** **Affiliate launch first** (8–10 GOOD/day, midnight Launch Date) **+ bubble wrap parallel** → `docs/LAUNCH_TODO.md`
 
-**Dead (never suggest):** Fix It Fast, Rapid Tool Review, Ms. Byte, InVideo, Peripheral horror.
+**Agent team:** `docs/FOR_OWNER_AGENT_TEAM.md` — CEO is main chat · `/team` for roster.
+
+**Dead (never suggest):** Fix It Fast, Rapid Tool Review, Ms. Byte lane, InVideo, Peripheral horror.
 
 ---
 
