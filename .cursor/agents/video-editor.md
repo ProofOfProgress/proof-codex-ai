@@ -80,7 +80,7 @@ python3 -m shorts_bot.agent_ops log --mission MISSION_ID --agent video-editor --
 - **Do not** change Kling motion — only loop + caption.
 - Caption must span the **full** combined clip length (burn applies to whole file).
 - **No** discount percentages in caption text — sanitize if needed.
-- Default styling: white box + black text (see `VIDEO_EDITOR.md`, `module_06_editing.md`).
+- Default styling: white text, tiny black outline, **no background bubble** (see `VIDEO_EDITOR.md`).
 - After edit, tell the main agent/owner: run `module1-qc-runner` on `OUTPUT_MP4` before upload.
 - Creative copy patterns: `data/research/course/module_06_editing.md`. Owner overrides: `VIDEO_EDITOR.md`.
 

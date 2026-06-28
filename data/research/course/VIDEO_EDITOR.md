@@ -7,24 +7,50 @@
 
 1. Input: 5s Kling clip (Module 5)  
 2. **Pan loop:** forward + reverse → ~10s (`video_variants.make_pan_loop_clip`)  
-3. **Burn-in caption:** pain-point prompt text, full clip length (Module 6 styling)  
+3. **Burn-in caption:** on-screen hook text, full clip length (styling below)  
 4. Module 1 QC → upload  
 
-## Caption styling defaults (from Module 6)
+---
 
-- System font, bold, ~size 15  
-- Background/bubble **on**, height/width tightened (~8–9%)  
-- Default: **white box + black text** (alt: black box + white text)  
-- Upper-center placement  
+## On-screen captions (owner — ever-changing)
+
+**Captions change often** — like products. This template is what we use **right now**. Group calls and owner updates beat stale copy. When the template changes, update this file first, then `video-caption-writer` subagent and `shorts_bot/tiktok_shop/captions.py`.
+
+### Copy template (current)
+
+```
+I am SO sorry if you already grabbed {product} because the discount is huge today
+```
+
+- **`SO`** stays capitalized  
+- **`{product}`** = product name with **each word capitalized** (title case)  
+  - Example product: `pre workout powder` → **Pre Workout Powder**  
+  - Full line: *"I am SO sorry if you already grabbed a Pre Workout Powder because the discount is huge today"*  
+- Include **"a"** before the product name when it reads naturally (as in the sample)
+
+Code helper: `shorts_bot.tiktok_shop.captions.on_screen_caption(product_name)`
+
+### Burn-in styling (current)
+
+| Setting | Value |
+|--------|--------|
+| Text | **White**, bold |
+| Outline | **Tiny black outline** — no big background bubble |
+| Placement | Upper-center (~top third) |
+| Duration | Full loop clip (~10s) |
+
+Automated in `video_editor.burn_on_screen_caption()` — white text + thin black border, **no box**.
+
+*(Course CapCut demo used white box + black text — we override to outline-only.)*
+
+---
 
 ## On-screen copy vs other prompts
 
 | Type | Source |
 |------|--------|
 | Kling motion prompt | **Product Video Prompt Builder** — `PROMPT_BUILDER.md` (Module 1 compliant) |
-| Image prompt | Module 4 product image workflow — separate from video prompt builder |
-| **On-screen caption** | Pain-point / urgency copy — `module_06_editing.md` |
-
-**Caption copy under review (2026-06):** Owner is re-sourcing what works from the course and group calls. Current `video-caption-writer` subagent patterns are provisional — paste better examples into `module_06_editing.md` or `GROUP_CALLS.md` when found; those beat the subagent defaults.
+| Image prompt | Module 4 product image workflow |
+| **On-screen caption** | **This file** → `video-caption-writer` subagent |
 
 Prompt copy changes often — group calls win over stale templates.

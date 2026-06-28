@@ -27,3 +27,13 @@ def test_captions_no_percent():
 
 def test_sanitize_strips_percent_off():
     assert "%" not in sanitize_caption("Get 30% off now")
+
+
+def test_on_screen_caption_template():
+    from shorts_bot.tiktok_shop.captions import format_product_title, on_screen_caption
+
+    assert format_product_title("pre workout powder") == "Pre Workout Powder"
+    cap = on_screen_caption("pre workout powder")
+    assert "SO sorry" in cap
+    assert "Pre Workout Powder" in cap
+    assert "discount is huge today" in cap

@@ -1,4 +1,4 @@
-"""Module 6 affiliate edit — on-screen caption burn (white box / black text)."""
+"""Module 6 affiliate edit — on-screen caption burn (white text, black outline)."""
 
 from __future__ import annotations
 
@@ -25,10 +25,11 @@ def burn_on_screen_caption(
     font_path: Path | None = None,
     font_size: int = 46,
     y_fraction: float = 0.11,
+    outline_width: int = 2,
 ) -> Path:
     """
-    Burn Module 6 caption — bold black text, white box, upper-center.
-    Course: module_06_editing.md + VIDEO_EDITOR.md
+    Burn Module 6 caption — bold white text, tiny black outline, no background bubble.
+    Owner override: VIDEO_EDITOR.md
     """
     wrapped = wrap_on_screen_caption(text)
     if not wrapped:
@@ -44,13 +45,12 @@ def burn_on_screen_caption(
     text_file = dest.with_suffix(".caption.txt")
     text_file.write_text(wrapped, encoding="utf-8")
 
-    # ffmpeg filter paths — escape for drawtext
     tf = str(text_file.resolve()).replace("\\", "/").replace(":", "\\:")
     ff = str(font.resolve()).replace("\\", "/").replace(":", "\\:")
     vf = (
         f"drawtext=fontfile='{ff}':textfile='{tf}':"
-        f"fontsize={font_size}:fontcolor=black:"
-        f"box=1:boxcolor=white@0.92:boxborderw=18:"
+        f"fontsize={font_size}:fontcolor=white:"
+        f"borderw={outline_width}:bordercolor=black:"
         f"x=(w-text_w)/2:y=h*{y_fraction}"
     )
     cmd = [
