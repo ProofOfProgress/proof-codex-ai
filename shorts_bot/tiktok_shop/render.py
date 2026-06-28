@@ -146,7 +146,17 @@ def render_product_clip(
         download_cover(product_id=product_id, cover_url=image_url)
 
     try:
-        image_for_kling = image_payload_for_kling(product_id=product_id, cover_url=image_url)
+        if image_path is not None and Path(image_path).is_file():
+            import base64
+
+            from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16
+
+            data = prepare_vertical_9x16(Path(image_path).read_bytes())
+            if len(data) > 10 * 1024 * 1024:
+                raise RuntimeError("Product image exceeds Kling 10MB limit")
+            image_for_kling = base64.standard_b64encode(data).decode("ascii")
+        else:
+            image_for_kling = image_payload_for_kling(product_id=product_id, cover_url=image_url)
     except RuntimeError as exc:
         raise RuntimeError(str(exc)) from exc
 
@@ -166,8 +176,9 @@ def render_product_clip(
             prompt=kling_prompt,
             negative_prompt=NEGATIVE_PROMPT,
             duration=5,
-            mode=(settings.kling_mode or "std").strip().lower(),  # std=720p (cheaper; use pro when scaling)
+            mode=(settings.kling_mode or "std").strip().lower(),  # std=720p (~$0.21/5s affiliate default)
             aspect_ratio="9:16",
+            model_name=kling_client.resolve_model_name(),
             sound="off",
         )
         video_url = kling_client.wait_for_video_url(task_id)

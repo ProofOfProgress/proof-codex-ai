@@ -36,6 +36,7 @@ def main() -> None:
     render.add_argument("--on-screen-caption", default="", help="Module 6 burn-in hook text")
     render.add_argument("--printify-id", default="")
     render.add_argument("--printify-title", default="")
+    render.add_argument("--image", default="", help="Local Module 4 product image (dry run without scout)")
     render.add_argument("--prompt", default="", help="Override Kling prompt")
     render.add_argument(
         "--style",
@@ -47,6 +48,7 @@ def main() -> None:
     pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
     pipe.add_argument("--product-id", default="")
     pipe.add_argument("--product", default="")
+    pipe.add_argument("--image", default="", help="Local Module 4 product image (dry run without scout)")
     pipe.add_argument("--printify-id", default="", help="Printify product id (your listing)")
     pipe.add_argument("--printify-title", default="", help="Printify product title substring")
     pipe.add_argument("--style", default="auto", choices=["auto", "studio", "vanity", "lifestyle", "minimal"])
@@ -179,6 +181,8 @@ def main() -> None:
         return
 
     if args.cmd == "render":
+        from pathlib import Path
+
         from shorts_bot.tiktok_shop.render import render_product_clip
 
         try:
@@ -187,6 +191,7 @@ def main() -> None:
                 product_name=args.product,
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
+                image_path=Path(args.image) if args.image else None,
                 prompt=args.prompt,
                 style=args.style,
                 loop=not args.no_loop,
@@ -212,6 +217,8 @@ def main() -> None:
         return
 
     if args.cmd == "make-clip":
+        from pathlib import Path
+
         from shorts_bot.tiktok_shop.captions import caption_variants, sanitize_caption
         from shorts_bot.tiktok_shop.queue import enqueue_video
         from shorts_bot.tiktok_shop.render import render_product_clip
@@ -224,6 +231,7 @@ def main() -> None:
                 product_name=args.product,
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
+                image_path=Path(args.image) if args.image else None,
                 style=args.style,
                 on_screen_caption=cap,
             )

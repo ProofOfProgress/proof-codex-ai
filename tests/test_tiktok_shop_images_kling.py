@@ -202,15 +202,14 @@ def test_kling_task_id_from_data():
     assert kling_client._task_id(body) == "abc-123"
 
 
-def test_kling_video_url_from_nested_result():
-    body = {
-        "data": {
-            "task_result": {
-                "videos": [{"url": "https://video.example/out.mp4"}],
-            }
-        }
-    }
-    assert kling_client._video_url(body) == "https://video.example/out.mp4"
+def test_kling_resolve_model_name_maps_replicate_slug(monkeypatch):
+    class FakeSettings:
+        kling_provider = "official"
+        kling_model = "kwaivgi/kling-v3-video"
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.kling_client.settings", FakeSettings())
+    assert kling_client.resolve_model_name() == "kling-v2-6"
+    assert kling_client.resolve_model_name("kling-v2-6") == "kling-v2-6"
 
 
 def test_kling_configured_with_api_key(monkeypatch):

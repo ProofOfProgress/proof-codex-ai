@@ -10,6 +10,40 @@ import httpx
 from shorts_bot.config import settings
 
 API_BASE = "https://api.klingai.com/v1"
+OFFICIAL_I2V_DEFAULT = "kling-v2-6"
+
+# Official image2video model_name values (Kling OpenAPI). Course default: v2.6.
+OFFICIAL_I2V_MODELS: frozenset[str] = frozenset(
+    {
+        "kling-v1",
+        "kling-v1-5",
+        "kling-v1-6",
+        "kling-v2-master",
+        "kling-v2-1",
+        "kling-v2-1-master",
+        "kling-v2-5-turbo",
+        "kling-v2-6",
+        "kling-v3",
+    }
+)
+
+
+def resolve_model_name(model_name: str | None = None) -> str:
+    """
+    Map settings to a valid official API model_name.
+    Replicate slugs (e.g. kwaivgi/kling-v3-video) are not valid on api.klingai.com.
+    """
+    raw = (model_name or settings.kling_model or OFFICIAL_I2V_DEFAULT).strip()
+    provider = (settings.kling_provider or "official").strip().lower()
+    if provider != "official":
+        return raw
+    if "/" in raw or raw.startswith("kwaivgi"):
+        return OFFICIAL_I2V_DEFAULT
+    if raw in OFFICIAL_I2V_MODELS:
+        return raw
+    if raw.startswith("kling-"):
+        return raw
+    return OFFICIAL_I2V_DEFAULT
 
 
 def configured() -> bool:
@@ -54,7 +88,7 @@ def create_image2video(
     if dur not in {"5", "10"}:
         dur = "5" if int(dur) <= 5 else "10"
     body = {
-        "model_name": (model_name or settings.kling_model or "kling-v2-6").strip(),
+        "model_name": resolve_model_name(model_name),
         "image": image_url.strip(),
         "prompt": prompt.strip(),
         "duration": dur,
