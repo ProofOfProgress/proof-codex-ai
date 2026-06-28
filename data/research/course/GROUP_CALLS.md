@@ -42,6 +42,8 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 **Affiliate go-live:** When the affiliate account starts posting, the **full infrastructure** runs — product research, video generation, captions, edit, Module 1 QC, upload. CEO + agent team owns the whole pipeline.
 
-**Phones:** one dedicated device per bubble account for inbox + Mackenzie sound finish (API cannot attach sound). Affiliate = full Zernio MP4 post, no sound step.
+**Phone hub (strategy — hardware TBD):** **Mini computer** controls **4 Android phones** (USB hub). One TikTok per phone. Bot sends inbox draft via Zernio → mini PC opens TikTok on the right phone → Mackenzie sound → publish. You remote into the mini PC. See `docs/FOR_OWNER_PHONE_HUB.md`. **All 4 TikToks hooked in Zernio:** gspgsgsorip1, proofofprogresss, Ms. Byte (bubble), Isaac.
+
+**Ms. Byte TikTok account:** repurposed for **bubble wrap** (old Ms. Byte content lane stays dead).
 
 **Billing:** Defer new monthly stack (~$450: ~$325 fixed + usage) until affiliate posting starts; prep code and workflows first. EchoTik paid tier waits for go-live; Kalodata (course login) for manual research until then.
