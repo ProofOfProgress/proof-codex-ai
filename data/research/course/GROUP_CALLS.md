@@ -56,7 +56,8 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 **Course reward:** **$1,000 commission** within **7 days of first affiliate upload** → **$500 bonus**.
 
-- **Clock starts:** first live post on purchased affiliate account (not dry runs).  
+- **Clock starts:** **12:00 AM** first live post on chosen **Launch Date** (not dry runs).  
+- **Why midnight:** maximizes **7 full calendar days** to hit $1k.  
 - **Target pace:** ~**$143/day** average; course peers hit **$100 days in a week**.  
-- **Execution:** `docs/LAUNCH_TODO.md` — full ordered checklist; **LAUNCH is the last pre-sprint step**.  
+- **Execution:** `docs/LAUNCH_TODO.md` — LAUNCH is Section I; posts #1–10 spaced ≥30m from midnight.  
 - **Daily:** 8–10 GOOD posts, track commission, double down on winners, drop losers.

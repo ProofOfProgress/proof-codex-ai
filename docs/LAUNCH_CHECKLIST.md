@@ -32,6 +32,8 @@
 
 **GOOD** = course edit + caption + Module 1 pass — not raw Kling output.
 
+**Launch timing:** pick a **Launch Date**; first post at **12:00 AM** that day (maximize 7 days for $1k bonus). See `LAUNCH_TODO.md` Section H–I.
+
 **Not required for affiliate launch:** phones · SIMs · laptop hub · phone worker · bubble posts.
 
 ---

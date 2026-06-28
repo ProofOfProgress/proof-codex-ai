@@ -15,7 +15,21 @@
 
 **What counts as day 0:** the moment the **first affiliate video goes live** on the purchased account (Zernio post confirmed).
 
+**Launch timing (owner rule):** first video goes live at **12:00 AM (midnight)** on the **Launch Date** you pick — start of the calendar day so you get **7 full days** to earn (not a 3pm start that wastes half of day 1).
+
 **Not day 0:** scout runs, dry-run renders, QC tests, bubble posts, inbox drafts.
+
+---
+
+## Launch calendar *(fill in Section H)*
+
+| Field | Your value |
+|-------|------------|
+| **Launch Date** | _______________ |
+| **Timezone** | _______________ *(your local — used for midnight)* |
+| **First post** | **12:00 AM** on Launch Date |
+| **Bonus deadline** | **11:59 PM** on Launch Date **+ 6 days** *(7 calendar days total — confirm wording with course coach)* |
+| **Posts 2–10 launch day** | Every **≥30 min** after first post (~4.5 hrs for 10 posts → done ~4:30 AM) |
 
 ---
 
@@ -208,7 +222,8 @@ python3 -m shorts_bot.tiktok_shop.factory_cli status
 - [ ] **Queue pending: 8–10**  
 - [ ] All captions: **no** sale / price / discount / coupon / free shipping words  
 - [ ] All videos: **AI disclosure** handled per Module 1  
-- [ ] Spacing plan: posts **≥30 minutes apart** (Module 1) — schedule batch accordingly  
+- [ ] Spacing plan: post **#1 at 12:00 AM** Launch Date; posts **#2–10 every ≥30 minutes** — **do not** `post-batch` all at once  
+- [ ] Launch batch **fully queued before 11 PM** the night before Launch Date  
 
 **Section G done when:** 8–10 clips queued, every one QC-clean, owner spot-checked at least 3 random clips.
 
@@ -216,42 +231,76 @@ python3 -m shorts_bot.tiktok_shop.factory_cli status
 
 ## Section H — Pre-launch final check *(owner + agent)*
 
+### H1. Pick Launch Date + midnight plan
+
+- [ ] **Launch Date chosen:** _______________  
+- [ ] **Timezone written down:** _______________  
+- [ ] **Bonus deadline** (Launch Date + 6 days, 11:59 PM): _______________  
+- [ ] Confirm course counts **7 calendar days** vs **168 hours** — adjust if coach says otherwise: _______________  
+- [ ] Owner + agent **available at 11:55 PM** the night before Launch Date (or stay up)  
+- [ ] Phone alarm **11:55 PM** launch eve; second alarm **12:00 AM**  
+
+**Why midnight:** posting at noon on Monday only gives you half of Monday + 6 days. Posting at **12:00 AM Monday** gives **all of Mon–Sun** to hit $1k.
+
+### H2. Ready-to-fire checklist
+
 - [ ] Purchased account still healthy in TikTok app  
 - [ ] Zernio shows affiliate account connected  
 - [ ] Showcase / affiliate links work on the account  
+- [ ] **8–10 clips queued** — verified `factory_cli status` shows pending queue  
 - [ ] You know how to read **TikTok Shop affiliate earnings** (where $1k is tracked)  
 - [ ] Course **$500 bonus rules** confirmed (who to notify, proof needed): _______________  
-- [ ] Write **launch timestamp plan** — when first post goes live: _______________  
 
-**Section H done when:** everyone agrees the batch is GOOD and you're ready to start the clock.
+**Section H done when:** Launch Date locked, batch queued, midnight plan understood, everyone on standby.
 
 ---
 
 ## Section I — 🚀 LAUNCH *(agent — last step before week 1 sprint)*
 
 **This is the last item on the pre-launch list.**  
-**First `--confirm` post = day 0. 7-day $1k clock starts now.**
+**First live post at 12:00 AM Launch Date = day 0. 7-day $1k clock starts then.**
 
-Post launch batch to **affiliate_main** only:
+### Launch night timeline
+
+| Time (Launch Date) | Action |
+|--------------------|--------|
+| **11:55 PM** *(eve)* | Final `factory_cli status` — queue has 8–10 pending |
+| **12:00 AM** | **Post #1** — starts the bonus clock |
+| **12:30 AM** | Post #2 |
+| **1:00 AM** | Post #3 |
+| **… every 30 min …** | Posts #4–10 |
+| **~4:30 AM** | Launch day batch done (if 10 posts) |
+
+### Commands — one post at a time (Module 1 spacing)
+
+**Do not** use `post-batch --max 10` at midnight — that ignores the 30-minute rule.
 
 ```bash
+# 12:00 AM — post #1 ONLY
 python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm
-# repeat every ≥30 min until daily cap, OR:
-python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 10 --confirm
+
+# Wait ≥30 minutes, then repeat for #2, #3, … until 8–10 live or daily cap hit
+python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm
 ```
 
-- [ ] **First video live** — record URL + time: _______________  
-- [ ] **Day 0 date/time locked:** _______________ (**7-day deadline:** _______________)  
-- [ ] Remaining launch-day posts going out (8–10 total, ≥30m apart)  
-- [ ] `factory_cli status` shows posts sent on `affiliate_main`  
+Agent can run a **30-minute loop** in tmux until launch-day batch is out, or owner runs each post manually.
 
-**LAUNCH COMPLETE** when 8–10 affiliate videos are **live** on the purchased account.
+### Launch checklist
+
+- [ ] **Post #1 live at 12:00 AM** — record URL + exact timestamp: _______________  
+- [ ] **Day 0 locked:** _______________ **Deadline:** _______________  
+- [ ] Posts #2–10 spaced ≥30m through early morning  
+- [ ] `factory_cli status` shows **8–10 sent** on `affiliate_main` for launch day  
+
+**LAUNCH COMPLETE** when launch-day batch is live and the **12:00 AM first post** timestamp is logged.
 
 ---
 
 ## Section J — Week 1 sprint: chase $1k *(days 1–7 after first upload)*
 
-**Target:** **$1,000 commission** by end of day 7 → **$500 bonus**.
+**Target:** **$1,000 commission** by **11:59 PM on Launch Date + 6 days** → **$500 bonus**.
+
+**Daily posting window:** after launch night, aim for **8–10 new posts spread through each day** (not all at midnight every day — that was launch night only).
 
 ### Daily loop (every day, days 1–7)
 
@@ -274,16 +323,15 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 10 --confirm
 
 ### Commission tracker
 
-| Day | Date | Posts sent | Est. commission today | Running total | Notes |
-|-----|------|------------|----------------------|---------------|-------|
-| 0 | | 8–10 (launch) | $ | $ | first upload |
-| 1 | | | $ | $ | |
+| Day | Calendar date | Posts sent | Est. commission today | Running total | Notes |
+|-----|---------------|------------|----------------------|---------------|-------|
+| 1 | *(Launch Date)* | 8–10 from 12:00 AM | $ | $ | midnight = clock start |
 | 2 | | | $ | $ | |
 | 3 | | | $ | $ | |
 | 4 | | | $ | $ | |
 | 5 | | | $ | $ | |
 | 6 | | | $ | $ | |
-| 7 | | | $ | $ | **$1k? → claim $500** |
+| 7 | | | $ | $ | **$1k? → claim $500 by 11:59 PM** |
 
 - [ ] **Hit $1,000** running total within 7 days of first upload  
 - [ ] Submit proof per course rules → **collect $500 bonus**  
@@ -309,7 +357,7 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 10 --confirm
 | QC | `python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."` |
 | Queue | `python3 -m shorts_bot.tiktok_shop.factory_cli enqueue --video PATH --product NAME --caption "..." --account affiliate_main` |
 | Post one | `python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm` |
-| Post batch | `python3 -m shorts_bot.tiktok_shop.factory_cli post-batch --max 10 --confirm` |
+| Post batch | `post-batch` — **not for launch night** (use spaced single posts) |
 
 ---
 
