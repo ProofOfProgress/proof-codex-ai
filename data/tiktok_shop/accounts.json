@@ -1,21 +1,48 @@
 {
   "accounts": [
     {
-      "id": "affiliate_test",
+      "id": "bubble_gspgsgsorip1",
       "label": "gspgsgsorip1",
-      "daily_limit": 10,
+      "track": "bubble_tbd",
+      "daily_limit": 4,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": "6a3e03579d9472faaeecbab6"
+      "zernio_account_id": "6a3e03579d9472faaeecbab6",
+      "_tier_note": "Owner will mark safe (3-4/day) or aggressive (8-10/day)"
     },
     {
-      "id": "bubble_playstation",
-      "label": "gspgsgsorip1",
-      "daily_limit": 10,
+      "id": "bubble_proofofprogresss",
+      "label": "proofofprogresss",
+      "track": "bubble_tbd",
+      "daily_limit": 4,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": "6a3e03579d9472faaeecbab6"
+      "zernio_account_id": "6a3f14df9d9472faaef98701",
+      "_tier_note": "Owner will mark safe (3-4/day) or aggressive (8-10/day)"
+    },
+    {
+      "id": "affiliate_main",
+      "label": "Affiliate revenue account (assign when ready)",
+      "track": "affiliate",
+      "daily_limit": 10,
+      "enabled": false,
+      "post_via": "zernio",
+      "zernio_account_id": "",
+      "_tier_note": "Enable when affiliate go-live — full bot pipeline (MP4, no Mackenzie sound)"
+    },
+    {
+      "id": "legacy_ms_byte",
+      "label": "Ms. Byte",
+      "track": "legacy",
+      "daily_limit": 0,
+      "enabled": false,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b",
+      "_tier_note": "DEAD lane — do not use"
     }
   ],
-  "_note": "Owner 6/2026: 4 bubble-wrap accounts (2 safe 3-4/day, 2 aggressive 8-10/day) + affiliate — see accounts.example.json. Current rows are test/dev aliases on one TikTok until real 4+1 Zernio IDs are wired."
+  "_zernio_sync": "2026-06-28 via python3 -m shorts_bot.zernio.auth_cli --json",
+  "_need": "2 more TikTok accounts in Zernio dashboard for 4 bubble total. Isaac (6a3e5a0b9d9472faaef19baa) exists but inactive — reconnect or replace.",
+  "_phones": "Owner plan: one dedicated phone per account for inbox + Mackenzie sound finish (bot cannot attach sound via API).",
+  "_tiers": "2 safe @ 3-4/day · 2 aggressive @ 8-10/day — owner assigns later"
 }

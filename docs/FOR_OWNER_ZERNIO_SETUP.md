@@ -101,8 +101,31 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post --account bubble_1 --video PA
 
 Zernio uses the same TikTok limits underneath:
 
-- **Specific sound (Mackenzie):** still not fully automatic — inbox draft + add sound in app, or manual finish  
-- **2-photo manual swipe:** needs photo carousel support (we’re building this; today both paths are mostly video)
+- **Specific sound (Mackenzie):** API **cannot** attach a sound ID — this is the hard part.
+- **2-photo manual swipe:** needs photo carousel support (building; today = mostly MP4 video path).
+
+### Phone-per-account workflow (owner 6/2026)
+
+You don’t trust manual uploads on one phone — fair. Plan:
+
+| Account | Phone | Who does what |
+|---------|-------|----------------|
+| Bubble account 1 | **Phone A** (only that TikTok logged in) | Bot sends **2-image draft to inbox** → on Phone A: open TikTok → add **Mackenzie sound** → publish |
+| Bubble account 2 | **Phone B** | Same — never switch accounts on one device |
+| … | … | 4 bubble phones + 1 affiliate phone (optional) |
+
+**Affiliate account** is different: bot posts **finished MP4** via Zernio (Module 6 clip) — **no Mackenzie sound step**. Full automation is realistic there.
+
+**Bubble wrap** will always need a **short human finish on the account’s phone** until TikTok allows sound via API (they don’t today).
+
+Sync Zernio IDs anytime:
+
+```bash
+python3 -m shorts_bot.zernio.auth_cli
+python3 -m shorts_bot.zernio.auth_cli --json
+```
+
+Copy IDs into `data/tiktok_shop/accounts.json`. Set `track` to `bubble_safe` or `bubble_aggressive` when owner assigns tiers.
 
 ---
 

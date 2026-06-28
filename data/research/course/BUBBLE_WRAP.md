@@ -111,6 +111,6 @@ The API **cannot attach a specific TikTok sound ID** (like Mackenzie) on direct 
 | **`MEDIA_UPLOAD`** (recommended for bubble wrap) | 2 images land in TikTok **inbox as draft** → open in app → add Mackenzie sound → publish |
 | **`DIRECT_POST`** | Goes live immediately but only **`auto_add_music`** — **not** the required sound |
 
-**Practical workflow until full automation:** bot uploads 2-image carousel to inbox → you (or agent via phone handoff) add Mackenzie sound in TikTok → publish.
+**Practical workflow until full automation:** bot uploads 2-image carousel to **inbox** on the **account’s dedicated phone** → open TikTok on **that phone only** → add Mackenzie sound → publish. One phone per account so you never post to the wrong account.
 
-See `docs/FOR_OWNER_TIKTOK_SETUP.md` · build target: `shorts_bot/tiktok/upload.py` → `upload_photo_carousel()`.
+See `docs/FOR_OWNER_ZERNIO_SETUP.md` · build target: `shorts_bot/tiktok/upload.py` → `upload_photo_carousel()`.
