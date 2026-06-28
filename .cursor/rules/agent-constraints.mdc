@@ -1,0 +1,40 @@
+---
+description: Hard constraints for cloud agents — uploads, QC, and learning sources
+alwaysApply: true
+---
+
+# Agent constraints (not optional)
+
+You are **not** controlled by Python when you improvise in chat. These rules bind **you** in Cursor.
+
+## Before any TikTok / Zernio publish
+
+1. Run the pre-publish gate in the terminal — do not "eyeball" media in chat:
+
+```bash
+python3 scripts/pre_publish_gate.py --type carousel --tier fast --slide1 ... --slide2 ...
+python3 scripts/pre_publish_gate.py --type video --tier standard --video ... --caption ...
+```
+
+2. Only upload through repo commands (`factory_cli`, `upload_cli`, `post_bubble_wrap_batch`) — they call the same gate inside `shorts_bot.zernio.upload`.
+
+3. **Never** call Zernio `POST /posts` or TikTok publish APIs with raw `httpx`/`curl` — that bypasses the gate.
+
+4. If gate fails, fix or stop — do not override unless owner explicitly says skip QC.
+
+## Learning sources (order)
+
+1. Owner tips — `data/operating_tips.json` · `python3 -m shorts_bot.operating.tips_cli checklist`
+2. `data/MEMORY.md` (if present) + `AGENTS.md`
+3. Course — `data/research/course/` for creative rules only
+4. Do not invent strategy — execute orders
+
+## Compute discipline
+
+- Use **fast** tier for daily bubble wrap batches.
+- Do not re-read entire course modules each session.
+- Do not run vision QC in chat when `scripts/pre_publish_gate.py` can do it.
+
+## What Python cannot stop
+
+You could still disobey these rules in chat. Owner relies on you following this file + skills. Code blocks mistaken **upload** calls through the official Python upload paths.

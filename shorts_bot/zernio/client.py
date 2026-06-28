@@ -69,15 +69,38 @@ def account_id_for(platform: str) -> str | None:
     return None
 
 
-def presign_video(video_path: Path) -> tuple[str, str]:
-    """Return (upload_url, public_url) for an MP4."""
-    size = video_path.stat().st_size
+_IMAGE_TYPES = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+}
+_VIDEO_TYPES = {
+    ".mp4": "video/mp4",
+    ".mov": "video/quicktime",
+    ".webm": "video/webm",
+}
+
+
+def media_content_type(path: Path) -> str:
+    ext = path.suffix.lower()
+    if ext in _IMAGE_TYPES:
+        return _IMAGE_TYPES[ext]
+    if ext in _VIDEO_TYPES:
+        return _VIDEO_TYPES[ext]
+    raise ValueError(f"Unsupported media type for Zernio upload: {path}")
+
+
+def presign_media(media_path: Path) -> tuple[str, str]:
+    """Return (upload_url, public_url) for a video or image."""
+    size = media_path.stat().st_size
+    content_type = media_content_type(media_path)
     body = _request(
         "POST",
         "/media/presign",
         json={
-            "filename": video_path.name,
-            "contentType": "video/mp4",
+            "filename": media_path.name,
+            "contentType": content_type,
             "size": size,
         },
     )
@@ -88,13 +111,19 @@ def presign_video(video_path: Path) -> tuple[str, str]:
     return str(upload_url), str(public_url)
 
 
-def upload_file_to_presigned(upload_url: str, video_path: Path) -> None:
-    raw = video_path.read_bytes()
+def presign_video(video_path: Path) -> tuple[str, str]:
+    """Return (upload_url, public_url) for an MP4."""
+    return presign_media(video_path)
+
+
+def upload_file_to_presigned(upload_url: str, media_path: Path, *, content_type: str | None = None) -> None:
+    raw = media_path.read_bytes()
+    ctype = content_type or media_content_type(media_path)
     with httpx.Client(timeout=600.0) as client:
         resp = client.put(
             upload_url,
             content=raw,
-            headers={"Content-Type": "video/mp4", "Content-Length": str(len(raw))},
+            headers={"Content-Type": ctype, "Content-Length": str(len(raw))},
         )
     if resp.status_code not in (200, 201, 204):
         raise RuntimeError(f"Zernio media upload failed ({resp.status_code}): {resp.text[:300]}")
