@@ -7,7 +7,39 @@
       "enabled": true,
       "post_via": "zernio",
       "zernio_account_id": "6a3e03579d9472faaeecbab6"
+    },
+    {
+      "id": "bubble_isaac",
+      "label": "Isaac",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dff2b9d9472faaeeca069"
+    },
+    {
+      "id": "bubble_playstation",
+      "label": "playstationaccou2171",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": ""
+    },
+    {
+      "id": "bubble_proof",
+      "label": "Proof Of Progress (YT)",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3dfd469d9472faaeec9397"
+    },
+    {
+      "id": "bubble_msbyte",
+      "label": "Ms. Byte",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b"
     }
   ],
-  "_note": "affiliate_test = TikTok @gspgsgsorip1 — private Kling/affiliate pipeline tests only. Paste zernio_account_id after: python3 -m shorts_bot.zernio.auth_cli --json. While testing: ZERNIO_TIKTOK_PRIVACY=SELF_ONLY (or SELF_ONLY in TikTok API privacy)."
+  "_note": "affiliate_test = @gspgsgsorip1 (private Kling tests). Bubble wrap carousels — 2 PNGs per BUBBLE_WRAP.md. playstationaccou2171 not on Zernio yet."
 }
