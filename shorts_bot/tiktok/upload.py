@@ -11,6 +11,7 @@ import httpx
 
 from shorts_bot.config import settings
 from shorts_bot.tiktok.oauth import get_access_token, refresh_access_token
+from shorts_bot.tiktok_shop.upload_guard import require_pre_publish
 
 API_BASE = "https://open.tiktokapis.com"
 
@@ -83,10 +84,24 @@ def upload_video(
     brand_organic: bool = False,
     poll_timeout_sec: int = 300,
     token_path: Path | None = None,
+    product: str = "",
+    shop_account_id: str = "",
+    pre_publish_tier: str | None = None,
+    skip_pre_publish: bool = False,
 ) -> TikTokUploadResult:
     """Direct post via video.publish — FILE_UPLOAD + status poll."""
     if not video_path.exists():
         raise FileNotFoundError(video_path)
+
+    require_pre_publish(
+        "video",
+        video_path=video_path,
+        caption=title,
+        product=product,
+        shop_account_id=shop_account_id,
+        tier=pre_publish_tier,
+        skip=skip_pre_publish,
+    )
 
     size = video_path.stat().st_size
     token = get_access_token(path=token_path)

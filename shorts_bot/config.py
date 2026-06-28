@@ -188,10 +188,13 @@ class Settings(BaseSettings):
     # Paid AI video generation (Replicate I2V / FLUX stills) — off unless owner opts in
     ai_video_generation_enabled: bool = False
 
-    # Paid image generation (Replicate FLUX or Fal.ai)
-    image_provider: str = "replicate"  # replicate | fal
+    # Paid image generation — gemini (Nano Banana Pro) | replicate | fal
+    image_provider: str = "gemini"  # gemini | replicate | fal
+    gemini_image_model: str = "gemini-3-pro-image-preview"  # Nano Banana Pro
+    gemini_image_fast_model: str = "gemini-3.1-flash-image-preview"  # Nano Banana 2
+    gemini_image_size: str = "2K"  # Module 4 — 1K | 2K | 4K
     replicate_api_token: str | None = None
-    replicate_image_model: str = "black-forest-labs/flux-schnell"
+    replicate_image_model: str = "google/nano-banana-pro"
     # Video backend — blender (local EEVEE 3D) | kling (API) | legacy_i2v (MiniMax/Hailuo)
     video_backend: str = "blender"
     kling_provider: str = "official"  # official | replicate | fal
@@ -269,6 +272,12 @@ class Settings(BaseSettings):
     # Module 1 course QC — mandatory before every TikTok Shop upload (zero ban triggers)
     module1_qc_enabled: bool = True
     module1_qc_blocks_upload: bool = True
+    module1_vision_qc_enabled: bool = True  # false = skip Gemini vision in Module 1 / pre-publish standard tier
+
+    # Pre-publish gate — tier fast = no vision (cheap); standard = vision when enabled
+    pre_publish_default_tier: str = "standard"  # fast | standard | full
+    pre_publish_blocks_upload: bool = True
+    pre_publish_allow_bypass: bool = False  # tests only — never enable in production
     module1_min_video_seconds: float = 7.0
     module1_min_post_interval_minutes: int = 30
 
@@ -390,8 +399,12 @@ class Settings(BaseSettings):
         return bool(key) and len(key) >= 8 and "your" not in key.lower()
 
     @property
+    def has_gemini_images(self) -> bool:
+        return self.has_gemini
+
+    @property
     def has_paid_images(self) -> bool:
-        return self.has_replicate_images or self.has_fal_images
+        return self.has_gemini_images or self.has_replicate_images or self.has_fal_images
 
     @property
     def has_assemblyai(self) -> bool:

@@ -117,15 +117,18 @@ def _check_web() -> ServiceStatus:
 
 
 def _check_image_api() -> ServiceStatus:
+    if settings.has_gemini_images:
+        model = settings.gemini_image_model or "gemini-3-pro-image-preview"
+        return ServiceStatus("gemini_image", "Gemini image (Module 4)", True, model)
     if settings.has_replicate_images:
-        return ServiceStatus("replicate", "Replicate (video gen)", True, "Token configured")
+        return ServiceStatus("replicate", "Replicate images", True, settings.replicate_image_model or "")
     if settings.has_fal_images:
-        return ServiceStatus("fal", "Fal.ai (video gen)", True, "Key configured")
+        return ServiceStatus("fal", "Fal.ai images", True, "Key configured")
     return ServiceStatus(
         "image_api",
-        "Replicate/Fal (optional)",
+        "Image gen (Gemini)",
         False,
-        "Not configured",
+        "GEMINI_API_KEY missing",
         "docs/CURSOR_SECRETS.md",
     )
 

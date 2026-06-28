@@ -7,10 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from shorts_bot.config import settings
+from shorts_bot.tiktok_shop.upload_guard import require_pre_publish
 from shorts_bot.zernio.client import (
     _request,
     account_id_for,
     credentials_configured,
+    presign_media,
     presign_video,
     upload_file_to_presigned,
 )
@@ -50,6 +52,107 @@ def _platform_targets(*, tiktok: bool = True, facebook: bool = True) -> list[dic
     return platforms
 
 
+def _tiktok_platform_entry(*, account_id: str | None = None) -> dict[str, Any]:
+    zid = (account_id or account_id_for("tiktok") or "").strip()
+    if not zid:
+        raise RuntimeError("No TikTok account on Zernio — connect in zernio.com dashboard")
+    return {"platform": "tiktok", "accountId": zid}
+
+
+def upload_photo_carousel(
+    image_paths: list[Path],
+    *,
+    title: str = "",
+    description: str = "",
+    tiktok_account_id: str | None = None,
+    photo_cover_index: int = 0,
+    auto_add_music: bool = False,
+    publish_now: bool = True,
+    draft: bool = False,
+    shop_account_id: str = "",
+    product: str = "",
+    pre_publish_tier: str | None = None,
+    skip_pre_publish: bool = False,
+) -> ZernioPostResult:
+    """
+    Post a TikTok photo carousel (2+ images) — bubble wrap slideshow format.
+    Captions must be baked into the PNGs; title/description are optional metadata.
+    """
+    if not credentials_configured():
+        raise RuntimeError("ZERNIO_API_KEY not configured")
+    paths = [Path(p) for p in image_paths]
+    if len(paths) < 2:
+        raise ValueError("Photo carousel requires at least 2 images")
+    for p in paths:
+        if not p.is_file():
+            raise FileNotFoundError(p)
+
+    require_pre_publish(
+        "carousel",
+        image_paths=paths,
+        caption=description,
+        title=title,
+        product=product,
+        shop_account_id=shop_account_id,
+        tier=pre_publish_tier,
+        skip=skip_pre_publish,
+    )
+
+    media_items: list[dict[str, str]] = []
+    for p in paths:
+        upload_url, public_url = presign_media(p)
+        upload_file_to_presigned(upload_url, p)
+        media_items.append({"type": "image", "url": public_url})
+
+    title_clean = (title or "").strip()[:90]
+    desc_clean = (description or "").strip()[:4000]
+
+    tiktok_settings: dict[str, Any] = {
+        "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
+        "allow_comment": True,
+        "media_type": "photo",
+        "photo_cover_index": max(0, photo_cover_index),
+        "content_preview_confirmed": True,
+        "express_consent_given": True,
+        "auto_add_music": auto_add_music,
+    }
+    if desc_clean:
+        tiktok_settings["description"] = desc_clean
+    if draft:
+        tiktok_settings["draft"] = True
+    if settings.zernio_declare_aigc:
+        tiktok_settings["video_made_with_ai"] = True
+
+    payload: dict[str, Any] = {
+        "content": title_clean or "Bubble wrap",
+        "mediaItems": media_items,
+        "platforms": [_tiktok_platform_entry(account_id=tiktok_account_id)],
+        "tiktokSettings": tiktok_settings,
+        "publishNow": publish_now and not draft,
+    }
+
+    body = _request("POST", "/posts", json=payload)
+    post = body.get("post") or body.get("data") or body
+    post_id = str(post.get("_id") or post.get("id") or body.get("id") or post.get("postId") or "")
+
+    platform_urls: dict[str, str] = {}
+    for entry in post.get("platforms") or body.get("platforms") or []:
+        if not isinstance(entry, dict):
+            continue
+        plat = (entry.get("platform") or "").lower()
+        url = entry.get("platformPostUrl") or entry.get("postUrl") or ""
+        if plat and url:
+            platform_urls[plat] = str(url)
+
+    status = str(post.get("status") or body.get("status") or "submitted")
+    return ZernioPostResult(
+        post_id=post_id,
+        status=status,
+        message=f"Zernio photo carousel ({len(paths)} slides) → TikTok",
+        platform_urls=platform_urls,
+    )
+
+
 def upload_video(
     video_path: Path,
     *,
@@ -57,6 +160,11 @@ def upload_video(
     tiktok: bool = True,
     facebook: bool = True,
     publish_now: bool = True,
+    tiktok_account_id: str | None = None,
+    shop_account_id: str = "",
+    product: str = "",
+    pre_publish_tier: str | None = None,
+    skip_pre_publish: bool = False,
 ) -> ZernioPostResult:
     """Presign MP4, upload to Zernio CDN, post to connected platforms."""
     if not credentials_configured():
@@ -64,13 +172,31 @@ def upload_video(
     if not video_path.exists():
         raise FileNotFoundError(video_path)
 
+    require_pre_publish(
+        "video",
+        video_path=video_path,
+        caption=caption,
+        product=product,
+        shop_account_id=shop_account_id,
+        tier=pre_publish_tier,
+        skip=skip_pre_publish,
+    )
+
     upload_url, public_url = presign_video(video_path)
     upload_file_to_presigned(upload_url, video_path)
+
+    zid = (tiktok_account_id or "").strip()
+    if zid and tiktok:
+        platforms: list[dict[str, Any]] = [{"platform": "tiktok", "accountId": zid}]
+        if facebook and settings.zernio_post_facebook:
+            platforms.extend(_platform_targets(tiktok=False, facebook=True))
+    else:
+        platforms = _platform_targets(tiktok=tiktok, facebook=facebook)
 
     payload: dict[str, Any] = {
         "content": caption[:2200],
         "mediaItems": [{"type": "video", "url": public_url}],
-        "platforms": _platform_targets(tiktok=tiktok, facebook=facebook),
+        "platforms": platforms,
         "tiktokSettings": {
             "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
             "allow_comment": True,
