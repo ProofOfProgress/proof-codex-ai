@@ -46,16 +46,16 @@
       "id": "affiliate_main",
       "label": "Purchased affiliate account (TBD)",
       "track": "affiliate",
-      "phone_hub_slot": "phone_5",
+      "phone_hub_slot": "",
       "daily_limit": 10,
       "enabled": false,
       "post_via": "zernio",
       "zernio_account_id": "",
-      "_note": "Purchased affiliate account — dedicated phone_5; bot posts MP4 via Zernio"
+      "_note": "Purchased affiliate account — Zernio MP4 posts from cloud; no dedicated hub phone on budget path"
     }
   ],
-  "_pre_launch_buy": "Mini PC + 5 Android phones + 5 SIMs + purchased affiliate account",
-  "_launch": "Paid ~$450/mo stack + first posts — docs/LAUNCH_CHECKLIST.md",
+  "_pre_launch_buy": "HP laptop (wipe) + 4 Android phones + 4 SIMs + purchased affiliate account — docs/LAUNCH_BUDGET.md",
+  "_launch": "Stagger paid stack after first test post — docs/LAUNCH_BUDGET.md · docs/LAUNCH_CHECKLIST.md",
   "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day.",
-  "_architecture": "Mini computer + 5 Android phones + 5 SIMs — docs/FOR_OWNER_PHONE_HUB.md"
+  "_architecture": "Laptop hub + 4 bubble phones — affiliate via Zernio only — docs/FOR_OWNER_PHONE_HUB.md"
 }

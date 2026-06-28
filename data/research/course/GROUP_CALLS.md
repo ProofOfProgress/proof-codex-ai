@@ -42,9 +42,9 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 **Affiliate go-live:** When the affiliate account starts posting, the **full infrastructure** runs — product research, video generation, captions, edit, Module 1 QC, upload. CEO + agent team owns the whole pipeline.
 
-**Pre-launch buy:** purchased **affiliate account** + **mini computer** + **5 cheap Android phones** + **5 SIM cards** (before first post).
+**Pre-launch buy:** purchased **affiliate account (~$630)** + **laptop hub (wipe HP, $0)** + **4 cheap Android phones** + **4 SIM cards** — see `docs/LAUNCH_BUDGET.md`.
 
-**Phone hub:** 5 phones on mini PC — phones 1–4 bubble (Mackenzie finish), phone 5 affiliate (logged in; bot posts via Zernio). See `FOR_OWNER_PHONE_HUB.md` · `LAUNCH_CHECKLIST.md`
+**Phone hub:** 4 phones on laptop — bubble Mackenzie finish. Affiliate = Zernio MP4 from cloud (no 5th phone). See `FOR_OWNER_PHONE_HUB.md` · `LAUNCH_CHECKLIST.md`
 
 **Bubble cadence:** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** — proofofprogresss, Ms. Byte @ 8–10/day.
 

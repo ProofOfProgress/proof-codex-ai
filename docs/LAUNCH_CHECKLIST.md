@@ -2,6 +2,8 @@
 
 Two phases — **pre-launch buy** (hardware + account) then **launch** (paid stack + posting).
 
+**Budget:** `docs/LAUNCH_BUDGET.md` — $2,283 cash, ~$630 account, **≥2 months runway** (stagger software; 4 phones not 5).
+
 ---
 
 ## Phase 1 — Pre-launch buy *(buy before first post)*
@@ -57,21 +59,21 @@ Mini PC finishes **Mackenzie sound + publish** on the mapped phone.
 
 ### Affiliate — purchased account
 
-| Phone | Account | Posts/day | How |
-|-------|---------|-----------|-----|
-| phone_5 | **Purchased account** | 8–10 | Bot posts **MP4 via Zernio** — phone keeps account logged in / healthy |
+| Account | Posts/day | How |
+|---------|-----------|-----|
+| **Purchased account** (Zernio) | 8–10 | Bot posts **MP4 via Zernio** from cloud — **no 5th phone** on budget path |
 
-Affiliate does **not** need Mackenzie. Phone_5 is for **dedicated login**, not bubble automation.
+Affiliate does **not** need Mackenzie or a hub phone. Connect the bought account once in Zernio; optional login on your personal phone for showcase health.
 
 ---
 
 ## After Phase 1 — wire checklist
 
 1. Mini PC on network (remote access for you + agent later)  
-2. 5 phones: ADB on, **one TikTok each**, never switch accounts on a device  
-3. Purchased affiliate → Zernio → `affiliate_main` in `accounts.json`  
+2. **4 phones:** ADB on, **one bubble TikTok each**, never switch accounts on a device  
+3. Purchased affiliate → Zernio dashboard → `affiliate_main` in `accounts.json`  
 4. **Build:** bubble carousel → inbox → mini PC → sound → publish (phones 1–4)  
-5. **Build:** affiliate clip pipeline → Zernio post (phone 5 account in Zernio)
+5. **Build:** affiliate clip pipeline → Zernio post (no hub phone)
 
 ---
 
