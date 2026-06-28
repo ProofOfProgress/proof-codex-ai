@@ -40,12 +40,12 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 - **2 safe** — 3–4 posts/day each  
 - **2 aggressive** — 8–10 posts/day each  
 
-**Affiliate go-live:** When the affiliate account starts posting, the **full infrastructure** runs — product research, video generation, captions, edit, Module 1 QC, upload. CEO + agent team owns the whole pipeline.
+**Affiliate go-live:** **EchoTik paid day 1** (Kalodata too expensive for daily use). **8–10 GOOD affiliate posts** as soon as account + Zernio are wired — cloud pipeline, no phone hub required. Full ~$450/mo stack on at first post.
 
-**Pre-launch buy:** purchased **affiliate account (~$630)** + **laptop hub (wipe HP, $0)** + **4 cheap Android phones** + **4 SIM cards** — see `docs/LAUNCH_BUDGET.md`.
+**Pre-launch buy:** purchased **affiliate account (~$630)** first; bubble hardware (**4 phones + SIMs + laptop hub ~$280**) can follow in parallel — see `docs/LAUNCH_BUDGET.md`.
 
 **Phone hub:** 4 phones on laptop — bubble Mackenzie finish. Affiliate = Zernio MP4 from cloud (no 5th phone). See `FOR_OWNER_PHONE_HUB.md` · `LAUNCH_CHECKLIST.md`
 
 **Bubble cadence:** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** — proofofprogresss, Ms. Byte @ 8–10/day.
 
-**Launch (Phase 2):** paid ~$450/mo stack + wire + first posts — not before pre-launch hardware is bought and set up.
+**Launch (Phase 2):** EchoTik paid + full stack + **8–10 affiliate posts launch day** — bubble ramp when hub wired.

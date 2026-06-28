@@ -2,7 +2,9 @@
 
 **Owner numbers (Jun 2026):** ~**$2,283** cash · affiliate account ~**$630** · want **≥2 months** before broke.
 
-This doc is the line-item math. Strategy: `LAUNCH_CHECKLIST.md` · hardware: `FOR_OWNER_MINI_PC_INSTALL.md`
+**Owner priority (updated):** **EchoTik from day 1** (Kalodata is expensive too). **8–10 GOOD affiliate videos** as soon as launch — not a slow ramp.
+
+Strategy: `LAUNCH_CHECKLIST.md` · hardware: `FOR_OWNER_MINI_PC_INSTALL.md`
 
 ---
 
@@ -16,106 +18,128 @@ This doc is the line-item math. Strategy: `LAUNCH_CHECKLIST.md` · hardware: `FO
 
 ---
 
-## Phase 1 — buy once (before first post)
+## What “launch” means now
 
-| Item | Qty | Low | High | **Budget pick** |
-|------|-----|-----|------|-----------------|
-| Purchased affiliate TikTok | 1 | $630 | $630 | **$630** |
-| Used Android phones (bubble) | **4** | $160 | $280 | **$200** ($50 each) |
-| Powered USB hub + cables | 1 | $25 | $40 | **$30** |
-| 4 prepaid SIMs (1st month) | 4 | $40 | $60 | **$50** |
-| Hub PC (old HP laptop) | 1 | $0 | $0 | **$0** |
-| **Phase 1 total** | | **$855** | **$1,010** | **$910** |
+**Affiliate goes first.** Bubble phones do **not** block affiliate posting.
 
-**Skip the 5th phone.** Affiliate posts finished MP4 via **Zernio** from the cloud — no dedicated affiliate phone or SIM. Log into the bought account in Zernio once in a browser; keep the account warm on your personal phone if needed.
+| Track | Needs hardware? | Day-1 target |
+|-------|-----------------|--------------|
+| **Affiliate** | No — cloud + Zernio only | **8–10 GOOD posts** (Module 1 QC pass) |
+| **Bubble wrap** | Yes — 4 phones + laptop hub | Starts when hub wired (parallel, not first) |
 
-**After Phase 1 (budget pick):** $2,253 − $910 = **$1,343 left** for software + data + buffer.
+**GOOD** = Module 1 QC pass, course caption/edit, no sale/price words — not “post whatever renders.” Budget **~20% extra Kling** for regens (failed QC or bad motion).
 
 ---
 
-## Phase 2 — monthly burn (after go-live)
+## Minimum to post affiliate today
 
-Two tiers. **Do not turn on full stack on day 1.**
+Buy/pay these **before** the first affiliate post:
 
-### Lean month (recommended for month 1)
+| Item | Cost | When |
+|------|------|------|
+| Purchased affiliate account | **~$630** | Now |
+| **EchoTik paid** | **~$125/mo** | **Launch day** — required, not optional |
+| Kling credits (day 1) | **~$5–15** | 8–10 clips + regens @ ~$0.21/5s (`KLING_MODE=std`) |
+| Zernio | $0–150/mo | Confirm your plan — likely already live |
+| Images (Higgsfield / ChatGPT) | ~$2–5 day 1 | Per product stills |
 
-Prove one bubble post + one affiliate clip before maxing spend.
+**Same-day stack (~$760–770 upfront + your Zernio plan):** account + EchoTik month 1 + first day Kling/images.
+
+**Not required for affiliate day 1:** 4 phones · USB hub · SIMs · laptop hub · phone worker.
+
+---
+
+## Phase 1 — hardware (bubble track — can lag affiliate)
+
+| Item | Qty | **Budget pick** |
+|------|-----|-----------------|
+| Used Android phones | **4** | **$200** ($50 each) |
+| Powered USB hub + cables | 1 | **$30** |
+| 4 prepaid SIMs (1st month) | 4 | **$50** |
+| Hub PC (old HP laptop) | 1 | **$0** |
+| **Hardware total** | | **$280** |
+
+Skip 5th phone — affiliate posts via Zernio from cloud.
+
+---
+
+## Monthly burn — full stack from affiliate launch
+
+**No stagger.** EchoTik + full ~$450 stack turns on when affiliate posts start.
 
 | Item | $/mo | Notes |
 |------|------|-------|
-| 4 SIM lines | $40–60 | **$50** plan |
-| Zernio | $0–150 | Often already subscribed — **confirm your plan** |
-| Kling (affiliate video) | ~$32–63 | 5–10 clips/day × ~$0.21/5s clip (`KLING_MODE=std`) |
-| EchoTik paid | **$0** | Use **Kalodata** (course login) until scout is proven |
-| Images (Higgsfield / ChatGPT) | ~$20–40 | Lower while testing |
-| Cursor cloud agent | $0–50 | Depends on your Cursor plan |
-| **Lean total** | **~$110–300** | **~$180/mo** if Zernio already paid |
+| **EchoTik paid** | **~$125** | Product scout — **required at launch** |
+| Zernio + misc SaaS | ~$100–200 | Confirm your Zernio tier |
+| Kling (8–10 **good** /day) | ~$65–85 | ~240–300 published + ~20% QC regens |
+| Images | ~$30–50 | Module 4 stills |
+| 4 SIM lines | ~$50 | Bubble only — $0 until phones live |
+| **Full affiliate month** | **~$450–510** | **~$500/mo** plan number |
 
-### Full ramp (target by month 2)
-
-| Item | $/mo |
-|------|------|
-| 4 SIM lines | ~$50 |
-| **Full software stack** | **~$450** |
-| — EchoTik paid | ~$125 |
-| — Zernio + Kling + images + misc | ~$325 |
-| **Full total** | **~$500/mo** |
-
-Affiliate at **8–10 posts/day** is what drives Kling toward the top of that range (~240–300 clips/mo ≈ **$50–65** Kling alone).
+Kalodata: course login still useful for **spot-checks** (ad badge, trend) on EchoTik finalists — **not** the primary research tool (too expensive to rely on daily).
 
 ---
 
-## Does 2 months work?
+## Does 2 months still work?
 
-### Plan A — budget hardware + stagger software *(recommended)*
+### Plan A — affiliate first, phones within ~2 weeks *(fastest)*
 
 | | Amount |
 |--|--------|
 | Working cash | $2,253 |
-| Phase 1 (account + 4 phones + hub + SIMs) | −$910 |
-| **Left for operations** | **$1,343** |
-| Month 1 lean (~$180) | −$180 |
-| Month 2 full ramp (~$500) | −$500 |
-| **Buffer after 2 months** | **~$663** |
+| Affiliate account | −$630 |
+| Month 1 full stack (no SIMs yet) | −$450 |
+| Bubble hardware (phones + hub + SIMs) | −$280 |
+| Month 2 full stack (+ SIMs) | −$500 |
+| **Buffer after 2 months** | **~$393** |
 
-**Verdict: yes** — comfortable 2-month runway if you **defer EchoTik** until month 2 and **don’t buy a 5th phone**.
+**Verdict: yes** — 2+ months, affiliate can post **today** after account + EchoTik paid.
 
-### Plan B — everything at once (riskier)
+### Plan B — buy everything upfront, full stack both months
 
 | | Amount |
 |--|--------|
-| Left after Phase 1 | $1,343 |
-| Month 1 full stack ($500) | −$500 |
-| Month 2 full stack ($500) | −$500 |
+| Working cash | $2,253 |
+| Account + hardware (Phase 1) | −$910 |
+| **Left for operations** | **$1,343** |
+| Month 1 full stack | −$500 |
+| Month 2 full stack | −$500 |
 | **Buffer after 2 months** | **~$343** |
 
-**Verdict: still yes**, but one bad month (extra Kling regens, account re-buy, broken phone) eats the cushion fast.
+**Verdict: yes** — tighter buffer, but meets 2-month goal if you stay on budget hardware.
 
 ### Plan C — worst case (avoid)
 
-| | Amount |
-|--|--------|
-| High-end phones ($280) + hub ($40) + SIM ($60) | −$980 Phase 1 |
-| Haircut $40 | already in working cash |
-| 2 × full stack | −$1,000 |
-| **Buffer** | **~$273** |
+High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → buffer under **~$200**. Don’t.
 
-Still technically 2 months, but **no room for mistakes**. Don’t do this.
+**Rule of thumb:** keep **≥$200** emergency float. Both Plan A and B satisfy that.
 
 ---
 
-## Recommended buy order (protect runway)
+## Launch day sequence (affiliate — 8–10 GOOD posts)
 
-1. **Haircut** — get it done; stop thinking about it.
-2. **Affiliate account (~$630)** — revenue account is the anchor asset.
-3. **4 phones + powered hub (~$230)** — bubble Mackenzie workflow needs one device per account.
-4. **4 SIMs (~$50)** — real mobile data per phone (especially aggressive accounts).
-5. **Wipe HP laptop** — $0; install per `FOR_OWNER_MINI_PC_INSTALL.md`.
-6. **Wire + test** — no new monthly software yet.
-7. **First affiliate clip** — manual Kalodata pick, 1–3 Kling tests (~$1–5), Module 1 QC, one Zernio post.
-8. **Month 2** — turn on EchoTik paid (~$125) when daily scout is worth it; ramp to 8–10/day.
+1. **Affiliate account purchased** → log in once in **Zernio** → paste ID into `affiliate_main` in `accounts.json`  
+2. **EchoTik paid** → `python3 -m shorts_bot.tiktok_shop.scout_cli ping` green  
+3. **Scout run** → top products in `products.json` (EchoTik presets; owner picks or approves batch)  
+4. **Parallel clip factory** — image → Kling 5s → pan loop + caption → **Module 1 QC** (zero violations)  
+5. **Post 8–10 that pass QC** via Zernio — reject/regen failures, don’t upload bad clips  
+6. **Bubble hardware** — buy/wire in parallel when cash allows; does not gate step 5  
 
-**Do not buy yet:** 5th phone · EchoTik paid · max Kling volume · new mini PC (laptop is fine).
+**Day-1 Kling math:** 10 target posts + ~2 regens ≈ 12 clips × $0.21 ≈ **~$2.50–3** Kling only. “Good” costs time, not huge extra dollars — unless QC keeps failing (fix prompts, don’t brute-force regens).
+
+---
+
+## Recommended buy order (speed + runway)
+
+1. **Haircut** — done.  
+2. **Affiliate account (~$630)** — do this first.  
+3. **EchoTik paid (~$125)** — same day as first scout/post.  
+4. **Zernio** — connect purchased account; enable `affiliate_main`.  
+5. **Launch day** — scout → 8–10 QC-pass clips → post.  
+6. **Bubble hardware (~$280)** — buy when ready; affiliate already running.  
+7. **Wipe HP laptop** — when phones arrive.  
+
+**Do not buy:** 5th phone · new mini PC · Kalodata subscription (EchoTik is the daily tool).
 
 ---
 
@@ -123,13 +147,10 @@ Still technically 2 months, but **no room for mistakes**. Don’t do this.
 
 | Trigger | Rough hit |
 |---------|-----------|
-| Full $500/mo stack from day 1 with high hardware | Buffer ~$300 — tight |
-| Kling regens (failed QC, bad clips) | +$20–50/mo per extra 100 clips |
+| Full $500/mo × 2 with upfront hardware | Buffer ~$343 — OK but tight |
+| Kling regen spiral (50+ extra clips/mo) | +$10–20/mo — fix QC/prompts, don’t pay your way out |
 | Re-buy affiliate account | +$630 |
-| 5th phone + SIM “just in case” | +$60 upfront + $12/mo |
-| New mini PC instead of laptop | +$100–300 |
-
-**Rule of thumb:** keep **≥$200** untouched as emergency float after Phase 1. Plan A leaves ~$663 — good.
+| 5th phone + SIM | +$60–85 upfront + ~$12/mo |
 
 ---
 
@@ -137,10 +158,11 @@ Still technically 2 months, but **no room for mistakes**. Don’t do this.
 
 | Question | Answer |
 |----------|--------|
-| Can I afford account + hardware + 2 months? | **Yes** (~$663 buffer on recommended plan) |
-| When does paid software start? | After hardware wired + **first test post** — not before |
-| EchoTik on day 1? | **No** — Kalodata until month 2 |
-| 5th phone? | **No** — saves ~$60–85 upfront + ~$12/mo |
-| Hub PC? | **Old laptop, wiped** — $0 |
+| EchoTik on day 1? | **Yes — required** |
+| Kalodata instead? | **No** — too expensive; EchoTik daily, Kalodata optional spot-check only |
+| Posts on launch day? | **8–10 GOOD** (QC pass), not 1 test clip |
+| Need phones first? | **No** — affiliate is cloud + Zernio |
+| 2 months runway? | **Yes** (~$343–393 buffer on plan A/B) |
+| 5th phone? | **No** |
 
-Update this file when your Zernio bill, EchoTik tier, or cash on hand changes.
+Update when Zernio bill, EchoTik tier, or cash changes.

@@ -1,46 +1,64 @@
 # Launch checklist
 
-Two phases — **pre-launch buy** (hardware + account) then **launch** (paid stack + posting).
+**Affiliate first:** 8–10 **GOOD** posts (Module 1 QC pass) as soon as account + EchoTik are live. Bubble hardware runs in parallel — it does **not** block affiliate.
 
-**Budget:** `docs/LAUNCH_BUDGET.md` — $2,283 cash, ~$630 account, **≥2 months runway** (stagger software; 4 phones not 5).
+**Budget:** `docs/LAUNCH_BUDGET.md` — $2,283 cash, ~$630 account, EchoTik day 1, **≥2 months runway**.
 
 ---
 
-## Phase 1 — Pre-launch buy *(buy before first post)*
+## Affiliate launch *(do this first — can be today)*
+
+### Before first affiliate post
+
+| Step | Item |
+|------|------|
+| 1 | **Purchased affiliate TikTok account** (~$630) |
+| 2 | **EchoTik paid** (~$125/mo) — scout is required; Kalodata is not the daily tool |
+| 3 | Connect account in **Zernio** → `affiliate_main` in `accounts.json` |
+| 4 | Kling + images funded (`KLING_MODE=std`, ~$0.21/5s clip) |
+| 5 | `python3 -m shorts_bot.tiktok_shop status` — EchoTik, Kling, Zernio green |
+
+### Launch day — 8–10 GOOD videos
+
+| Step | Action |
+|------|--------|
+| 1 | `scout_cli run` → products in `products.json` |
+| 2 | Batch clips: image → Kling 5s → pan loop + caption |
+| 3 | **Module 1 QC on every clip** — zero violations or regen |
+| 4 | Post **8–10 QC-pass** MP4s via Zernio (reject bad renders) |
+| 5 | Daily ops: repeat scout + 8–10/day cap |
+
+**GOOD** = course edit + caption + Module 1 pass — not raw Kling output.
+
+**Not required for affiliate launch:** phones · SIMs · laptop hub · phone worker · bubble posts.
+
+---
+
+## Phase 1 — Bubble hardware *(parallel — not a gate)*
 
 | Item | Qty | Budget tip |
 |------|-----|------------|
-| **Purchased affiliate TikTok account** | 1 | — |
-| **Mini computer** | 1 | **Use old HP laptop** — wipe + Ubuntu (see below). Saves ~$100–300 vs buying new. |
-| **Cheap Android phones** | **4** | Used/refurb $40–70 each. **Skip 5th phone** — affiliate posts via Zernio. |
-| **SIM cards / data lines** | **4** | ~$10–15/mo each prepaid. One per bubble phone. |
-| **Powered USB hub + cables** | 1 set | ~$25–40. Don’t skip — unpowered hubs drop phones. |
+| **Mini computer** | 1 | **Old HP laptop** — wipe + Ubuntu. $0. |
+| **Cheap Android phones** | **4** | Used $40–70 each. **No 5th phone.** |
+| **SIM cards / data lines** | **4** | ~$10–15/mo each. One per bubble phone. |
+| **Powered USB hub + cables** | 1 | ~$25–40 |
 
-**Rough one-time (budget path):** ~$200–350 phones + ~$25 hub + **$0 PC if laptop works**  
-**Rough monthly:** ~$40–60 data (4 lines) — software stack (~$450/mo) starts at **launch**, not pre-launch.
+**Rough one-time:** ~$280 (phones + hub + SIM activations) · **$0 PC**
 
-### Old laptop as the hub PC
-
-If you have an HP (or any laptop) with unknown password: **yes, wipe it** — F11 HP recovery, or Ubuntu USB install (`Erase disk`). Then install the bot per `docs/FOR_OWNER_MINI_PC_INSTALL.md`. Linux is ideal for ADB + 4 phones.
-
-**Not in pre-launch buy:** EchoTik paid tier, full ~$450/mo software stack — those turn on at **launch**.
-
-After Phase 1 arrives: wire phones, log each TikTok on its **own** phone only, connect affiliate account in Zernio, mini PC on network. **Install:** `docs/FOR_OWNER_MINI_PC_INSTALL.md`
+Install: `docs/FOR_OWNER_MINI_PC_INSTALL.md`
 
 ---
 
-## Phase 2 — Launch *(paid stack + go live)*
+## Phase 2 — Full stack billing
 
-| Item | Purpose |
-|------|---------|
-| **EchoTik paid** (~$125/mo) | Automated product scout |
-| **Rest of ~$450/mo stack** | Zernio, Kling credits, etc. |
-| **Build + prove** | One bubble post + one affiliate post end-to-end |
-| **Ramp** | Safe bubble → aggressive bubble + affiliate 8–10/day |
+Turn on when **affiliate posts start** (not when phones arrive):
 
-**Launch engaged** when Phase 1 is wired **and** Phase 2 software is paid **and** first posts go out.
-
-Until Phase 1: strategy + code prep only.
+| Item | ~$/mo |
+|------|-------|
+| **EchoTik paid** | ~$125 |
+| Zernio + Kling + images + misc | ~$325 |
+| 4 SIMs (when bubble live) | ~$50 |
+| **Total** | **~$450–500/mo** |
 
 ---
 
@@ -52,45 +70,31 @@ Until Phase 1: strategy + code prep only.
 |-------|---------|---------|-----------|
 | phone_1 | **Safe** | gspgsgsorip1 | 3–4 |
 | phone_4 | **Safe** | Isaac | 3–4 |
-| phone_2 | **Aggressive** *(trusted)* | proofofprogresss | 8–10 |
-| phone_3 | **Aggressive** *(trusted)* | Ms. Byte | 8–10 |
+| phone_2 | **Aggressive** | proofofprogresss | 8–10 |
+| phone_3 | **Aggressive** | Ms. Byte | 8–10 |
 
-Mini PC finishes **Mackenzie sound + publish** on the mapped phone.
+Hub PC finishes **Mackenzie sound + publish** on the mapped phone.
 
 ### Affiliate — purchased account
 
 | Account | Posts/day | How |
 |---------|-----------|-----|
-| **Purchased account** (Zernio) | 8–10 | Bot posts **MP4 via Zernio** from cloud — **no 5th phone** on budget path |
-
-Affiliate does **not** need Mackenzie or a hub phone. Connect the bought account once in Zernio; optional login on your personal phone for showcase health.
+| **Purchased account** (Zernio) | **8–10 on launch day** | Cloud pipeline → QC → Zernio MP4 |
 
 ---
 
-## After Phase 1 — wire checklist
+## Bubble wire checklist (when hardware arrives)
 
-1. Mini PC on network (remote access for you + agent later)  
-2. **4 phones:** ADB on, **one bubble TikTok each**, never switch accounts on a device  
-3. Purchased affiliate → Zernio dashboard → `affiliate_main` in `accounts.json`  
-4. **Build:** bubble carousel → inbox → mini PC → sound → publish (phones 1–4)  
-5. **Build:** affiliate clip pipeline → Zernio post (no hub phone)
-
----
-
-## After Phase 2 — first posts
-
-1. One **bubble** carousel live (safe account first)  
-2. One **affiliate** clip live (Module 1 QC pass)  
-3. Ramp cadence per table above  
-
-Both tracks in **parallel**.
+1. Laptop on network (Tailscale for remote access)  
+2. **4 phones:** ADB on, one bubble TikTok each  
+3. **Build:** carousel → Zernio inbox → hub → Mackenzie → publish  
+4. Ramp safe accounts first, then aggressive  
 
 ---
 
-## Kalodata filters — ignore until affiliate scout runs
+## Product research
 
-Course product filters (hardcore lurkers, etc.) = **affiliate research only**. Manual Kalodata is fine at launch. Not a pre-launch buy item.
+**EchoTik** = daily scout (paid tier at launch).  
+**Kalodata** = optional spot-check on EchoTik finalists (ad badge, trend) — not a launch substitute.
 
----
-
-Config: `data/tiktok_shop/accounts.json` · Hub: `FOR_OWNER_PHONE_HUB.md` · Strategy: `GROUP_CALLS.md`
+Config: `data/tiktok_shop/accounts.json` · Hub: `FOR_OWNER_PHONE_HUB.md` · Budget: `LAUNCH_BUDGET.md`

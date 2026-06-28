@@ -11,7 +11,7 @@
 | **Bubble wrap** (0→1k) | 4 growth accounts | 2 safe @ **3–4** · 2 aggressive @ **8–10** | Carousel + Mackenzie sound |
 | **Affiliate** (revenue) | Affiliate account(s) | **8–10** (Module 1) | **Full stack** — research → clip → caption → QC → post |
 
-**Affiliate go-live = turn on infrastructure** (EchoTik, Kling usage, Zernio posting). Until first affiliate post: **prep only**, defer new monthly bills (~$450 stack).
+**Affiliate go-live = turn on full stack immediately** — **EchoTik paid**, Kling, Zernio posting. **8–10 GOOD posts/day** from launch day (Module 1 QC pass). Bubble hardware can lag; affiliate does not wait for phones.
 
 **Knowledge split:** Course = creative. Repo = automation. See `data/research/course/KNOWLEDGE.md`.
 
@@ -42,7 +42,7 @@
 | **1** | **Product research** | EchoTik scout runs all course gates (presets + ad/trend/creator checks); picks in `products.json` |
 | **2** | **End-to-end clip** | One product → image → Kling → pan loop + caption → Module 1 QC pass → ready to post |
 | **3** | **APIs live** | EchoTik + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
-| **4** | **Daily affiliate ops** | Posting queue, 8–10/day cap, violation watch per Module 1 + 7 |
+| **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; violation watch per Module 1 + 7 |
 
 ---
 
@@ -50,8 +50,9 @@
 
 | Track | When | Source |
 |-------|------|--------|
-| **Paid EchoTik tier** | First affiliate post day | `FOR_OWNER_ECHOTIK_SETUP.md` — until then Kalodata (course login) |
 | Follow ads | After 1k→5k per account | `ADS_1K_TO_5K.md` (deferred) |
+
+**EchoTik paid:** required **on affiliate launch day** — not deferred. See `docs/LAUNCH_BUDGET.md`.
 
 ## Dead — do not build
 
