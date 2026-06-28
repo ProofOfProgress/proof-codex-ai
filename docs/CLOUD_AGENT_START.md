@@ -14,6 +14,8 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 
 **Current phase:** **Bubble wrap only** until ~1k followers per account → `data/research/course/BUBBLE_WRAP.md`
 
+**Agent team (affiliate clips):** `docs/FOR_OWNER_AGENT_TEAM.md` — `/affiliate-ceo` or `/team`.
+
 **Dead (never suggest):** Fix It Fast, Rapid Tool Review, Ms. Byte, InVideo, Peripheral horror.
 
 ---
