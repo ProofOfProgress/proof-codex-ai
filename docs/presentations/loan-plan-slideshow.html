@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nana — business plan</title>
+  <style>
+    :root {
+      --bg: #f7f4ef;
+      --card: #ffffff;
+      --text: #1c2b36;
+      --text-soft: #4a5d6b;
+      --accent: #2a6b5a;
+      --accent-light: #e8f4ef;
+      --accent-dark: #1e5044;
+      --highlight: #c96b4a;
+      --highlight-soft: #fdf0ea;
+      --border: #e2ddd4;
+      --nav-h: 88px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 19px;
+      line-height: 1.6;
+    }
+
+    .deck {
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+  /* Each slide scrolls if content is tall — fixes cut-off on slides 4 & 6 */
+    .slide {
+      display: none;
+      height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 28px 32px calc(var(--nav-h) + 24px);
+    }
+
+    .slide.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .slide-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-size: 2.1rem;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      font-family: Georgia, serif;
+      font-size: 1.85rem;
+      color: var(--accent-dark);
+      margin-bottom: 18px;
+      line-height: 1.25;
+    }
+
+    p { color: var(--text-soft); font-size: 1.1rem; margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+    p strong, li strong { color: var(--text); }
+
+    .talk {
+      font-size: 1.12rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    ul.simple {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+
+    ul.simple li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.08rem;
+      color: var(--text-soft);
+    }
+
+    ul.simple li:last-child { border-bottom: none; }
+
+    .box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 16px 0;
+      font-size: 1.08rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .box.warm {
+      background: var(--accent-light);
+      border-color: rgba(42, 107, 90, 0.3);
+    }
+
+    .box.soft {
+      background: var(--highlight-soft);
+      border-color: rgba(201, 107, 74, 0.25);
+    }
+
+    .big-num {
+      font-family: Georgia, serif;
+      font-size: 3.5rem;
+      color: var(--highlight);
+      line-height: 1;
+      margin: 8px 0;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    .row span:first-child { color: var(--text); }
+    .row span:last-child { font-weight: 700; color: var(--accent-dark); font-size: 1.1rem; }
+
+    .row.total {
+      background: var(--accent);
+      border: none;
+      margin-top: 12px;
+    }
+
+    .row.total span { color: #fff !important; }
+
+    .scroll-hint {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-h);
+      z-index: 100;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    }
+
+    .nav button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.05rem;
+      min-height: 48px;
+      min-width: 120px;
+    }
+
+    .nav button:disabled { background: #b8c4cc; cursor: not-allowed; }
+
+    .progress-text {
+      font-weight: 600;
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .center { text-align: center; }
+
+    @media (max-width: 600px) {
+      .slide { padding: 20px 18px calc(var(--nav-h) + 16px); }
+      h1 { font-size: 1.75rem; }
+      h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <section class="slide active">
+      <div class="slide-inner">
+        <h1>Hey Nana</h1>
+        <p class="talk">I put this together so you can see what I'm trying to do and what I'd need from you. It's not as crazy as it sounds on paper — but I get why it might look that way at first. I was pretty skeptical myself before I dug into it.</p>
+        <p class="talk">Flip through with the buttons below. Takes like 5 minutes.</p>
+        <div class="box warm">
+          <strong>Main thing:</strong> I'm not asking you to pull money out of your account. I'd want you to <strong>co-sign a bank loan</strong> with me — about <strong>$3,000</strong>. I pay it every month from what the business earns.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Why I'm not just winging it</h2>
+        <p class="talk">I paid for a course (Momentum Academy). That's a big part of why I actually trust this.</p>
+        <ul class="simple">
+          <li><strong>1-on-1 help</strong> from someone who already makes a living doing this exact thing — not some random YouTube guy.</li>
+          <li><strong>All the resources</strong> — how to pick products, make videos, post, stay within the rules, all of it.</li>
+          <li><strong>A community</strong> of other people running the same kind of accounts. I can see what's working for them right now.</li>
+          <li><strong>Group calls</strong> when something changes or I get stuck.</li>
+        </ul>
+        <div class="box">
+          I'm not guessing. I'm following a system that other people are already making money with. Someone in the group bought an account for $630 and still has it up. That's the same kind of thing I'd buy with this loan.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>What I actually do (simple version)</h2>
+        <p class="talk">I make short product videos on TikTok. When someone buys through my link, I get a cut. That's the whole business.</p>
+        <ul class="simple">
+          <li>I already have <strong>four smaller accounts</strong> I'm growing.</li>
+          <li>This loan would get me <strong>two bigger accounts</strong> that are already established — so I'm not starting from zero on those.</li>
+          <li>Phones post the videos so it runs without me sitting there tapping post all day.</li>
+          <li>Shop money would still go to <strong>you</strong> first (same as we've talked about).</li>
+        </ul>
+        <p class="talk">I'm working on this basically full time. This isn't a hobby I forgot about after a week.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Why I think it's worth doing</h2>
+        <p class="talk">I'm not gonna sit here and promise you millions. I don't know exactly how fast it'll pay off. Nobody honest does.</p>
+        <p class="talk">But here's what I do know:</p>
+        <ul class="simple">
+          <li>Real people in the course are making real shop money — not just views.</li>
+          <li>I have the course, the automation, and I've already been building for months.</li>
+          <li>Two accounts means if one has issues, the other can keep going.</li>
+          <li>Both accounts come with a <strong>14-day warranty</strong> from the seller — if something's wrong, we deal with it fast.</li>
+        </ul>
+        <div class="box warm">
+          I'm asking because I believe I can pay this loan. And I'd rather build something real than wait until I'm 18 and wish I'd started.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>What I need from you</h2>
+        <p class="big-num">~$3,000</p>
+        <p class="talk"><strong>Bank loan.</strong> Co-signed together. About <strong>$80 a month</strong> to pay it back.</p>
+        <ul class="simple">
+          <li>Not cash from your savings.</li>
+          <li>I'm putting in <strong>~$400 of my own money</strong> for software bills too.</li>
+          <li>After the loan is paid off + <strong>$400 for your TV</strong>, most money goes back into growing the business.</li>
+          <li>If we do well, I can pay the loan off early and save on interest.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Where the money goes (part 1)</h2>
+        <div class="row"><span>Account 1 (main)</span><span>~$630</span></div>
+        <div class="row"><span>Account 2 (backup)</span><span>~$630</span></div>
+        <div class="row"><span>Phone 1 + its own data plan</span><span>~$170</span></div>
+        <div class="row"><span>Phone 2 + its own data plan</span><span>~$170</span></div>
+        <p class="talk" style="margin-top: 14px;">Each account gets its own phone and its own phone line. That's on purpose — safer and how the course people do it.</p>
+        <p class="scroll-hint">Scroll down if you need to ↑</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>Where the money goes (part 2)</h2>
+        <div class="row"><span>Small computer (runs posting overnight)</span><span>~$300</span></div>
+        <div class="row"><span>Business software (2 months)</span><span>~$400</span></div>
+        <div class="row"><span>Video-making credits (~2 months + redos)</span><span>~$450</span></div>
+        <div class="row"><span>2 months of loan payments saved up</span><span>~$160</span></div>
+        <div class="row"><span>Cables, extras, little buffer</span><span>~$90</span></div>
+        <div class="box soft">
+          I budgeted <strong>two months</strong> of video credits on purpose — not one. Clips don't always come out right the first time and I need room to redo them without panicking. Same with the loan payments saved up — sales might be slow at first and I don't want us scrambling.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>How I'll handle payouts</h2>
+        <p class="talk">This is the order I want to stick to:</p>
+        <ul class="simple">
+          <li><strong>1.</strong> Shop pays you</li>
+          <li><strong>2.</strong> I take the loan payment out first (~$80)</li>
+          <li><strong>3.</strong> I pay the software and phone bills</li>
+          <li><strong>4.</strong> I get you the $400 for your TV when we get there</li>
+          <li><strong>5.</strong> Whatever's left goes back into the business / me later</li>
+        </ul>
+        <p class="talk">I'm not asking you to chase me for the loan payment. I want that set up so it comes out first, from the shop money, before I touch anything else.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>First couple weeks</h2>
+        <ul class="simple">
+          <li>First <strong>5 days</strong> on new accounts: just use TikTok normally. Don't change settings.</li>
+          <li>I set up the phones and computer and make sure posting actually works.</li>
+          <li>Test one real video with a real buy link before we go hard.</li>
+          <li>Then ramp up slowly: a few posts a day → more → up to <strong>10 a day</strong> per account.</li>
+        </ul>
+        <div class="box warm">
+          14-day warranty on the accounts. If something's wrong, we catch it in that window — not months later.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>I want to be honest with you</h2>
+        <p class="talk">Co-signing means if I ever stopped paying, the bank would still want that money — and that could hit your credit. I'm not gonna pretend that's not real.</p>
+        <p class="talk">That's why I'm not asking for a huge loan. Two accounts, not ten. Buffer built in. Backup account. Warranty. And I pay even if it's slow at first — that's on me, not you hoping it works.</p>
+        <div class="box">
+          I'm 16. I know I have to attach family to big stuff right now. I'd rather do it right with you than blow it on something dumb or give up on the whole thing.
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner">
+        <h2>I'm not over-buying</h2>
+        <ul class="simple">
+          <li>Just <strong>2 accounts</strong> in this loan — not 4 or 8.</li>
+          <li>More only if these two are actually working and paying the bills.</li>
+          <li>My four smaller accounts keep running — no extra purchase cost on those.</li>
+          <li>No ad budget in this plan.</li>
+          <li>I pay the $200 software bill myself when I can.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="slide-inner center">
+        <h2>What I'd say at the bank</h2>
+        <div class="box warm" style="text-align: left; font-size: 1.12rem;">
+          I'd like you to co-sign about a <strong>$3,000</strong> loan with me for business equipment and two established seller accounts. I'll pay about <strong>$80 a month</strong> from shop earnings that deposit to you.
+        </div>
+        <p class="talk" style="margin-top: 32px; font-size: 1.35rem; color: var(--accent-dark);">
+          Thank you for even reading all this, Nana.
+        </p>
+        <p class="talk">— Isaac</p>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="nav">
+    <button type="button" id="prev">← Back</button>
+    <span class="progress-text" id="progress">1 / 12</span>
+    <button type="button" id="next">Next →</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    let i = 0;
+
+    function show(n) {
+      i = Math.max(0, Math.min(n, slides.length - 1));
+      slides.forEach((s, j) => s.classList.toggle("active", j === i));
+      document.getElementById("progress").textContent = `${i + 1} / ${slides.length}`;
+      document.getElementById("prev").disabled = i === 0;
+      document.getElementById("next").disabled = i === slides.length - 1;
+      slides[i].scrollTop = 0;
+    }
+
+    document.getElementById("prev").onclick = () => show(i - 1);
+    document.getElementById("next").onclick = () => show(i + 1);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); show(i + 1); }
+      if (e.key === "ArrowLeft") show(i - 1);
+    });
+
+    show(0);
+  </script>
+</body>
+</html>

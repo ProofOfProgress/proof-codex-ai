@@ -96,14 +96,62 @@ def test_prepare_vertical_9x16():
 
     from PIL import Image
 
-    from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16
+    from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16, _FIT_PAD_RGB
 
     square = Image.new("RGB", (1000, 1000), color=(255, 0, 0))
     buf = BytesIO()
     square.save(buf, format="JPEG")
-    out = prepare_vertical_9x16(buf.getvalue(), width=1080, height=1920)
+    out = prepare_vertical_9x16(buf.getvalue(), width=1080, height=1920, fit_scale=0.88)
     result = Image.open(BytesIO(out))
     assert result.size == (1080, 1920)
+    # Zoom-out fit: corners are padding gray, not product red
+    assert result.getpixel((0, 0)) == _FIT_PAD_RGB
+    assert result.getpixel((0, 0)) != (255, 0, 0)
+
+
+def test_wrap_on_screen_caption():
+    from shorts_bot.tiktok_shop.video_editor import wrap_on_screen_caption
+
+    wrapped = wrap_on_screen_caption(
+        "Tired of cheap watches that scratch the second you bump them on the door frame"
+    )
+    assert "\n" in wrapped
+    assert len(wrapped.splitlines()) >= 2
+
+
+def test_burn_on_screen_caption(tmp_path):
+    import shutil
+
+    if not shutil.which("ffmpeg"):
+        import pytest
+
+        pytest.skip("ffmpeg not installed")
+
+    from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
+
+    # Tiny synthetic clip — ffmpeg required
+    src = tmp_path / "src.mp4"
+    subprocess = __import__("subprocess")
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=gray:s=540x960:d=1",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            str(src),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    dest = tmp_path / "out.mp4"
+    burn_on_screen_caption(src, dest, "Reminder for the folks who hate scratched screens")
+    assert dest.is_file() and dest.stat().st_size > 1000
 
 
 def test_download_cover_skips_on_403(tmp_path, monkeypatch):
