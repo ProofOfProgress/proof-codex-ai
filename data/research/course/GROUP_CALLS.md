@@ -40,7 +40,7 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 - **2 safe** — 3–4 posts/day each  
 - **2 aggressive** — 8–10 posts/day each  
 
-**Affiliate go-live:** **EchoTik paid day 1** (Kalodata too expensive for daily use). **8–10 GOOD affiliate posts** as soon as account + Zernio are wired — cloud pipeline, no phone hub required. Full ~$450/mo stack on at first post.
+**Affiliate go-live:** **EchoTik paid day 1**. **8–10 GOOD affiliate posts** as soon as account + Zernio are wired — cloud pipeline, no phone hub required. Full ~$450/mo stack on at first post.
 
 **Pre-launch buy:** purchased **affiliate account (~$630)** first; bubble hardware (**4 phones + SIMs + laptop hub ~$280**) can follow in parallel — see `docs/LAUNCH_BUDGET.md`.
 

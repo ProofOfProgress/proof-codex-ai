@@ -4,7 +4,9 @@
 **Automation:** EchoTik scout → `data/tiktok_shop/products.json`  
 **Agent:** `/product-research` subagent (`product-researcher`)
 
-Kalodata filters **hardcore lurkers** and **100 gap** are course sauce — **not fully automated in EchoTik yet**. Use Kalodata manually for those; EchoTik runs **middle core** and **200 method** presets.
+**Owner / course creator (2026-06-28):** **FastMoss is as good as Kalodata** for research. Use **FastMoss** for manual finalist checks (not Kalodata). FastMoss has an API ([developer.fastmoss.com](https://developer.fastmoss.com/)) — scout v2 may integrate later.
+
+Kalodata filter names (**hardcore lurkers**, **100 gap**) still appear in Module 3 video — replicate logic in FastMoss filters or EchoTik presets over time; **not fully automated yet**.
 
 ---
 
@@ -27,25 +29,27 @@ Secrets: `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` — see `docs/FOR_OWNER_ECHOTIK
 
 ---
 
-## Manual checks (course — agent reminds you, you verify in Kalodata)
+## Manual checks (course — verify in FastMoss)
 
-From `kalodata_rules.PRODUCT_CHECKS` + Module 3:
+Module 3 checks the EchoTik scout **cannot** see — owner (or future FastMoss API) on **finalists only**:
 
-- **6+ of 10** top affiliate videos show purple **ad** badge (brand spending on GMV Max)
-- Creator list has **variety** — not only the brand's own shop
-- **Commission $** worth posting (price × rate)
-- **Brand match** — image, title, shop name align; skip rip-off / random-letter sellers
-- **Revenue trend** rising — skip products trending down
-- **Testing mindset** — speed + volume of tests wins (course)
+| Check | Plain English |
+|-------|----------------|
+| **Ad spend** | Top affiliate videos — brand running **paid ads** (FastMoss “ads” / GMV Max signals; course: purple Ad on many top 10) |
+| **Trend** | Sales chart **going up**, not falling |
+| **Brand match** | Image, title, shop name align — skip rip-off sellers |
+| **Commission $** | Price × rate worth your time |
+| **Creator mix** | Not only the brand’s own shop promoting |
+| **Volume** | Test many products fast — course mindset |
 
-EchoTik scout **scores** GMV, creators, commission, videos — it does **not** see Kalodata ad badges or trend charts. Owner spot-checks finalists in Kalodata before committing.
+EchoTik narrows the list; **FastMoss confirms** the picks EchoTik can’t fully validate.
 
 ---
 
 ## Pipeline hook (CEO)
 
 1. **Research** → `product-researcher` (background) saves + ranks picks  
-2. Owner picks one → Module 4 image  
+2. Owner approves in **FastMoss** (8–10 for launch)  
 3. **Prompt** → `product-video-prompt-builder`  
 4. Kling render → **edit** → **QC** → post  
 
