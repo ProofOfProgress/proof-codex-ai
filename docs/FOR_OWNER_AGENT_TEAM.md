@@ -4,18 +4,36 @@ Plain-English guide for running parallel specialist agents and watching what the
 
 ---
 
+## Who is the CEO?
+
+**The main agent in every chat is the CEO** — that's who you talk to when you open a new Cursor chat. There is **no** `/affiliate-ceo` subagent.
+
+The CEO delegates to **employees** (subagents). Employees do one job each. You can also talk to any employee directly with `/their-name`.
+
+---
+
+## Important: employees don't remember other chats
+
+Subagents **cannot access previous chats** or earlier messages in your session. Each time the CEO sends work to an employee, the CEO must paste in:
+
+- File paths, product name, caption text
+- Mission id (if logging)
+- Exactly what to do and what to return
+
+The **mission log** (`data/agent_ops/missions/`) is how you watch work across steps — not employee memory.
+
+---
+
 ## What you have
 
-| Role | Name | How to talk to them |
-|------|------|---------------------|
-| **CEO** | Affiliate CEO | `/affiliate-ceo` — coordinates everyone |
+| Role | Who | How to talk |
+|------|-----|-------------|
+| **CEO** | Main agent (every chat) | Just chat normally — "make a clip for this product" |
 | **Employee** | Product Video Prompt Builder | `/product-video-prompt-builder` + product image |
 | **Employee** | Video Caption Writer | `/video-caption-writer` |
 | **Employee** | Video Editor | `/video-editor` — loop + caption burn |
 | **Employee** | Module 1 QC Runner | `/module1-qc-runner` (runs in background) |
 | **Roster + status** | — | `/team` |
-
-You can talk to **any employee directly**, or ask the **CEO** to coordinate several at once.
 
 ---
 
@@ -35,12 +53,13 @@ Attach the Module 4 product image. You get one paragraph — paste into Higgsfie
 
 Best for full clip prep or when QC should run while other work continues.
 
+Just tell the main agent:
+
 ```
-/affiliate-ceo
-Make a clip for this product — video prompt, caption, and QC
+Make a clip for this product — video prompt, caption, edit, and QC
 ```
 
-The CEO creates a **mission**, delegates to employees, and keeps working while background jobs (like QC) run.
+The CEO creates a **mission**, delegates to employees (with full context in each dispatch), and keeps working while background jobs run.
 
 ---
 
@@ -51,13 +70,8 @@ Every orchestrated run writes events to a **mission log**.
 ### Terminal
 
 ```bash
-# List recent missions
 python3 -m shorts_bot.agent_ops missions
-
-# Watch live feed (replace MISSION_ID or use latest)
 python3 -m shorts_bot.agent_ops tail --mission latest
-
-# Short summary
 python3 -m shorts_bot.agent_ops status --mission latest
 ```
 
@@ -67,13 +81,7 @@ python3 -m shorts_bot.agent_ops status --mission latest
 python3 -m shorts_bot.web
 ```
 
-Open in browser: **http://127.0.0.1:8080/agent-ops**
-
-The page auto-refreshes every few seconds. Click a mission to see the full timeline:
-
-- CEO dispatches (`dispatch_background`, `dispatch_foreground`)
-- Employee starts / completes / fails
-- What each step said
+Open: **http://127.0.0.1:8080/agent-ops**
 
 ---
 
@@ -82,53 +90,34 @@ The page auto-refreshes every few seconds. Click a mission to see the full timel
 | Event | Who | Meaning |
 |-------|-----|---------|
 | `mission_created` | CEO | New pipeline run started |
-| `started` | CEO or employee | Step began |
 | `dispatch_background` | CEO | Sent work to employee — CEO keeps going |
 | `dispatch_foreground` | CEO | Sent work to employee — waits for result |
-| `completed` | Employee | Step finished OK |
-| `failed` | Employee | Blocked or error |
-| `owner_message` | You | Direct message logged for traceability |
+| `completed` / `failed` | Employee | Step result |
 
 ---
 
-## Typical affiliate clip flow (CEO mode)
+## Typical affiliate clip flow
 
-1. **CEO** creates mission
-2. **Prompt builder** (foreground) → Kling video prompt from product image
-3. You or CEO render in Higgsfield/Kling
-4. **Video editor** (background) loops clip + burns caption while **caption writer** refines hook text if needed
-5. **QC runner** (background) checks finished MP4
+1. **You** ask the CEO to make a clip
+2. **CEO** creates mission → **prompt builder** (video prompt)
+3. Render in Higgsfield/Kling
+4. **CEO** → **video editor** (background) + **caption writer** (foreground)
+5. **CEO** → **QC runner** (background)
 6. CEO summarizes — upload only if QC passed
-
----
-
-## Files (for reference)
-
-| What | Where |
-|------|-------|
-| Employee definitions | `.cursor/agents/*.md` |
-| Slash shortcuts | `.cursor/commands/` |
-| Mission logs | `data/agent_ops/missions/*.jsonl` |
-| Video prompt rules | `data/research/course/PROMPT_BUILDER.md` |
-
-Mission logs stay on your machine — not committed to git.
 
 ---
 
 ## Troubleshooting
 
-**CEO doesn't delegate to employees**
+**CEO doesn't delegate**
 
 - Use Agent mode (not Ask mode)
-- Pick a model that supports subagent Task delegation
-- Say explicitly: "Use the affiliate-ceo subagent" or `/affiliate-ceo`
+- Ask explicitly: "Delegate the video prompt to product-video-prompt-builder"
 
-**No mission log appearing**
+**Employee seems confused**
+
+- They didn't get enough context — CEO must paste paths, product name, and mission id in every dispatch
+
+**No mission log**
 
 - CEO must run `python3 -m shorts_bot.agent_ops mission new ...`
-- Check `data/agent_ops/missions/` exists after first run
-
-**Want to resume a background employee**
-
-- Cursor returns an agent ID when background work starts
-- Say: "Resume agent ABC123 and summarize QC results"

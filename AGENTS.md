@@ -67,20 +67,35 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 
 ---
 
-## Agent team (CEO + employees)
+## Agent team — you are the CEO
 
-Specialist subagents live in `.cursor/agents/`. The **Affiliate CEO** orchestrates parallel work and logs every dispatch to a mission feed the owner can watch.
+**You are the CEO.** There is no `affiliate-ceo` subagent. The owner talks to **you** in every chat — you delegate to specialist **employees** below.
 
-| Employee | Slash | Job |
-|----------|-------|-----|
-| Affiliate CEO | `/affiliate-ceo` | Delegate pipeline steps in parallel |
-| Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) |
-| Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy |
-| Video Editor | `/video-editor` | Module 6 pan loop + caption burn (background) |
-| Module 1 QC Runner | `/module1-qc-runner` | Background QC before upload |
-| Roster + status | `/team` | Who's available + how to watch |
+Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work and log every dispatch to a mission feed the owner can watch.
 
-**Orchestration rules (main agent / CEO):**
+### Employees (subagents only)
+
+| Employee | Slash | Job | Background? |
+|----------|-------|-----|-------------|
+| Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
+| Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |
+| Video Editor | `/video-editor` | Module 6 pan loop + caption burn | **Yes** |
+| Module 1 QC Runner | `/module1-qc-runner` | Pre-upload QC | **Yes** |
+| Roster + status | `/team` | Who's available + how to watch | — |
+
+### Subagents cannot see prior chats
+
+Each employee starts with a **fresh context**. They do **not** see this conversation, other chats, or earlier turns.
+
+**Before every Task dispatch, paste into the prompt:**
+
+- Exact file paths, product name, caption text, mission id
+- What step this is and what to return
+- Any image/video attachments or paths the employee needs
+
+**After they return**, you carry results forward — employees do not remember later dispatches unless you log paths in the mission feed or re-paste context.
+
+### Orchestration rules (CEO = you)
 
 1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder`.
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).

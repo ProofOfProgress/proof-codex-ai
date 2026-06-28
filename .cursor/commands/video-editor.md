@@ -12,7 +12,7 @@ Turns a **5s Kling clip** into a **~10s finished post**:
 1. Pan loop (forward + reverse)
 2. Burn-in pain-point caption (white box / black text)
 
-Runs in **background** when dispatched by CEO so other work can continue.
+Runs in **background** when dispatched by the main agent so other work can continue.
 
 ## Examples
 

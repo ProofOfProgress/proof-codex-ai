@@ -204,7 +204,7 @@ async function loadMissions(){
   const r = await fetch('/api/agent-ops/missions');
   const data = await r.json();
   const box = document.getElementById('missions');
-  if(!data.missions.length){ box.innerHTML='<p>No missions yet. Run <code>/affiliate-ceo</code> to start.</p>'; return; }
+  if(!data.missions.length){ box.innerHTML='<p>No missions yet. Ask the main agent to run a pipeline — it will create a mission log.</p>'; return; }
   box.innerHTML = data.missions.map(m => `
     <div class="mission ${m.mission_id===active?'active':''}" data-id="${m.mission_id}">
       <strong>${esc(m.name||m.mission_id)}</strong>

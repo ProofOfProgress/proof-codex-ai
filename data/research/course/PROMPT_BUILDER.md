@@ -15,7 +15,7 @@ Full instructions: `.cursor/agents/product-video-prompt-builder.md`
 | How | Command |
 |-----|---------|
 | Direct | `/product-video-prompt-builder` — attach Module 4 product image |
-| Via CEO | `/affiliate-ceo` — coordinates prompt + caption + QC in parallel |
+| Via CEO | Ask the main agent to coordinate prompt + caption + edit + QC |
 | Roster | `/team` |
 
 Output: **one paragraph of video prompt text only**, ready for Higgsfield → Video → Kling 2.6.
