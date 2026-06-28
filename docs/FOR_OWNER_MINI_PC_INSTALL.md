@@ -43,10 +43,61 @@ You only wipe if login is broken and recovery is the only option (see bottom of 
 
 On the laptop (Windows):
 
-1. Open **PowerShell as Administrator**
-2. Run: `wsl --install -d Ubuntu-22.04`
-3. Restart if prompted
-4. Open **Ubuntu** from Start menu — create a Linux username/password
+1. Open **PowerShell as Administrator** (right-click Start → Terminal (Admin) or PowerShell (Admin))
+2. Try **Fix A** first. If you get *“The parameter is incorrect”*, use **Fix B** or **Fix C**.
+
+### Fix A — update WSL, then install default Ubuntu
+
+Run **one line at a time**:
+
+```powershell
+wsl --update
+```
+
+```powershell
+wsl --install
+```
+
+Restart if it asks. Then open **Ubuntu** from the Start menu.
+
+### Fix B — see exact distro name on YOUR PC
+
+```powershell
+wsl --list --online
+```
+
+Pick a name from the list exactly (often `Ubuntu` or `Ubuntu-24.04`, not always `Ubuntu-22.04`):
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+*(Use whatever name appeared in the list — spelling and caps matter.)*
+
+### Fix C — Microsoft Store *(easiest if PowerShell keeps failing)*
+
+1. Open **Microsoft Store**
+2. Search **Ubuntu**
+3. Install **Ubuntu 22.04.3 LTS** (or plain **Ubuntu**)
+4. Click **Open** → create Linux username + password
+
+Any Ubuntu 22.04+ is fine for the bot.
+
+### Fix D — enable Windows features (last resort)
+
+In **Admin PowerShell**:
+
+```powershell
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+Restart, then run Fix A again.
+
+---
+
+After Ubuntu opens:
+
 5. All commands below run **inside that Ubuntu window**
 
 Install Linux tools once:
