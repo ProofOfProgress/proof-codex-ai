@@ -14,6 +14,7 @@ Secrets checklist: `docs/CURSOR_SECRETS.md`
 Mini PC install (phones + hub): `docs/FOR_OWNER_MINI_PC_INSTALL.md`  
 Launch timeline: `docs/LAUNCH_CHECKLIST.md`  
 Launch budget (runway): `docs/LAUNCH_BUDGET.md`  
+**Launch to-do (in order):** `docs/LAUNCH_TODO.md` — **$1k week 1 → $500 bonus**  
 Higgsfield (Module 4/5 in chat): `docs/FOR_OWNER_HIGGSFIELD_SETUP.md`  
 EchoTik: `docs/FOR_OWNER_ECHOTIK_SETUP.md`  
 Kling: `docs/FOR_OWNER_KLING_SETUP.md`  

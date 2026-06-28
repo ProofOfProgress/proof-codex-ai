@@ -49,3 +49,14 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 **Bubble cadence:** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** — proofofprogresss, Ms. Byte @ 8–10/day.
 
 **Launch (Phase 2):** EchoTik paid + full stack + **8–10 affiliate posts launch day** — bubble ramp when hub wired.
+
+---
+
+## 2026-06-28 — Week 1 challenge (owner)
+
+**Course reward:** **$1,000 commission** within **7 days of first affiliate upload** → **$500 bonus**.
+
+- **Clock starts:** first live post on purchased affiliate account (not dry runs).  
+- **Target pace:** ~**$143/day** average; course peers hit **$100 days in a week**.  
+- **Execution:** `docs/LAUNCH_TODO.md` — full ordered checklist; **LAUNCH is the last pre-sprint step**.  
+- **Daily:** 8–10 GOOD posts, track commission, double down on winners, drop losers.

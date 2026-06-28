@@ -4,6 +4,8 @@
 
 **North star:** TikTok Shop **affiliate product videos** → revenue.
 
+**Week 1 challenge (owner):** **$1,000 commission** in the first **7 days after first upload** → **$500 course bonus**. Step-by-step: `docs/LAUNCH_TODO.md`.
+
 **Current phase (owner 6/2026):** **Two parallel tracks**
 
 | Track | Accounts | Posts/day | Automation |
