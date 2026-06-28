@@ -25,7 +25,9 @@ scout → owner approves product → **Gemini sample-image (listing → 9:16)**
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
-python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH [--reference-image PATH]
+python3 -m shorts_bot.tiktok_shop.factory_cli sample-image --product "NAME" --source LISTING.jpg
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" \
+  --product-image data/tiktok_shop/samples/NAME_916.jpg --reference-image LISTING.jpg
 python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
 python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt --force
 python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --product "NAME"
