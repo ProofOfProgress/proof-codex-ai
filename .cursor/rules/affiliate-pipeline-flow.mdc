@@ -11,8 +11,8 @@ Launch checklist: **`docs/LAUNCH_TODO.md`**
 ## End-to-end (one product)
 
 ```
-scout → owner approves product → Module 4 staged 9:16 image (+ optional reference)
-  → product-video-prompt-builder (REQUIRED — attach images) → save prompt
+scout → owner approves product → **Gemini sample-image (listing → 9:16)**
+  → product-video-prompt-builder (REQUIRED — attach sample + listing ref) → save prompt
   → Kling 5s (9:16 ONLY, KLING_MODE=std, audio off)
   → video-visual-critic → regen loop if needed
   → video-editor (pan loop ~10s) + video-caption-writer (pain hook, no sale/price words)

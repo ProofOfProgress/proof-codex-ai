@@ -9,8 +9,9 @@ from pathlib import Path
 from shorts_bot.config import settings
 
 # CEO must dispatch these employees in order (see docs/PIPELINE_SYSTEM_DESIGN.md)
+# Step 0 (mechanical): Gemini Module 4 sample image — before prompt builder
 PIPELINE_SUBAGENTS: tuple[tuple[str, str, bool], ...] = (
-    ("product-video-prompt-builder", "Kling video prompt from Module 4 + reference image", False),
+    ("product-video-prompt-builder", "Kling video prompt from Module 4 sample + listing reference", False),
     ("video-visual-critic", "Gemini frames + reference still — regen loop if motion/quality off", True),
     ("video-editor", "Pan loop ~10s from 5s Kling raw", True),
     ("video-caption-writer", "On-screen hook copy (no sale/price words)", False),
@@ -70,11 +71,16 @@ def checklist_text(*, product: str = "", mission_id: str = "") -> str:
     lines.extend(
         [
             "",
+            "Step 0 — Module 4 sample (Gemini, before Kling):",
+            "  module4_cli sample --product NAME --source LISTING.jpg [--reference REF.jpg]",
+            "  → saves data/tiktok_shop/samples/NAME_916.jpg (full-bleed 9:16, no gray bars)",
+            "",
             "Mechanical (CEO on VM):",
-            "  factory_cli prompt-dispatch --product NAME --product-image PATH [--reference-image PATH]",
-            "  → dispatch product-video-prompt-builder with output; save prompt to prompts/NAME.kling.txt",
-            "  factory_cli render --product NAME --image PATH --prompt-file prompts/NAME.kling.txt",
-            "  factory_cli visual-review (video-visual-critic) — regen if needed",
+            "  factory_cli sample-image --product NAME --source LISTING.jpg [--reference REF.jpg]",
+            "  factory_cli prompt-dispatch --product NAME --product-image samples/NAME_916.jpg [--reference-image LISTING.jpg]",
+            "  → dispatch product-video-prompt-builder; save prompt to prompts/NAME.kling.txt",
+            "  factory_cli render --product NAME --image samples/NAME_916.jpg --prompt-file prompts/NAME.kling.txt",
+            "  visual_feedback_cli review-and-suggest (video-visual-critic) — regen if needed",
             "  factory_cli hook-lines --product NAME (video-caption-writer)",
             "  factory_cli qc --video PATH --product NAME --caption ...",
         ]
@@ -110,7 +116,7 @@ def validate_before_render(
         warnings.append("Prompt looks very short — prompt builder should output a full paragraph")
 
     if product_image is None or not Path(product_image).is_file():
-        errors.append(f"Module 4 product image required: {product_image or '(missing)'}")
+        errors.append(f"Module 4 sample image required: {product_image or '(missing)'}")
     else:
         try:
             from shorts_bot.tiktok_shop.product_images import validate_module4_image
@@ -120,13 +126,13 @@ def validate_before_render(
                 warnings.extend(iv.warnings)
             if iv.errors:
                 errors.extend(iv.errors)
+            if iv.plain_background_risk:
+                warnings.append(
+                    "Image looks like plain listing box — run factory_cli sample-image first "
+                    "(Gemini → full-bleed 9:16 staged sample)"
+                )
         except Exception as exc:
             warnings.append(f"Could not validate product image: {exc}")
-
-    if reference_image and not Path(reference_image).is_file():
-        warnings.append(f"Reference image path not found (optional but recommended): {reference_image}")
-    elif reference_image is None and product_name:
-        warnings.append("No reference image — Module 4 scale may be wrong; add --reference-image")
 
     return PipelineCheck(ok=not errors, errors=errors, warnings=warnings)
 
@@ -142,12 +148,14 @@ def dispatch_brief(
     """Text block CEO pastes when dispatching product-video-prompt-builder."""
     lines = [
         f"Product: {product_name}",
-        f"Module 4 product image (exact reference): {product_image.resolve()}",
+        f"Module 4 sample image for Kling (Gemini 9:16 — exact reference): {product_image.resolve()}",
     ]
     if reference_image and Path(reference_image).is_file():
-        lines.append(f"Reference image (scale/context — use leftmost when reasoning): {Path(reference_image).resolve()}")
+        lines.append(
+            f"Listing/reference photo (scale only — leftmost when reasoning): {Path(reference_image).resolve()}"
+        )
     else:
-        lines.append("Reference image: none — infer scale from product category")
+        lines.append("Listing reference: none — infer scale from product category")
     if mission_id:
         lines.append(f"MISSION_ID={mission_id}")
     lines.extend(

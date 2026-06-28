@@ -1,5 +1,16 @@
 # Prompt builder (owner override)
 
+## Module 4 — Gemini sample first (owner pipeline tip)
+
+Put the **listing product photo** into **Gemini** → get a **full-bleed 9:16 sample** (whole product visible, staged background) → feed **that sample** to Kling + prompt-builder video prompt.
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli sample-image \
+  --product "Car Phone Mount" --source listing.jpg [--reference ref.jpg]
+```
+
+Output: `data/tiktok_shop/samples/car_phone_mount_916.jpg` · model `gemini-2.5-flash-image`
+
 **We do NOT use** the course's NanoBanana Pro Auto Prompter Google Sheet.
 
 **We USE** the **Product Video Prompt Builder** for **AI video prompts** — same instructions as the course community ChatGPT:

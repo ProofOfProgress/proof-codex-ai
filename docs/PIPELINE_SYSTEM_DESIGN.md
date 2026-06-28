@@ -27,7 +27,8 @@ flowchart TD
   end
 
   subgraph per_clip [Per clip — CEO orchestrates]
-    D --> E[Module 4: staged 9:16 image + optional reference]
+    D --> E0[Gemini: listing → 9:16 sample image]
+    E0 --> E[Module 4 sample + optional listing reference]
     E --> F[product-video-prompt-builder: Kling prompt — REQUIRED]
     F --> G[Kling 5s render — 9:16 only, KLING_MODE std]
     G --> H[video-editor: pan loop ~10s]
@@ -87,8 +88,9 @@ python3 -m shorts_bot.agent_ops log --mission "$MISSION" --agent ceo --event dis
 # Scout
 python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15
 
-# Full mechanical clip (after prompt-builder + Module 4 image)
-python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH [--reference-image PATH]
+# Full mechanical clip (after Gemini sample + prompt-builder)
+python3 -m shorts_bot.tiktok_shop.factory_cli sample-image --product "NAME" --source LISTING.jpg
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image data/tiktok_shop/samples/NAME_916.jpg --reference-image LISTING.jpg
 python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
 python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt --force
 python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"

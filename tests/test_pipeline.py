@@ -23,7 +23,7 @@ def test_dispatch_brief_includes_reference_image(tmp_path):
     assert "Insulated Tumbler" in text
     assert str(prod.resolve()) in text
     assert str(ref.resolve()) in text
-    assert "Reference image" in text
+    assert "Listing/reference photo" in text
     assert "NOT plain white box" in text
 
 

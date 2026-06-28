@@ -36,8 +36,9 @@ def main() -> None:
     render.add_argument("--on-screen-caption", default="", help="Module 6 burn-in hook text")
     render.add_argument("--printify-id", default="")
     render.add_argument("--printify-title", default="")
-    render.add_argument("--image", default="", help="Local Module 4 product image (dry run without scout)")
-    render.add_argument("--reference-image", default="", help="Module 4 reference image for scale (pipeline validate)")
+    render.add_argument("--image", default="", help="Module 4 Gemini sample (default: samples/PRODUCT_916.jpg)")
+    render.add_argument("--listing-image", default="", help="Original listing photo (reference for scale validate)")
+    render.add_argument("--reference-image", default="", help="Alias for --listing-image")
     render.add_argument("--prompt", default="", help="Kling prompt from product-video-prompt-builder")
     render.add_argument("--prompt-file", default="", help="Saved prompt path (prompts/PRODUCT.kling.txt)")
     render.add_argument(
@@ -70,6 +71,17 @@ def main() -> None:
     checklist = sub.add_parser("pipeline-checklist", help="Required subagent steps for one clip")
     checklist.add_argument("--product", default="")
     checklist.add_argument("--mission", default="")
+
+    sample = sub.add_parser(
+        "sample-image",
+        help="Module 4: Gemini converts listing photo → full-bleed 9:16 sample for Kling",
+    )
+    sample.add_argument("--product", required=True)
+    sample.add_argument("--source", required=True, help="Listing/isolated product photo")
+    sample.add_argument("--reference", default="", help="Optional in-context reference for scale")
+    sample.add_argument("--style", default="auto", choices=["auto", "studio", "vanity", "lifestyle", "kitchen"])
+    sample.add_argument("--out", default="")
+    sample.add_argument("--force", action="store_true")
 
     pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
     pipe.add_argument("--product-id", default="")
@@ -215,6 +227,33 @@ def main() -> None:
         console.print(f"[green]Downloaded {len(paths)}[/green] local images → data/tiktok_shop/images/")
         return
 
+    if args.cmd == "sample-image":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.module4_sample import generate_module4_sample
+
+        ref = Path(args.reference) if args.reference else None
+        out = Path(args.out) if args.out else None
+        try:
+            result = generate_module4_sample(
+                product_name=args.product,
+                source_image=Path(args.source),
+                reference_image=ref,
+                style=args.style,
+                out_path=out,
+                force=args.force,
+            )
+        except (RuntimeError, FileNotFoundError) as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+        console.print(f"[green]Sample[/green] {result.sample_path} ({result.width}x{result.height})")
+        console.print(f"[dim]Model: {result.model}[/dim]")
+        console.print(
+            f"[dim]Next: render --product \"{args.product}\" "
+            f"--image {result.sample_path} --prompt-file ...[/dim]"
+        )
+        return
+
     if args.cmd == "pipeline-checklist":
         from shorts_bot.tiktok_shop.pipeline import checklist_text
 
@@ -262,13 +301,15 @@ def main() -> None:
         from shorts_bot.tiktok_shop.render import render_product_clip
 
         try:
+            listing = args.listing_image or args.reference_image
             result = render_product_clip(
                 product_id=args.product_id,
                 product_name=args.product,
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
                 image_path=Path(args.image) if args.image else None,
-                reference_image=Path(args.reference_image) if args.reference_image else None,
+                listing_image=Path(listing) if listing else None,
+                reference_image=Path(listing) if listing else None,
                 prompt=args.prompt,
                 prompt_file=Path(args.prompt_file) if args.prompt_file else None,
                 style=args.style,

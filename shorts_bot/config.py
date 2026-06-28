@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_image_model: str = "gemini-2.5-flash-image"  # Module 4 sample stills (9:16)
 
     # Chief Manager + specialist workers (Gemini) — primary chat path when duration/prefix set
     manager_display_name: str = "AlphaBeta001"  # agent name (not the YouTube channel)

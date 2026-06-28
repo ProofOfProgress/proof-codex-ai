@@ -17,7 +17,8 @@ Creative strategy lives in **course + owner overrides** — not in code defaults
 
 ## Module 5 — video
 
-- **Kling 2.6**, **5 seconds**, **audio off**, **`aspect_ratio=9:16` always** (no exceptions)
+- **Step 0:** `factory_cli sample-image` — Gemini converts listing photo → full-bleed **9:16 sample** (`gemini-2.5-flash-image`)
+- **Kling 2.6**, **5 seconds**, **audio off**, **`aspect_ratio=9:16` always**
 - CEO **must delegate** to **`product-video-prompt-builder`** — render **blocks without saved prompt**
 - Attach **Module 4 product image** + optional **reference image** to every prompt-builder dispatch
 - Staged **complex backgrounds** — not plain white boxes (still-image ban risk)

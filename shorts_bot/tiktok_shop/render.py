@@ -109,6 +109,29 @@ def clips_dir() -> Path:
     return settings.data_dir / "tiktok_shop" / "clips"
 
 
+def resolve_kling_image(
+    *,
+    product_name: str,
+    image_path: Path | None = None,
+    use_sample: bool = True,
+) -> Path:
+    """Prefer Gemini Module 4 sample; fall back to explicit --image path."""
+    if image_path is not None and Path(image_path).is_file():
+        return Path(image_path)
+    if use_sample and product_name:
+        from shorts_bot.tiktok_shop.module4_sample import sample_image_path
+
+        sample = sample_image_path(product_name)
+        if sample.is_file():
+            return sample
+    if image_path is not None:
+        raise FileNotFoundError(f"Image not found: {image_path}")
+    raise RuntimeError(
+        f"No Kling input image for {product_name or 'product'}. "
+        "Run: factory_cli sample-image --product NAME --source LISTING.jpg"
+    )
+
+
 def _resolve_kling_prompt(
     *,
     prompt: str,
@@ -144,7 +167,9 @@ def render_product_clip(
     printify_title: str = "",
     image_url: str = "",
     image_path: Path | None = None,
+    listing_image: Path | None = None,
     reference_image: Path | None = None,
+    use_sample: bool = True,
     prompt: str = "",
     prompt_file: Path | None = None,
     style: str = "auto",
@@ -191,11 +216,18 @@ def render_product_clip(
         allow_default_prompt=allow_default_prompt,
     )
 
-    if validate_pipeline and image_path is not None:
+    kling_image = resolve_kling_image(
+        product_name=product_name,
+        image_path=image_path,
+        use_sample=use_sample,
+    )
+    ref_for_validate = reference_image or listing_image
+
+    if validate_pipeline:
         check = validate_before_render(
             product_name=product_name,
-            product_image=image_path,
-            reference_image=reference_image,
+            product_image=kling_image,
+            reference_image=ref_for_validate,
             prompt_text=kling_prompt,
         )
         if check.warnings:
@@ -207,17 +239,22 @@ def render_product_clip(
             raise RuntimeError("; ".join(check.errors))
 
     try:
-        if image_path is not None and Path(image_path).is_file():
-            import base64
+        import base64
 
-            from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16
+        from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16
 
-            data = prepare_vertical_9x16(Path(image_path).read_bytes())
+        if kling_image.is_file():
+            data = prepare_vertical_9x16(kling_image.read_bytes())
+        elif product_id or parse_cover_url(image_url):
+            image_for_kling = image_payload_for_kling(product_id=product_id, cover_url=image_url)
+            data = None
+        else:
+            raise RuntimeError(f"No Kling input image for {product_name or product_id}")
+
+        if data is not None:
             if len(data) > 10 * 1024 * 1024:
                 raise RuntimeError("Product image exceeds Kling 10MB limit")
             image_for_kling = base64.standard_b64encode(data).decode("ascii")
-        else:
-            image_for_kling = image_payload_for_kling(product_id=product_id, cover_url=image_url)
     except RuntimeError as exc:
         raise RuntimeError(str(exc)) from exc
 
