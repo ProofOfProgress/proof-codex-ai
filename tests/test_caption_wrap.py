@@ -1,4 +1,4 @@
-"""Caption line wrap — 26 chars per line owner rule."""
+"""Caption line wrap — 18 chars per line owner rule (safe TikTok margin)."""
 
 from shorts_bot.tiktok_shop.captions import (
     on_screen_caption,
@@ -7,16 +7,16 @@ from shorts_bot.tiktok_shop.captions import (
 )
 
 
-def test_wrap_hook_lines_max_26():
+def test_wrap_hook_lines_max_18():
     lines = wrap_hook_lines(on_screen_caption("Insulated Tumbler"))
     assert lines
-    assert all(len(ln) <= 26 for ln in lines)
+    assert all(len(ln) <= 18 for ln in lines)
     assert validate_hook_lines(lines) == []
 
 
 def test_wrap_long_word_splits():
-    lines = wrap_hook_lines("hello supercalifragilisticexpialidocious world", max_chars_per_line=26)
-    assert all(len(ln) <= 26 for ln in lines)
+    lines = wrap_hook_lines("hello supercalifragilisticexpialidocious world", max_chars_per_line=18)
+    assert all(len(ln) <= 18 for ln in lines)
 
 
 def test_wrap_on_screen_caption_compat():
@@ -24,4 +24,4 @@ def test_wrap_on_screen_caption_compat():
 
     wrapped = wrap_on_screen_caption(on_screen_caption("Test Product"))
     for line in wrapped.splitlines():
-        assert len(line) <= 26
+        assert len(line) <= 18

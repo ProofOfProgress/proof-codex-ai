@@ -118,7 +118,7 @@ def test_wrap_on_screen_caption():
     assert "\n" in wrapped
     assert len(wrapped.splitlines()) >= 2
     for line in wrapped.splitlines():
-        assert len(line) <= 26
+        assert len(line) <= 18
 
 
 def test_burn_on_screen_caption(tmp_path):

@@ -148,8 +148,8 @@ class Settings(BaseSettings):
 
     # On-screen hook — line breaks for TikTok native text OR ffmpeg burn-in
     tiktok_shop_hook_delivery: str = "native"  # native | burn_in — native = add text in TikTok app
-    tiktok_shop_caption_max_chars_per_line: int = 26  # owner cap — 9:16 safe width
-    tiktok_shop_caption_max_lines: int = 4
+    tiktok_shop_caption_max_chars_per_line: int = 18  # owner cap — 22/26 still clipped on 9:16 TikTok text
+    tiktok_shop_caption_max_lines: int = 7
     tiktok_shop_caption_font_size: int = 42  # burn_in only
 
     # InVideo AI — RETIRED (Fix It Fast / Ms. Byte lane). Keys ignored unless re-enabled by owner.

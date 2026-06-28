@@ -48,7 +48,7 @@ def wrap_hook_lines(
 ) -> list[str]:
     """
     Break hook copy into lines for TikTok native text or burn-in.
-    Owner rule: **never exceed 26 characters per line** (config default).
+    Owner rule: **never exceed 18 characters per line** (config default — safe margin on TikTok).
     """
     from shorts_bot.config import settings
 

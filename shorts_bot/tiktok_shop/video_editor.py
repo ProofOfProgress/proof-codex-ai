@@ -12,7 +12,7 @@ DEFAULT_FONT = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 
 
 def wrap_on_screen_caption(text: str, *, max_chars_per_line: int | None = None) -> str:
-    """Break hook copy into lines — default max 26 chars per line (owner rule)."""
+    """Break hook copy into lines — default max 18 chars per line (owner rule)."""
     return wrap_hook_text(text, max_chars_per_line=max_chars_per_line)
 
 

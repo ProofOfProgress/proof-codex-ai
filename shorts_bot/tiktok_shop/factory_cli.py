@@ -64,10 +64,10 @@ def main() -> None:
     captions.add_argument("--product", required=True)
     captions.add_argument("--limit", type=int, default=10)
 
-    hook = sub.add_parser("hook-lines", help="Wrap on-screen hook at 26 chars/line (TikTok native)")
+    hook = sub.add_parser("hook-lines", help="Wrap on-screen hook at 18 chars/line (TikTok native)")
     hook.add_argument("--product", default="")
     hook.add_argument("--text", default="", help="Override hook text (else template for --product)")
-    hook.add_argument("--max-chars", type=int, default=0, help="Per-line limit (default 26 from config)")
+    hook.add_argument("--max-chars", type=int, default=0, help="Per-line limit (default 18 from config)")
 
     loop = sub.add_parser("loop-clip", help="5s forward + reverse → ~10s MP4")
     loop.add_argument("--in", dest="inp", required=True)
@@ -274,7 +274,7 @@ def main() -> None:
         if over:
             console.print(f"[red]Over limit:[/red] {over}")
             raise SystemExit(1)
-        console.print("[dim]Paste each line as a row in TikTok native text (max 26 chars/line)[/dim]")
+        console.print("[dim]Paste each line as a row in TikTok native text (max 18 chars/line)[/dim]")
         return
 
     if args.cmd == "captions":
