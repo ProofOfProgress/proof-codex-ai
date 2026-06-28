@@ -37,21 +37,51 @@ def main() -> None:
     render.add_argument("--printify-id", default="")
     render.add_argument("--printify-title", default="")
     render.add_argument("--image", default="", help="Local Module 4 product image (dry run without scout)")
-    render.add_argument("--prompt", default="", help="Override Kling prompt")
+    render.add_argument("--reference-image", default="", help="Module 4 reference image for scale (pipeline validate)")
+    render.add_argument("--prompt", default="", help="Kling prompt from product-video-prompt-builder")
+    render.add_argument("--prompt-file", default="", help="Saved prompt path (prompts/PRODUCT.kling.txt)")
+    render.add_argument(
+        "--allow-default-prompt",
+        action="store_true",
+        help="Emergency/tests only — skip prompt-builder requirement",
+    )
     render.add_argument(
         "--style",
         default="auto",
-        choices=["auto", "studio", "vanity", "lifestyle", "minimal"],
-        help="Background look (auto picks from product name)",
+        choices=["auto", "studio", "vanity", "lifestyle", "kitchen", "minimal"],
+        help="Fallback background if --allow-default-prompt (minimal maps to kitchen)",
     )
+
+    dispatch = sub.add_parser(
+        "prompt-dispatch",
+        help="Print dispatch brief for product-video-prompt-builder (attach images)",
+    )
+    dispatch.add_argument("--product", required=True)
+    dispatch.add_argument("--product-image", required=True)
+    dispatch.add_argument("--reference-image", default="")
+    dispatch.add_argument("--mission", default="")
+    dispatch.add_argument("--handoff", default="")
+
+    save_p = sub.add_parser("save-prompt", help="Save prompt-builder output to prompts/PRODUCT.kling.txt")
+    save_p.add_argument("--product", required=True)
+    save_p.add_argument("--prompt", default="")
+    save_p.add_argument("--prompt-file", default="")
+
+    checklist = sub.add_parser("pipeline-checklist", help="Required subagent steps for one clip")
+    checklist.add_argument("--product", default="")
+    checklist.add_argument("--mission", default="")
 
     pipe = sub.add_parser("make-clip", help="Render + loop + enqueue one product")
     pipe.add_argument("--product-id", default="")
     pipe.add_argument("--product", default="")
     pipe.add_argument("--image", default="", help="Local Module 4 product image (dry run without scout)")
+    pipe.add_argument("--reference-image", default="")
+    pipe.add_argument("--prompt", default="")
+    pipe.add_argument("--prompt-file", default="")
+    pipe.add_argument("--allow-default-prompt", action="store_true")
     pipe.add_argument("--printify-id", default="", help="Printify product id (your listing)")
     pipe.add_argument("--printify-title", default="", help="Printify product title substring")
-    pipe.add_argument("--style", default="auto", choices=["auto", "studio", "vanity", "lifestyle", "minimal"])
+    pipe.add_argument("--style", default="auto", choices=["auto", "studio", "vanity", "lifestyle", "kitchen", "minimal"])
     pipe.add_argument("--confirm-post", action="store_true", help="Also post if queue runs")
 
     enqueue = sub.add_parser("enqueue", help="Add rendered MP4 to post queue")
@@ -64,10 +94,10 @@ def main() -> None:
     captions.add_argument("--product", required=True)
     captions.add_argument("--limit", type=int, default=10)
 
-    hook = sub.add_parser("hook-lines", help="Wrap on-screen hook at 18 chars/line (TikTok native)")
+    hook = sub.add_parser("hook-lines", help="Wrap on-screen hook at 20 chars/line (TikTok native)")
     hook.add_argument("--product", default="")
     hook.add_argument("--text", default="", help="Override hook text (else template for --product)")
-    hook.add_argument("--max-chars", type=int, default=0, help="Per-line limit (default 18 from config)")
+    hook.add_argument("--max-chars", type=int, default=0, help="Per-line limit (default 20 from config)")
 
     loop = sub.add_parser("loop-clip", help="5s forward + reverse → ~10s MP4")
     loop.add_argument("--in", dest="inp", required=True)
@@ -185,6 +215,47 @@ def main() -> None:
         console.print(f"[green]Downloaded {len(paths)}[/green] local images → data/tiktok_shop/images/")
         return
 
+    if args.cmd == "pipeline-checklist":
+        from shorts_bot.tiktok_shop.pipeline import checklist_text
+
+        console.print(checklist_text(product=args.product, mission_id=args.mission))
+        return
+
+    if args.cmd == "prompt-dispatch":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.pipeline import dispatch_brief
+
+        handoff = args.handoff.strip()
+        if handoff and Path(handoff).is_file():
+            handoff = Path(handoff).read_text(encoding="utf-8")
+        ref = Path(args.reference_image) if args.reference_image else None
+        console.print(
+            dispatch_brief(
+                product_name=args.product,
+                product_image=Path(args.product_image),
+                reference_image=ref,
+                mission_id=args.mission,
+                visual_handoff=handoff,
+            )
+        )
+        return
+
+    if args.cmd == "save-prompt":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.pipeline import save_prompt_file
+
+        prompt = (args.prompt or "").strip()
+        if args.prompt_file:
+            prompt = Path(args.prompt_file).read_text(encoding="utf-8").strip()
+        if not prompt:
+            console.print("[red]Provide --prompt or --prompt-file[/red]")
+            raise SystemExit(1)
+        path = save_prompt_file(product_name=args.product, prompt=prompt)
+        console.print(f"[green]Saved[/green] {path}")
+        return
+
     if args.cmd == "render":
         from pathlib import Path
 
@@ -197,11 +268,14 @@ def main() -> None:
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
                 image_path=Path(args.image) if args.image else None,
+                reference_image=Path(args.reference_image) if args.reference_image else None,
                 prompt=args.prompt,
+                prompt_file=Path(args.prompt_file) if args.prompt_file else None,
                 style=args.style,
                 loop=not args.no_loop,
                 on_screen_caption=args.on_screen_caption,
                 skip_if_exists=not args.force,
+                allow_default_prompt=args.allow_default_prompt,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
@@ -210,6 +284,8 @@ def main() -> None:
         if result.loop_mp4:
             console.print(f"[green]Final:[/green] {result.loop_mp4}")
         console.print(f"Task: {result.task_id}")
+        if result.prompt_used:
+            console.print(f"[dim]Prompt chars: {len(result.prompt_used)}[/dim]")
         return
 
     if args.cmd == "burn-caption":
@@ -237,7 +313,11 @@ def main() -> None:
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
                 image_path=Path(args.image) if args.image else None,
+                reference_image=Path(args.reference_image) if args.reference_image else None,
+                prompt=args.prompt,
+                prompt_file=Path(args.prompt_file) if args.prompt_file else None,
                 style=args.style,
+                allow_default_prompt=args.allow_default_prompt,
                 on_screen_caption=cap,
             )
         except RuntimeError as exc:
@@ -274,7 +354,7 @@ def main() -> None:
         if over:
             console.print(f"[red]Over limit:[/red] {over}")
             raise SystemExit(1)
-        console.print("[dim]Paste each line as a row in TikTok native text (max 18 chars/line)[/dim]")
+        console.print("[dim]Paste each line as a row in TikTok native text (max 20 chars/line)[/dim]")
         return
 
     if args.cmd == "captions":

@@ -25,7 +25,7 @@ I am SO sorry if you already grabbed {product} because the discount is huge toda
 - Keep **`SO`** capitalized  
 - Insert the **product name** in **title case** — capitalize the first letter of **each word**  
 - Use **"a"** before the product when it reads naturally  
-- The bot wraps at **18 characters per line max** — safe margin so TikTok native text doesn't clip the sides  
+- The bot wraps at **20 characters per line max** — safe margin so TikTok native text doesn't clip the sides  
 - Preview: `python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --product "NAME"`
 
 ## Your job
@@ -34,7 +34,7 @@ Fill in the current template with the product name. This is **not** the Kling vi
 
 ## Output format
 
-Output **only the finished caption line** (single line — bot wraps to 18 chars/line for TikTok).
+Output **only the finished caption line** (single line — bot wraps to 20 chars/line for TikTok).
 
 If the owner asks for **hook lines** ready to paste, run or tell CEO:
 

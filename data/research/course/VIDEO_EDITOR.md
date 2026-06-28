@@ -23,11 +23,11 @@
 
 ## Line length rule (owner locked)
 
-**Max 18 characters per line** — never wider. 26 and 22 still clipped on 9:16; 18 leaves safe side margin.
+**Max 20 characters per line** — never wider. 22+ clipped on 9:16 sides; 20 is the comfortable safe max.
 
 | Setting | Default |
 |---------|---------|
-| `TIKTOK_SHOP_CAPTION_MAX_CHARS_PER_LINE` | **18** |
+| `TIKTOK_SHOP_CAPTION_MAX_CHARS_PER_LINE` | **20** |
 | `TIKTOK_SHOP_CAPTION_MAX_LINES` | 7 |
 
 Preview wrapped lines:
@@ -54,15 +54,14 @@ I am SO sorry if you already grabbed {product} because the discount is huge toda
 - **`{product}`** = title case each word  
 - Use **"a"** before the product when it reads naturally  
 
-### Example wrapped at 18 chars/line
+### Example wrapped at 20 chars/line
 
 ```
-I am SO sorry if
-you already
-grabbed Insulated
-Tumbler because
-the discount is
-huge today
+I am SO sorry if you
+already grabbed
+Insulated Tumbler
+because the discount
+is huge today
 ```
 
 Sidecar file: `data/tiktok_shop/clips/{name}_loop.hook.txt`
@@ -71,7 +70,7 @@ Sidecar file: `data/tiktok_shop/clips/{name}_loop.hook.txt`
 
 1. Upload / post the **loop MP4** (no burned text)  
 2. Open TikTok editor → **Text**  
-3. Paste **one line at a time** from `.hook.txt` (each line ≤18 chars)  
+3. Paste **one line at a time** from `.hook.txt` (each line ≤20 chars)  
 4. Style: white text, thin outline, upper third — match course look  
 
 ### Burn-in styling (only if `burn_in` mode)

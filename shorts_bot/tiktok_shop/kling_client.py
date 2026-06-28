@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
 import time
 from typing import Any
 
@@ -11,6 +13,10 @@ from shorts_bot.config import settings
 
 API_BASE = "https://api.klingai.com/v1"
 OFFICIAL_I2V_DEFAULT = "kling-v2-6"
+REQUIRED_ASPECT_RATIO = "9:16"
+TARGET_WIDTH = 1080
+TARGET_HEIGHT = 1920
+ASPECT_TOLERANCE = 0.03
 
 # Official image2video model_name values (Kling OpenAPI). Course default: v2.6.
 OFFICIAL_I2V_MODELS: frozenset[str] = frozenset(
@@ -44,6 +50,71 @@ def resolve_model_name(model_name: str | None = None) -> str:
     if raw.startswith("kling-"):
         return raw
     return OFFICIAL_I2V_DEFAULT
+
+
+def normalize_aspect_ratio(aspect_ratio: str | None) -> str:
+    """Affiliate clips are always 9:16 — reject any other ratio."""
+    raw = (aspect_ratio or settings.kling_aspect_ratio or REQUIRED_ASPECT_RATIO).strip()
+    normalized = raw.replace(" ", "").lower()
+    allowed = {"9:16", "9/16", "916", "vertical", "portrait"}
+    if normalized not in allowed:
+        raise ValueError(
+            f"Kling aspect ratio must be 9:16 for TikTok Shop — got {raw!r}. "
+            "Set KLING_ASPECT_RATIO=9:16 in Secrets."
+        )
+    return REQUIRED_ASPECT_RATIO
+
+
+def probe_video_size(path) -> tuple[int, int]:
+    """Return (width, height) via ffprobe."""
+    from pathlib import Path
+
+    p = Path(path)
+    if not p.is_file():
+        raise FileNotFoundError(p)
+    proc = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height",
+            "-of",
+            "json",
+            str(p),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"ffprobe failed: {proc.stderr[:300]}")
+    data = json.loads(proc.stdout or "{}")
+    streams = data.get("streams") or []
+    if not streams:
+        raise RuntimeError(f"No video stream in {p}")
+    w = int(streams[0].get("width") or 0)
+    h = int(streams[0].get("height") or 0)
+    if w <= 0 or h <= 0:
+        raise RuntimeError(f"Invalid video dimensions for {p}: {w}x{h}")
+    return w, h
+
+
+def assert_vertical_916(path, *, label: str = "Kling output") -> tuple[int, int]:
+    """Raise if downloaded clip is not vertical 9:16."""
+    w, h = probe_video_size(path)
+    ratio = w / h
+    target = 9 / 16
+    if abs(ratio - target) > ASPECT_TOLERANCE:
+        raise RuntimeError(
+            f"{label} must be 9:16 vertical — got {w}x{h} (ratio {ratio:.3f}). "
+            "Check KLING_ASPECT_RATIO=9:16 and Module 4 image is full-bleed 9:16."
+        )
+    if w < 540 or h < 960:
+        raise RuntimeError(f"{label} resolution too low — got {w}x{h}")
+    return w, h
 
 
 def configured() -> bool:
@@ -87,12 +158,13 @@ def create_image2video(
     dur = str(duration or settings.kling_clip_seconds or 5)
     if dur not in {"5", "10"}:
         dur = "5" if int(dur) <= 5 else "10"
+    ratio = normalize_aspect_ratio(aspect_ratio)
     body = {
         "model_name": resolve_model_name(model_name),
         "image": image_url.strip(),
         "prompt": prompt.strip(),
         "duration": dur,
-        "aspect_ratio": aspect_ratio or settings.kling_aspect_ratio or "9:16",
+        "aspect_ratio": ratio,
         "mode": mode or settings.kling_mode or "std",
     }
     neg = (negative_prompt or "").strip()
@@ -151,6 +223,7 @@ def download_video(url: str, dest) -> None:
         resp = client.get(url)
         resp.raise_for_status()
         path.write_bytes(resp.content)
+    assert_vertical_916(path, label="Kling download")
 
 
 def _parse_body(resp: httpx.Response) -> dict[str, Any]:

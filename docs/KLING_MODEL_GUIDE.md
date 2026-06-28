@@ -31,6 +31,30 @@ Set in Cursor Secrets: `KLING_MODE=std` (Environment Variable).
 
 ---
 
+## Aspect ratio (no exceptions)
+
+| Setting | Value |
+|---------|--------|
+| `KLING_ASPECT_RATIO` | **`9:16` only** |
+| API body | `aspect_ratio: "9:16"` on every `image2video` call |
+| Post-download | Bot validates output is vertical 9:16 via ffprobe — rejects wrong ratio |
+
+**Never** use 16:9, 1:1, or Auto for affiliate clips. Module 4 input images must be **full-bleed 9:16** (cover-crop, no gray letterbox bars).
+
+## Prompt builder (required)
+
+CEO must dispatch **`product-video-prompt-builder`** before every render. Render **blocks** without a saved prompt:
+
+```bash
+factory_cli prompt-dispatch --product "NAME" --product-image PATH [--reference-image PATH]
+factory_cli save-prompt --product "NAME" --prompt "..."
+factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt
+```
+
+Use **staged Module 4 backgrounds** (not plain white listing boxes) so arc-camera motion is visible and still-image bans are less likely.
+
+---
+
 ## Duration
 
 | Setting | Affiliate |

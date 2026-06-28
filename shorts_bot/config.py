@@ -144,11 +144,11 @@ class Settings(BaseSettings):
     printify_shop_id: str | None = None  # optional; auto-picks first shop if empty
 
     # TikTok Shop image framing — fit inside 9:16 with padding (course: zoom out, not tight crop)
-    tiktok_shop_image_fit_scale: float = 0.88  # lower = more margin around product for Kling input
+    tiktok_shop_image_fit_scale: float = 0.88  # legacy; Kling input uses cover-crop 9:16 (no gray letterbox)
 
     # On-screen hook — line breaks for TikTok native text OR ffmpeg burn-in
     tiktok_shop_hook_delivery: str = "native"  # native | burn_in — native = add text in TikTok app
-    tiktok_shop_caption_max_chars_per_line: int = 18  # owner cap — 22/26 still clipped on 9:16 TikTok text
+    tiktok_shop_caption_max_chars_per_line: int = 20  # owner cap — 22+ clipped sides; 20 is safe max
     tiktok_shop_caption_max_lines: int = 7
     tiktok_shop_caption_font_size: int = 42  # burn_in only
 

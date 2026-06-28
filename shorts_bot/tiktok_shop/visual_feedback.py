@@ -144,9 +144,10 @@ def review_reference_image(
         "before Kling image-to-video generation.\n\n"
         f"Product: {product[:120] or 'unknown'}\n\n"
         "Judge whether this image will produce a GOOD 5s product clip with an arc-camera prompt.\n"
-        "Check: isolated product, blank/neutral background, 9:16 friendly framing, product fully visible, "
+        "Check: staged environment with visible depth/texture (NOT plain white listing box or gray void), "
+        "9:16 full-bleed framing, product fully visible and stationary-ready, "
         "no humans/hands, no screens with UI, no illegible fake text, not overly tight crop, "
-        "lighting suitable for a believable studio/lifestyle set extension.\n\n"
+        "lighting suitable for believable set extension with parallax for arc-camera motion.\n\n"
         "Return ONLY JSON:\n"
         '{"score": number 1-10, "ready_for_kling": bool, "good_enough": bool, '
         '"summary": string, "issues": string[], "suggestions": string[], '
@@ -222,8 +223,9 @@ def review_video(
     prompt += (
         "\nEvaluate COMMERCIAL readiness and MOTION quality for a 5–10s Shop affiliate clip.\n"
         "Focus on: visible arc/multi-axis camera (NOT static tripod), product stationary, "
-        "product matches reference, readable branding, clean environment, believable lighting, "
-        "no obvious AI glitches.\n\n"
+        "product matches reference, readable branding, rich staged background with parallax "
+        "(NOT plain white box, gray letterbox bars, or frozen still photograph), "
+        "believable lighting, no obvious AI glitches.\n\n"
         "Return ONLY JSON:\n"
         '{"score": number 1-10, "good_enough": bool, "commercial_ready": bool, '
         '"summary": string, "issues": string[], "prompt_fixes": string[], '

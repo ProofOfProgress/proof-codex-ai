@@ -34,5 +34,20 @@ Instructions saved in `.cursor/agents/product-video-prompt-builder.md`. Example 
 
 ## Image terms (input to the builder)
 
-- **Product image** — isolated product, blank/white background (Module 4 output)
-- **Reference image** — optional; product in setting for scale
+- **Product image** — Module 4 **staged 9:16 still** (complex background — NOT plain white listing box)
+- **Reference image** — optional; product in setting for **scale** (leftmost when both attached)
+
+CEO dispatch (attach both paths to subagent):
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch \
+  --product "Insulated Tumbler" \
+  --product-image data/tiktok_shop/images/MODULE4.jpg \
+  --reference-image data/tiktok_shop/images/REF.jpg
+```
+
+Save subagent output:
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
+```

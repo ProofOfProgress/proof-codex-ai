@@ -11,8 +11,10 @@ Launch checklist: **`docs/LAUNCH_TODO.md`**
 ## End-to-end (one product)
 
 ```
-scout → owner approves product → Module 4 image
-  → product-video-prompt-builder → Kling 5s (KLING_MODE=std, audio off)
+scout → owner approves product → Module 4 staged 9:16 image (+ optional reference)
+  → product-video-prompt-builder (REQUIRED — attach images) → save prompt
+  → Kling 5s (9:16 ONLY, KLING_MODE=std, audio off)
+  → video-visual-critic → regen loop if needed
   → video-editor (pan loop ~10s) + video-caption-writer (pain hook, no sale/price words)
   → module1-qc-runner → PASS only
   → factory_cli enqueue --account affiliate_main
@@ -22,8 +24,11 @@ scout → owner approves product → Module 4 image
 ## CLI reference
 
 ```bash
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH [--reference-image PATH]
+python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt --force
+python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --product "NAME"
 python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product "NAME" --caption "..." --account affiliate_main
 python3 -m shorts_bot.tiktok_shop.factory_cli enqueue --video PATH --product "NAME" --caption "..." --account affiliate_main
 python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm

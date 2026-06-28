@@ -47,9 +47,10 @@ def test_suggest_style_beauty_vs_shirt():
 
     assert suggest_style("Speak Love Lip Balm") == "vanity"
     assert suggest_style("Funny Dog Mom Shirt") == "lifestyle"
+    assert suggest_style("Insulated Tumbler") == "kitchen"
     assert suggest_style("Random Gadget") == "studio"
     assert "marble vanity" in prompt_for_style("vanity", product_name="x")
-    assert "void" in NEGATIVE_PROMPT
+    assert "gray border" in NEGATIVE_PROMPT
 
 
 def test_kling_create_image2video_sends_negative_prompt(monkeypatch):
@@ -91,7 +92,7 @@ def test_kling_create_image2video_sends_negative_prompt(monkeypatch):
     assert captured["json"]["negative_prompt"] == "empty void, gray background"
 
 
-def test_prepare_vertical_9x16():
+def test_prepare_vertical_9x16_full_bleed():
     from io import BytesIO
 
     from PIL import Image
@@ -101,12 +102,75 @@ def test_prepare_vertical_9x16():
     square = Image.new("RGB", (1000, 1000), color=(255, 0, 0))
     buf = BytesIO()
     square.save(buf, format="JPEG")
-    out = prepare_vertical_9x16(buf.getvalue(), width=1080, height=1920, fit_scale=0.88)
+    out = prepare_vertical_9x16(buf.getvalue(), width=1080, height=1920)
     result = Image.open(BytesIO(out))
     assert result.size == (1080, 1920)
-    # Zoom-out fit: corners are padding gray, not product red
-    assert result.getpixel((0, 0)) == _FIT_PAD_RGB
-    assert result.getpixel((0, 0)) != (255, 0, 0)
+    # Cover crop — no gray letterbox bars at frame edges
+    for pt in ((0, 0), (1079, 0), (0, 1919), (1079, 1919)):
+        assert result.getpixel(pt) != _FIT_PAD_RGB
+
+
+def test_kling_normalize_aspect_ratio_rejects_landscape():
+    import pytest
+
+    from shorts_bot.tiktok_shop import kling_client
+
+    assert kling_client.normalize_aspect_ratio("9:16") == "9:16"
+    with pytest.raises(ValueError, match="9:16"):
+        kling_client.normalize_aspect_ratio("16:9")
+
+
+def test_kling_create_image2video_forces_916(monkeypatch):
+    captured: dict = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            return {"code": 0, "data": {"task_id": "task-916"}}
+
+    class FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def post(self, url, headers, json):
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.kling_client.httpx.Client", FakeClient)
+    monkeypatch.setattr(
+        "shorts_bot.tiktok_shop.kling_client._auth_header",
+        lambda: {"Authorization": "Bearer test"},
+    )
+
+    task_id = kling_client.create_image2video(
+        image_url="https://example.com/p.jpg",
+        prompt="arc camera around product",
+        aspect_ratio="9:16",
+    )
+    assert task_id == "task-916"
+    assert captured["json"]["aspect_ratio"] == "9:16"
+
+
+def test_render_requires_prompt_builder():
+    import pytest
+
+    from shorts_bot.tiktok_shop.render import render_product_clip
+
+    with pytest.raises(RuntimeError, match="product-video-prompt-builder"):
+        render_product_clip(
+            product_name="Test",
+            image_path=__import__("pathlib").Path("/nonexistent.jpg"),
+            allow_default_prompt=False,
+            validate_pipeline=False,
+        )
 
 
 def test_wrap_on_screen_caption():
@@ -118,7 +182,7 @@ def test_wrap_on_screen_caption():
     assert "\n" in wrapped
     assert len(wrapped.splitlines()) >= 2
     for line in wrapped.splitlines():
-        assert len(line) <= 18
+        assert len(line) <= 20
 
 
 def test_burn_on_screen_caption(tmp_path):

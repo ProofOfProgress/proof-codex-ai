@@ -27,9 +27,9 @@ flowchart TD
   end
 
   subgraph per_clip [Per clip — CEO orchestrates]
-    D --> E[Module 4: product image]
-    E --> F[product-video-prompt-builder: Kling prompt]
-    F --> G[Kling 5s render — KLING_MODE std]
+    D --> E[Module 4: staged 9:16 image + optional reference]
+    E --> F[product-video-prompt-builder: Kling prompt — REQUIRED]
+    F --> G[Kling 5s render — 9:16 only, KLING_MODE std]
     G --> H[video-editor: pan loop ~10s]
     G --> V[video-visual-critic: Gemini frames + reference still]
     V -->|not good enough| F
@@ -87,8 +87,11 @@ python3 -m shorts_bot.agent_ops log --mission "$MISSION" --agent ceo --event dis
 # Scout
 python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15
 
-# Full mechanical clip (after prompt + image ready)
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
+# Full mechanical clip (after prompt-builder + Module 4 image)
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH [--reference-image PATH]
+python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt --force
+python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
 
 # QC (employee can run same command)
 python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product "NAME" --caption "..." --account affiliate_main

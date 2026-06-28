@@ -17,14 +17,16 @@ Creative strategy lives in **course + owner overrides** — not in code defaults
 
 ## Module 5 — video
 
-- **Kling 2.6**, **5 seconds**, **audio off**
-- Fixed arc-camera motion per `PROMPT_BUILDER.md` — not static camera
-- CEO **must delegate** to **`product-video-prompt-builder`** — never freestyle prompts in chat
-- Prompt must avoid Module 1 ban triggers (water, humans, screens, etc.)
+- **Kling 2.6**, **5 seconds**, **audio off**, **`aspect_ratio=9:16` always** (no exceptions)
+- CEO **must delegate** to **`product-video-prompt-builder`** — render **blocks without saved prompt**
+- Attach **Module 4 product image** + optional **reference image** to every prompt-builder dispatch
+- Staged **complex backgrounds** — not plain white boxes (still-image ban risk)
+- Product **stationary**; **arc camera** moves (multi-axis + micro-shake)
 
 ```bash
-# CEO runs after prompt + image exist
-python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt
 ```
 
 Default: `KLING_MODE=std` (~$0.21/5s) unless owner requests pro.
