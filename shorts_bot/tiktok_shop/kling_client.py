@@ -54,7 +54,7 @@ def create_image2video(
     if dur not in {"5", "10"}:
         dur = "5" if int(dur) <= 5 else "10"
     body = {
-        "model_name": model_name or "kling-v2-6",
+        "model_name": (model_name or settings.kling_model or "kling-v2-6").strip(),
         "image": image_url.strip(),
         "prompt": prompt.strip(),
         "duration": dur,

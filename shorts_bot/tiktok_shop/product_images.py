@@ -11,6 +11,9 @@ import httpx
 
 from shorts_bot.config import settings
 
+# Padding color when fitting product into 9:16 (neutral studio gray — Kling replaces backdrop)
+_FIT_PAD_RGB = (42, 42, 44)
+
 
 def parse_cover_url(raw: object) -> str:
     """EchoTik cover_url is often a JSON list of {url, index} objects."""
@@ -92,27 +95,40 @@ def load_image_bytes_for_kling(*, product_id: str = "", cover_url: str = "") -> 
     )
 
 
-def prepare_vertical_9x16(image_bytes: bytes, *, width: int = 1080, height: int = 1920) -> bytes:
-    """Center-crop to 9:16 and resize for TikTok vertical (Kling + phone feed)."""
+def prepare_vertical_9x16(
+    image_bytes: bytes,
+    *,
+    width: int = 1080,
+    height: int = 1920,
+    fit_scale: float | None = None,
+) -> bytes:
+    """
+    Fit product image inside 9:16 with padding (zoom out).
+    Course + Moe: avoid tight center-crop that makes clips feel too zoomed in.
+    """
     from io import BytesIO
 
     from PIL import Image
 
+    scale = fit_scale if fit_scale is not None else float(settings.tiktok_shop_image_fit_scale or 0.88)
+    scale = max(0.5, min(1.0, scale))
+
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
     w, h = img.size
-    target_ratio = 9 / 16
-    current = w / h
-    if current > target_ratio:
-        new_w = int(h * target_ratio)
-        left = (w - new_w) // 2
-        img = img.crop((left, 0, left + new_w, h))
-    else:
-        new_h = int(w / target_ratio)
-        top = (h - new_h) // 2
-        img = img.crop((0, top, w, top + new_h))
-    img = img.resize((width, height), Image.Resampling.LANCZOS)
+    max_w = int(width * scale)
+    max_h = int(height * scale)
+    resize_scale = min(max_w / w, max_h / h)
+    new_w = max(1, int(w * resize_scale))
+    new_h = max(1, int(h * resize_scale))
+    img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+    canvas = Image.new("RGB", (width, height), _FIT_PAD_RGB)
+    left = (width - new_w) // 2
+    top = (height - new_h) // 2
+    canvas.paste(img, (left, top))
+
     out = BytesIO()
-    img.save(out, format="JPEG", quality=92)
+    canvas.save(out, format="JPEG", quality=92)
     return out.getvalue()
 
 

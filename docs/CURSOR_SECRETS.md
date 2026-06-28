@@ -72,6 +72,7 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | `IMAGE_PROVIDER` | Environment Variable | `gemini` (recommended) \| `replicate` \| `fal` |
 | `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
+| `KLING_MODE` | Environment Variable | Default `std` (720p, ~$0.21/5s clip). Use `pro` only if you need 1080p later. |
 | `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |
 | `ECHOTIK_PASSWORD` | Runtime Secret | Pair with username |
 

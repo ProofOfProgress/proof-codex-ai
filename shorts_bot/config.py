@@ -143,6 +143,9 @@ class Settings(BaseSettings):
     printify_api_token: str | None = None
     printify_shop_id: str | None = None  # optional; auto-picks first shop if empty
 
+    # TikTok Shop image framing — fit inside 9:16 with padding (course: zoom out, not tight crop)
+    tiktok_shop_image_fit_scale: float = 0.88  # lower = more margin around product for Kling input
+
     # InVideo AI — RETIRED (Fix It Fast / Ms. Byte lane). Keys ignored unless re-enabled by owner.
     invideo_api_key: str | None = None
     invideo_mcp_url: str = "https://mcp.invideo.io/mcp"
