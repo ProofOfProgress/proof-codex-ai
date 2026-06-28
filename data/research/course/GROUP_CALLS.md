@@ -32,6 +32,14 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 ---
 
+## 2026-06-28 — System dissection rule (owner)
+
+When agents **diagnose or fix any problem** (grey borders, QC fail, still-image look, etc.), they must **dissect the whole pipeline** and fix **code + rules + tests + docs** — **not** just re-render one clip or patch one output.
+
+Cursor rule: `.cursor/rules/system-dissection.mdc` · Example: borders → Gemini sample step + 9:16 gates + prep fix, not `--force` on one MP4.
+
+---
+
 ## 2026-06-28 — Module 1 brand + phone screen rules (owner)
 
 **Only the advertised product's brand** may appear in frame — no recognizable third-party logos (Apple, MacBook, Instagram, Nike, competitors, etc.).

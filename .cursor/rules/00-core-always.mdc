@@ -44,6 +44,10 @@ Fix It Fast · Rapid Tool Review · Ms. Byte content lane · InVideo daily · Pe
 - **FastMoss day 1** at affiliate launch — replaces EchoTik and Kalodata entirely
 - **Launch night:** post #1 at midnight; ≥30m spacing; no `post-batch` for launch night
 
+## System dissection (owner rule)
+
+When fixing **any** bug (borders, QC fail, still-image look, etc.): **dissect the whole pipeline** and fix **code + rules + docs + tests** — never stop at re-rendering one clip or patching one output. See **`system-dissection`** rule.
+
 ## Bootstrap (cloud VM)
 
 ```bash

@@ -117,6 +117,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
    ```
 5. **Keep working** while `is_background: true` employees run; poll mission log before claiming upload-ready.
 6. Tell the owner how to watch: `python3 -m shorts_bot.agent_ops tail --mission $MISSION` or http://127.0.0.1:8080/agent-ops
+7. **System dissection** — when diagnosing any bug (borders, QC, still-image, etc.), fix the **whole pipeline** (code, rules, tests, docs) — never stop at re-rendering one clip. Rule: `.cursor/rules/system-dissection.mdc`
 
 Full owner guide: `docs/FOR_OWNER_AGENT_TEAM.md`
 

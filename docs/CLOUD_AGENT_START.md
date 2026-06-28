@@ -16,6 +16,8 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 
 **Cursor project rules:** `.cursor/rules/*.mdc` — always-on context + pipeline/launch rules. Owner catalog: **`docs/FOR_OWNER_CURSOR_RULES.md`**
 
+**Fixing bugs:** **System dissection** — trace the full pipeline and fix code/rules/tests/docs; never stop at re-rendering one clip (`system-dissection.mdc`).
+
 **Current phase:** **Affiliate launch first** (8–10 GOOD/day, midnight Launch Date) **+ bubble wrap parallel** → `docs/LAUNCH_TODO.md`
 
 **Agent team:** `docs/FOR_OWNER_AGENT_TEAM.md` — CEO is main chat · `/team` for roster.

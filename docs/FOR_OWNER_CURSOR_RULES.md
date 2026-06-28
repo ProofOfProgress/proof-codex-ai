@@ -40,6 +40,7 @@ You don’t need to memorize this — agents pick them up. To force one: type `@
 | Rule | Purpose |
 |------|---------|
 | `00-core-always` | North star, dead lanes, CEO model, FastMoss, launch gates |
+| `system-dissection` | Fix bugs via full pipeline dissection — never one-off clip patches |
 
 ### Launch & money
 
