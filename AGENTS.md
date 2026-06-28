@@ -17,10 +17,10 @@
 
 | Track | When | Source |
 |-------|------|--------|
-| **Bubble wrap (NOW)** | Until ~1k followers per account | `BUBBLE_WRAP.md` + Drive samples |
-| **Affiliate product videos** | After 1k | Course Modules 1, 3–8 |
+| **Affiliate product videos (NOW)** | Owner priority 6/2026 | Course Modules 1, 3–8 |
+| **Automation** | Always | `shorts_bot/tiktok_shop/` + agent team |
+| **Bubble wrap** | Paused — only if account still warming | `BUBBLE_WRAP.md` |
 | **Follow ads** | Later, 1k→5k | `ADS_1K_TO_5K.md` (deferred) |
-| **Automation** | Always | `shorts_bot/tiktok_shop/` |
 
 **North star:** TikTok Shop affiliate revenue via the owner's **Momentum Academy** course.
 
