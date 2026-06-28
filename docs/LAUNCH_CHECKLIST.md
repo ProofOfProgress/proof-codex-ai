@@ -6,13 +6,20 @@ Two phases — **pre-launch buy** (hardware + account) then **launch** (paid sta
 
 ## Phase 1 — Pre-launch buy *(buy before first post)*
 
-| Item | Qty | Notes |
-|------|-----|--------|
-| **Purchased affiliate TikTok account** | 1 | Revenue account — separate from bubble four |
-| **Mini computer** | 1 | Runs bot, controls phones, you remote in |
-| **Cheap Android phones** | **5** | One device per TikTok (4 bubble + 1 affiliate) |
-| **SIM cards / data lines** | **5** | One per phone — course pattern |
-| **USB hub + cables** | 1 set | Mini PC → 5 phones |
+| Item | Qty | Budget tip |
+|------|-----|------------|
+| **Purchased affiliate TikTok account** | 1 | — |
+| **Mini computer** | 1 | **Use old HP laptop** — wipe + Ubuntu (see below). Saves ~$100–300 vs buying new. |
+| **Cheap Android phones** | **4** | Used/refurb $40–70 each. **Skip 5th phone** — affiliate posts via Zernio. |
+| **SIM cards / data lines** | **4** | ~$10–15/mo each prepaid. One per bubble phone. |
+| **Powered USB hub + cables** | 1 set | ~$25–40. Don’t skip — unpowered hubs drop phones. |
+
+**Rough one-time (budget path):** ~$200–350 phones + ~$25 hub + **$0 PC if laptop works**  
+**Rough monthly:** ~$40–60 data (4 lines) — software stack (~$450/mo) starts at **launch**, not pre-launch.
+
+### Old laptop as the hub PC
+
+If you have an HP (or any laptop) with unknown password: **yes, wipe it** — F11 HP recovery, or Ubuntu USB install (`Erase disk`). Then install the bot per `docs/FOR_OWNER_MINI_PC_INSTALL.md`. Linux is ideal for ADB + 4 phones.
 
 **Not in pre-launch buy:** EchoTik paid tier, full ~$450/mo software stack — those turn on at **launch**.
 

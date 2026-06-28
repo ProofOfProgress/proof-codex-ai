@@ -25,7 +25,17 @@
 
 ---
 
-## Step 1 — Get the code on the mini PC
+## Wipe an old laptop (unknown password)
+
+**Your own HP laptop?** You can wipe it — password only blocks login, not a full reset.
+
+1. Try **F11** at boot → HP Recovery → reset without keeping files  
+2. Or **Ubuntu USB** → Install → **Erase disk** (best for phone hub + ADB)  
+3. Boot menu on many HPs: **Esc** then **F9** to pick USB  
+
+After wipe: Step 1–4 below. Saves **~$100–300** vs buying a new mini PC.
+
+---
 
 ```bash
 git clone https://github.com/ProofOfProgress/proof-codex-ai.git
