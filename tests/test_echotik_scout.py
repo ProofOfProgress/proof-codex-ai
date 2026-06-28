@@ -103,3 +103,40 @@ def test_scout_products_filters_and_saves(tmp_path: Path, monkeypatch):
     loaded = load_products()
     assert loaded[0]["product_name"] == "Car phone mount"
     assert loaded[0]["cover_url"] == "https://example.com/cover.jpg"
+
+
+def test_fetch_daily_rank_rows_walks_back(monkeypatch):
+    from datetime import date as real_date
+
+    calls: list[str] = []
+
+    class FakeDate(real_date):
+        @classmethod
+        def today(cls):
+            return real_date(2026, 6, 28)
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.product_scout.date", FakeDate)
+
+    def fake_ranklist(*, date: str, **kwargs):
+        calls.append(date)
+        if date == "2026-06-26":
+            return [{"product_id": "1", "product_name": "Hit"}]
+        return []
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.product_scout.echotik_client.product_ranklist", fake_ranklist)
+    from shorts_bot.tiktok_shop.product_scout import _fetch_daily_rank_rows
+
+    rows = _fetch_daily_rank_rows(pages=1, start_days_back=1, max_days_back=5)
+    assert len(rows) == 1
+    assert calls[0] == "2026-06-27"
+    assert "2026-06-26" in calls
+
+
+def test_echotik_ping_quota_error(monkeypatch):
+    def fake_ranklist(**kwargs):
+        raise RuntimeError("EchoTik error: Usage Limit Exceeded, Please Contact Administrator")
+
+    monkeypatch.setattr("shorts_bot.tiktok_shop.echotik_client.product_ranklist", fake_ranklist)
+    result = echotik_client.ping(max_days_back=1)
+    assert result["ok"] is False
+    assert result["error"] == "quota_exceeded"

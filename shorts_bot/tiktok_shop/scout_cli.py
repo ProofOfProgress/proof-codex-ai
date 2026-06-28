@@ -16,6 +16,7 @@ def main() -> None:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("status", help="EchoTik credentials configured?")
+    sub.add_parser("ping", help="Live API test (1 call — checks quota + latest data date)")
 
     run = sub.add_parser("run", help="Fetch + score products")
     run.add_argument(
@@ -47,6 +48,35 @@ def main() -> None:
         console.print(f"Region: {settings.echotik_region or 'US'}")
         console.print(f"Products file: {products_path()}")
         console.print(f"Saved products: {len(load_products())}")
+        if ok:
+            console.print("[dim]Run: python3 -m shorts_bot.tiktok_shop.scout_cli ping[/dim]")
+        return
+
+    if args.cmd == "ping":
+        from shorts_bot.tiktok_shop import echotik_client
+
+        if not echotik_client.configured():
+            console.print("[red]EchoTik not configured — see docs/FOR_OWNER_ECHOTIK_SETUP.md[/red]")
+            raise SystemExit(1)
+        try:
+            result = echotik_client.ping()
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+
+        if not result.get("ok"):
+            console.print(f"[red]EchoTik quota/error:[/red] {result.get('message')}")
+            console.print("Upgrade plan at echotik.live or wait for quota reset.")
+            raise SystemExit(1)
+
+        console.print("[green]EchoTik API: connected[/green]")
+        console.print(f"Region: {result.get('region')}")
+        if result.get("rank_date"):
+            console.print(f"Latest ranklist date: {result['rank_date']}")
+            console.print(f"Sample: {result.get('sample_product')}")
+            console.print(f"Sample GMV increment: {result.get('sample_gmv')}")
+        else:
+            console.print(f"[yellow]{result.get('message', 'No recent ranklist data')}[/yellow]")
         return
 
     if args.cmd == "list":
