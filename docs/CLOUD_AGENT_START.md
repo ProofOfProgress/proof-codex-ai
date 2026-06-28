@@ -14,6 +14,8 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 
 **Current phase:** **Bubble wrap only** until ~1k followers per account → `data/research/course/BUBBLE_WRAP.md`
 
+**Run at scale (not via Git):** `docs/CURSOR_NATIVE_OPS.md` — subagents `/echotik-researcher`, `/video-pipeline`, commands `/scout-products`, `/make-clip`.
+
 **Dead (never suggest):** Fix It Fast, Rapid Tool Review, Ms. Byte, InVideo, Peripheral horror.
 
 ---

@@ -7,7 +7,15 @@
       "enabled": true,
       "post_via": "zernio",
       "zernio_account_id": "6a3e03579d9472faaeecbab6"
+    },
+    {
+      "id": "bubble_playstation",
+      "label": "gspgsgsorip1",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3e03579d9472faaeecbab6"
     }
   ],
-  "_note": "affiliate_test = TikTok @gspgsgsorip1 — private Kling/affiliate pipeline tests only. Paste zernio_account_id after: python3 -m shorts_bot.zernio.auth_cli --json. While testing: ZERNIO_TIKTOK_PRIVACY=SELF_ONLY (or SELF_ONLY in TikTok API privacy)."
+  "_note": "affiliate_test and bubble_playstation are the same TikTok (@gspgsgsorip1, Zernio 6a3e03579d9472faaeecbab6). Old handle was playstationaccou2171 — renamed. affiliate_test = Kling/affiliate pipeline; bubble_playstation = bubble carousel scripts. Private tests: ZERNIO_TIKTOK_PRIVACY=SELF_ONLY."
 }
