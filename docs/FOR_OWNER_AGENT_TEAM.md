@@ -11,6 +11,7 @@ Plain-English guide for running parallel specialist agents and watching what the
 | **CEO** | Affiliate CEO | `/affiliate-ceo` — coordinates everyone |
 | **Employee** | Product Video Prompt Builder | `/product-video-prompt-builder` + product image |
 | **Employee** | Video Caption Writer | `/video-caption-writer` |
+| **Employee** | Video Editor | `/video-editor` — loop + caption burn |
 | **Employee** | Module 1 QC Runner | `/module1-qc-runner` (runs in background) |
 | **Roster + status** | — | `/team` |
 
@@ -95,8 +96,9 @@ The page auto-refreshes every few seconds. Click a mission to see the full timel
 1. **CEO** creates mission
 2. **Prompt builder** (foreground) → Kling video prompt from product image
 3. You or CEO render in Higgsfield/Kling
-4. **QC runner** (background) checks MP4 while **caption writer** (foreground) writes hook text
-5. CEO summarizes — upload only if QC passed
+4. **Video editor** (background) loops clip + burns caption while **caption writer** refines hook text if needed
+5. **QC runner** (background) checks finished MP4
+6. CEO summarizes — upload only if QC passed
 
 ---
 

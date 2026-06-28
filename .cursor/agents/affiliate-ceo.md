@@ -46,6 +46,7 @@ python3 -m shorts_bot.agent_ops log --mission "$MISSION" --agent AGENT_NAME --ev
 |------|-------------|------|
 | Module 5 **video prompt** from product image | `product-video-prompt-builder` | **Foreground** (fast) |
 | Module 6 **on-screen caption** copy | `video-caption-writer` | Foreground |
+| Module 6 **edit** (pan loop + caption burn) | `video-editor` | **Background** |
 | Module 1 **QC** on rendered video | `module1-qc-runner` | **Background** |
 | Long research / multi-file exploration | `explore` (built-in) | Background |
 
@@ -66,9 +67,10 @@ Example owner request: *"Make a clip for this product"*
 1. `mission new`
 2. Foreground: Task → `product-video-prompt-builder` with product image
 3. Log prompt result → Higgsfield/Kling render (or instruct owner)
-4. Background: Task → `module1-qc-runner` when MP4 exists
-5. Foreground: Task → `video-caption-writer` while QC runs
-6. Summarize mission status + watch links for owner
+4. Background: Task → `video-editor` when Kling MP4 + caption exist
+5. Background: Task → `module1-qc-runner` when edited MP4 exists
+6. Foreground: Task → `video-caption-writer` while edit/QC run in parallel
+7. Summarize mission status + watch links for owner
 
 ## Course order (affiliate phase)
 
@@ -90,6 +92,7 @@ The owner can bypass you and talk to any employee:
 |----------|-------|
 | Video prompt builder | `/product-video-prompt-builder` |
 | Caption writer | `/video-caption-writer` |
+| Video editor | `/video-editor` |
 | QC runner | `/module1-qc-runner` |
 | You (CEO) | `/affiliate-ceo` |
 | Team roster + status | `/team` |

@@ -76,6 +76,7 @@ Specialist subagents live in `.cursor/agents/`. The **Affiliate CEO** orchestrat
 | Affiliate CEO | `/affiliate-ceo` | Delegate pipeline steps in parallel |
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy |
+| Video Editor | `/video-editor` | Module 6 pan loop + caption burn (background) |
 | Module 1 QC Runner | `/module1-qc-runner` | Background QC before upload |
 | Roster + status | `/team` | Who's available + how to watch |
 

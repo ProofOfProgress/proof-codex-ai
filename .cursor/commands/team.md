@@ -12,6 +12,7 @@ description: Show the agent team roster, how to talk to each employee, and lates
 | **Affiliate CEO** | `/affiliate-ceo` | Orchestrates pipeline, delegates in parallel | No |
 | **Product Video Prompt Builder** | `/product-video-prompt-builder` | Module 5 Kling/Higgsfield **video prompts** | No |
 | **Video Caption Writer** | `/video-caption-writer` | Module 6 on-screen caption copy | No |
+| **Video Editor** | `/video-editor` | Pan loop + caption burn (~10s finish) | **Yes** |
 | **Module 1 QC Runner** | `/module1-qc-runner` | Pre-upload violation check | **Yes** |
 
 ## Talk to any employee directly
@@ -26,6 +27,9 @@ Examples:
 
 /video-caption-writer
 Pain-point caption for a car phone mount
+
+/video-editor
+Loop and burn caption on data/tiktok_shop/renders/raw.mp4 — caption: "Your hook text here" — output: data/tiktok_shop/renders/final.mp4
 
 /module1-qc-runner
 QC this file: data/tiktok_shop/renders/foo.mp4 product "Car mount"
