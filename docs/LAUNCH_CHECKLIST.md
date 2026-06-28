@@ -16,7 +16,7 @@ Two phases — **pre-launch buy** (hardware + account) then **launch** (paid sta
 
 **Not in pre-launch buy:** EchoTik paid tier, full ~$450/mo software stack — those turn on at **launch**.
 
-After Phase 1 arrives: wire phones, log each TikTok on its **own** phone only, connect affiliate account in Zernio, mini PC on network.
+After Phase 1 arrives: wire phones, log each TikTok on its **own** phone only, connect affiliate account in Zernio, mini PC on network. **Install:** `docs/FOR_OWNER_MINI_PC_INSTALL.md`
 
 ---
 
