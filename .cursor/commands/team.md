@@ -16,6 +16,7 @@ You talk to the **CEO in every normal chat** — there is no `/affiliate-ceo` em
 | Employee | Slash | Job | Background? |
 |----------|-------|-----|-------------|
 | **Product Video Prompt Builder** | `/product-video-prompt-builder` | Module 5 Kling/Higgsfield **video prompts** | No |
+| **Product Researcher** | `/product-research` | Module 3 EchoTik scout (background) | **Yes** |
 | **Video Caption Writer** | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | **Video Editor** | `/video-editor` | Pan loop + caption burn (~10s finish) | **Yes** |
 | **Module 1 QC Runner** | `/module1-qc-runner` | Pre-upload violation check | **Yes** |
@@ -27,6 +28,9 @@ You talk to the **CEO in every normal chat** — there is no `/affiliate-ceo` em
 **Direct to employee:**
 
 ```
+/product-research
+Run middle core scout — top picks for this week
+
 /product-video-prompt-builder
 (video prompt — attach product image)
 

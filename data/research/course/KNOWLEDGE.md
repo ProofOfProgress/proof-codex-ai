@@ -9,7 +9,7 @@
 | Rules before posting | `module_01_read_before_anything.md` |
 | Account warming 0→1k | `BUBBLE_WRAP.md` |
 | Account growth 1k→5k (later) | `ADS_1K_TO_5K.md` |
-| Product research | `module_03_product_research_strategies.md` |
+| Product research | `module_03_product_research_strategies.md` + **`PRODUCT_RESEARCH.md`** |
 | AI images | `module_04_ai_image_generation.md` + `PROMPT_BUILDER.md` |
 | AI video (Kling) | `module_05_ai_video_generation.md` |
 | Editing / captions | `module_06_editing.md` + `VIDEO_EDITOR.md` |

@@ -29,6 +29,7 @@ The **mission log** (`data/agent_ops/missions/`) is how you watch work across st
 | Role | Who | How to talk |
 |------|-----|-------------|
 | **CEO** | Main agent (every chat) | Just chat normally — "make a clip for this product" |
+| **Employee** | Product Researcher | `/product-research` — EchoTik scout (background) |
 | **Employee** | Product Video Prompt Builder | `/product-video-prompt-builder` + product image |
 | **Employee** | Video Caption Writer | `/video-caption-writer` |
 | **Employee** | Video Editor | `/video-editor` — loop + caption burn |
@@ -98,12 +99,13 @@ Open: **http://127.0.0.1:8080/agent-ops**
 
 ## Typical affiliate clip flow
 
-1. **You** ask the CEO to make a clip
-2. **CEO** creates mission → **prompt builder** (video prompt)
-3. Render in Higgsfield/Kling
-4. **CEO** → **video editor** (background) + **caption writer** (foreground)
-5. **CEO** → **QC runner** (background)
-6. CEO summarizes — upload only if QC passed
+1. **You** ask the CEO to scout or make a clip
+2. **CEO** → **product-researcher** (background) → picks in `products.json`
+3. You choose a product → Module 4 image
+4. **CEO** → **prompt builder** → Kling render
+5. **CEO** → **video editor** + **caption writer**
+6. **CEO** → **QC runner** (background)
+7. Upload only if QC passed
 
 ---
 

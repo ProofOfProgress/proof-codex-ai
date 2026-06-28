@@ -56,7 +56,7 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 ## Affiliate video pipeline (course order)
 
 1. **Module 1** — rules & violations (QC before every upload)
-2. **Module 3** — pick product (EchoTik / research)
+2. **Module 3** — pick product (`product-researcher` + EchoTik / Kalodata spot-check)
 3. **Module 4** — AI image (ChatGPT Prompt Builder → Higgsfield/NanoBanana, 9:16, 2K)
 4. **Module 5** — AI video (Kling 2.6, 5s, audio off) — **video prompt from Product Video Prompt Builder** (`PROMPT_BUILDER.md`)
 5. **Module 6** — edit (~10s pan loop + pain-point caption, white box / black text)
@@ -78,6 +78,7 @@ Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work an
 | Employee | Slash | Job | Background? |
 |----------|-------|-----|-------------|
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
+| Product Researcher | `/product-research` | Module 3 EchoTik scout + ranked picks | **Yes** |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | Video Editor | `/video-editor` | Module 6 pan loop + caption burn | **Yes** |
 | Module 1 QC Runner | `/module1-qc-runner` | Pre-upload QC | **Yes** |
@@ -97,6 +98,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
 
 ### Orchestration rules (CEO = you)
 
+0. **Product research** — delegate to `product-researcher` (background) when owner needs picks or `products.json` refresh; owner chooses finalist after Kalodata spot-check.
 1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder` (Module 1 compliant — must not instruct ban triggers).
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).
 3. **Start a mission log** on every orchestrated run:
@@ -119,6 +121,8 @@ Full owner guide: `docs/FOR_OWNER_AGENT_TEAM.md`
 ```bash
 bash scripts/install.sh
 python3 -m shorts_bot.tiktok_shop status
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+python3 -m shorts_bot.tiktok_shop.scout_cli report
 python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
 python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."
 python3 -m pytest tests/ -q

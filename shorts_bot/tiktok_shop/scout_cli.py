@@ -28,6 +28,9 @@ def main() -> None:
 
     list_cmd = sub.add_parser("list", help="Show saved products.json")
 
+    report = sub.add_parser("report", help="Plain-English report from saved products.json")
+    report.add_argument("--preset", default="middle_core")
+
     args = parser.parse_args()
 
     if args.cmd == "status":
@@ -66,6 +69,13 @@ def main() -> None:
                 str(r.get("creators", "")),
             )
         console.print(table)
+        return
+
+    if args.cmd == "report":
+        from shorts_bot.tiktok_shop.product_scout import load_products
+        from shorts_bot.tiktok_shop.scout_report import format_scout_report
+
+        console.print(format_scout_report(load_products(), preset=args.preset))
         return
 
     if args.cmd == "run":
