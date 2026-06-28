@@ -146,11 +146,19 @@ Linux udev (so you don’t need `sudo adb` every time): see Android developer do
 
 ---
 
-## Step 5 — Remote access (so you can watch)
+## Step 5 — Remote access *(optional: let cloud agent run commands)*
 
-Install **Tailscale** on mini PC + your laptop: https://tailscale.com  
+**Full guide:** `docs/FOR_OWNER_REMOTE_HUB_SSH.md`
 
-Then you can SSH or screen-share to the mini PC from anywhere without opening holes in your router.
+Quick version — inside **Ubuntu on the HP**, after WSL is installed:
+
+```bash
+bash scripts/hub_remote_setup.sh
+```
+
+Add printed secrets to **Cursor → Cloud Agent → Secrets**, start a **new agent run**, then ask the agent to run `bash scripts/hub_remote_verify.sh`.
+
+**Tailscale only (you remote in, no agent SSH):** install Tailscale on Windows from https://tailscale.com
 
 ---
 
@@ -205,3 +213,15 @@ python3 -m pytest tests/ -q
 ```
 
 Questions: `docs/LAUNCH_CHECKLIST.md` · `docs/FOR_OWNER_PHONE_HUB.md`
+
+---
+
+## Wipe only if you cannot log in
+
+**Unknown password / locked out?**
+
+1. Try **F11** at boot → HP Recovery → reset without keeping files  
+2. Or **Ubuntu USB** → Install → **Erase disk**  
+3. Boot menu on many HPs: **Esc** then **F9** to pick USB  
+
+If you **have the PIN and can log in**, skip this section entirely.

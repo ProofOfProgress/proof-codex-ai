@@ -73,6 +73,17 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |
 | `ECHOTIK_PASSWORD` | Runtime Secret | Pair with username |
 
+## Optional — HP hub remote SSH *(agent runs terminal on your laptop)*
+
+Setup: `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · verify: `bash scripts/hub_remote_verify.sh`
+
+| Secret name | Cursor type | Notes |
+|-------------|-------------|-------|
+| `TAILSCALE_AUTH_KEY` | Runtime Secret | Reusable key — cloud VM joins your tailnet |
+| `HUB_SSH_HOST` | Environment Variable | Hub Tailscale IP (`100.x.x.x`) |
+| `HUB_SSH_USER` | Environment Variable | WSL Linux username |
+| `HUB_SSH_PRIVATE_KEY` | Runtime Secret | Full private key from `hub_remote_setup.sh` |
+
 ## Recommended — other
 
 | Secret name | Cursor type | Notes |
