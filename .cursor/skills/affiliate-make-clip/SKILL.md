@@ -41,8 +41,7 @@ ZERNIO_TIKTOK_PRIVACY=SELF_ONLY python3 -m shorts_bot.tiktok_shop.factory_cli po
 
 ## Subagents (scale)
 
-- `/echotik-researcher` — product research in isolated context
-- `/video-pipeline` — Kling + QC in background
+Use `/affiliate-ceo` — delegates to `video-editor`, `module1-qc-runner`, and other specialists. See `docs/FOR_OWNER_AGENT_TEAM.md`.
 
 ## Secrets (Cloud Agent → new run after change)
 
