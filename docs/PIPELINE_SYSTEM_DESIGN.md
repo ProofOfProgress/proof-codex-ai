@@ -31,6 +31,9 @@ flowchart TD
     E --> F[product-video-prompt-builder: Kling prompt]
     F --> G[Kling 5s render — KLING_MODE std]
     G --> H[video-editor: pan loop ~10s]
+    G --> V[video-visual-critic: Gemini frames + reference still]
+    V -->|not good enough| F
+    V -->|good enough| H
     H --> I[video-caption-writer: pain hook]
     I --> J[module1-qc-runner: mandatory QC]
     J -->|PASS| K[factory_cli enqueue → affiliate_main]
@@ -73,6 +76,7 @@ python3 -m shorts_bot.agent_ops log --mission "$MISSION" --agent ceo --event dis
 |------|----------|-------------|------|
 | Scout / briefing | `product-researcher` or `knowledge-gatherer` | Yes | Prep, research questions |
 | Video prompt | `product-video-prompt-builder` | No | After Module 4 image |
+| Visual review | `video-visual-critic` | Yes | After Kling render — before caption if regen needed |
 | Caption | `video-caption-writer` | No | Can parallel with editor after Kling |
 | Pan loop + burn | `video-editor` | Yes | After Kling raw MP4 |
 | QC | `module1-qc-runner` | Yes | Before enqueue — **block upload on fail** |

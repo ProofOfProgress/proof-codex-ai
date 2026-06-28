@@ -81,6 +81,7 @@ Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work an
 | Employee | Slash | Job | Background? |
 |----------|-------|-----|-------------|
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
+| Video Visual Critic | `/visual-review` | Gemini quality feedback → prompt regen loop | **Yes** |
 | Product Researcher | `/product-research` | Module 3 FastMoss picks + ranked shortlist | **Yes** |
 | Knowledge Gatherer | `/knowledge-gather` | Read course + launch docs; plain-English briefings | **Yes** |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |

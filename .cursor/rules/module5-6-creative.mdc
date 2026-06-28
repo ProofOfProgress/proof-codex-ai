@@ -37,7 +37,11 @@ Default: `KLING_MODE=std` (~$0.21/5s) unless owner requests pro.
 
 ## Parallel pattern
 
-After Kling MP4 exists: run **video-editor** + **video-caption-writer** in parallel → then **module1-qc-runner**.
+After Kling MP4 exists: run **video-visual-critic** (optional but recommended) → if fail, **product-video-prompt-builder** with handoff → regen.
+
+Then: **video-editor** + **video-caption-writer** in parallel → **module1-qc-runner**.
+
+Docs: `docs/VISUAL_FEEDBACK_LOOP.md`
 
 ## DEAD lanes
 

@@ -37,6 +37,7 @@ Owner watches: `python3 -m shorts_bot.agent_ops tail --mission "$MISSION"` or `/
 | `product-video-prompt-builder` | Module 5 Kling prompt | No |
 | `video-caption-writer` | Module 6 on-screen hook | No |
 | `video-editor` | Pan loop + caption burn | Yes |
+| `video-visual-critic` | Gemini clip review → prompt handoff | Yes |
 | `module1-qc-runner` | Pre-upload QC | Yes |
 
 Slash commands: `.cursor/commands/` · roster: `/team`
@@ -46,7 +47,8 @@ Slash commands: `.cursor/commands/` · roster: `/team`
 1. **product-researcher** (bg) OR owner picks from existing `products.json`
 2. Module 4 image (owner/Higgsfield) — CEO waits for path
 3. **product-video-prompt-builder** → Kling render (CEO runs `factory_cli render` or `make-clip`)
-4. **video-editor** (bg) + **video-caption-writer** (can overlap after raw Kling exists)
+3b. **video-visual-critic** (bg) after raw/loop MP4 — if not good enough, handoff → prompt builder → regen (max 2–3)
+4. **video-editor** (bg) + **video-caption-writer** (can overlap after Kling exists)
 5. **module1-qc-runner** (bg) — **BLOCK** enqueue/post on fail
 6. CEO: `enqueue` → `post --account affiliate_main --confirm` (respect spacing)
 

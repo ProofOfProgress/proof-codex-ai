@@ -1,0 +1,29 @@
+{
+  "kind": "video",
+  "product": "Insulated Tumbler",
+  "score": 7.0,
+  "good_enough": false,
+  "summary": "The video successfully showcases the insulated tumbler with a smooth, arcing camera movement from left to right. The product remains stationary and centered, matching the reference image. Lighting and environment are clean and believable. No obvious AI glitches are present.",
+  "issues": [],
+  "prompt_fixes": [
+    "Specify the arc direction more clearly, e.g., 'Arc Camera Shot from left to right, with a slight upward tilt'."
+  ],
+  "module1_risks": [
+    "Static camera movement (need arc camera around product)"
+  ],
+  "arc_camera_visible": true,
+  "product_fidelity": "good",
+  "reference_image": "data/tiktok_shop/images/dry_run_tumbler.jpg",
+  "video_path": "data/tiktok_shop/clips/insulated_tumbler_loop.mp4",
+  "prompt_used": "Arc Camera Shot from left to right, handheld but naturally stabilized. Motion is smooth and organic with gentle human drift, not shaky. Keep all of the products stationary and in the center of the shot.",
+  "frame_paths": [
+    "data/tiktok_shop/visual_feedback/frames_insulated_tumbler_loop/frame_00_0.5s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_insulated_tumbler_loop/frame_01_2.5s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_insulated_tumbler_loop/frame_02_5.0s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_insulated_tumbler_loop/frame_03_7.6s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_insulated_tumbler_loop/frame_04_9.5s.jpg"
+  ],
+  "revised_prompt": "Arc Camera Shot from left to right, with a slight upward tilt, handheld but naturally stabilized. Motion is smooth and organic with gentle human drift, not shaky. Keep all of the products stationary and in the center of the shot.",
+  "module1_qc_passed": false,
+  "checked_at": "2026-06-28T11:17:40.158890+00:00"
+}

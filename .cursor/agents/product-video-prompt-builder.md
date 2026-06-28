@@ -218,3 +218,15 @@ python3 -m shorts_bot.agent_ops log --mission MISSION_ID --agent product-video-p
 ```
 
 Then output **only the prompt text** as your final answer.
+
+## Visual critic handoff (regen loop)
+
+When the main agent pastes **Visual critic feedback** from `visual_feedback_cli handoff` (or JSON from `data/tiktok_shop/visual_feedback/`):
+
+1. Read **Issues** and **Prompt changes needed**
+2. Rewrite the Kling prompt to address every fix — still Module 1 compliant
+3. Emphasize **multi-axis arc camera** if critic flagged static or single-axis motion
+4. Preserve product fidelity vs the uploaded Module 4 image
+5. Output **only the revised prompt** — no commentary
+
+Do not ignore critic feedback. Do not repeat the same prompt verbatim.
