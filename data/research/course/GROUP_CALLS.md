@@ -42,14 +42,10 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 **Affiliate go-live:** When the affiliate account starts posting, the **full infrastructure** runs — product research, video generation, captions, edit, Module 1 QC, upload. CEO + agent team owns the whole pipeline.
 
-**Phone hub (strategy — buy at launch):** **Mini computer** controls **4 Android phones**. Bot → inbox → mini PC → Mackenzie on mapped phone. See `docs/FOR_OWNER_PHONE_HUB.md` · **`docs/LAUNCH_CHECKLIST.md`**
+**Pre-launch buy:** purchased **affiliate account** + **mini computer** + **5 cheap Android phones** + **5 SIM cards** (before first post).
 
-**Bubble cadence (owner):** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** (more trusted) — proofofprogresss, Ms. Byte @ 8–10/day.
+**Phone hub:** 5 phones on mini PC — phones 1–4 bubble (Mackenzie finish), phone 5 affiliate (logged in; bot posts via Zernio). See `FOR_OWNER_PHONE_HUB.md` · `LAUNCH_CHECKLIST.md`
 
-**Affiliate account:** **Purchasing a separate account** for revenue — not one of the bubble four. Full bot pipeline when connected in Zernio.
+**Bubble cadence:** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** — proofofprogresss, Ms. Byte @ 8–10/day.
 
-**Launch = buy everything** (hardware, account, paid stack) — then wire + first posts. Not before.
-
-**Ms. Byte TikTok:** bubble wrap only (old content lane dead).
-
-**Billing:** ~$450/mo operating stack starts at launch purchase. EchoTik ~$125 part of that.
+**Launch (Phase 2):** paid ~$450/mo stack + wire + first posts — not before pre-launch hardware is bought and set up.

@@ -1,86 +1,65 @@
-# Phone hub — mini computer + Android phones
+# Phone hub — mini computer + 5 Android phones
 
-**Owner plan (strategy — hardware not purchased yet):**
+**Pre-launch buy (owner):** mini computer + **5 cheap Android phones** + **5 SIM cards** + purchased affiliate account.
 
 ```
-You / Cloud agent  →  Mini computer  →  4 Android phones (USB hub)
+You / Cloud agent  →  Mini computer  →  5 Android phones (USB hub)
                            │                    │
                      runs the bot          one TikTok each
-                     controls phones       Mackenzie sound + publish
+                     controls phones 1-4   Mackenzie + publish (bubble)
+                     phone 5             affiliate logged in (Zernio MP4 posts)
 ```
 
-From the loan plan: **small computer (~$300) runs posting overnight** + **each account gets its own phone and data line**.
+---
+
+## Phone map
+
+| Slot | TikTok | Track | Posts/day | Mini PC job |
+|------|--------|-------|-----------|-------------|
+| `phone_1` | gspgsgsorip1 | bubble **safe** | 3–4 | Inbox → Mackenzie → publish |
+| `phone_2` | proofofprogresss | bubble **aggressive** | 8–10 | Same |
+| `phone_3` | Ms. Byte | bubble **aggressive** | 8–10 | Same |
+| `phone_4` | Isaac | bubble **safe** | 3–4 | Same |
+| `phone_5` | **Purchased affiliate** | affiliate | 8–10 | Account lives here; **bot posts MP4 via Zernio** (no Mackenzie) |
+
+Zernio IDs for bubble four: `accounts.json` · refresh: `python3 -m shorts_bot.zernio.auth_cli`
 
 ---
 
-## Why this exists
+## Why 5 phones
 
-- **Bubble wrap** needs **Mackenzie sound** — TikTok API cannot attach it.
-- You don’t trust manual uploads on one phone (fair).
-- **One phone = one TikTok** — mini computer picks the right device so you never post to the wrong account.
+- **4 bubble** — API can’t attach Mackenzie; mini PC must finish on the **correct** phone.  
+- **1 affiliate** — dedicated device for the bought account (login, showcase, trust). Posting is automated via Zernio, not manual taps.
 
-**Affiliate does not use the phone hub** — bot posts finished MP4 via Zernio (no sound step).
-
----
-
-## The 4 bubble TikToks (Zernio — all active)
-
-| phone_hub_slot | TikTok @ | Zernio ID | Tier (you assign) |
-|----------------|----------|-----------|-------------------|
-| `phone_1` | gspgsgsorip1 | `6a3e03579d9472faaeecbab6` | safe or aggressive |
-| `phone_2` | proofofprogresss | `6a3f14df9d9472faaef98701` | safe or aggressive |
-| `phone_3` | Ms. Byte *(repurposed → bubble)* | `6a39dedb5f7d1751ab57366b` | safe or aggressive |
-| `phone_4` | Isaac | `6a3e5a0b9d9472faaef19baa` | safe or aggressive |
-
-Config: `data/tiktok_shop/accounts.json` · refresh: `python3 -m shorts_bot.zernio.auth_cli`
-
-**Cadence:** 2 accounts @ **3–4/day** (safe) · 2 @ **8–10/day** (aggressive) — you’ll label which is which.
+**One phone = one TikTok. Never switch accounts on one device.**
 
 ---
 
-## End-to-end flow (when built)
+## Bubble flow (phones 1–4)
 
-### Bubble wrap (phone hub path)
+1. Bot creates 2 bubble images (`BUBBLE_WRAP.md`)  
+2. Zernio → **inbox draft** to that account  
+3. Mini PC → ADB on **`phone_N`** → TikTok → Mackenzie sound → publish  
 
-1. **Cloud agent / bot** — create 2 bubble images (format in `BUBBLE_WRAP.md`)
-2. **Zernio API** — send 2-photo **inbox draft** to the correct `zernio_account_id`
-3. **Mini computer** — via ADB, open TikTok on **`phone_N`** only (mapped in `accounts.json`)
-4. **Mini computer** — add Mackenzie sound → publish
-5. You can **remote into the mini computer** to watch or override — you don’t touch each phone by hand unless something breaks
+## Affiliate flow (phone 5)
 
-### Affiliate (no phone hub)
-
-1. Product research → Kling → edit → Module 1 QC  
-2. **Zernio** posts MP4 directly — done
+1. Bot: research → Kling → caption → QC  
+2. Zernio posts MP4 to purchased account  
+3. Phone 5 stays logged in; you don’t post by hand  
 
 ---
 
-## What’s prep vs what’s not built yet
+## What’s ready vs not built
 
-| Ready now | When hub hardware exists |
-|-----------|-------------------------|
-| 4 TikToks in Zernio | Mini computer on your network |
-| `accounts.json` slot map | 4 phones plugged in, ADB enabled |
-| Bubble format docs | Automation: inbox → sound → publish per phone |
-| Zernio video post (affiliate) | Photo carousel → inbox (bubble — building) |
+| Ready | After hardware arrives |
+|-------|------------------------|
+| 4 bubble TikToks in Zernio | Mini PC + 5 phones + SIMs |
+| Account → phone map in config | ADB + remote access |
+| Affiliate account purchase | Connect in Zernio, enable `affiliate_main` |
+| Docs + agent team | Carousel inbox + phone automation (build) |
 
-**Not cloud phone farm** — physical phones on a USB hub, controlled by your mini PC.
+Physical hub — **not** cloud phone farm.
 
----
+**Mackenzie:** https://www.tiktok.com/music/original-sound-7418286946344340256
 
-## Mackenzie sound
-
-https://www.tiktok.com/music/original-sound-7418286946344340256  
-
-See `BUBBLE_WRAP.md` for slide format.
-
----
-
-## Parallel tracks (full picture)
-
-| Track | Accounts | Posts/day | How |
-|-------|----------|-----------|-----|
-| Bubble wrap | 4 above | 3–4 or 8–10 each | Mini PC + phone hub |
-| Affiliate | TBD separate account | 8–10 | Full bot via Zernio |
-
-Both run in parallel while bubble accounts grow toward 1k.
+Full timeline: `docs/LAUNCH_CHECKLIST.md`
