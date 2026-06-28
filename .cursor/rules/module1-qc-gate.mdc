@@ -1,0 +1,51 @@
+---
+description: Module 1 mandatory QC — zero violations before any TikTok Shop upload
+globs: shorts_bot/tiktok_shop/module1_qc.py,tests/test*module1*,tests/test*tiktok_shop*,.cursor/agents/module1-qc-runner.md
+alwaysApply: false
+---
+
+# Module 1 QC gate (non-negotiable)
+
+Source: `data/research/course/module_01_read_before_anything.md`  
+Enforcement: `shorts_bot/tiktok_shop/module1_qc.py`
+
+## Rule
+
+**Zero Module 1 violations** before enqueue or post. No owner override for “just this once” unless owner explicitly accepts account risk in chat.
+
+## When to apply
+
+- Before `factory_cli enqueue` or `post`
+- After Kling render, edit, or caption change
+- When owner asks if a clip is “ready” or “GOOD”
+
+## CEO / QC runner
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli qc \
+  --video PATH --product "NAME" --caption "..." --account affiliate_main
+```
+
+Delegate **`module1-qc-runner`** for batch checks — still **block upload** on any fail.
+
+## Caption hard bans (Module 7 overlap)
+
+Never ship captions with sale/price/discount language: sale, % off, coupon, free shipping, limited time, etc.  
+See `BANNED_CAPTION_PHRASES` in `module1_qc.py` and Module 7 course file.
+
+## Video prompt / Kling (Module 5)
+
+Banned in generated video: moving water/fire/steam, humans/pets, screens, levitating product, static-only camera, listing-matching environment, supplement boxes, etc.  
+**Do not freestyle prompts** — use **`product-video-prompt-builder`** (`PROMPT_BUILDER.md`).
+
+## On QC fail
+
+1. Log violation list for owner (plain English)
+2. Regen prompt or edit — do **not** lower standards to hit 8–10/day
+3. Re-run QC until pass
+
+## Tests
+
+Touching QC logic → `python3 -m pytest tests/ -q` (include scout/QC tests).
+
+@data/research/course/module_01_read_before_anything.md

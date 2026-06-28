@@ -1,0 +1,47 @@
+---
+description: Module 5–6 creative automation — Kling video prompts, pan loop edit, on-screen captions (course + owner overrides)
+globs: data/research/course/PROMPT_BUILDER.md,data/research/course/VIDEO_EDITOR.md,.cursor/agents/product-video-prompt-builder.md,.cursor/agents/video-editor.md,.cursor/agents/video-caption-writer.md,shorts_bot/tiktok_shop/video_variants.py,shorts_bot/tiktok_shop/kling_client.py
+alwaysApply: false
+---
+
+# Module 5–6 creative (automation boundaries)
+
+Creative strategy lives in **course + owner overrides** — not in code defaults.
+
+## Owner overrides (beat course)
+
+| File | Covers |
+|------|--------|
+| `PROMPT_BUILDER.md` | Module 4 image + Module 5 **Kling video** prompts |
+| `VIDEO_EDITOR.md` | Pan loop edit, caption burn |
+
+## Module 5 — video
+
+- **Kling 2.6**, **5 seconds**, **audio off**
+- Fixed arc-camera motion per `PROMPT_BUILDER.md` — not static camera
+- CEO **must delegate** to **`product-video-prompt-builder`** — never freestyle prompts in chat
+- Prompt must avoid Module 1 ban triggers (water, humans, screens, etc.)
+
+```bash
+# CEO runs after prompt + image exist
+python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"
+```
+
+Default: `KLING_MODE=std` (~$0.21/5s) unless owner requests pro.
+
+## Module 6 — edit + caption
+
+- **~10s pan loop** from 5s Kling (`video_variants.py` / **`video-editor`**)
+- On-screen caption: pain-point hook, **white box / black text** per `VIDEO_EDITOR.md`
+- **`video-caption-writer`** for copy — Module 7: no sale, price, discount, coupon, free shipping
+
+## Parallel pattern
+
+After Kling MP4 exists: run **video-editor** + **video-caption-writer** in parallel → then **module1-qc-runner**.
+
+## DEAD lanes
+
+Do not pull Ms. Byte, InVideo, Fix It Fast, or Peripheral patterns into affiliate prompts or edits.
+
+@data/research/course/PROMPT_BUILDER.md
+@data/research/course/VIDEO_EDITOR.md

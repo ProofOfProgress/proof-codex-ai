@@ -18,7 +18,7 @@ Launch budget (runway): `docs/LAUNCH_BUDGET.md`
 Launch to-do (in order): `docs/LAUNCH_TODO.md`  
 Launch prep status: `docs/LAUNCH_PREP_BRIEF.md`  
 Pipeline design: `docs/PIPELINE_SYSTEM_DESIGN.md`  
-Cursor rules: `.cursor/rules/` (see cursor.com/docs/rules)  
+Cursor rules: **`docs/FOR_OWNER_CURSOR_RULES.md`** (`.cursor/rules/`)  
 Higgsfield (Module 4/5 in chat): `docs/FOR_OWNER_HIGGSFIELD_SETUP.md`  
 FastMoss (replaces EchoTik): `docs/FOR_OWNER_FASTMOSS_SETUP.md`  
 Kling: `docs/FOR_OWNER_KLING_SETUP.md`  

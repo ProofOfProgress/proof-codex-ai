@@ -194,13 +194,23 @@ Fix It Fast · Rapid Tool Review · Ms. Byte lane · InVideo daily · Peripheral
 
 ## Cursor rules that enforce this design
 
+Full owner catalog: **`docs/FOR_OWNER_CURSOR_RULES.md`**
+
 | Rule file | Applies when |
 |-----------|----------------|
-| `.cursor/rules/00-core-always.mdc` | Every chat |
-| `.cursor/rules/ceo-orchestration.mdc` | CEO delegating / missions |
-| `.cursor/rules/affiliate-pipeline-flow.mdc` | Clips, scout, launch |
-| `.cursor/rules/tiktok-shop-factory.mdc` | Editing `shorts_bot/tiktok_shop/**` |
-| `.cursor/rules/course-creative.mdc` | Editing course knowledge |
-| `.cursor/rules/launch-ops.mdc` | Launch / week-1 / midnight |
+| `00-core-always.mdc` | Every chat |
+| `owner-communication.mdc` | Status, plain English, owner questions |
+| `launch-ops.mdc` | Launch / week-1 / midnight |
+| `budget-runway.mdc` | Cash, runway, buy order |
+| `ceo-orchestration.mdc` | CEO delegating / missions |
+| `affiliate-pipeline-flow.mdc` | Clips, scout, launch batch |
+| `fastmoss-research.mdc` | Product picks, scout, Module 3 |
+| `module1-qc-gate.mdc` | QC before upload |
+| `module5-6-creative.mdc` | Kling prompts, edit, captions |
+| `bubble-wrap-parallel.mdc` | Growth track — not affiliate |
+| `tiktok-shop-factory.mdc` | Editing `shorts_bot/tiktok_shop/**` |
+| `course-creative.mdc` | Editing course knowledge |
+| `cloud-agent-bootstrap.mdc` | VM bootstrap, long jobs |
+| `secrets-security.mdc` | Secrets, `.env`, no leaks |
 
 See https://cursor.com/docs/rules

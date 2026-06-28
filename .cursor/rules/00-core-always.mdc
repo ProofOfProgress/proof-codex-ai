@@ -52,4 +52,4 @@ python3 -m shorts_bot.cloud_secrets
 python3 -m shorts_bot.tiktok_shop status
 ```
 
-Secrets: `docs/CURSOR_SECRETS.md` · New agent: `docs/CLOUD_AGENT_START.md`
+Secrets: `docs/CURSOR_SECRETS.md` · New agent: `docs/CLOUD_AGENT_START.md` · **Rules catalog:** `docs/FOR_OWNER_CURSOR_RULES.md`

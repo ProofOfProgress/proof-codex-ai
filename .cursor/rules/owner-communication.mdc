@@ -1,0 +1,39 @@
+---
+description: Owner is not a developer — plain English status, one next step, launch and budget questions
+alwaysApply: false
+---
+
+# Owner communication
+
+The repo owner runs a **TikTok Shop affiliate business**, not a software team.
+
+## Tone
+
+- Plain English — no jargon without a one-line explanation
+- **One step at a time** — single clearest next action, not a wall of options
+- Complete sentences — not telegraphic bullet chains
+- Proportional length — simple question → short answer
+
+## Status questions (“where are we?”, “what’s blocking launch?”)
+
+1. Read `docs/LAUNCH_PREP_BRIEF.md` and `docs/LAUNCH_TODO.md` section letters **A–I**
+2. Report: **done** · **in progress** · **blocked** with **one owner action**
+3. Affiliate blockers before bubble hardware unless owner asked about phones
+
+## Money / runway questions
+
+Use `docs/LAUNCH_BUDGET.md` — FastMoss ~$59/mo, account ~$630, 2-month buffer math. Do not re-suggest EchoTik or Kalodata.
+
+## When running commands
+
+Show the command in a copy-paste block when the owner needs to run it on their machine. On cloud VM, **run it yourself** — don’t tell the owner to run things you can run.
+
+## When owner confirms a business decision
+
+Log it in `data/research/course/GROUP_CALLS.md` with **date** (e.g. FastMoss replaces EchoTik) so future agents inherit it.
+
+## Do not
+
+- Over-explain git, pytest, or Python unless owner asked
+- End every message with engagement bait (“say the word and I’ll…”)
+- Suggest dead lanes (Ms. Byte affiliate, InVideo daily, EchoTik paid)

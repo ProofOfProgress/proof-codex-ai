@@ -2,7 +2,7 @@
 
 > **New cloud agent?** Run the bootstrap checklist: **`docs/CLOUD_AGENT_START.md`**  
 > **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.  
-> **Cursor rules:** `.cursor/rules/*.mdc` (see https://cursor.com/docs/rules) · **Pipeline:** `docs/PIPELINE_SYSTEM_DESIGN.md` · **Launch status:** `docs/LAUNCH_PREP_BRIEF.md`
+> **Cursor rules:** `.cursor/rules/*.mdc` · Owner guide: **`docs/FOR_OWNER_CURSOR_RULES.md`** · https://cursor.com/docs/rules
 
 ## What this repo is
 

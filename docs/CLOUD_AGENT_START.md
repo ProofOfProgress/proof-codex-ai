@@ -14,7 +14,7 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 | 4 | `docs/LAUNCH_PREP_BRIEF.md` | Launch blockers + critical path |
 | 5 | `docs/PIPELINE_SYSTEM_DESIGN.md` | Exact CEO ↔ employee pipeline |
 
-**Cursor project rules:** `.cursor/rules/*.mdc` — always-on context + pipeline/launch rules.
+**Cursor project rules:** `.cursor/rules/*.mdc` — always-on context + pipeline/launch rules. Owner catalog: **`docs/FOR_OWNER_CURSOR_RULES.md`**
 
 **Current phase:** **Affiliate launch first** (8–10 GOOD/day, midnight Launch Date) **+ bubble wrap parallel** → `docs/LAUNCH_TODO.md`
 
