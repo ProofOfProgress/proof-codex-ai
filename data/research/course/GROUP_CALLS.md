@@ -29,3 +29,17 @@ The agent should:
 - Module 8 — violation waves + appeal strategy updates
 
 Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
+
+---
+
+## 2026-06-28 — Operating strategy (owner)
+
+**Parallel tracks:** 4 bubble-wrap growth accounts **and** affiliate revenue posting — not either/or.
+
+**Bubble wrap cadence (4 accounts):**
+- **2 safe** — 3–4 posts/day each  
+- **2 aggressive** — 8–10 posts/day each  
+
+**Affiliate go-live:** When the affiliate account starts posting, the **full infrastructure** runs — product research, video generation, captions, edit, Module 1 QC, upload. CEO + agent team owns the whole pipeline.
+
+**Billing:** Defer new monthly stack (~$450: ~$325 fixed + usage) until affiliate posting starts; prep code and workflows first. EchoTik paid tier waits for go-live; Kalodata (course login) for manual research until then.

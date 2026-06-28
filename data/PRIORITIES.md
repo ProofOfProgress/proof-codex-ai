@@ -4,9 +4,16 @@
 
 **North star:** TikTok Shop **affiliate product videos** → revenue.
 
-**Current phase (owner 6/2026):** **Affiliate content NOW** — Modules 1, 3–8. Bubble wrap (Module 2) is **paused** unless an account still needs warming.
+**Current phase (owner 6/2026):** **Two parallel tracks**
 
-**Knowledge split:** Course = creative (hooks, video, growth, violations). Repo = automation (APIs, Kling, QC, post). See `data/research/course/KNOWLEDGE.md`.
+| Track | Accounts | Posts/day | Automation |
+|-------|----------|-----------|------------|
+| **Bubble wrap** (0→1k) | 4 growth accounts | 2 safe @ **3–4** · 2 aggressive @ **8–10** | Carousel + Mackenzie sound |
+| **Affiliate** (revenue) | Affiliate account(s) | **8–10** (Module 1) | **Full stack** — research → clip → caption → QC → post |
+
+**Affiliate go-live = turn on infrastructure** (EchoTik, Kling usage, Zernio posting). Until first affiliate post: **prep only**, defer new monthly bills (~$450 stack).
+
+**Knowledge split:** Course = creative. Repo = automation. See `data/research/course/KNOWLEDGE.md`.
 
 **Bot job:** Research product → image → Kling clip → edit → Module 1 QC → post — **per course modules**, never per retired lanes.
 
@@ -43,8 +50,8 @@
 
 | Track | When | Source |
 |-------|------|--------|
-| Bubble wrap | Only if account &lt;1k and owner asks | `BUBBLE_WRAP.md` |
-| Follow ads | After 1k→5k | `ADS_1K_TO_5K.md` (deferred) |
+| **Paid EchoTik tier** | First affiliate post day | `FOR_OWNER_ECHOTIK_SETUP.md` — until then Kalodata (course login) |
+| Follow ads | After 1k→5k per account | `ADS_1K_TO_5K.md` (deferred) |
 
 ## Dead — do not build
 

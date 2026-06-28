@@ -15,12 +15,14 @@
 
 ## What we are working on (2026)
 
-| Track | When | Source |
-|-------|------|--------|
-| **Affiliate product videos (NOW)** | Owner priority 6/2026 | Course Modules 1, 3–8 |
-| **Automation** | Always | `shorts_bot/tiktok_shop/` + agent team |
-| **Bubble wrap** | Paused — only if account still warming | `BUBBLE_WRAP.md` |
-| **Follow ads** | Later, 1k→5k | `ADS_1K_TO_5K.md` (deferred) |
+| Track | Accounts | Posts/day | Source |
+|-------|----------|-----------|--------|
+| **Bubble wrap** (parallel) | 4 growth accounts | 2 **safe** @ 3–4 · 2 **aggressive** @ 8–10 | `BUBBLE_WRAP.md` |
+| **Affiliate product videos** | Revenue account(s) | 8–10 (Module 1) | Modules 1, 3–8 — **full automation at go-live** |
+| **Automation** | Always | — | `shorts_bot/tiktok_shop/` + agent team |
+| **Follow ads** | Later 1k→5k | — | `ADS_1K_TO_5K.md` (deferred) |
+
+**Affiliate go-live:** CEO runs the whole pipeline — product research, Kling, captions, edit, Module 1 QC, upload. **Defer paid monthly stack until first affiliate post**; prep everything first.
 
 **North star:** TikTok Shop affiliate revenue via the owner's **Momentum Academy** course.
 

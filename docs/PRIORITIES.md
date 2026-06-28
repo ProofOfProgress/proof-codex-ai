@@ -8,7 +8,9 @@ TikTok Shop **affiliate product videos** using the owner's **Momentum Academy** 
 
 ## Current phase (owner 6/2026)
 
-**Affiliate content NOW** — Modules 1, 3–8. Bubble wrap paused unless owner says an account still needs warming.
+**Two parallel tracks:** 4 bubble-wrap growth accounts (2 safe @ 3–4/day, 2 aggressive @ 8–10/day) **and** affiliate revenue account(s) at **8–10/day** with full automation at go-live.
+
+Defer paid monthly stack until first affiliate post; prep first. See `data/PRIORITIES.md` · `GROUP_CALLS.md` (2026-06-28).
 
 ## Knowledge split
 

@@ -1,14 +1,50 @@
 {
   "accounts": [
     {
-      "id": "shop_1",
-      "label": "Affiliate TikTok account 1",
-      "daily_limit": 8,
+      "id": "bubble_safe_1",
+      "label": "Bubble safe account 1",
+      "track": "bubble_safe",
+      "daily_limit": 4,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": "",
-      "tiktok_token_path": "data/tiktok_shop/tokens/shop_1.json"
+      "zernio_account_id": ""
+    },
+    {
+      "id": "bubble_safe_2",
+      "label": "Bubble safe account 2",
+      "track": "bubble_safe",
+      "daily_limit": 4,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": ""
+    },
+    {
+      "id": "bubble_aggressive_1",
+      "label": "Bubble aggressive account 1",
+      "track": "bubble_aggressive",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": ""
+    },
+    {
+      "id": "bubble_aggressive_2",
+      "label": "Bubble aggressive account 2",
+      "track": "bubble_aggressive",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": ""
+    },
+    {
+      "id": "affiliate_main",
+      "label": "Affiliate revenue account",
+      "track": "affiliate",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": ""
     }
   ],
-  "_note": "Affiliate path per course Module 1: 8-10 posts/day until Platinum Tier."
+  "_note": "Owner 6/2026: 4 bubble-wrap growth accounts (2 safe @ 3-4/day, 2 aggressive @ 8-10/day) + affiliate account(s). Affiliate go-live = full bot pipeline. Set zernio_account_id from Zernio dashboard."
 }

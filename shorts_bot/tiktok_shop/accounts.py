@@ -15,6 +15,7 @@ class ShopAccount:
     label: str
     daily_limit: int = 10
     enabled: bool = True
+    track: str = ""  # bubble_safe | bubble_aggressive | affiliate
     tiktok_token_path: Path | None = None
     zernio_account_id: str | None = None
     post_via: str = "zernio"  # zernio | tiktok_api
@@ -48,6 +49,7 @@ def load_accounts() -> list[ShopAccount]:
                 label=str(row.get("label") or row.get("id") or "").strip(),
                 daily_limit=max(1, int(row.get("daily_limit") or 10)),
                 enabled=bool(row.get("enabled", True)),
+                track=str(row.get("track") or "").strip(),
                 tiktok_token_path=Path(token) if token else None,
                 zernio_account_id=(row.get("zernio_account_id") or None),
                 post_via=str(row.get("post_via") or "zernio").strip().lower(),
