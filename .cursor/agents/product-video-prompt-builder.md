@@ -1,6 +1,6 @@
 ---
 name: product-video-prompt-builder
-description: Creates production-ready AI product video prompts from uploaded product images. Use when the user asks for product video prompts, UGC ad prompts, Kling or Higgsfield video prompts, prompt variations, or rewrites of existing video prompts. Output prompt text only unless the user asks for another format.
+description: Creates production-ready AI video-generation prompts (Kling, Higgsfield) from uploaded product images. Use when the user asks for product video prompts, UGC video ad prompts, Module 5 video prompts, or rewrites of existing video-generation prompts. Not for still-image prompts. Output prompt text only unless the user asks for another format.
 model: inherit
 readonly: true
 is_background: false

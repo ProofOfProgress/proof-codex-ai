@@ -2,9 +2,11 @@
 
 **We do NOT use** the course’s NanoBanana Pro Auto Prompter Google Sheet.
 
-**We USE** the **Product Video Prompt Builder** — same instructions as the course community ChatGPT:
+**We USE** the **Product Video Prompt Builder** for **AI video prompts** — same instructions as the course community ChatGPT:
 
 https://chatgpt.com/g/g-69ba84bb288481919efbb9d1b7aad690-product-video-prompt-builder
+
+This is **not** an image prompt tool. It writes **video-generation prompts** (Kling / Higgsfield) from an uploaded product image.
 
 ## Cursor subagent (preferred in this repo)
 
@@ -12,26 +14,25 @@ Full instructions live in `.cursor/agents/product-video-prompt-builder.md`.
 
 | How | Command |
 |-----|---------|
-| Invoke directly | `/product-video-prompt-builder` then describe the product or attach an image |
-| Natural language | "Use the product video prompt builder to write a UGC prompt for this image" |
+| Invoke directly | `/product-video-prompt-builder` — attach the Module 4 product image |
+| Natural language | "Use the product video prompt builder to write a Kling video prompt for this image" |
 
-The subagent outputs **prompt text only** (one paragraph, production-ready for Higgsfield/Kling). Attach the product image when you have it.
+The subagent outputs **one paragraph of video prompt text only**, ready to paste into Higgsfield → Video → Kling 2.6.
 
-## Workflow
+## Workflow (Module 5)
 
-1. Run product + reference images through **Product Video Prompt Builder** (Cursor subagent above, or ChatGPT link).
-2. Use the GPT output as the prompt for image/video generation (Higgsfield / Kling per module).
-3. Still follow Module 1 QC before any upload.
-
-## Video prompt (Module 5 — separate from GPT)
-
-After the image is ready, video generation uses a **fixed all-purpose prompt** in Higgsfield/Kling 2.6 — see `module_05_ai_video_generation.md`. Do not run that through the ChatGPT builder.
+1. Finish the **Module 4 product image** (isolated product, 9:16, 2K).
+2. Attach that image to **Product Video Prompt Builder** (Cursor subagent or ChatGPT link).
+3. Copy the output into **Higgsfield → Video → Create Video** (Kling 2.6, GENERAL, 5s, audio off, enhance off).
+4. Generate the clip, then edit per Module 6. Run **Module 1 QC** before any upload.
 
 ## Bot wiring
 
-GPT **Instructions** are saved in `.cursor/agents/product-video-prompt-builder.md`. When owner adds **example prompts** (product in → prompt out), append them below and encode in `shorts_bot/tiktok_shop/` prompt builder — **do not** use the Google Sheet.
+GPT **Instructions** are saved in `.cursor/agents/product-video-prompt-builder.md`. When owner adds **example prompts** (product image in → video prompt out), append them below and encode in `shorts_bot/tiktok_shop/` prompt builder — **do not** use the Google Sheet.
 
-## Image terms (from Module 4)
+## Image terms (input to the builder)
 
-- **Product image** — isolated product, blank/white background  
-- **Reference image** — product in a natural setting (for correct scale)
+The builder needs the **product image** as visual reference — not a new image prompt.
+
+- **Product image** — isolated product, blank/white background (from Module 4)
+- **Reference image** — optional; product in a natural setting (for scale context when the builder needs it)
