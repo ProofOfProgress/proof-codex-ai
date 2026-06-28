@@ -32,8 +32,8 @@ python3 -m shorts_bot.tiktok_shop.factory_cli status
 
 ## Product research
 
-- **EchoTik paid required** at launch — `scout_cli ping` must not show quota exceeded
-- Owner spot-checks finalists: ad badges, rising trend (`PRODUCT_RESEARCH.md`)
+- **FastMoss required** at launch — pick in app (path A) or API scout when wired
+- FastMoss covers ad badges, trend, filters (Module 3) — no separate Kalodata
 - Presets: `middle_core` (default), `two_hundred` when asked
 
 ## GOOD clip definition

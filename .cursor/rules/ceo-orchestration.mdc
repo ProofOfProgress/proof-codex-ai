@@ -32,7 +32,7 @@ Owner watches: `python3 -m shorts_bot.agent_ops tail --mission "$MISSION"` or `/
 
 | Employee | Use for | Background |
 |----------|---------|--------------|
-| `product-researcher` | EchoTik scout → `products.json` | Yes |
+| `product-researcher` | FastMoss picks → `products.json` | Yes |
 | `knowledge-gatherer` | Read course/launch docs; briefings | Yes |
 | `product-video-prompt-builder` | Module 5 Kling prompt | No |
 | `video-caption-writer` | Module 6 on-screen hook | No |

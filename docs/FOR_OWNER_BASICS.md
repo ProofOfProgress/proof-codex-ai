@@ -20,7 +20,7 @@ Launch prep status: `docs/LAUNCH_PREP_BRIEF.md`
 Pipeline design: `docs/PIPELINE_SYSTEM_DESIGN.md`  
 Cursor rules: `.cursor/rules/` (see cursor.com/docs/rules)  
 Higgsfield (Module 4/5 in chat): `docs/FOR_OWNER_HIGGSFIELD_SETUP.md`  
-EchoTik: `docs/FOR_OWNER_ECHOTIK_SETUP.md`  
+FastMoss (replaces EchoTik): `docs/FOR_OWNER_FASTMOSS_SETUP.md`  
 Kling: `docs/FOR_OWNER_KLING_SETUP.md`  
 Printify: `docs/FOR_OWNER_PRINTIFY_API.md`  
 TikTok posting (easy): `docs/FOR_OWNER_ZERNIO_SETUP.md`  

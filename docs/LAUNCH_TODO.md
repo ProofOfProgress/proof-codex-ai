@@ -60,10 +60,10 @@ Bubble wrap (4 phones, laptop hub) is **parallel** — it does **not** appear in
 
 **Stop if:** account locked, no Shop access, or seller won't prove login.
 
-### A4. Pay EchoTik (~$125/mo)
-- [ ] Upgrade at [echotik.live](https://echotik.live) — paid tier active  
-- [ ] Credentials in **Cursor Cloud Agent → Secrets** (`ECHOTIK_USERNAME`, `ECHOTIK_PASSWORD`)  
-- [ ] **Rotate password** if it was ever pasted in chat  
+### A4. Subscribe FastMoss (~$59/mo Basic — verify on site)
+- [ ] Account at [fastmoss.com](https://www.fastmoss.com/) — **replaces EchoTik + Kalodata**
+- [ ] Optional API: [developers.fastmoss.com](https://developers.fastmoss.com/) → `FASTMOSS_CLIENT_ID` + `FASTMOSS_CLIENT_SECRET` in Cursor Secrets
+- [ ] **Do not pay EchoTik**
 
 ### A5. Confirm Kling / image billing
 - [ ] Kling credits or Replicate billing active (`KLING_ACCESS_KEY` + `KLING_SECRET_KEY` or `REPLICATE_API_TOKEN`)  
@@ -74,7 +74,7 @@ Bubble wrap (4 phones, laptop hub) is **parallel** — it does **not** appear in
 - [ ] Zernio subscription active  
 - [ ] `ZERNIO_API_TOKEN` in Cursor Secrets  
 
-**Section A done when:** account in hand + EchoTik paid + Kling/Zernio funded.
+**Section A done when:** account in hand + **FastMoss subscribed** + Kling/Zernio funded.
 
 ---
 
@@ -113,7 +113,7 @@ python3 -m shorts_bot.tiktok_shop.scout_cli status
 python3 -m shorts_bot.tiktok_shop.scout_cli ping
 ```
 
-- [ ] **EchoTik:** configured — ping returns data (not "Usage Limit Exceeded")  
+- [ ] **FastMoss:** subscribed (app); API optional until scout ships  
 - [ ] **Kling:** configured  
 - [ ] **Zernio:** configured  
 - [ ] **affiliate_main:** enabled, remaining = 10/day  
@@ -138,25 +138,18 @@ Skim before you pick products (creative = course, not bot defaults):
 
 ## Section E — Scout product batch *(agent + owner)*
 
-### E1. Run EchoTik scout
+### E1. Pick 8–10 products in FastMoss app
+
+**Until API scout ships:** owner picks in FastMoss UI using course filters (ads, trend up, brand match).
+
+Optional when API wired:
+
 ```bash
 python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset two_hundred --limit 10
 python3 -m shorts_bot.tiktok_shop.scout_cli list
 ```
-- [ ] `data/tiktok_shop/products.json` has **10–15 candidates**  
 
-### E2. Owner spot-check top 5–8 *(course Module 3)*
-
-For each finalist, verify (Kalodata or seller page if needed):
-
-- [ ] **6+ of 10** top affiliate vids show purple **ad** badge (brand ad spend)  
-- [ ] **Revenue trend** rising — skip flat/down  
-- [ ] **Brand match** — image, title, shop name align  
-- [ ] **Commission $** worth it (price × rate)  
-- [ ] **Creator variety** — not only brand self-promo  
-
-- [ ] Owner **approves 8–10 products** for launch batch (write names):  
+- [ ] **8–10 products approved** for launch batch (write names):  
   1. _______________  
   2. _______________  
   3. _______________  
@@ -257,7 +250,7 @@ python3 -m shorts_bot.tiktok_shop.factory_cli status
 ## Section I — 🚀 LAUNCH *(agent — last step before week 1 sprint)*
 
 **This is the last item on the pre-launch list.**  
-**First live post at 12:00 AM Launch Date = day 0. 7-day $1k clock starts then.**
+**First live post at 12:00 AM Launch Date = Day 1. 7 calendar days to $1k.**
 
 ### Launch night timeline
 
@@ -332,7 +325,7 @@ Agent can run a **30-minute loop** in tmux until launch-day batch is out, or own
 | 6 | | | $ | $ | |
 | 7 | | | $ | $ | **$1k? → claim $500 by 11:59 PM** |
 
-- [ ] **Hit $1,000** running total within 7 days of first upload  
+- [ ] **Hit $1,000** running total by **11:59 PM on Launch Date + 6 days** (7 calendar days)  
 - [ ] Submit proof per course rules → **collect $500 bonus**  
 
 ---
@@ -350,7 +343,7 @@ Agent can run a **30-minute loop** in tmux until launch-day batch is out, or own
 | Task | Command |
 |------|---------|
 | Full status | `python3 -m shorts_bot.tiktok_shop status` |
-| EchoTik ping | `python3 -m shorts_bot.tiktok_shop.scout_cli ping` |
+| FastMoss ping | `python3 -m shorts_bot.tiktok_shop.scout_cli ping` |
 | Scout | `python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15` |
 | One clip | `python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"` |
 | QC | `python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."` |
@@ -366,7 +359,7 @@ Agent can run a **30-minute loop** in tmux until launch-day batch is out, or own
 |-----|---------|
 | `LAUNCH_BUDGET.md` | Cash / runway math |
 | `LAUNCH_CHECKLIST.md` | Short strategy summary |
-| `FOR_OWNER_ECHOTIK_SETUP.md` | EchoTik secrets |
+| `FOR_OWNER_FASTMOSS_SETUP.md` | FastMoss subscription + API secrets |
 | `FOR_OWNER_ZERNIO_SETUP.md` | Zernio hookup |
 | `FOR_OWNER_KLING_SETUP.md` | Kling billing |
 | `PRODUCT_RESEARCH.md` | Scout + manual checks |

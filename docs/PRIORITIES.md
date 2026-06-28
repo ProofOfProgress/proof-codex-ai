@@ -15,7 +15,7 @@ Defer paid monthly stack until first affiliate post; prep first. See `data/PRIOR
 ## Knowledge split
 
 - **Course (~90%)** — product research, images, video, editing, growth, violations
-- **Repo (~10%)** — EchoTik scout, Kling render, Module 1 QC, posting
+- **Repo (~10%)** — FastMoss research, Kling render, Module 1 QC, posting
 
 See `data/research/course/KNOWLEDGE.md`.
 
@@ -23,9 +23,9 @@ See `data/research/course/KNOWLEDGE.md`.
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Product research** | EchoTik scout + full course gates; picks in `products.json` |
+| **1** | **Product research** | FastMoss picks + full course gates; saved in `products.json` |
 | **2** | **End-to-end clip** | Product → Kling → edit → Module 1 QC → post-ready |
-| **3** | **APIs live** | EchoTik + Kling + TikTok OAuth configured |
+| **3** | **APIs live** | FastMoss (app or API) + Kling + TikTok OAuth configured |
 | **4** | **Daily affiliate ops** | Queue + posting SOP per course |
 
 ## Dead — do not build

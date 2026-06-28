@@ -33,6 +33,6 @@ Agents merge own PRs when tests pass and PR is mergeable. Branch prefix: `cursor
 
 ## Affiliate keys on hub laptop
 
-EchoTik/Kling stay on **cloud VM** for affiliate posting. Hub needs `ZERNIO_API_TOKEN` only (bubble later).
+FastMoss/Kling stay on **cloud VM** for affiliate posting. Hub needs `ZERNIO_API_TOKEN` only (bubble later).
 
 @AGENTS.md

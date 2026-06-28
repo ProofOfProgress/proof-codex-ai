@@ -103,12 +103,14 @@ def main() -> None:
         console.print(f"Total daily cap: [cyan]{total_daily_cap()}[/cyan] videos")
         pending = __import__("shorts_bot.tiktok_shop.queue", fromlist=["pending_posts"]).pending_posts()
         console.print(f"Queue pending: [cyan]{len(pending)}[/cyan]")
-        from shorts_bot.tiktok_shop import echotik_client, kling_client
+        from shorts_bot.tiktok_shop import fastmoss_client, kling_client
 
-        if echotik_client.configured():
-            console.print("[green]EchoTik: configured[/green]")
+        if fastmoss_client.configured():
+            console.print("[green]FastMoss: credentials configured[/green]")
+            console.print("[dim]Launch path A: pick products in FastMoss app until API scout ships[/dim]")
         else:
-            console.print("[red]EchoTik: not configured[/red]")
+            console.print("[yellow]FastMoss: not configured — subscribe + optional API secrets[/yellow]")
+            console.print("[dim]See docs/FOR_OWNER_FASTMOSS_SETUP.md (replaces EchoTik)[/dim]")
         if kling_client.configured():
             console.print("[green]Kling: configured[/green]")
         else:

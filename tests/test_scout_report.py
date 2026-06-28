@@ -26,4 +26,4 @@ def test_format_scout_report_row():
     )
     assert "Test Widget" in out
     assert "123" in out
-    assert "Manual Kalodata" in out
+    assert "FastMoss" in out

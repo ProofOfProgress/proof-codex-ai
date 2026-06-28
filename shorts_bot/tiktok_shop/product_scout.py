@@ -1,4 +1,4 @@
-"""Score EchoTik products using configurable Shop filters."""
+"""Score TikTok Shop products using course filters (FastMoss when API wired)."""
 
 from __future__ import annotations
 
@@ -154,6 +154,20 @@ def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
 
 
 def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[ScoutProduct]:
+    from shorts_bot.tiktok_shop import fastmoss_client
+
+    if fastmoss_client.configured():
+        ping = fastmoss_client.ping()
+        raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet — docs/FOR_OWNER_FASTMOSS_SETUP.md")
+
+    raise RuntimeError(
+        "Product scout uses **FastMoss only** (EchoTik retired). "
+        "Subscribe at fastmoss.com — pick 8–10 products in the app (Launch path A) "
+        "or add FASTMOSS_CLIENT_ID + FASTMOSS_CLIENT_SECRET when API scout ships. "
+        "See docs/FOR_OWNER_FASTMOSS_SETUP.md"
+    )
+
+    # Legacy EchoTik path — unreachable until FastMoss scout replaces block above
     scorer = _score_two_hundred if preset == "two_hundred" else _score_middle_core
     raw_rows = fetch_rank_rows(preset=preset, pages=5)
 

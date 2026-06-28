@@ -21,7 +21,7 @@
 ```mermaid
 flowchart TD
   subgraph prep [Prep — before Launch Date]
-    A[Owner: account + EchoTik paid] --> B[CEO: enable affiliate_main]
+    A[Owner: account + FastMoss subscribed] --> B[CEO: enable affiliate_main]
     B --> C[product-researcher: scout]
     C --> D[Owner: approve 8-10 products]
   end

@@ -12,7 +12,7 @@ alwaysApply: false
 ## Rules (owner locked)
 
 - **Affiliate first** — bubble phones/laptop do not block launch
-- **EchoTik paid day 1** — not deferred to Kalodata
+- **FastMoss subscribed day 1** — replaces EchoTik + Kalodata (~$59/mo Basic)
 - **8–10 GOOD posts** on launch day — QC pass every clip
 - **First post 12:00 AM** on chosen Launch Date
 - **7 calendar days** to $1k commission → $500 course bonus
@@ -23,11 +23,11 @@ alwaysApply: false
 
 | Section | What |
 |---------|------|
-| A | Owner: account ~$630, EchoTik ~$125, Kling/Zernio |
+| A | Owner: account ~$630, FastMoss ~$59, Kling/Zernio |
 | B | Wire `affiliate_main` in Zernio + accounts.json |
 | C | Agent: status + scout ping green |
 | D | Owner: course skim |
-| E | Scout + owner approves 8–10 products |
+| E | FastMoss picks + owner approves 8–10 products |
 | F | One dry-run clip, owner watches |
 | G | Queue 8–10 |
 | H | Launch Date + timezone + midnight plan |

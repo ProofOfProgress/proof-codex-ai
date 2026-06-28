@@ -1,6 +1,8 @@
-# EchoTik — TikTok Shop product scout API
+# EchoTik — LEGACY (retired — use FastMoss)
 
-Sign up: https://echotik.live → **API Platform** → create API key.
+> **Do not use.** Product research is **FastMoss only**. See **`docs/FOR_OWNER_FASTMOSS_SETUP.md`**.
+
+Sign up (old): https://echotik.live
 
 EchoTik uses **HTTP Basic auth** (username + password from the dashboard).
 

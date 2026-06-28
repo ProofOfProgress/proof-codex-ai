@@ -128,11 +128,16 @@ class Settings(BaseSettings):
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
-    # EchoTik — TikTok Shop product research API (Basic auth)
+    # EchoTik — LEGACY (retired — use FastMoss). Kept for reference only.
     echotik_username: str | None = None
     echotik_password: str | None = None
     echotik_api_base: str = "https://open.echotik.live"
     echotik_region: str = "US"
+
+    # FastMoss — TikTok Shop product research (replaces EchoTik + Kalodata)
+    fastmoss_client_id: str | None = None
+    fastmoss_client_secret: str | None = None
+    fastmoss_api_base: str = "https://openapi.fastmoss.com"
 
     # Printify — POD seller API (Bearer token from printify.com/app/account/api)
     printify_api_token: str | None = None

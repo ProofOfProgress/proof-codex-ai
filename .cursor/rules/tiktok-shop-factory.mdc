@@ -14,7 +14,7 @@ Key paths:
 
 - `module1_qc.py` — mandatory pre-upload gate; do not bypass without owner emergency
 - `factory_cli.py` — CLI entry: status, scout, render, make-clip, qc, enqueue, post
-- `scout_cli.py` / `echotik_client.py` — product research API
+- `scout_cli.py` / `fastmoss_client.py` — product research (FastMoss; EchoTik legacy)
 - `kling_client.py` / `render.py` — video generation
 - `video_variants.py` — pan loop edit
 - `poster.py` / `zernio` — upload path

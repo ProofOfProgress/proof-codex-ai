@@ -13,7 +13,7 @@
 | **Bubble wrap** (0→1k) | 4 growth accounts | 2 safe @ **3–4** · 2 aggressive @ **8–10** | Carousel + Mackenzie sound |
 | **Affiliate** (revenue) | Affiliate account(s) | **8–10** (Module 1) | **Full stack** — research → clip → caption → QC → post |
 
-**Affiliate go-live = turn on full stack immediately** — **EchoTik paid**, Kling, Zernio posting. **8–10 GOOD posts/day** from launch day (Module 1 QC pass). Bubble hardware can lag; affiliate does not wait for phones.
+**Affiliate go-live = turn on full stack immediately** — **FastMoss subscribed**, Kling, Zernio posting. **8–10 GOOD posts/day** from launch day (Module 1 QC pass). Bubble hardware can lag; affiliate does not wait for phones.
 
 **Knowledge split:** Course = creative. Repo = automation. See `data/research/course/KNOWLEDGE.md`.
 
@@ -26,7 +26,7 @@
 | Step | Module | Source | Automation |
 |------|--------|--------|------------|
 | Rules | 1 | `module_01_read_before_anything.md` | `module1_qc.py` — **mandatory before upload** |
-| Product pick | 3 | `module_03` + `PRODUCT_RESEARCH.md` | EchoTik scout → `product-researcher` |
+| Product pick | 3 | `module_03` + `PRODUCT_RESEARCH.md` | FastMoss (app day 1; API scout when wired) → `product-researcher` |
 | AI image | 4 | `module_04` + `PROMPT_BUILDER.md` | Higgsfield / ChatGPT builder |
 | AI video | 5 | `module_05` + `PROMPT_BUILDER.md` | Kling 2.6, 5s, audio off |
 | Edit | 6 | `module_06` + `VIDEO_EDITOR.md` | Pan loop + caption — `video-editor` |
@@ -41,9 +41,9 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Product research** | EchoTik scout runs all course gates (presets + ad/trend/creator checks); picks in `products.json` |
+| **1** | **Product research** | FastMoss picks pass Module 3 checks (ads, trend, brand); saved in `products.json` |
 | **2** | **End-to-end clip** | One product → image → Kling → pan loop + caption → Module 1 QC pass → ready to post |
-| **3** | **APIs live** | EchoTik + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
+| **3** | **APIs live** | FastMoss (app or API) + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
 | **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; violation watch per Module 1 + 7 |
 
 ---
@@ -54,7 +54,7 @@
 |-------|------|--------|
 | Follow ads | After 1k→5k per account | `ADS_1K_TO_5K.md` (deferred) |
 
-**EchoTik paid:** required **on affiliate launch day** — not deferred. See `docs/LAUNCH_BUDGET.md`.
+**FastMoss subscribed:** required **on affiliate launch day** — not deferred. See `docs/LAUNCH_BUDGET.md`. EchoTik is **retired** — do not pay.
 
 ## Dead — do not build
 

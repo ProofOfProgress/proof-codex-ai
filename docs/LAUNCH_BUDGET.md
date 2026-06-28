@@ -2,7 +2,7 @@
 
 **Owner numbers (Jun 2026):** ~**$2,283** cash · affiliate account ~**$630** · want **≥2 months** before broke.
 
-**Owner priority (updated):** **EchoTik from day 1** (Kalodata is expensive too). **8–10 GOOD affiliate videos** as soon as launch — not a slow ramp.
+**Owner priority (updated):** **FastMoss from day 1** — replaces EchoTik and Kalodata. **8–10 GOOD affiliate videos** as soon as launch — not a slow ramp.
 
 Strategy: `LAUNCH_CHECKLIST.md` · hardware: `FOR_OWNER_MINI_PC_INSTALL.md`
 
@@ -38,12 +38,12 @@ Buy/pay these **before** the first affiliate post:
 | Item | Cost | When |
 |------|------|------|
 | Purchased affiliate account | **~$630** | Now |
-| **EchoTik paid** | **~$125/mo** | **Launch day** — required, not optional |
+| **FastMoss Basic** | **~$59/mo** | **Launch day** — required, not optional (replaces EchoTik + Kalodata) |
 | Kling credits (day 1) | **~$5–15** | 8–10 clips + regens @ ~$0.21/5s (`KLING_MODE=std`) |
 | Zernio | $0–150/mo | Confirm your plan — likely already live |
 | Images (Higgsfield / ChatGPT) | ~$2–5 day 1 | Per product stills |
 
-**Same-day stack (~$760–770 upfront + your Zernio plan):** account + EchoTik month 1 + first day Kling/images.
+**Same-day stack (~$694–704 upfront + your Zernio plan):** account + FastMoss month 1 + first day Kling/images.
 
 **Not required for affiliate day 1:** 4 phones · USB hub · SIMs · laptop hub · phone worker.
 
@@ -65,18 +65,18 @@ Skip 5th phone — affiliate posts via Zernio from cloud.
 
 ## Monthly burn — full stack from affiliate launch
 
-**No stagger.** EchoTik + full ~$450 stack turns on when affiliate posts start.
+**No stagger.** FastMoss + full ~$385 stack turns on when affiliate posts start.
 
 | Item | $/mo | Notes |
 |------|------|-------|
-| **EchoTik paid** | **~$125** | Product scout — **required at launch** |
+| **FastMoss Basic** | **~$59** | Product research — **required at launch** (UI day 1; API scout when wired) |
 | Zernio + misc SaaS | ~$100–200 | Confirm your Zernio tier |
 | Kling (8–10 **good** /day) | ~$65–85 | ~240–300 published + ~20% QC regens |
 | Images | ~$30–50 | Module 4 stills |
 | 4 SIM lines | ~$50 | Bubble only — $0 until phones live |
-| **Full affiliate month** | **~$450–510** | **~$500/mo** plan number |
+| **Full affiliate month** | **~$384–444** | **~$420/mo** plan number |
 
-Kalodata: course login still useful for **spot-checks** (ad badge, trend) on EchoTik finalists — **not** the primary research tool (too expensive to rely on daily).
+FastMoss covers Kalodata-equivalent checks (ads, trend, filters) in one subscription — **no EchoTik, no separate Kalodata paywall**.
 
 ---
 
@@ -88,12 +88,12 @@ Kalodata: course login still useful for **spot-checks** (ad badge, trend) on Ech
 |--|--------|
 | Working cash | $2,253 |
 | Affiliate account | −$630 |
-| Month 1 full stack (no SIMs yet) | −$450 |
+| Month 1 full stack (no SIMs yet) | −$384 |
 | Bubble hardware (phones + hub + SIMs) | −$280 |
-| Month 2 full stack (+ SIMs) | −$500 |
-| **Buffer after 2 months** | **~$393** |
+| Month 2 full stack (+ SIMs) | −$444 |
+| **Buffer after 2 months** | **~$525** |
 
-**Verdict: yes** — 2+ months, affiliate can post **today** after account + EchoTik paid.
+**Verdict: yes** — 2+ months, affiliate can post **today** after account + FastMoss subscribed.
 
 ### Plan B — buy everything upfront, full stack both months
 
@@ -102,9 +102,9 @@ Kalodata: course login still useful for **spot-checks** (ad badge, trend) on Ech
 | Working cash | $2,253 |
 | Account + hardware (Phase 1) | −$910 |
 | **Left for operations** | **$1,343** |
-| Month 1 full stack | −$500 |
-| Month 2 full stack | −$500 |
-| **Buffer after 2 months** | **~$343** |
+| Month 1 full stack | −$444 |
+| Month 2 full stack | −$444 |
+| **Buffer after 2 months** | **~$455** |
 
 **Verdict: yes** — tighter buffer, but meets 2-month goal if you stay on budget hardware.
 
@@ -119,8 +119,8 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 ## Launch day sequence (affiliate — 8–10 GOOD posts)
 
 1. **Affiliate account purchased** → log in once in **Zernio** → paste ID into `affiliate_main` in `accounts.json`  
-2. **EchoTik paid** → `python3 -m shorts_bot.tiktok_shop.scout_cli ping` green  
-3. **Scout run** → top products in `products.json` (EchoTik presets; owner picks or approves batch)  
+2. **FastMoss subscribed** → pick 8–10 in app (or `scout_cli ping` when API wired)  
+3. **Products locked** → names in `products.json` (FastMoss UI picks or future API scout)  
 4. **Parallel clip factory** — image → Kling 5s → pan loop + caption → **Module 1 QC** (zero violations)  
 5. **Post 8–10 that pass QC** via Zernio — reject/regen failures, don’t upload bad clips  
 6. **Bubble hardware** — buy/wire in parallel when cash allows; does not gate step 5  
@@ -133,13 +133,13 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 
 1. **Haircut** — done.  
 2. **Affiliate account (~$630)** — do this first.  
-3. **EchoTik paid (~$125)** — same day as first scout/post.  
+3. **FastMoss Basic (~$59)** — same day as first product picks / posts.  
 4. **Zernio** — connect purchased account; enable `affiliate_main`.  
 5. **Launch day** — scout → 8–10 QC-pass clips → post.  
 6. **Bubble hardware (~$280)** — buy when ready; affiliate already running.  
 7. **Wipe HP laptop** — when phones arrive.  
 
-**Do not buy:** 5th phone · new mini PC · Kalodata subscription (EchoTik is the daily tool).
+**Do not buy:** 5th phone · new mini PC · EchoTik · Kalodata subscription (FastMoss replaces both).
 
 ---
 
@@ -147,7 +147,7 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 
 | Trigger | Rough hit |
 |---------|-----------|
-| Full $500/mo × 2 with upfront hardware | Buffer ~$343 — OK but tight |
+| Full ~$444/mo × 2 with upfront hardware | Buffer ~$455 — OK |
 | Kling regen spiral (50+ extra clips/mo) | +$10–20/mo — fix QC/prompts, don’t pay your way out |
 | Re-buy affiliate account | +$630 |
 | 5th phone + SIM | +$60–85 upfront + ~$12/mo |
@@ -158,11 +158,11 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 
 | Question | Answer |
 |----------|--------|
-| EchoTik on day 1? | **Yes — required** |
-| Kalodata instead? | **No** — too expensive; EchoTik daily, Kalodata optional spot-check only |
+| FastMoss on day 1? | **Yes — required** (~$59/mo Basic) |
+| EchoTik / Kalodata? | **No** — retired; FastMoss only |
 | Posts on launch day? | **8–10 GOOD** (QC pass), not 1 test clip |
 | Need phones first? | **No** — affiliate is cloud + Zernio |
-| 2 months runway? | **Yes** (~$343–393 buffer on plan A/B) |
+| 2 months runway? | **Yes** (~$455–525 buffer on plan A/B) |
 | 5th phone? | **No** |
 
-Update when Zernio bill, EchoTik tier, or cash changes.
+Update when Zernio bill, FastMoss tier, or cash changes.
