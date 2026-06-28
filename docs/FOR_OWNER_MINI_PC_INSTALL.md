@@ -19,23 +19,48 @@
 ## Mini PC — before you start
 
 - **OS:** Linux (Ubuntu 22.04+ recommended) or Windows 11 + WSL2 Ubuntu  
-- **Network:** Wi‑Fi or ethernet; you’ll add **Tailscale** later so you can remote in  
+- **Hardware:** **Old laptop is fine** — wipe and reuse (saves buying a mini PC). Needs USB ports or a hub for 4 phones.  
+- **Network:** Wi‑Fi or ethernet; add **Tailscale** later so you can remote in  
 - **USB:** powered hub for 4–5 phones  
 - **Accounts:** GitHub access to clone the repo (or copy files from a zip)
 
 ---
 
-## Wipe an old laptop (unknown password)
+## Have your PIN? Skip the wipe
 
-**Your own HP laptop?** You can wipe it — password only blocks login, not a full reset.
+If the laptop **turns on and you can log in**, do **not** wipe it. Use the machine as-is.
 
-1. Try **F11** at boot → HP Recovery → reset without keeping files  
-2. Or **Ubuntu USB** → Install → **Erase disk** (best for phone hub + ADB)  
-3. Boot menu on many HPs: **Esc** then **F9** to pick USB  
+| OS you see after login | What to do |
+|------------------------|------------|
+| **Windows 10/11** | Install **WSL2 + Ubuntu** (Step 0 below), then Steps 1–4 inside Ubuntu |
+| **Already Linux** | Skip Step 0 — go straight to Step 1 |
 
-After wipe: Step 1–4 below. Saves **~$100–300** vs buying a new mini PC.
+You only wipe if login is broken and recovery is the only option (see bottom of doc).
 
 ---
+
+## Step 0 — Windows only: add Ubuntu (WSL2)
+
+On the laptop (Windows):
+
+1. Open **PowerShell as Administrator**
+2. Run: `wsl --install -d Ubuntu-22.04`
+3. Restart if prompted
+4. Open **Ubuntu** from Start menu — create a Linux username/password
+5. All commands below run **inside that Ubuntu window**
+
+Install Linux tools once:
+
+```bash
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv git adb
+```
+
+**USB note:** phones plug into the **Windows** USB ports; WSL2 sees them after `adb` is set up — if `adb devices` is empty, ask the agent (usbipd on Windows helps).
+
+---
+
+## Step 1 — Get the repo
 
 ```bash
 git clone https://github.com/ProofOfProgress/proof-codex-ai.git
