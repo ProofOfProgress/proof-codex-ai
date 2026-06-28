@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 import subprocess
-import textwrap
 from pathlib import Path
+
+from shorts_bot.config import settings
+from shorts_bot.tiktok_shop.captions import wrap_hook_text
 
 DEFAULT_FONT = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 
 
-def wrap_on_screen_caption(text: str, *, max_chars: int = 38) -> str:
-    """Break hook copy into lines for upper-third burn-in."""
-    clean = " ".join((text or "").split())
-    if not clean:
-        return ""
-    return "\n".join(textwrap.wrap(clean, width=max_chars, break_long_words=False, break_on_hyphens=False))
+def wrap_on_screen_caption(text: str, *, max_chars_per_line: int | None = None) -> str:
+    """Break hook copy into lines — default max 26 chars per line (owner rule)."""
+    return wrap_hook_text(text, max_chars_per_line=max_chars_per_line)
 
 
 def burn_on_screen_caption(
@@ -23,7 +22,7 @@ def burn_on_screen_caption(
     text: str,
     *,
     font_path: Path | None = None,
-    font_size: int = 46,
+    font_size: int | None = None,
     y_fraction: float = 0.11,
     outline_width: int = 2,
 ) -> Path:
@@ -41,6 +40,8 @@ def burn_on_screen_caption(
     if not font.is_file():
         raise RuntimeError(f"Caption font missing: {font}")
 
+    size = font_size if font_size is not None else settings.tiktok_shop_caption_font_size
+
     dest.parent.mkdir(parents=True, exist_ok=True)
     text_file = dest.with_suffix(".caption.txt")
     text_file.write_text(wrapped, encoding="utf-8")
@@ -49,7 +50,7 @@ def burn_on_screen_caption(
     ff = str(font.resolve()).replace("\\", "/").replace(":", "\\:")
     vf = (
         f"drawtext=fontfile='{ff}':textfile='{tf}':"
-        f"fontsize={font_size}:fontcolor=white:"
+        f"fontsize={size}:fontcolor=white:"
         f"borderw={outline_width}:bordercolor=black:"
         f"x=(w-text_w)/2:y=h*{y_fraction}"
     )

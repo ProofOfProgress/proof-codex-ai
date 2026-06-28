@@ -64,6 +64,11 @@ def main() -> None:
     captions.add_argument("--product", required=True)
     captions.add_argument("--limit", type=int, default=10)
 
+    hook = sub.add_parser("hook-lines", help="Wrap on-screen hook at 26 chars/line (TikTok native)")
+    hook.add_argument("--product", default="")
+    hook.add_argument("--text", default="", help="Override hook text (else template for --product)")
+    hook.add_argument("--max-chars", type=int, default=0, help="Per-line limit (default 26 from config)")
+
     loop = sub.add_parser("loop-clip", help="5s forward + reverse → ~10s MP4")
     loop.add_argument("--in", dest="inp", required=True)
     loop.add_argument("--out", required=True)
@@ -244,6 +249,32 @@ def main() -> None:
         console.print(f"[green]Queued[/green] #{idx} → {video}")
         if args.confirm_post:
             console.print("[dim]Run: factory_cli post --confirm[/dim]")
+        return
+
+    if args.cmd == "hook-lines":
+        from shorts_bot.tiktok_shop.captions import (
+            on_screen_caption,
+            validate_hook_lines,
+            wrap_hook_lines,
+        )
+
+        text = (args.text or "").strip() or (
+            on_screen_caption(args.product) if args.product else ""
+        )
+        if not text:
+            console.print("[red]Provide --product or --text[/red]")
+            raise SystemExit(1)
+        kw: dict = {}
+        if args.max_chars > 0:
+            kw["max_chars_per_line"] = args.max_chars
+        lines = wrap_hook_lines(text, **kw)
+        over = validate_hook_lines(lines, max_chars=kw.get("max_chars_per_line"))
+        for i, line in enumerate(lines, 1):
+            console.print(f"[cyan]{i:2d}[/cyan] ({len(line):2d}) {line}")
+        if over:
+            console.print(f"[red]Over limit:[/red] {over}")
+            raise SystemExit(1)
+        console.print("[dim]Paste each line as a row in TikTok native text (max 26 chars/line)[/dim]")
         return
 
     if args.cmd == "captions":

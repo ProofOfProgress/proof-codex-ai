@@ -193,12 +193,18 @@ def render_product_clip(
 
     caption_text = (on_screen_caption or "").strip()
     if loop_out and caption_text:
-        from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
+        delivery = (settings.tiktok_shop_hook_delivery or "native").strip().lower()
+        if delivery == "burn_in":
+            from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
 
-        if skip_if_exists and final_path.is_file() and final_path.stat().st_size > 10_000:
-            loop_out = final_path
+            if skip_if_exists and final_path.is_file() and final_path.stat().st_size > 10_000:
+                loop_out = final_path
+            else:
+                loop_out = burn_on_screen_caption(loop_out, final_path, caption_text)
         else:
-            loop_out = burn_on_screen_caption(loop_out, final_path, caption_text)
+            from shorts_bot.tiktok_shop.captions import save_hook_sidecar
+
+            save_hook_sidecar(loop_out, caption_text)
 
     return RenderResult(
         product_id=product_id,

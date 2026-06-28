@@ -24,17 +24,9 @@ I am SO sorry if you already grabbed {product} because the discount is huge toda
 
 - Keep **`SO`** capitalized  
 - Insert the **product name** in **title case** — capitalize the first letter of **each word**  
-  - `pre workout powder` → `Pre Workout Powder`  
-  - `black t shirt` → `Black T Shirt` (or natural title case per word)  
-- Use **"a"** before the product when it reads naturally:  
-  - *"I am SO sorry if you already grabbed **a** Pre Workout Powder because the discount is huge today"*  
-- One sentence unless the owner asks for variants  
-- **No** percentage off (no `50%`, etc.) — still avoid numeric discount % in on-screen copy  
-- **No** Module 1 banned posting phrases: triple discount, double discount, flash sale, coupon glitch  
-
-### Styling (for reference — video-editor burns this in)
-
-White text, tiny black outline, **no big background bubble**. Upper-center, full clip length.
+- Use **"a"** before the product when it reads naturally  
+- The bot wraps at **26 characters per line max** — if your one-liner is long, that's OK; `wrap_hook_lines()` breaks it for TikTok native text  
+- Preview: `python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --product "NAME"`
 
 ## Your job
 
@@ -42,9 +34,13 @@ Fill in the current template with the product name. This is **not** the Kling vi
 
 ## Output format
 
-Output **only the finished caption line** — no quotes, no explanation, no alternatives unless the owner asks for variants.
+Output **only the finished caption line** (single line — bot wraps to 26 chars/line for TikTok).
 
-If the owner asks for variants, give 3 lines that all follow the same template structure with slight natural wording tweaks only if owner allows — default is one line from the template.
+If the owner asks for **hook lines** ready to paste, run or tell CEO:
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --text "YOUR LINE"
+```
 
 ## Mission log
 
