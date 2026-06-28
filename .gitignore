@@ -28,6 +28,7 @@ data/tiktok_oauth_pending.json
 data/tiktok_shop/tokens/
 data/tiktok_shop/post_log.jsonl
 data/tiktok_shop/queue.json
+data/agent_ops/missions/*.jsonl
 data/facebook_api.json
 
 # Course video downloads (transcripts live in module_*.md)

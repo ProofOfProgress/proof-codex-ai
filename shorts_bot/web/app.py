@@ -140,6 +140,110 @@ def learning_status() -> dict:
     }
 
 
+@app.get("/api/agent-ops/missions")
+def agent_ops_missions(limit: int = 20) -> dict:
+    from shorts_bot.agent_ops.log import list_missions
+
+    return {"missions": list_missions(limit=min(limit, 50))}
+
+
+@app.get("/api/agent-ops/missions/{mission_id}")
+def agent_ops_mission_detail(mission_id: str) -> dict:
+    from shorts_bot.agent_ops.log import mission_summary
+
+    summary = mission_summary(mission_id)
+    if not summary:
+        return JSONResponse(status_code=404, content={"error": "mission not found"})
+    return summary
+
+
+@app.get("/agent-ops", response_class=HTMLResponse)
+def agent_ops_dashboard(mission: str = "") -> str:
+    return _AGENT_OPS_HTML.replace("__MISSION__", mission or "")
+
+
+_AGENT_OPS_HTML = """<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Team — Mission Log</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#0f1117;color:#e6edf3}
+  header{padding:1rem 1.5rem;border-bottom:1px solid #30363d;background:#161b22}
+  h1{margin:0;font-size:1.25rem}
+  .sub{color:#8b949e;font-size:.9rem;margin-top:.35rem}
+  main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 72px)}
+  @media(max-width:768px){main{grid-template-columns:1fr}}
+  aside{border-right:1px solid #30363d;padding:1rem;overflow:auto}
+  section{padding:1rem 1.5rem;overflow:auto}
+  .mission{padding:.6rem .75rem;border-radius:6px;cursor:pointer;margin-bottom:.4rem;border:1px solid transparent}
+  .mission:hover{background:#21262d}
+  .mission.active{background:#21262d;border-color:#388bfd}
+  .mission small{display:block;color:#8b949e;font-size:.75rem;margin-top:.2rem}
+  .event{padding:.55rem 0;border-bottom:1px solid #21262d;font-size:.9rem}
+  .event .ts{color:#8b949e;font-size:.75rem}
+  .event .who{color:#79c0ff;font-weight:600}
+  .event .ev{color:#ffa657}
+  .event .msg{color:#c9d1d9;margin-top:.15rem}
+  .badge{display:inline-block;padding:.1rem .45rem;border-radius:999px;font-size:.7rem;background:#238636;margin-left:.5rem}
+  a{color:#58a6ff}
+</style>
+</head><body>
+<header>
+  <h1>Agent Team <span class="badge" id="live">live</span></h1>
+  <div class="sub">CEO ↔ employee mission log · refreshes every 5s · <a href="/">factory home</a></div>
+</header>
+<main>
+  <aside><div id="missions">Loading missions…</div></aside>
+  <section><div id="feed">Select a mission</div></section>
+</main>
+<script>
+const initialMission = "__MISSION__";
+let active = initialMission;
+
+async function loadMissions(){
+  const r = await fetch('/api/agent-ops/missions');
+  const data = await r.json();
+  const box = document.getElementById('missions');
+  if(!data.missions.length){ box.innerHTML='<p>No missions yet. Run <code>/affiliate-ceo</code> to start.</p>'; return; }
+  box.innerHTML = data.missions.map(m => `
+    <div class="mission ${m.mission_id===active?'active':''}" data-id="${m.mission_id}">
+      <strong>${esc(m.name||m.mission_id)}</strong>
+      <small>${m.mission_id} · ${m.updated_at}<br>${(m.agents||[]).join(', ')}</small>
+    </div>`).join('');
+  box.querySelectorAll('.mission').forEach(el=>{
+    el.onclick = ()=>{ active = el.dataset.id; loadMissions(); loadFeed(); };
+  });
+  if(!active && data.missions[0]) active = data.missions[0].mission_id;
+}
+
+async function loadFeed(){
+  if(!active){ document.getElementById('feed').innerHTML='Select a mission'; return; }
+  const r = await fetch('/api/agent-ops/missions/'+active);
+  if(!r.ok){ document.getElementById('feed').innerHTML='Mission not found'; return; }
+  const m = await r.json();
+  const events = (m.events||[]).slice().reverse();
+  document.getElementById('feed').innerHTML = `
+    <h2 style="margin-top:0">${esc(m.name||active)}</h2>
+    <p style="color:#8b949e">Mission <code>${active}</code> · ${m.events.length} events</p>
+    ${events.map(e=>`
+      <div class="event">
+        <div><span class="ts">${esc(e.ts||'')}</span>
+        <span class="who">${esc(e.agent||'?')}</span>
+        <span class="ev">${esc(e.event||'?')}</span>
+        ${e.target?'<span style="color:#8b949e"> → '+esc(e.target)+'</span>':''}</div>
+        ${e.message?'<div class="msg">'+esc(e.message)+'</div>':''}
+      </div>`).join('')}`;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+async function tick(){ await loadMissions(); await loadFeed(); }
+tick();
+setInterval(tick, 5000);
+</script>
+</body></html>"""
+
+
 @app.get("/", response_class=HTMLResponse)
 def home() -> str:
     return """<!DOCTYPE html>
@@ -152,6 +256,7 @@ def home() -> str:
 <li><a href="/api/tiktok-shop/status">/api/tiktok-shop/status</a></li>
 <li><a href="/api/printify/status">/api/printify/status</a></li>
 <li><a href="/api/learning/status">/api/learning/status</a></li>
+<li><a href="/agent-ops">/agent-ops</a> — CEO ↔ employee mission log</li>
 </ul>
 <p>Self-learning: POST <code>/api/score</code> with clip metrics from TikTok analytics.</p>
 <p>CLI: <code>python3 -m shorts_bot.tiktok_shop status</code></p>
