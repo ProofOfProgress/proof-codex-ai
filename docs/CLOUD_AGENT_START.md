@@ -96,6 +96,7 @@ python3 -m pytest tests/ -q                     # Smoke tests
 - Branch prefix: `cursor/<name>-4484` (or current suffix)
 - Run tests before merge
 - Merge own PRs when `MERGEABLE` + `CLEAN`
+- **Obsolete PRs:** `docs/OBSOLETE_PRS.md` — do not merge (e.g. #136 superseded by agent team + #139)
 
 ---
 
