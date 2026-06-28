@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
@@ -52,6 +53,8 @@ def main() -> None:
     render.add_argument("--product-id", default="")
     render.add_argument("--product", default="", help="Product name substring")
     render.add_argument("--no-loop", action="store_true")
+    render.add_argument("--force", action="store_true", help="Ignore cached MP4s")
+    render.add_argument("--on-screen-caption", default="", help="Module 6 burn-in hook text")
     render.add_argument("--printify-id", default="")
     render.add_argument("--printify-title", default="")
     render.add_argument("--prompt", default="", help="Override Kling prompt")
@@ -90,6 +93,11 @@ def main() -> None:
     carousel.add_argument("--account", default="", help="Shop account id from accounts.json")
     carousel.add_argument("--title", default="Bubble wrap ASMR")
     carousel.add_argument("--confirm", action="store_true", help="Actually upload")
+
+    burn = sub.add_parser("burn-caption", help="Module 6 on-screen caption burn-in")
+    burn.add_argument("--video", required=True, help="Input MP4 (usually loop clip)")
+    burn.add_argument("--out", required=True, help="Output MP4 with burned caption")
+    burn.add_argument("--caption", required=True, help="Pain-point hook text")
 
     post = sub.add_parser("post", help="Post next queued video (respects daily cap)")
     post.add_argument("--account", default="", help="Force account id")
@@ -231,14 +239,25 @@ def main() -> None:
                 prompt=args.prompt,
                 style=args.style,
                 loop=not args.no_loop,
+                on_screen_caption=args.on_screen_caption,
+                skip_if_exists=not args.force,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
             raise SystemExit(1) from exc
         console.print(f"[green]Raw:[/green] {result.raw_mp4}")
         if result.loop_mp4:
-            console.print(f"[green]Loop:[/green] {result.loop_mp4}")
+            console.print(f"[green]Final:[/green] {result.loop_mp4}")
         console.print(f"Task: {result.task_id}")
+        return
+
+    if args.cmd == "burn-caption":
+        from pathlib import Path
+
+        from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
+
+        out = burn_on_screen_caption(Path(args.video), Path(args.out), args.caption)
+        console.print(f"[green]Wrote[/green] {out}")
         return
 
     if args.cmd == "make-clip":
@@ -246,6 +265,8 @@ def main() -> None:
         from shorts_bot.tiktok_shop.queue import enqueue_video
         from shorts_bot.tiktok_shop.render import render_product_clip
 
+        name = args.product or args.product_id or "product"
+        cap = sanitize_caption(caption_variants(name, limit=1)[0])
         try:
             result = render_product_clip(
                 product_id=args.product_id,
@@ -253,13 +274,13 @@ def main() -> None:
                 printify_id=args.printify_id,
                 printify_title=args.printify_title,
                 style=args.style,
+                on_screen_caption=cap,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
             raise SystemExit(1) from exc
+        name = result.product_name or name
         video = result.loop_mp4 or result.raw_mp4
-        name = result.product_name or args.product or "product"
-        cap = sanitize_caption(caption_variants(name, limit=1)[0])
         idx = enqueue_video(video_path=str(video), product=name, caption=cap)
         console.print(f"[green]Queued[/green] #{idx} → {video}")
         if args.confirm_post:
