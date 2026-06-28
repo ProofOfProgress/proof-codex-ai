@@ -97,7 +97,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
 
 ### Orchestration rules (CEO = you)
 
-1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder`.
+1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder` (Module 1 compliant — must not instruct ban triggers).
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).
 3. **Start a mission log** on every orchestrated run:
    ```bash

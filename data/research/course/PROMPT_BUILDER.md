@@ -6,7 +6,7 @@
 
 https://chatgpt.com/g/g-69ba84bb288481919efbb9d1b7aad690-product-video-prompt-builder
 
-This is **not** an image prompt tool. It writes **video-generation prompts** (Kling / Higgsfield) from an uploaded product image.
+This is **not** an image prompt tool. It writes **Module-1-compliant video-generation prompts** (Kling / Higgsfield) from an uploaded product image — see `module_01_read_before_anything.md` ban list.
 
 ## Cursor subagent (preferred in this repo)
 

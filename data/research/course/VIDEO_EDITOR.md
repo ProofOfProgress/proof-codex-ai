@@ -21,8 +21,10 @@
 
 | Type | Source |
 |------|--------|
-| Kling motion prompt | Fixed arc-camera text — `module_05_ai_video_generation.md` |
-| Image prompt | ChatGPT Product Video Prompt Builder — `PROMPT_BUILDER.md` |
+| Kling motion prompt | **Product Video Prompt Builder** — `PROMPT_BUILDER.md` (Module 1 compliant) |
+| Image prompt | Module 4 product image workflow — separate from video prompt builder |
 | **On-screen caption** | Pain-point / urgency copy — `module_06_editing.md` |
+
+**Caption copy under review (2026-06):** Owner is re-sourcing what works from the course and group calls. Current `video-caption-writer` subagent patterns are provisional — paste better examples into `module_06_editing.md` or `GROUP_CALLS.md` when found; those beat the subagent defaults.
 
 Prompt copy changes often — group calls win over stale templates.
