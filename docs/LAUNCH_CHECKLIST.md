@@ -4,7 +4,7 @@
 
 **Budget:** `docs/LAUNCH_BUDGET.md` — $2,283 cash, ~$630 account, EchoTik day 1, **≥2 months runway**.
 
-**Step-by-step to-do (in order):** `docs/LAUNCH_TODO.md` — **$1k in first 7 days after first upload → $500 course bonus.**
+**Step-by-step to-do (in order):** `docs/LAUNCH_TODO.md` — **$1k in 7 calendar days → $500 course bonus.**
 
 ---
 

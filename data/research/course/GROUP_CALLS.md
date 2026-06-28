@@ -54,10 +54,11 @@ Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
 ## 2026-06-28 — Week 1 challenge (owner)
 
-**Course reward:** **$1,000 commission** within **7 days of first affiliate upload** → **$500 bonus**.
+**Course reward:** **$1,000 commission** in **7 calendar days** → **$500 bonus**.
 
 - **Clock starts:** **12:00 AM** first live post on chosen **Launch Date** (not dry runs).  
-- **Why midnight:** maximizes **7 full calendar days** to hit $1k.  
+- **Clock:** **7 calendar days** — Launch Date midnight through **11:59 PM on day 7** (Launch Date + 6 days).  
+- **Why midnight:** maximizes the full first day.  
 - **Target pace:** ~**$143/day** average; course peers hit **$100 days in a week**.  
 - **Execution:** `docs/LAUNCH_TODO.md` — LAUNCH is Section I; posts #1–10 spaced ≥30m from midnight.  
 - **Daily:** 8–10 GOOD posts, track commission, double down on winners, drop losers.

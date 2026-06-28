@@ -9,7 +9,7 @@
 
 | Goal | Reward |
 |------|--------|
-| **$1,000 commission** in the **first 7 days** after **first upload** | **$500** course bonus |
+| **$1,000 commission** in **7 calendar days** (Launch Date → Launch Date + 6 days) | **$500** course bonus |
 
 **Chase math:** ~**$143/day** average commission across 7 days. Course peers hit **$100 days in a week** — this is the target, not a fantasy.
 
@@ -28,7 +28,7 @@
 | **Launch Date** | _______________ |
 | **Timezone** | _______________ *(your local — used for midnight)* |
 | **First post** | **12:00 AM** on Launch Date |
-| **Bonus deadline** | **11:59 PM** on Launch Date **+ 6 days** *(7 calendar days total — confirm wording with course coach)* |
+| **Bonus deadline** | **11:59 PM** on Launch Date **+ 6 days** *(7 calendar days — no nitpicking)* |
 | **Posts 2–10 launch day** | Every **≥30 min** after first post (~4.5 hrs for 10 posts → done ~4:30 AM) |
 
 ---
@@ -236,7 +236,6 @@ python3 -m shorts_bot.tiktok_shop.factory_cli status
 - [ ] **Launch Date chosen:** _______________  
 - [ ] **Timezone written down:** _______________  
 - [ ] **Bonus deadline** (Launch Date + 6 days, 11:59 PM): _______________  
-- [ ] Confirm course counts **7 calendar days** vs **168 hours** — adjust if coach says otherwise: _______________  
 - [ ] Owner + agent **available at 11:55 PM** the night before Launch Date (or stay up)  
 - [ ] Phone alarm **11:55 PM** launch eve; second alarm **12:00 AM**  
 
