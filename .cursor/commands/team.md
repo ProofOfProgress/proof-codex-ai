@@ -17,6 +17,7 @@ You talk to the **CEO in every normal chat** — there is no `/affiliate-ceo` em
 |----------|-------|-----|-------------|
 | **Product Video Prompt Builder** | `/product-video-prompt-builder` | Module 5 Kling/Higgsfield **video prompts** | No |
 | **Product Researcher** | `/product-research` | Module 3 EchoTik scout (background) | **Yes** |
+| **Knowledge Gatherer** | `/knowledge-gather` | Course + launch doc briefings (background) | **Yes** |
 | **Video Caption Writer** | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | **Video Editor** | `/video-editor` | Pan loop + caption burn (~10s finish) | **Yes** |
 | **Module 1 QC Runner** | `/module1-qc-runner` | Pre-upload violation check | **Yes** |
@@ -42,6 +43,9 @@ Loop and burn caption: input raw.mp4 → output final.mp4 — caption: "Your hoo
 
 /module1-qc-runner
 QC: path/to/final.mp4 product "Car mount"
+
+/knowledge-gather
+What violates Module 1 before we launch at midnight?
 ```
 
 ## Watch CEO ↔ employee workflow

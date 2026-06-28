@@ -30,6 +30,7 @@ The **mission log** (`data/agent_ops/missions/`) is how you watch work across st
 |------|-----|-------------|
 | **CEO** | Main agent (every chat) | Just chat normally — "make a clip for this product" |
 | **Employee** | Product Researcher | `/product-research` — EchoTik scout (background) |
+| **Employee** | Knowledge Gatherer | `/knowledge-gather` — course & launch briefings (background) |
 | **Employee** | Product Video Prompt Builder | `/product-video-prompt-builder` + product image |
 | **Employee** | Video Caption Writer | `/video-caption-writer` |
 | **Employee** | Video Editor | `/video-editor` — loop + caption burn |

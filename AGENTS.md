@@ -81,6 +81,7 @@ Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work an
 |----------|-------|-----|-------------|
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
 | Product Researcher | `/product-research` | Module 3 EchoTik scout + ranked picks | **Yes** |
+| **Knowledge Gatherer** | `/knowledge-gather` | Read course + launch docs; plain-English briefings | **Yes** |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | Video Editor | `/video-editor` | Module 6 pan loop + caption burn | **Yes** |
 | Module 1 QC Runner | `/module1-qc-runner` | Pre-upload QC | **Yes** |
@@ -101,6 +102,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
 ### Orchestration rules (CEO = you)
 
 0. **Product research** — delegate to `product-researcher` (background) when owner needs picks or `products.json` refresh; owner chooses finalist after Kalodata spot-check.
+0b. **Information / course questions** — delegate to `knowledge-gatherer` (background) when owner needs briefings from `data/research/course/` or launch docs without running APIs.
 1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder` (Module 1 compliant — must not instruct ban triggers).
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).
 3. **Start a mission log** on every orchestrated run:
