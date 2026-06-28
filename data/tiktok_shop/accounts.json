@@ -3,7 +3,7 @@
     {
       "id": "bubble_gspgsgsorip1",
       "label": "gspgsgsorip1",
-      "track": "bubble_tbd",
+      "track": "bubble_safe",
       "phone_hub_slot": "phone_1",
       "daily_limit": 4,
       "enabled": true,
@@ -11,29 +11,9 @@
       "zernio_account_id": "6a3e03579d9472faaeecbab6"
     },
     {
-      "id": "bubble_proofofprogresss",
-      "label": "proofofprogresss",
-      "track": "bubble_tbd",
-      "phone_hub_slot": "phone_2",
-      "daily_limit": 4,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "6a3f14df9d9472faaef98701"
-    },
-    {
-      "id": "bubble_ms_byte",
-      "label": "Ms. Byte (bubble wrap)",
-      "track": "bubble_tbd",
-      "phone_hub_slot": "phone_3",
-      "daily_limit": 4,
-      "enabled": true,
-      "post_via": "zernio",
-      "zernio_account_id": "6a39dedb5f7d1751ab57366b"
-    },
-    {
       "id": "bubble_isaac",
       "label": "Isaac",
-      "track": "bubble_tbd",
+      "track": "bubble_safe",
       "phone_hub_slot": "phone_4",
       "daily_limit": 4,
       "enabled": true,
@@ -41,18 +21,40 @@
       "zernio_account_id": "6a3e5a0b9d9472faaef19baa"
     },
     {
+      "id": "bubble_proofofprogresss",
+      "label": "proofofprogresss",
+      "track": "bubble_aggressive",
+      "phone_hub_slot": "phone_2",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3f14df9d9472faaef98701",
+      "_note": "More trusted by TikTok — aggressive cadence"
+    },
+    {
+      "id": "bubble_ms_byte",
+      "label": "Ms. Byte (bubble wrap)",
+      "track": "bubble_aggressive",
+      "phone_hub_slot": "phone_3",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b",
+      "_note": "More trusted by TikTok — aggressive cadence; old Ms. Byte lane dead, account repurposed"
+    },
+    {
       "id": "affiliate_main",
-      "label": "Affiliate revenue account",
+      "label": "Purchased affiliate account (TBD)",
       "track": "affiliate",
       "phone_hub_slot": "",
       "daily_limit": 10,
       "enabled": false,
       "post_via": "zernio",
       "zernio_account_id": "",
-      "_note": "Separate from bubble 4 — full bot MP4 via Zernio, no phone hub"
+      "_note": "Owner buying a separate account for revenue — connect in Zernio when purchased"
     }
   ],
-  "_architecture": "Mini computer + 4 Android phones (phone hub). See docs/FOR_OWNER_PHONE_HUB.md",
-  "_zernio_sync": "2026-06-28 — all 4 TikTok active in Zernio",
-  "_tiers": "Owner assigns 2 bubble_safe (3-4/day) + 2 bubble_aggressive (8-10/day) later"
+  "_launch": "Launch engaged when hardware + affiliate account + paid stack purchased — see docs/LAUNCH_CHECKLIST.md",
+  "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day.",
+  "_architecture": "Mini computer + 4 Android phones — docs/FOR_OWNER_PHONE_HUB.md"
 }
