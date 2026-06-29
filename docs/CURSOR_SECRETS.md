@@ -81,7 +81,7 @@ Setup: `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · verify: `bash scripts/hub_remote_ve
 
 | Secret name | Cursor type | Notes |
 |-------------|-------------|-------|
-| `TAILSCALE_AUTH_KEY` | Runtime Secret | Reusable key — cloud VM joins your tailnet |
+| `TAILSCALE_AUTH_KEY` | Runtime Secret | Reusable key — cloud VM joins your tailnet. **Exact spelling** — not `TALESCALE_AUTH_KEY` (common typo; verify script accepts both) |
 | `HUB_SSH_HOST` | Environment Variable | Hub Tailscale IP (`100.x.x.x`) |
 | `HUB_SSH_USER` | Environment Variable | WSL Linux username |
 | `HUB_SSH_PRIVATE_KEY` | Runtime Secret | Full private key from `hub_remote_setup.sh` |
