@@ -19,14 +19,15 @@ The agent should:
 - On-screen **caption / prompt text** styles (Module 6)
 - **Banned or risky words** (Module 7)
 - Product research filters (Module 3)
-- Violation / appeal tactics (Module 8)
+- **Violation prevention** — QC / TOS rule updates (Modules 1 + 7)
 - **Violation waves** — wait for coach playbook; owner logs in GROUP_CALLS
+- Module 8 appeal tactics — **emergency only**; owner north star is **zero strikes**
 
 ## Modules that explicitly say “join group calls”
 
 - Module 6 — caption prompt copy  
 - Module 7 — avoiding violations & misinformation wording  
-- Module 8 — violation waves + appeal strategy updates
+- Module 8 — violation waves + appeal playbooks (**emergency fallback** — prevention is Modules 1 + 7 + TOS QC)
 
 Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
@@ -95,3 +96,98 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **Launch path A:** pick 8–10 products in FastMoss app → tell agent names
 - **Launch path B:** FastMoss API in bot when scout ships — `docs/FASTMOSS_SCOUT_PLAN.md`
 - **Do not pay EchoTik**
+
+---
+
+## 2026-06-29 — Owner launch status
+
+- **Purchased affiliate account:** bought, logged in, **5-day warmup** in progress.
+- **FastMoss:** billing fixed (owner 2026-06-29) — subscription active. Add API secrets (`FASTMOSS_CLIENT_ID` / `FASTMOSS_CLIENT_SECRET`) in Cursor if not already; **start a new agent run** after adding secrets so the VM picks them up.
+- **Kling:** billing works.
+- **Launch Date:** TBD · **Timezone:** PST (midnight first post = 12:00 AM PST on Launch Date).
+- **Bubble + affiliate:** both tracks active — affiliate does not wait for phones.
+
+### Owner overrides (hard rules)
+
+- **Zernio — defer:** Do **not** connect purchased affiliate account to Zernio until **closer to launch** (owner will say when). Until then: prep clips, QC, queue locally — no `affiliate_main` in Zernio dashboard.
+- **Phone number — never on bot account:** The purchased affiliate account’s **phone number must never** be tied to the bot, Cursor secrets, Zernio hookup, or automation. Login path for posting = **email only** when Zernio is wired later. Do not ask owner to add phone to secrets or link phone to `affiliate_main`.
+
+---
+
+## 2026-06-29 — Account seller intel (GMV / bought accounts)
+
+**Source:** Official account seller plug (owner relay) — high-GMV bought-account operator.
+
+**Q:** Most important thing for making money with affiliate videos (excluding consistency)?
+
+**A:** **Finding products before they break out** is “1000% of everything” — how people get 20M-view videos. Already-top products are good; **future top products are literal gold**.
+
+**Bot / research implication:**
+
+- Module 3 priority = **early breakout**, not only current chart toppers.
+- In FastMoss: favor **rising** GMV/creator velocity, new releases, ad spend starting, trend **up** before mainstream saturation.
+- Scout presets and agent research should weight **pre-breakout signals** over “safe” established winners alone.
+
+---
+
+## 2026-06-29 — Full agent ownership (owner)
+
+**Product research is entirely the agent’s job** — not a one-step owner task. Owner does **not** pick products in FastMoss or paste names for launch.
+
+**Business handoff:** Affiliate ops → **100% agent-run soon**. Owner stays for **improvements**, decisions, and account/billing access when required — not daily research or clip ops.
+
+**Agent owns:** Module 3 research (FastMoss scout / product-researcher), `products.json`, pre-breakout lens, clip pipeline, QC, queue — end to end.
+
+**Owner does not own:** Product picks · “send me 2–3 product names” · FastMoss UI browsing for launch list.
+
+---
+
+## 2026-06-29 — Account seller Discord wins (owner relay)
+
+**Source:** Discord bundled with bought account (account seller’s community + second course). **Customer wins** channel — recent posts (many June 2025/2026).
+
+**Pattern in wins (commission unless noted as GMV):**
+
+- New / bought accounts hitting **$1k–$10k+ commission** in first weeks; **Gold/Silver** tiers first month
+- **$1k+ in a single day** commission — multiple reports
+- **$4k–$7k+ in 7 days**; **$8k–$51k in 30 days** commission range across posts
+- **$42k in 19 days** (June 1–20) cited; **~$95k GMV in 30 days** (GMV ≠ commission — still validates demand)
+- Some still “figuring out convert” at **$6.5k** — room to optimize
+- **Livestreams** mentioned in wins — **we are NOT doing livestreams** (short affiliate video lane only)
+
+**Owner read:** Proven concept on **bought warmed accounts + volume + product timing**. Aligns with pre-breakout research intel and 8–10 posts/day plan.
+
+**Scale vision (owner):** “30 automated accounts × 10/day” — aspirational **later**. **Current plan:** 1 affiliate revenue account + 4 bubble growth accounts. Do not scope-creep bot to 30 accounts without owner explicit go + budget + ban-risk review.
+
+**Agent implication:** Speed to launch + pre-breakout picks + GOOD post volume matter — winners in that Discord are the comp, not a guarantee.
+
+---
+
+## 2026-06-29 — Course creator convo (owner relay)
+
+**Context:** Owner talking to **Momentum Academy course creator**. Creator shipped free bubble-wrap video automation ( ~10 full video gens/day on course site). Creator’s “hush hush” = full stack: research → image → video → edit → post — same north star as this repo.
+
+**Creator offer:** “Build it and let me see. If you cook, I’ll pay you.”
+
+**Owner decisions (hard for agents):**
+
+- **Demo rule:** If/when owner demos to creator — show **finished video output only** (generation result). **Zero** behind-the-scenes: no repo, no agents, no Zernio, no pipeline docs, no architecture, no “peek through keyhole.”
+- **IP / distribution:** Owner **keeping full automation private for now** — not selling/licensing to creator or course yet. Concern: mass distribution → market flood (many users × many accounts × automation).
+- **Competition note:** Creator’s free tool does **not** upload to TikTok — owner assesses this repo ahead on posting + full affiliate lane.
+- **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + **TikTok Shop Content Policy** (`TIKTOK_SHOP_CONTENT_POLICY.md`, `tos_policy.py`) is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7/TOS for speed.
+
+---
+
+## 2026-06-29 — Zero strikes, not appeals (owner)
+
+**North star:** **Never get a strike at all** — prevention via Module 1 + TOS QC before every upload. Regen until clean; do **not** post and plan to appeal.
+
+Module 8 / `APPEALS.md` = **emergency fallback only** if TikTok false-flags a QC-passed clip. Agents must not frame appeals as the goal or lower QC to hit 8–10/day.
+
+**Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.
+
+---
+
+## 2026-06-29 — TOS policy re-study (owner request)
+
+Re-read official [TikTok Shop Content Policy (2026-03-16)](https://seller-sg.tiktok.com/university/essay?knowledge_id=7651420422014721&identity=1) with **zero-strike prevention** lens. Updated `TIKTOK_SHOP_CONTENT_POLICY.md` (full section map) + `tos_policy.py` (purchase incentives, prohibited product hints, sensitive events, expanded vision flags, AIGC publish checklist).

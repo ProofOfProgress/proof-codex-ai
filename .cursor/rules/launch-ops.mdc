@@ -23,11 +23,11 @@ alwaysApply: false
 
 | Section | What |
 |---------|------|
-| A | Owner: account ~$630, FastMoss ~$59, Kling/Zernio |
-| B | Wire `affiliate_main` in Zernio + accounts.json |
+| A | Owner: account ~$630, FastMoss ~$59, Kling/Zernio billing |
+| B | Wire `affiliate_main` in Zernio + accounts.json — **defer until owner says closer to launch** |
 | C | Agent: status + scout ping green |
 | D | Owner: course skim |
-| E | FastMoss picks + owner approves 8–10 products |
+| E | Agent: FastMoss scout → **8–10 in products.json** (pre-breakout lens) |
 | F | One dry-run clip, owner watches |
 | G | Queue 8–10 |
 | H | Launch Date + timezone + midnight plan |
@@ -36,6 +36,11 @@ alwaysApply: false
 ## Parallel (not blocking)
 
 HP Ubuntu hub · Tailscale SSH · 4 phones · phone worker · bubble posts
+
+## Owner hard rules (GROUP_CALLS 2026-06-29)
+
+- **Zernio:** do not connect purchased affiliate to Zernio until owner says launch is close.
+- **Phone number:** never tie purchased account phone to bot, secrets, or automation — email login only for Zernio when wired.
 
 ## When owner asks "where are we on launch?"
 

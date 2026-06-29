@@ -83,7 +83,12 @@ Optional:
 
 ## Part 3 — Tell the agent to connect
 
-Start a **new cloud agent run**, then say:
+Start a **new cloud agent run**. Hub access is **automatic** when secrets are set:
+
+- `bash scripts/install.sh` joins Tailscale on bootstrap
+- Any hub task: agent runs `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <command>`
+
+Manual verify anytime:
 
 > “Connect to the hub — run `bash scripts/hub_remote_verify.sh`”
 

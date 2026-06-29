@@ -19,6 +19,11 @@ def test_banned_caption_phrases_detected():
     assert any("flash sale" in h.lower() for h in hits)
 
 
+def test_tos_giveaway_in_caption():
+    hits = _check_caption("Comment to win a free gift!")
+    assert hits
+
+
 def test_clean_caption_passes():
     assert _check_caption("Love this kitchen gadget for everyday use") == []
 

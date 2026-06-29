@@ -1,0 +1,33 @@
+{
+  "_note": "Fill adb_serial when phones arrive. One phone = one TikTok — never switch accounts on one device.",
+  "slots": [
+    {
+      "slot": "phone_1",
+      "account_id": "bubble_gspgsgsorip1",
+      "adb_serial": "",
+      "label": "gspgsgsorip1",
+      "enabled": true
+    },
+    {
+      "slot": "phone_2",
+      "account_id": "bubble_proofofprogresss",
+      "adb_serial": "",
+      "label": "proofofprogresss",
+      "enabled": true
+    },
+    {
+      "slot": "phone_3",
+      "account_id": "bubble_ms_byte",
+      "adb_serial": "",
+      "label": "Ms. Byte (bubble wrap)",
+      "enabled": true
+    },
+    {
+      "slot": "phone_4",
+      "account_id": "bubble_isaac",
+      "adb_serial": "",
+      "label": "Isaac",
+      "enabled": true
+    }
+  ]
+}

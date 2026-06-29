@@ -18,12 +18,33 @@
 
 | Mode | When |
 |------|------|
-| **FastMoss API scout** | When `FASTMOSS_CLIENT_ID` + secret configured + scout migration shipped |
-| **FastMoss UI → owner picks** | **Launch fallback** — you pick 8–10 in FastMoss app; tell agent product names |
+| **FastMoss API scout** | **Primary** — CEO → `product-researcher` + `scout_cli` when API secrets + subscription active |
+| **Agent-led research** | **Always** — owner does not pick launch products; agent maintains `products.json` |
 
-Saved picks: `data/tiktok_shop/products.json`
+Saved picks: `data/tiktok_shop/products.json` — **agent writes**, owner may suggest improvements only.
 
 Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md` · Engineering: `docs/FASTMOSS_SCOUT_PLAN.md`
+
+---
+
+## Pre-breakout lens *(owner intel — account seller, 2026-06-29)*
+
+**North star for picks:** find products **before** they break out — not only what’s already #1.
+
+| Signal | Why |
+|--------|-----|
+| **Sales/GMV accelerating** | Product is heating up, not peaked |
+| **Creator count rising fast** | Others starting to pile in — still early window |
+| **Ad spend appearing** | Brand investing before mass saturation |
+| **New release / not yet saturated** | Room for a video to catch the wave |
+| **Already top** | OK for steady posts — **future top** = highest upside (20M-view path) |
+
+**Already-top vs future-top:**
+
+- **Top today** = safer, more competition, smaller view ceiling per clip.
+- **Future top** = literal gold — post **before** the breakout so your video rides the wave.
+
+When owner or FastMoss UI picks 8–10 for launch, **bias toward rising / early** products that pass Module 3 checks (ads, brand match, commission $), not only established chart leaders.
 
 ---
 
@@ -50,9 +71,9 @@ Old bot presets `middle_core` / `two_hundred` mapped to EchoTik. **FastMoss scou
 
 ## Pipeline hook (CEO)
 
-1. **Research** → owner in **FastMoss** (or future `product-researcher` + FastMoss API)  
-2. Owner approves **8–10** for launch  
+1. **Research** → CEO delegates **`product-researcher`** (background) — pre-breakout lens, FastMoss scout when wired  
+2. Agent locks **8–10** in `products.json` — no owner pick step  
 3. **Prompt** → `product-video-prompt-builder`  
-4. Kling → edit → QC → post  
+4. Kling → edit → QC → post (local queue until Zernio hookup)  
 
 Group calls / owner notes beat stale filters — see `GROUP_CALLS.md`.

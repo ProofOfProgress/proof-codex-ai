@@ -9,6 +9,10 @@ alwaysApply: false
 Source: `data/research/course/module_01_read_before_anything.md`  
 Enforcement: `shorts_bot/tiktok_shop/module1_qc.py`
 
+## North star
+
+**Never get a strike.** The goal is prevention — block upload, regen until clean. Module 8 / appeals are emergency fallback only, not the plan.
+
 ## Rule
 
 **Zero Module 1 violations** before enqueue or post. No owner override for “just this once” unless owner explicitly accepts account risk in chat.
@@ -28,10 +32,12 @@ python3 -m shorts_bot.tiktok_shop.factory_cli qc \
 
 Delegate **`module1-qc-runner`** for batch checks — still **block upload** on any fail.
 
-## Caption hard bans (Module 7 overlap)
+## Caption hard bans (Module 7 + TikTok Shop Content Policy)
 
-Never ship captions with sale/price/discount language: sale, % off, coupon, free shipping, limited time, etc.  
-See `BANNED_CAPTION_PHRASES` in `module1_qc.py` and Module 7 course file.
+Never ship captions/descriptions with sale/price/discount language, giveaways, off-platform redirects (URL, email, phone, @handle), gambling/chance language, exaggerated health claims, or weight-loss sole claims.
+
+Full prevention brief: `data/research/course/TIKTOK_SHOP_CONTENT_POLICY.md`  
+Code: `shorts_bot/tiktok_shop/tos_policy.py` + `BANNED_CAPTION_PHRASES` in `module1_qc.py`
 
 ## Video prompt / Kling (Module 5)
 
@@ -43,6 +49,12 @@ Banned in generated video: moving water/fire/steam, humans/pets, **phone screens
 1. Log violation list for owner (plain English)
 2. Regen prompt or edit — do **not** lower standards to hit 8–10/day
 3. Re-run QC until pass
+
+## At publish (manual — still zero-strike prevention)
+
+- **AIGC label ON** in TikTok (required for AI video)
+- **Correct Shop product link** attached
+- See publish checklist in `TIKTOK_SHOP_CONTENT_POLICY.md`
 
 ## Tests
 

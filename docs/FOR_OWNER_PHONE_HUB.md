@@ -55,9 +55,35 @@ Zernio IDs for bubble four: `accounts.json` · refresh: `python3 -m shorts_bot.z
 
 | Done | Not yet |
 |------|---------|
-| 4 bubble TikToks in Zernio | Laptop wiped + `install.sh` + ADB |
-| Account → phone map in config | Phone hub worker (Mackenzie automation) |
-| Affiliate pipeline (cloud) | Carousel inbox → hub worker |
-| Docs + agent team | Purchased affiliate → Zernio → enable `affiliate_main` |
+| 4 bubble TikToks in Zernio | Phones plugged in + USB serials in `devices.json` |
+| Account → phone map in config | Mackenzie UI automation (needs live phones) |
+| **`shorts_bot/phone_hub/`** — ADB, job queue, worker dry-run | Full publish automation on device |
+| Bubble → Zernio inbox draft + hub job queue | WSL usbipd attach per phone |
+| Affiliate pipeline (cloud) | Purchased affiliate → Zernio → enable `affiliate_main` |
+| Hub auto-connect (SSH) | `hub_adb_install.sh` on laptop (agent can run remotely) |
 
 Physical hub — **not** cloud phone farm.
+
+---
+
+## Agent / hub commands (no phones needed yet)
+
+Cloud agent (auto-connects to laptop):
+
+```bash
+bash scripts/hub_run.sh bash scripts/hub_adb_install.sh   # install adb once
+bash scripts/hub_run.sh bash scripts/hub_adb_check.sh   # health check
+python3 -m shorts_bot.phone_hub.cli status              # slot map + pending jobs
+python3 -m shorts_bot.phone_hub.cli tick                # dry-run next hub job
+```
+
+Bubble post flow (cloud):
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli bubble-slides --subject frog
+python3 -m shorts_bot.tiktok_shop.factory_cli post-carousel \
+  --slide1 ... --slide2 ... --account bubble_gspgsgsorip1 \
+  --confirm --enqueue-hub
+```
+
+When phones arrive: fill `adb_serial` in `data/phone_hub/devices.json`, then `python3 -m shorts_bot.phone_hub.cli tick --confirm`.

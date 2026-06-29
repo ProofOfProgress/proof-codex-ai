@@ -12,6 +12,11 @@ from io import BytesIO
 from pathlib import Path
 
 from shorts_bot.config import settings
+from shorts_bot.tiktok_shop.tos_policy import (
+    TOS_VISION_PROMPT,
+    check_promotional_text,
+    merge_banned_caption_phrases,
+)
 
 # Course: module_01_read_before_anything.md — Video Don'ts (ban triggers)
 MODULE1_VIDEO_VIOLATIONS: tuple[str, ...] = (
@@ -51,12 +56,7 @@ MODULE1_VIDEO_VIOLATIONS: tuple[str, ...] = (
     "Physics-breaking product orientation",
 )
 
-BANNED_CAPTION_PHRASES: tuple[str, ...] = (
-    "triple discount",
-    "double discount",
-    "flash sale",
-    "coupon glitch",
-)
+BANNED_CAPTION_PHRASES: tuple[str, ...] = merge_banned_caption_phrases()
 
 
 @dataclass
@@ -145,12 +145,12 @@ def _pick_frame_times(duration: float, *, max_frames: int) -> list[float]:
     return picked[:max_frames]
 
 
-def _check_caption(caption: str) -> list[str]:
-    lower = (caption or "").lower()
+def _check_caption(caption: str, *, description: str = "") -> list[str]:
     hits: list[str] = []
-    for phrase in BANNED_CAPTION_PHRASES:
-        if phrase in lower:
-            hits.append(f"Posting Don't: caption contains banned phrase '{phrase}'")
+    hits.extend(check_promotional_text(caption, field="caption"))
+    if description:
+        hits.extend(check_promotional_text(description, field="description"))
+    # Legacy course Module 1 sound phrases — still covered in tos_policy MISINFORMATION
     return hits
 
 
@@ -246,6 +246,7 @@ def _gemini_check_frames(
         "Check ONLY for these ban triggers (course Module 1). If ANY appear in ANY frame, "
         "list them in violations. Zero tolerance.\n\n"
         f"{violation_list}\n\n"
+        f"{TOS_VISION_PROMPT}\n\n"
         "Owner override (2026-06-28): ONLY the advertised product's brand may be visible. "
         "Flag any phone/laptop/tablet screen showing UI, app icons, or home screen. "
         "Flag Apple, MacBook, Instagram, Facebook, or any third-party logo not on the product itself.\n\n"
@@ -284,6 +285,7 @@ def run_module1_qc(
     video_path: Path,
     *,
     caption: str = "",
+    description: str = "",
     product: str = "",
     account_id: str = "",
 ) -> Module1QCReport:
@@ -300,7 +302,7 @@ def run_module1_qc(
     if not video_path.exists():
         return Module1QCReport(passed=False, violations=["Video file missing"])
 
-    violations.extend(_check_caption(caption))
+    violations.extend(_check_caption(caption, description=description))
     if account_id:
         violations.extend(_check_posting_rules(account_id=account_id, product=product))
 
@@ -385,6 +387,7 @@ def enforce_module1_before_upload(
     video_path: Path,
     *,
     caption: str = "",
+    description: str = "",
     product: str = "",
     account_id: str = "",
 ) -> Module1QCReport:
@@ -392,6 +395,7 @@ def enforce_module1_before_upload(
     report = run_module1_qc(
         video_path,
         caption=caption,
+        description=description,
         product=product,
         account_id=account_id,
     )

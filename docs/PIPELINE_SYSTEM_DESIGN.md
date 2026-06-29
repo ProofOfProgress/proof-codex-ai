@@ -151,8 +151,8 @@ sequenceDiagram
 | 4 Image | `module_04` · `PROMPT_BUILDER.md` | Owner/Higgsfield — not fully automated |
 | 5 Video | `module_05` | `product-video-prompt-builder` · `kling_client` |
 | 6 Edit | `module_06` · `VIDEO_EDITOR.md` | `video-editor` · `video_variants.py` |
-| 7 Violations | `module_07` | QC + caption rules — no sale/price words |
-| 8 Appeals | `module_08` · `APPEALS.md` | Manual if flagged |
+| 7 Zero strikes | `module_07` · `TIKTOK_SHOP_CONTENT_POLICY.md` | QC + TOS blocks upload — regen until pass |
+| 8 Emergency appeals | `module_08` · `APPEALS.md` | Owner manual only if false positive — not the goal |
 
 ---
 

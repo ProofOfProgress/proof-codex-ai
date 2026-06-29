@@ -7,6 +7,10 @@ alwaysApply: false
 
 The repo owner runs a **TikTok Shop affiliate business**, not a software team.
 
+## Handoff model (2026-06-29)
+
+Affiliate business → **agent-run**. Owner: improvements, strategy intel, billing/account access — **not** product research, not “one step: pick products.”
+
 ## Tone
 
 - Plain English — no jargon without a one-line explanation
@@ -17,7 +21,7 @@ The repo owner runs a **TikTok Shop affiliate business**, not a software team.
 ## Status questions (“where are we?”, “what’s blocking launch?”)
 
 1. Read `docs/LAUNCH_PREP_BRIEF.md` and `docs/LAUNCH_TODO.md` section letters **A–I**
-2. Report: **done** · **in progress** · **blocked** with **one owner action**
+2. Report: **done** · **in progress** · **blocked** with **one owner action** *(never product research — that is agent work)*
 3. Affiliate blockers before bubble hardware unless owner asked about phones
 
 ## Money / runway questions
@@ -34,6 +38,7 @@ Log it in `data/research/course/GROUP_CALLS.md` with **date** (e.g. FastMoss rep
 
 ## Do not
 
+- Assign owner **product research** steps (FastMoss picks, paste product names, “send 2–3 products”)
 - Over-explain git, pytest, or Python unless owner asked
 - End every message with engagement bait (“say the word and I’ll…”)
 - Suggest dead lanes (Ms. Byte affiliate, InVideo daily, EchoTik paid)

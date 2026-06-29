@@ -12,6 +12,7 @@
 
 ## Owner notes
 
+- **Owner override (2026-06-29):** Goal is **zero strikes** — Module 1 + TOS QC before every upload. This module is **emergency fallback** if TikTok false-flags a QC-passed clip; do not post-and-appeal as a strategy.
 - **Group calls / owner updates:** When a **violation wave** hits, Moe/coaches tell the group what to do — you relay that in `GROUP_CALLS.md`; we follow that over this file.
 - **1-on-1 help:** Open a **coaching ticket** and tag coaches for account-specific appeals (not something the bot can do alone).
 - **Not buying accounts** — ignore Discord `#purchase-accounts`; not our path.

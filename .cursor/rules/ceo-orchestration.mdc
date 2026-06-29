@@ -44,7 +44,7 @@ Slash commands: `.cursor/commands/` · roster: `/team`
 
 ## Parallel pattern (typical clip)
 
-1. **product-researcher** (bg) OR owner picks from existing `products.json`
+1. **product-researcher** (bg) — agent owns `products.json`; owner does not pick
 2. Module 4 image (owner/Higgsfield) — CEO waits for path
 3. **product-video-prompt-builder** → Kling render (CEO runs `factory_cli render` or `make-clip`)
 3b. **video-visual-critic** (bg) after raw/loop MP4 — if not good enough, handoff → prompt builder → regen (max 2–3)

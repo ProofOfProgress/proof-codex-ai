@@ -10,30 +10,21 @@ alwaysApply: false
 
 Owner override: `data/research/course/PRODUCT_RESEARCH.md` · Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md`
 
-## Launch path A *(now — API scout not required)*
+## Launch path *(agent-owned — owner does not pick)*
 
-1. Owner subscribes FastMoss (~$59/mo Basic — verify on site)
-2. Owner picks **8–10 products** in FastMoss UI (ads, trend up, brand match, course filters)
-3. Owner gives product names → CEO clips via `factory_cli make-clip`
-4. Save/confirm list in `data/tiktok_shop/products.json`
+1. CEO delegates **`product-researcher`** or runs `scout_cli` when FastMoss API + subscription active
+2. Agent ranks **8–10** with **pre-breakout lens** → saves `data/tiktok_shop/products.json`
+3. CEO clips via `factory_cli make-clip` — no owner product pick step
 
-## Launch path B *(when API wired)*
-
-Secrets: `FASTMOSS_CLIENT_ID`, `FASTMOSS_CLIENT_SECRET` → new cloud agent run → `bash scripts/install.sh`
-
-```bash
-python3 -m shorts_bot.tiktok_shop.scout_cli status
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
-```
-
-Until scout ships, `scout_cli run` may error with “not wired” — **that is expected**; use path A.
+If FastMoss blocked (payment/API): CEO reports infra blocker — **not** “owner pick in app.”
 
 ## Module 3 quality bar (FastMoss)
 
 | Check | Why |
 |-------|-----|
+| **Pre-breakout / rising GMV** | **#1 priority** (owner intel 2026-06-29) — future top products beat only current chart toppers |
 | Ad badges / paid top videos | Brand invests — easier to convert |
-| Revenue trend **up** | Avoid dying products |
+| Revenue trend **up** | Catch wave before saturation |
 | Brand match | Image, title, shop align |
 | Commission $ | Price × rate worth posting |
 | Creator mix | Not only brand self-promo |

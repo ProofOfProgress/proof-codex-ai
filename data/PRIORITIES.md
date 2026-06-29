@@ -30,8 +30,8 @@
 | AI image | 4 | `module_04` + `PROMPT_BUILDER.md` | Higgsfield / ChatGPT builder |
 | AI video | 5 | `module_05` + `PROMPT_BUILDER.md` | Kling 2.6, 5s, audio off |
 | Edit | 6 | `module_06` + `VIDEO_EDITOR.md` | Pan loop + caption — `video-editor` |
-| Avoid violations | 7 | `module_07` | Caption + QC rules |
-| Appeals | 8 | `module_08` + `APPEALS.md` | If flagged |
+| Avoid violations / zero strikes | 7 + TOS | `module_07` + `TIKTOK_SHOP_CONTENT_POLICY.md` | Module 1 + TOS QC pass before every upload — **never post and appeal** |
+| Emergency appeals | 8 | `module_08` + `APPEALS.md` | Only if flagged despite QC pass — not the goal |
 
 **Owner overrides beat course:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `GROUP_CALLS.md`
 
@@ -41,10 +41,10 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Product research** | FastMoss picks pass Module 3 checks (ads, trend, brand); saved in `products.json` |
+| **1** | **Product research** | Picks pass Module 3 **+ pre-breakout lens** (rising GMV before saturation — `GROUP_CALLS.md` 2026-06-29); saved in `products.json` |
 | **2** | **End-to-end clip** | One product → image → Kling → pan loop + caption → Module 1 QC pass → ready to post |
 | **3** | **APIs live** | FastMoss (app or API) + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
-| **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; violation watch per Module 1 + 7 |
+| **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; **zero strikes** via Module 1 + TOS QC (prevention, not appeals) |
 
 ---
 

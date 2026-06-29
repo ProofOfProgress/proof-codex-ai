@@ -104,3 +104,45 @@ def _default_accounts() -> list[ShopAccount]:
 def total_daily_cap(accounts: list[ShopAccount] | None = None) -> int:
     accts = accounts or load_accounts()
     return sum(a.daily_limit for a in accts)
+
+
+def bubble_accounts(*, enabled_only: bool = True) -> list[ShopAccount]:
+    accts = load_accounts() if enabled_only else _all_accounts_raw()
+    return [a for a in accts if a.track.startswith("bubble")]
+
+
+def account_by_slot(slot: str) -> ShopAccount | None:
+    slot = (slot or "").strip()
+    for acct in load_accounts():
+        if acct.phone_hub_slot == slot:
+            return acct
+    return None
+
+
+def _all_accounts_raw() -> list[ShopAccount]:
+    path = accounts_config_path()
+    if not path.is_file():
+        return _default_accounts()
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    rows = raw.get("accounts") if isinstance(raw, dict) else raw
+    if not isinstance(rows, list):
+        return _default_accounts()
+    out: list[ShopAccount] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        token = row.get("tiktok_token_path")
+        out.append(
+            ShopAccount(
+                id=str(row.get("id") or "").strip(),
+                label=str(row.get("label") or row.get("id") or "").strip(),
+                daily_limit=max(1, int(row.get("daily_limit") or 10)),
+                enabled=bool(row.get("enabled", True)),
+                track=str(row.get("track") or "").strip(),
+                phone_hub_slot=str(row.get("phone_hub_slot") or "").strip(),
+                tiktok_token_path=Path(token) if token else None,
+                zernio_account_id=(row.get("zernio_account_id") or None),
+                post_via=str(row.get("post_via") or "zernio").strip().lower(),
+            )
+        )
+    return [a for a in out if a.id]

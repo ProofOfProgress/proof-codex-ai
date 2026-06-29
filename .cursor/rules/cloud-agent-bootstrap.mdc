@@ -16,6 +16,8 @@ python3 -m shorts_bot.cloud_secrets
 python3 -m shorts_bot.tiktok_shop status
 ```
 
+**Hub auto-connect:** if `HUB_SSH_*` secrets are set, `install.sh` joins Tailscale automatically. For hub tasks mid-chat: `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <cmd>` — see `hub-auto-connect.mdc`.
+
 ## Secrets
 
 - Injected at **agent start** — mid-chat secret adds require **new agent run**

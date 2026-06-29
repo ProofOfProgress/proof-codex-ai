@@ -60,6 +60,8 @@ Add in **Cursor → Cloud Agent → Secrets** (exact names):
 
 Full list: `docs/CURSOR_SECRETS.md`
 
+**Cloud Agent chat model cost (Composer vs Codex):** `docs/FOR_OWNER_CURSOR_MODEL_COST.md` — set dashboard default + verify picker each run before handoff.
+
 After adding/changing secrets → **new agent run** → run `bash scripts/install.sh` again.
 
 ---
