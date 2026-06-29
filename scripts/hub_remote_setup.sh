@@ -35,17 +35,36 @@ if ! command -v tailscale >/dev/null 2>&1; then
   curl -fsSL https://tailscale.com/install.sh | sh
 fi
 
+TS_SOCKET="/var/run/tailscale/tailscaled.sock"
+IS_WSL=false
+if grep -qi microsoft /proc/version 2>/dev/null; then
+  IS_WSL=true
+fi
+
 echo ""
 echo "=== Tailscale login (required once) ==="
-echo "Run ONE of:"
-echo "  sudo tailscale up"
-echo "  sudo tailscale up --auth-key=tskey-auth-XXXX   # from tailscale.com/admin/settings/keys"
+if [[ "$IS_WSL" == true ]]; then
+  echo "WSL detected — starting Tailscale in userspace mode (no systemd)."
+  bash "$(dirname "$0")/hub_tailscale_start.sh"
+  echo ""
+  echo "Run ONE of:"
+  echo "  sudo tailscale --socket=$TS_SOCKET up"
+  echo "  sudo tailscale --socket=$TS_SOCKET up --auth-key=tskey-auth-XXXX"
+else
+  echo "Run ONE of:"
+  echo "  sudo tailscale up"
+  echo "  sudo tailscale up --auth-key=tskey-auth-XXXX"
+fi
 echo ""
-read -r -p "Press Enter after 'sudo tailscale up' succeeded..."
+read -r -p "Press Enter after tailscale up succeeded..."
 
 TS_IP=""
 if command -v tailscale >/dev/null 2>&1; then
-  TS_IP="$(tailscale ip -4 2>/dev/null || true)"
+  if [[ "$IS_WSL" == true ]]; then
+    TS_IP="$(sudo tailscale --socket="$TS_SOCKET" ip -4 2>/dev/null || true)"
+  else
+    TS_IP="$(tailscale ip -4 2>/dev/null || true)"
+  fi
 fi
 USER_NAME="$(whoami)"
 
