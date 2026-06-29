@@ -109,7 +109,21 @@ python3 -m shorts_bot.desktop_hub.cli ensure --via-hub
 
 ---
 
+## KeyFreeze — lock keyboard/mouse while agent works
+
+Optional free app so you cannot accidentally bump the keyboard during phone automation.
+
+```bash
+python3 -m shorts_bot.desktop_hub.cli keyfreeze lock --via-hub
+python3 -m shorts_bot.desktop_hub.cli keyfreeze unlock --via-hub
+```
+
+Full setup: **`docs/FOR_OWNER_KEYFREEZE.md`**
+
+---
+
 ## Related
 
+- KeyFreeze input lock: `FOR_OWNER_KEYFREEZE.md`
 - Phone hub: `FOR_OWNER_PHONE_HUB.md`  
 - Daily CEO mission: `FOR_OWNER_DAILY_PRELAUNCH.md`

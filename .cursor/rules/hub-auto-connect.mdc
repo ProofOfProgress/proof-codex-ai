@@ -23,9 +23,13 @@ python3 -m shorts_bot.hub_remote run -- python3 --version
 bash scripts/hub_run.sh cd ~/proof-codex-ai && git pull
 python3 -m shorts_bot.desktop_hub.cli ping   # needs Windows helper running
 python3 -m shorts_bot.desktop_hub.cli ensure --via-hub   # cloud: start helper on HP
+python3 -m shorts_bot.desktop_hub.cli keyfreeze lock --via-hub    # block local kbd/mouse
+python3 -m shorts_bot.desktop_hub.cli keyfreeze unlock --via-hub  # restore input
 bash scripts/desktop_helper_ensure.sh        # on hub WSL directly
 python3 -m shorts_bot.hub_control.cli status
 ```
+
+KeyFreeze (optional): owner installs free Windows app + sets `KEYFREEZE_EXE` / `KEYFREEZE_HOTKEY` in `data/desktop_hub/helper.env`. Agent unlocks via desktop helper hotkey — physical keyboard stays blocked. See `docs/FOR_OWNER_KEYFREEZE.md`.
 
 ## Bootstrap
 

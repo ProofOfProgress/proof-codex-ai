@@ -13,7 +13,16 @@ from shorts_bot.desktop_hub.client import DesktopHubClient, DesktopHubError
 from shorts_bot.desktop_hub.host import default_helper_host, default_helper_port, helper_base_url
 from shorts_bot.desktop_hub.launcher import ensure_running, ensure_via_hub_ssh, ping_helper
 from shorts_bot.desktop_hub.prelaunch_trigger import DailyPrelaunchSchedule, load_prelaunch_schedule, save_prelaunch_schedule
+from shorts_bot.desktop_hub.keyfreeze import get_status, lock, unlock
 from shorts_bot.desktop_hub.schedule import DailyClickSchedule, load_schedule, save_schedule
+
+
+def _keyfreeze_via_hub(subcmd: str, *, force: bool) -> int:
+    from shorts_bot.hub_remote import run_remote
+
+    flag = " --force" if force else ""
+    remote = f"cd ~/proof-codex-ai && python3 -m shorts_bot.desktop_hub.cli keyfreeze {subcmd}{flag}"
+    return run_remote(["bash", "-lc", remote])
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -90,6 +99,21 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="Output path (default: data/desktop_hub/last_screenshot.png)",
     )
+
+    kf = sub.add_parser("keyfreeze", help="Lock/unlock keyboard+mouse via KeyFreeze (Windows hub)")
+    kf_sub = kf.add_subparsers(dest="kf_cmd", required=True)
+    kf_lock = kf_sub.add_parser("lock", help="Block local keyboard and mouse")
+    kf_lock.add_argument(
+        "--via-hub",
+        action="store_true",
+        help="Cloud agent: run lock on owner hub over SSH",
+    )
+    kf_lock.add_argument("--force", action="store_true", help="Send hotkey even if state says locked")
+    kf_unlock = kf_sub.add_parser("unlock", help="Restore keyboard and mouse")
+    kf_unlock.add_argument("--via-hub", action="store_true")
+    kf_unlock.add_argument("--force", action="store_true")
+    kf_status = kf_sub.add_parser("status", help="KeyFreeze process + lock state")
+    kf_status.add_argument("--via-hub", action="store_true")
 
     args = parser.parse_args(argv)
 
@@ -186,6 +210,53 @@ def main(argv: list[str] | None = None) -> int:
                     f"scout + prompt + Cursor submit"
                 )
             return 0
+        return 2
+
+    if args.cmd == "keyfreeze":
+        try:
+            if args.kf_cmd == "lock":
+                if args.via_hub:
+                    code = _keyfreeze_via_hub("lock", force=args.force)
+                    if code == 0:
+                        console.print("[green]KeyFreeze lock OK (via hub)[/green]")
+                    else:
+                        console.print("[red]KeyFreeze lock failed (via hub)[/red]")
+                    return code
+                msg = lock(force=args.force)
+                console.print(f"[green]{msg}[/green]")
+                return 0
+            if args.kf_cmd == "unlock":
+                if args.via_hub:
+                    code = _keyfreeze_via_hub("unlock", force=args.force)
+                    if code == 0:
+                        console.print("[green]KeyFreeze unlock OK (via hub)[/green]")
+                    else:
+                        console.print("[red]KeyFreeze unlock failed (via hub)[/red]")
+                    return code
+                msg = unlock(force=args.force)
+                console.print(f"[green]{msg}[/green]")
+                return 0
+            if args.kf_cmd == "status":
+                if args.via_hub:
+                    code = _keyfreeze_via_hub("status", force=False)
+                    return code
+                st = get_status()
+                table = Table(title="KeyFreeze")
+                table.add_column("Field")
+                table.add_column("Value")
+                table.add_row("process_running", str(st.process_running))
+                table.add_row("locked (last known)", str(st.locked))
+                table.add_row("exe_configured", str(st.exe_configured))
+                table.add_row("exe_path", st.exe_path or "(not set)")
+                table.add_row("state_file", st.state_file)
+                console.print(table)
+                return 0
+        except DesktopHubError as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
         return 2
 
     client = DesktopHubClient()

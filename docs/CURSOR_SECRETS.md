@@ -95,6 +95,10 @@ Setup: `docs/FOR_OWNER_DESKTOP_HELPER.md`
 | `DESKTOP_HELPER_TOKEN` | Runtime Secret | Same token set in PowerShell when starting helper on hub |
 | `DESKTOP_HELPER_HOST` | Environment Variable | Optional — WSL auto-detects Windows IP |
 | `DESKTOP_HELPER_PORT` | Environment Variable | Optional — default `9876` |
+| `KEYFREEZE_HOTKEY` | Runtime Secret | Optional — same as hub `helper.env`; agent unlock without SSH |
+| `KEYFREEZE_EXE` | Environment Variable | Optional — usually only in hub `helper.env` |
+
+KeyFreeze setup: `docs/FOR_OWNER_KEYFREEZE.md`
 
 ## Recommended — other
 

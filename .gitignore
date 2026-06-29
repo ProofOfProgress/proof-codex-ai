@@ -35,6 +35,7 @@ data/agent_ops/missions/*.jsonl
 data/facebook_api.json
 data/desktop_hub/helper.env
 data/desktop_hub/schedule.json
+data/desktop_hub/keyfreeze.state.json
 data/desktop_hub/daemon.log
 data/daily_prelaunch/today_plan.json
 data/daily_prelaunch/today_prompt.txt
