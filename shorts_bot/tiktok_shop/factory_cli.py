@@ -128,6 +128,18 @@ def main() -> None:
     batch.add_argument("--max", type=int, default=1, help="Max posts this run")
     batch.add_argument("--confirm", action="store_true")
 
+    sched = sub.add_parser(
+        "scheduler",
+        help="Cron-friendly auto-poster (always-on machine — not Cursor automations)",
+    )
+    sched_sub = sched.add_subparsers(dest="sched_cmd", required=True)
+    sched_tick = sched_sub.add_parser("tick", help="Post next queued clip if spacing allows")
+    sched_tick.add_argument("--account", default="affiliate_main")
+    sched_tick.add_argument("--confirm", action="store_true", help="Actually upload via Zernio")
+    sched_sub.add_parser("status", help="Queue, quota, spacing — no upload").add_argument(
+        "--account", default="affiliate_main"
+    )
+
     args = parser.parse_args()
 
     if args.cmd == "status":
@@ -504,6 +516,29 @@ def main() -> None:
                 break
 
         console.print(f"Posted this run: {posted}")
+        return
+
+    if args.cmd == "scheduler":
+        if args.sched_cmd == "status":
+            from shorts_bot.tiktok_shop.scheduler import scheduler_status
+
+            info = scheduler_status(account_id=args.account)
+            console.print(json.dumps(info, indent=2))
+            if info.get("queue_pending"):
+                console.print(f"[green]Queue:[/green] {info['queue_pending']} pending")
+            if info.get("seconds_until_next"):
+                console.print(f"[yellow]Spacing:[/yellow] wait {info['seconds_until_next']}s")
+            return
+
+        from shorts_bot.tiktok_shop.scheduler import tick_post
+
+        result = tick_post(account_id=args.account, confirm=args.confirm)
+        color = "green" if result.ok and result.action in ("posted", "skipped", "dry_run") else "red"
+        console.print(f"[{color}]{result.action}[/{color}]: {result.message}")
+        if result.publish_id:
+            console.print(f"  publish_id: {result.publish_id}")
+        if result.action == "failed" or result.action == "error":
+            raise SystemExit(1)
         return
 
 
