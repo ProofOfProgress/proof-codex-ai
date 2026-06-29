@@ -53,9 +53,7 @@ Zernio IDs: `accounts.json` · refresh: `python3 -m shorts_bot.zernio.auth_cli`
 
 1. Bot: research → Kling → caption → Module 1 QC  
 2. Zernio → **inbox draft** (MP4) to purchased account  
-3. Hub → ADB on **`phone_5`** → open draft → **Add Link → Products** → pick showcase item → publish  
-
-Until UI automation ships, step 3 can be a quick manual tap on `phone_5` — bot still does steps 1–2.
+3. Hub → ADB on **`phone_5`** → automated **Add Link → Products** → publish (phone worker).
 
 ---
 
@@ -63,11 +61,10 @@ Until UI automation ships, step 3 can be a quick manual tap on `phone_5` — bot
 
 | Done | Not yet |
 |------|---------|
-| 4 bubble + affiliate slot in config | Phones plugged in + USB serials in `devices.json` |
-| Affiliate → Zernio **inbox draft** + hub job queue | `add_product_link` UI automation on device |
-| Bubble → inbox draft + hub queue | Mackenzie UI automation (needs live phones) |
-| **`shorts_bot/phone_hub/`** — ADB, job queue, worker | Full publish automation on device |
-| Hub auto-connect (SSH) | usbipd attach per phone |
+| 5-phone slot map + Zernio inbox drafts | USB serials in `devices.json` |
+| **Automated** Mackenzie + product link + publish (ADB worker) | One-time `ui_coords.json` calibration on real phones |
+| Hub worker daemon (`phone_hub.cli serve`) | Live soak test when hardware arrives |
+| Hub SSH + desktop helper | usbipd attach (if WSL doesn't see devices) |
 
 Physical hub — **not** cloud phone farm.
 
@@ -91,4 +88,10 @@ python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --co
 python3 -m shorts_bot.phone_hub.cli tick --confirm      # on hub when phone_5 wired
 ```
 
-When phones arrive: fill `adb_serial` in `data/phone_hub/devices.json`.
+When phones arrive: fill `adb_serial` in `data/phone_hub/devices.json`, copy `ui_coords.json.example` → `ui_coords.json`, then:
+
+```bash
+python3 -m shorts_bot.phone_hub.cli serve          # hub daemon — drains inbox jobs
+# or one-shot:
+python3 -m shorts_bot.phone_hub.cli tick --confirm --max 10
+```

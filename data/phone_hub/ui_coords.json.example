@@ -1,0 +1,21 @@
+{
+  "_note": "Copy to ui_coords.json and calibrate on each phone resolution (1080x1920 typical). Agent can screenshot via desktop helper + owner confirms taps.",
+  "_default": {
+    "nav_inbox": { "x": 950, "y": 1850 },
+    "draft_row": { "x": 540, "y": 400 },
+    "draft_sounds": { "x": 540, "y": 1750 },
+    "sound_search": { "x": 540, "y": 200 },
+    "sound_use": { "x": 540, "y": 1750 },
+    "add_link": { "x": 540, "y": 1600 },
+    "products_tab": { "x": 270, "y": 900 },
+    "product_search": { "x": 540, "y": 250 },
+    "product_pick_first": { "x": 540, "y": 550 },
+    "product_confirm": { "x": 540, "y": 1750 },
+    "post_button": { "x": 900, "y": 100 }
+  },
+  "phone_1": {},
+  "phone_2": {},
+  "phone_3": {},
+  "phone_4": {},
+  "phone_5": {}
+}

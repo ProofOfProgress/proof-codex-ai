@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 
 from rich.console import Console
 from rich.table import Table
+
+ROOT = Path(__file__).resolve().parents[2]
 
 from shorts_bot.phone_hub.adb import AdbError, adb_version, list_devices
 from shorts_bot.phone_hub.devices import load_phone_slots, save_phone_slots
@@ -17,7 +20,7 @@ from shorts_bot.phone_hub.worker import MACKENZIE_SOUND_LABEL, tick
 
 def main(argv: list[str] | None = None) -> int:
     console = Console()
-    parser = argparse.ArgumentParser(description="Phone hub — 4 Android bubble phones via ADB")
+    parser = argparse.ArgumentParser(description="Phone hub — 5 Android phones via ADB (bubble + affiliate)")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("status", help="ADB + slot map + pending jobs")
@@ -27,8 +30,11 @@ def main(argv: list[str] | None = None) -> int:
     jobs_p = sub.add_parser("jobs", help="List hub job queue")
     jobs_p.add_argument("--status", default="", help="Filter by status")
 
-    tick_p = sub.add_parser("tick", help="Process next pending hub job")
-    tick_p.add_argument("--confirm", action="store_true", help="Run real ADB steps (needs phones + serials)")
+    tick_p = sub.add_parser("tick", help="Process pending hub job(s)")
+    tick_p.add_argument("--confirm", action="store_true", help="Run real ADB automation (needs phones + serials)")
+    tick_p.add_argument("--max", type=int, default=1, help="Max jobs per run (default 1)")
+
+    sub.add_parser("serve", help="Loop: process inbox jobs every 45s (hub daemon)")
 
     init_p = sub.add_parser("init-devices", help="Write devices.json from accounts.json")
     init_p.add_argument("--force", action="store_true")
@@ -48,9 +54,24 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.cmd == "tick":
         dry = not args.confirm
+        from shorts_bot.phone_hub.worker import run_until_idle, tick
+
+        if args.max > 1:
+            results = run_until_idle(dry_run=dry, max_jobs=args.max)
+            for result in results:
+                console.print(f"[bold]{result.action}[/bold] job={result.job_id} {result.detail}")
+            failed = any(r.action == "failed" for r in results)
+            idle = results and results[-1].action == "idle"
+            return 1 if failed else 0
         result = tick(dry_run=dry)
         console.print(f"[bold]{result.action}[/bold] job={result.job_id} {result.detail}")
         return 0 if result.action not in ("failed",) else 1
+    if args.cmd == "serve":
+        import subprocess
+
+        script = ROOT / "scripts" / "hub_phone_worker.sh"
+        console.print(f"[green]Starting phone worker loop[/green] ({script})")
+        raise SystemExit(subprocess.call(["bash", str(script)]))
     if args.cmd == "init-devices":
         path = devices_config_path_safe()
         if path.is_file() and not args.force:
@@ -62,16 +83,19 @@ def main(argv: list[str] | None = None) -> int:
 
             slots = []
             for acct in load_accounts():
-                if acct.track.startswith("bubble") and acct.phone_hub_slot:
-                    from shorts_bot.phone_hub.devices import PhoneSlot
+                if not acct.phone_hub_slot:
+                    continue
+                if not (acct.track.startswith("bubble") or acct.track.startswith("affiliate")):
+                    continue
+                from shorts_bot.phone_hub.devices import PhoneSlot
 
-                    slots.append(
-                        PhoneSlot(
-                            slot=acct.phone_hub_slot,
-                            account_id=acct.id,
-                            label=acct.label,
-                        )
+                slots.append(
+                    PhoneSlot(
+                        slot=acct.phone_hub_slot,
+                        account_id=acct.id,
+                        label=acct.label,
                     )
+                )
         out = save_phone_slots(slots)
         console.print(f"[green]Wrote {out}[/green] ({len(slots)} slots)")
         return 0
@@ -128,11 +152,12 @@ def _cmd_jobs(console: Console, *, status: str | None) -> None:
         console.print("[dim]No hub jobs[/dim]")
         return
     table = Table(title="Hub jobs")
-    for col in ("id", "status", "slot", "account_id", "zernio_post_id", "detail"):
+    for col in ("id", "type", "status", "slot", "account_id", "zernio_post_id", "detail"):
         table.add_column(col)
     for job in jobs:
         table.add_row(
             job.id,
+            job.job_type,
             job.status,
             job.phone_hub_slot,
             job.account_id,

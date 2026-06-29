@@ -8,6 +8,7 @@ scaffolds the primitives the worker will call.
 from __future__ import annotations
 
 import re
+import time
 import xml.etree.ElementTree as ET
 
 from shorts_bot.phone_hub.adb import AdbError, run_adb
@@ -89,3 +90,15 @@ def tap_by_text(text: str, *, serial: str, partial: bool = True) -> bool:
         return False
     tap(point[0], point[1], serial=serial)
     return True
+
+
+def open_view_url(url: str, *, serial: str, package: str = "") -> None:
+    """Open URL via Android VIEW intent (optionally force package)."""
+    args = ["shell", "am", "start", "-a", "android.intent.action.VIEW", "-d", url]
+    if package:
+        args.extend(["-p", package])
+    run_adb(*args, serial=serial, check=True)
+
+
+def sleep_ms(ms: int) -> None:
+    time.sleep(max(0, ms) / 1000.0)

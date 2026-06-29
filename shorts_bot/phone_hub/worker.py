@@ -1,10 +1,8 @@
-"""Phone hub worker — finish bubble inbox drafts (Mackenzie sound + publish).
-
-Full UI automation requires physical phones. Until then, ``dry_run=True`` logs
-each step so the pipeline can be tested end-to-end from cloud → Zernio draft → hub queue.
-"""
+"""Phone hub worker — automated inbox finish on Android (bubble + affiliate)."""
 
 from __future__ import annotations
+
+import time
 
 from dataclasses import dataclass
 from typing import Callable
@@ -12,11 +10,15 @@ from typing import Callable
 from shorts_bot.phone_hub.adb import AdbError, AdbResult, device_ready, run_adb
 from shorts_bot.phone_hub.devices import resolve_serial
 from shorts_bot.phone_hub.jobs import HubJob, next_pending_job, update_job
-
-# Module 2 — Mackenzie sound (owner adds manually on phone until UI automation ships)
-MACKENZIE_SOUND_URL = (
-    "https://www.tiktok.com/music/original-sound-7418286946344340256"
+from shorts_bot.phone_hub.tiktok_finish import (
+    MACKENZIE_SOUND_URL,
+    add_mackenzie_sound,
+    add_product_link,
+    open_inbox,
+    open_latest_draft,
+    publish_draft,
 )
+
 MACKENZIE_SOUND_LABEL = "original sound - •Mackenzie•"
 
 WORKER_STEPS_BUBBLE = (
@@ -60,8 +62,11 @@ def _run_step(
     if not serial:
         return False, f"No adb_serial for {job.phone_hub_slot} — fill data/phone_hub/devices.json"
 
+    slot = job.phone_hub_slot
+
     if step == "wake_device":
         adb_runner("shell", "input", "keyevent", "KEYCODE_WAKEUP", serial=serial, check=True)
+        time.sleep(0.5)
         return True, "device awake"
 
     if step == "open_tiktok":
@@ -76,31 +81,23 @@ def _run_step(
             serial=serial,
             check=True,
         )
+        time.sleep(1.5)
         return True, "TikTok launched"
 
     if step == "open_inbox":
-        from shorts_bot.phone_hub import ui as phone_ui
-
-        if phone_ui.tap_by_text("Inbox", serial=serial, partial=True):
-            return True, "opened Inbox via uiautomator"
-        return False, "open_inbox: could not find Inbox — needs ui_coords or manual step"
+        return open_inbox(serial=serial, slot=slot)
 
     if step == "open_draft":
-        from shorts_bot.phone_hub import ui as phone_ui
-
-        for label in ("Drafts", "Draft", "Inbox"):
-            if phone_ui.tap_by_text(label, serial=serial, partial=True):
-                return True, f"opened {label} via uiautomator"
-        return False, "open_draft: no Draft/Inbox node found — finish manually for now"
+        return open_latest_draft(serial=serial, slot=slot)
 
     if step == "add_mackenzie_sound":
-        return False, "add_mackenzie_sound: UI automation not wired — finish on phone for now"
+        return add_mackenzie_sound(serial=serial, slot=slot)
 
     if step == "add_product_link":
-        return False, "add_product_link: UI automation not wired — Add Link → Products on phone"
+        return add_product_link(serial=serial, slot=slot, product_name=job.product_name)
 
     if step == "publish":
-        return False, "publish: UI automation not wired — tap Post on phone"
+        return publish_draft(serial=serial, slot=slot)
 
     return False, f"unknown step: {step}"
 
@@ -112,6 +109,14 @@ def run_job(
     adb_runner: Callable[..., AdbResult] = run_adb,
 ) -> WorkerTickResult:
     serial = resolve_serial(job.phone_hub_slot)
+    if not dry_run and not serial:
+        update_job(job.id, status="awaiting_phone", detail=f"No adb_serial for {job.phone_hub_slot}")
+        return WorkerTickResult(
+            action="awaiting_phone",
+            job_id=job.id,
+            detail=f"Fill adb_serial in devices.json for {job.phone_hub_slot}",
+            dry_run=dry_run,
+        )
     if not dry_run and serial and not device_ready(serial):
         update_job(job.id, status="awaiting_phone", detail=f"serial {serial} not in adb devices")
         return WorkerTickResult(
@@ -135,14 +140,14 @@ def run_job(
             return WorkerTickResult(action="failed", job_id=job.id, detail=str(exc), dry_run=dry_run)
 
         if not ok:
-            update_job(job.id, status="awaiting_phone", detail=detail, steps_completed=completed)
-            return WorkerTickResult(action="awaiting_phone", job_id=job.id, detail=detail, dry_run=dry_run)
+            update_job(job.id, status="failed", detail=detail, steps_completed=completed)
+            return WorkerTickResult(action="failed", job_id=job.id, detail=detail, dry_run=dry_run)
 
         completed.append(step)
         update_job(job.id, steps_completed=completed, detail=detail)
 
     final_status = "dry_run_complete" if dry_run else "done"
-    update_job(job.id, status=final_status, detail="all steps logged" if dry_run else "published")
+    update_job(job.id, status=final_status, detail="published" if not dry_run else "dry-run ok")
     return WorkerTickResult(action=final_status, job_id=job.id, detail=job.account_id, dry_run=dry_run)
 
 
@@ -151,3 +156,16 @@ def tick(*, dry_run: bool = True) -> WorkerTickResult:
     if not job:
         return WorkerTickResult(action="idle", detail="no pending hub jobs")
     return run_job(job, dry_run=dry_run)
+
+
+def run_until_idle(*, dry_run: bool = False, max_jobs: int = 20) -> list[WorkerTickResult]:
+    """Process pending hub jobs sequentially (hub daemon / cron)."""
+    results: list[WorkerTickResult] = []
+    for _ in range(max_jobs):
+        result = tick(dry_run=dry_run)
+        results.append(result)
+        if result.action == "idle":
+            break
+        if result.action == "failed":
+            break
+    return results
