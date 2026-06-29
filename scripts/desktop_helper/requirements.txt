@@ -1,3 +1,6 @@
 pynput>=1.7.6
 mss>=9.0.1
 pyperclip>=1.8.2
+# Daemon imports shorts_bot.config (Settings) — keep minimal, no full repo requirements.txt
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
