@@ -85,7 +85,7 @@ Good examples for you later:
 
 - Week-1 commission tracking format  
 - Zernio account wiring checklist  
-- Appeal workflow after a violation (Module 8)
+- Zero-strike QC checklist before upload (Module 1 + TOS — not post-and-appeal)
 
 Bad: copying the whole course into a rule (point to `data/research/course/` instead).
 

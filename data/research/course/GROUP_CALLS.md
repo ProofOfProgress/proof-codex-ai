@@ -19,14 +19,15 @@ The agent should:
 - On-screen **caption / prompt text** styles (Module 6)
 - **Banned or risky words** (Module 7)
 - Product research filters (Module 3)
-- Violation / appeal tactics (Module 8)
+- **Violation prevention** — QC / TOS rule updates (Modules 1 + 7)
 - **Violation waves** — wait for coach playbook; owner logs in GROUP_CALLS
+- Module 8 appeal tactics — **emergency only**; owner north star is **zero strikes**
 
 ## Modules that explicitly say “join group calls”
 
 - Module 6 — caption prompt copy  
 - Module 7 — avoiding violations & misinformation wording  
-- Module 8 — violation waves + appeal strategy updates
+- Module 8 — violation waves + appeal playbooks (**emergency fallback** — prevention is Modules 1 + 7 + TOS QC)
 
 Module 1 visual/posting don’ts stay mandatory unless the owner says otherwise.
 
@@ -174,5 +175,13 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **IP / distribution:** Owner **keeping full automation private for now** — not selling/licensing to creator or course yet. Concern: mass distribution → market flood (many users × many accounts × automation).
 - **Competition note:** Creator’s free tool does **not** upload to TikTok — owner assesses this repo ahead on posting + full affiliate lane.
 - **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + **TikTok Shop Content Policy** (`TIKTOK_SHOP_CONTENT_POLICY.md`, `tos_policy.py`) is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7/TOS for speed.
+
+---
+
+## 2026-06-29 — Zero strikes, not appeals (owner)
+
+**North star:** **Never get a strike at all** — prevention via Module 1 + TOS QC before every upload. Regen until clean; do **not** post and plan to appeal.
+
+Module 8 / `APPEALS.md` = **emergency fallback only** if TikTok false-flags a QC-passed clip. Agents must not frame appeals as the goal or lower QC to hit 8–10/day.
 
 **Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.

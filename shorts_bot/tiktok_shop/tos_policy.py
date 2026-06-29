@@ -1,5 +1,7 @@
 """
-TikTok Shop Content Policy checks — seller university policy (2026-03-16).
+TikTok Shop Content Policy checks — zero-strike prevention (seller university 2026-03-16).
+
+Blocks risky promotional text and vision flags before upload. Appeals are not the strategy.
 
 Source: https://seller-sg.tiktok.com/university/essay?knowledge_id=7651420422014721&identity=1
 

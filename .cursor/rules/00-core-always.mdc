@@ -39,6 +39,7 @@ Fix It Fast · Rapid Tool Review · Ms. Byte content lane · InVideo daily · Pe
 
 ## Hard gates
 
+- **Zero strikes** — prevention, not appeals; regen until QC pass (`module1_qc.py` + `tos_policy.py`)
 - **Module 1 QC** zero violations before upload (`module1_qc.py`)
 - **Never freestyle Module 5 video prompts** — use `product-video-prompt-builder`
 - **FastMoss day 1** at affiliate launch — replaces EchoTik and Kalodata entirely

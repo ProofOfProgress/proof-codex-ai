@@ -9,6 +9,10 @@ alwaysApply: false
 Source: `data/research/course/module_01_read_before_anything.md`  
 Enforcement: `shorts_bot/tiktok_shop/module1_qc.py`
 
+## North star
+
+**Never get a strike.** The goal is prevention — block upload, regen until clean. Module 8 / appeals are emergency fallback only, not the plan.
+
 ## Rule
 
 **Zero Module 1 violations** before enqueue or post. No owner override for “just this once” unless owner explicitly accepts account risk in chat.
@@ -32,7 +36,7 @@ Delegate **`module1-qc-runner`** for batch checks — still **block upload** on 
 
 Never ship captions/descriptions with sale/price/discount language, giveaways, off-platform redirects (URL, email, phone, @handle), gambling/chance language, exaggerated health claims, or weight-loss sole claims.
 
-Full defense brief: `data/research/course/TIKTOK_SHOP_CONTENT_POLICY.md`  
+Full prevention brief: `data/research/course/TIKTOK_SHOP_CONTENT_POLICY.md`  
 Code: `shorts_bot/tiktok_shop/tos_policy.py` + `BANNED_CAPTION_PHRASES` in `module1_qc.py`
 
 ## Video prompt / Kling (Module 5)

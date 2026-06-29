@@ -64,9 +64,10 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 4. **Module 5** — AI video (Kling 2.6, 5s, audio off) — **video prompt from Product Video Prompt Builder** (`PROMPT_BUILDER.md`)
 5. **Module 6** — edit (~10s pan loop + pain-point caption, white box / black text)
 6. **Module 7** — avoid violations (CTR ≥5%, no sale/price/discount words)
-7. **Module 8** — appeals if flagged
+7. **Zero strikes** — Module 1 + TOS QC blocks upload until clean; **regen, do not post-and-appeal**
 
-**Mandatory QC:** `shorts_bot/tiktok_shop/module1_qc.py` — zero Module 1 violations or upload blocked.
+**Mandatory QC:** `shorts_bot/tiktok_shop/module1_qc.py` — zero Module 1 violations or upload blocked.  
+**Not the goal:** Module 8 / `APPEALS.md` — emergency fallback only if TikTok false-flags a QC-passed clip.
 
 ---
 
