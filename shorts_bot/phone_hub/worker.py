@@ -69,8 +69,20 @@ def _run_step(
         )
         return True, "TikTok launched"
 
-    # UI automation for inbox / Mackenzie / publish — needs phone + coordinate map
-    return False, f"Step {step} not automated yet — finish manually on phone for now"
+    if step == "open_inbox":
+        from shorts_bot.phone_hub import ui as phone_ui
+
+        if phone_ui.tap_by_text("Inbox", serial=serial, partial=True):
+            return True, "opened Inbox via uiautomator"
+        return False, "open_inbox: could not find Inbox — needs ui_coords or manual step"
+
+    if step == "open_draft":
+        from shorts_bot.phone_hub import ui as phone_ui
+
+        for label in ("Drafts", "Draft", "Inbox"):
+            if phone_ui.tap_by_text(label, serial=serial, partial=True):
+                return True, f"opened {label} via uiautomator"
+        return False, "open_draft: no Draft/Inbox node found — finish manually for now"
 
 
 def run_job(

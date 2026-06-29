@@ -86,6 +86,16 @@ Setup: `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · verify: `bash scripts/hub_remote_ve
 | `HUB_SSH_USER` | Environment Variable | WSL Linux username |
 | `HUB_SSH_PRIVATE_KEY` | Runtime Secret | Full private key from `hub_remote_setup.sh` |
 
+### Desktop helper (Windows keyboard/mouse)
+
+Setup: `docs/FOR_OWNER_DESKTOP_HELPER.md`
+
+| Secret name | Cursor type | Notes |
+|-------------|-------------|-------|
+| `DESKTOP_HELPER_TOKEN` | Runtime Secret | Same token set in PowerShell when starting helper on hub |
+| `DESKTOP_HELPER_HOST` | Environment Variable | Optional — WSL auto-detects Windows IP |
+| `DESKTOP_HELPER_PORT` | Environment Variable | Optional — default `9876` |
+
 ## Recommended — other
 
 | Secret name | Cursor type | Notes |

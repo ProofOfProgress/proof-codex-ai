@@ -106,10 +106,11 @@ If green, the agent can run install/status/adb on the HP for you.
 
 | Yes | No |
 |-----|-----|
-| `bash scripts/install.sh` | Click TikTok on phone screens |
-| `python3 -m shorts_bot.tiktok_shop status` | Move Windows mouse |
+| `bash scripts/install.sh` | Click TikTok on phone screens *(use ADB lane)* |
+| `python3 -m shorts_bot.tiktok_shop status` | Move Windows mouse *(use desktop helper)* |
 | `adb devices` (when phones plugged in) | Enter your Windows PIN |
-| Clone/pull repo, edit `.env` | See your desktop unless you screenshare separately |
+| `python3 -m shorts_bot.desktop_hub.cli type "..."` | See desktop without screenshot |
+| Clone/pull repo, edit `.env` | |
 
 ---
 

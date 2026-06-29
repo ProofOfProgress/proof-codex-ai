@@ -5,13 +5,16 @@
 **Budget math:** `docs/LAUNCH_BUDGET.md` — skip 5th phone; affiliate posts via Zernio from cloud.
 
 ```
-You / Cloud agent  →  Laptop hub  →  4 Android phones (USB hub)
-                           │                    │
-                     runs the bot          one bubble TikTok each
-                     controls phones 1-4   Mackenzie + publish (bubble)
+You / Cloud agent  →  Laptop hub  →  4 Android phones (USB / ADB)
+                    │              →  Windows desktop (keyboard/mouse helper)
+                           │
+                     runs the bot          bubble: inbox → Mackenzie → publish
+                     controls PC UI         Zernio web, TikTok web, file dialogs
 
 Affiliate (purchased account)  →  Zernio MP4 posts from cloud — no hub phone required
 ```
+
+**Two control lanes:** **`FOR_OWNER_PHONE_HUB.md`** (this file) + **`FOR_OWNER_DESKTOP_HELPER.md`** (PC keyboard/mouse).
 
 ---
 
