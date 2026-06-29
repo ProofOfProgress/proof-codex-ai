@@ -1,6 +1,6 @@
 ---
 description: Auto-connect to owner HP hub when hub secrets are configured
-globs: docs/FOR_OWNER_REMOTE_HUB_SSH.md,docs/FOR_OWNER_MINI_PC_INSTALL.md,scripts/hub_*.sh,shorts_bot/hub_remote.py
+globs: docs/FOR_OWNER_REMOTE_HUB_SSH.md,docs/FOR_OWNER_DESKTOP_HELPER.md,docs/FOR_OWNER_MINI_PC_INSTALL.md,scripts/hub_*.sh,scripts/desktop_helper*,shorts_bot/hub_remote.py,shorts_bot/desktop_hub/*,shorts_bot/phone_hub/*
 alwaysApply: false
 ---
 
@@ -10,7 +10,7 @@ When **HUB_SSH_*** secrets exist, the agent connects to the owner hub **automati
 
 ## When to connect
 
-Run **before** any hub-side work (WSL install, `adb`, bubble phone hub, repo on laptop):
+Run **before** any hub-side work (WSL install, `adb`, bubble phone hub, desktop helper, repo on laptop):
 
 ```bash
 python3 -m shorts_bot.hub_remote ensure --quiet
