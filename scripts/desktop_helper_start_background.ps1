@@ -21,11 +21,12 @@ if (-not $pyInfo) {
 $LogDir = Join-Path $Root "data\desktop_hub"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 $LogFile = Join-Path $LogDir "daemon.log"
+$ErrFile = Join-Path $LogDir "daemon.err.log"
 $Daemon = Join-Path $Root "scripts\desktop_helper\daemon.py"
 $pyArgs = @($pyInfo.LauncherArgs + @($Daemon))
 
 Start-Process -FilePath $pyInfo.Launcher -ArgumentList $pyArgs -WorkingDirectory $Root `
-    -WindowStyle Hidden -RedirectStandardOutput $LogFile -RedirectStandardError $LogFile
+    -WindowStyle Hidden -RedirectStandardOutput $LogFile -RedirectStandardError $ErrFile
 
 Start-Sleep -Seconds 2
 Write-Host "Desktop helper started."
