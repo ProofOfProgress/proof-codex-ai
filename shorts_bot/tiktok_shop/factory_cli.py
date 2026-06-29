@@ -140,6 +140,13 @@ def main() -> None:
         "--account", default="affiliate_main"
     )
 
+    bubble = sub.add_parser("bubble-slides", help="Module 2 — 2 bubble-wrap carousel slides (+ preview MP4)")
+    bubble.add_argument("--subject", default="frog", help="Wrapped subject (frog, duck, cake, etc.)")
+    bubble.add_argument("--hook", default="", help="Slide 1 hook text (default: SUBJECT BUBBLE WRAP ASMR >>>)")
+    bubble.add_argument("--account", default="", help="Output subfolder / account slug")
+    bubble.add_argument("--no-preview", action="store_true", help="Skip preview MP4 (slides only)")
+    bubble.add_argument("--force", action="store_true")
+
     args = parser.parse_args()
 
     if args.cmd == "status":
@@ -539,6 +546,24 @@ def main() -> None:
             console.print(f"  publish_id: {result.publish_id}")
         if result.action == "failed" or result.action == "error":
             raise SystemExit(1)
+        return
+
+    if args.cmd == "bubble-slides":
+        from shorts_bot.tiktok_shop.bubble_wrap import generate_bubble_wrap_slides
+
+        result = generate_bubble_wrap_slides(
+            subject=args.subject,
+            hook=args.hook,
+            account=args.account,
+            preview=not args.no_preview,
+            force=args.force,
+        )
+        console.print(f"[green]Slide 1 (hook):[/green] {result.slide1}")
+        console.print(f"[green]Slide 2 (CTA):[/green] {result.slide2}")
+        if result.preview_mp4:
+            console.print(f"[green]Preview MP4:[/green] {result.preview_mp4}")
+            console.print("[yellow]Preview only — post as 2-photo carousel on TikTok, not this MP4[/yellow]")
+        console.print(f"[dim]Model: {result.model} · Hook: {result.hook_text}[/dim]")
         return
 
 
