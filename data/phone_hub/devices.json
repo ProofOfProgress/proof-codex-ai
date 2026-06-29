@@ -28,6 +28,13 @@
       "adb_serial": "",
       "label": "Isaac",
       "enabled": true
+    },
+    {
+      "slot": "phone_5",
+      "account_id": "affiliate_main",
+      "adb_serial": "",
+      "label": "Purchased affiliate (Shop cart finish)",
+      "enabled": true
     }
   ]
 }

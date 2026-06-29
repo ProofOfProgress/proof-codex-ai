@@ -141,6 +141,8 @@ def upload_video(
     tiktok: bool = True,
     facebook: bool = True,
     publish_now: bool = True,
+    tiktok_account_id: str | None = None,
+    draft: bool = False,
 ) -> ZernioPostResult:
     """Presign MP4, upload to Zernio CDN, post to connected platforms."""
     if not credentials_configured():
@@ -151,22 +153,31 @@ def upload_video(
     upload_url, public_url = presign_video(video_path)
     upload_file_to_presigned(upload_url, video_path)
 
+    if tiktok and tiktok_account_id:
+        platforms = [_tiktok_platform_entry(account_id=tiktok_account_id)]
+    else:
+        platforms = _platform_targets(tiktok=tiktok, facebook=facebook)
+
+    tiktok_settings: dict[str, Any] = {
+        "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
+        "allow_comment": True,
+        "allow_duet": True,
+        "allow_stitch": True,
+        "content_preview_confirmed": True,
+        "express_consent_given": True,
+    }
+    if draft:
+        tiktok_settings["draft"] = True
+    if settings.zernio_declare_aigc:
+        tiktok_settings["video_made_with_ai"] = True
+
     payload: dict[str, Any] = {
         "content": caption[:2200],
         "mediaItems": [{"type": "video", "url": public_url}],
-        "platforms": _platform_targets(tiktok=tiktok, facebook=facebook),
-        "tiktokSettings": {
-            "privacy_level": settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE",
-            "allow_comment": True,
-            "allow_duet": True,
-            "allow_stitch": True,
-            "content_preview_confirmed": True,
-            "express_consent_given": True,
-        },
-        "publishNow": publish_now,
+        "platforms": platforms,
+        "tiktokSettings": tiktok_settings,
+        "publishNow": publish_now and not draft,
     }
-    if settings.zernio_declare_aigc:
-        payload["tiktokSettings"]["video_made_with_ai"] = True
 
     body = _request("POST", "/posts", json=payload)
     post = body.get("post") or body.get("data") or body

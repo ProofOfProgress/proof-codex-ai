@@ -1,4 +1,4 @@
-"""Map phone hub slots (phone_1..phone_4) to ADB serials and bubble accounts."""
+"""Map phone hub slots (phone_1..phone_5) to ADB serials and TikTok accounts."""
 
 from __future__ import annotations
 
@@ -35,7 +35,9 @@ def load_phone_slots() -> list[PhoneSlot]:
 
     slots: list[PhoneSlot] = []
     for acct in load_accounts():
-        if not acct.track.startswith("bubble") or not acct.phone_hub_slot:
+        if not acct.phone_hub_slot:
+            continue
+        if not (acct.track.startswith("bubble") or acct.track.startswith("affiliate")):
             continue
         row = file_rows.get(acct.phone_hub_slot, {})
         slots.append(
@@ -61,7 +63,9 @@ def slot_for_account(account_id: str) -> str | None:
 def account_for_slot(slot: str) -> ShopAccount | None:
     slot = (slot or "").strip()
     for acct in load_accounts():
-        if acct.phone_hub_slot == slot and acct.track.startswith("bubble"):
+        if acct.phone_hub_slot == slot and (
+            acct.track.startswith("bubble") or acct.track.startswith("affiliate")
+        ):
             return acct
     return None
 

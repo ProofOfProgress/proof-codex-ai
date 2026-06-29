@@ -19,12 +19,21 @@ MACKENZIE_SOUND_URL = (
 )
 MACKENZIE_SOUND_LABEL = "original sound - •Mackenzie•"
 
-WORKER_STEPS = (
+WORKER_STEPS_BUBBLE = (
     "wake_device",
     "open_tiktok",
     "open_inbox",
     "open_draft",
     "add_mackenzie_sound",
+    "publish",
+)
+
+WORKER_STEPS_AFFILIATE = (
+    "wake_device",
+    "open_tiktok",
+    "open_inbox",
+    "open_draft",
+    "add_product_link",
     "publish",
 )
 
@@ -84,6 +93,17 @@ def _run_step(
                 return True, f"opened {label} via uiautomator"
         return False, "open_draft: no Draft/Inbox node found — finish manually for now"
 
+    if step == "add_mackenzie_sound":
+        return False, "add_mackenzie_sound: UI automation not wired — finish on phone for now"
+
+    if step == "add_product_link":
+        return False, "add_product_link: UI automation not wired — Add Link → Products on phone"
+
+    if step == "publish":
+        return False, "publish: UI automation not wired — tap Post on phone"
+
+    return False, f"unknown step: {step}"
+
 
 def run_job(
     job: HubJob,
@@ -103,8 +123,9 @@ def run_job(
 
     update_job(job.id, status="in_progress")
     completed = list(job.steps_completed)
+    steps = WORKER_STEPS_AFFILIATE if job.job_type == "affiliate" else WORKER_STEPS_BUBBLE
 
-    for step in WORKER_STEPS:
+    for step in steps:
         if step in completed:
             continue
         try:

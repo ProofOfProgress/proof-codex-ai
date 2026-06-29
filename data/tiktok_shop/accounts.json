@@ -57,17 +57,17 @@
       "id": "affiliate_main",
       "label": "Purchased affiliate account (TBD)",
       "track": "affiliate",
-      "phone_hub_slot": "",
+      "phone_hub_slot": "phone_5",
       "daily_limit": 10,
       "enabled": false,
       "post_via": "zernio",
       "zernio_account_id": "",
-      "_note": "Purchased affiliate account — Zernio MP4 posts from cloud; no dedicated hub phone on budget path"
+      "_note": "Zernio inbox draft → phone_5 adds product link (orange cart) → publish"
     }
   ],
-  "_pre_launch_buy": "HP laptop (wipe) + 4 Android phones + 4 SIMs + purchased affiliate account — docs/LAUNCH_BUDGET.md",
+  "_pre_launch_buy": "HP laptop + 5 Android phones + 5 SIMs + purchased affiliate — docs/LAUNCH_BUDGET.md",
   "_launch": "Follow docs/LAUNCH_TODO.md — $1k in 7 days from first upload = $500 bonus",
-  "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day.",
-  "_architecture": "Laptop hub + 4 bubble phones — affiliate via Zernio only — docs/FOR_OWNER_PHONE_HUB.md",
+  "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day. Affiliate: 8-10/day on phone_5 finish.",
+  "_architecture": "Laptop hub + 5 phones (4 bubble + 1 affiliate) — docs/FOR_OWNER_PHONE_HUB.md",
   "_note": "affiliate_test = @gspgsgsorip1 (private tests). bubble_* use tiktok_switch_label for phone ADB. ZERNIO_TIKTOK_PRIVACY=SELF_ONLY for affiliate_test private posts."
 }

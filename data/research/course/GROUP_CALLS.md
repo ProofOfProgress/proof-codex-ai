@@ -62,9 +62,9 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 **Affiliate go-live:** **FastMoss** for research + **8–10 GOOD posts** when account + Zernio are live. Full ~$450/mo stack on at first post.
 
-**Pre-launch buy:** purchased **affiliate account (~$630)** first; bubble hardware (**4 phones + SIMs + laptop hub ~$280**) can follow in parallel — see `docs/LAUNCH_BUDGET.md`.
+**Pre-launch buy:** purchased **affiliate account (~$630)** first; hub hardware (**5 phones + SIMs + laptop ~$340**) — see `docs/LAUNCH_BUDGET.md`.
 
-**Phone hub:** 4 phones on laptop — bubble Mackenzie finish. Affiliate = Zernio MP4 from cloud (no 5th phone). See `FOR_OWNER_PHONE_HUB.md` · `LAUNCH_CHECKLIST.md`
+**Phone hub:** 5 phones — 4 bubble (Mackenzie) + **1 affiliate (`phone_5`)** for shopping cart / product link (Zernio can't attach via API). See `FOR_OWNER_PHONE_HUB.md`
 
 **Bubble cadence:** **Safe** — gspgsgsorip1, Isaac @ 3–4/day. **Aggressive** — proofofprogresss, Ms. Byte @ 8–10/day.
 

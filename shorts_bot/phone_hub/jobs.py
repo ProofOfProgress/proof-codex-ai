@@ -17,8 +17,12 @@ class HubJob:
     account_id: str
     phone_hub_slot: str
     zernio_post_id: str
-    slide1: str
-    slide2: str
+    slide1: str = ""
+    slide2: str = ""
+    job_type: str = "bubble"  # bubble | affiliate
+    video_path: str = ""
+    product_id: str = ""
+    product_name: str = ""
     status: str = "pending"
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
@@ -59,8 +63,12 @@ def enqueue_job(
     account_id: str,
     phone_hub_slot: str,
     zernio_post_id: str,
-    slide1: str | Path,
-    slide2: str | Path,
+    slide1: str | Path = "",
+    slide2: str | Path = "",
+    job_type: str = "bubble",
+    video_path: str | Path = "",
+    product_id: str = "",
+    product_name: str = "",
     status: str = "pending",
     detail: str = "",
 ) -> HubJob:
@@ -72,6 +80,10 @@ def enqueue_job(
         zernio_post_id=zernio_post_id,
         slide1=str(slide1),
         slide2=str(slide2),
+        job_type=job_type,
+        video_path=str(video_path),
+        product_id=product_id,
+        product_name=product_name,
         status=status,
         detail=detail,
     )
