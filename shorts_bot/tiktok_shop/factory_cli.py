@@ -175,6 +175,19 @@ def main() -> None:
         help="Re-burn text on slide*_raw.jpg only (no Gemini regen)",
     )
 
+    batch_bubble = sub.add_parser(
+        "bubble-batch",
+        help="Generate N bubble slide sets — stored locally, never posted",
+    )
+    batch_bubble.add_argument("--count", type=int, default=10, help="How many subjects (default 10)")
+    batch_bubble.add_argument(
+        "--subjects",
+        default="",
+        help="Comma-separated subjects (default: built-in list of 10)",
+    )
+    batch_bubble.add_argument("--force", action="store_true", help="Regenerate even if slides exist")
+    batch_bubble.add_argument("--no-preview", action="store_true", help="Skip preview MP4 per clip")
+
     args = parser.parse_args()
 
     if args.cmd == "status":
@@ -642,6 +655,43 @@ def main() -> None:
             console.print(f"[green]Preview MP4:[/green] {result.preview_mp4}")
             console.print("[yellow]Preview only — post as 2-photo carousel on TikTok, not this MP4[/yellow]")
         console.print(f"[dim]Model: {result.model} · Hook: {result.hook_text}[/dim]")
+        return
+
+    if args.cmd == "bubble-batch":
+        from shorts_bot.tiktok_shop.bubble_batch import run_bubble_batch
+
+        subjects = [s.strip() for s in args.subjects.split(",") if s.strip()] or None
+        console.print(
+            Panel(
+                f"Store-only batch — {args.count} bubble clip(s)\n"
+                "No TikTok · No Zernio · Files in data/bubble_wrap/slides/",
+                title="bubble-batch",
+                border_style="cyan",
+            )
+        )
+        batch = run_bubble_batch(
+            count=args.count,
+            subjects=subjects,
+            force=args.force,
+            preview=not args.no_preview,
+        )
+        table = Table(title="Batch results")
+        table.add_column("#")
+        table.add_column("Subject")
+        table.add_column("Status")
+        table.add_column("Slides folder")
+        for i, item in enumerate(batch.items, start=1):
+            status = "[green]OK[/green]" if item.ok else f"[red]{item.error}[/red]"
+            folder = str(Path(item.slide1).parent) if item.slide1 else "—"
+            table.add_row(str(i), item.subject, status, folder)
+        console.print(table)
+        console.print(f"[green]Manifest:[/green] {batch.manifest_path}")
+        console.print(
+            f"[dim]{batch.succeeded}/{batch.total} OK · "
+            f"Gemini images only — safe to review before any post[/dim]"
+        )
+        if batch.failed:
+            raise SystemExit(1)
         return
 
 

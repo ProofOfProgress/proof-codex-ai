@@ -116,7 +116,11 @@ If green, the agent can run install/status/adb on the HP for you.
 
 ## Keep the hub reachable
 
-After **rebooting Windows**, open Ubuntu once and run:
+After **rebooting Windows**, log in (PIN), then double-click **START HUB (Proof Codex)** on the Desktop.
+
+One-time install: `scripts/INSTALL_HUB_START_BUTTON.bat` — see **`docs/FOR_OWNER_HUB_START_BUTTON.md`**
+
+Manual (same steps inside Ubuntu):
 
 ```bash
 sudo service ssh start
