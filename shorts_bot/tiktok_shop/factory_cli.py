@@ -159,6 +159,11 @@ def main() -> None:
     bubble.add_argument("--account", default="", help="Output subfolder / account slug")
     bubble.add_argument("--no-preview", action="store_true", help="Skip preview MP4 (slides only)")
     bubble.add_argument("--force", action="store_true")
+    bubble.add_argument(
+        "--rebake-captions",
+        action="store_true",
+        help="Re-burn text on slide*_raw.jpg only (no Gemini regen)",
+    )
 
     args = parser.parse_args()
 
@@ -582,15 +587,27 @@ def main() -> None:
         return
 
     if args.cmd == "bubble-slides":
-        from shorts_bot.tiktok_shop.bubble_wrap import generate_bubble_wrap_slides
+        from shorts_bot.tiktok_shop.bubble_wrap import generate_bubble_wrap_slides, rebake_bubble_captions
 
-        result = generate_bubble_wrap_slides(
-            subject=args.subject,
-            hook=args.hook,
-            account=args.account,
-            preview=not args.no_preview,
-            force=args.force,
-        )
+        if args.rebake_captions:
+            try:
+                result = rebake_bubble_captions(
+                    subject=args.subject,
+                    hook=args.hook,
+                    account=args.account,
+                    preview=not args.no_preview,
+                )
+            except FileNotFoundError as exc:
+                console.print(f"[red]{exc}[/red]")
+                raise SystemExit(1) from exc
+        else:
+            result = generate_bubble_wrap_slides(
+                subject=args.subject,
+                hook=args.hook,
+                account=args.account,
+                preview=not args.no_preview,
+                force=args.force,
+            )
         console.print(f"[green]Slide 1 (hook):[/green] {result.slide1}")
         console.print(f"[green]Slide 2 (CTA):[/green] {result.slide2}")
         if result.preview_mp4:

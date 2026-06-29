@@ -1,0 +1,4 @@
+Pause = Pop 💥
+Follow = Loud pop 🔊
+Share = Giant pop 🦖
+Comment = Big pop 💥💥
