@@ -21,12 +21,13 @@ def load_coords() -> dict:
 
 
 def get_coord(slot: str, key: str) -> tuple[int, int] | None:
-    """Return (x, y) for slot+key from ui_coords.json."""
+    """Return (x, y) for slot+key — slot overrides, then _default."""
     raw = load_coords()
-    slot_block = raw.get(slot) or raw.get("_default") or {}
-    if not isinstance(slot_block, dict):
-        return None
-    point = slot_block.get(key)
+    slot_block = raw.get(slot) if isinstance(raw.get(slot), dict) else {}
+    default_block = raw.get("_default") if isinstance(raw.get("_default"), dict) else {}
+    point = slot_block.get(key) if isinstance(slot_block, dict) else None
+    if point is None and isinstance(default_block, dict):
+        point = default_block.get(key)
     if isinstance(point, dict) and "x" in point and "y" in point:
         return int(point["x"]), int(point["y"])
     if isinstance(point, (list, tuple)) and len(point) >= 2:

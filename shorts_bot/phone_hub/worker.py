@@ -151,18 +151,29 @@ def run_job(
     return WorkerTickResult(action=final_status, job_id=job.id, detail=job.account_id, dry_run=dry_run)
 
 
-def tick(*, dry_run: bool = True) -> WorkerTickResult:
-    job = next_pending_job()
+def tick(*, dry_run: bool = True, slot: str | None = None, only_connected: bool = False) -> WorkerTickResult:
+    job = next_pending_job(slot=slot, only_connected=only_connected)
     if not job:
-        return WorkerTickResult(action="idle", detail="no pending hub jobs")
+        detail = "no pending hub jobs"
+        if slot:
+            detail += f" for {slot}"
+        if only_connected:
+            detail += " (connected phones only)"
+        return WorkerTickResult(action="idle", detail=detail)
     return run_job(job, dry_run=dry_run)
 
 
-def run_until_idle(*, dry_run: bool = False, max_jobs: int = 20) -> list[WorkerTickResult]:
+def run_until_idle(
+    *,
+    dry_run: bool = False,
+    max_jobs: int = 20,
+    slot: str | None = None,
+    only_connected: bool = False,
+) -> list[WorkerTickResult]:
     """Process pending hub jobs sequentially (hub daemon / cron)."""
     results: list[WorkerTickResult] = []
     for _ in range(max_jobs):
-        result = tick(dry_run=dry_run)
+        result = tick(dry_run=dry_run, slot=slot, only_connected=only_connected)
         results.append(result)
         if result.action == "idle":
             break

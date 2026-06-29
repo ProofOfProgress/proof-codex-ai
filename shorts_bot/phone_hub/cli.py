@@ -33,6 +33,34 @@ def main(argv: list[str] | None = None) -> int:
     tick_p = sub.add_parser("tick", help="Process pending hub job(s)")
     tick_p.add_argument("--confirm", action="store_true", help="Run real ADB automation (needs phones + serials)")
     tick_p.add_argument("--max", type=int, default=1, help="Max jobs per run (default 1)")
+    tick_p.add_argument("--slot", default="", help="Only process jobs for this slot (e.g. phone_1)")
+    tick_p.add_argument(
+        "--only-connected",
+        action="store_true",
+        help="Skip jobs whose phone is not plugged in (one-phone dev mode)",
+    )
+
+    setup_p = sub.add_parser(
+        "setup-phone",
+        help="Bind one connected phone to a slot + init ui_coords.json",
+    )
+    setup_p.add_argument("--slot", default="phone_1", help="Hub slot (default phone_1 bubble)")
+    setup_p.add_argument("--serial", default="auto", help="ADB serial or auto when one phone plugged in")
+
+    bind_p = sub.add_parser("bind-serial", help="Set adb_serial for a slot")
+    bind_p.add_argument("--slot", required=True)
+    bind_p.add_argument("--serial", default="auto")
+
+    sub.add_parser("init-coords", help="Copy ui_coords.json.example → ui_coords.json")
+
+    test_p = sub.add_parser("test-job", help="Enqueue smoke-test hub job for one slot")
+    test_p.add_argument("--slot", default="phone_1")
+    test_p.add_argument("--type", default="bubble", choices=["bubble", "affiliate"])
+    test_p.add_argument("--run", action="store_true", help="Run tick after enqueue (dry-run unless --confirm)")
+    test_p.add_argument("--confirm", action="store_true", help="Live ADB with test job")
+
+    ready_p = sub.add_parser("readiness", help="One-phone checklist (serial, coords, connection)")
+    ready_p.add_argument("--slot", default="phone_1")
 
     sub.add_parser("serve", help="Loop: process inbox jobs every 45s (hub daemon)")
 
@@ -56,16 +84,76 @@ def main(argv: list[str] | None = None) -> int:
         dry = not args.confirm
         from shorts_bot.phone_hub.worker import run_until_idle, tick
 
+        slot = (args.slot or "").strip() or None
         if args.max > 1:
-            results = run_until_idle(dry_run=dry, max_jobs=args.max)
+            results = run_until_idle(
+                dry_run=dry,
+                max_jobs=args.max,
+                slot=slot,
+                only_connected=args.only_connected,
+            )
             for result in results:
                 console.print(f"[bold]{result.action}[/bold] job={result.job_id} {result.detail}")
             failed = any(r.action == "failed" for r in results)
-            idle = results and results[-1].action == "idle"
             return 1 if failed else 0
-        result = tick(dry_run=dry)
+        result = tick(dry_run=dry, slot=slot, only_connected=args.only_connected)
         console.print(f"[bold]{result.action}[/bold] job={result.job_id} {result.detail}")
         return 0 if result.action not in ("failed",) else 1
+    if args.cmd == "setup-phone":
+        from shorts_bot.phone_hub.setup import setup_one_phone
+
+        try:
+            outcome = setup_one_phone(args.slot, serial=args.serial)
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
+        console.print(f"[green]{outcome.message}[/green]")
+        console.print(f"  devices: {outcome.devices_path}")
+        console.print(f"  coords:  {outcome.coords_path}")
+        console.print(f"  account: {outcome.account_id}")
+        console.print("[dim]Next: test-job --slot {slot} --run  then  tick --confirm when draft in inbox[/dim]".format(slot=args.slot))
+        return 0
+    if args.cmd == "bind-serial":
+        from shorts_bot.phone_hub.setup import bind_serial_to_slot, pick_adb_serial
+
+        try:
+            serial, auto = pick_adb_serial(args.serial)
+            path = bind_serial_to_slot(args.slot, serial)
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
+        label = "auto" if auto else "manual"
+        console.print(f"[green]Bound {args.slot} → {serial}[/green] ({label}) → {path}")
+        return 0
+    if args.cmd == "init-coords":
+        from shorts_bot.phone_hub.setup import init_ui_coords
+
+        path = init_ui_coords()
+        console.print(f"[green]UI coords ready:[/green] {path}")
+        return 0
+    if args.cmd == "test-job":
+        from shorts_bot.phone_hub.setup import enqueue_test_job
+        from shorts_bot.phone_hub.worker import tick
+
+        job = enqueue_test_job(args.slot, job_type=args.type)
+        console.print(f"[green]Test job queued:[/green] {job.id} ({args.type}) → {args.slot}")
+        if args.run or args.confirm:
+            result = tick(dry_run=not args.confirm, slot=args.slot)
+            console.print(f"[bold]{result.action}[/bold] {result.detail}")
+            return 0 if result.action not in ("failed",) else 1
+        return 0
+    if args.cmd == "readiness":
+        from shorts_bot.phone_hub.setup import one_phone_readiness
+
+        info = one_phone_readiness(args.slot)
+        for key, val in info.items():
+            ok = val is True or (key == "account_id" and val)
+            color = "green" if ok else "yellow"
+            if key in {"serial_set", "serial_connected", "ui_coords_exists"}:
+                console.print(f"  [{color}]{key}[/{color}]: {val}")
+            else:
+                console.print(f"  {key}: {val}")
+        return 0
     if args.cmd == "serve":
         import subprocess
 

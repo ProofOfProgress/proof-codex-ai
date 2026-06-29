@@ -116,7 +116,16 @@ def update_job(job_id: str, **fields: object) -> HubJob | None:
     return updated
 
 
-def next_pending_job() -> HubJob | None:
+def next_pending_job(*, slot: str | None = None, only_connected: bool = False) -> HubJob | None:
+    from shorts_bot.phone_hub.adb import device_ready
+    from shorts_bot.phone_hub.devices import resolve_serial
+
     for job in list_jobs(status="pending"):
+        if slot and job.phone_hub_slot != slot:
+            continue
+        if only_connected:
+            serial = resolve_serial(job.phone_hub_slot)
+            if not serial or not device_ready(serial):
+                continue
         return job
     return None

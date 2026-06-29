@@ -16,6 +16,8 @@ Affiliate (purchased account)  →  Zernio MP4 **inbox draft** → **phone_5** a
 
 **Two control lanes:** **`FOR_OWNER_PHONE_HUB.md`** (this file) + **`FOR_OWNER_DESKTOP_HELPER.md`** (PC keyboard/mouse).
 
+**One phone first?** See **`FOR_OWNER_ONE_PHONE_SETUP.md`** — wire `phone_1`, prove bubble flow, copy to other slots later.
+
 ---
 
 ## Phone map
