@@ -215,8 +215,6 @@ def main() -> None:
         return
 
     if args.cmd == "qc":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.module1_qc import run_module1_qc
 
         report = run_module1_qc(
@@ -260,8 +258,6 @@ def main() -> None:
         return
 
     if args.cmd == "sample-image":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.module4_sample import generate_module4_sample
 
         ref = Path(args.reference) if args.reference else None
@@ -293,8 +289,6 @@ def main() -> None:
         return
 
     if args.cmd == "prompt-dispatch":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.pipeline import dispatch_brief
 
         handoff = args.handoff.strip()
@@ -313,8 +307,6 @@ def main() -> None:
         return
 
     if args.cmd == "save-prompt":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.pipeline import save_prompt_file
 
         prompt = (args.prompt or "").strip()
@@ -328,8 +320,6 @@ def main() -> None:
         return
 
     if args.cmd == "render":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.render import render_product_clip
 
         try:
@@ -362,8 +352,6 @@ def main() -> None:
         return
 
     if args.cmd == "burn-caption":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.video_editor import burn_on_screen_caption
 
         out = burn_on_screen_caption(Path(args.video), Path(args.out), args.caption)
@@ -371,8 +359,6 @@ def main() -> None:
         return
 
     if args.cmd == "make-clip":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.captions import on_screen_caption, sanitize_caption
         from shorts_bot.tiktok_shop.queue import enqueue_video
         from shorts_bot.tiktok_shop.render import render_product_clip
@@ -438,8 +424,6 @@ def main() -> None:
         return
 
     if args.cmd == "loop-clip":
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.video_variants import make_pan_loop_clip
 
         out = make_pan_loop_clip(Path(args.inp), Path(args.out))
@@ -461,8 +445,6 @@ def main() -> None:
         return
 
     if args.cmd in ("post", "post-batch"):
-        from pathlib import Path
-
         from shorts_bot.tiktok_shop.accounts import ShopAccount, load_accounts
         from shorts_bot.tiktok_shop.poster import post_clip
         from shorts_bot.tiktok_shop.queue import load_queue, save_queue
