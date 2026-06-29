@@ -80,6 +80,7 @@ Review the manifest path it prints (`data/bubble_wrap/batches/batch_*.json`).
 
 ## Related
 
+- **START HUB crashes?** `FOR_OWNER_HUB_GET_AGENT_IN.md` — FIX HUB ONCE + auto-start at login
 - Remote hub SSH: `FOR_OWNER_REMOTE_HUB_SSH.md`
 - Desktop helper: `FOR_OWNER_DESKTOP_HELPER.md`
 - Bubble format: `data/research/course/BUBBLE_WRAP.md`

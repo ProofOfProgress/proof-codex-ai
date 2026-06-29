@@ -6,6 +6,13 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+if [[ -f "$ROOT/.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$ROOT/.env" 2>/dev/null || true
+  set +a
+fi
+
 TS_SOCKET="${TS_SOCKET:-/var/run/tailscale/tailscaled.sock}"
 LOG_FILE="$ROOT/data/desktop_hub/hub_start.log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -66,8 +73,19 @@ else
     step_ok "Tailscale connected"
     TS_OK=1
   else
+    TS_AUTH="${HUB_LOCAL_TAILSCALE_AUTH_KEY:-${TAILSCALE_AUTH_KEY:-}}"
+    if [[ -n "$TS_AUTH" ]]; then
+      step_warn "Trying Tailscale with auth key from .env (no browser)..."
+      if try_sudo tailscale --socket="$TS_SOCKET" up --auth-key="$TS_AUTH"; then
+        step_ok "Tailscale connected (auth key)"
+        TS_OK=1
+      fi
+    fi
+  fi
+  if [[ "$TS_OK" != 1 ]]; then
     step_fail "Tailscale up failed — open Ubuntu and run:"
     log "  sudo tailscale --socket=$TS_SOCKET up"
+    log "  Or add HUB_LOCAL_TAILSCALE_AUTH_KEY to .env (reusable key from tailscale.com)"
     if [[ -f /tmp/tailscaled.log ]]; then
       log "  tailscale log: /tmp/tailscaled.log"
       tail -8 /tmp/tailscaled.log 2>/dev/null | tee -a "$LOG_FILE" || true
