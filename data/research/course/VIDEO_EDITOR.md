@@ -79,7 +79,7 @@ Sidecar file: `data/tiktok_shop/clips/{name}_loop.hook.txt`
 |--------|--------|
 | Text | **White**, bold |
 | Outline | **Tiny black outline** |
-| Font size | 42 (config) |
+| Font size | 48 (config — 15% up from 42) |
 | Text align | **Center** — each line centered on screen (TikTok center option), not left rag |
 | Placement | Upper-center (~top third) |
 

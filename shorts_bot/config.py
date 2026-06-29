@@ -151,7 +151,7 @@ class Settings(BaseSettings):
     tiktok_shop_hook_delivery: str = "native"  # native | burn_in — native = add text in TikTok app
     tiktok_shop_caption_max_chars_per_line: int = 20  # owner cap — 22+ clipped sides; 20 is safe max
     tiktok_shop_caption_max_lines: int = 7
-    tiktok_shop_caption_font_size: int = 42  # burn_in only
+    tiktok_shop_caption_font_size: int = 48  # burn_in only — 15% up from 42 (owner 2026-06)
 
     # InVideo AI — RETIRED (Fix It Fast / Ms. Byte lane). Keys ignored unless re-enabled by owner.
     invideo_api_key: str | None = None
