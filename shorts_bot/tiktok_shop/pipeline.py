@@ -22,6 +22,36 @@ REQUIRED_ASPECT = "9:16"
 TARGET_WIDTH = 1080
 TARGET_HEIGHT = 1920
 
+# Prompt must explicitly forbid product motion (Module 1 "moving products" ban)
+_STATIONARY_MARKERS = (
+    "stationary",
+    "does not move",
+    "do not move",
+    "not move",
+    "fixed in place",
+    "locked in place",
+    "locked to",
+    "does not rotate",
+    "not rotate",
+    "no rotation",
+    "zero rotation",
+    "product stays still",
+    "stays perfectly still",
+    "camera moves only",
+    "moving camera only",
+    "fixed product",
+)
+_ROTATION_RISK_PHRASES = (
+    "orbit the product",
+    "product orbit",
+    "turntable",
+    "360 view",
+    "rotate to show",
+    "spin around the product",
+    "product rotates",
+    "rotating product",
+)
+
 
 @dataclass
 class PipelineCheck:
@@ -115,6 +145,19 @@ def validate_before_render(
     elif len(prompt) < 80:
         warnings.append("Prompt looks very short — prompt builder should output a full paragraph")
 
+    if prompt:
+        lower = prompt.lower()
+        if not any(m in lower for m in _STATIONARY_MARKERS):
+            errors.append(
+                "Kling prompt must explicitly say product is stationary / fixed / does not rotate — "
+                "product-video-prompt-builder must instruct: fixed product, moving camera only"
+            )
+        if any(r in lower for r in _ROTATION_RISK_PHRASES):
+            warnings.append(
+                "Prompt may trigger product rotation in Kling — remove orbit/turntable/spin language; "
+                "use fixed product + arc camera only"
+            )
+
     if product_image is None or not Path(product_image).is_file():
         errors.append(f"Module 4 sample image required: {product_image or '(missing)'}")
     else:
@@ -164,9 +207,11 @@ def dispatch_brief(
             "Requirements:",
             "- Output ONE Kling 2.6 video prompt paragraph only",
             "- Rich staged background (NOT plain white box — reduces still-image ban risk)",
-            "- Product stationary; multi-axis arc camera with slight handheld micro-shake",
+            "- CRITICAL — product FIXED on surface: zero rotation, zero spin, zero slide, zero product motion",
+            "- ONLY the camera moves: slow multi-axis arc + slight handheld micro-shake (NOT product turntable)",
+            "- Say explicitly: product locked/stationary; camera arcs around it — never 'orbit the product' or '360 spin'",
             "- Vertical 9:16 TikTok Shop framing",
-            "- Module 1 compliant — zero ban triggers",
+            "- Module 1 compliant — zero ban triggers (moving product = instant fail)",
         ]
     )
     if visual_handoff.strip():

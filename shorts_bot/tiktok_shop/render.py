@@ -18,7 +18,8 @@ NEGATIVE_PROMPT = (
     "empty void, plain gray background, gray border, letterbox bars, black bars, padded frame, "
     "unfinished 3D render, blender default scene, featureless backdrop, flat monochrome wall, "
     "plain white box, isolated product on white, static photograph, frozen still image, "
-    "no camera motion, locked tripod, product moving, product rotating, "
+    "no camera motion, locked tripod, product moving, product rotating, product spinning, "
+    "turntable spin, product orbit, object rotation, spinning product, "
     "phone screen, mobile app icons, home screen UI, laptop screen with UI, MacBook logo, "
     "Apple logo, Instagram logo, third-party brand logos, competitor branding, "
     "low quality, blur, distortion, text, watermark, extreme close-up, tight crop, product fills entire frame"
@@ -36,8 +37,14 @@ DEFAULT_PROMPT = (
 )
 
 ARC_CAMERA_SUFFIX = (
-    " Arc camera shot from left to right with gentle handheld micro-shake — product stays "
-    "stationary in center; camera moves in a smooth organic arc, not static."
+    " Move only the camera in a slow multi-axis arc with gentle handheld micro-shake — "
+    "the product stays locked and fixed on the surface; it does not rotate, spin, slide, or move."
+)
+
+STATIONARY_PRODUCT_SUFFIX = (
+    " CRITICAL: The product is physically fixed to the surface for the entire clip — "
+    "zero product rotation, zero spinning, zero sliding, zero orbiting, zero wobble. "
+    "Only the camera moves; the product does not."
 )
 
 PROMPT_STYLES: dict[str, str] = {
@@ -134,6 +141,19 @@ def resolve_kling_image(
     )
 
 
+def _ensure_kling_motion_prompt(text: str) -> str:
+    """Append arc-camera + fixed-product language Kling tends to drop."""
+    out = text.rstrip().rstrip(".")
+    lower = out.lower()
+    if "arc" not in lower and "camera" not in lower:
+        out += "." + ARC_CAMERA_SUFFIX
+    elif "does not rotate" not in lower and "not rotate" not in lower and "zero rotation" not in lower:
+        out += "." + STATIONARY_PRODUCT_SUFFIX
+    elif "stationary" not in lower and "fixed" not in lower and "locked" not in lower:
+        out += "." + STATIONARY_PRODUCT_SUFFIX
+    return out
+
+
 def _resolve_kling_prompt(
     *,
     prompt: str,
@@ -146,11 +166,9 @@ def _resolve_kling_prompt(
     if prompt_file and Path(prompt_file).is_file():
         text = load_prompt_file(prompt_file)
     if text:
-        if "arc" not in text.lower() and "camera" not in text.lower():
-            text = text.rstrip(".") + "." + ARC_CAMERA_SUFFIX
-        return text
+        return _ensure_kling_motion_prompt(text)
     if allow_default_prompt:
-        return prompt_for_style(style, product_name=product_name) + ARC_CAMERA_SUFFIX
+        return _ensure_kling_motion_prompt(prompt_for_style(style, product_name=product_name))
     raise RuntimeError(
         "Kling prompt required — delegate to product-video-prompt-builder first.\n"
         "  python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product \"NAME\" "

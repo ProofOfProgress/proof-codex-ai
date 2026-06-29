@@ -35,6 +35,38 @@ def test_validate_before_render_requires_prompt(tmp_path):
     assert any("prompt" in e.lower() for e in check.errors)
 
 
+def test_validate_before_render_requires_stationary_language(tmp_path):
+    img = tmp_path / "p.jpg"
+    img.write_bytes(b"fake")
+    bad = validate_before_render(
+        product_name="Mount",
+        product_image=img,
+        prompt_text="Use uploaded image. Arc camera around product on desk.",
+    )
+    assert not bad.ok
+    assert any("stationary" in e.lower() or "rotate" in e.lower() for e in bad.errors)
+
+    good = validate_before_render(
+        product_name="Mount",
+        product_image=img,
+        prompt_text=(
+            "Use uploaded image. Product locked to desk, does not rotate. "
+            "Camera arcs with handheld micro-shake."
+        ),
+    )
+    assert good.ok
+
+
+def test_dispatch_brief_requires_fixed_product_language():
+    text = dispatch_brief(
+        product_name="Car Phone Mount",
+        product_image=Path("/tmp/sample.jpg"),
+    )
+    assert "FIXED on surface" in text
+    assert "zero rotation" in text
+    assert "camera moves" in text.lower()
+
+
 def test_save_prompt_file(tmp_path, monkeypatch):
     class FakeSettings:
         data_dir = tmp_path
