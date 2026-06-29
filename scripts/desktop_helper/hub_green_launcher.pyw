@@ -1,26 +1,25 @@
-"""Big green desktop button — START HUB (Windows, no terminal needed)."""
+"""Big green desktop button — START HUB (Windows, opens green status window)."""
 
 from __future__ import annotations
 
+import os
 import subprocess
 import tkinter as tk
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-START_SH = ROOT / "scripts" / "hub_one_click_start.sh"
-
-
-def _wsl_repo() -> str:
-    return "~/proof-codex-ai"
+DESKTOP = Path(os.environ.get("USERPROFILE", Path.home())) / "Desktop"
+START_BAT = DESKTOP / "START HUB (Proof Codex).bat"
+FALLBACK_BAT = ROOT / "scripts" / "HUB_GREEN_START.bat"
 
 
 def start_hub() -> None:
-    cmd = f"cd {_wsl_repo()} && bash scripts/hub_one_click_start.sh"
+    bat = START_BAT if START_BAT.exists() else FALLBACK_BAT
     subprocess.Popen(
-        ["wsl.exe", "bash", "-lc", cmd],
+        ["cmd.exe", "/c", str(bat)],
         creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0),
     )
-    status_var.set("Starting… check the green window for progress.")
+    status_var.set("Starting… check the green window for HUB READY.")
     btn.config(state=tk.DISABLED)
     root.after(8000, lambda: btn.config(state=tk.NORMAL))
 

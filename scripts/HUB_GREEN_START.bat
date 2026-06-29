@@ -3,7 +3,6 @@ REM Big green one-click hub start — double-click after Windows reboot + login.
 title Proof Codex - START HUB
 color 0A
 mode con: cols=70 lines=32
-cd /d "%~dp0.."
 
 echo.
 echo   ============================================================
@@ -15,12 +14,14 @@ echo   If Ubuntu asks for a password, type it ONCE and press Enter.
 echo   Do NOT close this window until you see HUB READY or NOT READY.
 echo.
 
-set "REPO_WSL="
-for /f "delims=" %%i in ('wsl.exe wslpath -u "%CD%" 2^>nul') do set "REPO_WSL=%%i"
+call "%~dp0hub_win_repo_path.bat" 2>nul
+if not defined REPO_WSL (
+  for /f "usebackq delims=" %%i in (`wsl.exe bash -lc "readlink -f \"$HOME/proof-codex-ai\" 2>/dev/null"`) do set "REPO_WSL=%%i"
+)
 
 if not defined REPO_WSL (
   color 0C
-  echo   ERROR: Could not find repo path in WSL.
+  echo   ERROR: Could not find ~/proof-codex-ai in WSL.
   echo   Open Ubuntu and run: cd ~/proof-codex-ai ^&^& bash scripts/hub_one_click_start.sh
   goto done
 )

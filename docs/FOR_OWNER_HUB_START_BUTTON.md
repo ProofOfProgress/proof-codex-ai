@@ -22,7 +22,11 @@ That puts on your **Desktop**:
 | Shortcut | What it looks like |
 |----------|-------------------|
 | **START HUB (Proof Codex).bat** | Green text window — always works |
+| **FIX HUB ONCE (Proof Codex).bat** | One-time Ubuntu password fix |
+| **HUB NOTES (Proof Codex).txt** | Quick reminder card |
 | **START HUB Button.pyw** | Big green **START HUB** button (needs Windows Python) |
+
+**If START HUB broke after an old install:** re-run **`INSTALL_HUB_START_BUTTON.bat`** once — an older bug pointed Desktop shortcuts at the wrong folder.
 
 ---
 
@@ -70,7 +74,7 @@ Review the manifest path it prints (`data/bubble_wrap/batches/batch_*.json`).
 
 | Problem | Fix |
 |---------|-----|
-| Runs then **crashes** / closes | Pull latest repo → re-run `INSTALL_HUB_START_BUTTON.bat`. Window should stay open. Read **`data/desktop_hub/hub_start.log`** |
+| Runs then **crashes** / closes instantly | Re-run `INSTALL_HUB_START_BUTTON.bat` (Desktop shortcut fix). Window should stay open. Read **`data/desktop_hub/hub_start.log`** |
 | **Ubuntu password** every reboot | One-time in Ubuntu: `bash scripts/hub_one_click_sudo_setup.sh` |
 | Says **NOT READY** / Tailscale | Open Ubuntu → `sudo tailscale --socket=/var/run/tailscale/tailscaled.sock up` |
 | Desktop helper failed | Run `scripts\START_DESKTOP_HELPER.bat` on Windows |

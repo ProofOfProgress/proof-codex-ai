@@ -1,18 +1,19 @@
 @echo off
 REM Opens Ubuntu with the one-time hub fix script — use when START HUB crashes.
 title Proof Codex - Fix Hub Once
-cd /d "%~dp0.."
 
 echo.
 echo   Opening Ubuntu to fix hub connection...
 echo   Enter your Ubuntu password if asked (once).
 echo.
 
-set "REPO_WSL="
-for /f "delims=" %%i in ('wsl.exe wslpath -u "%CD%" 2^>nul') do set "REPO_WSL=%%i"
+call "%~dp0hub_win_repo_path.bat" 2>nul
+if not defined REPO_WSL (
+  for /f "usebackq delims=" %%i in (`wsl.exe bash -lc "readlink -f \"$HOME/proof-codex-ai\" 2>/dev/null"`) do set "REPO_WSL=%%i"
+)
 
 if not defined REPO_WSL (
-  echo Could not find repo in WSL. Open Ubuntu manually and run:
+  echo Could not find ~/proof-codex-ai in WSL. Open Ubuntu manually and run:
   echo   cd ~/proof-codex-ai
   echo   bash scripts/hub_owner_fix_once.sh
   pause
