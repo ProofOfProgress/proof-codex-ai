@@ -43,6 +43,31 @@ ping_helper_curl() {
     | grep -q '"ok"[[:space:]]*:[[:space:]]*true'
 }
 
+ping_helper_windows() {
+  local ps token
+  ps="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+  if [[ ! -f "$ps" ]]; then
+    ps="/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe"
+  fi
+  token="${DESKTOP_HELPER_TOKEN:-}"
+  if [[ -z "$token" || ! -f "$ps" ]]; then
+    return 1
+  fi
+  "$ps" -NoProfile -ExecutionPolicy Bypass -Command "
+    \$body = '{\"action\":\"ping\"}'
+    \$headers = @{ Authorization = 'Bearer ${token}' }
+    try {
+      \$r = Invoke-RestMethod -Uri 'http://127.0.0.1:${DESKTOP_HELPER_PORT:-9876}/v1/command' -Method Post -Body \$body -ContentType 'application/json' -Headers \$headers -TimeoutSec 5
+      if (\$r.ok -eq \$true) { exit 0 }
+    } catch {}
+    exit 1
+  "
+}
+
+ping_helper() {
+  ping_helper_windows || ping_helper_curl
+}
+
 launch_windows_helper_ps() {
   local ps repo_win ps1_win
   ps="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
@@ -58,7 +83,7 @@ launch_windows_helper_ps() {
   "$ps" -NoProfile -ExecutionPolicy Bypass -Command "\$env:DESKTOP_HUB_REPO_WIN='$repo_win'; & '$ps1_win'"
 }
 
-if ping_helper_curl; then
+if ping_helper; then
   echo "Desktop helper already running."
   exit 0
 fi
@@ -68,7 +93,7 @@ launch_windows_helper_ps
 
 for _ in 1 2 3 4 5; do
   sleep 2
-  if ping_helper_curl; then
+  if ping_helper; then
     echo "Desktop helper started."
     exit 0
   fi
