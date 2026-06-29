@@ -35,5 +35,5 @@ def test_on_screen_caption_template():
     assert format_product_title("pre workout powder") == "Pre Workout Powder"
     cap = on_screen_caption("pre workout powder")
     assert "SO sorry" in cap
-    assert "Pre Workout Powder" in cap
+    assert "this pre workout powder" in cap
     assert "discount is huge today" in cap
