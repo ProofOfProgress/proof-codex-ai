@@ -27,6 +27,27 @@ Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md` · Engineering: `docs/FASTMOSS_SCOUT_P
 
 ---
 
+## Pre-breakout lens *(owner intel — account seller, 2026-06-29)*
+
+**North star for picks:** find products **before** they break out — not only what’s already #1.
+
+| Signal | Why |
+|--------|-----|
+| **Sales/GMV accelerating** | Product is heating up, not peaked |
+| **Creator count rising fast** | Others starting to pile in — still early window |
+| **Ad spend appearing** | Brand investing before mass saturation |
+| **New release / not yet saturated** | Room for a video to catch the wave |
+| **Already top** | OK for steady posts — **future top** = highest upside (20M-view path) |
+
+**Already-top vs future-top:**
+
+- **Top today** = safer, more competition, smaller view ceiling per clip.
+- **Future top** = literal gold — post **before** the breakout so your video rides the wave.
+
+When owner or FastMoss UI picks 8–10 for launch, **bias toward rising / early** products that pass Module 3 checks (ads, brand match, commission $), not only established chart leaders.
+
+---
+
 ## Module 3 checks (FastMoss)
 
 What “high quality” means — FastMoss can show most of this (UI today; API when wired):

@@ -110,3 +110,20 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 - **Zernio — defer:** Do **not** connect purchased affiliate account to Zernio until **closer to launch** (owner will say when). Until then: prep clips, QC, queue locally — no `affiliate_main` in Zernio dashboard.
 - **Phone number — never on bot account:** The purchased affiliate account’s **phone number must never** be tied to the bot, Cursor secrets, Zernio hookup, or automation. Login path for posting = **email only** when Zernio is wired later. Do not ask owner to add phone to secrets or link phone to `affiliate_main`.
+
+---
+
+## 2026-06-29 — Account seller intel (GMV / bought accounts)
+
+**Source:** Official account seller plug (owner relay) — high-GMV bought-account operator.
+
+**Q:** Most important thing for making money with affiliate videos (excluding consistency)?
+
+**A:** **Finding products before they break out** is “1000% of everything” — how people get 20M-view videos. Already-top products are good; **future top products are literal gold**.
+
+**Bot / research implication:**
+
+- Module 3 priority = **early breakout**, not only current chart toppers.
+- In FastMoss: favor **rising** GMV/creator velocity, new releases, ad spend starting, trend **up** before mainstream saturation.
+- Scout presets and owner picks should weight **pre-breakout signals** over “safe” established winners alone.
+- See `PRODUCT_RESEARCH.md` → Pre-breakout lens.
