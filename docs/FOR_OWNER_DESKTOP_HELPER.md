@@ -11,54 +11,84 @@ Cloud agent reaches both via **SSH to WSL** (`hub_run.sh`). Phones use `adb` in 
 
 ---
 
-## Desktop helper — one-time setup (Windows)
+## Easy start (owner — double-click)
 
-1. Open **PowerShell** on the hub laptop (Windows, not Ubuntu).
-2. Go to the repo (clone if needed):
+1. **One-time:** copy `data/desktop_hub/helper.env.example` → `data/desktop_hub/helper.env`  
+   Paste the same token as **Cursor → Cloud Agent → Secrets → `DESKTOP_HELPER_TOKEN`**.
 
-```powershell
-cd \\wsl.localhost\Ubuntu\home\YOUR_USER\proof-codex-ai
-# or a Windows clone: cd C:\Users\...\proof-codex-ai
-```
-
-3. Install Python deps:
+2. **One-time:** install deps (PowerShell in repo folder):
 
 ```powershell
 pip install -r scripts/desktop_helper/requirements.txt
 ```
 
-4. Create a secret token (random string). Add **`DESKTOP_HELPER_TOKEN`** in **Cursor → Cloud Agent → Secrets** (same value on Windows):
+3. **Every time** (or after reboot): double-click:
 
-```powershell
-$env:DESKTOP_HELPER_TOKEN = "paste-your-token-here"
+```
+scripts/START_DESKTOP_HELPER.bat
 ```
 
-5. Start the helper (leave this window open while automating):
+Helper runs **in the background** (no window to keep open). Log: `data/desktop_hub/daemon.log`
 
-```powershell
-.\scripts\desktop_helper_start.ps1
+Windows may ask for **accessibility permission** once — allow it.
+
+---
+
+## Daily click (same time every 24 hours)
+
+While the helper is running, it can **click one spot on screen** once per day at a fixed time (default timezone **PST**).
+
+**Set the spot and time** (from WSL or ask the agent):
+
+```bash
+python3 -m shorts_bot.desktop_hub.cli schedule set-click \
+  --hour 12 --minute 0 --x 640 --y 360 --enable --label "keep-alive"
 ```
 
-Windows may ask for **accessibility permission** once — allow it so the helper can type and click.
+**View schedule:**
+
+```bash
+python3 -m shorts_bot.desktop_hub.cli schedule show
+```
+
+Edit by hand: `data/desktop_hub/schedule.json` (see `schedule.json.example`).
+
+Clicks are logged in `data/desktop_hub/schedule_log.jsonl`.
+
+**Find x/y:** ask the agent to run `screenshot`, then pick coordinates from the image — or use Windows mouse position tools once.
+
+---
+
+## Agent can start the helper for you
+
+From **cloud agent** (needs hub SSH secrets):
+
+```bash
+python3 -m shorts_bot.desktop_hub.cli ensure --via-hub
+```
+
+Or on **hub WSL**:
+
+```bash
+bash scripts/desktop_helper_ensure.sh
+```
+
+Requires: Windows **logged in**, WSL open at least once after reboot.
 
 ---
 
 ## What the agent can do (desktop)
 
-From cloud or WSL:
-
 ```bash
+python3 -m shorts_bot.desktop_hub.cli ensure --via-hub   # start if down
 python3 -m shorts_bot.desktop_hub.cli ping
 python3 -m shorts_bot.desktop_hub.cli type "Hello Zernio"
 python3 -m shorts_bot.desktop_hub.cli hotkey ctrl l
-python3 -m shorts_bot.desktop_hub.cli press enter
 python3 -m shorts_bot.desktop_hub.cli click 640 360
 python3 -m shorts_bot.desktop_hub.cli screenshot --out data/desktop_hub/screen.png
 ```
 
 **Keyboard is preferred** — typing and shortcuts, not clicking an on-screen keyboard.
-
-**Screenshot** → agent can use vision (Gemini) to decide where to click next.
 
 ---
 
@@ -69,8 +99,6 @@ python3 -m shorts_bot.phone_hub.cli status
 python3 -m shorts_bot.phone_hub.cli tick              # dry-run
 python3 -m shorts_bot.phone_hub.cli tick --confirm    # real device steps
 ```
-
-Worker steps: wake → open TikTok → find Inbox/Draft via uiautomator → Mackenzie → publish (Mackenzie/publish still need live phones).
 
 ---
 
@@ -91,7 +119,7 @@ python3 -m shorts_bot.hub_control.cli status
 | `DESKTOP_HELPER_PORT` | Optional — default `9876` |
 | `HUB_SSH_*` + `TAILSCALE_AUTH_KEY` | SSH into hub (existing) |
 
-After adding secrets → **start a new agent run**.
+After adding secrets → **start a new agent run**. Same token goes in `data/desktop_hub/helper.env` on the laptop.
 
 ---
 
@@ -99,13 +127,14 @@ After adding secrets → **start a new agent run**.
 
 ```
 Cloud agent (CEO)
+    │  ensure --via-hub  →  SSH  →  WSL launches Windows helper
     │  Tailscale + SSH
     ▼
 Hub laptop WSL ──► adb ──► 4 Android phones (bubble TikTok)
     │
     │  HTTP to Windows host IP :9876
     ▼
-Windows desktop helper ──► keyboard + mouse + screenshot
+Windows desktop helper ──► keyboard + mouse + daily scheduled click
 ```
 
 ---

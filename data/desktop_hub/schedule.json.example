@@ -1,0 +1,12 @@
+{
+  "daily_click": {
+    "enabled": false,
+    "hour": 12,
+    "minute": 0,
+    "timezone": "America/Los_Angeles",
+    "x": 640,
+    "y": 360,
+    "button": "left",
+    "label": "Owner: set x/y then set enabled true — same time every 24h (PST default)"
+  }
+}

@@ -22,6 +22,8 @@ Or run a remote command (connects first if needed):
 python3 -m shorts_bot.hub_remote run -- python3 --version
 bash scripts/hub_run.sh cd ~/proof-codex-ai && git pull
 python3 -m shorts_bot.desktop_hub.cli ping   # needs Windows helper running
+python3 -m shorts_bot.desktop_hub.cli ensure --via-hub   # cloud: start helper on HP
+bash scripts/desktop_helper_ensure.sh        # on hub WSL directly
 python3 -m shorts_bot.hub_control.cli status
 ```
 

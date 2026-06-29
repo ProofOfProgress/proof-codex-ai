@@ -26,6 +26,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from shorts_bot.desktop_hub.config import apply_helper_env, daemon_pid_path, resolve_token  # noqa: E402
+from shorts_bot.desktop_hub.schedule import DailyClickScheduler, DailyClickSchedule  # noqa: E402
 from shorts_bot.desktop_hub.protocol import validate_command  # noqa: E402
 
 try:
@@ -191,14 +193,40 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Windows desktop helper daemon")
     parser.add_argument("--host", default=os.environ.get("DESKTOP_HELPER_BIND", "0.0.0.0"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("DESKTOP_HELPER_PORT", "9876")))
+    parser.add_argument("--no-schedule", action="store_true", help="Disable daily click scheduler")
     args = parser.parse_args()
 
-    token = (os.environ.get("DESKTOP_HELPER_TOKEN") or "").strip()
+    apply_helper_env()
+    token = resolve_token()
     if not token:
-        print("Set DESKTOP_HELPER_TOKEN before starting the daemon.", file=sys.stderr)
+        print(
+            "Set DESKTOP_HELPER_TOKEN in env or data/desktop_hub/helper.env",
+            file=sys.stderr,
+        )
         return 1
 
     executor = DesktopExecutor()
+
+    def _scheduled_click(sched: DailyClickSchedule) -> None:
+        executor.execute(
+            {"action": "click", "x": sched.x, "y": sched.y, "button": sched.button, "clicks": 1}
+        )
+        print(
+            f"[desktop_helper] scheduled click {sched.x},{sched.y} ({sched.label or 'daily'})",
+            flush=True,
+        )
+
+    scheduler: DailyClickScheduler | None = None
+    if not args.no_schedule:
+        scheduler = DailyClickScheduler(_scheduled_click)
+        scheduler.start()
+        print("[desktop_helper] daily click scheduler active (see data/desktop_hub/schedule.json)", flush=True)
+
+    try:
+        daemon_pid_path().write_text(str(os.getpid()), encoding="utf-8")
+    except OSError:
+        pass
+
     handler = make_handler(token, executor)
     server = ThreadingHTTPServer((args.host, args.port), handler)
     print(f"Desktop helper listening on http://{args.host}:{args.port}", flush=True)
@@ -206,6 +234,13 @@ def main() -> int:
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nStopped.", flush=True)
+    finally:
+        if scheduler:
+            scheduler.stop()
+        try:
+            daemon_pid_path().unlink(missing_ok=True)
+        except OSError:
+            pass
     return 0
 
 
