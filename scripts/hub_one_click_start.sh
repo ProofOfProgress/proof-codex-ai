@@ -47,8 +47,28 @@ try_sudo() {
   return 1
 }
 
+ssh_listening() {
+  ss -ltn 2>/dev/null | grep -q ':22 ' || netstat -ltn 2>/dev/null | grep -q ':22 '
+}
+
+hub_tailscale_ip() {
+  sudo -n tailscale --socket="$TS_SOCKET" ip -4 2>/dev/null \
+    || tailscale --socket="$TS_SOCKET" ip -4 2>/dev/null \
+    || true
+}
+
+tailscale_connected() {
+  [[ -n "$(hub_tailscale_ip)" ]] && return 0
+  sudo -n tailscale --socket="$TS_SOCKET" status >/dev/null 2>&1 && return 0
+  tailscale --socket="$TS_SOCKET" status >/dev/null 2>&1 && return 0
+  return 1
+}
+
 # --- SSH (cloud agent needs this) ---
-if try_sudo service ssh start; then
+if ssh_listening; then
+  step_ok "SSH already listening on port 22"
+  SSH_OK=1
+elif try_sudo service ssh start; then
   step_ok "SSH running"
   SSH_OK=1
 else
@@ -56,7 +76,7 @@ else
 fi
 
 # --- Tailscale daemon + login ---
-if [[ -S "$TS_SOCKET" ]] && sudo -n tailscale --socket="$TS_SOCKET" status >/dev/null 2>&1; then
+if tailscale_connected; then
   step_ok "Tailscale already connected"
   TS_OK=1
 else
@@ -94,9 +114,10 @@ else
 fi
 
 TS_IP=""
-TS_IP="$(sudo -n tailscale --socket="$TS_SOCKET" ip -4 2>/dev/null || true)"
+TS_IP="$(hub_tailscale_ip)"
 if [[ -n "$TS_IP" ]]; then
   log "     Hub Tailscale IP: $TS_IP"
+  TS_OK=1
 fi
 
 # --- Desktop helper (keyboard/mouse + KeyFreeze unlock path) ---
@@ -113,6 +134,9 @@ log ""
 log "=============================================="
 if [[ "$SSH_OK" == 1 && "$TS_OK" == 1 ]]; then
   log "  HUB READY — cloud agent can connect"
+  if ! sudo -n true 2>/dev/null; then
+    log "  TIP: run FIX HUB ONCE once — then reboot starts won't ask password"
+  fi
 elif [[ "$SSH_OK" == 1 ]]; then
   log "  PARTIAL — SSH OK, Tailscale still needs fix (see above)"
 else
