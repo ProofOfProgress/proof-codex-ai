@@ -6,6 +6,16 @@ param(
 $ErrorActionPreference = 'Stop'
 $TaskName = 'ProofCodexHubAutoStart'
 
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+    [Security.Principal.WindowsBuiltInRole]::Administrator
+)
+if (-not $isAdmin) {
+    Write-Host ''
+    Write-Host 'Need Administrator: right-click INSTALL_HUB_AUTOSTART.bat -> Run as administrator'
+    Write-Host ''
+    exit 1
+}
+
 if (-not $RepoWin) {
     $RepoWsl = (wsl.exe bash -lc 'readlink -f "$HOME/proof-codex-ai"').Trim()
     if (-not $RepoWsl) {
