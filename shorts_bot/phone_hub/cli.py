@@ -62,6 +62,18 @@ def main(argv: list[str] | None = None) -> int:
     ready_p = sub.add_parser("readiness", help="One-phone checklist (serial, coords, connection)")
     ready_p.add_argument("--slot", default="phone_1")
 
+    screen_p = sub.add_parser(
+        "screen-report",
+        help="Screenshot + on-screen text (+ optional Gemini describe) for cloud agent",
+    )
+    screen_p.add_argument("--slot", default="phone_1")
+    screen_p.add_argument("--out", default="", help="PNG output path")
+    screen_p.add_argument(
+        "--no-describe",
+        action="store_true",
+        help="Skip Gemini vision (UI text dump only — no API)",
+    )
+
     sub.add_parser("serve", help="Loop: process inbox jobs every 45s (hub daemon)")
 
     init_p = sub.add_parser("init-devices", help="Write devices.json from accounts.json")
@@ -153,6 +165,26 @@ def main(argv: list[str] | None = None) -> int:
                 console.print(f"  [{color}]{key}[/{color}]: {val}")
             else:
                 console.print(f"  {key}: {val}")
+        return 0
+    if args.cmd == "screen-report":
+        from pathlib import Path
+
+        from shorts_bot.phone_hub.screen import build_screen_report
+
+        out = Path(args.out) if args.out else None
+        try:
+            report = build_screen_report(
+                args.slot,
+                describe=not args.no_describe,
+                out_path=out,
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
+        console.print(report.to_markdown())
+        console.print(f"\n[green]Saved[/green] {report.screenshot_path}")
+        if report.ui_lines:
+            console.print(f"[dim]{len(report.ui_lines)} UI text lines captured[/dim]")
         return 0
     if args.cmd == "serve":
         import subprocess

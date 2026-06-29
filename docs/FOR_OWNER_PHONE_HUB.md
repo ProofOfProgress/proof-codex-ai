@@ -81,7 +81,10 @@ bash scripts/hub_run.sh bash scripts/hub_adb_install.sh
 bash scripts/hub_run.sh bash scripts/hub_adb_check.sh
 python3 -m shorts_bot.phone_hub.cli status
 python3 -m shorts_bot.phone_hub.cli tick                # dry-run next hub job
+bash scripts/hub_run.sh bash scripts/hub_phone_screen.sh phone_1   # screenshot + text
 ```
+
+**Phone screen for agent:** `hub_phone_screen.sh` saves `data/phone_hub/screenshots/last_phone_1.png` + JSON transcript on the hub. Cloud agent can read it over SSH. Optional Gemini describe when `GEMINI_API_KEY` is on the laptop.
 
 Affiliate post (cloud — enqueues phone_5 when `affiliate_main` has slot + Zernio id):
 

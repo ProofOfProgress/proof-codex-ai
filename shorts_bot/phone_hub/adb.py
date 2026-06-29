@@ -23,10 +23,22 @@ class AdbResult:
 
 
 def adb_path() -> str:
+    import os
+    from pathlib import Path
+
+    env = (os.environ.get("PHONE_HUB_ADB") or "").strip()
+    if env and Path(env).is_file():
+        return env
     path = shutil.which("adb")
-    if not path:
-        raise AdbError("adb not found — run: bash scripts/hub_adb_install.sh on the hub laptop")
-    return path
+    if path:
+        return path
+    for candidate in (
+        Path.home() / "android-sdk" / "platform-tools" / "adb",
+        Path("/mnt/c/Users/isaac/android-sdk/platform-tools/adb.exe"),
+    ):
+        if candidate.is_file():
+            return str(candidate)
+    raise AdbError("adb not found — run: bash scripts/hub_adb_install_user.sh on the hub laptop")
 
 
 def run_adb(
@@ -56,6 +68,34 @@ def run_adb(
         detail = result.stderr or result.stdout or f"exit {result.returncode}"
         raise AdbError(f"adb {' '.join(args)} failed: {detail}")
     return result
+
+
+def run_adb_bytes(
+    *args: str,
+    serial: str | None = None,
+    timeout: int = 30,
+    check: bool = False,
+) -> bytes:
+    """ADB command returning raw stdout (e.g. screencap PNG)."""
+    cmd = [adb_path()]
+    if serial:
+        cmd.extend(["-s", serial])
+    cmd.extend(args)
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise AdbError(f"adb timed out after {timeout}s: {' '.join(cmd)}") from exc
+    except OSError as exc:
+        raise AdbError(f"adb failed to start: {exc}") from exc
+    if check and proc.returncode != 0:
+        detail = proc.stderr.decode("utf-8", errors="replace") or str(proc.returncode)
+        raise AdbError(f"adb {' '.join(args)} failed: {detail}")
+    return proc.stdout
 
 
 def adb_version() -> str:
