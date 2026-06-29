@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from rich.console import Console
 from rich.panel import Panel
@@ -139,6 +140,18 @@ def main() -> None:
     sched_sub.add_parser("status", help="Queue, quota, spacing — no upload").add_argument(
         "--account", default="affiliate_main"
     )
+
+    carousel = sub.add_parser("post-carousel", help="Bubble wrap — 2 PNGs → Zernio photo carousel")
+    carousel.add_argument("--slide1", required=True, type=Path, help="Hook slide (caption baked in)")
+    carousel.add_argument("--slide2", required=True, type=Path, help="CTA slide (caption baked in)")
+    carousel.add_argument("--account", default="affiliate_test", help="Shop account id from accounts.json")
+    carousel.add_argument("--title", default="Bubble wrap ASMR")
+    carousel.add_argument(
+        "--privacy",
+        default="",
+        help="TikTok privacy (default: SELF_ONLY for affiliate_test, else env/config)",
+    )
+    carousel.add_argument("--confirm", action="store_true", help="Actually upload")
 
     bubble = sub.add_parser("bubble-slides", help="Module 2 — 2 bubble-wrap carousel slides (+ preview MP4)")
     bubble.add_argument("--subject", default="frog", help="Wrapped subject (frog, duck, cake, etc.)")
@@ -545,6 +558,44 @@ def main() -> None:
         if result.publish_id:
             console.print(f"  publish_id: {result.publish_id}")
         if result.action == "failed" or result.action == "error":
+            raise SystemExit(1)
+        return
+
+    if args.cmd == "post-carousel":
+        from shorts_bot.tiktok_shop.accounts import load_accounts
+        from shorts_bot.tiktok_shop.bubble_wrap_post import post_bubble_wrap_carousel
+
+        accounts = load_accounts()
+        if not accounts:
+            console.print("[red]No accounts in data/tiktok_shop/accounts.json[/red]")
+            raise SystemExit(1)
+        account = next((a for a in accounts if a.id == args.account), None)
+        if not account:
+            console.print(f"[red]Unknown account {args.account}[/red]")
+            raise SystemExit(1)
+        privacy = args.privacy.strip() or (
+            "SELF_ONLY" if account.id == "affiliate_test" else ""
+        )
+        console.print(
+            Panel(
+                f"{account.label} ({account.id})\n{args.slide1}\n{args.slide2}\nPrivacy: {privacy or 'config default'}",
+                title="Bubble wrap carousel",
+            )
+        )
+        if not args.confirm:
+            console.print("[yellow]Dry run — add --confirm to upload 2 PNGs to Zernio[/yellow]")
+            return
+        ok, msg, post_id = post_bubble_wrap_carousel(
+            account,
+            slide1=args.slide1,
+            slide2=args.slide2,
+            title=args.title,
+            privacy_level=privacy or None,
+        )
+        if ok:
+            console.print(f"[green]{msg}[/green] post_id={post_id}")
+        else:
+            console.print(f"[red]{msg}[/red]")
             raise SystemExit(1)
         return
 

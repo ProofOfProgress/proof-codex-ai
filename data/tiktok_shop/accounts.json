@@ -43,6 +43,17 @@
       "_note": "More trusted by TikTok — aggressive cadence; old Ms. Byte lane dead, account repurposed"
     },
     {
+      "id": "affiliate_test",
+      "label": "gspgsgsorip1",
+      "track": "affiliate",
+      "phone_hub_slot": "",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3e03579d9472faaeecbab6",
+      "_note": "Private Kling + bubble-wrap tests on @gspgsgsorip1 — use SELF_ONLY"
+    },
+    {
       "id": "affiliate_main",
       "label": "Purchased affiliate account (TBD)",
       "track": "affiliate",
@@ -57,5 +68,6 @@
   "_pre_launch_buy": "HP laptop (wipe) + 4 Android phones + 4 SIMs + purchased affiliate account — docs/LAUNCH_BUDGET.md",
   "_launch": "Follow docs/LAUNCH_TODO.md — $1k in 7 days from first upload = $500 bonus",
   "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day.",
-  "_architecture": "Laptop hub + 4 bubble phones — affiliate via Zernio only — docs/FOR_OWNER_PHONE_HUB.md"
+  "_architecture": "Laptop hub + 4 bubble phones — affiliate via Zernio only — docs/FOR_OWNER_PHONE_HUB.md",
+  "_note": "affiliate_test = @gspgsgsorip1 (private tests). bubble_* use tiktok_switch_label for phone ADB. ZERNIO_TIKTOK_PRIVACY=SELF_ONLY for affiliate_test private posts."
 }
