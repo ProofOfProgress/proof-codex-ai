@@ -24,6 +24,7 @@ FastMoss (replaces EchoTik): `docs/FOR_OWNER_FASTMOSS_SETUP.md`
 Kling: `docs/FOR_OWNER_KLING_SETUP.md`  
 Printify: `docs/FOR_OWNER_PRINTIFY_API.md`  
 TikTok posting (easy): `docs/FOR_OWNER_ZERNIO_SETUP.md`  
+Hub laptop (WSL + remote SSH): `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · install: `docs/FOR_OWNER_MINI_PC_INSTALL.md`  
 TikTok direct API (hard mode): `docs/FOR_OWNER_TIKTOK_SETUP.md`
 
 ## Make a clip (no strategy — just the button)
