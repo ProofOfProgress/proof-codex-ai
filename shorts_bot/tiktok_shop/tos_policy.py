@@ -63,10 +63,22 @@ GIVEAWAY_PHRASES: tuple[str, ...] = (
     "share to win",
 )
 
+# Purchase-based incentives (TikTok Shop policy — separate from giveaways)
+PURCHASE_INCENTIVE_PHRASES: tuple[str, ...] = (
+    "free with purchase",
+    "bonus with order",
+    "purchase incentive",
+    "order and get free",
+    "buy and get free",
+    "receipt for entry",
+    "spend to win",
+)
+
 # Redirecting user traffic off-platform
 REDIRECT_PHRASES: tuple[str, ...] = (
     "link in bio",
     "link in my bio",
+    "linktree",
     "dm me",
     "message me",
     "whatsapp",
@@ -78,6 +90,8 @@ REDIRECT_PHRASES: tuple[str, ...] = (
     "click the link",
     "visit my website",
     "check my store",
+    "buy on amazon",
+    "shop on amazon",
 )
 
 # Gambling / chance-based gamification
@@ -100,12 +114,27 @@ EXAGGERATED_CLAIM_PHRASES: tuple[str, ...] = (
     "doctor recommended",
     "fda approved",
     "clinically proven",
+    "scientifically proven",
     "lose weight fast",
     "burn fat fast",
     "melt fat",
     "weight loss guaranteed",
+    "overnight results",
+    "permanent results",
+    "reverse aging",
+    "eliminates wrinkles",
     "cures ",
     " cure ",
+)
+
+# Prohibited product categories — caption hints (Module 3 should block SKUs)
+PROHIBITED_PRODUCT_PHRASES: tuple[str, ...] = (
+    "prescription medication",
+    "prescription only",
+    "sexual enhancement",
+    "viagra",
+    "firearm",
+    "ammunition",
 )
 
 # Weight management — product alone driving loss/gain (TikTok Shop policy)
@@ -125,6 +154,8 @@ AUCTION_PHRASES: tuple[str, ...] = (
     "auction ends",
     "bid now",
     "going once",
+    "bidding war",
+    "auction",
 )
 
 # Artificial engagement
@@ -134,6 +165,12 @@ ARTIFICIAL_ENGAGEMENT_PHRASES: tuple[str, ...] = (
     "sub for sub",
     "buy followers",
     "buy likes",
+    "buy views",
+    "engagement bait",
+    "like for a chance",
+    "comment for a chance",
+    "fake review",
+    "incentivized review",
 )
 
 # Political (prohibited in shop content)
@@ -146,16 +183,29 @@ POLITICAL_PHRASES: tuple[str, ...] = (
     "republican",
 )
 
+# Sensitive events — exploiting disasters/crises for profit (Harmful & Sensitive)
+SENSITIVE_EVENTS_PHRASES: tuple[str, ...] = (
+    "disaster sale",
+    "tragedy sale",
+    "crisis sale",
+    "in light of recent events",
+    "capitalizing on",
+    "profit from the tragedy",
+)
+
 PHRASE_CATEGORIES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("TOS Misinformation/Price", MISINFORMATION_PHRASES),
     ("TOS Giveaways/Incentives", GIVEAWAY_PHRASES),
+    ("TOS Purchase incentives", PURCHASE_INCENTIVE_PHRASES),
     ("TOS Redirect off-platform", REDIRECT_PHRASES),
     ("TOS Gambling/Chance", GAMBLING_PHRASES),
     ("TOS Exaggerated claims", EXAGGERATED_CLAIM_PHRASES),
+    ("TOS Prohibited products", PROHIBITED_PRODUCT_PHRASES),
     ("TOS Weight management", WEIGHT_MANAGEMENT_PHRASES),
     ("TOS Auction/Bidding", AUCTION_PHRASES),
     ("TOS Artificial engagement", ARTIFICIAL_ENGAGEMENT_PHRASES),
     ("TOS Political content", POLITICAL_PHRASES),
+    ("TOS Sensitive events", SENSITIVE_EVENTS_PHRASES),
 )
 
 # Regex patterns — structural violations
@@ -176,12 +226,15 @@ REDIRECT_REGEX: tuple[tuple[re.Pattern[str], str], ...] = (
 # Vision QC — TikTok Shop Content Policy (in addition to Module 1 course list)
 TOS_VISION_VIOLATIONS: tuple[str, ...] = (
     "Content does not clearly promote the listed product (irrelevant promotional content)",
+    "Inconsistent product promotion — different item or listing mismatch visible",
     "Non-interactive or mostly static scene with no meaningful motion (non-interactive low-quality)",
     "Unoriginal or reposted footage — no new creative edit",
+    "Pre-recorded feel with no meaningful creative edit (static slideshow)",
     "Misleading or false product claims visible in frame text",
     "Exaggerated health or beauty claims on packaging or overlay text",
     "Weight management claim that product alone causes loss/gain",
     "Sexually suggestive behavior or language in promotion",
+    "Sexual enhancement or prescription medication product visible",
     "Minors under 18 promoting product without adult present",
     "Content directed to minors to purchase",
     "Gambling, spin-wheel, lottery, or chance-based promotion visible",
@@ -190,20 +243,23 @@ TOS_VISION_VIOLATIONS: tuple[str, ...] = (
     "Auction or bidding language visible",
     "Political references, campaign materials, or politicized issues",
     "Sensational, shocking, violent, or discriminatory imagery",
+    "Sensitive event exploitation — disaster/crisis used for profit or engagement",
     "Fictitious or joke listing vibe (impossible/meme product not real)",
     "Intellectual property infringement — unlicensed brand/logo/personality",
     "AI-generated content that misleads, deceives, or impersonates a real person/brand",
     "Prohibited or restricted product category visible",
-    "Infant or follow-on formula milk promotion",
-    "Tobacco, drugs, weapons, or prescription medication visible",
+    "Infant formula milk (0-6 months) or follow-on formula (6-12 months) promotion",
+    "Tobacco, drugs, weapons, or hazardous products visible",
 )
 
 TOS_VISION_PROMPT = (
-    "TikTok Shop Content Policy (2026-03-16) — ZERO TOLERANCE in any frame:\n"
+    "TikTok Shop Content Policy (2026-03-16) — ZERO STRIKES. Block upload if ANY apply:\n"
     + "\n".join(f"- {v}" for v in TOS_VISION_VIOLATIONS)
-    + "\n\nAffiliate AI clips MUST: clearly show the real shoppable product, use arc camera motion "
-    "(not static slideshow feel), avoid misleading price/sale text, avoid off-platform redirects, "
-    "avoid giveaway/gambling cues. AIGC is allowed when not misleading — do not impersonate real people."
+    + "\n\nAffiliate AI clips MUST: clearly show the real shoppable product (~80%+ frame), "
+    "use arc camera motion (not static slideshow), avoid misleading price/sale text, "
+    "avoid off-platform redirects, avoid giveaway/gambling/purchase-incentive cues. "
+    "AIGC is allowed when not misleading — do not impersonate real people or brands. "
+    "Pre-recorded AI is OK when unique generation + creative edit (pan loop) — not reposts."
 )
 
 

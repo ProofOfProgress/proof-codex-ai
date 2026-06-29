@@ -185,3 +185,9 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 Module 8 / `APPEALS.md` = **emergency fallback only** if TikTok false-flags a QC-passed clip. Agents must not frame appeals as the goal or lower QC to hit 8–10/day.
 
 **Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.
+
+---
+
+## 2026-06-29 — TOS policy re-study (owner request)
+
+Re-read official [TikTok Shop Content Policy (2026-03-16)](https://seller-sg.tiktok.com/university/essay?knowledge_id=7651420422014721&identity=1) with **zero-strike prevention** lens. Updated `TIKTOK_SHOP_CONTENT_POLICY.md` (full section map) + `tos_policy.py` (purchase incentives, prohibited product hints, sensitive events, expanded vision flags, AIGC publish checklist).

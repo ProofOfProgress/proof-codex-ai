@@ -50,6 +50,12 @@ Banned in generated video: moving water/fire/steam, humans/pets, **phone screens
 2. Regen prompt or edit — do **not** lower standards to hit 8–10/day
 3. Re-run QC until pass
 
+## At publish (manual — still zero-strike prevention)
+
+- **AIGC label ON** in TikTok (required for AI video)
+- **Correct Shop product link** attached
+- See publish checklist in `TIKTOK_SHOP_CONTENT_POLICY.md`
+
 ## Tests
 
 Touching QC logic → `python3 -m pytest tests/ -q` (include scout/QC tests).

@@ -40,3 +40,23 @@ def test_percent_off_regex():
 
 def test_clean_pain_point_hook():
     assert check_promotional_text("Tired of your phone sliding off the mount?") == []
+
+
+def test_purchase_incentive_blocked():
+    hits = check_promotional_text("Free with purchase when you order today")
+    assert any("Purchase incentives" in h for h in hits)
+
+
+def test_sensitive_events_blocked():
+    hits = check_promotional_text("Disaster sale on emergency kits")
+    assert any("Sensitive events" in h for h in hits)
+
+
+def test_prohibited_product_hint_blocked():
+    hits = check_promotional_text("Best sexual enhancement deal")
+    assert any("Prohibited products" in h for h in hits)
+
+
+def test_off_platform_amazon_redirect():
+    hits = check_promotional_text("Buy on amazon instead")
+    assert any("Redirect" in h for h in hits)
