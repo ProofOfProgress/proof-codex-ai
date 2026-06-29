@@ -102,7 +102,7 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 ## 2026-06-29 — Owner launch status
 
 - **Purchased affiliate account:** bought, logged in, **5-day warmup** in progress.
-- **FastMoss:** payment blocked — owner contacted support; scout/API blocked until resolved.
+- **FastMoss:** billing fixed (owner 2026-06-29) — subscription active. Add API secrets (`FASTMOSS_CLIENT_ID` / `FASTMOSS_CLIENT_SECRET`) in Cursor if not already; **start a new agent run** after adding secrets so the VM picks them up.
 - **Kling:** billing works.
 - **Launch Date:** TBD · **Timezone:** PST (midnight first post = 12:00 AM PST on Launch Date).
 - **Bubble + affiliate:** both tracks active — affiliate does not wait for phones.
