@@ -176,3 +176,11 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + deep TOS compliance is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7 for speed.
 
 **Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.
+
+---
+
+## 2026-06-29 — Daily pre-launch CEO mission (owner)
+
+**Goal:** Before launch, **one automated kickoff per day** on hub laptop — scout/plan products, paste **CEO prompt** into Cursor, **click Run** (desktop helper). Cloud agent then generates that day's affiliate clips (research → Kling → QC → queue locally, **no Zernio**).
+
+**Owner calibrates:** focus + submit click coords in Cursor UI. Guide: `docs/FOR_OWNER_DAILY_PRELAUNCH.md`.
