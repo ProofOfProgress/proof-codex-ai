@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "desktop_helper\_python.ps1")
 
 $Root = Get-RepoRoot
-Set-Location $Root
+Set-Location -LiteralPath $Root
 Write-Host "Repo folder:"
 Write-Host "  $Root"
 Write-Host ""

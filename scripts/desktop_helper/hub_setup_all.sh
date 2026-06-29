@@ -12,11 +12,15 @@ fi
 run_ps() {
   local script_win
   script_win=$(wslpath -w "$1")
+  export DESKTOP_HUB_REPO_WIN
+  DESKTOP_HUB_REPO_WIN=$(wslpath -w "$ROOT")
   "$PS" -NoProfile -ExecutionPolicy Bypass -File "$script_win"
 }
 
 echo "=== Step 1: Windows Python ==="
-if "$PS" -NoProfile -Command "python -c 'import sys; print(sys.version)'" 2>/dev/null; then
+if "$PS" -NoProfile -Command "& \$env:LOCALAPPDATA\Programs\Python\Python312\python.exe -c 'import sys; print(sys.version)'" 2>/dev/null; then
+  echo "Windows Python already OK"
+elif "$PS" -NoProfile -Command "python -c 'import sys; print(sys.version_info.major)'" 2>/dev/null | grep -q 3; then
   echo "Windows Python already OK"
 else
   echo "Installing Python on Windows (may take 2-3 min)..."

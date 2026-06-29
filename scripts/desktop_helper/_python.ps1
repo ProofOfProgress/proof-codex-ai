@@ -2,15 +2,19 @@
 $ErrorActionPreference = "Stop"
 
 function Get-RepoRoot {
-    # scripts/desktop_helper/_python.ps1 -> repo root is two levels up from scripts/
-    if ($PSScriptRoot -match "desktop_helper$") {
-        return (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+    if ($env:DESKTOP_HUB_REPO_WIN -and (Test-Path -LiteralPath $env:DESKTOP_HUB_REPO_WIN)) {
+        return $env:DESKTOP_HUB_REPO_WIN
     }
-    return (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+    $here = $PSScriptRoot
+    if ($here -match "desktop_helper$") {
+        return (Resolve-Path (Join-Path $here "..\..")).Path
+    }
+    return (Resolve-Path (Join-Path $here "..")).Path
 }
 
 function Find-PythonExe {
-    # Prefer Windows py launcher, then python on PATH.
+    $candidates = @()
+
     foreach ($candidate in @(
         @{ Args = @("-3"); Cmd = "py" },
         @{ Args = @(); Cmd = "python" },
@@ -18,14 +22,37 @@ function Find-PythonExe {
     )) {
         $cmd = Get-Command $candidate.Cmd -ErrorAction SilentlyContinue
         if (-not $cmd) { continue }
-        $argList = @($candidate.Args + @("-c", "import sys; print(sys.executable)"))
+        $argList = @($candidate.Args + @("-c", "import sys; print(sys.version_info.major)"))
         try {
-            $exe = & $candidate.Cmd @argList 2>$null | Select-Object -First 1
-            if ($exe -and (Test-Path $exe)) {
-                return @{ Launcher = $candidate.Cmd; LauncherArgs = $candidate.Args; Exe = $exe.Trim() }
+            $major = & $candidate.Cmd @argList 2>$null | Select-Object -First 1
+            if ($major -eq "3") {
+                $exeArg = @($candidate.Args + @("-c", "import sys; print(sys.executable)"))
+                $exe = & $candidate.Cmd @exeArg 2>$null | Select-Object -First 1
+                if ($exe -and (Test-Path $exe)) {
+                    return @{ Launcher = $candidate.Cmd; LauncherArgs = $candidate.Args; Exe = $exe.Trim() }
+                }
             }
         } catch {}
     }
+
+    # winget / python.org default user install paths (PATH may not refresh in same session)
+    $localApp = $env:LOCALAPPDATA
+    if ($localApp) {
+        foreach ($pattern in @(
+            "$localApp\Programs\Python\Python312\python.exe",
+            "$localApp\Programs\Python\Python313\python.exe",
+            "$localApp\Programs\Python\Python311\python.exe"
+        )) {
+            if (Test-Path $pattern) {
+                return @{ Launcher = $pattern; LauncherArgs = @(); Exe = $pattern }
+            }
+        }
+        $found = Get-ChildItem -Path "$localApp\Programs\Python" -Filter python.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found) {
+            return @{ Launcher = $found.FullName; LauncherArgs = @(); Exe = $found.FullName }
+        }
+    }
+
     return $null
 }
 

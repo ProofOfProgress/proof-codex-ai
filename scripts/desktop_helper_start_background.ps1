@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "desktop_helper\_python.ps1")
 
 $Root = Get-RepoRoot
-Set-Location $Root
+Set-Location -LiteralPath $Root
 
 if (-not (Test-HelperEnv -Root $Root)) { exit 1 }
 Import-HelperEnv -Root $Root | Out-Null
