@@ -37,7 +37,10 @@ def load_helper_env_file() -> dict[str, str]:
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, _, val = line.partition("=")
-        out[key.strip()] = val.strip().strip('"').strip("'")
+        val = val.strip().strip('"').strip("'")
+        if key.strip() == "DESKTOP_HELPER_TOKEN":
+            val = "".join(val.split())  # remove accidental spaces
+        out[key.strip()] = val
     return out
 
 
