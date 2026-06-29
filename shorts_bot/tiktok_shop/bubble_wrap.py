@@ -34,7 +34,8 @@ SLIDE2_CTA_LINES = (
 )
 
 EMOJI_FONT = Path("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf")
-EMOJI_FONT_SIZE = 109  # Noto Color Emoji only accepts this size
+EMOJI_FONT_SIZE = 109  # Noto Color Emoji native raster size
+EMOJI_HEIGHT_RATIO = 0.9  # display height vs caption font — inline with text, not oversized
 
 
 def wrap_bubble_lines(text: str, *, slide: int = 1) -> list[str]:
@@ -185,19 +186,55 @@ def _segment_size(text: str, font: ImageFont.FreeTypeFont | ImageFont.ImageFont)
     return bbox[2] - bbox[0], bbox[3] - bbox[1], bbox[0], bbox[1]
 
 
+def _emoji_display_height(text_size: int) -> int:
+    return max(28, int(text_size * EMOJI_HEIGHT_RATIO))
+
+
+def _emoji_raster(
+    run: str,
+    emoji_font: ImageFont.FreeTypeFont,
+    display_height: int,
+) -> tuple[Image.Image, int, int]:
+    """Render emoji at native size, scale down to sit inline with caption text."""
+    canvas = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    ImageDraw.Draw(canvas).text((0, 0), run, font=emoji_font, embedded_color=True)
+    bbox = canvas.getbbox()
+    if not bbox:
+        return canvas, 0, 0
+    cropped = canvas.crop(bbox)
+    scale = display_height / max(1, cropped.height)
+    width = max(1, int(cropped.width * scale))
+    resized = cropped.resize((width, display_height), Image.Resampling.LANCZOS)
+    return resized, width, display_height
+
+
+def _emoji_run_width(
+    run: str,
+    emoji_font: ImageFont.FreeTypeFont | None,
+    display_height: int,
+) -> int:
+    if not emoji_font:
+        return 0
+    _, width, _ = _emoji_raster(run, emoji_font, display_height)
+    return width
+
+
 def _fit_font_size(lines: list[str], base_size: int) -> int:
     """Shrink text if any line would exceed the safe canvas width."""
     size = base_size
     while size >= 28:
         text_font = _load_font(size)
         emoji_font = _load_emoji_font()
+        emoji_h = _emoji_display_height(size)
         too_wide = False
         for line in lines:
             width = 0
             for run, is_emoji in _split_runs(line):
-                font = emoji_font if is_emoji and emoji_font else text_font
-                w, _, _, _ = _segment_size(run, font)
-                width += w
+                if is_emoji and emoji_font:
+                    width += _emoji_run_width(run, emoji_font, emoji_h)
+                else:
+                    w, _, _, _ = _segment_size(run, text_font)
+                    width += w
             if width > SAFE_TEXT_WIDTH:
                 too_wide = True
                 break
@@ -208,6 +245,7 @@ def _fit_font_size(lines: list[str], base_size: int) -> int:
 
 
 def _draw_mixed_centered_line(
+    img: Image.Image,
     draw: ImageDraw.ImageDraw,
     line: str,
     *,
@@ -217,38 +255,42 @@ def _draw_mixed_centered_line(
     emoji_font: ImageFont.FreeTypeFont | ImageFont.ImageFont | None,
     stroke_width: int,
 ) -> None:
-    """Draw one centered line — DejaVu for text, Noto Color Emoji for 💥🔊🦖."""
-    segments: list[tuple[str, bool, int, int, int, int]] = []
+    """Draw one centered line — DejaVu for text, scaled Noto Color Emoji inline."""
+    emoji_h = _emoji_display_height(text_font.size if hasattr(text_font, "size") else _caption_font_size())
+    segments: list[tuple[str, bool, int, int, int]] = []
     total_w = 0
-    max_ascent = 0
-    max_descent = 0
+    text_ascent, text_descent = text_font.getmetrics()
+    max_ascent = text_ascent
+    max_descent = text_descent
     for run, is_emoji in _split_runs(line):
-        font = emoji_font if is_emoji and emoji_font else text_font
-        w, h, left, top = _segment_size(run, font)
-        ascent, descent = font.getmetrics()
-        segments.append((run, is_emoji and emoji_font is not None, w, ascent, descent, left))
-        total_w += w
-        max_ascent = max(max_ascent, ascent)
-        max_descent = max(max_descent, descent)
+        if is_emoji and emoji_font:
+            width = _emoji_run_width(run, emoji_font, emoji_h)
+            segments.append((run, True, width, emoji_h, 0))
+            max_ascent = max(max_ascent, emoji_h // 2)
+            max_descent = max(max_descent, emoji_h // 2)
+        else:
+            w, _h, left, _top = _segment_size(run, text_font)
+            segments.append((run, False, w, text_ascent, left))
+        total_w += segments[-1][2]
 
     x = center_x - total_w / 2
     baseline_y = center_y + (max_ascent - max_descent) / 2
-    for run, is_emoji, w, ascent, _descent, left in segments:
-        font = emoji_font if is_emoji else text_font
-        y = baseline_y - ascent
-        x_draw = x - left
-        if is_emoji:
-            draw.text((x_draw, y), run, font=font, embedded_color=True)
+    for run, is_emoji, width, metric, left in segments:
+        if is_emoji and emoji_font:
+            patch, _, patch_h = _emoji_raster(run, emoji_font, emoji_h)
+            y = int(center_y - patch_h / 2)
+            img.paste(patch, (int(x), y), patch)
         else:
+            y = baseline_y - metric
             draw.text(
-                (x_draw, y),
+                (x - left, y),
                 run,
-                font=font,
+                font=text_font,
                 fill="white",
                 stroke_width=stroke_width,
                 stroke_fill="black",
             )
-        x += w
+        x += width
 
 
 def burn_centered_lines(
@@ -266,7 +308,7 @@ def burn_centered_lines(
     if bad:
         raise ValueError(f"Line exceeds {max_chars} char cap: {bad!r}")
 
-    out = img.copy()
+    out = img.copy().convert("RGBA")
     draw = ImageDraw.Draw(out)
     base = font_size if font_size is not None else _caption_font_size()
     size = _fit_font_size(lines, base)
@@ -278,6 +320,7 @@ def burn_centered_lines(
     for i, line in enumerate(lines):
         y = int(h * y_fraction + i * step)
         _draw_mixed_centered_line(
+            out,
             draw,
             line,
             center_x=w / 2,
@@ -286,7 +329,7 @@ def burn_centered_lines(
             emoji_font=emoji_font,
             stroke_width=stroke,
         )
-    return out
+    return out.convert("RGB")
 
 
 def burn_slide1_text(img: Image.Image, hook: str) -> Image.Image:

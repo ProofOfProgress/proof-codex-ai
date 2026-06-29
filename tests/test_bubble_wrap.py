@@ -9,6 +9,9 @@ from PIL import Image
 from shorts_bot.tiktok_shop.bubble_wrap import (
     SLIDE1_MAX_CHARS,
     SLIDE2_CTA_LINES,
+    _emoji_display_height,
+    _emoji_raster,
+    _load_emoji_font,
     burn_slide1_text,
     burn_slide2_text,
     default_hook,
@@ -34,6 +37,16 @@ def test_burn_slide1_text():
     assert xs
     assert min(xs) > 40
     assert max(xs) < 1040
+
+
+def test_emoji_raster_scales_inline_with_text():
+    emoji_font = _load_emoji_font()
+    assert emoji_font is not None
+    display_h = _emoji_display_height(48)
+    assert display_h <= 48
+    _, width, height = _emoji_raster("💥", emoji_font, display_h)
+    assert height <= display_h + 1
+    assert width < 80  # native unscaled glyph bbox is ~122px wide
 
 
 def test_burn_slide2_has_four_lines_and_emojis():
