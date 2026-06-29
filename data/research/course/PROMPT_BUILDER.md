@@ -1,5 +1,16 @@
 # Prompt builder (owner override)
 
+## Module 4 — Gemini sample first (owner pipeline tip)
+
+Put the **listing product photo** into **Gemini** → get a **full-bleed 9:16 sample** (whole product visible, staged background) → feed **that sample** to Kling + prompt-builder video prompt.
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli sample-image \
+  --product "Car Phone Mount" --source listing.jpg [--reference ref.jpg]
+```
+
+Output: `data/tiktok_shop/samples/car_phone_mount_916.jpg` · model `gemini-2.5-flash-image`
+
 **We do NOT use** the course's NanoBanana Pro Auto Prompter Google Sheet.
 
 **We USE** the **Product Video Prompt Builder** for **AI video prompts** — same instructions as the course community ChatGPT:
@@ -34,5 +45,20 @@ Instructions saved in `.cursor/agents/product-video-prompt-builder.md`. Example 
 
 ## Image terms (input to the builder)
 
-- **Product image** — isolated product, blank/white background (Module 4 output)
-- **Reference image** — optional; product in setting for scale
+- **Product image** — Module 4 **staged 9:16 still** (complex background — NOT plain white listing box)
+- **Reference image** — optional; product in setting for **scale** (leftmost when both attached)
+
+CEO dispatch (attach both paths to subagent):
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch \
+  --product "Insulated Tumbler" \
+  --product-image data/tiktok_shop/images/MODULE4.jpg \
+  --reference-image data/tiktok_shop/images/REF.jpg
+```
+
+Save subagent output:
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
+```

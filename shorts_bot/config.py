@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_image_model: str = "gemini-2.5-flash-image"  # Module 4 sample stills (9:16)
 
     # Chief Manager + specialist workers (Gemini) — primary chat path when duration/prefix set
     manager_display_name: str = "AlphaBeta001"  # agent name (not the YouTube channel)
@@ -128,18 +129,30 @@ class Settings(BaseSettings):
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
-    # EchoTik — TikTok Shop product research API (Basic auth)
+    # EchoTik — LEGACY (retired — use FastMoss). Kept for reference only.
     echotik_username: str | None = None
     echotik_password: str | None = None
     echotik_api_base: str = "https://open.echotik.live"
     echotik_region: str = "US"
+
+    # FastMoss — TikTok Shop product research (replaces EchoTik + Kalodata)
+    fastmoss_client_id: str | None = None
+    fastmoss_client_secret: str | None = None
+    fastmoss_api_base: str = "https://openapi.fastmoss.com"
 
     # Printify — POD seller API (Bearer token from printify.com/app/account/api)
     printify_api_token: str | None = None
     printify_shop_id: str | None = None  # optional; auto-picks first shop if empty
 
     # TikTok Shop image framing — fit inside 9:16 with padding (course: zoom out, not tight crop)
-    tiktok_shop_image_fit_scale: float = 0.88  # lower = more margin around product for Kling input
+    tiktok_shop_image_fit_scale: float = 0.88  # legacy; Kling input uses cover-crop 9:16 (no gray letterbox)
+
+    # On-screen hook — line breaks for TikTok native text OR ffmpeg burn-in
+    tiktok_shop_hook_delivery: str = "burn_in"  # burn_in = ffmpeg hook on clip; native = .hook.txt only
+    tiktok_shop_caption_max_chars_per_line: int = 20  # owner cap — 22+ clipped sides; 20 is safe max
+    tiktok_shop_caption_max_lines: int = 7
+    tiktok_shop_caption_font_size: int = 48  # burn_in only — 15% up from 42 (owner 2026-06)
+    tiktok_shop_min_post_interval_minutes: int = 30  # Module 1 spacing — cron every 30m
 
     # InVideo AI — RETIRED (Fix It Fast / Ms. Byte lane). Keys ignored unless re-enabled by owner.
     invideo_api_key: str | None = None

@@ -1,0 +1,47 @@
+---
+description: Launch budget, monthly burn, runway, and buy order — affiliate vs bubble costs
+globs: docs/LAUNCH_BUDGET.md,docs/LAUNCH_CHECKLIST.md,docs/LAUNCH_TODO.md,docs/LAUNCH_PREP_BRIEF.md,data/PRIORITIES.md
+alwaysApply: false
+---
+
+# Budget and runway
+
+Canonical math: **`docs/LAUNCH_BUDGET.md`**
+
+## Owner numbers (Jun 2026 baseline)
+
+~**$2,283** cash · affiliate account ~**$630** · target **≥2 months** runway
+
+## Day-1 affiliate stack (minimum)
+
+| Item | ~Cost |
+|------|-------|
+| Purchased affiliate account | $630 |
+| **FastMoss Basic** | ~$59/mo |
+| Kling day 1 (8–10 clips + regens) | ~$5–15 |
+| Zernio | confirm plan |
+
+**Do not buy for affiliate day 1:** 4 phones · 5th phone · EchoTik · Kalodata
+
+## Monthly affiliate burn (~$420/mo plan number)
+
+FastMoss ~$59 + Zernio/misc ~$100–200 + Kling ~$65–85 + images ~$30–50  
+Bubble SIMs ~$50 only when phones live.
+
+## Runway (Plan A — affiliate first)
+
+After account + ~2 months full stack: buffer roughly **$455–525** with FastMoss (better than old EchoTik plan).
+
+## Buy order (speed)
+
+1. Affiliate account  
+2. FastMoss subscribe  
+3. Zernio → `affiliate_main`  
+4. Launch batch (8–10 QC-pass clips)  
+5. Bubble hardware ~$280 when ready  
+
+## GOOD vs cheap
+
+**GOOD** = Module 1 QC pass + course edit — not raw Kling output. Regen on fail; don’t brute-force spend on bad prompts.
+
+When numbers change (Zernio tier, cash on hand), suggest updating `LAUNCH_BUDGET.md` — don’t invent new math in chat without checking the doc.

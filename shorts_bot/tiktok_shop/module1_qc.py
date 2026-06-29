@@ -21,6 +21,9 @@ MODULE1_VIDEO_VIOLATIONS: tuple[str, ...] = (
     "Dirt, sand, or powder",
     "Pulsing light",
     "Electronic screens with movement",
+    "Phone screens with visible UI or app icons",
+    "Recognizable third-party brands or logos besides advertised product",
+    "Mobile app icons or recognizable apps in frame",
     "Mismatching lighting between product and environment",
     "Same lighting as the TikTok Shop listing image",
     "Hieroglyphic or illegible text",
@@ -243,6 +246,9 @@ def _gemini_check_frames(
         "Check ONLY for these ban triggers (course Module 1). If ANY appear in ANY frame, "
         "list them in violations. Zero tolerance.\n\n"
         f"{violation_list}\n\n"
+        "Owner override (2026-06-28): ONLY the advertised product's brand may be visible. "
+        "Flag any phone/laptop/tablet screen showing UI, app icons, or home screen. "
+        "Flag Apple, MacBook, Instagram, Facebook, or any third-party logo not on the product itself.\n\n"
         "Also verify Video Do's where visible: arc camera (not static), product ~80%+ in frame, "
         "legible text if any, matching lighting, non-cluttered environment.\n\n"
         "Return ONLY JSON: "

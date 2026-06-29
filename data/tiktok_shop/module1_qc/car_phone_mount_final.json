@@ -1,0 +1,19 @@
+{
+  "video": "data/tiktok_shop/clips/car_phone_mount_final.mp4",
+  "passed": false,
+  "violations": [
+    "Electronic screens with movement",
+    "Static camera movement (need arc camera around product)"
+  ],
+  "warnings": [],
+  "duration_seconds": 10.083333,
+  "frame_paths": [
+    "data/tiktok_shop/module1_qc/car_phone_mount_final/frame_00_0.5s.jpg",
+    "data/tiktok_shop/module1_qc/car_phone_mount_final/frame_01_2.5s.jpg",
+    "data/tiktok_shop/module1_qc/car_phone_mount_final/frame_02_5.0s.jpg",
+    "data/tiktok_shop/module1_qc/car_phone_mount_final/frame_03_7.6s.jpg",
+    "data/tiktok_shop/module1_qc/car_phone_mount_final/frame_04_9.5s.jpg"
+  ],
+  "vision_ran": true,
+  "checked_at": "2026-06-28T11:12:37.071327+00:00"
+}

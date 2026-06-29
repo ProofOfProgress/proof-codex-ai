@@ -1,0 +1,49 @@
+---
+description: FastMoss product research — replaces EchoTik and Kalodata for Module 3 affiliate picks
+globs: shorts_bot/tiktok_shop/fastmoss_client.py,shorts_bot/tiktok_shop/product_scout.py,shorts_bot/tiktok_shop/scout_cli.py,data/tiktok_shop/products.json,data/research/course/PRODUCT_RESEARCH.md,docs/FOR_OWNER_FASTMOSS_SETUP.md,docs/FASTMOSS_SCOUT_PLAN.md
+alwaysApply: false
+---
+
+# FastMoss product research
+
+**One tool:** FastMoss only. **Do not** suggest EchoTik, Kalodata subscriptions, or dual stack.
+
+Owner override: `data/research/course/PRODUCT_RESEARCH.md` · Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md`
+
+## Launch path A *(now — API scout not required)*
+
+1. Owner subscribes FastMoss (~$59/mo Basic — verify on site)
+2. Owner picks **8–10 products** in FastMoss UI (ads, trend up, brand match, course filters)
+3. Owner gives product names → CEO clips via `factory_cli make-clip`
+4. Save/confirm list in `data/tiktok_shop/products.json`
+
+## Launch path B *(when API wired)*
+
+Secrets: `FASTMOSS_CLIENT_ID`, `FASTMOSS_CLIENT_SECRET` → new cloud agent run → `bash scripts/install.sh`
+
+```bash
+python3 -m shorts_bot.tiktok_shop.scout_cli status
+python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
+```
+
+Until scout ships, `scout_cli run` may error with “not wired” — **that is expected**; use path A.
+
+## Module 3 quality bar (FastMoss)
+
+| Check | Why |
+|-------|-----|
+| Ad badges / paid top videos | Brand invests — easier to convert |
+| Revenue trend **up** | Avoid dying products |
+| Brand match | Image, title, shop align |
+| Commission $ | Price × rate worth posting |
+| Creator mix | Not only brand self-promo |
+
+Presets `middle_core` / `two_hundred` are **legacy bot names** — apply equivalent filters in FastMoss UI.
+
+## Delegate
+
+`/product-research` → **`product-researcher`** (background). CEO carries picks forward — subagents have no chat memory.
+
+## Budget
+
+FastMoss ~$59/mo vs retired EchoTik ~$125 — see `docs/LAUNCH_BUDGET.md`. **Do not pay EchoTik.**

@@ -1,7 +1,8 @@
 # AGENTS.md — read this first (every new chat)
 
 > **New cloud agent?** Run the bootstrap checklist: **`docs/CLOUD_AGENT_START.md`**  
-> **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.
+> **Secrets added mid-chat?** Start a **new agent run** — this VM only gets secrets at launch.  
+> **Cursor rules:** `.cursor/rules/*.mdc` · Owner guide: **`docs/FOR_OWNER_CURSOR_RULES.md`** · https://cursor.com/docs/rules
 
 ## What this repo is
 
@@ -15,12 +16,14 @@
 
 ## What we are working on (2026)
 
-| Track | When | Source |
-|-------|------|--------|
-| **Bubble wrap (NOW)** | Until ~1k followers per account | `BUBBLE_WRAP.md` + Drive samples |
-| **Affiliate product videos** | After 1k | Course Modules 1, 3–8 |
-| **Follow ads** | Later, 1k→5k | `ADS_1K_TO_5K.md` (deferred) |
-| **Automation** | Always | `shorts_bot/tiktok_shop/` |
+| Track | Accounts | Posts/day | Source |
+|-------|----------|-----------|--------|
+| **Bubble wrap** (parallel) | 4 growth accounts | 2 **safe** @ 3–4 · 2 **aggressive** @ 8–10 | `BUBBLE_WRAP.md` |
+| **Affiliate product videos** | Revenue account(s) | 8–10 (Module 1) | Modules 1, 3–8 — **full automation at go-live** |
+| **Automation** | Always | — | `shorts_bot/tiktok_shop/` + agent team |
+| **Follow ads** | Later 1k→5k | — | `ADS_1K_TO_5K.md` (deferred) |
+
+**Affiliate go-live:** CEO runs the whole pipeline — product research, Kling, captions, edit, Module 1 QC, upload. **Defer paid monthly stack until first affiliate post**; prep everything first.
 
 **North star:** TikTok Shop affiliate revenue via the owner's **Momentum Academy** course.
 
@@ -45,7 +48,7 @@ If you see these in code/comments, treat as legacy cruft. **Course wins.**
 | Layer | Path | Covers |
 |-------|------|--------|
 | **Creative (~90%)** | `data/research/course/` | Product research, images, Kling video, editing, violations, appeals, growth |
-| **Automation (~10%)** | `shorts_bot/tiktok_shop/` | EchoTik scout, Kling render, TikTok OAuth, Printify, Module 1 QC, queue |
+| **Automation (~10%)** | `shorts_bot/tiktok_shop/` | FastMoss research, Kling render, TikTok OAuth, Printify, Module 1 QC, queue |
 
 Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/course/README.md`
 
@@ -56,7 +59,7 @@ Full index: `data/research/course/KNOWLEDGE.md` · Module list: `data/research/c
 ## Affiliate video pipeline (course order)
 
 1. **Module 1** — rules & violations (QC before every upload)
-2. **Module 3** — pick product (`product-researcher` + EchoTik / Kalodata spot-check)
+2. **Module 3** — pick product (`product-researcher` + **FastMoss** — replaces EchoTik/Kalodata)
 3. **Module 4** — AI image (ChatGPT Prompt Builder → Higgsfield/NanoBanana, 9:16, 2K)
 4. **Module 5** — AI video (Kling 2.6, 5s, audio off) — **video prompt from Product Video Prompt Builder** (`PROMPT_BUILDER.md`)
 5. **Module 6** — edit (~10s pan loop + pain-point caption, white box / black text)
@@ -78,7 +81,9 @@ Specialist subagents live in `.cursor/agents/`. You orchestrate parallel work an
 | Employee | Slash | Job | Background? |
 |----------|-------|-----|-------------|
 | Product Video Prompt Builder | `/product-video-prompt-builder` | Module 5 **video prompts** (Kling/Higgsfield) | No |
-| Product Researcher | `/product-research` | Module 3 EchoTik scout + ranked picks | **Yes** |
+| Video Visual Critic | `/visual-review` | Gemini quality feedback → prompt regen loop | **Yes** |
+| Product Researcher | `/product-research` | Module 3 FastMoss picks + ranked shortlist | **Yes** |
+| Knowledge Gatherer | `/knowledge-gather` | Read course + launch docs; plain-English briefings | **Yes** |
 | Video Caption Writer | `/video-caption-writer` | Module 6 on-screen caption copy | No |
 | Video Editor | `/video-editor` | Module 6 pan loop + caption burn | **Yes** |
 | Module 1 QC Runner | `/module1-qc-runner` | Pre-upload QC | **Yes** |
@@ -98,7 +103,8 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
 
 ### Orchestration rules (CEO = you)
 
-0. **Product research** — delegate to `product-researcher` (background) when owner needs picks or `products.json` refresh; owner chooses finalist after Kalodata spot-check.
+0. **Product research** — delegate to `product-researcher` (background) when owner needs picks or `products.json` refresh; owner picks in FastMoss app until API scout ships.
+0b. **Information / course questions** — delegate to `knowledge-gatherer` (background) when owner needs briefings from `data/research/course/` or launch docs without running APIs.
 1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder` (Module 1 compliant — must not instruct ban triggers).
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).
 3. **Start a mission log** on every orchestrated run:
@@ -111,6 +117,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
    ```
 5. **Keep working** while `is_background: true` employees run; poll mission log before claiming upload-ready.
 6. Tell the owner how to watch: `python3 -m shorts_bot.agent_ops tail --mission $MISSION` or http://127.0.0.1:8080/agent-ops
+7. **System dissection** — when diagnosing any bug (borders, QC, still-image, etc.), fix the **whole pipeline** (code, rules, tests, docs) — never stop at re-rendering one clip. Rule: `.cursor/rules/system-dissection.mdc`
 
 Full owner guide: `docs/FOR_OWNER_AGENT_TEAM.md`
 

@@ -15,6 +15,8 @@ class ShopAccount:
     label: str
     daily_limit: int = 10
     enabled: bool = True
+    track: str = ""  # bubble_safe | bubble_aggressive | affiliate
+    phone_hub_slot: str = ""  # phone_1 .. phone_4 — dedicated device in phone hub
     tiktok_token_path: Path | None = None
     zernio_account_id: str | None = None
     post_via: str = "zernio"  # zernio | tiktok_api
@@ -48,12 +50,46 @@ def load_accounts() -> list[ShopAccount]:
                 label=str(row.get("label") or row.get("id") or "").strip(),
                 daily_limit=max(1, int(row.get("daily_limit") or 10)),
                 enabled=bool(row.get("enabled", True)),
+                track=str(row.get("track") or "").strip(),
+                phone_hub_slot=str(row.get("phone_hub_slot") or "").strip(),
                 tiktok_token_path=Path(token) if token else None,
                 zernio_account_id=(row.get("zernio_account_id") or None),
                 post_via=str(row.get("post_via") or "zernio").strip().lower(),
             )
         )
     return [a for a in out if a.id and a.enabled]
+
+
+def load_account(account_id: str) -> ShopAccount | None:
+    """Return account by id even if disabled (scheduler status / pre-launch)."""
+    acct_id = (account_id or "").strip()
+    if not acct_id:
+        return None
+    path = accounts_config_path()
+    if not path.is_file():
+        return None
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    rows = raw.get("accounts") if isinstance(raw, dict) else raw
+    if not isinstance(rows, list):
+        return None
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("id") or "").strip() != acct_id:
+            continue
+        token = row.get("tiktok_token_path")
+        return ShopAccount(
+            id=acct_id,
+            label=str(row.get("label") or acct_id).strip(),
+            daily_limit=max(1, int(row.get("daily_limit") or 10)),
+            enabled=bool(row.get("enabled", True)),
+            track=str(row.get("track") or "").strip(),
+            phone_hub_slot=str(row.get("phone_hub_slot") or "").strip(),
+            tiktok_token_path=Path(token) if token else None,
+            zernio_account_id=(row.get("zernio_account_id") or None),
+            post_via=str(row.get("post_via") or "zernio").strip().lower(),
+        )
+    return None
 
 
 def _default_accounts() -> list[ShopAccount]:

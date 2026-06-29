@@ -1,0 +1,69 @@
+---
+description: Affiliate clip pipeline — scout, Kling, QC, queue, Zernio post, launch batch, week-1 cadence
+alwaysApply: false
+---
+
+# Affiliate pipeline flow
+
+Canonical design: **`docs/PIPELINE_SYSTEM_DESIGN.md`**  
+Launch checklist: **`docs/LAUNCH_TODO.md`**
+
+## End-to-end (one product)
+
+```
+scout → owner approves product → **Gemini sample-image (listing → 9:16)**
+  → product-video-prompt-builder (REQUIRED — attach sample + listing ref) → save prompt
+  → Kling 5s (9:16 ONLY, KLING_MODE=std, audio off)
+  → video-visual-critic → regen loop if needed
+  → video-editor (pan loop ~10s) + video-caption-writer (pain hook, no sale/price words)
+  → module1-qc-runner → PASS only
+  → factory_cli enqueue --account affiliate_main
+  → factory_cli post --account affiliate_main --confirm
+```
+
+## CLI reference
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli sample-image --product "NAME" --source LISTING.jpg
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" \
+  --product-image data/tiktok_shop/samples/NAME_916.jpg --reference-image LISTING.jpg
+python3 -m shorts_bot.tiktok_shop.factory_cli save-prompt --product "NAME" --prompt "..."
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt --force
+python3 -m shorts_bot.tiktok_shop.factory_cli hook-lines --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product "NAME" --caption "..." --account affiliate_main
+python3 -m shorts_bot.tiktok_shop.factory_cli enqueue --video PATH --product "NAME" --caption "..." --account affiliate_main
+python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm
+python3 -m shorts_bot.tiktok_shop.factory_cli status
+```
+
+## Product research
+
+- **FastMoss required** at launch — pick in app (path A) or API scout when wired
+- FastMoss covers ad badges, trend, filters (Module 3) — no separate Kalodata
+- Presets: `middle_core` (default), `two_hundred` when asked
+
+## GOOD clip definition
+
+- Module 1 QC **zero violations**
+- Course pan loop + white box / black text caption (`VIDEO_EDITOR.md`)
+- Module 7: **no** sale, price, discount, coupon, free shipping in caption
+- Regen on fail — do not lower standards for speed
+
+## Launch batch (8–10)
+
+1. Sections E→G in `LAUNCH_TODO.md` before Launch Date eve
+2. Queue 8–10 on `affiliate_main`
+3. **12:00 AM** Launch Date: post #1 only → **7 calendar day clock starts**
+4. Posts #2–10: every **≥30 minutes**
+5. Week 1: repeat 8–10/day; track commission toward **$1k**
+
+## Account config
+
+- Purchased account: `affiliate_main` in `data/tiktok_shop/accounts.json`
+- `post_via: zernio` · `enabled: true` after owner connects in Zernio dashboard
+- Bubble four accounts are **separate track** — do not post affiliate clips to bubble IDs
+
+## Long jobs
+
+Kling, batch render, scout: run in **background**; poll every 1–2 min. Log to mission feed.

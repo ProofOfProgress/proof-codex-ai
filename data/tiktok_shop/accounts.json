@@ -1,21 +1,73 @@
 {
   "accounts": [
     {
-      "id": "affiliate_test",
+      "id": "bubble_gspgsgsorip1",
       "label": "gspgsgsorip1",
-      "daily_limit": 10,
+      "track": "bubble_safe",
+      "phone_hub_slot": "phone_1",
+      "daily_limit": 4,
       "enabled": true,
       "post_via": "zernio",
       "zernio_account_id": "6a3e03579d9472faaeecbab6"
     },
     {
-      "id": "bubble_playstation",
-      "label": "gspgsgsorip1",
+      "id": "bubble_isaac",
+      "label": "Isaac",
+      "track": "bubble_safe",
+      "phone_hub_slot": "phone_4",
+      "daily_limit": 4,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3e5a0b9d9472faaef19baa"
+    },
+    {
+      "id": "bubble_proofofprogresss",
+      "label": "proofofprogresss",
+      "track": "bubble_aggressive",
+      "phone_hub_slot": "phone_2",
       "daily_limit": 10,
       "enabled": true,
       "post_via": "zernio",
-      "zernio_account_id": "6a3e03579d9472faaeecbab6"
+      "zernio_account_id": "6a3f14df9d9472faaef98701",
+      "_note": "More trusted by TikTok — aggressive cadence"
+    },
+    {
+      "id": "bubble_ms_byte",
+      "label": "Ms. Byte (bubble wrap)",
+      "track": "bubble_aggressive",
+      "phone_hub_slot": "phone_3",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a39dedb5f7d1751ab57366b",
+      "_note": "More trusted by TikTok — aggressive cadence; old Ms. Byte lane dead, account repurposed"
+    },
+    {
+      "id": "affiliate_test",
+      "label": "gspgsgsorip1",
+      "track": "affiliate",
+      "phone_hub_slot": "",
+      "daily_limit": 10,
+      "enabled": true,
+      "post_via": "zernio",
+      "zernio_account_id": "6a3e03579d9472faaeecbab6",
+      "_note": "Private Kling + bubble-wrap tests on @gspgsgsorip1 — use SELF_ONLY"
+    },
+    {
+      "id": "affiliate_main",
+      "label": "Purchased affiliate account (TBD)",
+      "track": "affiliate",
+      "phone_hub_slot": "",
+      "daily_limit": 10,
+      "enabled": false,
+      "post_via": "zernio",
+      "zernio_account_id": "",
+      "_note": "Purchased affiliate account — Zernio MP4 posts from cloud; no dedicated hub phone on budget path"
     }
   ],
-  "_note": "affiliate_test and bubble_playstation are the same TikTok (@gspgsgsorip1, Zernio 6a3e03579d9472faaeecbab6). Renamed from playstationaccou2171. affiliate_test = Kling/affiliate; bubble_playstation = bubble carousel scripts. Private tests: ZERNIO_TIKTOK_PRIVACY=SELF_ONLY."
+  "_pre_launch_buy": "HP laptop (wipe) + 4 Android phones + 4 SIMs + purchased affiliate account — docs/LAUNCH_BUDGET.md",
+  "_launch": "Follow docs/LAUNCH_TODO.md — $1k in 7 days from first upload = $500 bonus",
+  "_cadence": "Safe: gspgsgsorip1 + Isaac @ 3-4/day. Aggressive: proofofprogresss + Ms. Byte @ 8-10/day.",
+  "_architecture": "Laptop hub + 4 bubble phones — affiliate via Zernio only — docs/FOR_OWNER_PHONE_HUB.md",
+  "_note": "affiliate_test = @gspgsgsorip1 (private tests). bubble_* use tiktok_switch_label for phone ADB. ZERNIO_TIKTOK_PRIVACY=SELF_ONLY for affiliate_test private posts."
 }

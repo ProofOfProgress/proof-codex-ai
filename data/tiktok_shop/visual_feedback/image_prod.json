@@ -1,0 +1,19 @@
+{
+  "kind": "reference_image",
+  "product": "Tumbler",
+  "score": 8.0,
+  "good_enough": true,
+  "summary": "Clean product on white.",
+  "issues": [],
+  "prompt_fixes": [],
+  "module1_risks": [],
+  "arc_camera_visible": null,
+  "product_fidelity": "",
+  "reference_image": "/tmp/pytest-of-ubuntu/pytest-13/test_review_reference_image_pa0/prod.jpg",
+  "video_path": "",
+  "prompt_used": "",
+  "frame_paths": [],
+  "revised_prompt": "",
+  "module1_qc_passed": null,
+  "checked_at": "2026-06-28T11:17:33.988457+00:00"
+}

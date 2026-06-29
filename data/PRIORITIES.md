@@ -2,21 +2,60 @@
 
 **Strategy:** Owner's **paid affiliate course** only — `data/research/course/`
 
-**North star:** TikTok Shop affiliate revenue (after accounts are warmed).
+**North star:** TikTok Shop **affiliate product videos** → revenue.
 
-**Current phase:** **Bubble wrap only** until ~**1k followers** per account — then affiliate Modules 3–8.
+**Week 1 challenge (owner):** **$1,000 commission** in **7 calendar days** (Launch Date midnight → +6 days 11:59 PM) → **$500 course bonus**. Step-by-step: `docs/LAUNCH_TODO.md`.
 
-**Knowledge split:** Course = creative (hooks, video, growth, violations). Repo = automation (APIs, Kling, QC, post). See `data/research/course/KNOWLEDGE.md`.
+**Current phase (owner 6/2026):** **Two parallel tracks**
 
-**Bot job:** Connect APIs → scout → render clips → queue/post **per course modules** — never per retired lanes (Fix It Fast, InVideo, Ms. Byte, etc.).
+| Track | Accounts | Posts/day | Automation |
+|-------|----------|-----------|------------|
+| **Bubble wrap** (0→1k) | 4 growth accounts | 2 safe @ **3–4** · 2 aggressive @ **8–10** | Carousel + Mackenzie sound |
+| **Affiliate** (revenue) | Affiliate account(s) | **8–10** (Module 1) | **Full stack** — research → clip → caption → QC → post |
+
+**Affiliate go-live = turn on full stack immediately** — **FastMoss subscribed**, Kling, Zernio posting. **8–10 GOOD posts/day** from launch day (Module 1 QC pass). Bubble hardware can lag; affiliate does not wait for phones.
+
+**Knowledge split:** Course = creative. Repo = automation. See `data/research/course/KNOWLEDGE.md`.
+
+**Bot job:** Research product → image → Kling clip → edit → Module 1 QC → post — **per course modules**, never per retired lanes.
 
 ---
 
-## Top 4 (technical)
+## Affiliate pipeline (course order — do not skip)
+
+| Step | Module | Source | Automation |
+|------|--------|--------|------------|
+| Rules | 1 | `module_01_read_before_anything.md` | `module1_qc.py` — **mandatory before upload** |
+| Product pick | 3 | `module_03` + `PRODUCT_RESEARCH.md` | FastMoss (app day 1; API scout when wired) → `product-researcher` |
+| AI image | 4 | `module_04` + `PROMPT_BUILDER.md` | Higgsfield / ChatGPT builder |
+| AI video | 5 | `module_05` + `PROMPT_BUILDER.md` | Kling 2.6, 5s, audio off |
+| Edit | 6 | `module_06` + `VIDEO_EDITOR.md` | Pan loop + caption — `video-editor` |
+| Avoid violations | 7 | `module_07` | Caption + QC rules |
+| Appeals | 8 | `module_08` + `APPEALS.md` | If flagged |
+
+**Owner overrides beat course:** `PROMPT_BUILDER.md`, `VIDEO_EDITOR.md`, `APPEALS.md`, `GROUP_CALLS.md`
+
+---
+
+## Top 4 (affiliate phase — only these until reassessed)
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **APIs live** | EchoTik + Kling + TikTok OAuth configured |
-| **2** | **Clip pipeline** | `make-clip` works from a product image |
-| **3** | **Course ingest** | Modules in `data/research/course/` |
-| **4** | **Daily ops** | Posting queue matches course SOP |
+| **1** | **Product research** | FastMoss picks pass Module 3 checks (ads, trend, brand); saved in `products.json` |
+| **2** | **End-to-end clip** | One product → image → Kling → pan loop + caption → Module 1 QC pass → ready to post |
+| **3** | **APIs live** | FastMoss (app or API) + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
+| **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; violation watch per Module 1 + 7 |
+
+---
+
+## Paused / later
+
+| Track | When | Source |
+|-------|------|--------|
+| Follow ads | After 1k→5k per account | `ADS_1K_TO_5K.md` (deferred) |
+
+**FastMoss subscribed:** required **on affiliate launch day** — not deferred. See `docs/LAUNCH_BUDGET.md`. EchoTik is **retired** — do not pay.
+
+## Dead — do not build
+
+Fix It Fast · Rapid Tool Review · Ms. Byte · InVideo · Peripheral horror

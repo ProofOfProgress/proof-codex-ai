@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from datetime import date, timedelta
 from typing import Any
 
 import httpx
@@ -45,6 +46,55 @@ def _get(path: str, *, params: dict[str, Any]) -> dict[str, Any]:
     return body
 
 
+def _list_data(path: str, *, params: dict[str, Any]) -> list[dict[str, Any]]:
+    body = _get(path, params=params)
+    data = body.get("data")
+    return data if isinstance(data, list) else []
+
+
+def ping(*, max_days_back: int = 7) -> dict[str, Any]:
+    """
+    One lightweight API call to verify credentials + quota.
+    Walks back daily ranklists until data is found or max_days_back exhausted.
+    """
+    region = (settings.echotik_region or "US").strip()
+    for days_back in range(1, max_days_back + 1):
+        rank_date = (date.today() - timedelta(days=days_back)).isoformat()
+        try:
+            rows = product_ranklist(
+                date=rank_date,
+                region=region,
+                rank_type=1,
+                page_num=1,
+                page_size=1,
+            )
+        except RuntimeError as exc:
+            msg = str(exc)
+            if "Usage Limit" in msg or "Quota" in msg:
+                return {
+                    "ok": False,
+                    "error": "quota_exceeded",
+                    "message": msg,
+                    "region": region,
+                }
+            raise
+        if rows:
+            sample = rows[0]
+            return {
+                "ok": True,
+                "region": region,
+                "rank_date": rank_date,
+                "sample_product": str(sample.get("product_name") or "")[:80],
+                "sample_gmv": sample.get("total_sale_gmv_amt"),
+            }
+    return {
+        "ok": True,
+        "region": region,
+        "rank_date": None,
+        "message": f"No daily ranklist rows in last {max_days_back} days (T+1 lag is normal)",
+    }
+
+
 def product_ranklist(
     *,
     date: str,
@@ -59,7 +109,7 @@ def product_ranklist(
     rank_type: 1=day 2=week 3=month
     product_rank_field: 1=hot sales 2=hot promoted
     """
-    body = _get(
+    return _list_data(
         f"{API_PREFIX}/product/ranklist",
         params={
             "date": date,
@@ -70,14 +120,84 @@ def product_ranklist(
             "page_size": min(10, max(1, page_size)),
         },
     )
-    data = body.get("data")
-    return data if isinstance(data, list) else []
+
+
+def product_list(
+    *,
+    region: str | None = None,
+    page_num: int = 1,
+    page_size: int = 10,
+    **filters: Any,
+) -> list[dict[str, Any]]:
+    """Filtered product list (T+1 warehouse). Pass filter kwargs matching API docs."""
+    params: dict[str, Any] = {
+        "region": (region or settings.echotik_region or "US").strip(),
+        "page_num": page_num,
+        "page_size": min(10, max(1, page_size)),
+    }
+    for key, val in filters.items():
+        if val is not None:
+            params[key] = val
+    return _list_data(f"{API_PREFIX}/product/list", params=params)
 
 
 def product_detail(product_ids: list[str]) -> list[dict[str, Any]]:
     ids = ",".join(i.strip() for i in product_ids if i.strip())[:500]
     if not ids:
         return []
-    body = _get(f"{API_PREFIX}/product/detail", params={"product_ids": ids})
+    return _list_data(f"{API_PREFIX}/product/detail", params={"product_ids": ids})
+
+
+def product_video_list(*, product_id: str, page_num: int = 1, page_size: int = 10) -> list[dict[str, Any]]:
+    return _list_data(
+        f"{API_PREFIX}/product/video/list",
+        params={
+            "product_id": product_id,
+            "page_num": page_num,
+            "page_size": min(10, max(1, page_size)),
+        },
+    )
+
+
+def product_influencer_list(*, product_id: str, page_num: int = 1, page_size: int = 10) -> list[dict[str, Any]]:
+    return _list_data(
+        f"{API_PREFIX}/product/influencer/list",
+        params={
+            "product_id": product_id,
+            "page_num": page_num,
+            "page_size": min(10, max(1, page_size)),
+        },
+    )
+
+
+def product_trend(
+    *,
+    product_id: str,
+    start_date: str,
+    end_date: str,
+    page_num: int = 1,
+    page_size: int = 10,
+) -> list[dict[str, Any]]:
+    return _list_data(
+        f"{API_PREFIX}/product/trend",
+        params={
+            "product_id": product_id,
+            "start_date": start_date,
+            "end_date": end_date,
+            "page_num": page_num,
+            "page_size": min(10, max(1, page_size)),
+        },
+    )
+
+
+def video_detail(video_ids: list[str]) -> list[dict[str, Any]]:
+    ids = ",".join(i.strip() for i in video_ids if i.strip())[:500]
+    if not ids:
+        return []
+    return _list_data(f"{API_PREFIX}/video/detail", params={"video_ids": ids})
+
+
+def seller_detail(seller_id: str) -> dict[str, Any] | None:
+    body = _get(f"{API_PREFIX}/seller/detail", params={"seller_id": seller_id})
     data = body.get("data")
-    return data if isinstance(data, list) else []
+    return data if isinstance(data, dict) else None

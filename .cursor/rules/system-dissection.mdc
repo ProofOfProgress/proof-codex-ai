@@ -1,0 +1,36 @@
+---
+description: When fixing bugs — universal system dissection, never one-off output patches
+alwaysApply: true
+---
+
+# System dissection (owner rule)
+
+When **diagnosing or solving any problem**, treat it as a **universal system dissection** — not a one-time fix for a single clip, image, or run.
+
+## Required approach
+
+1. **Map the full pipeline** — every stage from input → output (Module 4 sample, prompt builder, Kling, loop, caption, QC, post).
+2. **Find root causes** — code defaults, missing steps, config, docs, agent instructions, validation gaps.
+3. **Fix the system** — gates, CLI, tests, cursor rules, checklist, negatives, owner docs. Same class of bug must not recur on the *next* product.
+4. **Prove generically** — tests + one dry-run example; do not declare done after patching only the reported file.
+
+## Do NOT
+
+- Re-render **only** the broken MP4 and call it fixed
+- Tweak **only** one prompt for one product name
+- Hand-wave with “owner can avoid that image” without encoding the rule in QC/pipeline
+- Fix symptoms in one file while leaving the same trap in `factory_cli`, agents, or sample prep
+
+## Example — grey/black borders (correct vs wrong)
+
+| Wrong (one-off) | Right (system dissection) |
+|-----------------|---------------------------|
+| Re-run Kling on `car_phone_mount` with `--force` | Trace: listing crop → letterbox padding → Kling copies bars |
+| | Fix: cover-crop prep, **Gemini sample-image** step, 9:16 API + ffprobe gate |
+| | Update: pipeline checklist, module4 prompts, tests, docs |
+
+## When reporting to owner
+
+Explain **what broke in the system**, **what we changed everywhere**, and **how the next clip is protected** — not just “regenerated your video.”
+
+@docs/PIPELINE_SYSTEM_DESIGN.md

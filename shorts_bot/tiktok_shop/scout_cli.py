@@ -1,4 +1,4 @@
-"""CLI — EchoTik product scout for TikTok Shop."""
+"""CLI — FastMoss / product scout for TikTok Shop."""
 
 from __future__ import annotations
 
@@ -12,12 +12,13 @@ console = Console()
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="EchoTik TikTok Shop product scout")
+    parser = argparse.ArgumentParser(description="TikTok Shop product scout (FastMoss)")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    sub.add_parser("status", help="EchoTik credentials configured?")
+    sub.add_parser("status", help="FastMoss / research credentials")
+    sub.add_parser("ping", help="Live API test (FastMoss when configured)")
 
-    run = sub.add_parser("run", help="Fetch + score products")
+    run = sub.add_parser("run", help="Fetch + score products (FastMoss API when wired)")
     run.add_argument(
         "--preset",
         choices=("middle_core", "two_hundred"),
@@ -34,20 +35,40 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "status":
-        from shorts_bot.config import settings
-        from shorts_bot.tiktok_shop import echotik_client
+        from shorts_bot.tiktok_shop import echotik_client, fastmoss_client
         from shorts_bot.tiktok_shop.product_scout import load_products, products_path
 
-        ok = echotik_client.configured()
-        if ok:
-            console.print("[green]EchoTik: configured[/green]")
+        if fastmoss_client.configured():
+            console.print("[green]FastMoss: credentials configured[/green]")
+            console.print("[yellow]Automated scout: not wired yet — use FastMoss app or see FASTMOSS_SCOUT_PLAN.md[/yellow]")
         else:
-            console.print("[red]EchoTik: not configured[/red]")
-            console.print("See docs/FOR_OWNER_ECHOTIK_SETUP.md")
-        console.print(f"Region: {settings.echotik_region or 'US'}")
+            console.print("[red]FastMoss: not configured[/red]")
+            console.print("See docs/FOR_OWNER_FASTMOSS_SETUP.md (replaces EchoTik)")
+        if echotik_client.configured():
+            console.print("[dim]EchoTik: legacy credentials present — retired, do not pay[/dim]")
         console.print(f"Products file: {products_path()}")
         console.print(f"Saved products: {len(load_products())}")
+        console.print("[dim]Launch path A: pick in FastMoss app → tell agent product names[/dim]")
         return
+
+    if args.cmd == "ping":
+        from shorts_bot.tiktok_shop import fastmoss_client, echotik_client
+
+        if fastmoss_client.configured():
+            result = fastmoss_client.ping()
+            if result.get("ok"):
+                console.print("[green]FastMoss API: connected[/green]")
+            else:
+                console.print(f"[yellow]FastMoss:[/yellow] {result.get('message')}")
+            return
+
+        if echotik_client.configured():
+            console.print("[yellow]EchoTik is retired — configure FastMoss instead[/yellow]")
+            console.print("docs/FOR_OWNER_FASTMOSS_SETUP.md")
+            raise SystemExit(1)
+
+        console.print("[red]FastMoss not configured — docs/FOR_OWNER_FASTMOSS_SETUP.md[/red]")
+        raise SystemExit(1)
 
     if args.cmd == "list":
         from shorts_bot.tiktok_shop.product_scout import load_products

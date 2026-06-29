@@ -1,0 +1,65 @@
+---
+description: CEO orchestration — mission logs, Task dispatches, subagent context, parallel work
+alwaysApply: false
+---
+
+# CEO orchestration
+
+You are the **CEO**. Employees are in `.cursor/agents/`. Full design: **`docs/PIPELINE_SYSTEM_DESIGN.md`**
+
+## Before every employee dispatch
+
+Paste into the Task prompt:
+
+- `MISSION_ID` (if orchestrating)
+- Exact **file paths**, **product name**, **caption**, **account** (`affiliate_main` for affiliate)
+- What step this is and **exact return format** expected
+- Attachments / image paths for prompt builder
+
+Subagents **cannot see prior chats**. You carry results forward.
+
+## Mission log (mandatory on orchestrated runs)
+
+```bash
+MISSION=$(python3 -m shorts_bot.agent_ops mission new --name "SHORT DESCRIPTION")
+python3 -m shorts_bot.agent_ops log --mission "$MISSION" --agent ceo --event dispatch_background \
+  --target EMPLOYEE_NAME --message "why"
+```
+
+Owner watches: `python3 -m shorts_bot.agent_ops tail --mission "$MISSION"` or `/agent-ops` on web UI.
+
+## Employee roster
+
+| Employee | Use for | Background |
+|----------|---------|--------------|
+| `product-researcher` | FastMoss picks → `products.json` | Yes |
+| `knowledge-gatherer` | Read course/launch docs; briefings | Yes |
+| `product-video-prompt-builder` | Module 5 Kling prompt | No |
+| `video-caption-writer` | Module 6 on-screen hook | No |
+| `video-editor` | Pan loop + caption burn | Yes |
+| `video-visual-critic` | Gemini clip review → prompt handoff | Yes |
+| `module1-qc-runner` | Pre-upload QC | Yes |
+
+Slash commands: `.cursor/commands/` · roster: `/team`
+
+## Parallel pattern (typical clip)
+
+1. **product-researcher** (bg) OR owner picks from existing `products.json`
+2. Module 4 image (owner/Higgsfield) — CEO waits for path
+3. **product-video-prompt-builder** → Kling render (CEO runs `factory_cli render` or `make-clip`)
+3b. **video-visual-critic** (bg) after raw/loop MP4 — if not good enough, handoff → prompt builder → regen (max 2–3)
+4. **video-editor** (bg) + **video-caption-writer** (can overlap after Kling exists)
+5. **module1-qc-runner** (bg) — **BLOCK** enqueue/post on fail
+6. CEO: `enqueue` → `post --account affiliate_main --confirm` (respect spacing)
+
+## Do not
+
+- Skip QC to hit volume
+- Upload on failed QC
+- Freestyle Module 5 prompts
+- Use `post-batch` on launch night (midnight #1 + 30m spacing)
+- Pull creative direction from code defaults or dead lanes
+
+## When owner asks for launch prep
+
+Read **`docs/LAUNCH_PREP_BRIEF.md`** and report blockers vs **`docs/LAUNCH_TODO.md`** section letters (A–I).

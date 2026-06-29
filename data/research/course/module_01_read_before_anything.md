@@ -30,6 +30,9 @@ Four rules that govern everything, then a full list of what gets your account ba
 - Dirt, sand, or powder
 - Pulsing light
 - Electronic screens with movement
+- **Phone screens with visible UI** (home screen, app icons, notifications — owner 2026-06-28: treat as banned even if static)
+- **Recognizable third-party brands or logos** — only the **advertised product's** brand may appear (no Apple, MacBook, Instagram, competitor logos, etc.)
+- **Mobile app icons or recognizable apps** in frame
 - Mismatching lighting between product and environment
 - Same lighting as the TikTok Shop listing image
 - Hieroglyphic or illegible text
@@ -50,7 +53,7 @@ Four rules that govern everything, then a full list of what gets your account ba
 - Exaggerated human bobbing or movement
 - Camera movement in only 1 axis
 - Same environment as the listing image
-- Other brand titles in frame
+- Other brand titles in frame *(see also: third-party brand logos — owner 2026-06-28)*
 - Prices or retail messaging in background
 - Mirrors or human reflections
 - Levitating products

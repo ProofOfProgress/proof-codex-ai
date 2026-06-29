@@ -1,0 +1,44 @@
+---
+description: Bubble wrap growth track — 4 accounts, Mackenzie slideshows, parallel to affiliate (not a launch blocker)
+globs: data/research/course/BUBBLE_WRAP.md,data/tiktok_shop/accounts.json,docs/FOR_OWNER_PHONE_HUB.md,docs/FOR_OWNER_MINI_PC_INSTALL.md,docs/FOR_OWNER_REMOTE_HUB_SSH.md
+alwaysApply: false
+---
+
+# Bubble wrap (parallel track)
+
+**Goal:** 0 → ~1k followers per growth account. **Not** affiliate product videos (Modules 3–8).
+
+Source: `data/research/course/BUBBLE_WRAP.md`
+
+## Does NOT block affiliate
+
+Affiliate launch needs: purchased account + FastMoss + Kling + Zernio — **no phones required**.
+
+Bubble hardware (4 phones + HP hub) can lag weeks behind affiliate posting.
+
+## Format (locked)
+
+- **2-slide TikTok photo slideshow** every post
+- Slide 1: subject in bubble wrap + hook text only
+- Slide 2: Pause/Follow/Share/Comment pop interaction lines
+- **Mackenzie sound** required: see `BUBBLE_WRAP.md` for URL
+
+## Account cadence (`accounts.json`)
+
+| Cadence | Posts/day |
+|---------|-----------|
+| Safe (phone_1, phone_4) | 3–4 |
+| Aggressive (phone_2, phone_3) | 8–10 |
+
+Post via Zernio on bubble IDs — **never** post affiliate clips to bubble accounts or vice versa.
+
+## Hub laptop (later)
+
+WSL Ubuntu on owner HP → optional Tailscale SSH for agent terminal.  
+Affiliate keys (FastMoss, Kling) stay on **cloud VM**; hub needs `ZERNIO_API_TOKEN` for bubble publish when worker exists.
+
+## When owner asks about phones / Ubuntu / hub
+
+Read install docs — report **one** next step in plain English. Do not merge bubble creative into affiliate pipeline rules.
+
+@data/research/course/BUBBLE_WRAP.md

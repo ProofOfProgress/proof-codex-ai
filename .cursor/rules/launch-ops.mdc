@@ -1,0 +1,42 @@
+---
+description: Launch operations — LAUNCH_TODO order, midnight first post, 7 calendar days, $1k week-1 bonus, budget
+alwaysApply: false
+---
+
+# Launch operations
+
+**Ordered to-do:** `docs/LAUNCH_TODO.md` (Sections A→I, launch last)  
+**Status brief:** `docs/LAUNCH_PREP_BRIEF.md`  
+**Budget:** `docs/LAUNCH_BUDGET.md`
+
+## Rules (owner locked)
+
+- **Affiliate first** — bubble phones/laptop do not block launch
+- **FastMoss subscribed day 1** — replaces EchoTik + Kalodata (~$59/mo Basic)
+- **8–10 GOOD posts** on launch day — QC pass every clip
+- **First post 12:00 AM** on chosen Launch Date
+- **7 calendar days** to $1k commission → $500 course bonus
+- Deadline: **11:59 PM** on Launch Date + 6 days
+- Launch night: **no** `post-batch --max 10` — single posts ≥30m apart
+
+## Section letters (critical path)
+
+| Section | What |
+|---------|------|
+| A | Owner: account ~$630, FastMoss ~$59, Kling/Zernio |
+| B | Wire `affiliate_main` in Zernio + accounts.json |
+| C | Agent: status + scout ping green |
+| D | Owner: course skim |
+| E | FastMoss picks + owner approves 8–10 products |
+| F | One dry-run clip, owner watches |
+| G | Queue 8–10 |
+| H | Launch Date + timezone + midnight plan |
+| I | **LAUNCH** — last step |
+
+## Parallel (not blocking)
+
+HP Ubuntu hub · Tailscale SSH · 4 phones · phone worker · bubble posts
+
+## When owner asks "where are we on launch?"
+
+Update/read **`LAUNCH_PREP_BRIEF.md`** checklist — report blockers in plain English with next **one** owner action.

@@ -28,6 +28,8 @@ The codebase handles **API connections and mechanical steps** — not creative s
 
 Do **not** invent hooks, formats, or growth tactics from old repo docs, config defaults, or archived brands.
 
+**Questions answered from files only:** delegate to **Knowledge Gatherer** (`/knowledge-gather`) — reads this hierarchy and returns briefings with sources.
+
 ## Dead — never use for creative direction
 
 - **Fix It Fast** (gadget InVideo lane)

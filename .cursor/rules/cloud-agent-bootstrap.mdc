@@ -1,0 +1,38 @@
+---
+description: Cloud agent VM bootstrap, secrets, long-running jobs
+globs: docs/CLOUD_AGENT_START.md,docs/CURSOR_SECRETS.md,scripts/install.sh,scripts/sync_secrets.py
+alwaysApply: false
+---
+
+# Cloud agent bootstrap
+
+Read **`docs/CLOUD_AGENT_START.md`** on every new cloud run.
+
+## First commands
+
+```bash
+bash scripts/install.sh
+python3 -m shorts_bot.cloud_secrets
+python3 -m shorts_bot.tiktok_shop status
+```
+
+## Secrets
+
+- Injected at **agent start** — mid-chat secret adds require **new agent run**
+- Panel: **Cursor → Cloud Agent → Secrets** (not IDE-only)
+- Never paste secrets in chat or commit `.env`
+- Hub SSH (optional): `TAILSCALE_AUTH_KEY`, `HUB_SSH_*` per `docs/FOR_OWNER_REMOTE_HUB_SSH.md`
+
+## Long jobs
+
+Kling render, scout batches, launch batch QC: use **background** shell/tmux; poll 1–2 min.
+
+## Merge policy
+
+Agents merge own PRs when tests pass and PR is mergeable. Branch prefix: `cursor/*-bbfd`
+
+## Affiliate keys on hub laptop
+
+FastMoss/Kling stay on **cloud VM** for affiliate posting. Hub needs `ZERNIO_API_TOKEN` only (bubble later).
+
+@AGENTS.md

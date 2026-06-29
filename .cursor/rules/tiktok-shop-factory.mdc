@@ -1,0 +1,43 @@
+---
+description: TikTok Shop factory code — scout, render, QC, queue, post
+globs: shorts_bot/tiktok_shop/**,data/tiktok_shop/**
+alwaysApply: false
+---
+
+# TikTok Shop factory code
+
+## Scope
+
+Automation only — **no creative strategy in code**. Course wins for hooks, captions, product pick logic.
+
+Key paths:
+
+- `module1_qc.py` — mandatory pre-upload gate; do not bypass without owner emergency
+- `factory_cli.py` — CLI entry: status, scout, render, make-clip, qc, enqueue, post
+- `scout_cli.py` / `fastmoss_client.py` — product research (FastMoss; EchoTik legacy)
+- `kling_client.py` / `render.py` — video generation
+- `video_variants.py` — pan loop edit
+- `poster.py` / `zernio` — upload path
+- `queue.py` / `quota.py` — daily cap + post spacing
+- `accounts.json` — `affiliate_main` + bubble slots
+
+## Conventions
+
+- Match existing naming, imports, and CLI patterns in `factory_cli.py`
+- Minimize diff scope — affiliate pipeline fixes only unless asked
+- Tests: `python3 -m pytest tests/ -q` when touching QC or scout logic
+- Do not reintroduce dead lanes (Ms. Byte, InVideo, Peripheral) in comments or defaults
+
+## QC
+
+Every upload path must pass `module1_qc.py`. Caption and product name feed posting-rule checks (spacing, duplicate product same day).
+
+## Config
+
+- `affiliate_main.enabled` false until owner wires purchased account
+- `KLING_MODE=std` default (~$0.21/5s) unless owner requests pro
+- Secrets via Cursor Cloud Agent → `bash scripts/install.sh` — never commit `.env`
+
+## Reference
+
+@docs/PIPELINE_SYSTEM_DESIGN.md

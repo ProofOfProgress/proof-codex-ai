@@ -1,52 +1,58 @@
 # Product research (owner override)
 
 **Course:** `module_03_product_research_strategies.md`  
-**Automation:** EchoTik scout → `data/tiktok_shop/products.json`  
+**Research tool:** **FastMoss only** — replaces EchoTik and Kalodata (course creator: as good as Kalodata).  
 **Agent:** `/product-research` subagent (`product-researcher`)
-
-Kalodata filters **hardcore lurkers** and **100 gap** are course sauce — **not fully automated in EchoTik yet**. Use Kalodata manually for those; EchoTik runs **middle core** and **200 method** presets.
 
 ---
 
-## EchoTik presets (automated)
+## Stack (2026-06-28 owner)
 
-| CLI preset | Course name | When to use |
-|------------|-------------|-------------|
-| `middle_core` | Middle core | Default — strong weekly movers |
-| `two_hundred` | 200 method | Yesterday hot list, growth filter |
+| Tool | Role |
+|------|------|
+| **FastMoss** | **Only** product research — rankings, trends, ad signals, Module 3 checks |
+| ~~EchoTik~~ | **Retired** — do not pay or configure for new work |
+| ~~Kalodata~~ | **Retired** — use FastMoss instead |
 
-```bash
-python3 -m shorts_bot.tiktok_shop.scout_cli status
-python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
-python3 -m shorts_bot.tiktok_shop.scout_cli list
-```
+**Automation status:**
+
+| Mode | When |
+|------|------|
+| **FastMoss API scout** | When `FASTMOSS_CLIENT_ID` + secret configured + scout migration shipped |
+| **FastMoss UI → owner picks** | **Launch fallback** — you pick 8–10 in FastMoss app; tell agent product names |
 
 Saved picks: `data/tiktok_shop/products.json`
 
-Secrets: `ECHOTIK_USERNAME` + `ECHOTIK_PASSWORD` — see `docs/FOR_OWNER_ECHOTIK_SETUP.md`
+Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md` · Engineering: `docs/FASTMOSS_SCOUT_PLAN.md`
 
 ---
 
-## Manual checks (course — agent reminds you, you verify in Kalodata)
+## Module 3 checks (FastMoss)
 
-From `kalodata_rules.PRODUCT_CHECKS` + Module 3:
+What “high quality” means — FastMoss can show most of this (UI today; API when wired):
 
-- **6+ of 10** top affiliate videos show purple **ad** badge (brand spending on GMV Max)
-- Creator list has **variety** — not only the brand's own shop
-- **Commission $** worth posting (price × rate)
-- **Brand match** — image, title, shop name align; skip rip-off / random-letter sellers
-- **Revenue trend** rising — skip products trending down
-- **Testing mindset** — speed + volume of tests wins (course)
+| Check | Plain English |
+|-------|----------------|
+| **Ad spend** | Top videos — brand running paid ads (course: many purple Ad badges on top 10) |
+| **Trend** | Sales **going up**, not falling |
+| **Brand match** | Image, title, shop name align |
+| **Commission $** | Price × rate worth posting |
+| **Creator mix** | Variety — not only brand self-promo |
+| **Filters** | middle core, 200 method, hardcore lurkers, 100 gap — use FastMoss filters equivalent to course |
 
-EchoTik scout **scores** GMV, creators, commission, videos — it does **not** see Kalodata ad badges or trend charts. Owner spot-checks finalists in Kalodata before committing.
+---
+
+## EchoTik presets (legacy — do not use)
+
+Old bot presets `middle_core` / `two_hundred` mapped to EchoTik. **FastMoss scout will use course-equivalent filters** when API integration lands. Until then: pick in FastMoss UI.
 
 ---
 
 ## Pipeline hook (CEO)
 
-1. **Research** → `product-researcher` (background) saves + ranks picks  
-2. Owner picks one → Module 4 image  
+1. **Research** → owner in **FastMoss** (or future `product-researcher` + FastMoss API)  
+2. Owner approves **8–10** for launch  
 3. **Prompt** → `product-video-prompt-builder`  
-4. Kling render → **edit** → **QC** → post  
+4. Kling → edit → QC → post  
 
-Group calls / owner notes beat stale filters — update this file when strategy shifts.
+Group calls / owner notes beat stale filters — see `GROUP_CALLS.md`.

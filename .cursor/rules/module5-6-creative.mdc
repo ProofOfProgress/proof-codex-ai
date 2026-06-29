@@ -1,0 +1,54 @@
+---
+description: Module 5–6 creative automation — Kling video prompts, pan loop edit, on-screen captions (course + owner overrides)
+globs: data/research/course/PROMPT_BUILDER.md,data/research/course/VIDEO_EDITOR.md,.cursor/agents/product-video-prompt-builder.md,.cursor/agents/video-editor.md,.cursor/agents/video-caption-writer.md,shorts_bot/tiktok_shop/video_variants.py,shorts_bot/tiktok_shop/kling_client.py
+alwaysApply: false
+---
+
+# Module 5–6 creative (automation boundaries)
+
+Creative strategy lives in **course + owner overrides** — not in code defaults.
+
+## Owner overrides (beat course)
+
+| File | Covers |
+|------|--------|
+| `PROMPT_BUILDER.md` | Module 4 image + Module 5 **Kling video** prompts |
+| `VIDEO_EDITOR.md` | Pan loop edit, caption burn |
+
+## Module 5 — video
+
+- **Step 0:** `factory_cli sample-image` — Gemini converts listing photo → full-bleed **9:16 sample** (`gemini-2.5-flash-image`)
+- **Kling 2.6**, **5 seconds**, **audio off**, **`aspect_ratio=9:16` always**
+- CEO **must delegate** to **`product-video-prompt-builder`** — render **blocks without saved prompt**
+- Attach **Module 4 product image** + optional **reference image** to every prompt-builder dispatch
+- Staged **complex backgrounds** — not plain white boxes (still-image ban risk)
+- Product **stationary**; **arc camera** moves (multi-axis + micro-shake)
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli pipeline-checklist --product "NAME"
+python3 -m shorts_bot.tiktok_shop.factory_cli prompt-dispatch --product "NAME" --product-image PATH
+python3 -m shorts_bot.tiktok_shop.factory_cli render --product "NAME" --image PATH --prompt-file data/tiktok_shop/prompts/NAME.kling.txt
+```
+
+Default: `KLING_MODE=std` (~$0.21/5s) unless owner requests pro.
+
+## Module 6 — edit + caption
+
+- **~10s pan loop** from 5s Kling (`video_variants.py` / **`video-editor`**)
+- On-screen caption: pain-point hook, **white box / black text** per `VIDEO_EDITOR.md`
+- **`video-caption-writer`** for copy — Module 7: no sale, price, discount, coupon, free shipping
+
+## Parallel pattern
+
+After Kling MP4 exists: run **video-visual-critic** (optional but recommended) → if fail, **product-video-prompt-builder** with handoff → regen.
+
+Then: **video-editor** + **video-caption-writer** in parallel → **module1-qc-runner**.
+
+Docs: `docs/VISUAL_FEEDBACK_LOOP.md`
+
+## DEAD lanes
+
+Do not pull Ms. Byte, InVideo, Fix It Fast, or Peripheral patterns into affiliate prompts or edits.
+
+@data/research/course/PROMPT_BUILDER.md
+@data/research/course/VIDEO_EDITOR.md

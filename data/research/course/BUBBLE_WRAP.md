@@ -71,9 +71,13 @@ Line order and exact words can match what’s viral on the sound page — keep t
 4. **Slide 1:** unique wrapped-subject image + hook text only  
 5. **Slide 2:** same subject (or variant) + interaction/pop lines + emojis  
 6. Post as **2-photo slideshow** + **Mackenzie sound**  
-7. **3–5 accounts**, unique images each, mix 1 vs 5–10 posts/day until **1k**  
+7. **4 growth accounts** in parallel until **~1k each** — split posting cadence (owner 6/2026):  
+   | Tier | Accounts | Posts/day each |
+   |------|----------|----------------|
+   | **Safe** | 2 | **3–4** |
+   | **Aggressive** | 2 | **8–10** |
 8. **Later:** 1k → 5k → `ADS_1K_TO_5K.md`  
-9. Then affiliate + Module 1 QC (Modules 3–8)  
+9. **Affiliate account:** Modules 3–8 + full bot pipeline when owner starts revenue posts (parallel to bubble growth)  
 
 Live changes → owner reports on `GROUP_CALLS.md`.
 
@@ -107,6 +111,4 @@ The API **cannot attach a specific TikTok sound ID** (like Mackenzie) on direct 
 | **`MEDIA_UPLOAD`** (recommended for bubble wrap) | 2 images land in TikTok **inbox as draft** → open in app → add Mackenzie sound → publish |
 | **`DIRECT_POST`** | Goes live immediately but only **`auto_add_music`** — **not** the required sound |
 
-**Practical workflow until full automation:** bot uploads 2-image carousel to inbox → you (or agent via phone handoff) add Mackenzie sound in TikTok → publish.
-
-See `docs/FOR_OWNER_TIKTOK_SETUP.md` · build target: `shorts_bot/tiktok/upload.py` → `upload_photo_carousel()`.
+**Practical workflow:** bot uploads 2-image carousel to **inbox** via Zernio → finish on **that account’s phone hub slot** (add Mackenzie sound → publish). See `docs/FOR_OWNER_PHONE_HUB.md`.

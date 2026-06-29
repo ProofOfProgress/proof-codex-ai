@@ -1,4 +1,4 @@
-"""Score EchoTik products using configurable Shop filters."""
+"""Score TikTok Shop products using course filters (FastMoss when API wired)."""
 
 from __future__ import annotations
 
@@ -113,17 +113,7 @@ def _week_start_str() -> str:
     return monday.isoformat()
 
 
-def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
-    if not echotik_client.configured():
-        raise RuntimeError("EchoTik not configured — see docs/FOR_OWNER_ECHOTIK_SETUP.md")
-
-    if preset == "two_hundred":
-        rank_date = _yesterday_str()
-        rank_type = 1
-    else:
-        rank_date = _week_start_str()
-        rank_type = 2 if preset == "middle_core" else 1
-
+def _fetch_rank_pages(*, rank_date: str, rank_type: int, pages: int) -> list[dict]:
     rows: list[dict] = []
     for page in range(1, pages + 1):
         batch = echotik_client.product_ranklist(
@@ -136,27 +126,48 @@ def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
         if not batch:
             break
         rows.extend(batch)
-
-    # EchoTik weekly ranklist is often empty for the current week — fall back to yesterday.
-    if not rows and preset == "middle_core":
-        rank_date = _yesterday_str()
-        rank_type = 1
-        for page in range(1, pages + 1):
-            batch = echotik_client.product_ranklist(
-                date=rank_date,
-                rank_type=rank_type,
-                product_rank_field=1,
-                page_num=page,
-                page_size=10,
-            )
-            if not batch:
-                break
-            rows.extend(batch)
-
     return rows
 
 
+def _fetch_daily_rank_rows(*, pages: int, start_days_back: int = 1, max_days_back: int = 7) -> list[dict]:
+    """Walk back daily ranklists — T+1 lag often leaves yesterday empty."""
+    for days_back in range(start_days_back, max_days_back + 1):
+        rank_date = (date.today() - timedelta(days=days_back)).isoformat()
+        rows = _fetch_rank_pages(rank_date=rank_date, rank_type=1, pages=pages)
+        if rows:
+            return rows
+    return []
+
+
+def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
+    if not echotik_client.configured():
+        raise RuntimeError("EchoTik not configured — see docs/FOR_OWNER_ECHOTIK_SETUP.md")
+
+    if preset == "two_hundred":
+        return _fetch_daily_rank_rows(pages=pages, start_days_back=1)
+
+    # middle_core: weekly movers first, then latest daily ranklist with data
+    rows = _fetch_rank_pages(rank_date=_week_start_str(), rank_type=2, pages=pages)
+    if rows:
+        return rows
+    return _fetch_daily_rank_rows(pages=pages, start_days_back=1)
+
+
 def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[ScoutProduct]:
+    from shorts_bot.tiktok_shop import fastmoss_client
+
+    if fastmoss_client.configured():
+        ping = fastmoss_client.ping()
+        raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet — docs/FOR_OWNER_FASTMOSS_SETUP.md")
+
+    raise RuntimeError(
+        "Product scout uses **FastMoss only** (EchoTik retired). "
+        "Subscribe at fastmoss.com — pick 8–10 products in the app (Launch path A) "
+        "or add FASTMOSS_CLIENT_ID + FASTMOSS_CLIENT_SECRET when API scout ships. "
+        "See docs/FOR_OWNER_FASTMOSS_SETUP.md"
+    )
+
+    # Legacy EchoTik path — unreachable until FastMoss scout replaces block above
     scorer = _score_two_hundred if preset == "two_hundred" else _score_middle_core
     raw_rows = fetch_rank_rows(preset=preset, pages=5)
 
