@@ -56,6 +56,27 @@ BANNED_CAPTION_PHRASES: tuple[str, ...] = (
     "double discount",
     "flash sale",
     "coupon glitch",
+    "violently discounted",
+    "on sale",
+    "percent off",
+    "% off",
+    "limited time",
+    "running low",
+    "last chance",
+    "won't stay this cheap",
+    "basically a steal",
+    "at this price",
+)
+
+# Module 7 — misinformation words (June 2026 course baseline + GROUP_CALLS)
+MODULE7_BANNED_CAPTION_WORDS: tuple[str, ...] = (
+    "sale",
+    "price",
+    "discount",
+    "coupon",
+    "free shipping",
+    "clearance",
+    "bogo",
 )
 
 
@@ -75,6 +96,37 @@ class Module1QCReport:
                 return base + f" (warnings: {'; '.join(self.warnings[:2])})"
             return base
         return "Module 1 QC BLOCKED: " + "; ".join(self.violations[:5])
+
+
+def qc_report_path(video_path: Path) -> Path:
+    return settings.data_dir / "tiktok_shop" / "module1_qc" / f"{video_path.stem}.json"
+
+
+def load_qc_report(video_path: Path) -> dict | None:
+    path = qc_report_path(video_path)
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def qc_report_stale_for_video(video_path: Path, report: dict) -> bool:
+    """True when the MP4 changed after the saved QC report."""
+    if not video_path.is_file():
+        return True
+    checked = str(report.get("checked_at") or "")
+    if not checked:
+        return True
+    try:
+        checked_dt = datetime.fromisoformat(checked.replace("Z", "+00:00"))
+        if checked_dt.tzinfo is None:
+            checked_dt = checked_dt.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return True
+    return video_path.stat().st_mtime > checked_dt.timestamp() + 1.0
 
 
 def _probe_duration(video_path: Path) -> float:
@@ -145,12 +197,51 @@ def _pick_frame_times(duration: float, *, max_frames: int) -> list[float]:
     return picked[:max_frames]
 
 
+def _probe_dimensions(video_path: Path) -> tuple[int, int]:
+    out = subprocess.check_output(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height",
+            "-of",
+            "csv=p=0:s=x",
+            str(video_path),
+        ],
+        text=True,
+    ).strip()
+    if "x" not in out:
+        raise ValueError(f"Could not read video dimensions: {out!r}")
+    w_s, h_s = out.split("x", 1)
+    return int(w_s), int(h_s)
+
+
+def _check_aspect_ratio(width: int, height: int) -> list[str]:
+    if width <= 0 or height <= 0:
+        return ["Video dimensions invalid (width/height must be positive)"]
+    ratio = width / height
+    target = settings.module1_target_aspect_ratio
+    tol = settings.module1_aspect_ratio_tolerance
+    if abs(ratio - target) > tol:
+        return [
+            f"Video aspect ratio {width}x{height} ({ratio:.3f}) is not 9:16 "
+            f"(expected ~{target:.3f}) — letterbox/border risk"
+        ]
+    return []
+
+
 def _check_caption(caption: str) -> list[str]:
     lower = (caption or "").lower()
     hits: list[str] = []
     for phrase in BANNED_CAPTION_PHRASES:
         if phrase in lower:
-            hits.append(f"Posting Don't: caption contains banned phrase '{phrase}'")
+            hits.append(f"Module 7 / posting don't: caption contains banned phrase '{phrase}'")
+    for word in MODULE7_BANNED_CAPTION_WORDS:
+        if re.search(rf"\b{re.escape(word)}\b", lower):
+            hits.append(f"Module 7 misinformation: caption contains banned word '{word}'")
     return hits
 
 
@@ -334,6 +425,12 @@ def run_module1_qc(
     if duration < min_s:
         violations.append(f"Posting Don't: video {duration:.1f}s (minimum {min_s}s)")
 
+    try:
+        width, height = _probe_dimensions(video_path)
+        violations.extend(_check_aspect_ratio(width, height))
+    except Exception as exc:
+        violations.append(f"Could not verify 9:16 aspect ratio: {exc}")
+
     times = _pick_frame_times(duration, max_frames=settings.vision_qc_max_frames)
     qc_dir = settings.data_dir / "tiktok_shop" / "module1_qc" / video_path.stem
     frames: list[tuple[float, Path]] = []
@@ -388,8 +485,43 @@ def run_module1_qc(
     return report
 
 
+@dataclass
+class Module1QCBatchResult:
+    total: int
+    passed: int
+    failed: int
+    reports: list[tuple[Path, Module1QCReport]]
+
+
+def run_module1_qc_batch(
+    items: list[tuple[Path, str, str]],
+    *,
+    account_id: str = "",
+) -> Module1QCBatchResult:
+    """Run Module 1 QC on every clip — use before launch batch enqueue."""
+    reports: list[tuple[Path, Module1QCReport]] = []
+    passed = 0
+    for video_path, caption, product in items:
+        report = run_module1_qc(
+            video_path,
+            caption=caption,
+            product=product,
+            account_id=account_id,
+        )
+        reports.append((video_path, report))
+        if report.passed:
+            passed += 1
+    total = len(items)
+    return Module1QCBatchResult(
+        total=total,
+        passed=passed,
+        failed=total - passed,
+        reports=reports,
+    )
+
+
 def _save_report(video_path: Path, report: Module1QCReport) -> None:
-    out = settings.data_dir / "tiktok_shop" / "module1_qc" / f"{video_path.stem}.json"
+    out = qc_report_path(video_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "video": str(video_path),

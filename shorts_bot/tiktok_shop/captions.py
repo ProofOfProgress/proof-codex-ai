@@ -10,23 +10,23 @@ BANNED_IN_CAPTION = re.compile(
     re.I,
 )
 
-# Owner on-screen burn-in template (VIDEO_EDITOR.md) — copy changes often; update there first.
+# Owner on-screen burn-in template (VIDEO_EDITOR.md) — Module 7 safe (no sale/price/discount words).
 # {product_phrase} = natural spoken phrase, e.g. "this insulated tumbler", "a car phone mount"
 ON_SCREEN_CAPTION_TEMPLATE = (
-    "I am SO sorry if you already grabbed {product_phrase} because the discount is huge today"
+    "I am SO sorry if you already grabbed {product_phrase} because this keeps selling out on Shop"
 )
 
 CAPTION_TEMPLATES = (
-    "{product} is on a crazy deal right now — free shipping too",
-    "Hurry — {product} stock is running low on TikTok Shop",
-    "If you need {product}, grab it before this sale ends",
-    "{product} is violently discounted today with free shipping",
-    "Last chance vibe — {product} won't stay this cheap long",
-    "Everyone's grabbing {product} on Shop — sale ends soon",
-    "Don't sleep on {product} — deal + free shipping today",
-    "Your cart will thank you — {product} is basically a steal rn",
-    "Still need {product}? TikTok Shop has it on sale today",
-    "Quick heads up — {product} is moving fast at this price",
+    "{product} solved a problem I didn't know I had",
+    "If you need {product}, TikTok Shop has been my go-to lately",
+    "Everyone keeps grabbing {product} — I get why now",
+    "Quick heads up — {product} is worth a look on Shop",
+    "Still need {product}? This one surprised me",
+    "Your cart might thank you — {product} is a solid pick",
+    "I didn't expect {product} to be this useful",
+    "If your kitchen needs {product}, check Shop",
+    "Honest take — {product} earned a spot in my routine",
+    "Not sponsored — just sharing {product} because it works",
 )
 
 
@@ -158,7 +158,8 @@ def validate_hook_lines(lines: list[str], *, max_chars: int | None = None) -> li
 
 
 def sanitize_caption(text: str) -> str:
-    cleaned = BANNED_IN_CAPTION.sub("sale", text)
+    cleaned = BANNED_IN_CAPTION.sub("", text)
+    cleaned = " ".join(cleaned.split())
     return cleaned.strip()[:2200]
 
 

@@ -45,11 +45,13 @@ Code: `shorts_bot/tiktok_shop/captions.py` → `wrap_hook_lines()`
 
 **Captions change often** — like products. Update this file first, then `video-caption-writer` and `captions.py`.
 
-### Copy template (current)
+### Copy template (current — Module 7 safe)
 
 ```
-I am SO sorry if you already grabbed {product_phrase} because the discount is huge today
+I am SO sorry if you already grabbed {product_phrase} because this keeps selling out on Shop
 ```
+
+**Do not use** sale / price / discount / coupon / free shipping in on-screen hooks (Module 7 misinformation).
 
 - **`SO`** stays capitalized  
 - **`{product_phrase}`** = natural spoken phrase — **not** bare title case  
@@ -63,8 +65,8 @@ I am SO sorry if you already grabbed {product_phrase} because the discount is hu
 I am SO sorry if you
 already grabbed this
 insulated tumbler
-because the discount
-is huge today
+because this keeps
+selling out on Shop
 ```
 
 Sidecar file: `data/tiktok_shop/clips/{name}_loop.hook.txt`

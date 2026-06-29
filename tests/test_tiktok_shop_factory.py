@@ -36,4 +36,5 @@ def test_on_screen_caption_template():
     cap = on_screen_caption("pre workout powder")
     assert "SO sorry" in cap
     assert "this pre workout powder" in cap
-    assert "discount is huge today" in cap
+    assert "selling out on Shop" in cap
+    assert "discount" not in cap.lower()

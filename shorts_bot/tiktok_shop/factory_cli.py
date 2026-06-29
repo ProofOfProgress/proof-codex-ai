@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from rich.console import Console
@@ -25,6 +26,16 @@ def main() -> None:
     qc.add_argument("--product", default="")
     qc.add_argument("--caption", default="")
     qc.add_argument("--account", default="")
+
+    qc_batch = sub.add_parser(
+        "qc-batch",
+        help="Module 1 QC on every clip in queue or folder (launch prep — zero violations)",
+    )
+    qc_batch.add_argument("--queue", action="store_true", help="QC all pending queue rows")
+    qc_batch.add_argument("--dir", default="", help="Folder of MP4s to QC")
+    qc_batch.add_argument("--account", default="affiliate_main", help="Posting-rule checks")
+    qc_batch.add_argument("--product", default="", help="Default product name when scanning --dir")
+    qc_batch.add_argument("--caption", default="", help="Default caption when scanning --dir")
 
     prep = sub.add_parser("prep-images", help="Download product cover images from scout list")
     prep.add_argument("--force", action="store_true")
@@ -102,6 +113,11 @@ def main() -> None:
     enqueue.add_argument("--product", required=True)
     enqueue.add_argument("--caption", default="")
     enqueue.add_argument("--account", default="", help="Optional fixed account id")
+    enqueue.add_argument(
+        "--skip-qc",
+        action="store_true",
+        help="Tests/dev only — bypass Module 1 QC gate (never use for launch)",
+    )
 
     captions = sub.add_parser("captions", help="Generate caption variants for a product")
     captions.add_argument("--product", required=True)
@@ -260,6 +276,51 @@ def main() -> None:
                 console.print(f"[yellow]• {w}[/yellow]")
         raise SystemExit(0 if report.passed else 1)
 
+    if args.cmd == "qc-batch":
+        from shorts_bot.tiktok_shop.module1_qc import run_module1_qc_batch
+        from shorts_bot.tiktok_shop.queue import pending_posts
+
+        items: list[tuple[Path, str, str]] = []
+        if args.queue:
+            for row in pending_posts():
+                vp = Path(str(row.get("video_path") or ""))
+                items.append((vp, str(row.get("caption") or ""), str(row.get("product") or "")))
+        elif args.dir:
+            folder = Path(args.dir)
+            for mp4 in sorted(folder.glob("*.mp4")):
+                items.append((mp4, args.caption, args.product or mp4.stem))
+        else:
+            console.print("[red]Provide --queue or --dir[/red]")
+            raise SystemExit(1)
+
+        if not items:
+            console.print("[yellow]No videos to QC[/yellow]")
+            raise SystemExit(0)
+
+        console.print(
+            Panel(
+                f"Checking {len(items)} clip(s) — zero Module 1 violations required\n"
+                "Do not enqueue or post until every row shows PASSED",
+                title="Module 1 QC batch",
+                border_style="red",
+            )
+        )
+        batch = run_module1_qc_batch(items, account_id=args.account)
+        table = Table(title="QC batch results")
+        table.add_column("Video")
+        table.add_column("Result")
+        table.add_column("Violations")
+        for video, report in batch.reports:
+            status = "[green]PASSED[/green]" if report.passed else "[red]BLOCKED[/red]"
+            viol = "; ".join(report.violations[:2]) if report.violations else "—"
+            table.add_row(video.name, status, viol[:120])
+        console.print(table)
+        console.print(
+            f"[bold]{batch.passed}/{batch.total} passed[/bold] — "
+            f"{batch.failed} blocked (fix and re-run before launch)"
+        )
+        raise SystemExit(0 if batch.failed == 0 else 1)
+
     if args.cmd == "prep-images":
         from shorts_bot.tiktok_shop.product_images import download_for_products
         from shorts_bot.tiktok_shop.product_scout import (
@@ -412,8 +473,17 @@ def main() -> None:
             raise SystemExit(1) from exc
         name = result.product_name or name
         video = result.loop_mp4 or result.raw_mp4
-        idx = enqueue_video(video_path=str(video), product=name, caption=hook)
-        console.print(f"[green]Queued[/green] #{idx} → {video}")
+        try:
+            idx = enqueue_video(
+                video_path=str(video),
+                product=name,
+                caption=hook,
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            console.print("[red]Clip rendered but NOT queued — fix violations and re-run[/red]")
+            raise SystemExit(1) from exc
+        console.print(f"[green]QC passed — queued[/green] #{idx} → {video}")
         if args.confirm_post:
             console.print("[dim]Run: factory_cli post --confirm[/dim]")
         return
@@ -463,13 +533,19 @@ def main() -> None:
         from shorts_bot.tiktok_shop.queue import enqueue_video
 
         cap = args.caption or caption_variants(args.product, limit=1)[0]
-        idx = enqueue_video(
-            video_path=args.video,
-            product=args.product,
-            caption=sanitize_caption(cap),
-            account_id=args.account,
-        )
-        console.print(f"[green]Queued[/green] index {idx}")
+        cap = sanitize_caption(cap)
+        try:
+            idx = enqueue_video(
+                video_path=args.video,
+                product=args.product,
+                caption=cap,
+                account_id=args.account,
+                skip_qc=args.skip_qc,
+            )
+        except RuntimeError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise SystemExit(1) from exc
+        console.print(f"[green]QC passed — queued[/green] index {idx}")
         return
 
     if args.cmd in ("post", "post-batch"):
@@ -523,17 +599,27 @@ def main() -> None:
             )
             console.print(qc.summary())
             if not qc.passed:
-                console.print("[red]Upload blocked — fix violations and regenerate video[/red]")
+                rows[pending_idx]["status"] = "qc_blocked"
+                rows[pending_idx]["qc_violations"] = qc.violations
+                rows[pending_idx]["qc_checked_at"] = datetime.now(timezone.utc).isoformat()
+                save_queue(rows)
+                console.print("[red]Upload blocked — marked qc_blocked; continuing batch[/red]")
                 if qc.violations:
                     for v in qc.violations:
                         console.print(f"  • {v}")
-                break
+                continue
 
             if not args.confirm:
                 console.print("[yellow]Dry run — Module 1 QC passed; add --confirm to upload[/yellow]")
                 break
 
-            ok, msg, pub = post_clip(account, video_path=video, caption=caption, product=product)
+            ok, msg, pub = post_clip(
+                account,
+                video_path=video,
+                caption=caption,
+                product=product,
+                skip_module1_qc=True,
+            )
             if ok:
                 rows[pending_idx]["status"] = "posted"
                 rows[pending_idx]["account_id"] = account.id

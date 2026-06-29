@@ -144,6 +144,11 @@ def tick_post(*, account_id: str = "affiliate_main", confirm: bool = False) -> T
         return TickResult(ok=True, action="skipped", message=msg, account_id=account.id)
 
     row = rows[pending_idx]
+    if row.get("status") == "qc_blocked":
+        msg = f"Skipping qc_blocked row: {row.get('video_path')}"
+        log_scheduler_tick(account_id=account.id, action="skipped", detail=msg)
+        return TickResult(ok=True, action="skipped", message=msg, account_id=account.id)
+
     video = Path(str(row.get("video_path") or ""))
     caption = str(row.get("caption") or "")
     product = str(row.get("product") or "")
@@ -158,6 +163,10 @@ def tick_post(*, account_id: str = "affiliate_main", confirm: bool = False) -> T
     qc = run_module1_qc(video, caption=caption, product=product, account_id=account.id)
     if not qc.passed:
         msg = f"QC blocked upload: {'; '.join(qc.violations[:3])}"
+        rows[pending_idx]["status"] = "qc_blocked"
+        rows[pending_idx]["qc_violations"] = qc.violations
+        rows[pending_idx]["qc_checked_at"] = datetime.now(timezone.utc).isoformat()
+        save_queue(rows)
         log_scheduler_tick(account_id=account.id, action="blocked", detail=msg)
         return TickResult(ok=False, action="blocked", message=msg, account_id=account.id)
 
@@ -172,7 +181,13 @@ def tick_post(*, account_id: str = "affiliate_main", confirm: bool = False) -> T
             video_path=str(video),
         )
 
-    ok, msg, pub = post_clip(account, video_path=video, caption=caption, product=product)
+    ok, msg, pub = post_clip(
+        account,
+        video_path=video,
+        caption=caption,
+        product=product,
+        skip_module1_qc=True,
+    )
     if ok:
         rows[pending_idx]["status"] = "posted"
         rows[pending_idx]["account_id"] = account.id

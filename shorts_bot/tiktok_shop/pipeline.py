@@ -112,7 +112,9 @@ def checklist_text(*, product: str = "", mission_id: str = "") -> str:
             "  factory_cli render --product NAME --image samples/NAME_916.jpg --prompt-file prompts/NAME.kling.txt",
             "  visual_feedback_cli review-and-suggest (video-visual-critic) — regen if needed",
             "  factory_cli hook-lines --product NAME (video-caption-writer)",
-            "  factory_cli qc --video PATH --product NAME --caption ...",
+            "  factory_cli qc --video PATH --product NAME --caption ... --account affiliate_main",
+            "  factory_cli qc-batch --queue   # launch eve: every pending clip must pass",
+            "  factory_cli enqueue only after QC pass (code-enforced)",
         ]
     )
     return "\n".join(lines)

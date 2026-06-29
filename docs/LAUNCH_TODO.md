@@ -187,9 +187,14 @@ Produce **8–10 QC-pass clips** — one per approved product (or 2 clips on you
 For each approved product:
 ```bash
 python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "PRODUCT_NAME"
-python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product "NAME" --caption "CAPTION" --account affiliate_main
-python3 -m shorts_bot.tiktok_shop.factory_cli enqueue --video PATH --product "NAME" --caption "CAPTION" --account affiliate_main
+# make-clip runs Module 1 QC before enqueue — blocked clips are NOT queued
 ```
+
+After all clips:
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli qc-batch --queue --account affiliate_main
+```
+**Every row must pass** before launch night. Zero failures allowed.
 
 - [ ] Clip 1 — QC pass — queued  
 - [ ] Clip 2 — QC pass — queued  
@@ -339,7 +344,7 @@ Agent can run a **30-minute loop** in tmux until launch-day batch is out, or own
 | FastMoss ping | `python3 -m shorts_bot.tiktok_shop.scout_cli ping` |
 | Scout | `python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15` |
 | One clip | `python3 -m shorts_bot.tiktok_shop.factory_cli make-clip --product "NAME"` |
-| QC | `python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --caption "..."` |
+| QC | `factory_cli qc --video PATH ...` · batch: `factory_cli qc-batch --queue --account affiliate_main` |
 | Queue | `python3 -m shorts_bot.tiktok_shop.factory_cli enqueue --video PATH --product NAME --caption "..." --account affiliate_main` |
 | Post one | `python3 -m shorts_bot.tiktok_shop.factory_cli post --account affiliate_main --confirm` |
 | Post batch | `post-batch` — **not for launch night** (use spaced single posts) |

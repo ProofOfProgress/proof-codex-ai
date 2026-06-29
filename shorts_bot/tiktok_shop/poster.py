@@ -40,6 +40,8 @@ def post_clip(
                 error=msg[:300],
             )
             return False, msg, ""
+    elif skip_module1_qc and not settings.module1_qc_enabled:
+        pass  # owner emergency bypass only
 
     if account.post_via == "tiktok_api":
         from shorts_bot.tiktok.upload import upload_video

@@ -13,25 +13,36 @@ Enforcement: `shorts_bot/tiktok_shop/module1_qc.py`
 
 **Zero Module 1 violations** before enqueue or post. No owner override for “just this once” unless owner explicitly accepts account risk in chat.
 
+**Volume does not lower the bar.** At 8–10 clips/day or launch batch prep, run **`qc-batch --queue`** and block enqueue until **every** clip passes.
+
 ## When to apply
 
-- Before `factory_cli enqueue` or `post`
+- Before `factory_cli enqueue` or `post` (enqueue is **code-gated** — QC must pass)
 - After Kling render, edit, or caption change
+- **Launch batch:** `factory_cli qc-batch --queue --account affiliate_main` before any `--confirm` post
 - When owner asks if a clip is “ready” or “GOOD”
 
 ## CEO / QC runner
+
+Single clip:
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.factory_cli qc \
   --video PATH --product "NAME" --caption "..." --account affiliate_main
 ```
 
+Batch (many videos — use every launch eve):
+
+```bash
+python3 -m shorts_bot.tiktok_shop.factory_cli qc-batch --queue --account affiliate_main
+```
+
 Delegate **`module1-qc-runner`** for batch checks — still **block upload** on any fail.
 
 ## Caption hard bans (Module 7 overlap)
 
-Never ship captions with sale/price/discount language: sale, % off, coupon, free shipping, limited time, etc.  
-See `BANNED_CAPTION_PHRASES` in `module1_qc.py` and Module 7 course file.
+Never ship captions with sale/price/discount language: sale, price, discount, coupon, free shipping, limited time, etc.  
+Enforced in `module1_qc.py` (`MODULE7_BANNED_CAPTION_WORDS` + `BANNED_CAPTION_PHRASES`) and Module 7 course file.
 
 ## Video prompt / Kling (Module 5)
 

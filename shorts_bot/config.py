@@ -286,6 +286,9 @@ class Settings(BaseSettings):
     module1_min_post_interval_minutes: int = 30
     module1_min_inter_frame_motion: float = 0.008  # still-frame gate — mean pixel delta between QC frames
     module1_still_frame_motion_block: bool = True
+    module1_require_qc_before_enqueue: bool = True  # block queue until Module 1 QC passes
+    module1_target_aspect_ratio: float = 9 / 16  # vertical Shop clip
+    module1_aspect_ratio_tolerance: float = 0.06  # ffprobe gate — catches letterbox bars
 
     # Module 6 pan loop post — coach 2026-06-29: +25% lateral + micro-shake vs Kling-only motion
     pan_loop_motion_enhance: bool = True
