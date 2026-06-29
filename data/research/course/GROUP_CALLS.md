@@ -95,3 +95,14 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **Launch path A:** pick 8–10 products in FastMoss app → tell agent names
 - **Launch path B:** FastMoss API in bot when scout ships — `docs/FASTMOSS_SCOUT_PLAN.md`
 - **Do not pay EchoTik**
+
+---
+
+## 2026-06-29 — Owner launch status
+
+- **Purchased affiliate account:** bought, logged in, **5-day warmup** in progress.
+- **FastMoss:** payment blocked — owner contacted support; scout/API blocked until resolved.
+- **Kling:** billing works.
+- **Launch Date:** TBD · **Timezone:** PST (midnight first post = 12:00 AM PST on Launch Date).
+- **Zernio:** purchased account **not yet connected** — only 4 bubble accounts in dashboard today; wire to `affiliate_main` before launch posts.
+- **Bubble + affiliate:** both tracks active — affiliate does not wait for phones.
