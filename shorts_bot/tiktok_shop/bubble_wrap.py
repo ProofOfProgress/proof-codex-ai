@@ -6,6 +6,7 @@ Optional preview MP4 is for owner review only — do not post as video.
 
 from __future__ import annotations
 
+import hashlib
 import re
 import subprocess
 import unicodedata
@@ -33,6 +34,45 @@ SLIDE2_CTA_LINES = (
     "Comment = Big pop 💥💥",
 )
 
+# Pop-intensity emoji pools (Module 2 / BUBBLE_WRAP.md) — one pick per line per clip.
+SLIDE2_PAUSE_EMOJIS = ("💥", "✨", "⚡")
+SLIDE2_FOLLOW_EMOJIS = ("🔊", "📢", "🔥", "💢")
+SLIDE2_SHARE_EMOJIS = ("🦖", "🐆", "🦍", "🌋", "💣")
+SLIDE2_COMMENT_EMOJIS = ("💥💥", "🔥💥", "💥🔥", "💥⚡", "⚡💥")
+SLIDE2_LINE_PREFIXES = (
+    "Pause = Pop ",
+    "Follow = Loud pop ",
+    "Share = Giant pop ",
+    "Comment = Big pop ",
+)
+SLIDE2_EMOJI_POOLS = (
+    SLIDE2_PAUSE_EMOJIS,
+    SLIDE2_FOLLOW_EMOJIS,
+    SLIDE2_SHARE_EMOJIS,
+    SLIDE2_COMMENT_EMOJIS,
+)
+
+
+def _validate_slide2_emoji_pools() -> None:
+    """Every pool emoji must fit slide-2 line limits when burned in."""
+    for pool, prefix in zip(SLIDE2_EMOJI_POOLS, SLIDE2_LINE_PREFIXES):
+        for emoji in pool:
+            wrap_bubble_lines(f"{prefix}{emoji}", slide=2)
+
+
+def slide2_cta_lines(*, account: str = "", subject: str = "") -> tuple[str, ...]:
+    """Pick slide-2 CTA lines — stable per account/subject, varied across clips."""
+    seed = f"{account}|{subject}".strip("|") or "default"
+    digest = hashlib.sha256(seed.encode("utf-8")).digest()
+    lines: list[str] = []
+    for i, (prefix, pool) in enumerate(zip(SLIDE2_LINE_PREFIXES, SLIDE2_EMOJI_POOLS)):
+        emoji = pool[digest[i] % len(pool)]
+        line = f"{prefix}{emoji}"
+        wrap_bubble_lines(line, slide=2)
+        lines.append(line)
+    return tuple(lines)
+
+
 EMOJI_FONT = Path("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf")
 EMOJI_FONT_SIZE = 109  # Noto Color Emoji native raster size
 EMOJI_HEIGHT_RATIO = 0.9  # display height vs caption font — inline with text, not oversized
@@ -46,6 +86,9 @@ def wrap_bubble_lines(text: str, *, slide: int = 1) -> list[str]:
     if bad:
         raise ValueError(f"Bubble text exceeds {limit} chars/line: {bad!r}")
     return lines
+
+
+_validate_slide2_emoji_pools()
 
 
 def _caption_font_size() -> int:
@@ -337,11 +380,25 @@ def burn_slide1_text(img: Image.Image, hook: str) -> Image.Image:
     return burn_centered_lines(img, lines, y_fraction=0.12, max_chars=SLIDE1_MAX_CHARS)
 
 
-def burn_slide2_text(img: Image.Image, lines: tuple[str, ...] | None = None) -> Image.Image:
+def burn_slide2_text(
+    img: Image.Image,
+    lines: tuple[str, ...] | None = None,
+    *,
+    account: str = "",
+    subject: str = "",
+) -> Image.Image:
     rows: list[str] = []
-    for line in lines or SLIDE2_CTA_LINES:
+    cta = lines or slide2_cta_lines(account=account, subject=subject)
+    for line in cta:
         rows.extend(wrap_bubble_lines(line.strip(), slide=2))
     return burn_centered_lines(img, rows, y_fraction=0.28, max_chars=SLIDE2_MAX_CHARS)
+
+
+def _write_slide2_sidecar(out_dir: Path, lines: tuple[str, ...]) -> None:
+    out_dir.joinpath("slide2_cta.txt").write_text(
+        "\n".join(ln for line in lines for ln in wrap_bubble_lines(line.strip(), slide=2)) + "\n",
+        encoding="utf-8",
+    )
 
 
 def make_preview_mp4(slide1: Path, slide2: Path, dest: Path, *, seconds_each: float = 3.0) -> Path:
@@ -426,17 +483,10 @@ def generate_bubble_wrap_slides(
     raw2 = _gemini_image(build_slide2_prompt(subj))
     base2 = _finalize_image(raw2)
     base2.save(slide2_raw_path, format="JPEG", quality=92)
-    img2 = burn_slide2_text(base2)
+    cta_lines = slide2_cta_lines(account=account or slug, subject=subj)
+    img2 = burn_slide2_text(base2, cta_lines)
     img2.save(slide2_path, format="JPEG", quality=92)
-    out_dir.joinpath("slide2_cta.txt").write_text(
-        "\n".join(
-            ln
-            for line in SLIDE2_CTA_LINES
-            for ln in wrap_bubble_lines(line.strip(), slide=2)
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    _write_slide2_sidecar(out_dir, cta_lines)
 
     prev: Path | None = None
     if preview:
@@ -473,17 +523,10 @@ def rebake_bubble_captions(
         encoding="utf-8",
     )
 
-    img2 = burn_slide2_text(Image.open(slide2_raw).convert("RGB"))
+    cta_lines = slide2_cta_lines(account=account or slug, subject=subj)
+    img2 = burn_slide2_text(Image.open(slide2_raw).convert("RGB"), cta_lines)
     img2.save(slide2_path, format="JPEG", quality=92)
-    out_dir.joinpath("slide2_cta.txt").write_text(
-        "\n".join(
-            ln
-            for line in SLIDE2_CTA_LINES
-            for ln in wrap_bubble_lines(line.strip(), slide=2)
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    _write_slide2_sidecar(out_dir, cta_lines)
 
     prev: Path | None = None
     if preview:
