@@ -173,6 +173,6 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **Demo rule:** If/when owner demos to creator — show **finished video output only** (generation result). **Zero** behind-the-scenes: no repo, no agents, no Zernio, no pipeline docs, no architecture, no “peek through keyhole.”
 - **IP / distribution:** Owner **keeping full automation private for now** — not selling/licensing to creator or course yet. Concern: mass distribution → market flood (many users × many accounts × automation).
 - **Competition note:** Creator’s free tool does **not** upload to TikTok — owner assesses this repo ahead on posting + full affiliate lane.
-- **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + deep TOS compliance is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7 for speed.
+- **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + **TikTok Shop Content Policy** (`TIKTOK_SHOP_CONTENT_POLICY.md`, `tos_policy.py`) is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7/TOS for speed.
 
 **Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.

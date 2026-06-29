@@ -128,7 +128,7 @@ python3 -m shorts_bot.tiktok_shop.scout_cli ping
 
 ## Section D — Course refresh *(owner — 30 min)*
 
-Skim before you pick products (creative = course, not bot defaults):
+Skim before launch batch clips (creative = course, not bot defaults):
 
 - [ ] `module_01_read_before_anything.md` — violations list  
 - [ ] `module_03_product_research_strategies.md` — what makes a good product  

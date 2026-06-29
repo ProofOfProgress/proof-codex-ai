@@ -28,10 +28,12 @@ python3 -m shorts_bot.tiktok_shop.factory_cli qc \
 
 Delegate **`module1-qc-runner`** for batch checks — still **block upload** on any fail.
 
-## Caption hard bans (Module 7 overlap)
+## Caption hard bans (Module 7 + TikTok Shop Content Policy)
 
-Never ship captions with sale/price/discount language: sale, % off, coupon, free shipping, limited time, etc.  
-See `BANNED_CAPTION_PHRASES` in `module1_qc.py` and Module 7 course file.
+Never ship captions/descriptions with sale/price/discount language, giveaways, off-platform redirects (URL, email, phone, @handle), gambling/chance language, exaggerated health claims, or weight-loss sole claims.
+
+Full defense brief: `data/research/course/TIKTOK_SHOP_CONTENT_POLICY.md`  
+Code: `shorts_bot/tiktok_shop/tos_policy.py` + `BANNED_CAPTION_PHRASES` in `module1_qc.py`
 
 ## Video prompt / Kling (Module 5)
 
