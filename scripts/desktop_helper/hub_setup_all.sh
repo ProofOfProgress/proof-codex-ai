@@ -10,11 +10,10 @@ if [[ ! -f "$PS" ]]; then
 fi
 
 run_ps() {
-  local script_win
+  local script_win repo_win
   script_win=$(wslpath -w "$1")
-  export DESKTOP_HUB_REPO_WIN
-  DESKTOP_HUB_REPO_WIN=$(wslpath -w "$ROOT")
-  "$PS" -NoProfile -ExecutionPolicy Bypass -File "$script_win"
+  repo_win=$(wslpath -w "$ROOT")
+  "$PS" -NoProfile -ExecutionPolicy Bypass -Command "\$env:DESKTOP_HUB_REPO_WIN='$repo_win'; & '$script_win'"
 }
 
 echo "=== Step 1: Windows Python ==="

@@ -26,10 +26,15 @@ if (-not $pyInfo) {
 Write-Host "Using Python: $($pyInfo.Exe)"
 $req = Join-Path $Root "scripts\desktop_helper\requirements.txt"
 $launcher = $pyInfo.Launcher
-$launchArgs = @($pyInfo.LauncherArgs + @("-m", "pip", "install", "--upgrade", "pip"))
-& $launcher @launchArgs
-$launchArgs = @($pyInfo.LauncherArgs + @("-m", "pip", "install", "-r", $req))
-& $launcher @launchArgs
+if ($pyInfo.LauncherArgs.Count -gt 0) {
+    $launchArgs = @($pyInfo.LauncherArgs + @("-m", "pip", "install", "--upgrade", "pip"))
+    & $launcher @launchArgs
+    $launchArgs = @($pyInfo.LauncherArgs + @("-m", "pip", "install", "-r", $req))
+    & $launcher @launchArgs
+} else {
+    & $launcher -m pip install --upgrade pip
+    & $launcher -m pip install -r $req
+}
 
 Write-Host ""
 Write-Host "OK - desktop helper deps installed."

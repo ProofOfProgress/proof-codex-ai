@@ -1,15 +1,24 @@
 # Shared helpers for Windows desktop helper scripts.
 $ErrorActionPreference = "Stop"
 
+function Normalize-RepoPath {
+    param([string]$Path)
+    if ($Path -match '::(.+)$') {
+        return $matches[1]
+    }
+    return $Path
+}
+
 function Get-RepoRoot {
-    if ($env:DESKTOP_HUB_REPO_WIN -and (Test-Path -LiteralPath $env:DESKTOP_HUB_REPO_WIN)) {
-        return $env:DESKTOP_HUB_REPO_WIN
+    if ($env:DESKTOP_HUB_REPO_WIN) {
+        $p = Normalize-RepoPath $env:DESKTOP_HUB_REPO_WIN
+        if (Test-Path -LiteralPath $p) { return $p }
     }
     $here = $PSScriptRoot
     if ($here -match "desktop_helper$") {
-        return (Resolve-Path (Join-Path $here "..\..")).Path
+        return (Normalize-RepoPath (Resolve-Path (Join-Path $here "..\..")).Path)
     }
-    return (Resolve-Path (Join-Path $here "..")).Path
+    return (Normalize-RepoPath (Resolve-Path (Join-Path $here "..")).Path)
 }
 
 function Find-PythonExe {
