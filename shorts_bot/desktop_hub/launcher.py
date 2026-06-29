@@ -107,4 +107,4 @@ def ensure_via_hub_ssh() -> int:
 
     if not ENSURE_SH.is_file():
         return 1
-    return run_remote(["bash", "-lc", "cd /home/isaac/proof-codex-ai && bash scripts/desktop_helper_ensure.sh"])
+    return run_remote(["cd /home/isaac/proof-codex-ai && bash scripts/desktop_helper_ensure.sh"])
