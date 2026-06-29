@@ -39,6 +39,17 @@ Output: **one paragraph of video prompt text only**, ready for Higgsfield → Vi
 4. CEO can run **Module 1 QC** in background while caption work continues — see `docs/FOR_OWNER_AGENT_TEAM.md`.
 5. Module 1 QC before upload.
 
+## Still-frame violations (official coach — 2026-06-29)
+
+TikTok may flag **still frame** even when Kling motion looks “fine.” Coach law:
+
+- **~25% more side-to-side** lateral camera travel in the **video prompt**
+- **Micro-shake** + **background parallax** (decor shifts vs fixed product)
+- Module 6 **post** adds lateral boost + micro-shake in `make_pan_loop_clip` automatically
+- Module 1 QC now checks inter-frame motion — low motion **blocks upload**
+
+Regenerate prompt via **product-video-prompt-builder**, re-render, re-loop — do not repost old MP4.
+
 ## Bot wiring
 
 Instructions saved in `.cursor/agents/product-video-prompt-builder.md`. Example prompts (image in → video prompt out) append below; encode in `shorts_bot/tiktok_shop/` when ready.

@@ -284,6 +284,13 @@ class Settings(BaseSettings):
     module1_qc_blocks_upload: bool = True
     module1_min_video_seconds: float = 7.0
     module1_min_post_interval_minutes: int = 30
+    module1_min_inter_frame_motion: float = 0.008  # still-frame gate — mean pixel delta between QC frames
+    module1_still_frame_motion_block: bool = True
+
+    # Module 6 pan loop post — coach 2026-06-29: +25% lateral + micro-shake vs Kling-only motion
+    pan_loop_motion_enhance: bool = True
+    pan_loop_lateral_amplitude: float = 0.12  # fraction of frame width for side-to-side sinusoid
+    pan_loop_micro_shake_px: float = 4.0
 
     # Production variety — rotate visual/caption/motion axes per draft (YPP anti-fingerprint)
     production_variety_enabled: bool = True

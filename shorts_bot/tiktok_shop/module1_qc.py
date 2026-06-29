@@ -249,8 +249,12 @@ def _gemini_check_frames(
         "Owner override (2026-06-28): ONLY the advertised product's brand may be visible. "
         "Flag any phone/laptop/tablet screen showing UI, app icons, or home screen. "
         "Flag Apple, MacBook, Instagram, Facebook, or any third-party logo not on the product itself.\n\n"
-        "Also verify Video Do's where visible: arc camera (not static), product ~80%+ in frame, "
-        "legible text if any, matching lighting, non-cluttered environment.\n\n"
+        "Official coach (2026-06-29): TikTok still-frame violations happen even when some motion "
+        "exists — flag if the clip looks like a photograph, lacks clear side-to-side parallax, "
+        "or background objects do not shift relative to the product.\n\n"
+        "Also verify Video Do's where visible: arc camera with noticeable lateral travel (not static), "
+        "product ~80%+ in frame, legible text if any, matching lighting, non-cluttered environment "
+        "with depth for parallax.\n\n"
         "Return ONLY JSON: "
         '{"violations": string[], "warnings": string[], "product_in_frame_80pct": bool, '
         '"arc_camera": bool}'
@@ -278,6 +282,23 @@ def _gemini_check_frames(
     if data.get("arc_camera") is False:
         violations.append("Static camera movement (need arc camera around product)")
     return violations, warnings
+
+
+def _check_inter_frame_motion(frames: list[tuple[float, Path]]) -> list[str]:
+    """Pixel-diff motion gate — catches still-frame risk Gemini may miss."""
+    if not settings.module1_still_frame_motion_block:
+        return []
+    if len(frames) < 2:
+        return []
+    from shorts_bot.tiktok_shop.video_variants import mean_inter_frame_motion
+
+    score = mean_inter_frame_motion([p for _, p in frames])
+    if score < settings.module1_min_inter_frame_motion:
+        return [
+            f"Still-frame risk: insufficient motion between frames (score {score:.4f} "
+            f"< {settings.module1_min_inter_frame_motion}) — add lateral parallax + micro-shake"
+        ]
+    return []
 
 
 def run_module1_qc(
@@ -325,6 +346,8 @@ def run_module1_qc(
             _extract_frame(video_path, fallback, path)
             t = fallback
         frames.append((t, path))
+
+    violations.extend(_check_inter_frame_motion(frames))
 
     vision_ran = False
     if settings.has_gemini:

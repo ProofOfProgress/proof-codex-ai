@@ -36,8 +36,9 @@ Always instruct a **rich but uncluttered** staged scene: kitchen counter with ti
 1. The product is **glued / bolted / locked** to the surface — **physically fixed** for the entire clip.
 2. **Zero product motion:** no rotation, no spinning, no orbiting, no sliding, no bouncing, no wobble, no tilt of the product itself.
 3. **Only the camera moves** — slow multi-axis arc + slight handheld micro-shake. Parallax comes from **camera travel**, not product animation.
-4. Do **not** use phrases that Kling misreads as product orbit: avoid "orbit the product," "spin around," "360 view," "turntable," "product rotates to show angles."
-5. Prefer explicit negatives: "the product does not rotate," "product stays perfectly still while the camera arcs," "fixed product, moving camera only."
+4. **Lateral side-to-side sweep is mandatory (coach 2026-06-29):** combine left→right travel (~25% more noticeable than a subtle orbit) with slight tilt drift. Background decor must shift relative to the fixed product — still-frame bans hit clips that look like rotating product photos.
+5. Do **not** use phrases that Kling misreads as product orbit: avoid "orbit the product," "spin around," "360 view," "turntable," "product rotates to show angles."
+6. Prefer explicit negatives: "the product does not rotate," "product stays perfectly still while the camera arcs," "fixed product, moving camera only."
 
 If the owner reports **product rotation** in output, your rewrite must **lead with** fixed-product language before camera motion — stronger than before.
 
@@ -79,7 +80,8 @@ Source: `data/research/course/module_01_read_before_anything.md` · enforced in 
 
 ### Always instruct these (Module 1 Do's + our defaults)
 
-- **Arc camera movement** around the product at a **reasonable speed** — slow subtle arc with slight handheld micro-shake (multi-axis, organic, not static, not single-axis-only)
+- **Arc camera movement** around the product at a **reasonable speed** — slow subtle arc with **clear lateral side-to-side sweep**, slight handheld micro-shake (multi-axis, organic, not static, not single-axis-only)
+- Background objects or blur layers must **shift relative to the product** (parallax) — reduces TikTok still-frame risk (coach 2026-06-29)
 - Product **absolutely stationary** — **locked to the surface**, **does not rotate or move**; **only the camera moves**
 - **Correct scale** and proportions vs the reference image
 - **Matching lighting** between product and environment — soft, believable, physically consistent

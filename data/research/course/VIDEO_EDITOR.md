@@ -6,7 +6,8 @@
 ## Pipeline (affiliate posts)
 
 1. Input: 5s Kling clip (Module 5)  
-2. **Pan loop:** forward + reverse → ~10s (`video_variants.make_pan_loop_clip`)  
+2. **Motion loop:** lateral pan boost + micro-shake, then forward + reverse → ~10s (`video_variants.make_pan_loop_clip`)  
+   - **Coach law (2026-06-29):** TikTok still-frame bans happen even with “some” Kling motion — post adds **~25% more side-to-side** + **micro-shake** so background parallax is obvious.  
 3. **On-screen hook:** TikTok app text **or** burn-in (see below)  
 4. Module 1 QC → upload  
 

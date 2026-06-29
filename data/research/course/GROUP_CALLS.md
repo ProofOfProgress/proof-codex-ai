@@ -179,6 +179,30 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 ---
 
+## 2026-06-29 — Official coach: still-frame violation fix (content review — law)
+
+**Source:** Registered Momentum Academy coach reviewed owner **Insulated Tumbler** clip in content review chat.
+
+**Verdict:** Product good · video quality good · **needs more movement** to avoid **still-frame violation**.
+
+**Coach guidance (encode everywhere — prompts, Module 6 post, QC):**
+
+- TikTok is **very strict** — still-frame strikes happen even when the clip has “decent” or “plenty of” movement.
+- **~25% more side-to-side** camera travel — lateral parallax must be **noticeable**, not subtle orbit-only.
+- Add **micro-shake** (handheld) **and/or** background objects that shift vs the product (proves camera is moving).
+- Product can stay fixed; **camera** must show clear multi-axis + lateral motion.
+- **Trial and error** on scripts — consistency + scale is the game.
+
+**Pipeline changes (repo):**
+
+- `video_variants.make_pan_loop_clip` — post-process lateral boost + micro-shake before forward/reverse loop.
+- `module1_qc.py` — inter-frame motion score + Gemini still-frame lens.
+- `product-video-prompt-builder` — emphasize lateral sweep + background parallax in every Kling prompt.
+
+**Regenerate** existing clips (e.g. tumbler) with new prompt + re-run loop — do not repost old MP4.
+
+---
+
 ## 2026-06-29 — Daily pre-launch CEO mission (owner)
 
 **Goal:** Before launch, **one automated kickoff per day** on hub laptop — scout/plan products, paste **CEO prompt** into Cursor, **click Run** (desktop helper). Cloud agent then generates that day's affiliate clips (research → Kling → QC → queue locally, **no Zernio**).
