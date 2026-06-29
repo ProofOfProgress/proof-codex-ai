@@ -71,9 +71,12 @@ def load_schedule(path: Path | None = None) -> DailyClickSchedule:
 def save_schedule(sched: DailyClickSchedule, *, path: Path | None = None) -> Path:
     sched.validate()
     p = path or schedule_path()
+    raw = {}
+    if p.is_file():
+        raw = json.loads(p.read_text(encoding="utf-8"))
+    raw["daily_click"] = asdict(sched)
     p.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"daily_click": asdict(sched)}
-    p.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    p.write_text(json.dumps(raw, indent=2) + "\n", encoding="utf-8")
     return p
 
 
@@ -94,12 +97,12 @@ def log_scheduled_click(sched: DailyClickSchedule, *, detail: str = "ok") -> Non
         f.write(json.dumps(row) + "\n")
 
 
-def should_run_now(sched: DailyClickSchedule, now: datetime | None = None) -> bool:
-    if not sched.enabled:
+def should_run_now(sched: DailyClickSchedule | object, now: datetime | None = None) -> bool:
+    if not getattr(sched, "enabled", False):
         return False
-    tz = ZoneInfo(sched.timezone)
+    tz = ZoneInfo(getattr(sched, "timezone", "America/Los_Angeles"))
     now = (now or datetime.now(tz)).astimezone(tz)
-    if now.hour != sched.hour or now.minute != sched.minute:
+    if now.hour != getattr(sched, "hour", 0) or now.minute != getattr(sched, "minute", 0):
         return False
     return True
 

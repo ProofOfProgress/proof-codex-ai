@@ -1,4 +1,17 @@
 {
+  "daily_prelaunch": {
+    "enabled": false,
+    "hour": 7,
+    "minute": 0,
+    "timezone": "America/Los_Angeles",
+    "clips_target": 8,
+    "prepare_via_wsl": true,
+    "focus_x": 0,
+    "focus_y": 0,
+    "submit_x": 0,
+    "submit_y": 0,
+    "label": "Cursor chat focus + Run agent button — calibrate x/y with screenshot"
+  },
   "daily_click": {
     "enabled": false,
     "hour": 12,
@@ -7,6 +20,6 @@
     "x": 640,
     "y": 360,
     "button": "left",
-    "label": "Owner: set x/y then set enabled true — same time every 24h (PST default)"
+    "label": "Legacy simple click — use daily_prelaunch instead for CEO missions"
   }
 }

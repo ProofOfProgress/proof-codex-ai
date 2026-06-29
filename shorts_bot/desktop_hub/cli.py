@@ -12,6 +12,7 @@ from rich.table import Table
 from shorts_bot.desktop_hub.client import DesktopHubClient, DesktopHubError
 from shorts_bot.desktop_hub.host import default_helper_host, default_helper_port, helper_base_url
 from shorts_bot.desktop_hub.launcher import ensure_running, ensure_via_hub_ssh, ping_helper
+from shorts_bot.desktop_hub.prelaunch_trigger import DailyPrelaunchSchedule, load_prelaunch_schedule, save_prelaunch_schedule
 from shorts_bot.desktop_hub.schedule import DailyClickSchedule, load_schedule, save_schedule
 
 
@@ -47,6 +48,22 @@ def main(argv: list[str] | None = None) -> int:
     set_p.add_argument("--label", default="")
     set_p.add_argument("--enable", action="store_true")
     set_p.add_argument("--disable", action="store_true")
+
+    pre_p = sched_sub.add_parser(
+        "set-prelaunch",
+        help="Daily CEO mission — prepare plan + click Cursor Run at same time each day",
+    )
+    pre_p.add_argument("--hour", type=int, required=True)
+    pre_p.add_argument("--minute", type=int, default=0)
+    pre_p.add_argument("--focus-x", type=int, required=True)
+    pre_p.add_argument("--focus-y", type=int, required=True)
+    pre_p.add_argument("--submit-x", type=int, required=True)
+    pre_p.add_argument("--submit-y", type=int, required=True)
+    pre_p.add_argument("--timezone", default="America/Los_Angeles")
+    pre_p.add_argument("--clips", type=int, default=8)
+    pre_p.add_argument("--label", default="Cursor daily CEO mission")
+    pre_p.add_argument("--enable", action="store_true")
+    pre_p.add_argument("--disable", action="store_true")
 
     type_p = sub.add_parser("type", help="Type text via keyboard (not mouse-on-keys)")
     type_p.add_argument("text", help="Text to type")
@@ -93,14 +110,27 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "schedule":
         if args.sched_cmd == "show":
-            sched = load_schedule()
-            table = Table(title="Daily click schedule")
-            table.add_column("Field")
-            table.add_column("Value")
-            for key in ("enabled", "hour", "minute", "timezone", "x", "y", "button", "label"):
-                table.add_row(key, str(getattr(sched, key)))
+            pre = load_prelaunch_schedule()
+            click = load_schedule()
+            table = Table(title="Daily schedules")
+            table.add_column("Kind")
+            table.add_column("Enabled")
+            table.add_column("Time")
+            table.add_column("Detail")
+            table.add_row(
+                "prelaunch (CEO)",
+                str(pre.enabled),
+                f"{pre.hour:02d}:{pre.minute:02d} {pre.timezone}",
+                f"focus ({pre.focus_x},{pre.focus_y}) → submit ({pre.submit_x},{pre.submit_y})",
+            )
+            table.add_row(
+                "click (legacy)",
+                str(click.enabled),
+                f"{click.hour:02d}:{click.minute:02d} {click.timezone}",
+                f"({click.x},{click.y}) {click.label}",
+            )
             console.print(table)
-            console.print("[dim]Helper must be running — scheduler runs inside the daemon.[/dim]")
+            console.print("[dim]Prelaunch: prepare scout + paste prompt + click Run in Cursor[/dim]")
             return 0
         if args.sched_cmd == "set-click":
             enabled = True
@@ -128,6 +158,33 @@ def main(argv: list[str] | None = None) -> int:
                 )
             else:
                 console.print("[yellow]Schedule saved but disabled — pass --enable to activate[/yellow]")
+            return 0
+        if args.sched_cmd == "set-prelaunch":
+            enabled = True
+            if args.disable:
+                enabled = False
+            elif not args.enable:
+                prev = load_prelaunch_schedule()
+                enabled = prev.enabled
+            sched = DailyPrelaunchSchedule(
+                enabled=enabled,
+                hour=args.hour,
+                minute=args.minute,
+                timezone=args.timezone,
+                clips_target=args.clips,
+                focus_x=args.focus_x,
+                focus_y=args.focus_y,
+                submit_x=args.submit_x,
+                submit_y=args.submit_y,
+                label=args.label,
+            )
+            path = save_prelaunch_schedule(sched)
+            console.print(f"[green]Saved {path}[/green]")
+            if sched.enabled:
+                console.print(
+                    f"Daily prelaunch {sched.hour:02d}:{sched.minute:02d} {sched.timezone} — "
+                    f"scout + prompt + Cursor submit"
+                )
             return 0
         return 2
 

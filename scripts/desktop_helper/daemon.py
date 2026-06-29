@@ -27,7 +27,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from shorts_bot.desktop_hub.config import apply_helper_env, daemon_pid_path, resolve_token  # noqa: E402
-from shorts_bot.desktop_hub.schedule import DailyClickScheduler, DailyClickSchedule  # noqa: E402
+from shorts_bot.desktop_hub.prelaunch_trigger import (  # noqa: E402
+    DailyPrelaunchScheduler,
+    load_prelaunch_schedule,
+)
+from shorts_bot.desktop_hub.schedule import DailyClickSchedule, DailyClickScheduler  # noqa: E402
 from shorts_bot.desktop_hub.protocol import validate_command  # noqa: E402
 
 try:
@@ -207,6 +211,14 @@ def main() -> int:
 
     executor = DesktopExecutor()
 
+    def _clipboard_paste(text: str) -> None:
+        try:
+            import pyperclip
+
+            pyperclip.copy(text)
+        except Exception as exc:
+            raise RuntimeError(f"clipboard paste failed: {exc}") from exc
+
     def _scheduled_click(sched: DailyClickSchedule) -> None:
         executor.execute(
             {"action": "click", "x": sched.x, "y": sched.y, "button": sched.button, "clicks": 1}
@@ -216,11 +228,25 @@ def main() -> int:
             flush=True,
         )
 
-    scheduler: DailyClickScheduler | None = None
+    click_scheduler: DailyClickScheduler | None = None
+    prelaunch_scheduler: DailyPrelaunchScheduler | None = None
     if not args.no_schedule:
-        scheduler = DailyClickScheduler(_scheduled_click)
-        scheduler.start()
-        print("[desktop_helper] daily click scheduler active (see data/desktop_hub/schedule.json)", flush=True)
+        prelaunch = load_prelaunch_schedule()
+        if prelaunch.enabled:
+            prelaunch_scheduler = DailyPrelaunchScheduler(
+                lambda: executor,
+                paste_via_clipboard=_clipboard_paste,
+            )
+            prelaunch_scheduler.start()
+            print(
+                f"[desktop_helper] daily PRELAUNCH scheduler {prelaunch.hour:02d}:{prelaunch.minute:02d} "
+                f"{prelaunch.timezone} → Cursor submit ({prelaunch.label})",
+                flush=True,
+            )
+        else:
+            click_scheduler = DailyClickScheduler(_scheduled_click)
+            click_scheduler.start()
+            print("[desktop_helper] daily click scheduler active (see schedule.json)", flush=True)
 
     try:
         daemon_pid_path().write_text(str(os.getpid()), encoding="utf-8")
@@ -235,8 +261,10 @@ def main() -> int:
     except KeyboardInterrupt:
         print("\nStopped.", flush=True)
     finally:
-        if scheduler:
-            scheduler.stop()
+        if click_scheduler:
+            click_scheduler.stop()
+        if prelaunch_scheduler:
+            prelaunch_scheduler.stop()
         try:
             daemon_pid_path().unlink(missing_ok=True)
         except OSError:

@@ -34,7 +34,24 @@ Windows may ask for **accessibility permission** once — allow it.
 
 ---
 
-## Daily click (same time every 24 hours)
+## Daily pre-launch CEO mission (scheduled click)
+
+The **daily mouse click** is wired to **send off the cloud agent** each morning:
+
+1. Scout / plan products → `daily_prelaunch prepare`  
+2. Paste CEO prompt into Cursor → generate day's clips  
+
+Full guide: **`docs/FOR_OWNER_DAILY_PRELAUNCH.md`**
+
+```bash
+python3 -m shorts_bot.daily_prelaunch.cli prepare
+python3 -m shorts_bot.desktop_hub.cli schedule set-prelaunch --hour 7 --minute 0 \
+  --focus-x X --focus-y Y --submit-x X --submit-y Y --enable
+```
+
+---
+
+## Daily click (legacy — simple click only)
 
 While the helper is running, it can **click one spot on screen** once per day at a fixed time (default timezone **PST**).
 
