@@ -110,6 +110,34 @@ def test_prepare_vertical_9x16_full_bleed():
         assert result.getpixel(pt) != _FIT_PAD_RGB
 
 
+def test_strip_letterbox_bars_crops_gemini_padding():
+    from io import BytesIO
+
+    from PIL import Image
+
+    from shorts_bot.tiktok_shop.product_images import strip_letterbox_bars, validate_module4_image
+
+    pad = (42, 42, 44)
+    inner = Image.new("RGB", (600, 900), (180, 140, 100))
+    canvas = Image.new("RGB", (768, 1344), pad)
+    canvas.paste(inner, (84, 222))
+    stripped = strip_letterbox_bars(canvas)
+    assert stripped.size[0] > pad[0]  # cropped narrower than padded canvas
+    assert stripped.size != canvas.size
+
+    # Full pipeline: strip + cover crop should not leave pad color at corners
+    buf = BytesIO()
+    canvas.save(buf, format="JPEG")
+    from shorts_bot.tiktok_shop.module4_sample import _upscale_to_1080x1920
+
+    out = _upscale_to_1080x1920(buf.getvalue())
+    check = validate_module4_image(out)
+    assert check.ok
+    result = Image.open(BytesIO(out))
+    for pt in ((0, 0), (1079, 0), (0, 1919), (1079, 1919)):
+        assert result.getpixel(pt) != pad
+
+
 def test_kling_normalize_aspect_ratio_rejects_landscape():
     import pytest
 

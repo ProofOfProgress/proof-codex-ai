@@ -118,6 +118,82 @@ def load_image_bytes_for_kling(*, product_id: str = "", cover_url: str = "") -> 
     )
 
 
+def _row_uniformity(img: Image.Image, y: int) -> tuple[float, float]:
+    w = img.size[0]
+    pixels = [img.getpixel((x, y))[:3] for x in range(w)]
+    br = [sum(p) / 3 for p in pixels]
+    avg = sum(br) / len(br)
+    var = sum((b - avg) ** 2 for b in br) / len(br)
+    return avg, var
+
+
+def _col_uniformity(img: Image.Image, x: int) -> tuple[float, float]:
+    h = img.size[1]
+    pixels = [img.getpixel((x, y))[:3] for y in range(h)]
+    br = [sum(p) / 3 for p in pixels]
+    avg = sum(br) / len(br)
+    var = sum((b - avg) ** 2 for b in br) / len(br)
+    return avg, var
+
+
+def _is_letterbox_band(avg: float, var: float, *, max_brightness: float = 100.0) -> bool:
+    """Uniform dark/grey padding band (Gemini often adds despite 9:16 config)."""
+    return avg < max_brightness and var < 600
+
+
+def strip_letterbox_bars(img: Image.Image, *, max_brightness: float = 100.0) -> Image.Image:
+    """Crop uniform dark letterbox/pillarbox padding before 9:16 cover-crop."""
+    img = img.convert("RGB")
+    w, h = img.size
+    if w < 40 or h < 40:
+        return img
+
+    top = 0
+    while top < h // 2:
+        avg, var = _row_uniformity(img, top)
+        if not _is_letterbox_band(avg, var, max_brightness=max_brightness):
+            break
+        top += 1
+
+    bottom = h - 1
+    while bottom > h // 2:
+        avg, var = _row_uniformity(img, bottom)
+        if not _is_letterbox_band(avg, var, max_brightness=max_brightness):
+            break
+        bottom -= 1
+
+    left = 0
+    while left < w // 2:
+        avg, var = _col_uniformity(img, left)
+        if not _is_letterbox_band(avg, var, max_brightness=max_brightness):
+            break
+        left += 1
+
+    right = w - 1
+    while right > w // 2:
+        avg, var = _col_uniformity(img, right)
+        if not _is_letterbox_band(avg, var, max_brightness=max_brightness):
+            break
+        right -= 1
+
+    if right - left < w // 4 or bottom - top < h // 4:
+        return img
+    cropped = img.crop((left, top, right + 1, bottom + 1))
+    return cropped if cropped.size != img.size else img
+
+
+def _detect_letterbox_bars(img: Image.Image) -> bool:
+    """True if frame edges look like uniform dark grey/black padding."""
+    w, h = img.size
+    checks = (
+        _row_uniformity(img, 0),
+        _row_uniformity(img, h - 1),
+        _col_uniformity(img, 0),
+        _col_uniformity(img, w - 1),
+    )
+    return sum(1 for avg, var in checks if _is_letterbox_band(avg, var)) >= 2
+
+
 def _sample_border_uniformity(img: Image.Image, *, samples: int = 24) -> float:
     """Return 0–1 score — high = uniform border (plain white/gray box risk)."""
     w, h = img.size
@@ -165,6 +241,11 @@ def validate_module4_image(image_bytes: bytes) -> ImageValidation:
         result.warnings.append(
             "Plain white/gray background detected — use a staged Module 4 scene (complex backdrop) "
             "to reduce still-image ban risk and show arc camera motion"
+        )
+    if _detect_letterbox_bars(img):
+        result.errors.append(
+            "Gray/black letterbox bars detected — regenerate Module 4 sample with "
+            "factory_cli sample-image --force (Gemini must fill frame edge-to-edge)"
         )
     result.ok = not result.errors
     return result

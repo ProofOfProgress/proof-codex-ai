@@ -93,12 +93,13 @@ def build_sample_prompt(
 def _upscale_to_1080x1920(image_bytes: bytes) -> bytes:
     from PIL import Image
 
+    from shorts_bot.tiktok_shop.product_images import prepare_vertical_9x16, strip_letterbox_bars
+
     img = Image.open(BytesIO(image_bytes)).convert("RGB")
-    if img.size != (TARGET_WIDTH, TARGET_HEIGHT):
-        img = img.resize((TARGET_WIDTH, TARGET_HEIGHT), Image.Resampling.LANCZOS)
-    out = BytesIO()
-    img.save(out, format="JPEG", quality=92)
-    return out.getvalue()
+    img = strip_letterbox_bars(img)
+    buf = BytesIO()
+    img.save(buf, format="JPEG", quality=95)
+    return prepare_vertical_9x16(buf.getvalue())
 
 
 def generate_module4_sample(
