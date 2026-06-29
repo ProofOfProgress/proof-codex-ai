@@ -70,8 +70,21 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
 | `KLING_MODE` | Environment Variable | Default `std` (720p, ~$0.21/5s clip). Use `pro` only if you need 1080p later. |
-| `ECHOTIK_USERNAME` | Runtime Secret | Product scout (later) |
-| `ECHOTIK_PASSWORD` | Runtime Secret | Pair with username |
+| `FASTMOSS_CLIENT_ID` | Runtime Secret | FastMoss OpenAPI — optional until API scout ships |
+| `FASTMOSS_CLIENT_SECRET` | Runtime Secret | Pair with client ID — `docs/FOR_OWNER_FASTMOSS_SETUP.md` |
+| `ECHOTIK_USERNAME` | Runtime Secret | **Legacy — retired.** Do not add. FastMoss replaces EchoTik. |
+| `ECHOTIK_PASSWORD` | Runtime Secret | **Legacy — retired.** |
+
+## Optional — HP hub remote SSH *(agent runs terminal on your laptop)*
+
+Setup: `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · verify: `bash scripts/hub_remote_verify.sh`
+
+| Secret name | Cursor type | Notes |
+|-------------|-------------|-------|
+| `TAILSCALE_AUTH_KEY` | Runtime Secret | Reusable key — cloud VM joins your tailnet |
+| `HUB_SSH_HOST` | Environment Variable | Hub Tailscale IP (`100.x.x.x`) |
+| `HUB_SSH_USER` | Environment Variable | WSL Linux username |
+| `HUB_SSH_PRIVATE_KEY` | Runtime Secret | Full private key from `hub_remote_setup.sh` |
 
 ## Recommended — other
 
