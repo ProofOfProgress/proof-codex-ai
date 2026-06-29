@@ -153,10 +153,16 @@ def validate_before_render(
                 "product-video-prompt-builder must instruct: fixed product, moving camera only"
             )
         if any(r in lower for r in _ROTATION_RISK_PHRASES):
-            warnings.append(
-                "Prompt may trigger product rotation in Kling — remove orbit/turntable/spin language; "
-                "use fixed product + arc camera only"
+            negated = any(
+                f"not {r}" in lower or f"no {r}" in lower or f"never {r}" in lower
+                for r in _ROTATION_RISK_PHRASES
+                if r in lower
             )
+            if not negated:
+                warnings.append(
+                    "Prompt may trigger product rotation in Kling — remove orbit/turntable/spin language; "
+                    "use fixed product + arc camera only"
+                )
 
     if product_image is None or not Path(product_image).is_file():
         errors.append(f"Module 4 sample image required: {product_image or '(missing)'}")
