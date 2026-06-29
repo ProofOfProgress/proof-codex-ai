@@ -70,9 +70,11 @@ Review the manifest path it prints (`data/bubble_wrap/batches/batch_*.json`).
 
 | Problem | Fix |
 |---------|-----|
-| “Ubuntu password” every time | Normal first click after reboot — or set up passwordless sudo later |
-| Desktop helper failed | Windows must be logged in — run `START_DESKTOP_HELPER.bat` once |
-| Green button does nothing | Use the `.bat` shortcut instead — it always opens a visible window |
+| Runs then **crashes** / closes | Pull latest repo → re-run `INSTALL_HUB_START_BUTTON.bat`. Window should stay open. Read **`data/desktop_hub/hub_start.log`** |
+| **Ubuntu password** every reboot | One-time in Ubuntu: `bash scripts/hub_one_click_sudo_setup.sh` |
+| Says **NOT READY** / Tailscale | Open Ubuntu → `sudo tailscale --socket=/var/run/tailscale/tailscaled.sock up` |
+| Desktop helper failed | Run `scripts\START_DESKTOP_HELPER.bat` on Windows |
+| Green `.pyw` button does nothing | Use the `.bat` on Desktop instead |
 
 ---
 
