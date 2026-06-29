@@ -138,4 +138,24 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 **Agent owns:** Module 3 research (FastMoss scout / product-researcher), `products.json`, pre-breakout lens, clip pipeline, QC, queue — end to end.
 
 **Owner does not own:** Product picks · “send me 2–3 product names” · FastMoss UI browsing for launch list.
-- See `PRODUCT_RESEARCH.md` → Pre-breakout lens.
+
+---
+
+## 2026-06-29 — Account seller Discord wins (owner relay)
+
+**Source:** Discord bundled with bought account (account seller’s community + second course). **Customer wins** channel — recent posts (many June 2025/2026).
+
+**Pattern in wins (commission unless noted as GMV):**
+
+- New / bought accounts hitting **$1k–$10k+ commission** in first weeks; **Gold/Silver** tiers first month
+- **$1k+ in a single day** commission — multiple reports
+- **$4k–$7k+ in 7 days**; **$8k–$51k in 30 days** commission range across posts
+- **$42k in 19 days** (June 1–20) cited; **~$95k GMV in 30 days** (GMV ≠ commission — still validates demand)
+- Some still “figuring out convert” at **$6.5k** — room to optimize
+- **Livestreams** mentioned in wins — **we are NOT doing livestreams** (short affiliate video lane only)
+
+**Owner read:** Proven concept on **bought warmed accounts + volume + product timing**. Aligns with pre-breakout research intel and 8–10 posts/day plan.
+
+**Scale vision (owner):** “30 automated accounts × 10/day” — aspirational **later**. **Current plan:** 1 affiliate revenue account + 4 bubble growth accounts. Do not scope-creep bot to 30 accounts without owner explicit go + budget + ban-risk review.
+
+**Agent implication:** Speed to launch + pre-breakout picks + GOOD post volume matter — winners in that Discord are the comp, not a guarantee.
