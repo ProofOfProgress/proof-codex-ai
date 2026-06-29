@@ -139,6 +139,8 @@ python3 -m shorts_bot.agent_ops missions   # list CEO ↔ employee mission logs
 
 Owner setup: `docs/FOR_OWNER_BASICS.md` · **New agent bootstrap:** `docs/CLOUD_AGENT_START.md` · Secrets: `docs/CURSOR_SECRETS.md`
 
+**Hub laptop (auto):** when `HUB_SSH_*` secrets are set, `install.sh` connects Tailscale; mid-task use `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <cmd>`.
+
 ---
 
 ## Code map

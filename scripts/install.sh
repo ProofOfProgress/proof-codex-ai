@@ -17,6 +17,11 @@ echo "==> Syncing API keys from environment (Cursor secrets)..."
 python3 scripts/sync_secrets.py 2>/dev/null || true
 echo "    Full chat: bash scripts/set-openai-key.sh  (or add OPENAI_API_KEY to Cursor secrets)"
 
+if [[ -n "${HUB_SSH_HOST:-}" && -n "${HUB_SSH_USER:-}" && -n "${HUB_SSH_PRIVATE_KEY:-}" ]]; then
+  echo "==> Hub secrets detected — auto-connecting to owner laptop..."
+  bash scripts/hub_connect.sh --quiet || echo "    WARN: hub offline (laptop asleep or Tailscale down on HP)"
+fi
+
 mkdir -p data
 
 chmod +x scripts/*.sh 2>/dev/null || true

@@ -1,0 +1,41 @@
+---
+description: Auto-connect to owner HP hub when hub secrets are configured
+globs: docs/FOR_OWNER_REMOTE_HUB_SSH.md,docs/FOR_OWNER_MINI_PC_INSTALL.md,scripts/hub_*.sh,shorts_bot/hub_remote.py
+alwaysApply: false
+---
+
+# Hub auto-connect
+
+When **HUB_SSH_*** secrets exist, the agent connects to the owner hub **automatically** — do not ask the owner to say "connect to hub" first.
+
+## When to connect
+
+Run **before** any hub-side work (WSL install, `adb`, bubble phone hub, repo on laptop):
+
+```bash
+python3 -m shorts_bot.hub_remote ensure --quiet
+```
+
+Or run a remote command (connects first if needed):
+
+```bash
+python3 -m shorts_bot.hub_remote run -- python3 --version
+bash scripts/hub_run.sh cd ~/proof-codex-ai && git pull
+```
+
+## Bootstrap
+
+`bash scripts/install.sh` already calls `hub_connect.sh --quiet` when hub secrets are present.
+
+## Status / verify
+
+```bash
+python3 -m shorts_bot.hub_remote status
+python3 -m shorts_bot.hub_remote verify   # full SSH smoke test
+```
+
+## If connect fails
+
+Hub laptop asleep, WSL closed, or Tailscale down on HP — tell owner **one step**: open Ubuntu on HP and run `sudo tailscale up`. Do not blame secret setup unless `status` shows `secrets_configured: False`.
+
+@docs/FOR_OWNER_REMOTE_HUB_SSH.md
