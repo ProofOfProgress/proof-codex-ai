@@ -16,8 +16,8 @@
 
 | Mode | Config | What happens |
 |------|--------|--------------|
-| **`native`** (default) | `TIKTOK_SHOP_HOOK_DELIVERY=native` | Clean MP4 + `.hook.txt` beside clip — **add text in TikTok** |
-| `burn_in` | `TIKTOK_SHOP_HOOK_DELIVERY=burn_in` | Bot burns white text via ffmpeg (legacy) |
+| **`burn_in`** (default) | `TIKTOK_SHOP_HOOK_DELIVERY=burn_in` | Bot burns centered white text via ffmpeg — **no manual TikTok text step** |
+| `native` | `TIKTOK_SHOP_HOOK_DELIVERY=native` | Clean MP4 + `.hook.txt` beside clip — add text in TikTok app |
 
 ---
 
@@ -47,19 +47,21 @@ Code: `shorts_bot/tiktok_shop/captions.py` → `wrap_hook_lines()`
 ### Copy template (current)
 
 ```
-I am SO sorry if you already grabbed {product} because the discount is huge today
+I am SO sorry if you already grabbed {product_phrase} because the discount is huge today
 ```
 
 - **`SO`** stays capitalized  
-- **`{product}`** = title case each word  
-- Use **"a"** before the product when it reads naturally  
+- **`{product_phrase}`** = natural spoken phrase — **not** bare title case  
+- Default on-screen product: **`this {product}`** lowercase — e.g. `this insulated tumbler`  
+- LLM / caption writer may use **`a`**, **`an`**, or **`the`** when it reads better  
+- Code fallback: `captions.product_phrase()` → default `this …`
 
 ### Example wrapped at 20 chars/line
 
 ```
 I am SO sorry if you
-already grabbed
-Insulated Tumbler
+already grabbed this
+insulated tumbler
 because the discount
 is huge today
 ```

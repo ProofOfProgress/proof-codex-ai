@@ -11,8 +11,9 @@ BANNED_IN_CAPTION = re.compile(
 )
 
 # Owner on-screen burn-in template (VIDEO_EDITOR.md) — copy changes often; update there first.
+# {product_phrase} = natural spoken phrase, e.g. "this insulated tumbler", "a car phone mount"
 ON_SCREEN_CAPTION_TEMPLATE = (
-    "I am SO sorry if you already grabbed {product} because the discount is huge today"
+    "I am SO sorry if you already grabbed {product_phrase} because the discount is huge today"
 )
 
 CAPTION_TEMPLATES = (
@@ -34,10 +35,45 @@ def format_product_title(name: str) -> str:
     return " ".join(part[:1].upper() + part[1:] if part else part for part in name.split())
 
 
-def on_screen_caption(product_name: str) -> str:
+def format_product_spoken(name: str) -> str:
+    """Lowercase product name for mid-sentence caption copy."""
+    return " ".join((name or "").split()).lower()
+
+
+def _a_or_an(noun_phrase: str) -> str:
+    first = (noun_phrase or "").strip().split()[0].lower() if noun_phrase else ""
+    if not first:
+        return "a"
+    if first[0] in "aeiou":
+        return "an"
+    if first.startswith(("hour", "honest", "heir")):
+        return "an"
+    return "a"
+
+
+def product_phrase(product_name: str, *, determiner: str | None = None) -> str:
+    """
+    Natural spoken product phrase for the owner hook template.
+    Default determiner is **this** (product on screen). LLM / caller may pass a/an/the.
+    """
+    spoken = format_product_spoken(product_name)
+    if not spoken:
+        return "this"
+
+    det = (determiner or "this").strip().lower()
+    if det in {"this", "that", "the"}:
+        return f"{det} {spoken}"
+    if det == "an":
+        return f"an {spoken}"
+    if det == "a":
+        return f"{_a_or_an(spoken)} {spoken}"
+    return f"{det} {spoken}".strip()
+
+
+def on_screen_caption(product_name: str, *, determiner: str | None = None) -> str:
     """Owner default on-screen hook — see VIDEO_EDITOR.md."""
-    product = format_product_title((product_name or "this").strip()) or "This"
-    return ON_SCREEN_CAPTION_TEMPLATE.format(product=product)
+    phrase = product_phrase(product_name, determiner=determiner)
+    return ON_SCREEN_CAPTION_TEMPLATE.format(product_phrase=phrase)
 
 
 def wrap_hook_lines(

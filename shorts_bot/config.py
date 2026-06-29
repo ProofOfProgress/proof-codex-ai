@@ -148,7 +148,7 @@ class Settings(BaseSettings):
     tiktok_shop_image_fit_scale: float = 0.88  # legacy; Kling input uses cover-crop 9:16 (no gray letterbox)
 
     # On-screen hook — line breaks for TikTok native text OR ffmpeg burn-in
-    tiktok_shop_hook_delivery: str = "native"  # native | burn_in — native = add text in TikTok app
+    tiktok_shop_hook_delivery: str = "burn_in"  # burn_in = ffmpeg hook on clip; native = .hook.txt only
     tiktok_shop_caption_max_chars_per_line: int = 20  # owner cap — 22+ clipped sides; 20 is safe max
     tiktok_shop_caption_max_lines: int = 7
     tiktok_shop_caption_font_size: int = 48  # burn_in only — 15% up from 42 (owner 2026-06)

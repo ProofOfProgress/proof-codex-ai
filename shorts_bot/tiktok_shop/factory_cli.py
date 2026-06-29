@@ -341,12 +341,12 @@ def main() -> None:
     if args.cmd == "make-clip":
         from pathlib import Path
 
-        from shorts_bot.tiktok_shop.captions import caption_variants, sanitize_caption
+        from shorts_bot.tiktok_shop.captions import on_screen_caption, sanitize_caption
         from shorts_bot.tiktok_shop.queue import enqueue_video
         from shorts_bot.tiktok_shop.render import render_product_clip
 
         name = args.product or args.product_id or "product"
-        cap = sanitize_caption(caption_variants(name, limit=1)[0])
+        hook = sanitize_caption(on_screen_caption(name))
         try:
             result = render_product_clip(
                 product_id=args.product_id,
@@ -359,14 +359,14 @@ def main() -> None:
                 prompt_file=Path(args.prompt_file) if args.prompt_file else None,
                 style=args.style,
                 allow_default_prompt=args.allow_default_prompt,
-                on_screen_caption=cap,
+                on_screen_caption=hook,
             )
         except RuntimeError as exc:
             console.print(f"[red]{exc}[/red]")
             raise SystemExit(1) from exc
         name = result.product_name or name
         video = result.loop_mp4 or result.raw_mp4
-        idx = enqueue_video(video_path=str(video), product=name, caption=cap)
+        idx = enqueue_video(video_path=str(video), product=name, caption=hook)
         console.print(f"[green]Queued[/green] #{idx} → {video}")
         if args.confirm_post:
             console.print("[dim]Run: factory_cli post --confirm[/dim]")

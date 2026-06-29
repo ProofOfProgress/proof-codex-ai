@@ -2,9 +2,26 @@
 
 from shorts_bot.tiktok_shop.captions import (
     on_screen_caption,
+    product_phrase,
     validate_hook_lines,
     wrap_hook_lines,
 )
+
+
+def test_product_phrase_default_this():
+    assert product_phrase("Insulated Tumbler") == "this insulated tumbler"
+    assert product_phrase("Car Phone Mount") == "this car phone mount"
+
+
+def test_product_phrase_custom_determiner():
+    assert product_phrase("Egg Cooker", determiner="an") == "an egg cooker"
+    assert product_phrase("Car Phone Mount", determiner="a") == "a car phone mount"
+
+
+def test_on_screen_caption_uses_spoken_phrase():
+    cap = on_screen_caption("Insulated Tumbler")
+    assert "this insulated tumbler" in cap
+    assert "Insulated Tumbler" not in cap
 
 
 def test_wrap_hook_lines_max_20():
