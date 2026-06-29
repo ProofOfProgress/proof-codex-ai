@@ -140,32 +140,21 @@ Skim before you pick products (creative = course, not bot defaults):
 
 ---
 
-## Section E — Scout product batch *(agent + owner)*
+## Section E — Scout product batch *(agent — owner does not pick)*
 
-### E1. Pick 8–10 products in FastMoss app
+### E1. Agent runs FastMoss research
 
-**Until API scout ships:** owner picks in FastMoss UI using course filters (ads, trend up, brand match).
-
-Optional when API wired:
+**Owner does not pick products** (`GROUP_CALLS.md` 2026-06-29). CEO delegates **`product-researcher`** or runs scout when API + subscription active. Apply **pre-breakout lens** (rising GMV before saturation).
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 15
 python3 -m shorts_bot.tiktok_shop.scout_cli list
+python3 -m shorts_bot.tiktok_shop.scout_cli report
 ```
 
-- [ ] **8–10 products approved** for launch batch (write names):  
-  1. _______________  
-  2. _______________  
-  3. _______________  
-  4. _______________  
-  5. _______________  
-  6. _______________  
-  7. _______________  
-  8. _______________  
-  9. _______________ (optional)  
-  10. _______________ (optional)  
+- [ ] **8–10 products locked** in `data/tiktok_shop/products.json` (agent-run scout / product-researcher)
 
-**Section E done when:** 8–10 approved products locked — no launch without this.
+**Section E done when:** 8–10 products in `products.json` with pre-breakout lens — no launch without this.
 
 ---
 

@@ -103,7 +103,7 @@ Each employee starts with a **fresh context**. They do **not** see this conversa
 
 ### Orchestration rules (CEO = you)
 
-0. **Product research** — delegate to `product-researcher` (background) when owner needs picks or `products.json` refresh; owner picks in FastMoss app until API scout ships.
+0. **Product research** — **CEO owns end-to-end** — delegate `product-researcher` (background); agent maintains `products.json`. **Owner does not pick products** (`GROUP_CALLS.md` 2026-06-29).
 0b. **Information / course questions** — delegate to `knowledge-gatherer` (background) when owner needs briefings from `data/research/course/` or launch docs without running APIs.
 1. **Never freestyle Module 5 video prompts** — delegate to `product-video-prompt-builder` (Module 1 compliant — must not instruct ban triggers).
 2. **Never skip Module 1 QC** — delegate to `module1-qc-runner` (background while other work continues).
@@ -140,7 +140,7 @@ python3 -m shorts_bot.phone_hub.cli status # bubble phones: slots, ADB, hub job 
 
 Owner setup: `docs/FOR_OWNER_BASICS.md` · **New agent bootstrap:** `docs/CLOUD_AGENT_START.md` · Secrets: `docs/CURSOR_SECRETS.md`
 
-**Hub laptop (auto):** when `HUB_SSH_*` secrets are set, `install.sh` connects Tailscale; mid-task use `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <cmd>`.
+**Hub laptop (auto):** when `HUB_SSH_*` secrets are set, `install.sh` connects Tailscale; mid-task use `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <cmd>`. Phone hub: `shorts_bot/phone_hub/` + `docs/FOR_OWNER_PHONE_HUB.md`.
 
 ---
 

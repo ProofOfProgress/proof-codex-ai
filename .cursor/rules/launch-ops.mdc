@@ -27,7 +27,7 @@ alwaysApply: false
 | B | Wire `affiliate_main` in Zernio + accounts.json — **defer until owner says closer to launch** |
 | C | Agent: status + scout ping green |
 | D | Owner: course skim |
-| E | FastMoss picks + owner approves 8–10 products |
+| E | Agent: FastMoss scout → **8–10 in products.json** (pre-breakout lens) |
 | F | One dry-run clip, owner watches |
 | G | Queue 8–10 |
 | H | Launch Date + timezone + midnight plan |

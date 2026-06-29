@@ -125,5 +125,17 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 - Module 3 priority = **early breakout**, not only current chart toppers.
 - In FastMoss: favor **rising** GMV/creator velocity, new releases, ad spend starting, trend **up** before mainstream saturation.
-- Scout presets and owner picks should weight **pre-breakout signals** over “safe” established winners alone.
+- Scout presets and agent research should weight **pre-breakout signals** over “safe” established winners alone.
+
+---
+
+## 2026-06-29 — Full agent ownership (owner)
+
+**Product research is entirely the agent’s job** — not a one-step owner task. Owner does **not** pick products in FastMoss or paste names for launch.
+
+**Business handoff:** Affiliate ops → **100% agent-run soon**. Owner stays for **improvements**, decisions, and account/billing access when required — not daily research or clip ops.
+
+**Agent owns:** Module 3 research (FastMoss scout / product-researcher), `products.json`, pre-breakout lens, clip pipeline, QC, queue — end to end.
+
+**Owner does not own:** Product picks · “send me 2–3 product names” · FastMoss UI browsing for launch list.
 - See `PRODUCT_RESEARCH.md` → Pre-breakout lens.

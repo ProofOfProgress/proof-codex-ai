@@ -18,10 +18,10 @@
 
 | Mode | When |
 |------|------|
-| **FastMoss API scout** | When `FASTMOSS_CLIENT_ID` + secret configured + scout migration shipped |
-| **FastMoss UI → owner picks** | **Launch fallback** — you pick 8–10 in FastMoss app; tell agent product names |
+| **FastMoss API scout** | **Primary** — CEO → `product-researcher` + `scout_cli` when API secrets + subscription active |
+| **Agent-led research** | **Always** — owner does not pick launch products; agent maintains `products.json` |
 
-Saved picks: `data/tiktok_shop/products.json`
+Saved picks: `data/tiktok_shop/products.json` — **agent writes**, owner may suggest improvements only.
 
 Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md` · Engineering: `docs/FASTMOSS_SCOUT_PLAN.md`
 
@@ -71,9 +71,9 @@ Old bot presets `middle_core` / `two_hundred` mapped to EchoTik. **FastMoss scou
 
 ## Pipeline hook (CEO)
 
-1. **Research** → owner in **FastMoss** (or future `product-researcher` + FastMoss API)  
-2. Owner approves **8–10** for launch  
+1. **Research** → CEO delegates **`product-researcher`** (background) — pre-breakout lens, FastMoss scout when wired  
+2. Agent locks **8–10** in `products.json` — no owner pick step  
 3. **Prompt** → `product-video-prompt-builder`  
-4. Kling → edit → QC → post  
+4. Kling → edit → QC → post (local queue until Zernio hookup)  
 
 Group calls / owner notes beat stale filters — see `GROUP_CALLS.md`.
