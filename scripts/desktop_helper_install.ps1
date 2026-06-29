@@ -32,6 +32,6 @@ $launchArgs = @($pyInfo.LauncherArgs + @("-m", "pip", "install", "-r", $req))
 & $launcher @launchArgs
 
 Write-Host ""
-Write-Host "OK — desktop helper deps installed."
+Write-Host "OK - desktop helper deps installed."
 Write-Host "Next: copy data\desktop_hub\helper.env.example to helper.env and paste your token."
-Write-Host "Then double-click: scripts\START_DESKTOP_HELPER.bat"
+Write-Host 'Then double-click: scripts\START_DESKTOP_HELPER.bat'

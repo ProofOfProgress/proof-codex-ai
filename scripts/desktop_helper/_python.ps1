@@ -59,7 +59,7 @@ function Test-HelperEnv {
         Write-Host ""
         Write-Host "MISSING: data\desktop_hub\helper.env"
         Write-Host "1. Copy helper.env.example to helper.env in the same folder"
-        Write-Host "2. Paste DESKTOP_HELPER_TOKEN (same as Cursor Secrets) — no spaces"
+        Write-Host "2. Paste DESKTOP_HELPER_TOKEN (same as Cursor Secrets) - no spaces"
         if (Test-Path $example) {
             Write-Host "   Example file: $example"
         }
