@@ -78,7 +78,11 @@ Bubble wrap (4 phones, laptop hub) is **parallel** — it does **not** appear in
 
 ---
 
-## Section B — Wire affiliate account *(owner + agent)*
+## Section B — Wire affiliate account *(owner + agent — **defer until closer to launch**)*
+
+**Owner rule (2026-06-29):** Do **not** connect purchased account to Zernio during warmup. Wire **only when owner says launch is close** (typically after Section G queue is ready).
+
+**Phone rule:** Purchased account **phone number never** goes to bot, secrets, or automation. Zernio login = **email + password only** when you connect.
 
 ### B1. Connect purchased account in Zernio dashboard
 - [ ] Owner: Zernio → **Connect TikTok** → log in as **purchased account**  

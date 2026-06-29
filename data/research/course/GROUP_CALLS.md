@@ -104,5 +104,9 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 - **FastMoss:** payment blocked — owner contacted support; scout/API blocked until resolved.
 - **Kling:** billing works.
 - **Launch Date:** TBD · **Timezone:** PST (midnight first post = 12:00 AM PST on Launch Date).
-- **Zernio:** purchased account **not yet connected** — only 4 bubble accounts in dashboard today; wire to `affiliate_main` before launch posts.
 - **Bubble + affiliate:** both tracks active — affiliate does not wait for phones.
+
+### Owner overrides (hard rules)
+
+- **Zernio — defer:** Do **not** connect purchased affiliate account to Zernio until **closer to launch** (owner will say when). Until then: prep clips, QC, queue locally — no `affiliate_main` in Zernio dashboard.
+- **Phone number — never on bot account:** The purchased affiliate account’s **phone number must never** be tied to the bot, Cursor secrets, Zernio hookup, or automation. Login path for posting = **email only** when Zernio is wired later. Do not ask owner to add phone to secrets or link phone to `affiliate_main`.
