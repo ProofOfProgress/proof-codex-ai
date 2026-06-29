@@ -135,6 +135,7 @@ python3 -m shorts_bot.tiktok_shop.factory_cli qc --video PATH --product NAME --c
 python3 -m pytest tests/ -q
 python3 -m shorts_bot.web   # http://127.0.0.1:8080/api/status · /agent-ops mission dashboard
 python3 -m shorts_bot.agent_ops missions   # list CEO ↔ employee mission logs
+python3 -m shorts_bot.phone_hub.cli status # bubble phones: slots, ADB, hub job queue
 ```
 
 Owner setup: `docs/FOR_OWNER_BASICS.md` · **New agent bootstrap:** `docs/CLOUD_AGENT_START.md` · Secrets: `docs/CURSOR_SECRETS.md`
