@@ -83,7 +83,12 @@ Optional:
 
 ## Part 3 — Tell the agent to connect
 
-Start a **new cloud agent run**, then say:
+Start a **new cloud agent run**. Hub access is **automatic** when secrets are set:
+
+- `bash scripts/install.sh` joins Tailscale on bootstrap
+- Any hub task: agent runs `python3 -m shorts_bot.hub_remote ensure --quiet` or `bash scripts/hub_run.sh <command>`
+
+Manual verify anytime:
 
 > “Connect to the hub — run `bash scripts/hub_remote_verify.sh`”
 
@@ -101,16 +106,21 @@ If green, the agent can run install/status/adb on the HP for you.
 
 | Yes | No |
 |-----|-----|
-| `bash scripts/install.sh` | Click TikTok on phone screens |
-| `python3 -m shorts_bot.tiktok_shop status` | Move Windows mouse |
+| `bash scripts/install.sh` | Click TikTok on phone screens *(use ADB lane)* |
+| `python3 -m shorts_bot.tiktok_shop status` | Move Windows mouse *(use desktop helper)* |
 | `adb devices` (when phones plugged in) | Enter your Windows PIN |
-| Clone/pull repo, edit `.env` | See your desktop unless you screenshare separately |
+| `python3 -m shorts_bot.desktop_hub.cli type "..."` | See desktop without screenshot |
+| Clone/pull repo, edit `.env` | |
 
 ---
 
 ## Keep the hub reachable
 
-After **rebooting Windows**, open Ubuntu once and run:
+After **rebooting Windows**, log in (PIN), then double-click **START HUB (Proof Codex)** on the Desktop.
+
+One-time install: `scripts/INSTALL_HUB_START_BUTTON.bat` — see **`docs/FOR_OWNER_HUB_START_BUTTON.md`**
+
+Manual (same steps inside Ubuntu):
 
 ```bash
 sudo service ssh start

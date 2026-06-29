@@ -41,7 +41,7 @@
 
 | # | Priority | Done when |
 |---|----------|-----------|
-| **1** | **Product research** | FastMoss picks pass Module 3 checks (ads, trend, brand); saved in `products.json` |
+| **1** | **Product research** | Picks pass Module 3 **+ pre-breakout lens** (rising GMV before saturation — `GROUP_CALLS.md` 2026-06-29); saved in `products.json` |
 | **2** | **End-to-end clip** | One product → image → Kling → pan loop + caption → Module 1 QC pass → ready to post |
 | **3** | **APIs live** | FastMoss (app or API) + Kling + TikTok OAuth configured (`python3 -m shorts_bot.tiktok_shop status` all green) |
 | **4** | **Daily affiliate ops** | **8–10 GOOD posts/day from launch** — scout → clip → QC pass → post; violation watch per Module 1 + 7 |

@@ -1,0 +1,14 @@
+Proof Codex Hub — quick notes (on your Desktop)
+
+AFTER EVERY REBOOT:
+  1. Log into Windows (PIN)
+  2. Double-click START HUB (Proof Codex).bat
+  3. Wait for HUB READY (green)
+
+ONE TIME ONLY (stops password prompts):
+  Double-click FIX HUB ONCE (Proof Codex).bat
+  Enter Ubuntu password once when asked.
+
+AUTO-START: Windows runs hub start 45 sec after login (Task: ProofCodexHubAutoStart).
+
+Agent log: proof-codex-ai\data\desktop_hub\hub_start.log

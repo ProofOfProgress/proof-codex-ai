@@ -223,11 +223,14 @@ def review_video(
 
     prompt += (
         "\nEvaluate COMMERCIAL readiness and MOTION quality for a 5–10s Shop affiliate clip.\n"
-        "Focus on: visible arc/multi-axis camera (NOT static tripod), product stationary, "
-        "product matches reference, readable branding, rich staged background with parallax "
+        "Focus on: visible arc/multi-axis camera with clear SIDE-TO-SIDE lateral travel (NOT static tripod), "
+        "product stationary, background parallax or decor shifting relative to product (still-frame ban risk), "
+        "product matches reference, readable branding, rich staged background with depth "
         "(NOT plain white box, gray letterbox bars, or frozen still photograph), "
         "believable lighting, no obvious AI glitches, no phone/laptop screens with UI, "
-        "no third-party brand logos besides advertised product.\n\n"
+        "no third-party brand logos besides advertised product.\n"
+        "Official coach 2026-06-29: TikTok flags still-frame even when some motion exists — "
+        "require ~25% more noticeable lateral movement + micro-shake or moving background cues.\n\n"
         "Return ONLY JSON:\n"
         '{"score": number 1-10, "good_enough": bool, "commercial_ready": bool, '
         '"summary": string, "issues": string[], "prompt_fixes": string[], '
@@ -294,7 +297,8 @@ def suggest_prompt_revision(
         f"{critique.summary}\n\n"
         "Required fixes:\n"
         f"{fix_block}\n\n"
-        "Rules: Module 1 compliant — arc/multi-axis camera, product stationary, no humans/pets, "
+        "Rules: Module 1 compliant — arc/multi-axis camera with clear lateral side-to-side travel, "
+        "gentle handheld micro-shake, background parallax, product stationary, no humans/pets, "
         "no screens, no water/fire, no static camera, preserve product from uploaded image.\n"
         "Output ONLY the revised prompt paragraph — no headings or explanation."
     )

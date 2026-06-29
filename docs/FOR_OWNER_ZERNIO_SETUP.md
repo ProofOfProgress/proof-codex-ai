@@ -114,7 +114,7 @@ You don’t trust manual uploads on one phone — fair. Plan:
 | Bubble account 2 | **Phone B** | Same — never switch accounts on one device |
 | … | … | 4 bubble phones + 1 affiliate phone (optional) |
 
-**Affiliate account** is different: bot posts **finished MP4** via Zernio (Module 6 clip) — **no Mackenzie sound step**. Full automation is realistic there.
+**Affiliate account** (`phone_5`): bot sends **MP4 inbox draft** via Zernio → on affiliate phone: **Add Link → Products** → publish. Full live post without cart is not commission-ready.
 
 **Bubble wrap** will always need a **short human finish on the account’s phone** until TikTok allows sound via API (they don’t today).
 

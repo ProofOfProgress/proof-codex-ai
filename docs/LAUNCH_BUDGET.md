@@ -45,21 +45,23 @@ Buy/pay these **before** the first affiliate post:
 
 **Same-day stack (~$694–704 upfront + your Zernio plan):** account + FastMoss month 1 + first day Kling/images.
 
-**Not required for affiliate day 1:** 4 phones · USB hub · SIMs · laptop hub · phone worker.
+**Not required for affiliate day 1:** bubble phones 1–4 · full phone worker automation.
+
+**Required for affiliate cart at launch:** **`phone_5`** (affiliate) — Zernio inbox draft + product link on device.
 
 ---
 
-## Phase 1 — hardware (bubble track — can lag affiliate)
+## Phase 1 — hardware (hub phones)
 
 | Item | Qty | **Budget pick** |
 |------|-----|-----------------|
-| Used Android phones | **4** | **$200** ($50 each) |
+| Used Android phones | **5** | **$250** ($50 each) |
 | Powered USB hub + cables | 1 | **$30** |
-| 4 prepaid SIMs (1st month) | 4 | **$50** |
+| 5 prepaid SIMs (1st month) | 5 | **~$60** |
 | Hub PC (old HP laptop) | 1 | **$0** |
-| **Hardware total** | | **$280** |
+| **Hardware total** | | **~$340** |
 
-Skip 5th phone — affiliate posts via Zernio from cloud.
+**5 phones:** 4 bubble (Mackenzie finish) + **1 affiliate** (`phone_5` — orange shopping cart / product link). Zernio can't attach Shop products via API.
 
 ---
 
@@ -73,7 +75,7 @@ Skip 5th phone — affiliate posts via Zernio from cloud.
 | Zernio + misc SaaS | ~$100–200 | Confirm your Zernio tier |
 | Kling (8–10 **good** /day) | ~$65–85 | ~240–300 published + ~20% QC regens |
 | Images | ~$30–50 | Module 4 stills |
-| 4 SIM lines | ~$50 | Bubble only — $0 until phones live |
+| 5 SIM lines | ~$60 | Bubble ×4 + affiliate `phone_5` |
 | **Full affiliate month** | **~$384–444** | **~$420/mo** plan number |
 
 FastMoss covers Kalodata-equivalent checks (ads, trend, filters) in one subscription — **no EchoTik, no separate Kalodata paywall**.
@@ -89,7 +91,7 @@ FastMoss covers Kalodata-equivalent checks (ads, trend, filters) in one subscrip
 | Working cash | $2,253 |
 | Affiliate account | −$630 |
 | Month 1 full stack (no SIMs yet) | −$384 |
-| Bubble hardware (phones + hub + SIMs) | −$280 |
+| Bubble hardware (phones + hub + SIMs) | −$340 |
 | Month 2 full stack (+ SIMs) | −$444 |
 | **Buffer after 2 months** | **~$525** |
 
@@ -139,7 +141,7 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 6. **Bubble hardware (~$280)** — buy when ready; affiliate already running.  
 7. **Wipe HP laptop** — when phones arrive.  
 
-**Do not buy:** 5th phone · new mini PC · EchoTik · Kalodata subscription (FastMoss replaces both).
+**Do not buy:** new mini PC · EchoTik · Kalodata subscription (FastMoss replaces both).
 
 ---
 
@@ -163,6 +165,6 @@ High-end phones ($280) + hub ($40) + full stack day 1 + heavy Kling regens → b
 | Posts on launch day? | **8–10 GOOD** (QC pass), not 1 test clip |
 | Need phones first? | **No** — affiliate is cloud + Zernio |
 | 2 months runway? | **Yes** (~$455–525 buffer on plan A/B) |
-| 5th phone? | **No** |
+| 5th phone + SIM | **Yes — affiliate cart** (`phone_5`) |
 
 Update when Zernio bill, FastMoss tier, or cash changes.

@@ -9,6 +9,13 @@ from shorts_bot.tiktok_shop.accounts import ShopAccount
 from shorts_bot.zernio.upload import upload_photo_carousel
 
 
+def bubble_carousel_defaults(account: ShopAccount) -> dict[str, bool]:
+    """Bubble phones finish Mackenzie on device — Zernio sends inbox draft only."""
+    if account.track.startswith("bubble"):
+        return {"draft": True, "publish_now": False, "auto_add_music": False}
+    return {"draft": False, "publish_now": True, "auto_add_music": False}
+
+
 def post_bubble_wrap_carousel(
     account: ShopAccount,
     *,
@@ -27,6 +34,10 @@ def post_bubble_wrap_carousel(
         return False, f"Account {account.id} needs zernio_account_id in accounts.json", ""
 
     privacy = privacy_level or settings.zernio_tiktok_privacy or "PUBLIC_TO_EVERYONE"
+    if account.track.startswith("bubble"):
+        draft = True
+        publish_now = False
+        auto_add_music = False
     try:
         result = upload_photo_carousel(
             [slide1, slide2],

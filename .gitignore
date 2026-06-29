@@ -33,6 +33,14 @@ data/tiktok_shop/samples/*.jpg
 data/tiktok_shop/visual_feedback/frames_*/
 data/agent_ops/missions/*.jsonl
 data/facebook_api.json
+data/desktop_hub/helper.env
+data/desktop_hub/schedule.json
+data/desktop_hub/keyfreeze.state.json
+data/desktop_hub/daemon.log
+data/daily_prelaunch/today_plan.json
+data/daily_prelaunch/today_prompt.txt
+data/daily_prelaunch/*_plan.json
+data/daily_prelaunch/config.json
 
 # Course video downloads (transcripts live in module_*.md)
 data/research/course/_media/

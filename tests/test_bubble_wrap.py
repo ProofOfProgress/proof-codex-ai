@@ -15,6 +15,7 @@ from shorts_bot.tiktok_shop.bubble_wrap import (
     burn_slide1_text,
     burn_slide2_text,
     default_hook,
+    slide2_cta_lines,
     wrap_bubble_lines,
 )
 
@@ -61,6 +62,27 @@ def test_burn_slide2_has_four_lines_and_emojis():
             if (r, g, b) != (100, 100, 100) and (r, g, b) != (255, 255, 255) and (r, g, b) != (0, 0, 0):
                 colorful += 1
     assert colorful > 50
+
+
+def test_slide2_cta_lines_cycle_by_account():
+    a = slide2_cta_lines(account="bubble_1", subject="frog")
+    b = slide2_cta_lines(account="bubble_2", subject="frog")
+    c = slide2_cta_lines(account="bubble_1", subject="frog")
+    assert len(a) == 4
+    assert a == c
+    assert a != b or a[0] != b[0] or a[2] != b[2]
+
+
+def test_slide2_emoji_pools_fit_line_limit():
+    samples = [
+        slide2_cta_lines(account=f"acct_{i}", subject=f"subj_{i}")
+        for i in range(20)
+    ]
+    for lines in samples:
+        assert len(lines) == 4
+        for line in lines:
+            wrapped = wrap_bubble_lines(line, slide=2)
+            assert all(len(w) <= 20 for w in wrapped)
 
 
 def test_generate_bubble_wrap_slides_mock(tmp_path, monkeypatch):

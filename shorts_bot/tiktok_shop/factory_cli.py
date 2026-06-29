@@ -152,6 +152,16 @@ def main() -> None:
         help="TikTok privacy (default: SELF_ONLY for affiliate_test, else env/config)",
     )
     carousel.add_argument("--confirm", action="store_true", help="Actually upload")
+    carousel.add_argument(
+        "--draft",
+        action="store_true",
+        help="Send to TikTok inbox as draft (default for bubble_* accounts)",
+    )
+    carousel.add_argument(
+        "--enqueue-hub",
+        action="store_true",
+        help="After upload, queue hub job for phone finish (Mackenzie + publish)",
+    )
 
     bubble = sub.add_parser("bubble-slides", help="Module 2 — 2 bubble-wrap carousel slides (+ preview MP4)")
     bubble.add_argument("--subject", default="frog", help="Wrapped subject (frog, duck, cake, etc.)")
@@ -164,6 +174,19 @@ def main() -> None:
         action="store_true",
         help="Re-burn text on slide*_raw.jpg only (no Gemini regen)",
     )
+
+    batch_bubble = sub.add_parser(
+        "bubble-batch",
+        help="Generate N bubble slide sets — stored locally, never posted",
+    )
+    batch_bubble.add_argument("--count", type=int, default=10, help="How many subjects (default 10)")
+    batch_bubble.add_argument(
+        "--subjects",
+        default="",
+        help="Comma-separated subjects (default: built-in list of 10)",
+    )
+    batch_bubble.add_argument("--force", action="store_true", help="Regenerate even if slides exist")
+    batch_bubble.add_argument("--no-preview", action="store_true", help="Skip preview MP4 per clip")
 
     args = parser.parse_args()
 
@@ -572,15 +595,33 @@ def main() -> None:
         if not args.confirm:
             console.print("[yellow]Dry run — add --confirm to upload 2 PNGs to Zernio[/yellow]")
             return
+        use_draft = args.draft or account.track.startswith("bubble")
         ok, msg, post_id = post_bubble_wrap_carousel(
             account,
             slide1=args.slide1,
             slide2=args.slide2,
             title=args.title,
             privacy_level=privacy or None,
+            draft=use_draft,
+            publish_now=not use_draft,
         )
         if ok:
             console.print(f"[green]{msg}[/green] post_id={post_id}")
+            if args.enqueue_hub or account.track.startswith("bubble"):
+                from shorts_bot.phone_hub.jobs import enqueue_job
+
+                if not account.phone_hub_slot:
+                    console.print("[yellow]No phone_hub_slot — hub job not enqueued[/yellow]")
+                else:
+                    job = enqueue_job(
+                        account_id=account.id,
+                        phone_hub_slot=account.phone_hub_slot,
+                        zernio_post_id=post_id,
+                        slide1=args.slide1,
+                        slide2=args.slide2,
+                        detail="inbox draft → Mackenzie on phone",
+                    )
+                    console.print(f"[cyan]Hub job queued:[/cyan] {job.id} → {account.phone_hub_slot}")
         else:
             console.print(f"[red]{msg}[/red]")
             raise SystemExit(1)
@@ -614,6 +655,43 @@ def main() -> None:
             console.print(f"[green]Preview MP4:[/green] {result.preview_mp4}")
             console.print("[yellow]Preview only — post as 2-photo carousel on TikTok, not this MP4[/yellow]")
         console.print(f"[dim]Model: {result.model} · Hook: {result.hook_text}[/dim]")
+        return
+
+    if args.cmd == "bubble-batch":
+        from shorts_bot.tiktok_shop.bubble_batch import run_bubble_batch
+
+        subjects = [s.strip() for s in args.subjects.split(",") if s.strip()] or None
+        console.print(
+            Panel(
+                f"Store-only batch — {args.count} bubble clip(s)\n"
+                "No TikTok · No Zernio · Files in data/bubble_wrap/slides/",
+                title="bubble-batch",
+                border_style="cyan",
+            )
+        )
+        batch = run_bubble_batch(
+            count=args.count,
+            subjects=subjects,
+            force=args.force,
+            preview=not args.no_preview,
+        )
+        table = Table(title="Batch results")
+        table.add_column("#")
+        table.add_column("Subject")
+        table.add_column("Status")
+        table.add_column("Slides folder")
+        for i, item in enumerate(batch.items, start=1):
+            status = "[green]OK[/green]" if item.ok else f"[red]{item.error}[/red]"
+            folder = str(Path(item.slide1).parent) if item.slide1 else "—"
+            table.add_row(str(i), item.subject, status, folder)
+        console.print(table)
+        console.print(f"[green]Manifest:[/green] {batch.manifest_path}")
+        console.print(
+            f"[dim]{batch.succeeded}/{batch.total} OK · "
+            f"Gemini images only — safe to review before any post[/dim]"
+        )
+        if batch.failed:
+            raise SystemExit(1)
         return
 
 

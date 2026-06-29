@@ -1,33 +1,32 @@
 ---
 name: product-research
-description: Module 3 FastMoss product picks and ranked affiliate shortlist. Use when the owner wants fresh products or products.json refresh.
+description: Module 3 FastMoss product picks and ranked affiliate shortlist. CEO delegates — agent owns research and products.json.
 ---
 
 # /product-research
 
 Invoke the **Product Researcher** — Module 3 **FastMoss** research (replaces EchoTik).
 
-**Launch path A:** owner picks in FastMoss app → paste names to agent.  
-**Launch path B:** API scout when `FASTMOSS_*` secrets configured.
+**Agent-owned:** CEO runs scout / delegates background research. **Owner does not pick products.**
 
 ## Examples
 
 ```
 /product-research
-I picked 8 products in FastMoss — here are the names: ...
+Refresh products.json — pre-breakout lens, middle_core preset, top 10 for launch batch
 
 /product-research
-Run middle core scout when API is wired — top picks for this week
+Scout status check — what's blocking FastMoss API?
 ```
 
 ## What you get
 
-- Products saved or confirmed in `data/tiktok_shop/products.json`
-- Plain-English top picks with commission, GMV, creators (when data available)
-- Reminder to eyeball top 3 in FastMoss before batch clip day
+- Products saved in `data/tiktok_shop/products.json`
+- Plain-English top picks with commission, GMV, pre-breakout fit
+- Blocker report if FastMoss subscription/API not ready (no handoff to owner to pick)
 
 ## CEO orchestration
 
-Or just ask in chat: *"Help me lock 8–10 FastMoss products while you prep clips"* — CEO delegates in **background**.
+CEO delegates in **background** while continuing clip prep.
 
 Full doc: `data/research/course/PRODUCT_RESEARCH.md` · Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md`

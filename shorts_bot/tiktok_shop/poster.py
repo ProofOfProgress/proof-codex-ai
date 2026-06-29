@@ -70,15 +70,53 @@ def post_clip(
             return False, str(exc), ""
 
     # Default: Zernio with per-account id
-    from shorts_bot.zernio.upload import upload_video as zernio_upload
+    from shorts_bot.tiktok_shop.affiliate_post import needs_phone_product_finish, post_affiliate_video
+
+    if account.track.startswith("affiliate"):
+        ok, msg, post_id = post_affiliate_video(
+            account,
+            video_path=video_path,
+            caption=caption,
+            product_name=product,
+        )
+        if not ok:
+            log_post(
+                account_id=account.id,
+                video_path=str(video_path),
+                caption=caption,
+                product=product,
+                ok=False,
+                error=msg[:300],
+            )
+            return False, msg, ""
+        if needs_phone_product_finish(account) and account.phone_hub_slot:
+            from shorts_bot.phone_hub.jobs import enqueue_job
+
+            enqueue_job(
+                account_id=account.id,
+                phone_hub_slot=account.phone_hub_slot,
+                zernio_post_id=post_id,
+                job_type="affiliate",
+                video_path=str(video_path),
+                product_name=product,
+                detail="inbox draft → product link on phone",
+            )
+        log_post(
+            account_id=account.id,
+            video_path=str(video_path),
+            caption=caption,
+            product=product,
+            ok=True,
+            publish_id=post_id,
+        )
+        return True, msg, post_id
+
+    from shorts_bot.zernio.client import _request, presign_video, upload_file_to_presigned
 
     zid = (account.zernio_account_id or "").strip()
     if not zid:
         return False, f"Account {account.id} needs zernio_account_id in accounts.json", ""
     try:
-        # Temporarily override env account — use direct API call
-        from shorts_bot.zernio.client import _request, presign_video, upload_file_to_presigned
-
         upload_url, public_url = presign_video(video_path)
         upload_file_to_presigned(upload_url, video_path)
         payload = {

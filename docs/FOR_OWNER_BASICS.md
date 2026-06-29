@@ -25,6 +25,8 @@ Kling: `docs/FOR_OWNER_KLING_SETUP.md`
 Printify: `docs/FOR_OWNER_PRINTIFY_API.md`  
 TikTok posting (easy): `docs/FOR_OWNER_ZERNIO_SETUP.md`  
 Hub laptop (WSL + remote SSH): `docs/FOR_OWNER_REMOTE_HUB_SSH.md` · install: `docs/FOR_OWNER_MINI_PC_INSTALL.md`  
+Desktop helper (keyboard/mouse): `docs/FOR_OWNER_DESKTOP_HELPER.md`  
+Daily pre-launch CEO mission: `docs/FOR_OWNER_DAILY_PRELAUNCH.md`  
 TikTok direct API (hard mode): `docs/FOR_OWNER_TIKTOK_SETUP.md`
 
 ## Make a clip (no strategy — just the button)
