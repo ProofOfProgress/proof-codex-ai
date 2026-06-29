@@ -159,3 +159,20 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 **Scale vision (owner):** “30 automated accounts × 10/day” — aspirational **later**. **Current plan:** 1 affiliate revenue account + 4 bubble growth accounts. Do not scope-creep bot to 30 accounts without owner explicit go + budget + ban-risk review.
 
 **Agent implication:** Speed to launch + pre-breakout picks + GOOD post volume matter — winners in that Discord are the comp, not a guarantee.
+
+---
+
+## 2026-06-29 — Course creator convo (owner relay)
+
+**Context:** Owner talking to **Momentum Academy course creator**. Creator shipped free bubble-wrap video automation ( ~10 full video gens/day on course site). Creator’s “hush hush” = full stack: research → image → video → edit → post — same north star as this repo.
+
+**Creator offer:** “Build it and let me see. If you cook, I’ll pay you.”
+
+**Owner decisions (hard for agents):**
+
+- **Demo rule:** If/when owner demos to creator — show **finished video output only** (generation result). **Zero** behind-the-scenes: no repo, no agents, no Zernio, no pipeline docs, no architecture, no “peek through keyhole.”
+- **IP / distribution:** Owner **keeping full automation private for now** — not selling/licensing to creator or course yet. Concern: mass distribution → market flood (many users × many accounts × automation).
+- **Competition note:** Creator’s free tool does **not** upload to TikTok — owner assesses this repo ahead on posting + full affiliate lane.
+- **TOS priority:** Owner betting **one purchased affiliate account** — Module 1 QC + deep TOS compliance is **existential**, not nice-to-have. “Good” beats “functional” (creator agreed). Agent must not shortcut QC or violate Module 1/7 for speed.
+
+**Not doing:** YouTube AI content / “sell out” lane — owner locked on TikTok Shop until exit.
