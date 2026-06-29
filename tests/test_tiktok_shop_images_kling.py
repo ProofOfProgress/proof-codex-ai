@@ -213,6 +213,22 @@ def test_wrap_on_screen_caption():
         assert len(line) <= 20
 
 
+def test_build_centered_caption_filter_one_drawtext_per_line():
+    from pathlib import Path
+
+    from shorts_bot.tiktok_shop.video_editor import DEFAULT_FONT, build_centered_caption_filter
+
+    vf = build_centered_caption_filter(
+        ["short line", "a longer line here"],
+        font_path=DEFAULT_FONT,
+        font_size=42,
+    )
+    assert vf.count("drawtext=") == 2
+    assert vf.count("x=(w-text_w)/2") == 2
+    assert "text='short line'" in vf
+    assert "text='a longer line here'" in vf
+
+
 def test_burn_on_screen_caption(tmp_path):
     import shutil
 
