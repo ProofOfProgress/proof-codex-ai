@@ -11,6 +11,7 @@ echo === Install hub start button on Desktop ===
 echo.
 
 copy /Y "%~dp0HUB_GREEN_START.bat" "%DESKTOP%\%NAME%" >nul
+copy /Y "%~dp0hub_win_repo_path.bat" "%DESKTOP%\hub_win_repo_path.bat" >nul
 if errorlevel 1 (
   echo Copy failed. Try running as normal user from File Explorer.
   pause

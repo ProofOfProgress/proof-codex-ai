@@ -14,8 +14,12 @@ echo "This will:"
 echo "  1. git pull (latest fixes)"
 echo "  2. Allow START HUB without password every reboot (sudo setup)"
 echo "  3. Start SSH + Tailscale + desktop helper"
-echo ""
-read -r -p "Press Enter to continue..."
+if [[ "${HUB_FIX_AUTO:-}" == "1" ]]; then
+  echo "(auto mode — skipping Enter prompt)"
+else
+  echo ""
+  read -r -p "Press Enter to continue..."
+fi
 
 if git pull origin main 2>/dev/null || git pull 2>/dev/null; then
   echo "[OK] git pull"
@@ -43,4 +47,6 @@ fi
 
 bash "$ROOT/scripts/hub_one_click_start.sh"
 echo ""
-read -r -p "Done. Press Enter to close this window..."
+if [[ "${HUB_FIX_AUTO:-}" != "1" ]]; then
+  read -r -p "Done. Press Enter to close this window..."
+fi
