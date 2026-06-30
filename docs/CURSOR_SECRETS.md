@@ -137,6 +137,11 @@ KeyFreeze setup: `docs/FOR_OWNER_KEYFREEZE.md`
 | `SLACK_APP_TOKEN` | Runtime Secret | Socket Mode `xapp-...` | `xapp-...` | Autonomy bus — `docs/SLACK_AUTONOMY.md` |
 | `SLACK_AUTONOMY_ENABLED` | Environment Variable | `true` / `false` | `true` | `[autonomy]` self-talk bus |
 | `SLACK_CHANNEL_NAME` | Environment Variable | Channel name (no #) | `peripheral-ops` | Optional label for status/briefing |
+| `DISCORD_BOT_TOKEN` | Runtime Secret | Bot token (string) | `________________________________` | **Read-only** — see `docs/FOR_OWNER_DISCORD_COURSE_INTEL.md` |
+| `DISCORD_GUILD_ID` | Environment Variable | Server ID (string) | `123456789012345678` | Momentum / TikTok Dojo server |
+| `DISCORD_CHANNEL_IDS` | Environment Variable | Comma-separated channel IDs | `111...,222...` | Allowlist — agent never sends |
+| `COURSE_SITE_URL` | Environment Variable | HTTPS URL (string) | `https://...` | Dashboard — browse after hub login |
+| `COURSE_BUBBLE_TOOL_URL` | Environment Variable | HTTPS URL (string) | `https://...` | Free ~10/day generator page |
 
 **Slack:** Option A email = `SLACK_CHANNEL_EMAIL` + `GMAIL_SMTP_*` (`docs/FOR_OWNER_SLACK_EMAIL.md`). Bot = `SLACK_BOT_TOKEN` + `SLACK_CHANNEL_ID` (`docs/FOR_OWNER_SLACK_BOT.md`). Autonomy bus adds `SLACK_APP_TOKEN` (`docs/SLACK_AUTONOMY.md`). `@cursor` = separate OAuth (`docs/FOR_OWNER_SLACK.md`).
 

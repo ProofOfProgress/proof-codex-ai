@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     gmail_smtp_user: str | None = None  # sender Gmail for Slack email + alerts
     gmail_smtp_app_password: str | None = None  # Google App Password (not login password)
     slack_post_mode: str = "auto"  # auto | email | bot — auto tries bot, webhook, then email
+
+    # Discord — read-only ingest (never send messages)
+    discord_bot_token: str | None = None
+    discord_guild_id: str | None = None
+    discord_channel_ids: str | None = None  # comma-separated channel ID allowlist
+    course_site_url: str | None = None  # owner sets — Momentum / inner circle dashboard
+    course_bubble_tool_url: str | None = None  # free ~10/day generator page
     google_client_id: str | None = None
     google_client_secret: str | None = None
     youtube_token_path: Path = Path("data/youtube_token.json")
