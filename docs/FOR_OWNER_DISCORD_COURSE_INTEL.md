@@ -1,116 +1,144 @@
 # Discord + course site intel — read-only setup
 
-**Goal:** Agent reads Discord + course announcements **without ever sending a message** or burning paid credits.
+**Your preferred path:** Hub laptop stays logged into **Discord (browser tab)** + **course site**. Agent reads text — **never sends messages**.
+
+Discord **desktop app** = for you. **discord.com in Chrome/Edge on hub** = for the agent (same account, fine per your read).
 
 ---
 
-## What exists today
+## Lock-in plan (3 tracks)
 
-| Capability | Status |
-|------------|--------|
-| **Discord read sync** | `python3 -m shorts_bot.integrations.discord_cli sync` |
-| **Bubble wrap generation (our stack)** | `factory_cli bubble-batch` — uses Gemini, **not** Kling |
-| **Course site free tool (~10/day)** | **Not wired yet** — needs URL + one-time login on hub |
-| **Browser on hub** | Playwright — owner logs in once, agent reads after |
+| Track | Primary tool | Free credits? |
+|-------|--------------|---------------|
+| **Bubble wrap** | Our `bubble-batch` (Gemini slides) | Uses Gemini |
+| **Bubble bonus** | Course **Bubble AI Video Creator** (~10/day) | **Free on course site** |
+| **Product research** | FastMoss (paid) + course **Product Research Bot** (free) | FastMoss API still wiring |
+
+**Rule for course-tool videos:** Download → run **Module 1 QC** → only post if pass. Creator-trained ≠ auto-upload.
 
 ---
 
-## Part 1 — Discord (read-only bot) — ~15 min
+## Track A — Hub browser (Discord + course) — **do this first**
 
-### Create the bot (you, in browser)
+### One-time login on hub laptop (~10 min, can do between Rocket League games)
 
-1. https://discord.com/developers/applications → **New Application**
-2. **Bot** → **Add Bot** → copy **Token** (Runtime Secret: `DISCORD_BOT_TOKEN`)
-3. **Bot permissions** — enable ONLY:
-   - View Channels
-   - Read Message History
-4. **Disable** Send Messages, Add Reactions, Manage Messages — everything write-related OFF
-5. **OAuth2 → URL Generator** → scopes: `bot` → invite bot to **TikTok Dojo / Momentum** server
-
-### Channel allowlist
-
-Copy channel IDs (Discord: right-click channel → Copy ID — needs Developer Mode on):
-
-| Secret | Example |
-|--------|---------|
-| `DISCORD_GUILD_ID` | Server ID |
-| `DISCORD_CHANNEL_IDS` | `123456789,987654321` (comma-separated) |
-
-Suggested channels: `#tiktok-shop-chat`, content-review, `#violation-appeals` — whatever you actually read.
-
-### Add to Cursor Secrets
-
-| Secret | Type |
-|--------|------|
-| `DISCORD_BOT_TOKEN` | Runtime Secret |
-| `DISCORD_GUILD_ID` | Environment Variable |
-| `DISCORD_CHANNEL_IDS` | Environment Variable |
-
-Start a **new cloud agent run** after adding secrets.
-
-### Test
+**1. Fix Tailscale** (Ubuntu on hub):
 
 ```bash
-python3 -m shorts_bot.integrations.discord_cli status
-python3 -m shorts_bot.integrations.discord_cli sync
+sudo tailscale --socket=/var/run/tailscale/tailscaled.sock up
 ```
 
-Output: `data/research/course/inbox/discord-sync-YYYY-MM-DD.md`
+Open the link it prints in **Windows browser** if asked. Status must show **`active`**, not **`offline`**:
 
-Agent reads that file for coach tips, violation waves, clip feedback — **never posts**.
+```bash
+tailscale --socket=/var/run/tailscale/tailscaled.sock status | head -3
+```
 
----
-
-## Part 2 — Course website (free bubble tool) — hub browser
-
-The creator’s **~10 free gens/day** tool lives on the course site. We do **not** have the URL in the repo yet.
-
-### One-time login (hub laptop)
-
-1. **START HUB** / Ubuntu up
-2. Open visible browser on hub:
+**2. Log into Discord web** (agent reads this — not the desktop app):
 
 ```bash
 cd ~/proof-codex-ai
-python3 -m shorts_bot.browser.cli open "PASTE_COURSE_URL_HERE" --minutes 20 --block
+python3 -m shorts_bot.browser.cli open discord --minutes 15 --block
 ```
 
-3. Log in with your course account (2FA if needed)
-4. Cookies save to `data/browser_profile/` on that machine
+Log in at discord.com. Leave tab on your main channels.
 
-### After login (agent, read-only)
+**3. Log into course site** — paste your dashboard URL:
 
-Owner sends the exact URLs for:
-- Course dashboard
-- Free bubble-wrap generator page
+```bash
+python3 -m shorts_bot.browser.cli open "YOUR_COURSE_URL" --minutes 15 --block
+```
 
-Agent can `browse` those URLs headlessly and extract text/quota — **no Generate/Post clicks** until you explicitly ask.
+**4. Optional — course site as desktop app (Windows):**
 
-**Important:** We already generate bubble slides in-repo (`bubble-batch`) without course credits. The course tool is **bonus capacity** — wire it when URL + login are confirmed.
+Chrome → course URL → ⋮ menu → **Install page as app…** → pin to taskbar.
+
+**5. Add URLs to Cursor Secrets** (new agent run after):
+
+| Secret | Example |
+|--------|---------|
+| `COURSE_SITE_URL` | Dashboard URL |
+| `COURSE_BUBBLE_TOOL_URL` | Bubble AI video creator page |
+| `DISCORD_GUILD_ID` | Server ID |
+| `DISCORD_CHANNEL_IDS` | `channel1,channel2` |
+
+### Agent sync (after login + secrets)
+
+On hub:
+
+```bash
+bash scripts/hub_browser_intel_sync.sh
+```
+
+Writes `data/research/course/inbox/hub-browser-sync-YYYY-MM-DD.md` — Discord channel text + course pages.
 
 ---
 
-## Part 3 — What we will NOT do
+## Track B — Discord bot (optional backup)
 
-- **Never send Discord messages** from the bot (code is GET-only)
-- **Never demo repo/architecture** to course creator (`GROUP_CALLS.md` IP rule)
-- **Never auto-post** from course site without your OK
+If browser scrape is flaky, add a **read-only bot** (never Send Messages):
+
+```bash
+python3 -m shorts_bot.integrations.discord_cli sync
+```
+
+See bot setup in section below. **Hub browser is primary; bot is optional cron backup.**
+
+### Bot setup (optional)
+
+1. [discord.com/developers](https://discord.com/developers/applications) → New Application → Bot
+2. Permissions: **View Channels + Read Message History only**
+3. `DISCORD_BOT_TOKEN` in Cursor Secrets
+4. Invite bot to server
 
 ---
 
-## Hour kill checklist (you)
+## Track C — FastMoss (product research — blocking gap)
 
-- [ ] Create Discord bot + invite (read-only perms)
-- [ ] Add 3 secrets to Cursor → new agent run
-- [ ] Paste course site URL + bubble tool URL in chat (not password)
-- [ ] Optional: log into course site on hub via `browser.cli open`
+**Today:** API client is a **stub** — full scout not shipped yet.
 
-Then tell agent: **“Discord sync test”** or **“wire course site browse for URL X”**
+| Step | You | Agent |
+|------|-----|-------|
+| Subscribe | [fastmoss.com](https://www.fastmoss.com/) ~$59/mo | — |
+| API keys | [developers.fastmoss.com](https://developers.fastmoss.com/) → Cursor Secrets | `scout_cli ping` |
+| Until API works | Pick in FastMoss app OR use course **Product Research Bot** | Ingest via hub browser sync |
+
+**Training loop:** Course bot output + coach calls → `GROUP_CALLS.md` → `product-researcher` agent rules.
+
+---
+
+## Course free tools (creator-built)
+
+| Tool | Use |
+|------|-----|
+| **Bubble AI Video Creator** | ~10 free vids/day — QC before post |
+| **Product Research Bot** | Research training data until FastMoss API live |
+| **New growth account instructions** | Owner paste or hub sync → `GROUP_CALLS.md` |
+
+Paste new growth instructions in chat or save to `data/research/course/inbox/` after the coach upload.
+
+---
+
+## What we will NOT do
+
+- Send Discord messages (browser = read-only; bot = GET-only)
+- Auto-post course-tool videos without QC
+- Share repo/architecture with course creator (`GROUP_CALLS.md` IP rule)
+
+---
+
+## While you play — zero-focus checklist
+
+- [ ] Windows **Tailscale** app → Connected
+- [ ] Ubuntu: `tailscale up` → status **active**
+- [ ] Message agent: **course URL + bubble tool URL** (no passwords)
+
+That's it until you have a break.
 
 ---
 
 ## Related
 
-- Bubble format: `data/research/course/BUBBLE_WRAP.md`
-- Live updates: `data/research/course/GROUP_CALLS.md`
-- Coach call inbox: `data/research/course/inbox/`
+- `data/research/course/BUBBLE_WRAP.md`
+- `docs/FOR_OWNER_FASTMOSS_SETUP.md`
+- `docs/FOR_OWNER_HUB_GET_AGENT_IN.md`

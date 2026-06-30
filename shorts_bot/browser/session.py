@@ -20,7 +20,21 @@ _SITE_URLS = {
     "trends": "https://trends.google.com/trends/explore",
     "capcut": "https://www.capcut.com/my-edit",
     "invideo": "https://ai.invideo.io/login",
+    "discord": "https://discord.com/channels/@me",
 }
+
+
+def _settings_site_urls() -> dict[str, str]:
+    out: dict[str, str] = {}
+    if settings.course_site_url:
+        out["course"] = settings.course_site_url.strip()
+    if settings.course_bubble_tool_url:
+        out["course-bubble"] = settings.course_bubble_tool_url.strip()
+    if settings.discord_guild_id and settings.discord_channel_ids:
+        first = settings.discord_channel_ids.split(",")[0].strip()
+        if first:
+            out["discord-channel"] = f"https://discord.com/channels/{settings.discord_guild_id.strip()}/{first}"
+    return out
 
 
 @dataclass
@@ -54,6 +68,9 @@ def resolve_url(url_or_site: str) -> str:
     key = url_or_site.strip().lower()
     if key in _SITE_URLS:
         return _SITE_URLS[key]
+    extra = _settings_site_urls()
+    if key in extra:
+        return extra[key]
     u = url_or_site.strip()
     if u.startswith("http://") or u.startswith("https://"):
         return u
