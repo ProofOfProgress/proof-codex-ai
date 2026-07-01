@@ -141,11 +141,18 @@ hub_prepare_ssh_key() {
   printf '%s' "$keyfile"
 }
 
+hub_ssh_port() {
+  echo "${HUB_SSH_PORT:-22}"
+}
+
 hub_ssh_opts() {
   local -a ssh_opts=(
     -i "$1"
+    -p "$(hub_ssh_port)"
     -o StrictHostKeyChecking=accept-new
-    -o ConnectTimeout=20
+    -o ConnectTimeout=25
+    -o ServerAliveInterval=10
+    -o ServerAliveCountMax=2
   )
   if [[ ! -e /dev/net/tun ]] && [[ -S "$TS_SOCKET" ]]; then
     ssh_opts+=(-o "ProxyCommand=tailscale --socket=$TS_SOCKET nc %h %p")
@@ -181,8 +188,16 @@ hub_run_ssh() {
 }
 
 hub_verify_ssh() {
-  hub_log "SSH test → ${HUB_SSH_USER}@${HUB_SSH_HOST} ..."
-  hub_run_ssh \
-    'echo "Hub OK: $(hostname) $(uname -a)"; command -v python3 && python3 --version; test -d proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet (run git clone)"'
+  hub_log "SSH test → ${HUB_SSH_USER}@${HUB_SSH_HOST}:$(hub_ssh_port) ..."
+  if ! hub_run_ssh \
+    'echo "Hub OK: $(hostname) $(uname -a)"; command -v python3 && python3 --version; test -d proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet (run git clone)"'; then
+    hub_log ""
+    hub_log "Hub SSH failed. Owner fix (one double-click on HP):"
+    hub_log "  scripts\\HUB_RECOVERY.bat  (or Desktop copy after git pull)"
+    hub_log "One-time admin install: INSTALL_HUB_GATEWAY.bat + INSTALL_HUB_WATCHDOG.bat"
+    hub_log "Then set Cursor secret HUB_SSH_PORT=2222 and Windows Tailscale IP in HUB_SSH_HOST"
+    hub_log "See docs/FOR_OWNER_HUB_ALWAYS_ON.md"
+    return 1
+  fi
   hub_log "Hub remote access: OK"
 }

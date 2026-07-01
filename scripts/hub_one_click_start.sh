@@ -64,6 +64,11 @@ tailscale_connected() {
   return 1
 }
 
+# --- WSL sshd hardening (ListenAddress 0.0.0.0) ---
+if [[ -x "$ROOT/scripts/hub_wsl_fix_all.sh" ]]; then
+  bash "$ROOT/scripts/hub_wsl_fix_all.sh" --quiet >>"$LOG_FILE" 2>&1 || true
+fi
+
 # --- SSH (cloud agent needs this) ---
 if ssh_listening; then
   step_ok "SSH already listening on port 22"

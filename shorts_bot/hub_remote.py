@@ -58,6 +58,7 @@ def status() -> dict[str, str | bool]:
         "tailscale_auth_configured": tailscale_auth_configured(),
         "tailscale_running": Path(TS_SOCKET).exists(),
         "hub_host": os.environ.get("HUB_SSH_HOST", ""),
+        "hub_port": os.environ.get("HUB_SSH_PORT", "22"),
         "hub_user": os.environ.get("HUB_SSH_USER", ""),
     }
     if info["tailscale_running"]:

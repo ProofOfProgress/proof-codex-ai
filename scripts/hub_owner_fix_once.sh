@@ -45,6 +45,10 @@ else
   echo ""
 fi
 
+if [[ -x "$ROOT/scripts/hub_wsl_fix_all.sh" ]]; then
+  bash "$ROOT/scripts/hub_wsl_fix_all.sh"
+fi
+
 bash "$ROOT/scripts/hub_one_click_start.sh"
 echo ""
 if [[ "${HUB_FIX_AUTO:-}" != "1" ]]; then

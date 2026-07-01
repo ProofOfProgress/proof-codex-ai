@@ -14,7 +14,8 @@ if errorlevel 1 (
 echo.
 echo Optional: copy FIX_HUB_ONCE.bat to Desktop for emergencies.
 copy /Y "%~dp0FIX_HUB_ONCE.bat" "%USERPROFILE%\Desktop\FIX HUB ONCE (Proof Codex).bat" >nul 2>&1
+copy /Y "%~dp0HUB_RECOVERY.bat" "%USERPROFILE%\Desktop\HUB RECOVERY (Proof Codex).bat" >nul 2>&1
 copy /Y "%~dp0hub_win_repo_path.bat" "%USERPROFILE%\Desktop\hub_win_repo_path.bat" >nul 2>&1
-echo Copied FIX HUB ONCE shortcut to Desktop.
+echo Copied FIX HUB ONCE + HUB RECOVERY shortcuts to Desktop.
 echo.
 pause

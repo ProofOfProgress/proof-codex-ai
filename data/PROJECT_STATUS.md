@@ -31,13 +31,15 @@
 
 | Item | Status |
 |------|--------|
-| **Cloud → hub SSH** | **FAIL** — Tailscale ping OK but SSH banner timeout / reset |
-| **WSL sshd + Tailscale** | Finicky — `service ssh start` shows OK but agent still can't connect |
-| **Hub after sleep/lock** | Tailscale goes offline; hub unreachable until manual fix |
-| **FastMoss API scout** | Stub — product research automation blocked until API wired |
+| **Cloud → hub SSH** | **FAIL** — Tailscale ping OK but SSH banner timeout (WSL sshd) |
+| **Root cause** | SSH through **WSL-only** path — breaks when WSL idles or sshd misconfigured |
+| **Fix shipped (needs owner install once)** | **Windows gateway** port 2222 + watchdog + `docs/FOR_OWNER_HUB_ALWAYS_ON.md` |
+| **FastMoss API scout** | Stub |
 | **phone_2–5** | Not all bound; SIMs not active yet |
 
-**Root pain:** Cloud agent needs **SSH to hub WSL**. That path is unreliable. Not a “you pasted wrong window” issue — it's **WSL SSH + Tailscale + sleep**.
+**Owner one-time:** `INSTALL_HUB_GATEWAY.bat` + `INSTALL_HUB_WATCHDOG.bat` + update `HUB_SSH_PORT=2222` + Windows Tailscale IP in secrets.
+
+**Emergency:** Desktop **`HUB RECOVERY (Proof Codex).bat`**
 
 ---
 
@@ -53,22 +55,15 @@
 
 ## Easy hub start (owner — when cloud is down)
 
-**Do these in order on the HP:**
+**Read first:** **`docs/FOR_OWNER_HUB_ALWAYS_ON.md`**
 
-1. **Windows:** Tailscale tray → **Connected**
-2. **Ubuntu — one block:**
-   ```bash
-   grep -q '^ListenAddress 0.0.0.0' /etc/ssh/sshd_config 2>/dev/null || echo 'ListenAddress 0.0.0.0' | sudo tee -a /etc/ssh/sshd_config
-   sudo service ssh restart
-   cd ~/proof-codex-ai && bash scripts/hub_one_click_start.sh
-   ```
-3. Wait for **HUB READY** → tell new agent: **“Read PROJECT_STATUS.md — try hub verify”**
+**Emergency:** double-click **`HUB RECOVERY (Proof Codex).bat`** on Desktop
 
-**One-time (admin):** `scripts\INSTALL_HUB_NEVER_SLEEP.bat` — no sleep on AC, hub restart on unlock
+**One-time admin fix:** `INSTALL_HUB_GATEWAY.bat` + `INSTALL_HUB_WATCHDOG.bat` + `INSTALL_HUB_NEVER_SLEEP.bat`
 
-**If SSH still fails:** Use **Cursor on the hub laptop** — no remote SSH required for local work.
+Then update Cursor secrets: `HUB_SSH_PORT=2222`, `HUB_SSH_HOST` = Windows Tailscale IP → **new agent run**
 
-**Next engineering fix (agent backlog):** Merge `hub_ssh_wsl_fix.sh` + harden SSH/Tailscale; consider Windows OpenSSH → WSL port forward doc.
+**If SSH still fails:** Cursor on the hub laptop locally.
 
 ---
 
