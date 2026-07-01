@@ -150,3 +150,36 @@ if ($listening) {
 } else {
     Write-Warn "Port $SshPort not shown in netstat yet (may still be OK)"
 }
+
+# Firewall: allow SSH on all profiles (Tailscale = Public profile)
+$ruleName = "ProofCodex-OpenSSH-$SshPort"
+$existing = Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue
+if ($existing) {
+    Set-NetFirewallRule -DisplayName $ruleName -Profile Any -Enabled True | Out-Null
+    Write-Ok "Firewall rule updated (all profiles)"
+} else {
+    New-NetFirewallRule -DisplayName $ruleName -Direction Inbound -Action Allow -Protocol TCP -LocalPort $SshPort -Profile Any | Out-Null
+    Write-Ok "Firewall rule created (all profiles)"
+}
+
+# Ensure cloud agent key in Windows authorized_keys
+$WslUser = (wsl.exe whoami).Trim()
+$PubKey = (wsl.exe -u $WslUser bash -lc 'cat ~/.ssh/cursor_agent_ed25519.pub 2>/dev/null' 2>$null)
+if ($PubKey) {
+    $PubKey = $PubKey.Trim()
+    $AuthDir = Join-Path $env:USERPROFILE '.ssh'
+    $AuthFile = Join-Path $AuthDir 'authorized_keys'
+    New-Item -ItemType Directory -Force -Path $AuthDir | Out-Null
+    $existingKeys = @()
+    if (Test-Path $AuthFile) { $existingKeys = Get-Content $AuthFile }
+    if ($existingKeys -notcontains $PubKey) {
+        Add-Content -Path $AuthFile -Value $PubKey
+        Write-Ok 'Agent SSH public key added to authorized_keys'
+    } else {
+        Write-Ok 'Agent SSH public key already in authorized_keys'
+    }
+    icacls $AuthDir /inheritance:r /grant "$($env:USERNAME):F" | Out-Null
+    icacls $AuthFile /inheritance:r /grant "$($env:USERNAME):F" | Out-Null
+} else {
+    Write-Warn 'No cursor_agent key in WSL - run: bash scripts/hub_remote_setup.sh'
+}
