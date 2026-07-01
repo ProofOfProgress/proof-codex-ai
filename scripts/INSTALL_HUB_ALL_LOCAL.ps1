@@ -1,7 +1,7 @@
 # Copy hub install scripts to C: and run (fixes WSL UNC parse errors).
-# Run as Administrator: right-click -> Run with PowerShell
+# Run as Administrator: INSTALL_HUB_ALL_LOCAL.bat  OR  C:\ProofCodexInstall\INSTALL_HUB_ALL_LOCAL.ps1
 param(
-    [string]$RepoWin = '\\wsl.localhost\Ubuntu\home\isaac\proof-codex-ai'
+    [string]$RepoWin = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -12,18 +12,24 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Write-Error 'Run as Administrator'
 }
 
+if (-not $RepoWin) {
+    $RepoWin = (wsl.exe bash -lc "wslpath -w ~/proof-codex-ai 2>/dev/null").Trim()
+}
+if (-not $RepoWin -or -not (Test-Path -LiteralPath $RepoWin)) {
+    Write-Error "WSL repo not found at ~/proof-codex-ai (RepoWin=$RepoWin)"
+}
+
 Write-Host ''
-Write-Host '=== Proof Codex - copy install scripts to C: ==='
+Write-Host '=== Proof Codex - hub install from C:\ProofCodexInstall ==='
+Write-Host ('Repo: ' + $RepoWin)
 Write-Host ''
 
 New-Item -ItemType Directory -Force -Path $Dest | Out-Null
 
-$copyCmd = @"
-mkdir -p /mnt/c/ProofCodexInstall && cp ~/proof-codex-ai/scripts/install_hub_windows_gateway.ps1 ~/proof-codex-ai/scripts/install_hub_watchdog.ps1 ~/proof-codex-ai/scripts/install_hub_never_sleep.ps1 ~/proof-codex-ai/scripts/install_hub_wslconfig.ps1 ~/proof-codex-ai/scripts/hub_watchdog.ps1 ~/proof-codex-ai/scripts/hub_print_secrets_for_cursor.ps1 /mnt/c/ProofCodexInstall/
-"@
+$copyCmd = 'mkdir -p /mnt/c/ProofCodexInstall && cp ~/proof-codex-ai/scripts/install_hub_windows_gateway.ps1 ~/proof-codex-ai/scripts/install_hub_watchdog.ps1 ~/proof-codex-ai/scripts/install_hub_never_sleep.ps1 ~/proof-codex-ai/scripts/install_hub_wslconfig.ps1 ~/proof-codex-ai/scripts/hub_watchdog.ps1 ~/proof-codex-ai/scripts/hub_print_secrets_for_cursor.ps1 /mnt/c/ProofCodexInstall/'
 wsl.exe bash -lc $copyCmd
 
-Write-Host '[OK] Scripts copied to C:\ProofCodexInstall'
+Write-Host '[OK] Scripts on C:\ProofCodexInstall'
 Write-Host ''
 Write-Host '=== Step 1/3: Gateway (SSH port 2222) ==='
 powershell -NoProfile -ExecutionPolicy Bypass -File "$Dest\install_hub_windows_gateway.ps1" -RepoWin $RepoWin

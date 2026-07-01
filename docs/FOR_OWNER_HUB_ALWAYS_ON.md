@@ -36,12 +36,16 @@ Enter Ubuntu password if asked **once**. Wait for **HUB READY**.
 
 ### B — Windows (Run as Administrator)
 
-In repo `scripts` folder, double-click **each** (right-click → Run as administrator if needed):
+**Do not run `.ps1` from the WSL folder** — PowerShell breaks on `\\wsl.localhost\...` paths.
 
-1. **`INSTALL_HUB_NEVER_SLEEP.bat`** — no sleep on AC power  
-2. **`INSTALL_HUB_GATEWAY.bat`** — Windows SSH → WSL on port **2222**  
-3. **`INSTALL_HUB_WATCHDOG.bat`** — fixes hub every 3 min + after unlock  
-4. **`INSTALL_HUB_AUTOSTART.bat`** — starts hub 45s after login  
+**One paste** in **Admin PowerShell** on the **HP hub**:
+
+```powershell
+wsl.exe bash -lc "cd ~/proof-codex-ai && git pull && mkdir -p /mnt/c/ProofCodexInstall && cp scripts/INSTALL_HUB_ALL_LOCAL.ps1 scripts/install_hub_windows_gateway.ps1 scripts/install_hub_watchdog.ps1 scripts/install_hub_never_sleep.ps1 scripts/install_hub_wslconfig.ps1 scripts/hub_watchdog.ps1 scripts/hub_print_secrets_for_cursor.ps1 /mnt/c/ProofCodexInstall/"
+powershell -ExecutionPolicy Bypass -File C:\ProofCodexInstall\INSTALL_HUB_ALL_LOCAL.ps1
+```
+
+Or double-click **`scripts\INSTALL_HUB_ALL_LOCAL.bat`** → **Run as administrator** (same thing).
 
 ### C — Tailscale on Windows (not just WSL)
 

@@ -82,9 +82,10 @@ Write-Step "sshd restarted"
 
 # --- Agent public key from WSL ---
 $WslUser = (wsl.exe whoami).Trim()
-$PubKey = (wsl.exe -u $WslUser bash -lc "cat ~/.ssh/cursor_agent_ed25519.pub 2>/dev/null" 2>$null).Trim()
+$PubKey = (wsl.exe -u $WslUser bash -lc 'cat ~/.ssh/cursor_agent_ed25519.pub 2>/dev/null' 2>$null)
+if ($PubKey) { $PubKey = $PubKey.Trim() }
 if (-not $PubKey) {
-    Write-Warn "No cursor_agent key in WSL - run: bash scripts/hub_remote_setup.sh"
+    Write-Warn 'No cursor_agent key in WSL - run: bash scripts/hub_remote_setup.sh'
 } else {
     $WinUser = $env:USERNAME
     $AuthDir = Join-Path $env:USERPROFILE '.ssh'
