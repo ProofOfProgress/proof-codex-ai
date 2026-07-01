@@ -2,7 +2,9 @@
 
 **Strategy:** Owner's **paid affiliate course** only — `data/research/course/`
 
-**North star:** TikTok Shop **affiliate product videos** → revenue.
+**North star (2026-07-01):** **50 phones operational in bedroom hub within 6 months** — reinvest, automate, scale. See **`data/CEO_MINDSET.md`**.
+
+**Near-term ladder:** 4 bubble accounts auto-posting **now** → affiliate clips **~4 days** → scale toward 50.
 
 **Week 1 challenge (owner):** **$1,000 commission** in **7 calendar days** (Launch Date midnight → +6 days 11:59 PM) → **$500 course bonus**. Step-by-step: `docs/LAUNCH_TODO.md`.
 

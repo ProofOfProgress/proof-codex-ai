@@ -25,7 +25,7 @@
 
 **Affiliate go-live:** CEO runs the whole pipeline — product research, Kling, captions, edit, Module 1 QC, upload. **Defer paid monthly stack until first affiliate post**; prep everything first.
 
-**North star:** TikTok Shop affiliate revenue via the owner's **Momentum Academy** course.
+**North star:** Scale to **50 operational phones in 6 months** (`data/CEO_MINDSET.md`) · near-term: 4 bubble auto + affiliate revenue · Week 1: $1k in 7 days → $500 bonus
 
 **Top 4:** `data/PRIORITIES.md` — work only those until reassessed.
 

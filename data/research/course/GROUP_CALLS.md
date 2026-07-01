@@ -98,6 +98,18 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 ---
 
+## 2026-07-01 — CEO mindset + North Star (owner, voice)
+
+**North Star:** **50 phones operational** in bedroom hub **within 6 months** — reinvest profits into hardware + automation.
+
+**CEO mindset:** Attack every blocker like an RPG boss — system fix, retry, grow. CEO runs daily ops; owner stays principal (legal, money, logins). **Last word** before irreversible actions (drop accounts, cut owner access, major unbudgeted spend). Consider owner offers seriously.
+
+**Phase order (owner):** **Bubble wrap live first** (4 auto accounts) → affiliate clips ~4 days out.
+
+**Encoded:** `data/CEO_MINDSET.md` · `.cursor/rules/ceo-mindset.mdc` · `data/PRIORITIES.md`
+
+---
+
 ## 2026-06-29 — Owner launch status
 
 - **Purchased affiliate account:** bought, logged in, **5-day warmup** in progress.
