@@ -51,13 +51,17 @@ In repo `scripts` folder, double-click **each** (right-click → Run as administ
 
 ### D — Cursor Cloud Agent secrets (then **new agent run**)
 
+Run **`hub_print_secrets_for_cursor.ps1` on the HP hub only** — not on your main PC (`laptup`).
+
 | Secret | Value |
 |--------|--------|
-| `HUB_SSH_HOST` | **Windows** Tailscale IP from step C |
+| `HUB_SSH_HOST` | **HP hub** Windows Tailscale IP (machine name `desktop-ler4vhb`) — **not** `laptup` |
 | `HUB_SSH_PORT` | **`2222`** |
-| `HUB_SSH_USER` | Your **Windows** username (same as `whoami` in PowerShell) |
+| `HUB_SSH_USER` | Your **Windows** username on the **HP hub** (PowerShell `whoami`) |
 | `HUB_SSH_PRIVATE_KEY` | Unchanged (same key from setup) |
 | `TAILSCALE_AUTH_KEY` | Unchanged |
+
+**Do not use your main laptop's Tailscale IP** — cloud agent SSH goes to the bedroom hub only.
 
 Optional in hub `.env` (never paste in chat):
 

@@ -20,7 +20,7 @@ if (Test-Path $tsExe) {
     $tsIp = (& $tsExe ip -4 2>$null).Trim()
 }
 if ($tsIp) {
-    Write-Host "HUB_SSH_HOST = $tsIp   (Windows Tailscale IP — use this, not WSL IP)"
+    Write-Host "HUB_SSH_HOST = $tsIp   (this HP hub only — NOT laptup / main PC)"
 } else {
     Write-Host 'HUB_SSH_HOST = (install + log in Tailscale Windows app first)'
     Write-Host '  winget install Tailscale.Tailscale'

@@ -61,7 +61,7 @@
 
 **One-time admin fix:** `INSTALL_HUB_GATEWAY.bat` + `INSTALL_HUB_WATCHDOG.bat` + `INSTALL_HUB_NEVER_SLEEP.bat`
 
-Then update Cursor secrets: `HUB_SSH_PORT=2222`, `HUB_SSH_HOST` = Windows Tailscale IP → **new agent run**
+Then update Cursor secrets on **hub laptop output only**: `HUB_SSH_PORT=2222`, `HUB_SSH_HOST` = **desktop-ler4vhb** Windows Tailscale IP (run `hub_print_secrets_for_cursor.ps1` on hub — **not** laptup) → **new agent run**
 
 **If SSH still fails:** Cursor on the hub laptop locally.
 
