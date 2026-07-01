@@ -52,24 +52,39 @@ Write-Step "Backed up sshd_config -> $backup"
 
 $lines = Get-Content $SshdConfig
 $out = New-Object System.Collections.Generic.List[string]
-$seenPort = $false
+$inMatch = $false
 foreach ($line in $lines) {
-    if ($line -match '^\s*Port\s+') {
-        if (-not $seenPort) {
-            $out.Add("Port $SshPort")
-            $seenPort = $true
-        }
-        continue
-    }
+    if ($line -match '^\s*Match\b') { $inMatch = $true }
+    if ($line -match '^\s*Port\s+\d+') { continue }
     $out.Add($line)
 }
-if (-not $seenPort) { $out.Add("Port $SshPort") }
+$insertAt = 0
+for ($i = 0; $i -lt $out.Count; $i++) {
+    if ($out[$i] -match '^\s*Match\b') { break }
+    if ($out[$i] -match '^\s*#Port\s+\d+') {
+        $insertAt = $i + 1
+        break
+    }
+    $insertAt = $i + 1
+}
+if ($insertAt -ge $out.Count) {
+    $out.Add("Port $SshPort")
+} else {
+    $out.Insert($insertAt, "Port $SshPort")
+}
 $hasPubkey = $false
+$inMatch = $false
 foreach ($line in $out) {
-    if ($line -match '^\s*PubkeyAuthentication\s+yes') { $hasPubkey = $true }
+    if ($line -match '^\s*Match\b') { $inMatch = $true }
+    if (-not $inMatch -and $line -match '^\s*PubkeyAuthentication\s+yes') { $hasPubkey = $true }
 }
 if (-not $hasPubkey) {
-    $out.Add('PubkeyAuthentication yes')
+    $beforeMatch = 0
+    for ($j = 0; $j -lt $out.Count; $j++) {
+        if ($out[$j] -match '^\s*Match\b') { break }
+        $beforeMatch = $j + 1
+    }
+    $out.Insert($beforeMatch, 'PubkeyAuthentication yes')
 }
 Set-Content -Path $SshdConfig -Value ($out -join "`n") -Encoding ASCII
 Write-Step "sshd listens on port $SshPort"

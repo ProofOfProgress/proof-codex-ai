@@ -19,6 +19,54 @@ function Resolve-OpenSshExe($name) {
     return $null
 }
 
+function Repair-SshdConfigPort {
+    param(
+        [string]$ConfigPath,
+        [int]$Port
+    )
+    if (-not (Test-Path -LiteralPath $ConfigPath)) { return }
+
+    $lines = Get-Content -LiteralPath $ConfigPath
+    $clean = New-Object System.Collections.Generic.List[string]
+    foreach ($line in $lines) {
+        if ($line -match '^\s*Port\s+\d+') { continue }
+        $clean.Add($line)
+    }
+
+    $out = New-Object System.Collections.Generic.List[string]
+    $portAdded = $false
+    for ($i = 0; $i -lt $clean.Count; $i++) {
+        $line = $clean[$i]
+        $out.Add($line)
+        if (-not $portAdded -and $line -match '^\s*#Port\s+\d+') {
+            $out.Add("Port $Port")
+            $portAdded = $true
+        }
+    }
+    if (-not $portAdded) {
+        $out.Insert(0, "Port $Port")
+        $portAdded = $true
+    }
+
+    $hasPubkey = $false
+    $inMatch = $false
+    foreach ($line in $out) {
+        if ($line -match '^\s*Match\b') { $inMatch = $true }
+        if (-not $inMatch -and $line -match '^\s*PubkeyAuthentication\s+yes') { $hasPubkey = $true }
+    }
+    if (-not $hasPubkey) {
+        $insertAt = 0
+        for ($j = 0; $j -lt $out.Count; $j++) {
+            if ($out[$j] -match '^\s*Match\b') { break }
+            $insertAt = $j + 1
+        }
+        $out.Insert($insertAt, 'PubkeyAuthentication yes')
+    }
+
+    Set-Content -Path $ConfigPath -Value ($out -join "`n") -Encoding ASCII
+    Write-Ok "sshd_config repaired (Port $Port at global scope)"
+}
+
 $sshdExe = Resolve-OpenSshExe 'sshd.exe'
 $keygenExe = Resolve-OpenSshExe 'ssh-keygen.exe'
 $SshdConfig = Join-Path $env:ProgramData 'ssh\sshd_config'
@@ -31,47 +79,38 @@ if (-not (Get-Service sshd -ErrorAction SilentlyContinue)) {
     Write-Error 'OpenSSH sshd service missing. Re-run INSTALL_HUB_ALL_LOCAL.ps1 as Admin.'
 }
 
-# Host keys (missing keys prevent sshd start on fresh install)
 $hostKey = Join-Path $env:ProgramData 'ssh\ssh_host_ed25519_key'
 if (-not (Test-Path $hostKey)) {
     Write-Warn 'Generating SSH host keys...'
-    if (Test-Path $keygenExe) {
+    if ($keygenExe) {
         & $keygenExe -A 2>&1 | Out-Null
     }
 }
 
-# Ensure port in config
-if (Test-Path $SshdConfig) {
-    $text = Get-Content $SshdConfig -Raw
-    if ($text -notmatch "(?m)^Port\s+$SshPort\s*$") {
-        $lines = Get-Content $SshdConfig
-        $out = New-Object System.Collections.Generic.List[string]
-        $seenPort = $false
-        foreach ($line in $lines) {
-            if ($line -match '^\s*Port\s+') {
-                if (-not $seenPort) {
-                    $out.Add("Port $SshPort")
-                    $seenPort = $true
-                }
-                continue
-            }
-            $out.Add($line)
-        }
-        if (-not $seenPort) { $out.Add("Port $SshPort") }
-        $hasPubkey = $false
-        foreach ($line in $out) {
-            if ($line -match '^\s*PubkeyAuthentication\s+yes') { $hasPubkey = $true }
-        }
-        if (-not $hasPubkey) { $out.Add('PubkeyAuthentication yes') }
-        Set-Content -Path $SshdConfig -Value ($out -join "`n") -Encoding ASCII
+Repair-SshdConfigPort -ConfigPath $SshdConfig -Port $SshPort
+
+function Test-SshdConfig {
+    & $sshdExe -t 2>&1 | Out-Null
+    return ($LASTEXITCODE -eq 0)
+}
+
+if (-not (Test-SshdConfig)) {
+    Write-Warn 'sshd config still invalid after repair - restoring latest gateway backup...'
+    $backup = Get-ChildItem (Join-Path $env:ProgramData 'ssh\sshd_config.bak-gateway-*') -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+    if ($backup) {
+        Copy-Item $backup.FullName $SshdConfig -Force
+        Repair-SshdConfigPort -ConfigPath $SshdConfig -Port $SshPort
     }
 }
 
-$configTest = & $sshdExe -t 2>&1 | Out-String
-if ($LASTEXITCODE -ne 0) {
-    Write-Warn "sshd config test failed:"
-    Write-Host $configTest
+if (-not (Test-SshdConfig)) {
+    $err = (& $sshdExe -t 2>&1 | Out-String).Trim()
+    Write-Error "sshd config test failed: $err"
 }
+
+Write-Ok 'sshd config test passed'
 
 function Try-StartSshd {
     Stop-Service sshd -Force -ErrorAction SilentlyContinue
@@ -105,7 +144,7 @@ try {
     }
 }
 
-$listening = netstat -an | Select-String "LISTENING" | Select-String ":$SshPort "
+$listening = netstat -an | Select-String 'LISTENING' | Select-String ":$SshPort "
 if ($listening) {
     Write-Ok "Port $SshPort is listening"
 } else {
