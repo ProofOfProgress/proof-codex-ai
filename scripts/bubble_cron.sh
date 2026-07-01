@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
-# Bubble wrap cron — run on hub laptop every 30–60 min once phones + slides pipeline are live.
+# Bubble wrap cron — run on hub laptop every 30–60 min once phones + Zernio are live.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 python3 scripts/sync_secrets.py 2>/dev/null || true
 
-# Hub worker: finish inbox drafts on phones (dry-run until UI automation ships)
+# Hub worker: finish inbox drafts on phones (dry-run until UI coords calibrated)
 python3 -m shorts_bot.phone_hub.cli tick
 
-# Bubble quota/spacing status (full auto-post: bubble-slides → post-carousel --confirm --enqueue-hub)
-ACCOUNT="${BUBBLE_SCHEDULER_ACCOUNT:-}"
-if [[ -n "$ACCOUNT" ]]; then
-  python3 -c "
-from shorts_bot.tiktok_shop.bubble_scheduler import bubble_tick
-r = bubble_tick(account_id='${ACCOUNT}', confirm=False)
-print(r.action, r.detail)
-"
+# Bubble scheduler: slides → Zernio inbox draft → hub job queue
+CONFIRM_FLAG=""
+if [[ "${BUBBLE_SCHEDULER_CONFIRM:-}" == "1" || "${BUBBLE_SCHEDULER_CONFIRM:-}" == "true" ]]; then
+  CONFIRM_FLAG="--confirm"
 fi
+
+ACCOUNT="${BUBBLE_SCHEDULER_ACCOUNT:-}"
+EXTRA_ACCOUNT=()
+if [[ -n "$ACCOUNT" ]]; then
+  EXTRA_ACCOUNT=(--account "$ACCOUNT")
+fi
+
+python3 -m shorts_bot.tiktok_shop.factory_cli bubble-sched tick "${EXTRA_ACCOUNT[@]}" $CONFIRM_FLAG

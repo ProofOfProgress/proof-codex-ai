@@ -66,7 +66,7 @@ Zernio IDs: `accounts.json` · refresh: `python3 -m shorts_bot.zernio.auth_cli`
 | 5-phone slot map + Zernio inbox drafts | USB serials in `devices.json` |
 | **Automated** Mackenzie + product link + publish (ADB worker) | One-time `ui_coords.json` calibration on real phones |
 | Hub worker daemon (`phone_hub.cli serve`) | Live soak test when hardware arrives |
-| Hub SSH + desktop helper | usbipd attach (if WSL doesn't see devices) |
+| **Bubble scheduler** (`bubble-sched tick --confirm`) | usbipd attach (if WSL doesn't see devices) |
 
 Physical hub — **not** cloud phone farm.
 

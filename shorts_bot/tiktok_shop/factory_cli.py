@@ -204,6 +204,20 @@ def main() -> None:
     batch_bubble.add_argument("--force", action="store_true", help="Regenerate even if slides exist")
     batch_bubble.add_argument("--no-preview", action="store_true", help="Skip preview MP4 per clip")
 
+    bubble_sched = sub.add_parser(
+        "bubble-sched",
+        help="Cron-friendly bubble carousel — slides + Zernio inbox draft + hub queue",
+    )
+    bubble_sched_sub = bubble_sched.add_subparsers(dest="bubble_sched_cmd", required=True)
+    bubble_sched_tick = bubble_sched_sub.add_parser(
+        "tick",
+        help="Generate slides + inbox draft for next eligible bubble account",
+    )
+    bubble_sched_tick.add_argument("--account", default="", help="Force bubble account id")
+    bubble_sched_tick.add_argument("--subject", default="", help="Override wrapped subject (frog, duck, …)")
+    bubble_sched_tick.add_argument("--confirm", action="store_true", help="Actually generate + upload")
+    bubble_sched_sub.add_parser("status", help="Bubble quota, spacing, pending hub jobs")
+
     args = parser.parse_args()
 
     if args.cmd == "status":
@@ -693,6 +707,15 @@ def main() -> None:
         )
         if ok:
             console.print(f"[green]{msg}[/green] post_id={post_id}")
+            from shorts_bot.tiktok_shop.quota import log_post
+
+            log_post(
+                account_id=account.id,
+                video_path=str(args.slide1),
+                caption=args.title,
+                ok=True,
+                publish_id=post_id,
+            )
             if args.enqueue_hub or account.track.startswith("bubble"):
                 from shorts_bot.phone_hub.jobs import enqueue_job
 
@@ -709,7 +732,54 @@ def main() -> None:
                     )
                     console.print(f"[cyan]Hub job queued:[/cyan] {job.id} → {account.phone_hub_slot}")
         else:
+            from shorts_bot.tiktok_shop.quota import log_post
+
+            log_post(
+                account_id=account.id,
+                video_path=str(args.slide1),
+                caption=args.title,
+                ok=False,
+                error=msg,
+            )
             console.print(f"[red]{msg}[/red]")
+            raise SystemExit(1)
+        return
+
+    if args.cmd == "bubble-sched":
+        from shorts_bot.tiktok_shop.bubble_scheduler import bubble_status_rows, bubble_tick
+
+        if args.bubble_sched_cmd == "status":
+            table = Table(title="Bubble scheduler")
+            table.add_column("Account")
+            table.add_column("Slot")
+            table.add_column("Sent")
+            table.add_column("Limit")
+            table.add_column("Pending hub")
+            table.add_column("Wait (s)")
+            for row in bubble_status_rows():
+                table.add_row(
+                    str(row["account_id"]),
+                    str(row["slot"]),
+                    str(row["sent_today"]),
+                    str(row["limit"]),
+                    str(row["pending_hub_jobs"]),
+                    str(row["wait_seconds"]),
+                )
+            console.print(table)
+            return
+
+        account_id = args.account.strip() or None
+        subject = args.subject.strip() or None
+        result = bubble_tick(account_id=account_id, confirm=args.confirm, subject=subject)
+        color = {
+            "posted": "green",
+            "dry_run": "yellow",
+            "skipped": "yellow",
+            "idle": "dim",
+            "failed": "red",
+        }.get(result.action, "white")
+        console.print(f"[{color}]{result.action}[/{color}]: {result.detail}")
+        if result.action == "failed":
             raise SystemExit(1)
         return
 

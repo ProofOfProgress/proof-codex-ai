@@ -52,6 +52,6 @@ def post_bubble_wrap_carousel(
         )
         url = result.platform_urls.get("tiktok", "")
         msg = result.message + (f" → {url}" if url else "")
-        return True, msg, result.post_id
+        return True, msg, result.post_id or ""
     except Exception as exc:  # noqa: BLE001
         return False, str(exc), ""
