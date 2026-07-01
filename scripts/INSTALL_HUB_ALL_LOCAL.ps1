@@ -19,7 +19,7 @@ Write-Host ''
 New-Item -ItemType Directory -Force -Path $Dest | Out-Null
 
 $copyCmd = @"
-mkdir -p /mnt/c/ProofCodexInstall && cp ~/proof-codex-ai/scripts/install_hub_windows_gateway.ps1 ~/proof-codex-ai/scripts/install_hub_watchdog.ps1 ~/proof-codex-ai/scripts/install_hub_never_sleep.ps1 ~/proof-codex-ai/scripts/install_hub_wslconfig.ps1 ~/proof-codex-ai/scripts/hub_watchdog.ps1 /mnt/c/ProofCodexInstall/
+mkdir -p /mnt/c/ProofCodexInstall && cp ~/proof-codex-ai/scripts/install_hub_windows_gateway.ps1 ~/proof-codex-ai/scripts/install_hub_watchdog.ps1 ~/proof-codex-ai/scripts/install_hub_never_sleep.ps1 ~/proof-codex-ai/scripts/install_hub_wslconfig.ps1 ~/proof-codex-ai/scripts/hub_watchdog.ps1 ~/proof-codex-ai/scripts/hub_print_secrets_for_cursor.ps1 /mnt/c/ProofCodexInstall/
 "@
 wsl.exe bash -lc $copyCmd
 
@@ -37,5 +37,6 @@ Write-Host '=== Step 3/3: Never sleep ==='
 powershell -NoProfile -ExecutionPolicy Bypass -File "$Dest\install_hub_never_sleep.ps1" -RepoWin $RepoWin
 
 Write-Host ''
-Write-Host 'ALL DONE - update Cursor secrets HUB_SSH_PORT=2222 and Windows Tailscale IP'
+Write-Host '=== Cursor secrets (copy from here) ==='
+powershell -NoProfile -ExecutionPolicy Bypass -File "$Dest\hub_print_secrets_for_cursor.ps1"
 Write-Host ''

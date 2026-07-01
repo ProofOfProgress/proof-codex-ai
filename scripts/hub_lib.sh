@@ -154,9 +154,7 @@ hub_ssh_opts() {
     -o ServerAliveInterval=10
     -o ServerAliveCountMax=2
   )
-  if [[ ! -e /dev/net/tun ]] && [[ -S "$TS_SOCKET" ]]; then
-    ssh_opts+=(-o "ProxyCommand=tailscale --socket=$TS_SOCKET nc %h %p")
-  fi
+  # Cloud VM uses userspace-networking — direct dial to 100.x works; tailscale nc breaks (%p → 65535).
   printf '%s\n' "${ssh_opts[@]}"
 }
 
