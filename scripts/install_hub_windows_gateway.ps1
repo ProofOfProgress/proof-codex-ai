@@ -64,7 +64,11 @@ foreach ($line in $lines) {
     $out.Add($line)
 }
 if (-not $seenPort) { $out.Add("Port $SshPort") }
-if (-not ($out -match 'PubkeyAuthentication yes')) {
+$hasPubkey = $false
+foreach ($line in $out) {
+    if ($line -match '^\s*PubkeyAuthentication\s+yes') { $hasPubkey = $true }
+}
+if (-not $hasPubkey) {
     $out.Add('PubkeyAuthentication yes')
 }
 Set-Content -Path $SshdConfig -Value ($out -join "`n") -Encoding ASCII
@@ -77,8 +81,13 @@ if (-not (Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContin
 }
 Write-Step "Firewall rule for TCP $SshPort"
 
-Restart-Service sshd
-Write-Step "sshd restarted"
+$fixScript = Join-Path $PSScriptRoot 'hub_fix_sshd.ps1'
+if (Test-Path $fixScript) {
+    & $fixScript -SshPort $SshPort
+} else {
+    Restart-Service sshd
+    Write-Step "sshd restarted"
+}
 
 # --- Agent public key from WSL ---
 $WslUser = (wsl.exe whoami).Trim()

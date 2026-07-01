@@ -16,7 +16,7 @@ if errorlevel 1 (
 )
 
 echo   Step 1 - git pull + copy scripts to C:\ProofCodexInstall ...
-wsl.exe bash -lc "cd ~/proof-codex-ai && git pull -q && mkdir -p /mnt/c/ProofCodexInstall && cp scripts/INSTALL_HUB_ALL_LOCAL.ps1 scripts/install_hub_windows_gateway.ps1 scripts/install_hub_watchdog.ps1 scripts/install_hub_never_sleep.ps1 scripts/install_hub_wslconfig.ps1 scripts/hub_watchdog.ps1 scripts/hub_print_secrets_for_cursor.ps1 /mnt/c/ProofCodexInstall/"
+wsl.exe bash -lc "cd ~/proof-codex-ai && git pull -q && mkdir -p /mnt/c/ProofCodexInstall && cp scripts/INSTALL_HUB_ALL_LOCAL.ps1 scripts/install_hub_windows_gateway.ps1 scripts/install_hub_watchdog.ps1 scripts/install_hub_never_sleep.ps1 scripts/install_hub_wslconfig.ps1 scripts/hub_watchdog.ps1 scripts/hub_print_secrets_for_cursor.ps1 scripts/hub_fix_sshd.ps1 scripts/hub_repair_install.ps1 /mnt/c/ProofCodexInstall/"
 if errorlevel 1 (
   color 0C
   echo   FAIL - open Ubuntu, ensure ~/proof-codex-ai exists

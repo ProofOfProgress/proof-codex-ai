@@ -1,4 +1,4 @@
-# Keep hub laptop awake + restart hub on session unlock.
+# Keep hub laptop awake + restart hub at Windows login.
 # Run as Administrator: INSTALL_HUB_NEVER_SLEEP.bat
 param(
     [string]$RepoWin = (Split-Path -Parent $PSScriptRoot)
@@ -10,7 +10,6 @@ Write-Host ""
 Write-Host "=== Proof Codex - Hub Never Sleep ==="
 Write-Host ""
 
-# --- Power: no sleep / no hibernate on AC ---
 powercfg /change standby-timeout-ac 0
 powercfg /change standby-timeout-dc 0
 powercfg /change monitor-timeout-ac 0
@@ -39,49 +38,20 @@ if (-not (Test-Path -LiteralPath $RepoWin)) {
 
 $RepoWsl = (wsl.exe wslpath -u $RepoWin).Trim()
 if (-not $RepoWsl) {
-    Write-Error 'wslpath failed — is WSL installed?'
+    Write-Error 'wslpath failed - is WSL installed?'
 }
 
 $WslUser = (wsl.exe whoami).Trim()
 $LogRel = 'data/desktop_hub/hub_autostart.log'
-$WslArg = "-u $WslUser bash -lc `"sleep 20 && cd '$RepoWsl' && bash scripts/hub_one_click_start.sh >> $LogRel 2>&1`""
+$BashCmd = "sleep 20 && cd '$RepoWsl' && bash scripts/hub_one_click_start.sh >> $LogRel 2>&1"
+$WslArgs = "-u $WslUser bash -lc `"$BashCmd`""
 
-# Session UNLOCK trigger — restarts hub after lock screen (not just reboot login)
-$UnlockTask = 'ProofCodexHubOnUnlock'
-$Xml = @"
-<?xml version="1.0" encoding="UTF-16"?>
-<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
-  <RegistrationInfo>
-    <Description>Proof Codex - restart hub after Windows unlock</Description>
-  </RegistrationInfo>
-  <Triggers>
-    <SessionStateChangeTrigger>
-      <Enabled>true</Enabled>
-      <StateChange>SessionUnlock</StateChange>
-    </SessionStateChangeTrigger>
-  </Triggers>
-  <Principals>
-    <Principal id="Author">
-      <LogonType>InteractiveToken</LogonType>
-      <RunLevel>LeastPrivilege</RunLevel>
-    </Principal>
-  </Principals>
-  <Settings>
-    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
-    <StartWhenAvailable>true</StartWhenAvailable>
-    <ExecutionTimeLimit>PT1H</ExecutionTimeLimit>
-  </Settings>
-  <Actions Context="Author">
-    <Exec>
-      <Command>wsl.exe</Command>
-      <Arguments>$WslArg</Arguments>
-    </Exec>
-  </Actions>
-</Task>
-"@
-
-Register-ScheduledTask -TaskName $UnlockTask -Xml $Xml -Force | Out-Null
-Write-Host "[OK] Scheduled task: $UnlockTask (on session unlock)"
+$LoginTask = 'ProofCodexHubOnLogin'
+$Action = New-ScheduledTaskAction -Execute 'wsl.exe' -Argument $WslArgs
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+Register-ScheduledTask -TaskName $LoginTask -Action $Action -Trigger (New-ScheduledTaskTrigger -AtLogOn) -Settings $Settings -Description 'Proof Codex hub start at Windows login' -Force | Out-Null
+Write-Host "[OK] Scheduled task: $LoginTask (at login)"
+Write-Host "[!] After unlock (not reboot): double-click HUB_RECOVERY.bat if agent offline"
 
 Write-Host ""
 Write-Host "DONE - hub should stay awake on AC power."
