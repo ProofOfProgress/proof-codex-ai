@@ -8,12 +8,27 @@ $ErrorActionPreference = 'Stop'
 function Write-Ok($m) { Write-Host "[OK] $m" -ForegroundColor Green }
 function Write-Warn($m) { Write-Host "[!] $m" -ForegroundColor Yellow }
 
-$sshdExe = Join-Path $env:ProgramFiles 'OpenSSH\sshd.exe'
-$keygenExe = Join-Path $env:ProgramFiles 'OpenSSH\ssh-keygen.exe'
+function Resolve-OpenSshExe($name) {
+    $paths = @(
+        (Join-Path $env:WINDIR "System32\OpenSSH\$name"),
+        (Join-Path ${env:ProgramFiles} "OpenSSH\$name")
+    )
+    foreach ($p in $paths) {
+        if (Test-Path -LiteralPath $p) { return $p }
+    }
+    return $null
+}
+
+$sshdExe = Resolve-OpenSshExe 'sshd.exe'
+$keygenExe = Resolve-OpenSshExe 'ssh-keygen.exe'
 $SshdConfig = Join-Path $env:ProgramData 'ssh\sshd_config'
 
-if (-not (Test-Path $sshdExe)) {
-    Write-Error "OpenSSH Server not installed. Run INSTALL_HUB_ALL_LOCAL.ps1 first."
+if (-not $sshdExe) {
+    Write-Error 'OpenSSH Server not found. Run: Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0'
+}
+
+if (-not (Get-Service sshd -ErrorAction SilentlyContinue)) {
+    Write-Error 'OpenSSH sshd service missing. Re-run INSTALL_HUB_ALL_LOCAL.ps1 as Admin.'
 }
 
 # Host keys (missing keys prevent sshd start on fresh install)
