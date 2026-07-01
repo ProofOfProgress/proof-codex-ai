@@ -20,6 +20,8 @@ Every **new Cursor Cloud Agent chat** should run this checklist first. Secrets i
 
 **Current phase:** **Affiliate launch first** (8–10 GOOD/day, midnight Launch Date) **+ bubble wrap parallel** → `docs/LAUNCH_TODO.md`
 
+**Branch rule (important):** Cloud agents **boot from `main`**. Hub scripts, bubble scheduler, and install fixes must be **merged to `main`** or the next agent run starts “fresh” without them. After merge, hub laptop: `git checkout main && git pull`.
+
 **Agent team:** `docs/FOR_OWNER_AGENT_TEAM.md` — CEO is main chat · `/team` for roster.
 
 **Dead (never suggest):** Fix It Fast, Rapid Tool Review, Ms. Byte lane, InVideo, Peripheral horror.
