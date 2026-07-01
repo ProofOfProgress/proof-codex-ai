@@ -49,9 +49,9 @@ Register-ScheduledTask -TaskName "${TaskName}Interval" -Action $Action -Trigger 
 Register-ScheduledTask -TaskName "${TaskName}Unlock" -Xml $UnlockXml -Force | Out-Null
 
 Write-Host ""
-Write-Host "OK — watchdog tasks registered:"
+Write-Host "OK - watchdog tasks registered:"
 Write-Host "  - at login"
 Write-Host "  - every 3 minutes"
 Write-Host "  - on session unlock"
-Write-Host "Log: $RepoWin\data\desktop_hub\hub_watchdog.log"
+Write-Host ('Log: ' + (Join-Path $RepoWin 'data/desktop_hub/hub_watchdog.log'))
 Write-Host ""

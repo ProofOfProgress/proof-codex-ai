@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 Write-Host ""
-Write-Host "=== Proof Codex — Hub Never Sleep ==="
+Write-Host "=== Proof Codex - Hub Never Sleep ==="
 Write-Host ""
 
 # --- Power: no sleep / no hibernate on AC ---
@@ -52,7 +52,7 @@ $Xml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Proof Codex — restart hub after Windows unlock</Description>
+    <Description>Proof Codex - restart hub after Windows unlock</Description>
   </RegistrationInfo>
   <Triggers>
     <SessionStateChangeTrigger>
@@ -84,7 +84,7 @@ Register-ScheduledTask -TaskName $UnlockTask -Xml $Xml -Force | Out-Null
 Write-Host "[OK] Scheduled task: $UnlockTask (on session unlock)"
 
 Write-Host ""
-Write-Host "DONE — hub should stay awake on AC power."
+Write-Host "DONE - hub should stay awake on AC power."
 Write-Host "Keep laptop PLUGGED IN."
 Write-Host "Settings -> Accounts -> Sign-in options -> Never require sign-in when away."
 Write-Host "Also run INSTALL_HUB_AUTOSTART.bat if you have not (starts hub after reboot login)."

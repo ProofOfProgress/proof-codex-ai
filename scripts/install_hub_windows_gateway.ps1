@@ -11,7 +11,7 @@ function Write-Step($msg) { Write-Host "[OK] $msg" -ForegroundColor Green }
 function Write-Warn($msg) { Write-Host "[!] $msg" -ForegroundColor Yellow }
 
 Write-Host ""
-Write-Host "=== Proof Codex — Hub Windows Gateway (port $SshPort) ==="
+Write-Host "=== Proof Codex - Hub Windows Gateway (port $SshPort) ==="
 Write-Host ""
 
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
@@ -84,7 +84,7 @@ Write-Step "sshd restarted"
 $WslUser = (wsl.exe whoami).Trim()
 $PubKey = (wsl.exe -u $WslUser bash -lc "cat ~/.ssh/cursor_agent_ed25519.pub 2>/dev/null" 2>$null).Trim()
 if (-not $PubKey) {
-    Write-Warn "No cursor_agent key in WSL — run: bash scripts/hub_remote_setup.sh"
+    Write-Warn "No cursor_agent key in WSL - run: bash scripts/hub_remote_setup.sh"
 } else {
     $WinUser = $env:USERNAME
     $AuthDir = Join-Path $env:USERPROFILE '.ssh'
@@ -108,7 +108,7 @@ $tsExe = Join-Path ${env:ProgramFiles} 'Tailscale\tailscale.exe'
 if (-not (Test-Path $tsExe)) {
     Write-Warn "Tailscale Windows app not found."
     Write-Host "    Install: winget install Tailscale.Tailscale"
-    Write-Host "    Log in once in the tray icon — stays up when laptop is locked."
+    Write-Host "    Log in once in the tray icon - stays up when laptop is locked."
 } else {
     Write-Step "Tailscale Windows app found"
     $tsIp = & $tsExe ip -4 2>$null
@@ -119,7 +119,7 @@ if (-not (Test-Path $tsExe)) {
         Write-Host "Update Cursor secret HUB_SSH_PORT = $SshPort"
         Write-Host "Start a NEW cloud agent run after updating secrets."
     } else {
-        Write-Warn "Tailscale not logged in — open tray icon and connect"
+        Write-Warn "Tailscale not logged in - open tray icon and connect"
     }
 }
 
