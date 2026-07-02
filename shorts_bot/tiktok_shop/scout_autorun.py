@@ -100,15 +100,15 @@ def run_autonomous_scout(*, preset: str = "coach_high_ticket_furniture", limit: 
         if multi:
             return multi
 
-    if settings.has_gemini:
-        try:
-            from shorts_bot.tiktok_shop.kalodata_live_scrape import scout_live_edge_table
+    try:
+        from shorts_bot.tiktok_shop.kalodata_live_scrape import _gemini_key, scout_live_edge_table
 
+        if _gemini_key():
             live = scout_live_edge_table(limit=limit)
             if live:
                 return live
-        except Exception as exc:
-            print(f"WARN live Kalodata scrape: {exc}", flush=True)
+    except Exception as exc:
+        print(f"WARN live Kalodata scrape: {exc}", flush=True)
 
     provider = resolve_scout_provider(preset=preset)
     if not provider:

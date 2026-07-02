@@ -9,8 +9,16 @@ import sys
 import time
 from pathlib import Path
 
+from shorts_bot.agent_credentials import load_agent_credentials
 from shorts_bot.config import settings
 from shorts_bot.tiktok_shop.product_scout import ScoutProduct
+
+
+def _gemini_key() -> str:
+    load_agent_credentials()
+    import os
+
+    return (os.environ.get("GEMINI_API_KEY") or settings.gemini_api_key or "").strip()
 
 
 def _root() -> Path:
@@ -29,7 +37,7 @@ def hub_screenshot(rel_path: str = "data/desktop_hub/kalodata_scrape.png") -> Pa
 def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
     from google import genai
 
-    key = (settings.gemini_api_key or "").strip()
+    key = _gemini_key()
     if not key:
         return []
     client = genai.Client(api_key=key)
@@ -96,7 +104,7 @@ def rows_to_scout(rows: list[dict], *, preset: str = "kalodata_live") -> list[Sc
 
 def scout_live_edge_table(*, limit: int = 15, preset: str = "kalodata_live") -> list[ScoutProduct]:
     """Screenshot owner's screen (Kalodata list visible) → Gemini parse → quality gate."""
-    if not settings.has_gemini:
+    if not _gemini_key():
         return []
     shot = hub_screenshot()
     rows = gemini_extract_products(shot, limit=limit)
