@@ -26,6 +26,12 @@ def main(argv: list[str] | None = None) -> int:
     open_p.add_argument("--minutes", type=int, default=15)
     open_p.add_argument("--block", action="store_true", help="Keep open until timeout")
 
+    crawl_course_p = sub.add_parser(
+        "crawl-course",
+        help="Crawl Momentum Academy (Playwright DOM, read-only)",
+    )
+    crawl_course_p.add_argument("--max-pages", type=int, default=25)
+
     args = parser.parse_args(argv)
 
     if args.cmd == "status":
@@ -41,6 +47,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "open":
         result = open_browser_for_human(args.url, minutes=args.minutes, block=args.block)
         console.print(result.message or result.url)
+        return 0
+
+    if args.cmd == "crawl-course":
+        from shorts_bot.browser.course_session import crawl_course_site
+
+        path = crawl_course_site(max_pages=args.max_pages)
+        console.print(f"[green]Wrote[/green] {path}")
         return 0
 
     return 1

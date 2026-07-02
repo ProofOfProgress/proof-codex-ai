@@ -42,6 +42,15 @@ def _load_course_creds() -> tuple[str, str, str]:
     return email, password, url
 
 
+def _logged_in(page) -> bool:
+    body = (page.inner_text("body") or "").lower()
+    if "sign out" in body or "log out" in body or "welcome back" in body:
+        return True
+    if "sign in" in body and "credentials" in body:
+        return False
+    return "momentum academy" in body and "dashboard" in body
+
+
 def login_and_save_session(*, headless: bool = True) -> Path:
     """Log into Momentum Academy; persistent profile for future crawls."""
     from playwright.sync_api import sync_playwright
@@ -88,8 +97,7 @@ def login_and_save_session(*, headless: bool = True) -> Path:
         page.wait_for_load_state("domcontentloaded", timeout=60_000)
         time.sleep(3)
 
-        body = (page.inner_text("body") or "").lower()
-        if "sign in" in body and "sign out" not in body and "log out" not in body:
+        if not _logged_in(page):
             raise RuntimeError("Momentum Academy login may have failed — still on sign-in page")
 
         ctx.close()
@@ -121,3 +129,116 @@ def crawl_visible_text(*, max_chars: int = 50_000) -> str:
         pw.stop()
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
     return text[:max_chars]
+
+
+def _ensure_logged_in_page(page, *, base: str, email: str, password: str) -> None:
+    page.goto(base, wait_until="domcontentloaded", timeout=120_000)
+    time.sleep(2)
+    if _logged_in(page):
+        return
+    page.goto(f"{base}/login?v=1", wait_until="domcontentloaded", timeout=120_000)
+    time.sleep(1)
+    if page.locator('input[type="email"]').count():
+        page.locator('input[type="email"]').first.fill(email)
+        page.locator('input[type="password"]').first.fill(password)
+        page.locator('button:has-text("Sign in")').first.click()
+        page.wait_for_load_state("domcontentloaded", timeout=60_000)
+        time.sleep(2)
+    if not _logged_in(page):
+        raise RuntimeError("Momentum Academy session expired — re-run hub_course_login.sh")
+
+
+def _discover_internal_links(page, base: str) -> list[str]:
+    hrefs: list[str] = page.evaluate(
+        """() => Array.from(document.querySelectorAll('a[href]'))
+        .map(a => a.href).filter(Boolean)"""
+    )
+    base_host = base.replace("https://", "").replace("http://", "").split("/")[0]
+    seen: set[str] = set()
+    out: list[str] = []
+    for href in hrefs:
+        if base_host not in href:
+            continue
+        clean = href.split("#")[0].rstrip("/")
+        if clean in seen or "/login" in clean:
+            continue
+        seen.add(clean)
+        out.append(clean)
+    return out
+
+
+# Nav labels worth crawling even if link discovery misses them
+_PRIORITY_PATHS = (
+    "",
+    "/program",
+    "/resources",
+    "/dashboard",
+    "/end-of-day",
+    "/weekly-drop",
+)
+
+
+def crawl_course_site(*, max_pages: int = 25, max_chars: int = 30_000) -> Path:
+    """
+    Crawl Momentum Academy with saved Playwright profile (DOM text, read-only).
+    Writes data/research/course/inbox/momentum-crawl-YYYY-MM-DD.md
+    """
+    from playwright.sync_api import sync_playwright
+
+    from shorts_bot.browser.stealth import launch_stealth_context
+
+    email, password, base = _load_course_creds()
+    profile = _profile_dir()
+    profile.mkdir(parents=True, exist_ok=True)
+
+    inbox = settings.data_dir / "research" / "course" / "inbox"
+    inbox.mkdir(parents=True, exist_ok=True)
+    stamp = time.strftime("%Y-%m-%d")
+    out_path = inbox / f"momentum-crawl-{stamp}.md"
+
+    pw = sync_playwright().start()
+    sections: list[str] = [
+        f"# Momentum Academy crawl — {stamp}",
+        "",
+        f"Base: {base} · profile: `{profile}` · read-only DOM extract",
+        "",
+    ]
+    visited: set[str] = set()
+
+    try:
+        ctx = launch_stealth_context(pw, headless=True, profile_dir=profile)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        _ensure_logged_in_page(page, base=base, email=email, password=password)
+
+        candidates = [f"{base}{p}" if p else base for p in _PRIORITY_PATHS]
+        candidates.extend(_discover_internal_links(page, base))
+        # De-dupe preserve order
+        ordered: list[str] = []
+        for url in candidates:
+            key = url.rstrip("/")
+            if key not in visited:
+                visited.add(key)
+                ordered.append(url)
+
+        for url in ordered[:max_pages]:
+            try:
+                page.goto(url, wait_until="domcontentloaded", timeout=90_000)
+                time.sleep(1.5)
+                title = page.title() or url
+                text = page.inner_text("main") or page.inner_text("body") or ""
+                text = re.sub(r"\n{3,}", "\n\n", text).strip()[:max_chars]
+                sections.extend([f"## {title}", "", f"URL: {page.url}", ""])
+                if text:
+                    sections.append(text)
+                else:
+                    sections.append("(no text)")
+                sections.append("")
+            except Exception as exc:
+                sections.extend([f"## {url}", "", f"ERROR: {exc}", ""])
+
+        ctx.close()
+    finally:
+        pw.stop()
+
+    out_path.write_text("\n".join(sections).rstrip() + "\n", encoding="utf-8")
+    return out_path
