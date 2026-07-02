@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -18,10 +19,10 @@ from shorts_bot.tiktok_shop import kalodata_client
 def main() -> int:
     load_agent_credentials()
     keys = credential_keys()
+    gkey = (os.environ.get("GEMINI_API_KEY") or settings.gemini_api_key or "").strip()
     print("credential_keys:", ", ".join(keys) or "(none)")
     print("kalodata_pilot:", kalodata_client.configured())
-    print("gemini:", bool((settings.gemini_api_key or "").strip()))
-    print("has_gemini:", settings.has_gemini)
+    print("gemini:", bool(gkey))
     return 0
 
 

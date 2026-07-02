@@ -26,6 +26,17 @@ def _root() -> Path:
 
 
 def hub_screenshot(rel_path: str = "data/desktop_hub/kalodata_scrape.png") -> Path:
+    # Scroll product table so revenue column is visible before capture.
+    try:
+        client = __import__(
+            "shorts_bot.desktop_hub.client", fromlist=["DesktopHubClient"]
+        ).DesktopHubClient()
+        client.ping()
+        for _ in range(3):
+            client.press("pagedown")
+            time.sleep(0.4)
+    except Exception:
+        pass
     subprocess.run(
         [sys.executable, "-m", "shorts_bot.desktop_hub.cli", "screenshot", "--out", rel_path],
         cwd=_root(),
@@ -44,10 +55,13 @@ def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
     model = (settings.gemini_model or "gemini-2.5-flash-lite").strip()
     prompt = (
         f"Extract up to {limit} TikTok Shop products from this Kalodata product LIST table screenshot. "
-        "Return ONLY JSON array. Each object must include: "
-        "product_name, price, avg_unit_price, commission_pct, revenue, growth_pct, creators, videos. "
-        "commission_pct is affiliate commission percent (number, e.g. 12 for 12%). "
-        "revenue is period GMV in USD. Numbers only — no $ signs in JSON."
+        "Read the TABLE columns carefully — do not guess. "
+        "revenue must be the Revenue / GMV column (often thousands or millions, e.g. 15000 or 1.2M). "
+        "If revenue cell shows K/M suffix, convert to full USD number. "
+        "commission_pct is the Commission % column (reject rows if not visible). "
+        "Return ONLY JSON array. Each object: "
+        "product_name, avg_unit_price, commission_pct, revenue, growth_pct, creators, videos. "
+        "Numbers only in JSON."
     )
     for attempt in range(4):
         try:
@@ -68,6 +82,23 @@ def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
     return []
 
 
+def _parse_revenue(raw: object) -> float:
+    if raw is None:
+        return 0.0
+    text = str(raw).replace("$", "").replace(",", "").strip().upper()
+    mult = 1.0
+    if text.endswith("K"):
+        mult = 1_000.0
+        text = text[:-1]
+    elif text.endswith("M"):
+        mult = 1_000_000.0
+        text = text[:-1]
+    try:
+        return float(text) * mult
+    except ValueError:
+        return 0.0
+
+
 def rows_to_scout(rows: list[dict], *, preset: str = "kalodata_live") -> list[ScoutProduct]:
     out: list[ScoutProduct] = []
     for row in rows:
@@ -81,9 +112,9 @@ def rows_to_scout(rows: list[dict], *, preset: str = "kalodata_live") -> list[Sc
         if comm > 1:
             comm /= 100.0
         if comm <= 0:
-            comm = 0.10
+            continue
         creators = int(float(row.get("creators") or 0))
-        gmv = float(row.get("revenue") or row.get("gmv") or 0)
+        gmv = _parse_revenue(row.get("revenue") or row.get("gmv"))
         videos = int(float(row.get("videos") or 0))
         out.append(
             ScoutProduct(
