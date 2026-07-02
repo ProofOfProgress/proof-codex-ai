@@ -19,7 +19,7 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
       1. hub_ui — owner pasted Kalodata filter URL for this preset
       2. kalodata — KaloPilot token
       3. fastmoss — OpenAPI keys
-      4. momentum_weekly_drop — coach weekly drop from Momentum Academy crawl
+    Weekly drop is NEVER auto — reference only (owner 2026-07).
     """
     choice = (settings.scout_provider or "auto").strip().lower()
     if choice == "hub_ui":
@@ -37,8 +37,6 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
             return "kalodata"
         if fastmoss_client.configured():
             return "fastmoss"
-        if momentum_weekly_drop_available():
-            return "momentum_weekly_drop"
     return ""
 
 

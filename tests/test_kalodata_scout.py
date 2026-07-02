@@ -83,7 +83,7 @@ def test_scout_via_kalodata_parses_table(monkeypatch):
     assert products[0].gmv_period == 15000
 
 
-def test_resolve_scout_provider_momentum_fallback(monkeypatch, tmp_path):
+def test_resolve_scout_provider_no_weekly_drop_fallback(monkeypatch, tmp_path):
     import json
 
     weekly = tmp_path / "tiktok_shop" / "momentum_weekly_drop.json"
@@ -92,10 +92,21 @@ def test_resolve_scout_provider_momentum_fallback(monkeypatch, tmp_path):
 
     filters = tmp_path / "kalodata_filters.json"
     filters.write_text(json.dumps({"presets": {}}), encoding="utf-8")
-    monkeypatch.setattr(kalodata_filters, "filters_path", lambda: filters)
+    monkeypatch.setattr("shorts_bot.tiktok_shop.kalodata_filters.filters_path", lambda: filters)
 
     fake = type("S", (), {"scout_provider": "auto", "data_dir": tmp_path})()
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.settings", fake)
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.kalodata_client.configured", lambda: False)
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.fastmoss_client.configured", lambda: False)
-    assert resolve_scout_provider(preset="middle_core") == "momentum_weekly_drop"
+    assert resolve_scout_provider(preset="middle_core") == ""
+
+
+def test_preset_has_url_rejects_product_detail():
+    from shorts_bot.tiktok_shop import kalodata_filters
+
+    assert kalodata_filters._is_list_filter_url(
+        "https://www.kalodata.com/product/detail?id=123"
+    ) is False
+    assert kalodata_filters._is_list_filter_url(
+        "https://www.kalodata.com/product?filters=abc"
+    ) is True

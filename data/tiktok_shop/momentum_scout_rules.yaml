@@ -35,4 +35,16 @@ coach_call_2026_06_30:
   visual: blacked_out_screens_in_prompts
   movement: required_in_kling_prompts
 
+furniture:
+  category: Furniture
+  notes: Easiest to research per coach — use clean empty room prompts for 1-clip
+  course_path: data/research/course/inbox/momentum-deep/060-course-g-furniture-products.md
+
+weekly_drop:
+  use_for_scout: false
+  reference_only: true
+  owner_approved_examples:
+    - BASED Complete Curly Kit
+    - NOBULL Men's Allday 365 (Ripstop) Shoe in White Gum
+
 weekly_drop_path: data/tiktok_shop/momentum_weekly_drop.json

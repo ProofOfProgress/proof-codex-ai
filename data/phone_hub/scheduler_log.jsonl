@@ -16,3 +16,6 @@
 {"at": "2026-07-02T04:57:42.778476+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
 {"at": "2026-07-02T04:57:42.780350+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
 {"at": "2026-07-02T04:57:42.780938+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T07:01:01.106619+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T07:01:01.108404+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T07:01:01.109154+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
