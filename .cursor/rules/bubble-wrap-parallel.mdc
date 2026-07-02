@@ -1,10 +1,12 @@
 ---
-description: Bubble wrap growth track — 4 accounts, Mackenzie slideshows, parallel to affiliate (not a launch blocker)
+description: Bubble wrap growth track — 2 accounts at launch (scale to 4), Mackenzie slideshows, parallel to affiliate
 globs: data/research/course/BUBBLE_WRAP.md,data/tiktok_shop/accounts.json,docs/FOR_OWNER_PHONE_HUB.md,docs/FOR_OWNER_MINI_PC_INSTALL.md,docs/FOR_OWNER_REMOTE_HUB_SSH.md
 alwaysApply: false
 ---
 
 # Bubble wrap (parallel track)
+
+**Owner update (2026-07):** Start with **2 bubble-wrap accounts**, not 4 — cuts phones/SIM cost. See `bubble-two-accounts` rule.
 
 **Goal:** 0 → ~1k followers per growth account. **Not** affiliate product videos (Modules 3–8).
 
@@ -14,7 +16,7 @@ Source: `data/research/course/BUBBLE_WRAP.md`
 
 Affiliate launch needs: purchased account + FastMoss + Kling + Zernio — **no phones required**.
 
-Bubble hardware (4 phones + HP hub) can lag weeks behind affiliate posting.
+Bubble hardware (2 phones at launch; scale to 4 later) can lag weeks behind affiliate posting.
 
 ## Format (locked)
 
@@ -23,12 +25,14 @@ Bubble hardware (4 phones + HP hub) can lag weeks behind affiliate posting.
 - Slide 2: Pause/Follow/Share/Comment pop interaction lines
 - **Mackenzie sound** required: see `BUBBLE_WRAP.md` for URL
 
-## Account cadence (`accounts.json`)
+## Account cadence (launch — 2 phones)
 
-| Cadence | Posts/day |
-|---------|-----------|
-| Safe (phone_1, phone_4) | 3–4 |
-| Aggressive (phone_2, phone_3) | 8–10 |
+| Slot | Cadence | Posts/day |
+|------|---------|-----------|
+| `phone_1` | Safe | 3–4 |
+| `phone_2` | Aggressive (or second safe) | 3–10 |
+
+Add `phone_3`/`phone_4` when profitable — not required for affiliate launch.
 
 Post via Zernio on bubble IDs — **never** post affiliate clips to bubble accounts or vice versa.
 

@@ -2,11 +2,11 @@
   "version": 1,
   "region": "US",
   "products_page": "https://www.kalodata.com/product",
-  "_owner_setup": "Log into Kalodata on the hub once. Apply each filter preset in the UI, click Apply, copy the full browser URL, paste into filter_url below. Agent then loads that URL — no clicking needed.",
+  "_owner_setup": "Log into Kalodata on the hub once. Apply each filter preset in the UI, click Apply, copy the full browser URL, paste into filter_url below. Agent then loads that URL \u2014 no clicking needed.",
   "presets": {
     "middle_core": {
       "label": "middle core",
-      "filter_url": "",
+      "filter_url": "https://www.kalodata.com/product/detail?id=17295083709696291&language=en-US&currency=USD&region=US&dateRange=%5B%222026-06-01%22%2C%222026-06-30%22%5D&cateValue=",
       "filters_reference": {
         "date": "last_7_days",
         "revenue_growth_min_pct": 50,
@@ -35,7 +35,7 @@
       "filter_url": "",
       "filters_reference": {
         "date": "yesterday",
-        "note": "Copy your saved Kalodata filter URL — may be empty some days"
+        "note": "Copy your saved Kalodata filter URL \u2014 may be empty some days"
       }
     }
   }

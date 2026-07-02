@@ -1,0 +1,38 @@
+# Momentum Academy Product Scout rules (from course platform UI)
+# Source: app.momentumacademy.co/product-scout + weekly drop + coach call 2026-06-30
+
+version: 1
+source: momentum_academy
+notes: |
+  Platform Product Scout is BETA — use Kalodata UI scout + these rules for automation.
+  Weekly Drop products are pre-vetted by coaches — prefer when available.
+
+scout_formula:
+  commission_min_pct: 10
+  price_min_usd: 12
+  creator_saturation: low  # per-niche creator caps
+  trend: rising
+  selling_well: yesterday_or_7d
+
+middle_core:
+  date: last_7_days
+  revenue_growth_min_pct: 50
+  creator_max: 200
+  commission_min_pct: 20
+
+two_hundred:
+  date: yesterday
+  revenue_growth_min_pct: 100
+  creator_max: 200
+
+coach_call_2026_06_30:
+  revenue_7d_min_usd: 10000
+  revenue_source: video
+  growth_min_pct: 30
+  price_min_usd: 80
+  creators_max: 200
+  commission_min_pct: 8
+  visual: blacked_out_screens_in_prompts
+  movement: required_in_kling_prompts
+
+weekly_drop_path: data/tiktok_shop/momentum_weekly_drop.json

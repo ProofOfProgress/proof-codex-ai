@@ -1,9 +1,14 @@
-"""Resolve product scout backend — Kalodata hub UI, KaloPilot, or FastMoss."""
+"""Resolve product scout backend — Kalodata hub UI, KaloPilot, FastMoss, or course intel."""
 
 from __future__ import annotations
 
 from shorts_bot.config import settings
 from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client, kalodata_filters
+
+
+def momentum_weekly_drop_available() -> bool:
+    path = settings.data_dir / "tiktok_shop" / "momentum_weekly_drop.json"
+    return path.is_file() and path.stat().st_size > 10
 
 
 def resolve_scout_provider(*, preset: str = "middle_core") -> str:
@@ -14,6 +19,7 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
       1. hub_ui — owner pasted Kalodata filter URL for this preset
       2. kalodata — KaloPilot token
       3. fastmoss — OpenAPI keys
+      4. momentum_weekly_drop — coach weekly drop from Momentum Academy crawl
     """
     choice = (settings.scout_provider or "auto").strip().lower()
     if choice == "hub_ui":
@@ -22,6 +28,8 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
         return "kalodata" if kalodata_client.configured() else ""
     if choice == "fastmoss":
         return "fastmoss" if fastmoss_client.configured() else ""
+    if choice == "momentum_weekly_drop":
+        return "momentum_weekly_drop" if momentum_weekly_drop_available() else ""
     if choice == "auto":
         if kalodata_filters.preset_has_url(preset):
             return "hub_ui"
@@ -29,11 +37,14 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
             return "kalodata"
         if fastmoss_client.configured():
             return "fastmoss"
+        if momentum_weekly_drop_available():
+            return "momentum_weekly_drop"
     return ""
 
 
 def scout_setup_hint(*, preset: str = "middle_core") -> str:
     missing = kalodata_filters.missing_presets()
+    weekly = settings.data_dir / "tiktok_shop" / "momentum_weekly_drop.json"
     return (
         "Product scout needs a backend:\n"
         "  **Best (filters):** paste Kalodata filter_url for "
@@ -41,5 +52,6 @@ def scout_setup_hint(*, preset: str = "middle_core") -> str:
         f"(missing: {', '.join(missing) or 'none'})\n"
         "  Kalodata AI: KALODATA_PILOT_TOKEN from kalodata.com/pilot\n"
         "  FastMoss: developers.fastmoss.com free API trial\n"
+        f"  Course intel: run hub crawl → {weekly}\n"
         "See docs/FOR_OWNER_KALODATA_HUB_SETUP.md"
     )

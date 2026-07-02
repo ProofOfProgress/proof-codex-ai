@@ -48,6 +48,12 @@ def main() -> None:
         elif provider == "fastmoss":
             console.print("[green]Scout backend: FastMoss OpenAPI (credentials set)[/green]")
             console.print("[yellow]Product rank endpoints not wired yet — token test via ping[/yellow]")
+        elif provider == "momentum_weekly_drop":
+            from shorts_bot.tiktok_shop.product_scout import load_momentum_weekly_drop
+
+            n = len(load_momentum_weekly_drop(limit=50))
+            console.print("[green]Scout backend: Momentum weekly drop (course intel)[/green]")
+            console.print(f"[dim]{n} coach-vetted products in momentum_weekly_drop.json[/dim]")
         else:
             console.print("[red]Scout backend: not configured[/red]")
             console.print(scout_setup_hint(preset="middle_core"))

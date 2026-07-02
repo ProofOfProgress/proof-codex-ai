@@ -170,6 +170,8 @@ def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[Scou
 
         ping = fastmoss_client.ping()
         raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet")
+    if provider == "momentum_weekly_drop":
+        return load_momentum_weekly_drop(limit=limit)
 
     raise RuntimeError(scout_setup_hint(preset=preset))
 
@@ -266,6 +268,42 @@ def enrich_cover_urls(products: list[dict]) -> list[dict]:
 
 def products_path() -> Path:
     return settings.data_dir / "tiktok_shop" / "products.json"
+
+
+def load_momentum_weekly_drop(*, limit: int = 25) -> list[ScoutProduct]:
+    """Coach weekly drop JSON (parsed from Momentum crawl)."""
+    path = settings.data_dir / "tiktok_shop" / "momentum_weekly_drop.json"
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = data.get("products") if isinstance(data, dict) else data
+    if not isinstance(rows, list):
+        return []
+    out: list[ScoutProduct] = []
+    for row in rows[:limit]:
+        if not isinstance(row, dict):
+            continue
+        name = str(row.get("product_name") or "").strip()
+        if not name:
+            continue
+        price = float(row.get("price") or 0)
+        rate = float(row.get("commission_rate") or 0)
+        out.append(
+            ScoutProduct(
+                product_id="",
+                product_name=name,
+                price=price,
+                commission_rate=rate,
+                commission_usd=float(row.get("commission_usd") or price * rate),
+                gmv_period=float(row.get("weekly_revenue") or 0),
+                creators=int(row.get("creators") or 0),
+                videos=0,
+                preset="momentum_weekly_drop",
+                score=min(100.0, 50.0 + float(row.get("growth_pct") or 0) / 10.0),
+            )
+        )
+    out.sort(key=lambda p: p.score, reverse=True)
+    return out
 
 
 def save_products(products: list[ScoutProduct]) -> Path:

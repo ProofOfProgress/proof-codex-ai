@@ -11,6 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from shorts_bot.agent_ops.log import append_event, list_missions, mission_events, new_mission
+from shorts_bot.agent_ops.mission_continue import mission_continue_hint
 
 console = Console()
 
@@ -38,6 +39,12 @@ def main(argv: list[str] | None = None) -> None:
     mission_new = start_sub.add_parser("new", help="Create a mission and print its id")
     mission_new.add_argument("--name", required=True)
     mission_new.add_argument("--owner", default="")
+    mission_cont = start_sub.add_parser(
+        "continue",
+        help="Suggest next CEO step from mission log (self-continue Phase 2)",
+    )
+    mission_cont.add_argument("--mission", default="latest")
+    mission_cont.add_argument("--json", action="store_true")
 
     log = sub.add_parser("log", help="Append one mission event")
     log.add_argument("--mission", required=True)
@@ -61,6 +68,22 @@ def main(argv: list[str] | None = None) -> None:
     if args.cmd == "mission" and args.mission_cmd == "new":
         mid = new_mission(args.name, owner=args.owner)
         console.print(mid)
+        return
+
+    if args.cmd == "mission" and args.mission_cmd == "continue":
+        hint = mission_continue_hint(mission_id=args.mission)
+        if args.json:
+            print(json.dumps(hint, indent=2))
+            return
+        if not hint.get("ok"):
+            console.print(f"[red]{hint.get('message')}[/red]", file=sys.stderr)
+            raise SystemExit(1)
+        console.print(
+            Panel(
+                f"[bold]Action:[/bold] {hint.get('action')}\n\n{hint.get('message')}",
+                title=f"Mission continue — {hint.get('mission_id')}",
+            )
+        )
         return
 
     if args.cmd == "log":

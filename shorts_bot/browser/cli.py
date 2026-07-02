@@ -31,6 +31,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Crawl Momentum Academy (Playwright DOM, read-only)",
     )
     crawl_course_p.add_argument("--max-pages", type=int, default=25)
+    crawl_course_p.add_argument(
+        "--deep",
+        action="store_true",
+        help="BFS deep crawl (up to 100 pages)",
+    )
+
+    crawl_discord_p = sub.add_parser(
+        "crawl-discord",
+        help="Read-only Discord web scrape (hub profile)",
+    )
 
     args = parser.parse_args(argv)
 
@@ -50,9 +60,21 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "crawl-course":
-        from shorts_bot.browser.course_session import crawl_course_site
+        if args.deep:
+            from shorts_bot.browser.course_deep_crawl import deep_crawl_momentum
 
-        path = crawl_course_site(max_pages=args.max_pages)
+            path = deep_crawl_momentum(max_pages=max(args.max_pages, 100))
+        else:
+            from shorts_bot.browser.course_session import crawl_course_site
+
+            path = crawl_course_site(max_pages=args.max_pages)
+        console.print(f"[green]Wrote[/green] {path}")
+        return 0
+
+    if args.cmd == "crawl-discord":
+        from shorts_bot.browser.discord_session import crawl_discord
+
+        path = crawl_discord()
         console.print(f"[green]Wrote[/green] {path}")
         return 0
 
