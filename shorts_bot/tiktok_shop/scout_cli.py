@@ -19,11 +19,7 @@ def main() -> None:
     sub.add_parser("ping", help="Live API test (FastMoss when configured)")
 
     run = sub.add_parser("run", help="Fetch + score products (FastMoss API when wired)")
-    run.add_argument(
-        "--preset",
-        choices=("middle_core", "two_hundred", "hardcore_lurkers", "hundred_gap"),
-        default="middle_core",
-    )
+    run.add_argument("--preset", default="core_middle_core", help="Kalodata preset key (see kalodata_filters.json)")
     run.add_argument("--limit", type=int, default=10)
     run.add_argument("--json", action="store_true")
 

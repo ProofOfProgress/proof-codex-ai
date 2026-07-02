@@ -10,12 +10,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FILTERS = ROOT / "data" / "tiktok_shop" / "kalodata_filters.json"
 
-PRESETS = ("middle_core", "two_hundred", "hardcore_lurkers", "hundred_gap")
+def _preset_choices() -> list[str]:
+    from shorts_bot.tiktok_shop import kalodata_filters
+
+    names = kalodata_filters.list_preset_names()
+    # include legacy aliases
+    aliases = list(kalodata_filters.PRESET_ALIASES.keys())
+    return sorted(set(names) | set(aliases))
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Save Kalodata filter URL for a scout preset")
-    parser.add_argument("preset", choices=PRESETS, help="Which course filter preset")
+    parser.add_argument("preset", choices=_preset_choices(), help="Which course filter preset")
     parser.add_argument("url", help="Full browser URL after Apply in Kalodata")
     parser.add_argument("--list", action="store_true", help="Show which presets still need URLs")
     args = parser.parse_args()
@@ -24,26 +30,25 @@ def main() -> int:
         print(f"ERROR: missing {FILTERS}", file=sys.stderr)
         return 1
 
+    from shorts_bot.tiktok_shop import kalodata_filters
+
     data = json.loads(FILTERS.read_text(encoding="utf-8"))
     presets = data.setdefault("presets", {})
-    if args.preset not in presets:
-        presets[args.preset] = {"label": args.preset, "filter_url": ""}
+    preset_key = kalodata_filters.normalize_preset(args.preset)
+    if preset_key not in presets:
+        presets[preset_key] = {"label": preset_key, "filter_url": ""}
 
     url = args.url.strip()
     if not url.startswith("http"):
         print("ERROR: URL must start with http", file=sys.stderr)
         return 2
 
-    presets[args.preset]["filter_url"] = url
+    presets[preset_key]["filter_url"] = url
     FILTERS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-    print(f"OK — saved {args.preset} filter_url ({len(url)} chars)")
+    print(f"OK — saved {preset_key} filter_url ({len(url)} chars)")
     print(f"File: {FILTERS}")
 
-    missing = [
-        name
-        for name in PRESETS
-        if not str((presets.get(name) or {}).get("filter_url") or "").strip()
-    ]
+    missing = kalodata_filters.missing_presets(priority_only=True)
     if missing:
         print(f"Still need URLs for: {', '.join(missing)}")
     else:

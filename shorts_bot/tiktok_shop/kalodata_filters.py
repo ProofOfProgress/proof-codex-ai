@@ -8,11 +8,22 @@ from typing import Any
 
 from shorts_bot.config import settings
 
+# Legacy CLI names → keys in kalodata_filters.json
+PRESET_ALIASES: dict[str, str] = {
+    "middle_core": "core_middle_core",
+    "two_hundred": "core_two_hundred",
+    "hardcore_lurkers": "sauce_hardcore_lurkers",
+    "hundred_gap": "sauce_hundred_gap",
+    "furniture_high_ticket": "coach_high_ticket_furniture",
+}
+
 DEFAULT_PRESETS = (
-    "middle_core",
-    "two_hundred",
-    "hardcore_lurkers",
-    "hundred_gap",
+    "sauce_hardcore_lurkers",
+    "sauce_hundred_gap",
+    "core_middle_core",
+    "core_two_hundred",
+    "coach_high_ticket_all",
+    "coach_high_ticket_furniture",
 )
 
 
@@ -31,9 +42,22 @@ def load_config() -> dict[str, Any]:
     return data if isinstance(data, dict) else {"version": 1, "region": "US", "presets": {}}
 
 
+def normalize_preset(preset: str) -> str:
+    key = (preset or "").strip()
+    return PRESET_ALIASES.get(key, key)
+
+
+def list_preset_names() -> list[str]:
+    presets = load_config().get("presets") or {}
+    if not isinstance(presets, dict):
+        return list(DEFAULT_PRESETS)
+    return sorted(k for k in presets if isinstance(presets.get(k), dict))
+
+
 def preset_block(preset: str) -> dict[str, Any]:
     presets = load_config().get("presets") or {}
-    block = presets.get(preset) if isinstance(presets, dict) else None
+    key = normalize_preset(preset)
+    block = presets.get(key) if isinstance(presets, dict) else None
     return block if isinstance(block, dict) else {}
 
 
@@ -66,14 +90,23 @@ def hub_ui_ready(*, preset: str | None = None) -> bool:
     return any(str((v or {}).get("filter_url") or "").strip() for v in presets.values() if isinstance(v, dict))
 
 
-def missing_presets() -> list[str]:
+def launch_priority_presets() -> list[str]:
+    cfg = load_config()
+    raw = cfg.get("_priority_launch")
+    if isinstance(raw, list) and raw:
+        return [str(x) for x in raw if str(x).strip()]
+    return list(DEFAULT_PRESETS)
+
+
+def missing_presets(*, priority_only: bool = True) -> list[str]:
     presets = load_config().get("presets") or {}
     if not isinstance(presets, dict):
         return list(DEFAULT_PRESETS)
+    names = launch_priority_presets() if priority_only else list_preset_names()
     out: list[str] = []
-    for name in DEFAULT_PRESETS:
+    for name in names:
         block = presets.get(name)
-        if not isinstance(block, dict) or not str(block.get("filter_url") or "").strip():
+        if not isinstance(block, dict) or not preset_has_url(name):
             out.append(name)
     return out
 

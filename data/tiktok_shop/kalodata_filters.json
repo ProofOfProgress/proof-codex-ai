@@ -1,11 +1,51 @@
 {
-  "version": 1,
+  "version": 2,
   "region": "US",
   "products_page": "https://www.kalodata.com/product",
-  "_owner_setup": "Log into Kalodata on the hub once. Apply each filter preset in the UI, click Apply, copy the full browser URL, paste into filter_url below. Agent then loads that URL — no clicking needed.",
+  "_owner_setup": "Paste full Kalodata URL after Apply into each preset filter_url. Reply to agent: preset_name = URL. Product Scout tool in Momentum is BANNED — Kalodata only.",
+  "_priority_launch": [
+    "sauce_hardcore_lurkers",
+    "sauce_hundred_gap",
+    "core_middle_core",
+    "core_two_hundred",
+    "coach_high_ticket_all",
+    "coach_high_ticket_furniture"
+  ],
   "presets": {
-    "middle_core": {
-      "label": "middle core",
+    "sauce_hardcore_lurkers": {
+      "label": "SAUCE — hardcore lurkers",
+      "source": "Strategies → Product Research Methods (course Kalodata / Google sheet)",
+      "priority": "P0",
+      "filter_url": "",
+      "filters_reference": {
+        "note": "Moe's #1 sauce filter — copy pre-made from course sheet or saved Kalodata filter. Do not rebuild from scratch if sheet has link."
+      }
+    },
+    "sauce_hundred_gap": {
+      "label": "SAUCE — 100 gap",
+      "source": "Strategies → Product Research Methods",
+      "priority": "P0",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "yesterday",
+        "note": "May be empty some days — run daily. Copy from course pre-made if available."
+      }
+    },
+    "sauce_hundred_gap_affiliate": {
+      "label": "SAUCE — 100 gap + affiliate adding channel",
+      "source": "Strategies → Product Research Methods (Moe custom variant in Module 3 video)",
+      "priority": "P1",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "yesterday",
+        "main_channel": "affiliate_adding",
+        "note": "Custom version Moe demos — affiliate adding as main channel + commission tweaks"
+      }
+    },
+    "core_middle_core": {
+      "label": "CORE — middle core",
+      "source": "Strategies → Product Research Methods",
+      "priority": "P0",
       "filter_url": "",
       "filters_reference": {
         "date": "last_7_days",
@@ -14,32 +54,38 @@
         "commission_min_pct": 20
       }
     },
-    "two_hundred": {
-      "label": "200 method",
+    "core_two_hundred": {
+      "label": "CORE — 200 method",
+      "source": "Strategies → Product Research Methods",
+      "priority": "P0",
       "filter_url": "",
       "filters_reference": {
         "date": "yesterday",
         "revenue_growth_min_pct": 100,
-        "creator_max": 200
+        "creator_max": 200,
+        "note": "Course used 200% growth; Kalodata may cap at 100% — either is OK"
       }
     },
-    "hardcore_lurkers": {
-      "label": "hardcore lurkers (course sauce)",
+    "coach_high_ticket_all": {
+      "label": "COACH — high ticket any category",
+      "source": "Coach call 2026-06-30 + GROUP_CALLS",
+      "priority": "P0",
       "filter_url": "",
       "filters_reference": {
-        "note": "Copy your saved Kalodata filter URL from the course account"
+        "date": "last_7_days",
+        "revenue_7d_min_usd": 10000,
+        "revenue_source": "video",
+        "growth_min_pct": 30,
+        "price_min_usd": 80,
+        "creators_max": 200,
+        "commission_min_pct": 8,
+        "affiliate": true
       }
     },
-    "hundred_gap": {
-      "label": "100 gap (course sauce)",
-      "filter_url": "",
-      "filters_reference": {
-        "date": "yesterday",
-        "note": "Copy your saved Kalodata filter URL — may be empty some days"
-      }
-    },
-    "furniture_high_ticket": {
-      "label": "furniture + high ticket (coach)",
+    "coach_high_ticket_furniture": {
+      "label": "COACH — high ticket furniture",
+      "source": "Coach call + Strategies → Furniture products",
+      "priority": "P0",
       "filter_url": "",
       "filters_reference": {
         "category": "Furniture",
@@ -50,6 +96,179 @@
         "price_min_usd": 80,
         "creators_max": 200,
         "commission_min_pct": 8
+      }
+    },
+    "icc_beauty": {
+      "label": "ICC — Beauty & Personal Care",
+      "source": "Resources → Increased Commission → CATEGORIES",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Beauty & Personal Care",
+        "note": "Tap ↗ link in Momentum — paste resulting Kalodata URL"
+      }
+    },
+    "icc_health": {
+      "label": "ICC — Health",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Health"
+      }
+    },
+    "icc_home_supplies": {
+      "label": "ICC — Home Supplies",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Home Supplies"
+      }
+    },
+    "icc_pet": {
+      "label": "ICC — Pet Supplies",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Pet Supplies"
+      }
+    },
+    "icc_kitchenware": {
+      "label": "ICC — Kitchenware",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Kitchenware"
+      }
+    },
+    "icc_sports_outdoor": {
+      "label": "ICC — Sports & Outdoor",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Sports & Outdoor"
+      }
+    },
+    "icc_electronics": {
+      "label": "ICC — Electronics",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Electronics"
+      }
+    },
+    "icc_tools_hardware": {
+      "label": "ICC — Tools & Hardware",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Tools & Hardware"
+      }
+    },
+    "icc_shoes": {
+      "label": "ICC — Shoes",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Shoes"
+      }
+    },
+    "icc_womenswear": {
+      "label": "ICC — Womenswear",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Womenswear"
+      }
+    },
+    "icc_textiles": {
+      "label": "ICC — Textiles & Soft Furnishing",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Textiles & Soft Furnishing"
+      }
+    },
+    "icc_luggage": {
+      "label": "ICC — Luggage & Bags",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Luggage & Bags"
+      }
+    },
+    "icc_furniture": {
+      "label": "ICC — Furniture (increased commission list)",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Furniture",
+        "note": "Separate from coach_high_ticket_furniture — this is the ICC category link"
+      }
+    },
+    "icc_fashion_accessories": {
+      "label": "ICC — Fashion Accessories",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Fashion Accessories"
+      }
+    },
+    "icc_food": {
+      "label": "ICC — Food",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Food"
+      }
+    },
+    "icc_office": {
+      "label": "ICC — Office Equipment",
+      "source": "Resources → Increased Commission",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Office Equipment"
+      }
+    },
+    "icc_books": {
+      "label": "ICC — Books",
+      "source": "Resources → Increased Commission",
+      "priority": "P3",
+      "filter_url": "",
+      "filters_reference": {
+        "category": "Books"
+      }
+    },
+    "icc_brand_medicube": {
+      "label": "ICC — Medicube brand",
+      "source": "Resources → Increased Commission → BRANDS",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "brand": "Medicube"
+      }
+    },
+    "icc_brand_drmelaxin": {
+      "label": "ICC — Dr. Melaxin brand",
+      "source": "Resources → Increased Commission → BRANDS",
+      "priority": "P2",
+      "filter_url": "",
+      "filters_reference": {
+        "brand": "Dr. Melaxin"
       }
     }
   }
