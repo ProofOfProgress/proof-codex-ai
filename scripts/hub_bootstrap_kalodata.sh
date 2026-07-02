@@ -3,16 +3,20 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+export PATH="$HOME/.local/bin:$PATH"
+PIP_USER=(python3 -m pip install --user)
+PIP_BREAK=(--break-system-packages)
+
 echo "==> Kalodata hub scout bootstrap"
 
 if ! python3 -m pip --version >/dev/null 2>&1; then
-  echo "Installing pip..."
-  python3 -m ensurepip --user || true
-  export PATH="$HOME/.local/bin:$PATH"
+  echo "Installing pip (no sudo — Debian PEP 668 workaround)..."
+  curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+  python3 /tmp/get-pip.py --user "${PIP_BREAK[@]}"
 fi
 
 echo "==> Installing Python deps (user install)..."
-python3 -m pip install --user -r requirements.txt
+"${PIP_USER[@]}" "${PIP_BREAK[@]}" -r requirements.txt
 
 echo "==> Installing Playwright Chromium..."
 python3 -m playwright install chromium

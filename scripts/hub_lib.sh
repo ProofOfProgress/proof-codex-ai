@@ -216,6 +216,7 @@ hub_run_ssh() {
   local -a ssh_opts
   mapfile -t ssh_opts < <(hub_ssh_opts "$keyfile")
   local remote_cmd="$*"
+  remote_cmd="export PATH=\"\$HOME/.local/bin:\$PATH\" && ${remote_cmd}"
   remote_cmd="$(hub_wrap_windows_gateway_cmd "$remote_cmd")"
   ssh "${ssh_opts[@]}" "${user}@${host}" "$remote_cmd"
 }
