@@ -82,12 +82,18 @@ def scrape_discord_desktop(
         "",
     ]
 
-    # Focus browser — assume Edge/Discord already open from owner
+    # Focus Edge: Win+1 often first taskbar app; then click center of screen
     try:
-        _desktop_cli("hotkey", "alt", "tab")
-        time.sleep(0.8)
+        _desktop_cli("hotkey", "win", "1")
+        time.sleep(1.2)
+        client.click(960, 540)
+        time.sleep(0.5)
     except DesktopHubError:
-        pass
+        try:
+            _desktop_cli("hotkey", "alt", "tab")
+            time.sleep(0.8)
+        except DesktopHubError:
+            pass
 
     chunks: list[str] = []
     seen_hashes: set[str] = set()
