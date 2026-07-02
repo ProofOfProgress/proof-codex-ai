@@ -5,6 +5,7 @@ from __future__ import annotations
 from shorts_bot.tiktok_shop.kalodata_filter_spec import build_spec
 from shorts_bot.tiktok_shop.kalodata_filter_verify import (
     ParsedKalodataUi,
+    parse_ui_from_dom,
     safe_click,
     verify_before_submit,
 )
@@ -67,3 +68,23 @@ def test_coach_overlay_raises_commission_floor() -> None:
     spec = build_spec(method="two_hundred", category="Furniture")
     assert spec.commission_min_pct >= 8
     assert spec.avg_unit_price_min >= 80
+
+
+def test_parse_ui_from_dom_product_list() -> None:
+    ui = parse_ui_from_dom(
+        url="https://www.kalodata.com/product?filters=1",
+        sidebar_text="Dates\nLast 7 Days\nRevenue Growth Rate\n50\nCreator Number\n200",
+        filtering_pills=["Dates: Last 7 Days", "Category: Furniture"],
+    )
+    assert ui.page_type == "product_list"
+    assert "7" in ui.date_range
+    assert ui.revenue_growth_min_pct == 50
+    assert ui.creator_max == 200
+    assert ui.category == "Furniture"
+
+
+def test_preflight_skips_commission_when_dom_sparse() -> None:
+    spec = build_spec(method="middle_core", category="Furniture")
+    ui = ParsedKalodataUi(page_type="product_list", date_range="last 7 days", category="Furniture")
+    res = verify_before_submit(spec, ui, phase="preflight")
+    assert res.ok

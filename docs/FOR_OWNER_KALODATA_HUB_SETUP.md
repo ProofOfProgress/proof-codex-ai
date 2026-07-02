@@ -1,31 +1,40 @@
 # Kalodata hub UI scout
 
-**Agent applies filters on the hub** with **verify-before-submit gates** — you do not paste URLs unless the agent aborts.
+**Agent applies filters on the hub** with **Playwright DOM + verify-before-submit** — you do not paste URLs unless the agent aborts.
+
+---
+
+## What changed (2026-07-02)
+
+| Old (broken) | New (fixed) |
+|--------------|-------------|
+| Blind x,y clicks on Edge | **Playwright** `get_by_text` / input locators |
+| `ctrl+w` closed all of Edge | **Never touches Edge tabs** — separate kalodata browser profile |
+| Gemini vision before every click | **DOM verify** from page text + input values |
+| Pasted URLs into wrong app | `page.url` captured after Submit |
+
+| Gate | What it does |
+|------|----------------|
+| **List page only** | Must be `kalodata.com/product` — never `/product/detail` |
+| **Pre-submit verify** | Wrong page + Last 30 Days blocked before Submit |
+| **Post-submit verify** | Growth %, commission %, price, creators match course method |
+| **Product ranking** | Scroll table, coach gates (≥8% comm, ≤200 creators, ≥$80) |
+
+```bash
+# On hub (WSL) — preferred
+python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --scout-limit 10
+python3 scripts/hub_kalodata_apply_method.py --method hundred_gap --category Furniture
+```
+
+Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — swap `--category` only.
+
+**Deprecated:** `cloud_kalodata_grind.py`, `--legacy-desktop` coordinate helper.
 
 ---
 
 ## Misclick protection (system fix 2026-07)
 
-Blind coordinate clicking opened **product detail** tabs and set wrong filters (Last 30 Days, growth >0%). Fixed:
-
-| Gate | What it does |
-|------|----------------|
-| **List page only** | Must be `kalodata.com/product` — never `/product/detail` |
-| **Sidebar clicks only** | Refuses clicks with x > 380 (left filter panel) |
-| **Gemini verify** | Reads screenshot JSON — **aborts if vision fails** (no blind clicks) |
-| **Pre-submit verify** | Dates, growth %, commission %, price, creators must match course method |
-| **No Submit** until verify passes | Won't click Submit on bad state |
-| **Tab cleanup** | `--cleanup-tabs` closes duplicate Ovios/couch tabs |
-
-```bash
-# From cloud agent (drives your HP via desktop helper):
-python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --cleanup-tabs
-python3 scripts/hub_kalodata_apply_method.py --method hundred_gap --category Furniture --cleanup-tabs
-```
-
-Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — swap `--category` only.
-
-**Deprecated:** `cloud_kalodata_grind.py` (blind clicks).
+Blind coordinate clicking opened **product detail** tabs and set wrong filters (Last 30 Days, growth >0%). Fixed with Playwright DOM path above.
 
 ---
 
@@ -33,8 +42,8 @@ Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — 
 
 | # | You do | Time |
 |---|--------|------|
-| **1** | Kalodata **paid** account logged in on hub Edge | once |
-| **2** | Leave **one** tab on product list — or let agent `--cleanup-tabs` | — |
+| **1** | Kalodata **paid** account logged in via Playwright profile (see Step 1) | once |
+| **2** | Edge can stay open for you — agent uses **separate** Playwright browser | — |
 | **3** | Agent runs `hub_kalodata_apply_method.py` per method × category | automatic |
 
 Optional fallback: paste filter URL manually → `python3 scripts/kalodata_set_filter_url.py middle_core 'URL'`

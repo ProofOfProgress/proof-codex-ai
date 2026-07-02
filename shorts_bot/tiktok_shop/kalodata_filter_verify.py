@@ -74,6 +74,110 @@ def _int(raw: Any) -> int | None:
     return int(n) if n is not None else None
 
 
+def _page_type_from_url(url: str) -> str:
+    lower = (url or "").lower()
+    if "/product/detail" in lower:
+        return "product_detail"
+    if "/category/" in lower:
+        return "category"
+    if "/product" in lower:
+        return "product_list"
+    return "other"
+
+
+def _extract_num_near_label(text: str, labels: tuple[str, ...]) -> float | None:
+    lower = text.lower()
+    for label in labels:
+        idx = lower.find(label.lower())
+        if idx < 0:
+            continue
+        chunk = text[idx : idx + 120]
+        m = re.search(r"(\d+(?:\.\d+)?)\s*%?", chunk)
+        if m:
+            return float(m.group(1))
+    return None
+
+
+def _extract_int_pair(text: str, labels: tuple[str, ...]) -> tuple[int | None, int | None]:
+    lower = text.lower()
+    for label in labels:
+        idx = lower.find(label.lower())
+        if idx < 0:
+            continue
+        after = text[idx + len(label) : idx + len(label) + 80]
+        line_chunk = "\n".join(after.strip().split("\n")[:2])
+        nums = [int(float(x)) for x in re.findall(r"(\d+(?:\.\d+)?)", line_chunk)[:4]]
+        if len(nums) >= 2:
+            return nums[0], nums[1]
+        if len(nums) == 1:
+            return nums[0], None
+    return None, None
+
+
+def parse_ui_from_dom(
+    *,
+    url: str,
+    sidebar_text: str = "",
+    body_text: str = "",
+    filtering_pills: list[str] | None = None,
+) -> ParsedKalodataUi:
+    """Parse Kalodata filter state from Playwright DOM text — no screenshot vision."""
+    pills = list(filtering_pills or [])
+    combined = f"{sidebar_text}\n{body_text}\n" + " ".join(pills)
+    lower = combined.lower()
+
+    date_range = ""
+    if "yesterday" in lower:
+        date_range = "yesterday"
+    elif "last 7" in lower or "7 day" in lower:
+        date_range = "last 7 days"
+    elif "last 30" in lower or "30 day" in lower:
+        date_range = "last 30 days"
+
+    category = ""
+    for pill in pills:
+        if "category" in pill.lower():
+            category = pill.split(":", 1)[-1].strip()
+            break
+    if not category:
+        m = re.search(r"category[:\s]+([A-Za-z][A-Za-z &]+)", combined, re.I)
+        if m:
+            category = m.group(1).strip()
+
+    growth = _extract_num_near_label(combined, ("Revenue Growth", "Growth Rate", "growth"))
+    comm = _extract_num_near_label(combined, ("Commission", "commission"))
+    price = _extract_num_near_label(combined, ("Avg Unit Price", "Unit Price", "avg price"))
+    rev_min, rev_max = _extract_int_pair(sidebar_text or combined, ("Revenue", "revenue"))
+    cr_min, cr_max = _extract_int_pair(sidebar_text or combined, ("Creator Number", "Creators", "Creator"))
+    if cr_min is not None and cr_max is None:
+        cr_max, cr_min = cr_min, None
+    sold_min, sold_max = _extract_int_pair(sidebar_text or combined, ("Item Sold", "Items Sold"))
+
+    submit_enabled: bool | None = None
+    if re.search(r"\bsubmit\b", lower):
+        submit_enabled = "disabled" not in lower or "submit" in sidebar_text.lower()
+
+    return ParsedKalodataUi(
+        page_type=_page_type_from_url(url),
+        url_hint=url,
+        date_range=date_range,
+        category=category,
+        revenue_min=float(rev_min) if rev_min is not None else None,
+        revenue_max=float(rev_max) if rev_max is not None else None,
+        revenue_growth_min_pct=growth,
+        creator_min=cr_min,
+        creator_max=cr_max,
+        commission_min_pct=comm,
+        avg_unit_price_min=price,
+        items_sold_min=sold_min,
+        items_sold_max=sold_max,
+        filtering_pills=pills,
+        submit_enabled=submit_enabled,
+        duplicate_product_tabs=0,
+        raw_notes="dom",
+    )
+
+
 def _date_ok(actual: str, expected: str) -> bool:
     a = actual.lower()
     e = expected.lower()
@@ -90,7 +194,8 @@ class VerifyResult:
     issues: tuple[str, ...] = ()
 
 
-def verify_before_submit(spec: FilterSpec, ui: ParsedKalodataUi) -> VerifyResult:
+def verify_before_submit(spec: FilterSpec, ui: ParsedKalodataUi, *, phase: str = "full") -> VerifyResult:
+    """Verify Kalodata UI. phase=preflight checks page + dates only (pre-submit DOM)."""
     issues: list[str] = []
 
     if ui.page_type != "product_list":
@@ -109,6 +214,9 @@ def verify_before_submit(spec: FilterSpec, ui: ParsedKalodataUi) -> VerifyResult
 
     if spec.date_range and ui.date_range and not _date_ok(ui.date_range, spec.date_range):
         issues.append(f"Date range mismatch: saw {ui.date_range!r}, need {spec.date_range!r}.")
+
+    if phase == "preflight":
+        return VerifyResult(ok=not issues, issues=tuple(issues))
 
     if spec.category:
         cat = spec.category.lower()

@@ -1,5 +1,5 @@
 ---
-description: Kalodata hub UI — verify before submit, no blind misclicks
+description: Kalodata hub UI — Playwright DOM, verify before submit
 globs:
   - shorts_bot/tiktok_shop/kalodata*.py
   - scripts/hub_kalodata*.py
@@ -10,24 +10,36 @@ globs:
 
 ## Never
 
-- Blind coordinate clicks without screenshot verify
+- **Desktop helper coordinate clicks** for filters (legacy `--legacy-desktop` only)
+- **`ctrl+w` tab loops** — they closed all of Edge
 - Click filters on **product detail** (`/product/detail`) — LIST page only (`/product`)
-- Click outside left sidebar (x > 380 on 1920×1080)
-- Press **Submit** if `verify_before_submit()` fails
-- Continue when Gemini vision returns 503 — **abort**, do not misclick
+- Paste product URLs into Cursor/Ubuntu — Playwright captures `page.url` after Submit
+- Gemini screenshot clicking for filter apply (vision optional for table scrape fallback only)
 
 ## Always
 
-1. `ensure_product_list_page()` — direct URL `https://www.kalodata.com/product`
-2. Pre-flight vision — confirm `page_type == product_list` **before** filter clicks
-3. `build_spec(method, category)` + coach overlay (price ≥$80, commission ≥8%)
-4. Apply → verify → Submit only if pass
-5. `--cleanup-tabs` when duplicate product detail tabs (Ovios couch etc.)
+1. **Playwright DOM** — `get_by_text`, locators, `page.goto('/product')` — profile `data/browser_profile/kalodata/`
+2. `build_spec(method, category)` + coach overlay (price ≥$80, commission ≥8%)
+3. Pre-flight verify (`phase=preflight`) — list page + dates before Submit
+4. Full verify after Submit — growth, commission, creators, price
+5. **Scroll product table** when ranking picks — commission + revenue, reject 5% junk
+6. Edge tabs are **never closed** by automation — Playwright uses its own browser profile
 
-## Command
+## Commands (on hub WSL)
 
 ```bash
-python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --cleanup-tabs
+# Log in once (saves session to kalodata profile)
+python3 -m shorts_bot.browser.cli open kalodata --minutes 10
+
+# Apply filters + save filter_url (+ optional scout)
+python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --scout-limit 10
+python3 scripts/hub_kalodata_playwright_apply.py --method hundred_gap --category Furniture --visible
 ```
 
-Swap `--category` per niche; swap `--method` per course filter (hardcore, lurkers, hundred_gap, middle_core, two_hundred).
+Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — swap `--category` per niche.
+
+From cloud agent:
+
+```bash
+python3 -m shorts_bot.hub_remote run -- "cd ~/proof-codex-ai && git pull && python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --scout-limit 10"
+```

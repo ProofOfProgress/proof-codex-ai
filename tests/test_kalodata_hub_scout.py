@@ -49,8 +49,8 @@ def test_normalize_row_maps_fields():
 def test_preset_has_url(tmp_path, monkeypatch):
     cfg = {
         "presets": {
-            "middle_core": {"filter_url": "https://www.kalodata.com/product?x=1"},
-            "two_hundred": {"filter_url": ""},
+            "core_middle_core": {"filter_url": "https://www.kalodata.com/product?x=1"},
+            "core_two_hundred": {"filter_url": ""},
         }
     }
     path = tmp_path / "kalodata_filters.json"
@@ -61,7 +61,7 @@ def test_preset_has_url(tmp_path, monkeypatch):
 
 
 def test_auto_prefers_hub_ui_when_url_set(tmp_path, monkeypatch):
-    cfg = {"presets": {"middle_core": {"filter_url": "https://www.kalodata.com/product?filters=1"}}}
+    cfg = {"presets": {"core_middle_core": {"filter_url": "https://www.kalodata.com/product?filters=1"}}}
     path = tmp_path / "kalodata_filters.json"
     path.write_text(json.dumps(cfg), encoding="utf-8")
     monkeypatch.setattr(kalodata_filters, "filters_path", lambda: path)
