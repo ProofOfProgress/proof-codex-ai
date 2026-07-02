@@ -364,7 +364,7 @@ def _gemini_check_frames(
         resp = backend.client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": content}],
-            max_tokens=1500,
+            max_tokens=2000,
             temperature=0.1,
         )
         raw = (resp.choices[0].message.content or "").strip()

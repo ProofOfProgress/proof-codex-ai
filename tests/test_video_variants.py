@@ -17,6 +17,8 @@ def test_build_motion_enhance_vf_has_lateral_and_shake():
     assert "sin(2*PI*t/5)" in vf
     assert "sin(2*PI*t*8)" in vf
     assert "crop=" in vf
+    assert "color=black" not in vf
+    assert "force_original_aspect_ratio=increase" in vf
 
 
 def test_mean_inter_frame_motion_static_vs_changed(tmp_path: Path):

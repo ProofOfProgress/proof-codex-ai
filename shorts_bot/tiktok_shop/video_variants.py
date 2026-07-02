@@ -26,8 +26,8 @@ def build_motion_enhance_vf(
         f"crop=w='floor(iw*{crop_w})':h=ih:"
         f"x='(iw-ow)/2+{lat}*iw*sin(2*PI*t/5)+{shake}*sin(2*PI*t*8)':"
         f"y='{shake}*sin(2*PI*t*7)',"
-        "scale=1080:1920:force_original_aspect_ratio=decrease,"
-        "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1"
+        "scale=1080:1920:force_original_aspect_ratio=increase,"
+        "crop=1080:1920,setsar=1"
     )
 
 

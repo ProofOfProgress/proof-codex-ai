@@ -9,11 +9,11 @@
   "module1_risks": [],
   "arc_camera_visible": null,
   "product_fidelity": "",
-  "reference_image": "/tmp/pytest-of-ubuntu/pytest-15/test_review_reference_image_pa0/prod.jpg",
+  "reference_image": "/tmp/pytest-of-ubuntu/pytest-30/test_review_reference_image_pa0/prod.jpg",
   "video_path": "",
   "prompt_used": "",
   "frame_paths": [],
   "revised_prompt": "",
   "module1_qc_passed": null,
-  "checked_at": "2026-07-02T07:27:29.261590+00:00"
+  "checked_at": "2026-07-02T10:17:39.005032+00:00"
 }

@@ -1,34 +1,29 @@
 {
   "kind": "video",
   "product": "Bur Bur Mermaid Brush",
-  "score": 3.0,
-  "good_enough": false,
-  "summary": "The video features excellent product fidelity and a well-staged, believable beauty environment with good lighting. However, it fails on two critical TikTok Shop affiliate standards: it is not a full bleed 9:16 vertical video, displaying black bars on the sides, and the camera motion is too subtle and lacks the required handheld micro-shake. The lateral travel is minimal, risking the 'still-frame ban' flag despite some background parallax. This video is not commercially ready for TikTok Shop.",
+  "score": 9.0,
+  "good_enough": true,
+  "summary": "The video demonstrates excellent adherence to TikTok Shop affiliate standards. The Bur Bur Mermaid Brush is perfectly stationary, and the camera executes a strong, noticeable multi-axis arc with significant lateral travel, creating clear background parallax. The staged marble bathroom vanity environment is rich and deep, with believable warm soft lighting. Product fidelity is outstanding, matching the reference image precisely. All forbidden elements (humans, pets, screens, water, fire, text, third-party logos) are absent, and the video is full-bleed 9:16. The dynamic motion is more than sufficient to avoid the still-frame ban. The only minor point for improvement is to ensure the 'handheld' feel includes very subtle micro-shake, as the current motion appears exceptionally smooth, almost like a perfect dolly shot.",
   "issues": [
-    "Video is not full bleed 9:16 vertical; black bars are present on the left and right sides.",
-    "Camera motion is too subtle and smooth; it lacks the required 'handheld micro-shake' and '25% more noticeable lateral travel' as per coach's override, making it high risk for TikTok's 'still-frame ban'.",
-    "Lateral camera travel is present but minimal, not meeting the 'more noticeable' requirement."
+    "The camera movement, while strong and dynamic, appears very smooth, potentially lacking the subtle, natural handheld micro-shake requested for a 'handheld phone iPhone 0.5x ultra-wide feel'. This might make it feel more like a perfectly controlled dolly shot than authentically 'UGC-style'."
   ],
   "prompt_fixes": [
-    "Add: 'Ensure the video is strictly full bleed vertical 9:16 with no black bars or letterboxing on any side.'",
-    "Modify camera motion instruction: 'Film with a clearly noticeable, smooth arc camera movement that includes significant side-to-side lateral travel (at least 25% more pronounced than typical subtle pans). Incorporate subtle, natural handheld micro-shake throughout the clip to enhance realism and avoid static detection. Ensure strong background parallax is evident due to the camera movement.'"
+    "Refine the camera movement to include subtle, natural handheld micro-shake, consistent with an iPhone 0.5x ultra-wide lens being held by a person, in addition to the primary arc and lateral movement. Avoid an overly smooth, robotic dolly-like feel to enhance the 'UGC-style' authenticity."
   ],
   "module1_risks": [
-    "Still-frame ban (due to insufficient and overly smooth camera motion, lack of micro-shake).",
-    "Incorrect aspect ratio / letterboxing (not full bleed 9:16).",
-    "Module 1 vision QC failed: Expecting value: line 1 column 1 (char 0)"
+    "Low risk of still-frame ban due to strong lateral camera movement and background parallax. The only minor potential risk is if the lack of micro-shake makes it feel too 'rendered' rather than 'live handheld', which TikTok's algorithm might interpret differently."
   ],
   "arc_camera_visible": true,
   "product_fidelity": "good",
   "reference_image": "data/tiktok_shop/samples/bur_bur_mermaid_brush_916.jpg",
   "video_path": "data/tiktok_shop/clips/bur_bur_mermaid_brush_loop.mp4",
-  "prompt_used": "Use the uploaded product image as the exact reference for the Bur Bur Mermaid Brush. Create a realistic UGC-style vertical 9:16 product video of the brush resting on a clean marble bathroom vanity in a believable beauty setting that is clearly different from a plain listing-photo background, with soft warm interior light that matches on both the brush and the counter. Keep the brush centered, fully in frame for the entire clip, and completely fixed and locked to the vanity surface \u2014 the product does not rotate, spin, slide, wobble, or move in any way; only the camera moves. Film with a handh",
+  "prompt_used": "Use the uploaded product image as the exact reference for the Bur Bur Mermaid Brush. Create a realistic UGC-style vertical 9:16 product video on a marble bathroom vanity with warm soft light \u2014 full-bleed edge-to-edge frame with zero black bars, gray letterbox, or pillarbox padding at any time. The brush is physically bolted to the vanity and must not rotate, spin, slide, or move; only the camera moves. Film with handheld phone iPhone 0.5x ultra-wide feel. Move the camera in a clearly noticeable slow multi-axis arc with strong side-to-side lateral travel (at least 25% more pronounced than a subtle pan) plus constant subtle natural handheld micro-shake throughout \u2014 background mirror edge and vanity decor must shift with obvious parallax relative to the fixed brush. Not a static tripod, not a slider track, not product turntable. Preserve exact mermaid handle, bristles, rose gold finish, and branding from the reference. No people, hands, pets, phone screens, water, steam, sale text, or third-party logos. CRITICAL: fixed product; aggressive camera motion only; full bleed 9:16 every frame.",
   "frame_paths": [
     "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_00_0.5s.jpg",
     "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_01_2.5s.jpg",
     "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_02_5.0s.jpg"
   ],
-  "revised_prompt": "Use the uploaded product image as the exact reference for the Bur Bur Mermaid Brush. Create a realistic UGC-style vertical 9:16 product video of the brush resting on a clean marble bathroom vanity in a believable beauty setting that is clearly different from a plain listing-photo background, with soft warm interior light that matches on both the brush and the counter. Ensure the video is strictly full bleed vertical 9:16 with no black bars or letterboxing on any side. Keep the brush centered, fully in frame for the entire clip, and completely fixed and locked to the vanity surface \u2014 the product does not rotate, spin, slide, wobble, or move in any way; only the camera moves. Film with a clearly noticeable, smooth arc camera movement that includes significant side-to-side lateral travel (at least 25% more pronounced than typical subtle pans). Incorporate subtle, natural handheld micro-shake throughout the clip to enhance realism and avoid static detection. Ensure strong background parallax is evident due to the camera movement.",
-  "module1_qc_passed": false,
-  "checked_at": "2026-07-02T10:17:04.791453+00:00"
+  "revised_prompt": "",
+  "module1_qc_passed": true,
+  "checked_at": "2026-07-02T10:25:43.684563+00:00"
 }
