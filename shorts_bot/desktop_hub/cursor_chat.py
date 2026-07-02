@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import json
 import os
-import shlex
 import subprocess
 import time
 from pathlib import Path
 
 from shorts_bot.desktop_hub.client import DesktopHubClient, DesktopHubError
-from shorts_bot.desktop_hub.host import helper_base_url
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PS_EXE = Path("/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe")
@@ -154,15 +152,13 @@ def send_cursor_message(message: str, *, repo_root: Path | None = None) -> tuple
 
 def cursor_send_via_hub(message: str) -> int:
     """Cloud CEO: run cursor-send on owner hub over SSH."""
+    import base64
+
     from shorts_bot.hub_remote import run_remote
 
-    remote = (
-        "cd ~/proof-codex-ai && python3 -m shorts_bot.desktop_hub.cli cursor-send "
-        + shlex.quote(message)
-    )
-    return run_remote(["bash", "-lc", remote])
-
-
-def send_cursor_message_standalone(message: str) -> tuple[int, int, int, int]:
-    """Entry point that avoids importing desktop_hub.config (hub WSL may lack pydantic)."""
-    return send_cursor_message(message)
+    text = message.strip()
+    if not text:
+        return 2
+    b64 = base64.b64encode(text.encode("utf-8")).decode("ascii")
+    # hub_run_ssh wraps port-2222 commands into WSL bash -lc; no extra bash layer needed.
+    return run_remote(["python3", "scripts/hub_cursor_send.py", "--msg-b64", b64])

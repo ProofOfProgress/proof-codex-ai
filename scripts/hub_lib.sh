@@ -145,8 +145,16 @@ hub_ssh_port() {
   echo "${HUB_SSH_PORT:-22}"
 }
 
+hub_uses_userspace_tailscale() {
+  [[ ! -e /dev/net/tun ]]
+}
+
+hub_is_windows_gateway() {
+  [[ "$(hub_ssh_port)" == "2222" ]]
+}
+
 hub_ssh_opts() {
-  local port proxy_cmd
+  local port
   port="$(hub_ssh_port)"
   local -a ssh_opts=(
     -i "$1"
@@ -159,13 +167,26 @@ hub_ssh_opts() {
     -o PasswordAuthentication=no
     -o PreferredAuthentications=publickey
   )
-  # Cloud VM has no /dev/net/tun — userspace-networking cannot raw-dial 100.x for SSH.
-  # Route via tailscale nc; hardcode port (%p expands to 65535 with ProxyCommand).
-  if [[ ! -e /dev/net/tun ]]; then
-    proxy_cmd="tailscale --socket=${TS_SOCKET} nc %h ${port}"
-    ssh_opts+=(-o "ProxyCommand=${proxy_cmd}")
+  # Cloud VM userspace-networking: raw TCP to 100.x fails SSH handshake; use tailscale nc.
+  # Hardcode port in ProxyCommand (%p becomes 65535 through ProxyCommand on some OpenSSH builds).
+  if hub_uses_userspace_tailscale; then
+    ssh_opts+=(-o "ProxyCommand=tailscale --socket=${TS_SOCKET} nc %h ${port}")
   fi
   printf '%s\n' "${ssh_opts[@]}"
+}
+
+hub_wrap_windows_gateway_cmd() {
+  local remote_cmd="$1"
+  if ! hub_is_windows_gateway; then
+    printf '%s' "$remote_cmd"
+    return 0
+  fi
+  if [[ "$remote_cmd" == wsl.exe* ]]; then
+    printf '%s' "$remote_cmd"
+    return 0
+  fi
+  # Windows OpenSSH lands in cmd.exe — run inside WSL Ubuntu at repo root.
+  printf 'wsl.exe -d Ubuntu --cd ~/proof-codex-ai -e bash -lc %q' "$remote_cmd"
 }
 
 hub_ensure_connected() {
@@ -193,10 +214,7 @@ hub_run_ssh() {
   local -a ssh_opts
   mapfile -t ssh_opts < <(hub_ssh_opts "$keyfile")
   local remote_cmd="$*"
-  # Windows gateway (port 2222) lands in cmd — wrap single commands in WSL bash.
-  if [[ "$(hub_ssh_port)" == "2222" && "$remote_cmd" != wsl.exe* ]]; then
-    remote_cmd="wsl.exe bash -lc $(printf '%q' "$remote_cmd")"
-  fi
+  remote_cmd="$(hub_wrap_windows_gateway_cmd "$remote_cmd")"
   ssh "${ssh_opts[@]}" "${user}@${host}" "$remote_cmd"
 }
 
