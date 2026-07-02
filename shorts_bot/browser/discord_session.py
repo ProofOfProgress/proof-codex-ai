@@ -98,6 +98,15 @@ def login_discord_session(*, headless: bool = True) -> Path:
             pass
         time.sleep(2)
 
+        body = (page.inner_text("body") or "").lower()
+        if "not a robot" in body or "are you human" in body:
+            raise RuntimeError(
+                "Discord CAPTCHA — automated login blocked. On the HP laptop open Ubuntu "
+                "terminal (not cloud SSH) and run: "
+                "python3 -m shorts_bot.browser.cli open discord --minutes 15 --block "
+                "Log in once; cookies save to data/browser_profile/discord/"
+            )
+
         if not _discord_logged_in(page):
             raise RuntimeError(
                 "Discord login failed — check DISCORD_LOGIN_EMAIL/PASSWORD or complete 2FA on hub once"
