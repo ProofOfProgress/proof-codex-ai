@@ -67,7 +67,7 @@ class VisualCritiqueReport:
         return "\n".join(lines)
 
 
-def _gemini_json(*, prompt: str, image_paths: list[Path], max_tokens: int = 800) -> dict:
+def _gemini_json(*, prompt: str, image_paths: list[Path], max_tokens: int = 1500) -> dict:
     from shorts_bot.llm.gemini_utils import openai_chat_json, visual_critic_context
 
     ctx = visual_critic_context()
@@ -168,7 +168,7 @@ def review_video(
     if not video_path.is_file():
         raise FileNotFoundError(video_path)
 
-    frames = extract_video_frames(video_path)
+    frames = extract_video_frames(video_path, max_frames=3)
     frame_paths = [p for _, p in frames]
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
 
@@ -185,7 +185,7 @@ def review_video(
         f"Video frames at: {labels}\n"
     )
     if prompt_used.strip():
-        prompt += f"\nKling prompt used:\n{prompt_used.strip()[:1500]}\n"
+        prompt += f"\nKling prompt used (excerpt):\n{prompt_used.strip()[:600]}\n"
 
     prompt += (
         "\nEvaluate COMMERCIAL readiness and MOTION quality for a 5–10s Shop affiliate clip.\n"
@@ -206,7 +206,7 @@ def review_video(
         "prompt_fixes = concrete instructions for the video prompt writer (not generic advice)."
     )
 
-    data = _gemini_json(prompt=prompt, image_paths=image_paths)
+    data = _gemini_json(prompt=prompt, image_paths=image_paths, max_tokens=4096)
 
     module1_passed: bool | None = None
     if include_module1_qc:

@@ -1,0 +1,22 @@
+{
+  "kind": "reference_image",
+  "product": "Bur Bur Mermaid Brush",
+  "score": 9.0,
+  "good_enough": true,
+  "summary": "This image is an excellent candidate for Kling image-to-video generation. It perfectly adheres to the TikTok Shop affiliate clip standards, featuring the Bur Bur Mermaid Brush in a beautifully staged bathroom environment. The visible depth, textured marble counter, and reflective mirror with background lights will provide strong parallax for the required arc and lateral camera movements. All prohibited elements are absent, and the framing is ideal for a 9:16 full-bleed vertical clip.",
+  "issues": [],
+  "prompt_fixes": [
+    "Emphasize arc and lateral camera movement to showcase the background parallax, including a subtle handheld micro-shake as per coach's directive.",
+    "Ensure the camera movement highlights the reflective qualities of the product and the marble surface."
+  ],
+  "module1_risks": [],
+  "arc_camera_visible": null,
+  "product_fidelity": "",
+  "reference_image": "data/tiktok_shop/samples/bur_bur_mermaid_brush_916.jpg",
+  "video_path": "",
+  "prompt_used": "",
+  "frame_paths": [],
+  "revised_prompt": "",
+  "module1_qc_passed": null,
+  "checked_at": "2026-07-02T10:18:01.071498+00:00"
+}

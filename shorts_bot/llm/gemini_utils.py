@@ -72,7 +72,7 @@ def call_with_retry(
     raise last  # pragma: no cover
 
 
-def visual_critic_context(*, max_chars: int = 2200) -> str:
+def visual_critic_context(*, max_chars: int = 900, include_owner_file: bool = False) -> str:
     """Coach rules injected into Gemini visual critic prompts (not full fine-tune)."""
     parts: list[str] = [
         "TikTok Shop affiliate clip standards (Momentum Academy / owner overrides):",
@@ -83,18 +83,16 @@ def visual_critic_context(*, max_chars: int = 2200) -> str:
         "- No water, steam, fire, sale/price text. Vertical 9:16 full bleed.",
         "- Still-frame ban: flag static tripod, frozen photograph, or product rotation/spin.",
     ]
-    prompt_builder = settings.data_dir / "research" / "course" / "PROMPT_BUILDER.md"
-    if prompt_builder.is_file():
-        try:
-            excerpt = prompt_builder.read_text(encoding="utf-8")[: max_chars // 2]
-            if "still-frame" in excerpt.lower() or "micro-shake" in excerpt.lower():
-                parts.append("")
-                parts.append("Owner PROMPT_BUILDER excerpt:")
-                parts.append(excerpt.strip())
-        except OSError:
-            pass
-    text = "\n".join(parts)
-    return text[:max_chars]
+    if include_owner_file:
+        prompt_builder = settings.data_dir / "research" / "course" / "PROMPT_BUILDER.md"
+        if prompt_builder.is_file():
+            try:
+                excerpt = prompt_builder.read_text(encoding="utf-8")[: max_chars // 2]
+                if excerpt.strip():
+                    parts.extend(["", "Owner PROMPT_BUILDER excerpt:", excerpt.strip()])
+            except OSError:
+                pass
+    return "\n".join(parts)[:max_chars]
 
 
 def openai_chat_json(
@@ -102,7 +100,7 @@ def openai_chat_json(
     prompt: str,
     image_paths: list[Path],
     model: str | None = None,
-    max_tokens: int = 800,
+    max_tokens: int = 1500,
     temperature: float = 0.2,
 ) -> dict[str, Any]:
     """Vision JSON call via OpenAI-compatible Gemini endpoint."""
@@ -133,7 +131,15 @@ def openai_chat_json(
             temperature=temperature,
         )
         raw = (resp.choices[0].message.content or "").strip()
-        return _parse_vision_json(raw)
+        if not raw:
+            raise RuntimeError("503 empty Gemini vision response — retry")
+        finish = getattr(resp.choices[0], "finish_reason", None)
+        if finish == "length":
+            raise RuntimeError("503 truncated Gemini vision JSON — retry with fewer tokens in prompt")
+        try:
+            return _parse_vision_json(raw)
+        except Exception as exc:
+            raise RuntimeError(f"503 invalid Gemini vision JSON: {exc}") from exc
 
     return call_with_retry(_call, label=f"gemini-vision:{use_model}")
 

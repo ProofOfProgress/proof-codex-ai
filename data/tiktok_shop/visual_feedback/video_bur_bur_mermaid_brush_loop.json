@@ -1,0 +1,34 @@
+{
+  "kind": "video",
+  "product": "Bur Bur Mermaid Brush",
+  "score": 3.0,
+  "good_enough": false,
+  "summary": "The video features excellent product fidelity and a well-staged, believable beauty environment with good lighting. However, it fails on two critical TikTok Shop affiliate standards: it is not a full bleed 9:16 vertical video, displaying black bars on the sides, and the camera motion is too subtle and lacks the required handheld micro-shake. The lateral travel is minimal, risking the 'still-frame ban' flag despite some background parallax. This video is not commercially ready for TikTok Shop.",
+  "issues": [
+    "Video is not full bleed 9:16 vertical; black bars are present on the left and right sides.",
+    "Camera motion is too subtle and smooth; it lacks the required 'handheld micro-shake' and '25% more noticeable lateral travel' as per coach's override, making it high risk for TikTok's 'still-frame ban'.",
+    "Lateral camera travel is present but minimal, not meeting the 'more noticeable' requirement."
+  ],
+  "prompt_fixes": [
+    "Add: 'Ensure the video is strictly full bleed vertical 9:16 with no black bars or letterboxing on any side.'",
+    "Modify camera motion instruction: 'Film with a clearly noticeable, smooth arc camera movement that includes significant side-to-side lateral travel (at least 25% more pronounced than typical subtle pans). Incorporate subtle, natural handheld micro-shake throughout the clip to enhance realism and avoid static detection. Ensure strong background parallax is evident due to the camera movement.'"
+  ],
+  "module1_risks": [
+    "Still-frame ban (due to insufficient and overly smooth camera motion, lack of micro-shake).",
+    "Incorrect aspect ratio / letterboxing (not full bleed 9:16).",
+    "Module 1 vision QC failed: Expecting value: line 1 column 1 (char 0)"
+  ],
+  "arc_camera_visible": true,
+  "product_fidelity": "good",
+  "reference_image": "data/tiktok_shop/samples/bur_bur_mermaid_brush_916.jpg",
+  "video_path": "data/tiktok_shop/clips/bur_bur_mermaid_brush_loop.mp4",
+  "prompt_used": "Use the uploaded product image as the exact reference for the Bur Bur Mermaid Brush. Create a realistic UGC-style vertical 9:16 product video of the brush resting on a clean marble bathroom vanity in a believable beauty setting that is clearly different from a plain listing-photo background, with soft warm interior light that matches on both the brush and the counter. Keep the brush centered, fully in frame for the entire clip, and completely fixed and locked to the vanity surface \u2014 the product does not rotate, spin, slide, wobble, or move in any way; only the camera moves. Film with a handh",
+  "frame_paths": [
+    "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_00_0.5s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_01_2.5s.jpg",
+    "data/tiktok_shop/visual_feedback/frames_bur_bur_mermaid_brush_loop/frame_02_5.0s.jpg"
+  ],
+  "revised_prompt": "Use the uploaded product image as the exact reference for the Bur Bur Mermaid Brush. Create a realistic UGC-style vertical 9:16 product video of the brush resting on a clean marble bathroom vanity in a believable beauty setting that is clearly different from a plain listing-photo background, with soft warm interior light that matches on both the brush and the counter. Ensure the video is strictly full bleed vertical 9:16 with no black bars or letterboxing on any side. Keep the brush centered, fully in frame for the entire clip, and completely fixed and locked to the vanity surface \u2014 the product does not rotate, spin, slide, wobble, or move in any way; only the camera moves. Film with a clearly noticeable, smooth arc camera movement that includes significant side-to-side lateral travel (at least 25% more pronounced than typical subtle pans). Incorporate subtle, natural handheld micro-shake throughout the clip to enhance realism and avoid static detection. Ensure strong background parallax is evident due to the camera movement.",
+  "module1_qc_passed": false,
+  "checked_at": "2026-07-02T10:17:04.791453+00:00"
+}

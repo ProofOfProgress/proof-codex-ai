@@ -364,10 +364,14 @@ def _gemini_check_frames(
         resp = backend.client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": content}],
-            max_tokens=400,
+            max_tokens=1500,
             temperature=0.1,
         )
         raw = (resp.choices[0].message.content or "").strip()
+        if not raw:
+            raise RuntimeError("503 empty Module 1 vision response")
+        if getattr(resp.choices[0], "finish_reason", None) == "length":
+            raise RuntimeError("503 truncated Module 1 vision JSON")
         return _parse_vision_json(raw)
 
     data = call_with_retry(_call, label=f"module1-qc:{model}")
