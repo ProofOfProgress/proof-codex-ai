@@ -136,16 +136,25 @@ class Settings(BaseSettings):
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
-    # EchoTik — LEGACY (retired — use FastMoss). Kept for reference only.
+    # EchoTik — LEGACY (retired). Kept for reference only.
     echotik_username: str | None = None
     echotik_password: str | None = None
     echotik_api_base: str = "https://open.echotik.live"
     echotik_region: str = "US"
 
-    # FastMoss — TikTok Shop product research (replaces EchoTik + Kalodata)
+    # Product scout — Kalodata OR FastMoss (owner choice; see FOR_OWNER_KALODATA_OR_FASTMOSS.md)
+    scout_provider: str = "auto"  # auto | kalodata | fastmoss
+
+    # Kalodata KaloPilot — token from kalodata.com/pilot (not Enterprise API)
+    kalodata_pilot_token: str | None = None
+    kalodata_pilot_base: str = "https://staging.kalodata.com/api/pilot/skill/ext/v1"
+    kalodata_region: str = "US"
+
+    # FastMoss OpenAPI — free trial at developers.fastmoss.com/free-trial.html
     fastmoss_client_id: str | None = None
     fastmoss_client_secret: str | None = None
     fastmoss_api_base: str = "https://openapi.fastmoss.com"
+    fastmoss_token_path: str = "/oauth/token"
 
     # Printify — POD seller API (Bearer token from printify.com/app/account/api)
     printify_api_token: str | None = None

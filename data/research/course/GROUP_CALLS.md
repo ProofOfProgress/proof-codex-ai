@@ -223,6 +223,20 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 
 ---
 
+## 2026-07-02 — Product research: Kalodata OR FastMoss (owner)
+
+**FastMoss Enterprise API billing blocked** — owner wants **Kalodata or FastMoss only** (not EchoTik).
+
+| Path | How |
+|------|-----|
+| **Kalodata KaloPilot** | `KALODATA_PILOT_TOKEN` from kalodata.com/pilot — credit-based agent API, no $500 Enterprise |
+| **FastMoss** | UI ~$59/mo and/or **free developer API trial** (developers.fastmoss.com/free-trial.html) |
+| **Scout CLI** | `scout_cli run` uses Kalodata when token set; FastMoss rank API still wiring |
+
+Doc: `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md`
+
+---
+
 ## 2026-06-30 — Head coach 1:1 (recorded)
 
 **Source:** `data/research/course/inbox/coach-call-2026-06-30-summary.md` · full transcript in `coach-call-2026-06-30-transcript.md`

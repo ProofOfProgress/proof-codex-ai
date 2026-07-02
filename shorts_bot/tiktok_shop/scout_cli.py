@@ -35,26 +35,44 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "status":
-        from shorts_bot.tiktok_shop import echotik_client, fastmoss_client
+        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client
         from shorts_bot.tiktok_shop.product_scout import load_products, products_path
+        from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-        if fastmoss_client.configured():
-            console.print("[green]FastMoss: credentials configured[/green]")
-            console.print("[yellow]Automated scout: not wired yet — use FastMoss app or see FASTMOSS_SCOUT_PLAN.md[/yellow]")
+        provider = resolve_scout_provider()
+        if provider == "kalodata":
+            console.print("[green]Scout backend: Kalodata KaloPilot[/green]")
+        elif provider == "fastmoss":
+            console.print("[green]Scout backend: FastMoss OpenAPI (credentials set)[/green]")
+            console.print("[yellow]Product rank endpoints not wired yet — token test via ping[/yellow]")
         else:
-            console.print("[red]FastMoss: not configured[/red]")
-            console.print("See docs/FOR_OWNER_FASTMOSS_SETUP.md (replaces EchoTik)")
-        if echotik_client.configured():
-            console.print("[dim]EchoTik: legacy credentials present — retired, do not pay[/dim]")
+            console.print("[red]Scout backend: not configured[/red]")
+            console.print(scout_setup_hint())
+
+        if kalodata_client.configured():
+            console.print("[dim]Kalodata token: present[/dim]")
+        if fastmoss_client.configured():
+            console.print("[dim]FastMoss API keys: present[/dim]")
         console.print(f"Products file: {products_path()}")
         console.print(f"Saved products: {len(load_products())}")
-        console.print("[dim]Launch path A: pick in FastMoss app → tell agent product names[/dim]")
         return
 
     if args.cmd == "ping":
-        from shorts_bot.tiktok_shop import fastmoss_client, echotik_client
+        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client
+        from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-        if fastmoss_client.configured():
+        provider = resolve_scout_provider()
+        if provider == "kalodata":
+            result = kalodata_client.ping()
+            if result.get("ok"):
+                console.print("[green]Kalodata KaloPilot: OK[/green]")
+                if result.get("sample"):
+                    console.print(f"[dim]{result['sample']}[/dim]")
+            else:
+                console.print(f"[red]Kalodata:[/red] {result.get('message')}")
+                raise SystemExit(1)
+            return
+        if provider == "fastmoss":
             result = fastmoss_client.ping()
             if result.get("ok"):
                 console.print("[green]FastMoss API: connected[/green]")
@@ -62,12 +80,7 @@ def main() -> None:
                 console.print(f"[yellow]FastMoss:[/yellow] {result.get('message')}")
             return
 
-        if echotik_client.configured():
-            console.print("[yellow]EchoTik is retired — configure FastMoss instead[/yellow]")
-            console.print("docs/FOR_OWNER_FASTMOSS_SETUP.md")
-            raise SystemExit(1)
-
-        console.print("[red]FastMoss not configured — docs/FOR_OWNER_FASTMOSS_SETUP.md[/red]")
+        console.print(f"[red]{scout_setup_hint()}[/red]")
         raise SystemExit(1)
 
     if args.cmd == "list":

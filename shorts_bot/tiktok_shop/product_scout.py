@@ -154,20 +154,22 @@ def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
 
 
 def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[ScoutProduct]:
-    from shorts_bot.tiktok_shop import fastmoss_client
+    from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-    if fastmoss_client.configured():
+    provider = resolve_scout_provider()
+    if provider == "kalodata":
+        from shorts_bot.tiktok_shop.kalodata_scout import scout_via_kalodata
+
+        return scout_via_kalodata(preset=preset, limit=limit)
+    if provider == "fastmoss":
+        from shorts_bot.tiktok_shop import fastmoss_client
+
         ping = fastmoss_client.ping()
-        raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet — docs/FOR_OWNER_FASTMOSS_SETUP.md")
+        raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet")
 
-    raise RuntimeError(
-        "Product scout uses **FastMoss only** (EchoTik retired). "
-        "Subscribe at fastmoss.com — pick 8–10 products in the app (Launch path A) "
-        "or add FASTMOSS_CLIENT_ID + FASTMOSS_CLIENT_SECRET when API scout ships. "
-        "See docs/FOR_OWNER_FASTMOSS_SETUP.md"
-    )
+    raise RuntimeError(scout_setup_hint())
 
-    # Legacy EchoTik path — unreachable until FastMoss scout replaces block above
+    # Legacy EchoTik path below — kept for reference; not used when scout_provider is kalodata/fastmoss.
     scorer = _score_two_hundred if preset == "two_hundred" else _score_middle_core
     raw_rows = fetch_rank_rows(preset=preset, pages=5)
 
