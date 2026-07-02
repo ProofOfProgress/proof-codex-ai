@@ -80,8 +80,9 @@ def find_kalodata_page(context) -> Any | None:
 
 
 def hub_edge_debug_command() -> str:
-    """Windows command to start Edge with remote debugging (owner runs once per boot if needed)."""
+    """Windows: Edge with CDP reachable from WSL (bind all interfaces)."""
     return (
         'powershell.exe -NoProfile -Command "Start-Process msedge -ArgumentList '
-        "'--remote-debugging-port=9222','https://www.kalodata.com/product'" + '"'
+        "'--remote-debugging-port=9222','--remote-debugging-address=0.0.0.0',"
+        "'https://www.kalodata.com/product'" + '"'
     )

@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Any
 
 import httpx
 
+from shorts_bot.agent_credentials import load_agent_credentials
 from shorts_bot.config import settings
 
 DEFAULT_BASE = "https://staging.kalodata.com/api/pilot/skill/ext/v1"
 
 
 def configured() -> bool:
-    token = (settings.kalodata_pilot_token or "").strip()
+    load_agent_credentials()
+    token = (os.environ.get("KALODATA_PILOT_TOKEN") or settings.kalodata_pilot_token or "").strip()
     if not token:
         return False
     lower = token.lower()
@@ -25,7 +28,8 @@ def _base() -> str:
 
 
 def _headers() -> dict[str, str]:
-    token = (settings.kalodata_pilot_token or "").strip()
+    load_agent_credentials()
+    token = (os.environ.get("KALODATA_PILOT_TOKEN") or settings.kalodata_pilot_token or "").strip()
     if not token:
         raise RuntimeError("Kalodata not configured — set KALODATA_PILOT_TOKEN")
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}

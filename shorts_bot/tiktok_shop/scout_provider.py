@@ -21,6 +21,9 @@ def resolve_scout_provider(*, preset: str = "middle_core") -> str:
       3. fastmoss — OpenAPI keys
     Weekly drop is NEVER auto — reference only (owner 2026-07).
     """
+    from shorts_bot.agent_credentials import load_agent_credentials
+
+    load_agent_credentials()
     choice = (settings.scout_provider or "auto").strip().lower()
     if choice == "hub_ui":
         return "hub_ui" if kalodata_filters.preset_has_url(preset) else ""
