@@ -225,8 +225,11 @@ def crawl_course_site(*, max_pages: int = 25, max_chars: int = 30_000) -> Path:
                 page.goto(url, wait_until="domcontentloaded", timeout=90_000)
                 time.sleep(1.5)
                 title = page.title() or url
-                text = page.inner_text("main") or page.inner_text("body") or ""
-                text = re.sub(r"\n{3,}", "\n\n", text).strip()[:max_chars]
+                try:
+                    text = page.inner_text("main", timeout=8_000)
+                except Exception:
+                    text = page.inner_text("body", timeout=15_000)
+                text = re.sub(r"\n{3,}", "\n\n", str(text or "")).strip()[:max_chars]
                 sections.extend([f"## {title}", "", f"URL: {page.url}", ""])
                 if text:
                     sections.append(text)
