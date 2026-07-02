@@ -1,4 +1,4 @@
-# Output: input_x input_y send_x send_y (space-separated) for Cursor composer.
+# Bring Cursor main window to front (largest Cursor.exe window).
 Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -12,7 +12,7 @@ public class Win32 {
 
 $best = $null
 $bestArea = 0
-foreach ($proc in Get-Process Cursor -ErrorAction SilentlyContinue) {
+foreach ($proc in Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -ieq 'Cursor' }) {
   if ($proc.MainWindowHandle -eq [IntPtr]::Zero) { continue }
   $r = New-Object Win32+RECT
   if (-not [Win32]::GetWindowRect($proc.MainWindowHandle, [ref]$r)) { continue }
@@ -26,26 +26,10 @@ foreach ($proc in Get-Process Cursor -ErrorAction SilentlyContinue) {
   }
 }
 if (-not $best) {
-  Write-Error "Cursor window not found - open Cursor on the hub and try again"
+  Write-Error "Cursor not found - open Cursor on the hub (proof-codex-ai folder) and retry"
   exit 1
 }
-
 [Win32]::ShowWindow($best.MainWindowHandle, 9) | Out-Null
-Start-Sleep -Milliseconds 200
+Start-Sleep -Milliseconds 250
 [Win32]::SetForegroundWindow($best.MainWindowHandle) | Out-Null
-Start-Sleep -Milliseconds 200
-
-$r = New-Object Win32+RECT
-[void][Win32]::GetWindowRect($best.MainWindowHandle, [ref]$r)
-$w = $r.Right - $r.Left
-$h = $r.Bottom - $r.Top
-if ($w -le 100 -or $h -le 100) {
-  Write-Error "Cursor window too small - restore/maximize Cursor and try again"
-  exit 1
-}
-
-$ix = [int]($r.Left + $w * 0.45)
-$iy = [int]($r.Top + $h * 0.90)
-$sx = [int]($r.Left + $w * 0.78)
-$sy = [int]($r.Top + $h * 0.90)
-Write-Output "$ix $iy $sx $sy"
+Write-Output "OK"

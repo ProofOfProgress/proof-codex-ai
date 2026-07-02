@@ -19,4 +19,4 @@ autoMemoryReclaim=disabled
 Set-Content -Path $Dest -Value $content -Encoding UTF8
 Write-Host "[OK] Wrote $Dest"
 Write-Host "Run in PowerShell (once): wsl.exe --shutdown"
-Write-Host "Then open Ubuntu again — WSL picks up new settings."
+Write-Host "Then open Ubuntu again - WSL picks up new settings."
