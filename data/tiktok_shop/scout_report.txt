@@ -1,0 +1,38 @@
+Product research (autonomous) — 10 picks in data/tiktok_shop/products.json
+
+1. Immunocal Platinum Whey Protein Isolate Powder (30 Servings)  [score 100]  id=
+   $36.46/sale (20% of $182)  GMV $23  creators=36  videos=0
+
+2. Hard Bottom Backseat Extenders for Dogs with Door Protection  [score 61]  id=
+   $34.0/sale (20% of $170)  GMV $106  creators=120  videos=0
+
+3. Blissy Silk Pillowcase  [score 69]  id=
+   $24.99/sale (25% of $100)  GMV $35  creators=170  videos=0
+
+4. Momcozy KleanPal Pro Baby Bottle Washer  [score 100]  id=
+   $24.4/sale (8% of $305)  GMV $240  creators=149  videos=0
+
+5. BASED Complete Curly Kit  [score 62]  id=
+   $20.0/sale (20% of $100)  GMV $72  creators=122  videos=0
+
+6. NOBULL Men's Allday 365 (Ripstop) Shoe in White Gum  [score 100]  id=
+   $19.5/sale (13% of $150)  GMV $44  creators=57  videos=0
+
+7. Smart Video Keypad & Garage Control Bundle  [score 65]  id=
+   $19.19/sale (16% of $120)  GMV $106  creators=148  videos=0
+
+8. COWSAR Commercial Ice Maker V2.0  [score 100]  id=
+   $16.8/sale (7% of $240)  GMV $71  creators=133  videos=0
+
+9. Wahl USA Pro Series High Visibility Trimmer  [score 65]  id=
+   $15.0/sale (10% of $150)  GMV $52  creators=66  videos=0
+
+10. Shark SilkiPro Hair Straightener and Dryer - HT400 / HT401  [score 77]  id=
+   $12.5/sale (5% of $250)  GMV $472  creators=143  videos=0
+
+Confirm in FastMoss before you commit (course Module 3):
+- Top videos: 6+ of 10 have purple ad icon (GMV Max)
+- Creator list: variety — not only the brand shop
+- Commission $: price × rate worth posting (not $1/sale unless huge volume)
+- Shop name matches product brand — skip random-letter Chinese sellers
+- Captions: urgency + free shipping — NEVER specific % off

@@ -25,11 +25,12 @@ python3 -m shorts_bot.tiktok_shop.scout_autorun
 - Intel in `data/research/course/inbox/discord-desktop-crawl-*.md` and `discord-full-crawl-*.md`
 - DMs captured (Moe: Kalodata API ~$500/mo, automation 10/day, prompt builder refs)
 
-## Phones
+## Phones — **phone_1 bound**
 
-- ADB path: `~/android-sdk/platform-tools/adb` (already installed on hub)
-- Plug phone → unlock → tap **Allow USB debugging** → `bash scripts/hub_adb_windows.sh`
-- If empty: Admin PowerShell `scripts/hub_usbipd_attach.ps1`
+- Device: **Moto G 2025** (`ZT422C55M8`) via Windows ADB
+- Slot: `phone_1` → `bubble_gspgsgsorip1`
+- Commands: `export PHONE_HUB_ADB=/mnt/c/Users/isaac/android-sdk/platform-tools/adb.exe`
+- Screen: `bash scripts/hub_phone_screen.sh phone_1`
 
 ## Bubble accounts
 
