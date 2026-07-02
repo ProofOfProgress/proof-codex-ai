@@ -120,7 +120,7 @@ hub_join_tailscale() {
     return 0
   fi
   hub_start_tailscaled || return 1
-  sudo hub_tailscale_cli up \
+  sudo tailscale --socket="$TS_SOCKET" up \
     --auth-key="${TAILSCALE_AUTH_KEY}" \
     --hostname=cursor-cloud-agent \
     --accept-routes
@@ -146,15 +146,25 @@ hub_ssh_port() {
 }
 
 hub_ssh_opts() {
+  local port proxy_cmd
+  port="$(hub_ssh_port)"
   local -a ssh_opts=(
     -i "$1"
-    -p "$(hub_ssh_port)"
+    -p "$port"
     -o StrictHostKeyChecking=accept-new
     -o ConnectTimeout=25
     -o ServerAliveInterval=10
     -o ServerAliveCountMax=2
+    -o BatchMode=yes
+    -o PasswordAuthentication=no
+    -o PreferredAuthentications=publickey
   )
-  # Cloud VM uses userspace-networking — direct dial to 100.x works; tailscale nc breaks (%p → 65535).
+  # Cloud VM has no /dev/net/tun — userspace-networking cannot raw-dial 100.x for SSH.
+  # Route via tailscale nc; hardcode port (%p expands to 65535 with ProxyCommand).
+  if [[ ! -e /dev/net/tun ]]; then
+    proxy_cmd="tailscale --socket=${TS_SOCKET} nc %h ${port}"
+    ssh_opts+=(-o "ProxyCommand=${proxy_cmd}")
+  fi
   printf '%s\n' "${ssh_opts[@]}"
 }
 
@@ -183,8 +193,8 @@ hub_run_ssh() {
   local -a ssh_opts
   mapfile -t ssh_opts < <(hub_ssh_opts "$keyfile")
   local remote_cmd="$*"
-  # Windows gateway (port 2222) lands in cmd — wrap command in WSL Ubuntu.
-  if [[ "$(hub_ssh_port)" == "2222" ]]; then
+  # Windows gateway (port 2222) lands in cmd — wrap single commands in WSL bash.
+  if [[ "$(hub_ssh_port)" == "2222" && "$remote_cmd" != wsl.exe* ]]; then
     remote_cmd="wsl.exe bash -lc $(printf '%q' "$remote_cmd")"
   fi
   ssh "${ssh_opts[@]}" "${user}@${host}" "$remote_cmd"
@@ -192,8 +202,7 @@ hub_run_ssh() {
 
 hub_verify_ssh() {
   hub_log "SSH test → ${HUB_SSH_USER}@${HUB_SSH_HOST}:$(hub_ssh_port) ..."
-  if ! hub_run_ssh \
-    'echo "Hub OK: $(hostname)"; uname -a; command -v python3 && python3 --version; test -d ~/proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet"'; then
+  if ! hub_run_ssh echo "Hub OK: cloud agent connected"; then
     hub_log ""
     hub_log "Hub SSH failed. Owner fix (one double-click on HP):"
     hub_log "  scripts\\HUB_RECOVERY.bat  (or Desktop copy after git pull)"

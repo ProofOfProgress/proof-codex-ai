@@ -186,24 +186,50 @@ if ($existing) {
     Write-Ok "Firewall rule created (all profiles)"
 }
 
-# Ensure cloud agent key in Windows authorized_keys
+# Ensure cloud agent key in Windows authorized_keys (admin users use ProgramData path)
 $WslUser = (wsl.exe whoami).Trim()
 $PubKey = (wsl.exe -u $WslUser bash -lc 'cat ~/.ssh/cursor_agent_ed25519.pub 2>/dev/null' 2>$null)
 if ($PubKey) {
     $PubKey = $PubKey.Trim()
-    $AuthDir = Join-Path $env:USERPROFILE '.ssh'
-    $AuthFile = Join-Path $AuthDir 'authorized_keys'
-    New-Item -ItemType Directory -Force -Path $AuthDir | Out-Null
-    $existingKeys = @()
-    if (Test-Path $AuthFile) { $existingKeys = Get-Content $AuthFile }
-    if ($existingKeys -notcontains $PubKey) {
-        Add-Content -Path $AuthFile -Value $PubKey
-        Write-Ok 'Agent SSH public key added to authorized_keys'
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+    $winUser = $env:USERNAME
+    $isMemberOfAdministrators = $false
+    try {
+        $admSid = New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-544'
+        $admGroup = $admSid.Translate([Security.Principal.NTAccount]).Value
+        $isMemberOfAdministrators = (whoami /groups) -match 'Administrators|Admin'
+    } catch { $isMemberOfAdministrators = $isAdmin }
+
+    if ($isMemberOfAdministrators) {
+        $AuthFile = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
+        if (-not (Test-Path -LiteralPath $AuthFile)) {
+            New-Item -Path $AuthFile -ItemType File -Force | Out-Null
+        }
+        $existingKeys = @()
+        if (Test-Path $AuthFile) { $existingKeys = Get-Content $AuthFile }
+        if ($existingKeys -notcontains $PubKey) {
+            Add-Content -Path $AuthFile -Value $PubKey -Encoding ascii
+            Write-Ok 'Agent SSH public key added to administrators_authorized_keys (admin user)'
+        } else {
+            Write-Ok 'Agent SSH public key already in administrators_authorized_keys'
+        }
+        icacls $AuthFile /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F' | Out-Null
     } else {
-        Write-Ok 'Agent SSH public key already in authorized_keys'
+        $AuthDir = Join-Path $env:USERPROFILE '.ssh'
+        $AuthFile = Join-Path $AuthDir 'authorized_keys'
+        New-Item -ItemType Directory -Force -Path $AuthDir | Out-Null
+        $existingKeys = @()
+        if (Test-Path $AuthFile) { $existingKeys = Get-Content $AuthFile }
+        if ($existingKeys -notcontains $PubKey) {
+            Add-Content -Path $AuthFile -Value $PubKey
+            Write-Ok 'Agent SSH public key added to authorized_keys'
+        } else {
+            Write-Ok 'Agent SSH public key already in authorized_keys'
+        }
+        icacls $AuthDir /inheritance:r /grant "${winUser}:F" | Out-Null
+        icacls $AuthFile /inheritance:r /grant "${winUser}:F" | Out-Null
     }
-    icacls $AuthDir /inheritance:r /grant "$($env:USERNAME):F" | Out-Null
-    icacls $AuthFile /inheritance:r /grant "$($env:USERNAME):F" | Out-Null
 } else {
     Write-Warn 'No cursor_agent key in WSL - run: bash scripts/hub_remote_setup.sh'
 }
