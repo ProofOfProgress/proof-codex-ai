@@ -6,7 +6,7 @@
   "presets": {
     "middle_core": {
       "label": "middle core",
-      "filter_url": "https://www.kalodata.com/product/detail?id=17295083709696291&language=en-US&currency=USD&region=US&dateRange=%5B%222026-06-01%22%2C%222026-06-30%22%5D&cateValue=",
+      "filter_url": "",
       "filters_reference": {
         "date": "last_7_days",
         "revenue_growth_min_pct": 50,

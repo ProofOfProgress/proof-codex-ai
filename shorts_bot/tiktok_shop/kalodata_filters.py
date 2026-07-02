@@ -38,11 +38,23 @@ def preset_block(preset: str) -> dict[str, Any]:
 
 
 def preset_filter_url(preset: str) -> str:
-    return str(preset_block(preset).get("filter_url") or "").strip()
+    url = str(preset_block(preset).get("filter_url") or "").strip()
+    return url
+
+
+def _is_list_filter_url(url: str) -> bool:
+    """Reject product detail URLs mistakenly pasted as filter presets."""
+    lower = url.lower()
+    if not lower.startswith("http"):
+        return False
+    if "/product/detail" in lower or "id=" in lower and "/product?" not in lower:
+        return False
+    return "/product" in lower or "filter" in lower or "rank" in lower
 
 
 def preset_has_url(preset: str) -> bool:
-    return bool(preset_filter_url(preset))
+    url = preset_filter_url(preset)
+    return bool(url) and _is_list_filter_url(url)
 
 
 def hub_ui_ready(*, preset: str | None = None) -> bool:
