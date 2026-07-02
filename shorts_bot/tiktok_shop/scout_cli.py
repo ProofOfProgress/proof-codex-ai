@@ -25,6 +25,8 @@ def main() -> None:
 
     list_cmd = sub.add_parser("list", help="Show saved products.json")
 
+    sub.add_parser("validate", help="Quality-gate saved products.json (coach stats)")
+
     report = sub.add_parser("report", help="Plain-English report from saved products.json")
     report.add_argument("--preset", default="middle_core")
 
@@ -128,6 +130,27 @@ def main() -> None:
         from shorts_bot.tiktok_shop.scout_report import format_scout_report
 
         console.print(format_scout_report(load_products(), preset=args.preset))
+        return
+
+    if args.cmd == "validate":
+        from shorts_bot.tiktok_shop.product_scout import ScoutProduct, load_products
+        from shorts_bot.tiktok_shop.scout_product_quality import (
+            filter_quality_products,
+            format_quality_report,
+            validate_product,
+        )
+
+        raw = load_products()
+        if not raw:
+            console.print("[yellow]No products in products.json[/yellow]")
+            raise SystemExit(2)
+        products = [ScoutProduct(**{**r, "product_id": r.get("product_id") or ""}) for r in raw]
+        passed, rejected = filter_quality_products(products, limit=20, strict=True)
+        console.print(format_quality_report(passed, rejected))
+        if not passed:
+            console.print("[red]ZERO products pass coach quality gate — do not use for launch[/red]")
+            raise SystemExit(2)
+        console.print(f"[green]{len(passed)} pass[/green] · [red]{len(rejected)} rejected[/red]")
         return
 
     if args.cmd == "run":

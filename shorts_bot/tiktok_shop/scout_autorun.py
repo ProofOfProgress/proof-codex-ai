@@ -21,24 +21,14 @@ def _load_rules() -> dict:
 
 
 def apply_high_ticket_filters(products: list[ScoutProduct], *, limit: int = 10) -> list[ScoutProduct]:
-    """Coach call 2026-06-30: price >$80, creators ≤250 (100 gap), commission ≥8%."""
-    rules = _load_rules()
-    coach = rules.get("coach_call_2026_06_30") or {}
-    price_min = float(coach.get("price_min_usd") or 80)
-    creator_max = int(coach.get("creators_max") or 250)
-    comm_min = float(coach.get("commission_min_pct") or 8) / 100.0
+    """Coach call gates + per-product quality validation."""
+    from shorts_bot.tiktok_shop.scout_product_quality import filter_quality_products
 
-    out: list[ScoutProduct] = []
-    for p in products:
-        if p.price < price_min:
-            continue
-        if p.creators > creator_max:
-            continue
-        if p.commission_rate < comm_min and p.commission_usd < (price_min * comm_min):
-            continue
-        out.append(p)
-    out.sort(key=lambda x: (x.commission_usd, x.price), reverse=True)
-    return out[:limit]
+    passed, rejected = filter_quality_products(products, limit=limit, strict=True)
+    if rejected:
+        for p, q in rejected[:5]:
+            print(f"REJECT {p.product_name[:40]}: {'; '.join(q.issues)}", flush=True)
+    return passed
 
 
 def run_multi_preset_scout(*, limit: int = 10) -> list[ScoutProduct]:
@@ -130,17 +120,31 @@ def run_autonomous_scout(*, preset: str = "coach_high_ticket_furniture", limit: 
 
 
 def write_scout_report(products: list[ScoutProduct]) -> Path:
+    from shorts_bot.tiktok_shop.scout_product_quality import (
+        filter_quality_products,
+        format_quality_report,
+    )
     from shorts_bot.tiktok_shop.scout_report import format_scout_report
 
     out = settings.data_dir / "tiktok_shop" / "scout_report.txt"
+    quality_path = settings.data_dir / "tiktok_shop" / "scout_quality_report.txt"
+    passed, rejected = filter_quality_products(products, limit=20, strict=True)
+    quality_path.write_text(format_quality_report(passed, rejected), encoding="utf-8")
+
     rows = [p.to_dict() for p in products]
     body = format_scout_report(rows, preset="kalodata_high_ticket")
+    body += f"\n\nQuality detail: {quality_path}\n"
     out.write_text(body + "\n", encoding="utf-8")
     return out
 
 
 def main() -> int:
     products = run_autonomous_scout(limit=10)
+    if not products:
+        raise SystemExit(
+            "Scout returned 0 quality products — check Kalodata backend "
+            "(KALODATA_PILOT_TOKEN or hub filter URLs). See docs/FOR_OWNER_HANDS_OFF_SCOUT.md"
+        )
     save_products(products)
     report = write_scout_report(products)
     print(f"OK {len(products)} products → products.json · report {report}")

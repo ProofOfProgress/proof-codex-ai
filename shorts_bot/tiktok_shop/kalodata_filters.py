@@ -71,11 +71,15 @@ def preset_filter_url(preset: str) -> str:
 
 
 def _is_list_filter_url(url: str) -> bool:
-    """Reject product detail URLs mistakenly pasted as filter presets."""
-    lower = url.lower()
+    """Reject product detail URLs and bare /product with no filter params."""
+    lower = url.lower().strip()
     if not lower.startswith("http"):
         return False
-    if "/product/detail" in lower or "id=" in lower and "/product?" not in lower:
+    if "/product/detail" in lower:
+        return False
+    if "id=" in lower and "/product?" not in lower:
+        return False
+    if "?" not in url and "filter" not in lower and "rank" not in lower:
         return False
     return "/product" in lower or "filter" in lower or "rank" in lower
 
