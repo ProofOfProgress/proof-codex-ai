@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from shorts_bot.desktop_hub.host import helper_base_url
+from shorts_bot.desktop_hub.config import apply_helper_env
 from shorts_bot.desktop_hub.protocol import validate_command
 
 
@@ -33,6 +34,7 @@ class DesktopHubClient:
         token: str | None = None,
         timeout: float = 30.0,
     ) -> None:
+        apply_helper_env()
         self.base_url = (base_url or helper_base_url()).rstrip("/")
         self.token = token or os.environ.get("DESKTOP_HELPER_TOKEN", "")
         self.timeout = timeout

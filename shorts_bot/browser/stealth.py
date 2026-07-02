@@ -5,7 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from shorts_bot.config import settings
-from shorts_bot.youtube.studio import CHROME_UA
+
+CHROME_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+)
 
 _STEALTH_ARGS = (
     "--start-maximized",
@@ -26,11 +30,12 @@ def launch_stealth_context(
     *,
     headless: bool = False,
     profile_dir: Path | None = None,
+    channel: str | None = None,
 ):
     """Persistent context with automation flags stripped (Google sign-in friendly)."""
     profile = profile_dir or settings.browser_profile_dir
     profile.mkdir(parents=True, exist_ok=True)
-    ctx = playwright.chromium.launch_persistent_context(
+    launch_kwargs: dict = dict(
         user_data_dir=str(profile),
         headless=headless,
         user_agent=CHROME_UA,
@@ -39,5 +44,8 @@ def launch_stealth_context(
         ignore_default_args=["--enable-automation"],
         args=list(_STEALTH_ARGS),
     )
+    if channel:
+        launch_kwargs["channel"] = channel
+    ctx = playwright.chromium.launch_persistent_context(**launch_kwargs)
     ctx.add_init_script(_STEALTH_INIT)
     return ctx

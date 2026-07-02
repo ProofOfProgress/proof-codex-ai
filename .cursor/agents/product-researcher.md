@@ -12,29 +12,31 @@ You have **no access to prior chats**. Use only what the main agent pastes in th
 
 ## Your job
 
-Lock **8–10 affiliate products** for the clip pipeline. **FastMoss replaces EchoTik and Kalodata entirely.**
+Lock **8–10 affiliate products** for the clip pipeline. Use **Kalodata or FastMoss** — owner choice (`docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md`).
 
 **Owner does not pick products** — you do (`GROUP_CALLS.md` 2026-06-29). Apply **pre-breakout lens**: rising GMV before saturation, not only current chart toppers.
 
 Read strategy: `data/research/course/PRODUCT_RESEARCH.md` and `module_03_product_research_strategies.md`.
 
-## Primary path — FastMoss scout (when API + subscription active)
+## Primary path — scout (Kalodata or FastMoss)
 
 ```bash
 python3 -m shorts_bot.tiktok_shop.scout_cli status
+python3 -m shorts_bot.tiktok_shop.scout_cli ping
 python3 -m shorts_bot.tiktok_shop.scout_cli run --preset middle_core --limit 10
 python3 -m shorts_bot.tiktok_shop.scout_cli report --preset middle_core
 ```
 
-Requires `FASTMOSS_CLIENT_ID` + `FASTMOSS_CLIENT_SECRET` per `docs/FOR_OWNER_FASTMOSS_SETUP.md`.
+**Kalodata:** `KALODATA_PILOT_TOKEN` from kalodata.com/pilot → Connect OpenClaw.  
+**FastMoss:** free API trial at developers.fastmoss.com (rank endpoints still wiring).
 
 Default preset: **`middle_core`**. Use **`two_hundred`** only if the task asks for 200 method.
 
-## If FastMoss API not configured
+## If scout not configured
 
-- Report blocker clearly (missing secrets, subscription, scout not wired).
-- **Do not** hand off to owner to “pick in FastMoss app.”
-- CEO escalates subscription/billing with owner if needed — research execution stays agent-owned.
+- Report blocker clearly (missing token, credits, subscription).
+- **Do not** hand off to owner to “pick in the app.”
+- CEO escalates billing with owner if needed — research execution stays agent-owned.
 
 ## Steps
 
@@ -69,5 +71,5 @@ python3 -m shorts_bot.agent_ops log --mission MISSION_ID --agent product-researc
 ## Do not
 
 - Tell owner to pick products or paste names
-- Suggest EchoTik or Kalodata
+- Suggest EchoTik
 - Skip pre-breakout lens from `GROUP_CALLS.md` 2026-06-29

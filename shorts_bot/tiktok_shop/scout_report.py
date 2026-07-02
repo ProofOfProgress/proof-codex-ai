@@ -22,7 +22,8 @@ def format_scout_report(products: list[dict], *, preset: str) -> str:
         videos = row.get("videos", "")
         lines.append(
             f"{i}. {name}  [score {score:.0f}]  id={pid}\n"
-            f"   ${comm}/sale ({rate * 100:.0f}% of ${price:.0f})  "
+            f"   **YOU earn ${comm:.2f}/sale** ({rate * 100:.0f}% commission) · "
+            f"**product price ${price:.0f}** · "
             f"GMV ${gmv:,}  creators={creators}  videos={videos}"
         )
         cover = str(row.get("cover_url") or "")

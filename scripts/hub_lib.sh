@@ -120,7 +120,7 @@ hub_join_tailscale() {
     return 0
   fi
   hub_start_tailscaled || return 1
-  sudo hub_tailscale_cli up \
+  sudo tailscale --socket="$TS_SOCKET" up \
     --auth-key="${TAILSCALE_AUTH_KEY}" \
     --hostname=cursor-cloud-agent \
     --accept-routes
@@ -145,17 +145,50 @@ hub_ssh_port() {
   echo "${HUB_SSH_PORT:-22}"
 }
 
+hub_uses_userspace_tailscale() {
+  [[ ! -e /dev/net/tun ]]
+}
+
+hub_is_windows_gateway() {
+  [[ "$(hub_ssh_port)" == "2222" ]]
+}
+
 hub_ssh_opts() {
+  local port
+  port="$(hub_ssh_port)"
   local -a ssh_opts=(
     -i "$1"
-    -p "$(hub_ssh_port)"
+    -p "$port"
     -o StrictHostKeyChecking=accept-new
     -o ConnectTimeout=25
     -o ServerAliveInterval=10
     -o ServerAliveCountMax=2
+    -o BatchMode=yes
+    -o PasswordAuthentication=no
+    -o PreferredAuthentications=publickey
   )
-  # Cloud VM uses userspace-networking — direct dial to 100.x works; tailscale nc breaks (%p → 65535).
+  # Cloud VM userspace-networking: raw TCP to 100.x fails SSH handshake; use tailscale nc.
+  # Hardcode port in ProxyCommand (%p becomes 65535 through ProxyCommand on some OpenSSH builds).
+  if hub_uses_userspace_tailscale; then
+    ssh_opts+=(-o "ProxyCommand=tailscale --socket=${TS_SOCKET} nc %h ${port}")
+  fi
   printf '%s\n' "${ssh_opts[@]}"
+}
+
+hub_wrap_windows_gateway_cmd() {
+  local remote_cmd="$1"
+  if ! hub_is_windows_gateway; then
+    printf '%s' "$remote_cmd"
+    return 0
+  fi
+  if [[ "$remote_cmd" == wsl.exe* ]]; then
+    printf '%s' "$remote_cmd"
+    return 0
+  fi
+  # Windows OpenSSH lands in cmd.exe — run inside WSL Ubuntu at repo root.
+  # Use double quotes for bash -lc; single quotes are stripped by Windows OpenSSH.
+  local escaped="${remote_cmd//\"/\\\"}"
+  printf 'wsl.exe -d Ubuntu --cd /home/isaac/proof-codex-ai -e bash -lc "%s"' "$escaped"
 }
 
 hub_ensure_connected() {
@@ -183,17 +216,14 @@ hub_run_ssh() {
   local -a ssh_opts
   mapfile -t ssh_opts < <(hub_ssh_opts "$keyfile")
   local remote_cmd="$*"
-  # Windows gateway (port 2222) lands in cmd — wrap command in WSL Ubuntu.
-  if [[ "$(hub_ssh_port)" == "2222" ]]; then
-    remote_cmd="wsl.exe bash -lc $(printf '%q' "$remote_cmd")"
-  fi
+  remote_cmd="export PATH=\"\$HOME/.local/bin:\$PATH\" && export LD_LIBRARY_PATH=\"\$HOME/playwright-libs/usr/lib/x86_64-linux-gnu:\${LD_LIBRARY_PATH:-}\" && ${remote_cmd}"
+  remote_cmd="$(hub_wrap_windows_gateway_cmd "$remote_cmd")"
   ssh "${ssh_opts[@]}" "${user}@${host}" "$remote_cmd"
 }
 
 hub_verify_ssh() {
   hub_log "SSH test → ${HUB_SSH_USER}@${HUB_SSH_HOST}:$(hub_ssh_port) ..."
-  if ! hub_run_ssh \
-    'echo "Hub OK: $(hostname)"; uname -a; command -v python3 && python3 --version; test -d ~/proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet"'; then
+  if ! hub_run_ssh echo "Hub OK: cloud agent connected"; then
     hub_log ""
     hub_log "Hub SSH failed. Owner fix (one double-click on HP):"
     hub_log "  scripts\\HUB_RECOVERY.bat  (or Desktop copy after git pull)"

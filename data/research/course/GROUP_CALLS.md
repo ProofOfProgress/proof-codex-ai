@@ -220,3 +220,55 @@ Enforced in: `module_01_read_before_anything.md`, `module1_qc.py`, Gemini sample
 **Goal:** Before launch, **one automated kickoff per day** on hub laptop — scout/plan products, paste **CEO prompt** into Cursor, **click Run** (desktop helper). Cloud agent then generates that day's affiliate clips (research → Kling → QC → queue locally, **no Zernio**).
 
 **Owner calibrates:** focus + submit click coords in Cursor UI. Guide: `docs/FOR_OWNER_DAILY_PRELAUNCH.md`.
+
+---
+
+## 2026-07-02 — Product research: Kalodata OR FastMoss (owner)
+
+**FastMoss Enterprise API billing blocked** — owner wants **Kalodata or FastMoss only** (not EchoTik).
+
+| Path | How |
+|------|-----|
+| **Kalodata KaloPilot** | `KALODATA_PILOT_TOKEN` from kalodata.com/pilot — credit-based agent API, no $500 Enterprise |
+| **FastMoss** | UI ~$59/mo and/or **free developer API trial** (developers.fastmoss.com/free-trial.html) |
+| **Scout CLI** | `scout_cli run` uses Kalodata when token set; FastMoss rank API still wiring |
+
+Doc: `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md`
+
+---
+
+## 2026-06-30 — Head coach 1:1 (recorded)
+
+**Source:** `data/research/course/inbox/coach-call-2026-06-30-summary.md` · full transcript in `coach-call-2026-06-30-transcript.md`
+
+### Product research (coach filters — map to FastMoss scout)
+
+- Last **7 days** revenue **> $10k**
+- Revenue source: **video**
+- Revenue growth **≥ 30%**
+- Average unit price **> $80** (high ticket)
+- Affiliate: yes · Creators **≤ 200** · Commission **≥ 8%**
+- **Copy winners:** find creators already making money on a product and replicate their approach — "easiest way to do product research"
+
+### Still-frame / motion
+
+- Video prompts must include **enough movement** so clips don't read as still frames
+- Use **Product Video Prompt Builder** (Momentum GPT) → then **Kling** with motion in the prompt
+
+### Background / screens
+
+- **Black out all displays** — "all displays should be blacked out"
+- **No LEDs**, flashy lights, or tech-looking lit screens in frame
+
+### Prompt workflow (coach)
+
+1. Product Video Prompt Builder — e.g. "put the product in a gaming room" → generate **video** prompt with motion
+2. Momentum **AI Video Director** — product image + environment line + blacked-out screens
+3. Kling for final clip (audio off)
+
+### Day-one scaling mistakes (coach)
+
+- Weak AI prompting → still-frame risk
+- Confusion about "scripts" with **no voiceover** (visual sequence / caption is the script)
+- Skipping product research nuance (commission + saturation + ticket price together)
+- Not copying proven creators on winning products

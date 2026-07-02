@@ -6,7 +6,7 @@ Drop files here so the cloud agent can find them on the hub or in git.
 
 1. Record with **Windows Voice Recorder**
 2. Rename before or after: **`coach-call-YYYY-MM-DD.m4a`**
-3. Default save folder: `C:\Users\isaac\Documents\Sound Recordings\`
+3. Default save folder: `C:\Users\isaac\OneDrive\Documents\Sound recordings\` (OneDrive sync; legacy path without OneDrive also works)
 4. Optional copy to WSL: `~/proof-codex-ai/data/research/course/inbox/`
 
 After the call, message the agent:

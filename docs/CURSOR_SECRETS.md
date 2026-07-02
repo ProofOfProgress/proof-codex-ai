@@ -70,9 +70,12 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
 | `KLING_MODE` | Environment Variable | Default `std` (720p, ~$0.21/5s clip). Use `pro` only if you need 1080p later. |
-| `FASTMOSS_CLIENT_ID` | Runtime Secret | FastMoss OpenAPI — optional until API scout ships |
-| `FASTMOSS_CLIENT_SECRET` | Runtime Secret | Pair with client ID — `docs/FOR_OWNER_FASTMOSS_SETUP.md` |
-| `ECHOTIK_USERNAME` | Runtime Secret | **Legacy — retired.** Do not add. FastMoss replaces EchoTik. |
+| `SCOUT_PROVIDER` | Runtime Secret | `auto` \| `kalodata` \| `fastmoss` — see `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md` |
+| `KALODATA_PILOT_TOKEN` | Runtime Secret | Kalodata KaloPilot token from kalodata.com/pilot |
+| `KALODATA_REGION` | Runtime Secret | Default `US` |
+| `FASTMOSS_CLIENT_ID` | Runtime Secret | FastMoss OpenAPI — free trial at developers.fastmoss.com |
+| `FASTMOSS_CLIENT_SECRET` | Runtime Secret | Pair with client ID |
+| `ECHOTIK_USERNAME` | Runtime Secret | **Legacy — retired.** |
 | `ECHOTIK_PASSWORD` | Runtime Secret | **Legacy — retired.** |
 
 ## Optional — HP hub remote SSH *(agent runs terminal on your laptop)*
