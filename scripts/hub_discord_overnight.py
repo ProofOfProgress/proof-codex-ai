@@ -12,11 +12,13 @@ if str(ROOT) not in sys.path:
 
 
 def main() -> int:
-    from shorts_bot.browser.discord_session import crawl_discord
+    import subprocess
 
-    out = crawl_discord(scroll_passes=10)
-    print(f"OK discord crawl → {out}")
-    return 0
+    proc = subprocess.run(
+        [sys.executable, "-m", "shorts_bot.browser.cli", "crawl-discord"],
+        cwd=ROOT,
+    )
+    return proc.returncode
 
 
 if __name__ == "__main__":
