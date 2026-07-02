@@ -12,13 +12,17 @@ from shorts_bot.config import settings
 PRESET_ALIASES: dict[str, str] = {
     "middle_core": "core_middle_core",
     "two_hundred": "core_two_hundred",
-    "hardcore_lurkers": "sauce_hardcore_lurkers",
+    "hardcore_lurkers": "sauce_hardcore",
+    "hardcore": "sauce_hardcore",
+    "lurkers": "sauce_lurkers",
     "hundred_gap": "sauce_hundred_gap",
     "furniture_high_ticket": "coach_high_ticket_furniture",
+    "sauce_hardcore_lurkers": "sauce_hardcore",
 }
 
 DEFAULT_PRESETS = (
-    "sauce_hardcore_lurkers",
+    "sauce_hardcore",
+    "sauce_lurkers",
     "sauce_hundred_gap",
     "core_middle_core",
     "core_two_hundred",

@@ -2,9 +2,10 @@
   "version": 2,
   "region": "US",
   "products_page": "https://www.kalodata.com/product",
-  "_owner_setup": "Paste full Kalodata URL after Apply into each preset filter_url. Reply to agent: preset_name = URL. Product Scout tool in Momentum is BANNED — Kalodata only.",
+  "_owner_setup": "Agent captures filter URLs on hub via desktop helper — owner does not paste. Product Scout BANNED.",
   "_priority_launch": [
-    "sauce_hardcore_lurkers",
+    "sauce_hardcore",
+    "sauce_lurkers",
     "sauce_hundred_gap",
     "core_middle_core",
     "core_two_hundred",
@@ -12,13 +13,28 @@
     "coach_high_ticket_furniture"
   ],
   "presets": {
-    "sauce_hardcore_lurkers": {
-      "label": "SAUCE — hardcore lurkers",
-      "source": "Strategies → Product Research Methods (course Kalodata / Google sheet)",
+    "sauce_hardcore": {
+      "label": "hardcore",
+      "source": "Strategies → Product Research Methods (separate from lurkers)",
       "priority": "P0",
       "filter_url": "",
       "filters_reference": {
-        "note": "Moe's #1 sauce filter — copy pre-made from course sheet or saved Kalodata filter. Do not rebuild from scratch if sheet has link."
+        "date": "yesterday",
+        "revenue_growth_min_pct": 100,
+        "creator_max": 200
+      }
+    },
+    "sauce_lurkers": {
+      "label": "lurkers",
+      "source": "Strategies → Product Research Methods (separate from hardcore)",
+      "priority": "P0",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "last_7_days",
+        "creator_min": 10,
+        "creator_max": 200,
+        "revenue_growth_min_pct": 10,
+        "is_affiliate": true
       }
     },
     "sauce_hundred_gap": {
@@ -28,7 +44,7 @@
       "filter_url": "",
       "filters_reference": {
         "date": "yesterday",
-        "note": "May be empty some days — run daily. Copy from course pre-made if available."
+        "creator_max": 250,
       }
     },
     "sauce_hundred_gap_affiliate": {

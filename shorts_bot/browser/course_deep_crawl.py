@@ -132,6 +132,10 @@ def deep_crawl_momentum(*, max_pages: int = 100, max_chars: int = 50_000) -> Pat
                 except Exception:
                     pass
                 time.sleep(1.0)
+                if "/resources" in page.url:
+                    for _ in range(8):
+                        page.mouse.wheel(0, 1200)
+                        time.sleep(0.4)
                 final = page.url.split("#")[0].rstrip("/")
                 title = page.title() or final
                 text = _extract_text(page)

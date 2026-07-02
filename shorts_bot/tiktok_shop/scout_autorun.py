@@ -21,11 +21,11 @@ def _load_rules() -> dict:
 
 
 def apply_high_ticket_filters(products: list[ScoutProduct], *, limit: int = 10) -> list[ScoutProduct]:
-    """Coach call 2026-06-30: price >$80, creators ≤200, commission ≥8%."""
+    """Coach call 2026-06-30: price >$80, creators ≤250 (100 gap), commission ≥8%."""
     rules = _load_rules()
     coach = rules.get("coach_call_2026_06_30") or {}
     price_min = float(coach.get("price_min_usd") or 80)
-    creator_max = int(coach.get("creators_max") or 200)
+    creator_max = int(coach.get("creators_max") or 250)
     comm_min = float(coach.get("commission_min_pct") or 8) / 100.0
 
     out: list[ScoutProduct] = []
@@ -41,8 +41,42 @@ def apply_high_ticket_filters(products: list[ScoutProduct], *, limit: int = 10) 
     return out[:limit]
 
 
-def run_autonomous_scout(*, preset: str = "furniture_high_ticket", limit: int = 10) -> list[ScoutProduct]:
+def run_multi_preset_scout(*, limit: int = 10) -> list[ScoutProduct]:
+    """Run every P0 preset with a saved filter_url; merge + dedupe + coach filters."""
+    from shorts_bot.tiktok_shop import kalodata_filters
+    from shorts_bot.tiktok_shop.product_scout import scout_products
+
+    keys = kalodata_filters.launch_priority_presets()
+    merged: dict[str, ScoutProduct] = {}
+    for key in keys:
+        if not kalodata_filters.preset_has_url(key):
+            continue
+        try:
+            rows = scout_products(preset=key, limit=limit)
+        except Exception as exc:
+            print(f"WARN scout {key}: {exc}", flush=True)
+            continue
+        for p in rows:
+            k = p.product_id or p.product_name.lower()
+            prev = merged.get(k)
+            if not prev or p.score > prev.score:
+                merged[k] = p
+
+    products = list(merged.values())
+    products.sort(key=lambda x: (x.commission_usd, x.score), reverse=True)
+    filtered = apply_high_ticket_filters(products, limit=limit)
+    return filtered if filtered else products[:limit]
+
+
+def run_autonomous_scout(*, preset: str = "coach_high_ticket_furniture", limit: int = 10) -> list[ScoutProduct]:
     """Kalodata / FastMoss / hub_ui — never weekly drop."""
+    from shorts_bot.tiktok_shop import kalodata_filters
+
+    if kalodata_filters.hub_ui_ready():
+        multi = run_multi_preset_scout(limit=limit)
+        if multi:
+            return multi
+
     provider = resolve_scout_provider(preset=preset)
     if not provider:
         # try middle_core preset as fallback URL
