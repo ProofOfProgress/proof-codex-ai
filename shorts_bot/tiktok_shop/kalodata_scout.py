@@ -11,31 +11,12 @@ from shorts_bot.tiktok_shop import kalodata_client
 from shorts_bot.tiktok_shop.product_scout import ScoutProduct
 
 
+from shorts_bot.tiktok_shop.kalodata_pilot_queries import build_pilot_query
+
+
 def _scout_query(*, preset: str, limit: int) -> str:
-    """Natural-language query with coach-call filters (GROUP_CALLS 2026-06-30)."""
-    region = (settings.kalodata_region or "US").strip()
-    base = (
-        f"{region} TikTok Shop affiliate product research. "
-        f"Find up to {limit} products matching ALL filters where possible:\n"
-        "- Last 7 days revenue over $10,000\n"
-        "- Revenue mainly from video (not live-only)\n"
-        "- Revenue growth at least 30%\n"
-        "- Average unit price over $80 (high ticket)\n"
-        "- Creator count at most 200\n"
-        "- Affiliate commission at least 8%\n"
-        "- Prefer rising / pre-breakout (accelerating GMV, not peaked)\n"
-        "- Top videos should show brand ad spend when available\n"
-    )
-    if preset == "two_hundred":
-        base += "- Emphasize yesterday's hot movers (200 method style)\n"
-    else:
-        base += "- Emphasize middle-core steady winners with room to grow\n"
-    base += (
-        "\nReturn a markdown table with columns exactly:\n"
-        "product_name | product_id | price_usd | commission_pct | gmv_usd | creators | videos | trend | cover_url\n"
-        "Use real Kalodata data only. product_id = TikTok Shop numeric ID if known."
-    )
-    return base
+    """Course-method query for KaloPilot — mirrors UI filter specs."""
+    return build_pilot_query(preset=preset, limit=limit)
 
 
 def _parse_table_rows(text: str) -> list[dict[str, Any]]:

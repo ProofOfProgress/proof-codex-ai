@@ -49,11 +49,20 @@ def _launch_page(*, headless: bool | None = None):
     from playwright.sync_api import Page, sync_playwright
 
     from shorts_bot.browser.stealth import launch_stealth_context
+    from shorts_bot.tiktok_shop.kalodata_edge_cdp import cdp_enabled, connect_cdp_page
+
+    pw = sync_playwright().start()
+    if cdp_enabled():
+        try:
+            _browser, context, page = connect_cdp_page(pw)
+            logger.info("Kalodata: attached to Edge via CDP (%s)", page.url[:80])
+            return pw, context, page, True
+        except Exception as exc:
+            logger.info("Edge CDP not available (%s) — using Playwright profile", exc)
 
     use_headless = settings.browser_headless if headless is None else headless
     profile = _profile_dir()
     profile.mkdir(parents=True, exist_ok=True)
-    pw = sync_playwright().start()
     ctx = None
     for channel in ("msedge", None):
         try:
@@ -66,7 +75,7 @@ def _launch_page(*, headless: bool | None = None):
     if ctx is None:
         ctx = launch_stealth_context(pw, headless=use_headless, profile_dir=profile)
     page: Page = ctx.pages[0] if ctx.pages else ctx.new_page()
-    return pw, ctx, page
+    return pw, ctx, page, False
 
 
 def _cloudflare_blocked(page) -> bool:
@@ -446,18 +455,21 @@ def run_verified_apply(
         return ApplyResult(ok=False, message="BROWSER_ENABLED=false — enable Playwright on hub")
 
     spec = build_spec(method=method, category=category)
-    pw, ctx, page = _launch_page(headless=headless)
+    pw, ctx, page, cdp_attached = _launch_page(headless=headless)
     products: list[ScoutProduct] | None = None
     try:
-        page.goto(LIST_URL, wait_until="domcontentloaded", timeout=120_000)
+        if "kalodata.com/product" not in (page.url or "").lower():
+            page.goto(LIST_URL, wait_until="domcontentloaded", timeout=120_000)
+        else:
+            ensure_product_list(page)
         if not _wait_for_kalodata_ready(page):
             if _cloudflare_blocked(page):
                 return ApplyResult(
                     ok=False,
                     message=(
-                        "Kalodata blocked by Cloudflare in headless browser. On hub run once:\n"
-                        "  python3 -m shorts_bot.browser.cli open kalodata --minutes 10 --block\n"
-                        "Log in, pass verification, close — then retry apply."
+                        "Kalodata blocked by Cloudflare. Hands-off fix: add KALODATA_PILOT_TOKEN "
+                        "(kalodata.com/pilot) to Cursor secrets — no browser needed.\n"
+                        "Or hub Edge CDP: bash scripts/hub_edge_cdp_start.sh then retry."
                     ),
                 )
             return ApplyResult(
@@ -517,8 +529,11 @@ def run_verified_apply(
             msg = "ABORTED — filters not confirmed (verify failed, no filter params in URL)"
         return ApplyResult(ok=ok, message=msg, verify=post_verify, filter_url=filter_url, products=products)
     finally:
-        ctx.close()
-        pw.stop()
+        if cdp_attached:
+            pw.stop()
+        else:
+            ctx.close()
+            pw.stop()
 
 
 def main() -> int:

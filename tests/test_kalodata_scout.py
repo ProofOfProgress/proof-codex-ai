@@ -35,9 +35,10 @@ def test_parse_table_rows():
 
 def test_scout_query_includes_coach_filters():
     q = _scout_query(preset="middle_core", limit=8)
-    assert "10,000" in q or "10000" in q
+    assert "50" in q  # middle_core growth min
     assert "200" in q
-    assert "8%" in q
+    assert "8" in q  # coach commission floor
+    assert "80" in q  # coach price floor
 
 
 def test_resolve_scout_provider_prefers_kalodata(monkeypatch, tmp_path):

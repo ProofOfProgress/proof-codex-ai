@@ -68,8 +68,8 @@ def test_auto_prefers_hub_ui_when_url_set(tmp_path, monkeypatch):
     fake = type(
         "S",
         (),
-        {"scout_provider": "auto", "kalodata_pilot_token": "tok"},
+        {"scout_provider": "auto", "kalodata_pilot_token": ""},
     )()
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.settings", fake)
-    monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.kalodata_client.configured", lambda: True)
+    monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.kalodata_client.configured", lambda: False)
     assert resolve_scout_provider(preset="middle_core") == "hub_ui"

@@ -68,9 +68,42 @@ def run_multi_preset_scout(*, limit: int = 10) -> list[ScoutProduct]:
     return filtered if filtered else products[:limit]
 
 
+def run_kalopilot_multi_scout(*, limit: int = 10, category: str = "Furniture") -> list[ScoutProduct]:
+    """Run every course method via KaloPilot API — no browser, owner-free."""
+    from shorts_bot.tiktok_shop import kalodata_client
+    from shorts_bot.tiktok_shop.kalodata_pilot_queries import launch_method_presets
+    from shorts_bot.tiktok_shop.kalodata_scout import scout_via_kalodata
+
+    if not kalodata_client.configured():
+        return []
+
+    merged: dict[str, ScoutProduct] = {}
+    for method in launch_method_presets():
+        try:
+            rows = scout_via_kalodata(preset=method, limit=limit)
+        except Exception as exc:
+            print(f"WARN KaloPilot {method}: {exc}", flush=True)
+            continue
+        for p in rows:
+            k = p.product_id or p.product_name.lower()
+            prev = merged.get(k)
+            if not prev or p.score > prev.score:
+                merged[k] = p
+
+    products = list(merged.values())
+    products.sort(key=lambda x: (x.commission_usd, x.score), reverse=True)
+    filtered = apply_high_ticket_filters(products, limit=limit)
+    return filtered if filtered else products[:limit]
+
+
 def run_autonomous_scout(*, preset: str = "coach_high_ticket_furniture", limit: int = 10) -> list[ScoutProduct]:
-    """Kalodata / FastMoss / hub_ui — never weekly drop."""
-    from shorts_bot.tiktok_shop import kalodata_filters
+    """Kalodata KaloPilot → Edge CDP → hub URLs — never weekly drop."""
+    from shorts_bot.tiktok_shop import kalodata_client, kalodata_filters
+
+    if kalodata_client.configured():
+        multi = run_kalopilot_multi_scout(limit=limit)
+        if multi:
+            return multi
 
     if kalodata_filters.hub_ui_ready():
         multi = run_multi_preset_scout(limit=limit)

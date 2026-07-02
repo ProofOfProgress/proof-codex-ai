@@ -149,6 +149,7 @@ class Settings(BaseSettings):
     kalodata_pilot_token: str | None = None
     kalodata_pilot_base: str = "https://staging.kalodata.com/api/pilot/skill/ext/v1"
     kalodata_region: str = "US"
+    kalodata_edge_cdp_url: str | None = None  # e.g. http://127.0.0.1:9222 — reuse Edge login
 
     # FastMoss OpenAPI — free trial at developers.fastmoss.com/free-trial.html
     fastmoss_client_id: str | None = None
