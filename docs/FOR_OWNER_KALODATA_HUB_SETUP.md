@@ -1,6 +1,20 @@
 # Kalodata hub UI scout — minimal owner setup
 
-**Goal:** You paste filter URLs **once**. The agent loads them on your hub PC — **no filter clicking**, highest quality (exact course presets).
+**Goal:** You paste filter URLs **once**. The agent loads them on the hub PC — **no filter clicking**, highest quality (exact course presets).
+
+---
+
+## Owner checklist (3 steps — ~10 min total)
+
+| # | You do | Time |
+|---|--------|------|
+| **1** | On HP WSL: `bash scripts/hub_bootstrap_kalodata.sh` (first time only — installs deps) | ~5 min |
+| **2** | `bash scripts/hub_kalodata_login.sh` → log into Kalodata in the browser | ~3 min |
+| **3** | Apply **middle_core** filters in Kalodata → copy URL → run:<br>`python3 scripts/kalodata_set_filter_url.py middle_core 'PASTE_URL'` | ~2 min |
+
+Then tell the cloud agent: **"run middle_core scout"** — we handle the rest.
+
+Optional later: repeat step 3 for `two_hundred`, `hardcore_lurkers`, `hundred_gap`.
 
 ---
 
