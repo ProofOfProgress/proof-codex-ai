@@ -48,11 +48,13 @@ def hub_screenshot(rel_path: str = "data/desktop_hub/kalodata_scrape.png") -> Pa
 def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
     from google import genai
 
+    from shorts_bot.llm.gemini_utils import call_with_retry, cheap_model
+
     key = _gemini_key()
     if not key:
         return []
     client = genai.Client(api_key=key)
-    model = (settings.gemini_model or "gemini-2.5-flash-lite").strip()
+    model = cheap_model()
     prompt = (
         f"Extract up to {limit} TikTok Shop products from this Kalodata product LIST table screenshot. "
         "Read the TABLE columns carefully — do not guess. "
@@ -63,24 +65,23 @@ def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
         "product_name, avg_unit_price, commission_pct, revenue, growth_pct, creators, videos. "
         "Numbers only in JSON."
     )
-    for attempt in range(4):
-        try:
-            resp = client.models.generate_content(
-                model=model,
-                contents=[prompt, genai.types.Part.from_bytes(data=image.read_bytes(), mime_type="image/png")],
-            )
-            raw = (resp.text or "").strip()
-            if raw.startswith("```"):
-                raw = re.sub(r"^```(?:json)?\s*", "", raw)
-                raw = re.sub(r"\s*```$", "", raw)
-            data = json.loads(raw)
-            return data if isinstance(data, list) else []
-        except Exception as exc:
-            print(f"WARN gemini extract attempt {attempt+1}: {exc}", flush=True)
-            if "503" not in str(exc) or attempt == 3:
-                return []
-            time.sleep(5 * (attempt + 1))
-    return []
+    def _extract_once() -> list[dict]:
+        resp = client.models.generate_content(
+            model=model,
+            contents=[prompt, genai.types.Part.from_bytes(data=image.read_bytes(), mime_type="image/png")],
+        )
+        raw = (resp.text or "").strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+        data = json.loads(raw)
+        return data if isinstance(data, list) else []
+
+    try:
+        return call_with_retry(_extract_once, label=f"kalodata-scrape:{model}")
+    except Exception as exc:
+        print(f"WARN gemini extract failed: {exc}", flush=True)
+        return []
 
 
 def _parse_revenue(raw: object) -> float:

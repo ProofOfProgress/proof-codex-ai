@@ -29,7 +29,9 @@ That shows which secret **names** Cursor sends to this cloud VM. If `GOOGLE_CLIE
 | Secret name | Cursor type | Value type | Example (filler) | Where to get it |
 |-------------|-------------|------------|------------------|-----------------|
 | `GEMINI_API_KEY` | Runtime Secret | API key (string, 39+ chars, starts `AIza`) | `AIzaSy________________________` | https://aistudio.google.com/apikey |
-| `GEMINI_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-lite` | Google AI Studio / docs |
+| `GEMINI_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-lite` | Cheap OCR/scrape — Google AI Studio |
+| `GEMINI_VISION_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash` | Module 1 QC + visual critic (smarter than lite) |
+| `GEMINI_IMAGE_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-image` | Module 4 sample stills |
 | `RESEMBLE_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | https://app.resemble.ai → Account → API |
 | `RESEMBLE_VOICE_UUID` | Runtime Secret | UUID (string) | `________-____-____-____-____________` | Resemble → your voice clone |
 | `GOOGLE_CLIENT_ID` | Runtime Secret | OAuth client ID (string, ends `.apps.googleusercontent.com`) | `__________.apps.googleusercontent.com` | Google Cloud Console → OAuth (Desktop) |

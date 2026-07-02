@@ -72,4 +72,4 @@ Slash: `/visual-review` · Subagent: `.cursor/agents/video-visual-critic.md`
 
 **GEMINI_API_KEY** required (same as Module 1 vision QC).
 
-Optional: **GEMINI_VISION_MODEL** — defaults to `GEMINI_MODEL`.
+Optional: **GEMINI_VISION_MODEL** — defaults to `gemini-2.5-flash` (smarter than lite for QC/critic; lite stays on scrape OCR via `GEMINI_MODEL`).

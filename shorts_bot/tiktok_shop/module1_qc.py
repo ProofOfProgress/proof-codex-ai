@@ -324,11 +324,13 @@ def _gemini_check_frames(
 ) -> tuple[list[str], list[str]]:
     from shorts_bot.llm.provider import get_llm_backend
 
+    from shorts_bot.llm.gemini_utils import call_with_retry, vision_model
+
     backend = get_llm_backend()
     if backend is None or backend.provider != "gemini":
         raise RuntimeError("GEMINI_API_KEY required for Module 1 vision QC (mandatory before upload)")
 
-    model = (settings.gemini_vision_model or settings.gemini_model).strip()
+    model = vision_model()
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
     violation_list = "\n".join(f"- {v}" for v in MODULE1_VIDEO_VIOLATIONS)
     prompt = (
@@ -358,14 +360,17 @@ def _gemini_check_frames(
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}}
         )
 
-    resp = backend.client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": content}],
-        max_tokens=400,
-        temperature=0.1,
-    )
-    raw = (resp.choices[0].message.content or "").strip()
-    data = _parse_vision_json(raw)
+    def _call():
+        resp = backend.client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": content}],
+            max_tokens=400,
+            temperature=0.1,
+        )
+        raw = (resp.choices[0].message.content or "").strip()
+        return _parse_vision_json(raw)
+
+    data = call_with_retry(_call, label=f"module1-qc:{model}")
     violations = [str(v).strip() for v in (data.get("violations") or []) if str(v).strip()]
     warnings = [str(w).strip() for w in (data.get("warnings") or []) if str(w).strip()]
     if data.get("product_in_frame_80pct") is False:
