@@ -25,7 +25,9 @@ python3 -m shorts_bot.tiktok_shop.scout_cli validate
 ```
 
 ## Discord
-- Crawl attempted — Playwright sync error on hub when run inline; switched to `browser.cli crawl-discord` subprocess (retry after push).
+- **210 Momentum server screenshots** captured → `data/desktop_hub/discord_momentum/`
+- Gemini summarize → `data/research/course/inbox/discord-momentum-scrape-YYYY-MM-DD.md` (running)
+- Playwright web crawl blocked on hub (async loop) — desktop scrape path used instead
 
 ## Did NOT do (cannot without owner)
 - Create new Kalodata/KaloPilot accounts with random email — needs owner's paid account token
