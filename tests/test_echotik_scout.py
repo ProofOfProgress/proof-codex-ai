@@ -57,18 +57,19 @@ def test_two_hundred_rejects_many_creators():
     assert score < 100
 
 
-def test_scout_products_raises_until_fastmoss_scout_wired():
-    with patch("shorts_bot.tiktok_shop.fastmoss_client.configured", return_value=False):
+def test_scout_products_raises_without_backend():
+    with patch("shorts_bot.tiktok_shop.scout_provider.resolve_scout_provider", return_value=""):
         try:
             scout_products(preset="middle_core", limit=5)
         except RuntimeError as exc:
-            assert "FastMoss" in str(exc)
+            msg = str(exc)
+            assert "KALODATA" in msg or "kalodata" in msg.lower() or "Filter URLs" in msg
         else:
             raise AssertionError("expected RuntimeError")
 
 
 def test_scout_products_fastmoss_stub_raises_when_configured():
-    with patch("shorts_bot.tiktok_shop.fastmoss_client.configured", return_value=True), patch(
+    with patch("shorts_bot.tiktok_shop.scout_provider.resolve_scout_provider", return_value="fastmoss"), patch(
         "shorts_bot.tiktok_shop.fastmoss_client.ping",
         return_value={"message": "FastMoss scout not wired yet"},
     ):

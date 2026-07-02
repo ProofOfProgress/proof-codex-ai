@@ -1,0 +1,25 @@
+# Agent autonomy — hub Playwright, no vision, no Copilot
+
+## Browser automation (hub WSL)
+
+- **Use Playwright DOM** — `get_by_text`, locators, network sniff. Never Gemini screenshot clicking.
+- **Never open Microsoft Copilot** on the hub desktop — use Edge headless on WSL only.
+- **Profiles:** `momentum_academy/` (course), `discord/` (Discord web), `kalodata/` (scout).
+- **Credentials:** `data/agent_credentials.env` on hub (gitignored) — not in repo.
+
+## Commands (cloud → hub)
+
+```bash
+bash scripts/hub_course_deep_crawl.sh      # full Momentum crawl
+bash scripts/hub_discord_crawl.sh          # Discord read-only
+bash scripts/hub_adb_windows.sh            # phone on USB (Windows adb)
+python3 -m shorts_bot.owner_ping "message" # ping owner when blocked
+```
+
+## When owner is away
+
+- Crawl course + Discord, parse weekly drop, update scout rules from inbox.
+- Do **not** post, send Discord messages, or buy services.
+- Log blockers to inbox + owner_ping if SMTP/Slack configured.
+
+@docs/AGENT_AUTONOMY.md

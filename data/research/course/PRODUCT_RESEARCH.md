@@ -1,29 +1,28 @@
 # Product research (owner override)
 
 **Course:** `module_03_product_research_strategies.md`  
-**Research tool:** **FastMoss only** — replaces EchoTik and Kalodata (course creator: as good as Kalodata).  
+**Research tool:** **Kalodata or FastMoss** (owner choice — see `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md`).  
 **Agent:** `/product-research` subagent (`product-researcher`)
 
 ---
 
-## Stack (2026-06-28 owner)
+## Stack (2026-07 owner)
 
 | Tool | Role |
 |------|------|
-| **FastMoss** | **Only** product research — rankings, trends, ad signals, Module 3 checks |
-| ~~EchoTik~~ | **Retired** — do not pay or configure for new work |
-| ~~Kalodata~~ | **Retired** — use FastMoss instead |
+| **Kalodata KaloPilot** | Automated scout via `KALODATA_PILOT_TOKEN` — no Enterprise API |
+| **FastMoss** | UI ~$59/mo and/or free OpenAPI trial at developers.fastmoss.com |
+| ~~EchoTik~~ | **Retired** |
 
 **Automation status:**
 
 | Mode | When |
 |------|------|
-| **FastMoss API scout** | **Primary** — CEO → `product-researcher` + `scout_cli` when API secrets + subscription active |
-| **Agent-led research** | **Always** — owner does not pick launch products; agent maintains `products.json` |
+| **Kalodata KaloPilot scout** | `KALODATA_PILOT_TOKEN` + Kalodata subscription |
+| **FastMoss OpenAPI scout** | Free trial keys + rank endpoints (in progress) |
+| **FastMoss / Kalodata UI on hub** | Logged-in browser on HP while API blocked |
 
-Saved picks: `data/tiktok_shop/products.json` — **agent writes**, owner may suggest improvements only.
-
-Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md` · Engineering: `docs/FASTMOSS_SCOUT_PLAN.md`
+Setup: `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md`
 
 ---
 

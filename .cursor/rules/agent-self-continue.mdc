@@ -1,0 +1,36 @@
+---
+description: CEO self-continue — mission log, hub jobs, owner ping when blocked
+alwaysApply: false
+---
+
+# Agent self-continue (CEO loop)
+
+Cloud agents **stop after one reply**. Use this loop so work continues across runs.
+
+## Every orchestrated session
+
+1. `MISSION=$(python3 -m shorts_bot.agent_ops mission new --name "…")`
+2. Log every dispatch: `agent_ops log --mission $MISSION …`
+3. Before ending: `python3 -m shorts_bot.agent_ops mission continue --mission $MISSION`
+
+## When blocked (login, SMS, CAPTCHA)
+
+```bash
+python3 -m shorts_bot.owner_ping "Plain English — what you need"
+```
+
+Do **not** idle waiting for owner if ping channel works.
+
+## Hub jobs (run on HP WSL, pull results)
+
+| Job | Start on hub | Pull to cloud |
+|-----|--------------|---------------|
+| Deep course crawl | `bash scripts/hub_course_deep_crawl.sh` | `bash scripts/hub_pull_intel.sh` |
+| Discord crawl | `bash scripts/hub_discord_crawl.sh` | same |
+| Sync code | `bash scripts/hub_git_sync.sh` | — |
+
+## Scout without Kalodata API
+
+Auto order: hub_ui → kalodata → fastmoss → **`momentum_weekly_drop.json`** (coach weekly drop).
+
+@docs/AGENT_AUTONOMY.md

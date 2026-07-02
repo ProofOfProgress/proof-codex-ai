@@ -1,6 +1,7 @@
 # Launch to-do list — in order
 
 **Do these top to bottom.** Check each box before moving on.  
+**Priority labels (who does what):** `docs/LAUNCH_PRIORITY_MATRIX.md`  
 **Last step = LAUNCH** (first upload). That starts your **7-day $1k clock**.
 
 ---

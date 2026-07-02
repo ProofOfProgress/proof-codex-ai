@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 
+from shorts_bot.agent_ops.mission_continue import mission_continue_hint
 from shorts_bot.agent_ops.log import append_event, list_missions, mission_events, new_mission
 
 
@@ -43,3 +44,13 @@ def test_ops_dir_creates_missions_folder(monkeypatch, tmp_path):
     monkeypatch.setattr(log_mod, "ops_dir", lambda: target.mkdir(parents=True, exist_ok=True) or target)
     assert log_mod.ops_dir() == target
     assert target.is_dir()
+
+
+def test_mission_continue_pending_background(tmp_path, monkeypatch):
+    monkeypatch.setattr("shorts_bot.agent_ops.log.ops_dir", lambda: tmp_path)
+    mid = new_mission("Launch prep")
+    append_event(mid, agent="ceo", event="dispatch_background", target="product-researcher")
+    hint = mission_continue_hint(mission_id=mid)
+    assert hint["ok"] is True
+    assert hint["action"] == "poll_background"
+    assert "product-researcher" in hint["targets"]

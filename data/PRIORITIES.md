@@ -4,7 +4,7 @@
 
 **North star (2026-07-01):** **50 phones operational in bedroom hub within 6 months** — reinvest, automate, scale. See **`data/CEO_MINDSET.md`**.
 
-**Near-term ladder:** 4 bubble accounts auto-posting **now** → affiliate clips **~4 days** → scale toward 50.
+**Near-term ladder:** **2 bubble accounts** at launch (scale to 4) → affiliate clips at go-live → scale toward 50.
 
 **Week 1 challenge (owner):** **$1,000 commission** in **7 calendar days** (Launch Date midnight → +6 days 11:59 PM) → **$500 course bonus**. Step-by-step: `docs/LAUNCH_TODO.md`.
 
@@ -12,7 +12,7 @@
 
 | Track | Accounts | Posts/day | Automation |
 |-------|----------|-----------|------------|
-| **Bubble wrap** (0→1k) | 4 growth accounts | 2 safe @ **3–4** · 2 aggressive @ **8–10** | Carousel + Mackenzie sound |
+| **Bubble wrap** (0→1k) | **2 at launch** (scale to 4) | 1 safe @ **3–4** · 1 aggressive @ **3–10** | Carousel + Mackenzie sound |
 | **Affiliate** (revenue) | Affiliate account(s) | **8–10** (Module 1) | **Full stack** — research → clip → caption → QC → post |
 
 **Affiliate go-live = turn on full stack immediately** — **FastMoss subscribed**, Kling, Zernio posting. **8–10 GOOD posts/day** from launch day (Module 1 QC pass). Bubble hardware can lag; affiliate does not wait for phones.

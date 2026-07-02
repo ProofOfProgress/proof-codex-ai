@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import json
 import re
 from dataclasses import asdict, dataclass, field
@@ -12,7 +11,6 @@ from pathlib import Path
 from shorts_bot.config import settings
 from shorts_bot.tiktok_shop.module1_qc import (
     _extract_frame,
-    _parse_vision_json,
     _pick_frame_times,
     _probe_duration,
     run_module1_qc,
@@ -69,50 +67,18 @@ class VisualCritiqueReport:
         return "\n".join(lines)
 
 
-def _require_gemini():
-    from shorts_bot.llm.provider import get_llm_backend
+def _gemini_json(*, prompt: str, image_paths: list[Path], max_tokens: int = 1500) -> dict:
+    from shorts_bot.llm.gemini_utils import openai_chat_json, visual_critic_context
 
-    backend = get_llm_backend()
-    if backend is None or backend.provider != "gemini":
-        raise RuntimeError("GEMINI_API_KEY required for visual feedback — add in Cursor Secrets")
-    model = (settings.gemini_vision_model or settings.gemini_model).strip()
-    return backend, model
-
-
-def _vision_content(*, text: str, image_paths: list[Path]) -> list[dict]:
-    content: list[dict] = [{"type": "text", "text": text}]
-    for path in image_paths:
-        if not path.is_file():
-            continue
-        b64 = base64.standard_b64encode(path.read_bytes()).decode("ascii")
-        content.append(
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}}
-        )
-    return content
-
-
-def _gemini_json(*, prompt: str, image_paths: list[Path], max_tokens: int = 800) -> dict:
-    backend, model = _require_gemini()
-    content = _vision_content(text=prompt, image_paths=image_paths)
-    resp = backend.client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": content}],
-        max_tokens=max_tokens,
-        temperature=0.2,
-    )
-    raw = (resp.choices[0].message.content or "").strip()
-    return _parse_vision_json(raw)
+    ctx = visual_critic_context()
+    full_prompt = f"{ctx}\n\n{prompt}" if ctx else prompt
+    return openai_chat_json(prompt=full_prompt, image_paths=image_paths, max_tokens=max_tokens)
 
 
 def _gemini_text(*, prompt: str, max_tokens: int = 1200) -> str:
-    backend, model = _require_gemini()
-    resp = backend.client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=max_tokens,
-        temperature=0.3,
-    )
-    return (resp.choices[0].message.content or "").strip()
+    from shorts_bot.llm.gemini_utils import openai_chat_text, revision_model
+
+    return openai_chat_text(prompt=prompt, model=revision_model(), max_tokens=max_tokens)
 
 
 def _feedback_dir() -> Path:
@@ -202,7 +168,7 @@ def review_video(
     if not video_path.is_file():
         raise FileNotFoundError(video_path)
 
-    frames = extract_video_frames(video_path)
+    frames = extract_video_frames(video_path, max_frames=3)
     frame_paths = [p for _, p in frames]
     labels = ", ".join(f"{t:.1f}s" for t, _ in frames)
 
@@ -219,7 +185,7 @@ def review_video(
         f"Video frames at: {labels}\n"
     )
     if prompt_used.strip():
-        prompt += f"\nKling prompt used:\n{prompt_used.strip()[:1500]}\n"
+        prompt += f"\nKling prompt used (excerpt):\n{prompt_used.strip()[:600]}\n"
 
     prompt += (
         "\nEvaluate COMMERCIAL readiness and MOTION quality for a 5–10s Shop affiliate clip.\n"
@@ -240,7 +206,7 @@ def review_video(
         "prompt_fixes = concrete instructions for the video prompt writer (not generic advice)."
     )
 
-    data = _gemini_json(prompt=prompt, image_paths=image_paths)
+    data = _gemini_json(prompt=prompt, image_paths=image_paths, max_tokens=4096)
 
     module1_passed: bool | None = None
     if include_module1_qc:

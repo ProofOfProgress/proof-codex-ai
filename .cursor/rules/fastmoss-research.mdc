@@ -1,40 +1,40 @@
 ---
-description: FastMoss product research — replaces EchoTik and Kalodata for Module 3 affiliate picks
-globs: shorts_bot/tiktok_shop/fastmoss_client.py,shorts_bot/tiktok_shop/product_scout.py,shorts_bot/tiktok_shop/scout_cli.py,data/tiktok_shop/products.json,data/research/course/PRODUCT_RESEARCH.md,docs/FOR_OWNER_FASTMOSS_SETUP.md,docs/FASTMOSS_SCOUT_PLAN.md
+description: Kalodata or FastMoss product research for Module 3 affiliate picks
+globs: shorts_bot/tiktok_shop/fastmoss_client.py,shorts_bot/tiktok_shop/kalodata_client.py,shorts_bot/tiktok_shop/kalodata_scout.py,shorts_bot/tiktok_shop/product_scout.py,shorts_bot/tiktok_shop/scout_cli.py,data/tiktok_shop/products.json,data/research/course/PRODUCT_RESEARCH.md,docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md,docs/FOR_OWNER_FASTMOSS_SETUP.md,docs/FASTMOSS_SCOUT_PLAN.md
 alwaysApply: false
 ---
 
-# FastMoss product research
+# Product research — Kalodata OR FastMoss
 
-**One tool:** FastMoss only. **Do not** suggest EchoTik, Kalodata subscriptions, or dual stack.
+**Owner choice (2026-07):** Kalodata **or** FastMoss. **Do not** suggest EchoTik.
 
-Owner override: `data/research/course/PRODUCT_RESEARCH.md` · Setup: `docs/FOR_OWNER_FASTMOSS_SETUP.md`
+Setup: `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md` · Course: `data/research/course/PRODUCT_RESEARCH.md`
 
-## Launch path *(agent-owned — owner does not pick)*
+## Scout backends
 
-1. CEO delegates **`product-researcher`** or runs `scout_cli` when FastMoss API + subscription active
-2. Agent ranks **8–10** with **pre-breakout lens** → saves `data/tiktok_shop/products.json`
-3. CEO clips via `factory_cli make-clip` — no owner product pick step
+| Backend | Secret | Notes |
+|---------|--------|-------|
+| **Kalodata KaloPilot** | `KALODATA_PILOT_TOKEN` | Works today — credit per query, no $500 Enterprise API |
+| **FastMoss OpenAPI** | `FASTMOSS_CLIENT_ID` + `SECRET` | Free trial at developers.fastmoss.com; rank API wiring in progress |
 
-If FastMoss blocked (payment/API): CEO reports infra blocker — **not** “owner pick in app.”
+`SCOUT_PROVIDER=auto` prefers Kalodata when token set.
 
-## Module 3 quality bar (FastMoss)
+## Launch path *(agent-owned)*
 
-| Check | Why |
-|-------|-----|
-| **Pre-breakout / rising GMV** | **#1 priority** (owner intel 2026-06-29) — future top products beat only current chart toppers |
-| Ad badges / paid top videos | Brand invests — easier to convert |
-| Revenue trend **up** | Catch wave before saturation |
-| Brand match | Image, title, shop align |
-| Commission $ | Price × rate worth posting |
-| Creator mix | Not only brand self-promo |
+1. CEO delegates **`product-researcher`** or `scout_cli run`
+2. Agent ranks **8–10** with **pre-breakout lens** → `products.json`
+3. CEO clips — no owner product pick step
 
-Presets `middle_core` / `two_hundred` are **legacy bot names** — apply equivalent filters in FastMoss UI.
+If billing blocked: CEO reports blocker — **not** “owner pick in app.”
+
+## Module 3 quality bar
+
+Coach filters (2026-06-30): 7d rev >$10k · video source · 30%+ growth · price >$80 · creators ≤200 · commission ≥8% · pre-breakout bias.
 
 ## Delegate
 
-`/product-research` → **`product-researcher`** (background). CEO carries picks forward — subagents have no chat memory.
+`/product-research` → **`product-researcher`** (background).
 
 ## Budget
 
-FastMoss ~$59/mo vs retired EchoTik ~$125 — see `docs/LAUNCH_BUDGET.md`. **Do not pay EchoTik.**
+~$59/mo UI subscription on either tool — **not** $500/mo Enterprise API unless owner negotiates later.

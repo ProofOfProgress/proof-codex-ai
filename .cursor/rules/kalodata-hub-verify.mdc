@@ -1,0 +1,45 @@
+---
+description: Kalodata hub UI — Playwright DOM, verify before submit
+globs:
+  - shorts_bot/tiktok_shop/kalodata*.py
+  - scripts/hub_kalodata*.py
+  - scripts/cloud_kalodata*.py
+---
+
+# Kalodata hub UI (mandatory)
+
+## Never
+
+- **Desktop helper coordinate clicks** for filters (legacy `--legacy-desktop` only)
+- **`ctrl+w` tab loops** — they closed all of Edge
+- Click filters on **product detail** (`/product/detail`) — LIST page only (`/product`)
+- Paste product URLs into Cursor/Ubuntu — Playwright captures `page.url` after Submit
+- Gemini screenshot clicking for filter apply (vision optional for table scrape fallback only)
+
+## Always
+
+1. **Playwright DOM** — `get_by_text`, locators, `page.goto('/product')` — profile `data/browser_profile/kalodata/`
+2. `build_spec(method, category)` + coach overlay (price ≥$80, commission ≥8%)
+3. Pre-flight verify (`phase=preflight`) — list page + dates before Submit
+4. Full verify after Submit — growth, commission, creators, price
+5. **Scroll product table** when ranking picks — commission + revenue, reject 5% junk
+6. Edge tabs are **never closed** by automation — Playwright uses its own browser profile
+
+## Commands (on hub WSL)
+
+```bash
+# Log in once (saves session to kalodata profile)
+python3 -m shorts_bot.browser.cli open kalodata --minutes 10
+
+# Apply filters + save filter_url (+ optional scout)
+python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --scout-limit 10
+python3 scripts/hub_kalodata_playwright_apply.py --method hundred_gap --category Furniture --visible
+```
+
+Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — swap `--category` per niche.
+
+From cloud agent:
+
+```bash
+python3 -m shorts_bot.hub_remote run -- "cd ~/proof-codex-ai && git pull && python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --scout-limit 10"
+```

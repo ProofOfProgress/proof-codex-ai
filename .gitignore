@@ -37,6 +37,7 @@ data/desktop_hub/helper.env
 data/desktop_hub/schedule.json
 data/desktop_hub/keyfreeze.state.json
 data/desktop_hub/daemon.log
+data/agent_credentials.env
 data/daily_prelaunch/today_plan.json
 data/daily_prelaunch/today_prompt.txt
 data/daily_prelaunch/*_plan.json
@@ -44,3 +45,6 @@ data/daily_prelaunch/config.json
 
 # Course video downloads (transcripts live in module_*.md)
 data/research/course/_media/
+data/research/course/inbox/*.m4a
+data/research/course/inbox/*.mp3
+data/research/course/inbox/*.wav

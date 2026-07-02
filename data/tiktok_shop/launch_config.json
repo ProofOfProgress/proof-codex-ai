@@ -1,0 +1,14 @@
+{
+  "launch_date": "2026-07-03",
+  "timezone": "America/Los_Angeles",
+  "first_post_local": "2026-07-03T00:00:00",
+  "bonus_deadline_local": "2026-07-09T23:59:59",
+  "posts_launch_night": 10,
+  "spacing_minutes": 30,
+  "affiliate_account": {
+    "status": "purchased_warming",
+    "zernio_connected": false,
+    "owner_login_deferred_until_warm": true
+  },
+  "notes": "Owner 2026-07-02: account bought, warm by launch eve. Kalodata Pro paid. Do not log into TikTok until warm."
+}

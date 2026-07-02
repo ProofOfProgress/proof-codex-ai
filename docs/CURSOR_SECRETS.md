@@ -29,7 +29,9 @@ That shows which secret **names** Cursor sends to this cloud VM. If `GOOGLE_CLIE
 | Secret name | Cursor type | Value type | Example (filler) | Where to get it |
 |-------------|-------------|------------|------------------|-----------------|
 | `GEMINI_API_KEY` | Runtime Secret | API key (string, 39+ chars, starts `AIza`) | `AIzaSy________________________` | https://aistudio.google.com/apikey |
-| `GEMINI_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-lite` | Google AI Studio / docs |
+| `GEMINI_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-lite` | Cheap OCR/scrape — Google AI Studio |
+| `GEMINI_VISION_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash` | Module 1 QC + visual critic (smarter than lite) |
+| `GEMINI_IMAGE_MODEL` | Environment Variable | Model slug (string) | `gemini-2.5-flash-image` | Module 4 sample stills |
 | `RESEMBLE_API_KEY` | Runtime Secret | API key (string, 32+ chars) | `________________________________` | https://app.resemble.ai → Account → API |
 | `RESEMBLE_VOICE_UUID` | Runtime Secret | UUID (string) | `________-____-____-____-____________` | Resemble → your voice clone |
 | `GOOGLE_CLIENT_ID` | Runtime Secret | OAuth client ID (string, ends `.apps.googleusercontent.com`) | `__________.apps.googleusercontent.com` | Google Cloud Console → OAuth (Desktop) |
@@ -70,9 +72,12 @@ Full checklist: **`docs/CLOUD_AGENT_START.md`**
 | `KLING_ACCESS_KEY` | Runtime Secret | Affiliate video (later) |
 | `KLING_SECRET_KEY` | Runtime Secret | Pair with access key |
 | `KLING_MODE` | Environment Variable | Default `std` (720p, ~$0.21/5s clip). Use `pro` only if you need 1080p later. |
-| `FASTMOSS_CLIENT_ID` | Runtime Secret | FastMoss OpenAPI — optional until API scout ships |
-| `FASTMOSS_CLIENT_SECRET` | Runtime Secret | Pair with client ID — `docs/FOR_OWNER_FASTMOSS_SETUP.md` |
-| `ECHOTIK_USERNAME` | Runtime Secret | **Legacy — retired.** Do not add. FastMoss replaces EchoTik. |
+| `SCOUT_PROVIDER` | Runtime Secret | `auto` \| `kalodata` \| `fastmoss` — see `docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md` |
+| `KALODATA_PILOT_TOKEN` | Runtime Secret | Kalodata KaloPilot token from kalodata.com/pilot |
+| `KALODATA_REGION` | Runtime Secret | Default `US` |
+| `FASTMOSS_CLIENT_ID` | Runtime Secret | FastMoss OpenAPI — free trial at developers.fastmoss.com |
+| `FASTMOSS_CLIENT_SECRET` | Runtime Secret | Pair with client ID |
+| `ECHOTIK_USERNAME` | Runtime Secret | **Legacy — retired.** |
 | `ECHOTIK_PASSWORD` | Runtime Secret | **Legacy — retired.** |
 
 ## Optional — HP hub remote SSH *(agent runs terminal on your laptop)*

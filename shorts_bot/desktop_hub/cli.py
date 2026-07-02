@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from shorts_bot.desktop_hub.client import DesktopHubClient, DesktopHubError
+from shorts_bot.desktop_hub.cursor_chat import CursorChatError, cursor_send_via_hub, resolve_cursor_coords, send_cursor_message
 from shorts_bot.desktop_hub.host import default_helper_host, default_helper_port, helper_base_url
 from shorts_bot.desktop_hub.launcher import ensure_running, ensure_via_hub_ssh, ping_helper
 from shorts_bot.desktop_hub.prelaunch_trigger import DailyPrelaunchSchedule, load_prelaunch_schedule, save_prelaunch_schedule
@@ -98,6 +99,19 @@ def main(argv: list[str] | None = None) -> int:
         "--out",
         default="",
         help="Output path (default: data/desktop_hub/last_screenshot.png)",
+    )
+
+    cs = sub.add_parser("cursor-send", help="Type into Cursor chat on hub and click Send")
+    cs.add_argument("message", help="Text to paste into Cursor chat")
+    cs.add_argument(
+        "--via-hub",
+        action="store_true",
+        help="Cloud agent: run on owner hub over SSH",
+    )
+    cs.add_argument(
+        "--coords-only",
+        action="store_true",
+        help="Print detected Cursor input/send coords without typing",
     )
 
     kf = sub.add_parser("keyfreeze", help="Lock/unlock keyboard+mouse via KeyFreeze (Windows hub)")
@@ -211,6 +225,26 @@ def main(argv: list[str] | None = None) -> int:
                 )
             return 0
         return 2
+
+    if args.cmd == "cursor-send":
+        try:
+            if args.via_hub:
+                code = cursor_send_via_hub(args.message)
+                if code == 0:
+                    console.print("[green]Cursor message sent (via hub)[/green]")
+                else:
+                    console.print("[red]Cursor message failed (via hub)[/red]")
+                return code
+            if args.coords_only:
+                ix, iy, sx, sy = resolve_cursor_coords()
+                console.print(f"input=({ix},{iy}) send=({sx},{sy})")
+                return 0
+            ix, iy, sx, sy = send_cursor_message(args.message)
+            console.print(f"[green]Cursor message sent[/green] input=({ix},{iy}) send=({sx},{sy})")
+            return 0
+        except (DesktopHubError, CursorChatError) as exc:
+            console.print(f"[red]{exc}[/red]")
+            return 1
 
     if args.cmd == "keyfreeze":
         try:

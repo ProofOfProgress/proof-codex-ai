@@ -1,0 +1,11 @@
+Scout quality gate — 0 pass (products.json cleared 2026-07-02)
+
+Current saved picks were from momentum_weekly_drop with fake/low GMV stats — ALL REJECTED.
+
+Do not use for launch until Kalodata scout returns real picks.
+
+Run: python3 -m shorts_bot.tiktok_shop.scout_cli validate
+
+Backend needed: KALODATA_PILOT_TOKEN (best) or hub Edge CDP + filter apply.
+
+See docs/FOR_OWNER_HANDS_OFF_SCOUT.md

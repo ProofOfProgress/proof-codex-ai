@@ -1,0 +1,24 @@
+{"at": "2026-07-02T01:57:10.657942+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T01:57:10.659667+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T01:57:10.660288+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T03:00:36.350894+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T03:00:36.352776+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T03:00:36.353411+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T03:06:01.454187+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T03:06:01.455963+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T03:06:01.456564+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T03:30:57.696966+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T03:30:57.698793+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T03:30:57.699401+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T04:31:27.166707+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T04:31:27.168581+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T04:31:27.169173+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T04:57:42.778476+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T04:57:42.780350+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T04:57:42.780938+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T07:01:01.106619+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T07:01:01.108404+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T07:01:01.109154+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}
+{"at": "2026-07-02T07:27:21.571024+00:00", "account_id": "bubble_test", "action": "dry_run", "detail": "would post soccer jersey \u2192 phone_1 (add --confirm)"}
+{"at": "2026-07-02T07:27:21.573085+00:00", "account_id": "bubble_test", "action": "posted", "detail": "frog \u2192 inbox draft post_id=post99 hub_job=job42 \u2192 phone_1"}
+{"at": "2026-07-02T07:27:21.573716+00:00", "account_id": "bubble_test", "action": "skipped", "detail": "2 pending hub job(s) \u2014 wait for phone finish"}

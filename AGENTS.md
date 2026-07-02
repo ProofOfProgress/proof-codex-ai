@@ -18,7 +18,7 @@
 
 | Track | Accounts | Posts/day | Source |
 |-------|----------|-----------|--------|
-| **Bubble wrap** (parallel) | 4 growth accounts | 2 **safe** @ 3–4 · 2 **aggressive** @ 8–10 | `BUBBLE_WRAP.md` |
+| **Bubble wrap** (parallel) | **2** growth accounts at launch (scale to 4 later) | 1 **safe** @ 3–4 · 1 **aggressive** @ 8–10 | `BUBBLE_WRAP.md` · rule `bubble-two-accounts` |
 | **Affiliate product videos** | Revenue account(s) | 8–10 (Module 1) | Modules 1, 3–8 — **full automation at go-live** |
 | **Automation** | Always | — | `shorts_bot/tiktok_shop/` + agent team |
 | **Follow ads** | Later 1k→5k | — | `ADS_1K_TO_5K.md` (deferred) |

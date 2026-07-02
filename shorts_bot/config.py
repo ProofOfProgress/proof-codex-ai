@@ -10,8 +10,9 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_model: str = "gemini-2.5-flash-lite"  # cheap: scrape OCR, bulk text
     gemini_image_model: str = "gemini-2.5-flash-image"  # Module 4 sample stills (9:16)
+    gemini_revision_model: str = ""  # empty = gemini_model (prompt rewrites)
 
     # Chief Manager + specialist workers (Gemini) — primary chat path when duration/prefix set
     manager_display_name: str = "AlphaBeta001"  # agent name (not the YouTube channel)
@@ -136,16 +137,26 @@ class Settings(BaseSettings):
     zernio_declare_aigc: bool = True
     auto_upload_zernio: bool = False
 
-    # EchoTik — LEGACY (retired — use FastMoss). Kept for reference only.
+    # EchoTik — LEGACY (retired). Kept for reference only.
     echotik_username: str | None = None
     echotik_password: str | None = None
     echotik_api_base: str = "https://open.echotik.live"
     echotik_region: str = "US"
 
-    # FastMoss — TikTok Shop product research (replaces EchoTik + Kalodata)
+    # Product scout — Kalodata OR FastMoss (owner choice; see FOR_OWNER_KALODATA_OR_FASTMOSS.md)
+    scout_provider: str = "auto"  # auto | kalodata | fastmoss
+
+    # Kalodata KaloPilot — token from kalodata.com/pilot (not Enterprise API)
+    kalodata_pilot_token: str | None = None
+    kalodata_pilot_base: str = "https://staging.kalodata.com/api/pilot/skill/ext/v1"
+    kalodata_region: str = "US"
+    kalodata_edge_cdp_url: str | None = None  # e.g. http://127.0.0.1:9222 — reuse Edge login
+
+    # FastMoss OpenAPI — free trial at developers.fastmoss.com/free-trial.html
     fastmoss_client_id: str | None = None
     fastmoss_client_secret: str | None = None
     fastmoss_api_base: str = "https://openapi.fastmoss.com"
+    fastmoss_token_path: str = "/oauth/token"
 
     # Printify — POD seller API (Bearer token from printify.com/app/account/api)
     printify_api_token: str | None = None
@@ -284,7 +295,7 @@ class Settings(BaseSettings):
     vision_qc_max_frames: int = 5
     vision_qc_frame_width: int = 360
     vision_qc_jpeg_quality: int = 72
-    gemini_vision_model: str = ""  # empty = use gemini_model (flash-lite)
+    gemini_vision_model: str = "gemini-2.5-flash"  # QC + visual critic (smarter than lite)
 
     # Module 1 course QC — mandatory before every TikTok Shop upload (zero ban triggers)
     module1_qc_enabled: bool = True
