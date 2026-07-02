@@ -54,9 +54,51 @@ def _launch_page(*, headless: bool | None = None):
     profile = _profile_dir()
     profile.mkdir(parents=True, exist_ok=True)
     pw = sync_playwright().start()
-    ctx = launch_stealth_context(pw, headless=use_headless, profile_dir=profile)
+    ctx = None
+    for channel in ("msedge", None):
+        try:
+            ctx = launch_stealth_context(
+                pw, headless=use_headless, profile_dir=profile, channel=channel
+            )
+            break
+        except Exception as exc:
+            logger.debug("Launch channel=%s failed: %s", channel, exc)
+    if ctx is None:
+        ctx = launch_stealth_context(pw, headless=use_headless, profile_dir=profile)
     page: Page = ctx.pages[0] if ctx.pages else ctx.new_page()
     return pw, ctx, page
+
+
+def _cloudflare_blocked(page) -> bool:
+    try:
+        body = (page.inner_text("body") or "").lower()
+    except Exception:
+        return True
+    return (
+        "just a moment" in body
+        or "security verification" in body
+        or "enable javascript and cookies" in body
+        or "ray id" in body
+    )
+
+
+def _wait_for_kalodata_ready(page, *, timeout_sec: int = 50) -> bool:
+    for _ in range(timeout_sec):
+        if _cloudflare_blocked(page):
+            time.sleep(1)
+            continue
+        body = (page.inner_text("body") or "").lower()
+        if "log in" in body and "password" in body:
+            return False
+        if "all products" in body or "filtering" in body or "reset" in body:
+            return True
+        time.sleep(1)
+    return not _cloudflare_blocked(page)
+
+
+def _filter_url_has_params(url: str) -> bool:
+    lower = (url or "").lower()
+    return "kalodata" in lower and "/product" in lower and "?" in url and "/detail" not in lower
 
 
 def _logged_in(page) -> bool:
@@ -408,7 +450,20 @@ def run_verified_apply(
     products: list[ScoutProduct] | None = None
     try:
         page.goto(LIST_URL, wait_until="domcontentloaded", timeout=120_000)
-        time.sleep(2)
+        if not _wait_for_kalodata_ready(page):
+            if _cloudflare_blocked(page):
+                return ApplyResult(
+                    ok=False,
+                    message=(
+                        "Kalodata blocked by Cloudflare in headless browser. On hub run once:\n"
+                        "  python3 -m shorts_bot.browser.cli open kalodata --minutes 10 --block\n"
+                        "Log in, pass verification, close — then retry apply."
+                    ),
+                )
+            return ApplyResult(
+                ok=False,
+                message="Kalodata page did not load product list — check login or network.",
+            )
         if not _logged_in(page):
             return ApplyResult(
                 ok=False,
@@ -453,10 +508,13 @@ def run_verified_apply(
             if products:
                 save_products(products)
 
-        ok = post_verify.ok or bool(filter_url)
-        msg = f"Filters applied via Playwright: {method}" + (f" + {category}" if category else "")
-        if not post_verify.ok:
-            msg += " (soft pass — check filtering pills)"
+        ok = post_verify.ok or _filter_url_has_params(filter_url)
+        if ok:
+            msg = f"Filters applied via Playwright: {method}" + (f" + {category}" if category else "")
+            if not post_verify.ok:
+                msg += " (URL saved — double-check filtering pills)"
+        else:
+            msg = "ABORTED — filters not confirmed (verify failed, no filter params in URL)"
         return ApplyResult(ok=ok, message=msg, verify=post_verify, filter_url=filter_url, products=products)
     finally:
         ctx.close()

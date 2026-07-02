@@ -73,7 +73,9 @@ cd ~/proof-codex-ai
 python3 -m shorts_bot.browser.cli open kalodata --minutes 10
 ```
 
-Log into Kalodata in the browser window. Close when done — session saves to `data/browser_profile/kalodata/`.
+Log into Kalodata in the browser window. **Wait until you see the product table** (not “Just a moment” Cloudflare). Close when done — session saves to `data/browser_profile/kalodata/`.
+
+> **Important:** Headless scout cannot pass Cloudflare cold. This one visible login is required once per session expiry.
 
 ### Step 2 — Copy filter URLs (one per preset)
 
