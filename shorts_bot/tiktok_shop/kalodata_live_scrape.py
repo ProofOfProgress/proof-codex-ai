@@ -76,6 +76,7 @@ def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
             data = json.loads(raw)
             return data if isinstance(data, list) else []
         except Exception as exc:
+            print(f"WARN gemini extract attempt {attempt+1}: {exc}", flush=True)
             if "503" not in str(exc) or attempt == 3:
                 return []
             time.sleep(5 * (attempt + 1))

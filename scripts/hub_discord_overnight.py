@@ -14,9 +14,11 @@ if str(ROOT) not in sys.path:
 def main() -> int:
     import subprocess
 
+    # Fresh process avoids Playwright sync/async conflict on some hub shells.
     proc = subprocess.run(
-        [sys.executable, "-m", "shorts_bot.browser.cli", "crawl-discord"],
+        [sys.executable, "-c", "from shorts_bot.browser.discord_session import crawl_discord; print(crawl_discord(scroll_passes=10))"],
         cwd=ROOT,
+        env={k: v for k, v in __import__("os").environ.items()},
     )
     return proc.returncode
 
