@@ -42,6 +42,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Read-only Discord web scrape (hub profile)",
     )
 
+    login_discord_p = sub.add_parser(
+        "login-discord",
+        help="Log into Discord web (saves cookies in profile)",
+    )
+    login_discord_p.add_argument(
+        "--visible",
+        action="store_true",
+        help="Show browser window (hub desktop only)",
+    )
+
     args = parser.parse_args(argv)
 
     if args.cmd == "status":
@@ -76,6 +86,13 @@ def main(argv: list[str] | None = None) -> int:
 
         path = crawl_discord()
         console.print(f"[green]Wrote[/green] {path}")
+        return 0
+
+    if args.cmd == "login-discord":
+        from shorts_bot.browser.discord_session import login_discord_session
+
+        profile = login_discord_session(headless=not args.visible)
+        console.print(f"[green]Discord session saved[/green] → {profile}")
         return 0
 
     return 1

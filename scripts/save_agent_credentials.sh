@@ -22,6 +22,10 @@ AGENT_EMAIL_PASSWORD=
 COURSE_SITE_URL=https://app.momentumacademy.co
 COURSE_LOGIN_EMAIL=
 COURSE_LOGIN_PASSWORD=
+
+# Discord web (Playwright profile — separate from desktop app)
+DISCORD_LOGIN_EMAIL=
+DISCORD_LOGIN_PASSWORD=
 EOF
 chmod 600 "$OUT"
 echo "Template written: $OUT — fill on hub only"

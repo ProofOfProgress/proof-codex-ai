@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import time
 from datetime import datetime, timezone
@@ -12,6 +13,111 @@ from shorts_bot.config import settings
 
 def _discord_profile() -> Path:
     return settings.browser_profile_dir / "discord"
+
+
+def _load_discord_creds() -> tuple[str, str]:
+    cred_path = settings.data_dir / "agent_credentials.env"
+    if cred_path.is_file():
+        for line in cred_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            key, val = key.strip(), val.strip().strip('"').strip("'")
+            if val and key not in os.environ:
+                os.environ[key] = val
+
+    email = (os.environ.get("DISCORD_LOGIN_EMAIL") or "").strip()
+    password = (os.environ.get("DISCORD_LOGIN_PASSWORD") or "").strip()
+    if not email or not password:
+        raise RuntimeError(
+            "Discord login not configured — set DISCORD_LOGIN_EMAIL + DISCORD_LOGIN_PASSWORD "
+            f"in {cred_path} (gitignored, hub only)"
+        )
+    return email, password
+
+
+def _discord_logged_in(page) -> bool:
+    url = (page.url or "").lower()
+    if "/login" in url:
+        return False
+    body = (page.inner_text("body") or "").lower()
+    if "log in" in body and "password" in body and "welcome back" in body:
+        return False
+    if "/channels/" in url and "login" not in url:
+        return True
+    return "direct messages" in body or "friends" in body
+
+
+def login_discord_session(*, headless: bool = True) -> Path:
+    """Log into Discord web; cookies saved in profile for future crawls."""
+    from playwright.sync_api import sync_playwright
+
+    from shorts_bot.browser.stealth import launch_stealth_context
+
+    email, password = _load_discord_creds()
+    profile = _discord_profile()
+    profile.mkdir(parents=True, exist_ok=True)
+
+    pw = sync_playwright().start()
+    try:
+        ctx = launch_stealth_context(pw, headless=headless, profile_dir=profile)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        page.goto("https://discord.com/login", wait_until="domcontentloaded", timeout=120_000)
+        time.sleep(2)
+
+        if _discord_logged_in(page):
+            ctx.close()
+            return profile
+
+        for sel in (
+            'input[name="email"]',
+            'input[type="email"]',
+            'input[autocomplete="email"]',
+        ):
+            if page.locator(sel).count():
+                page.locator(sel).first.fill(email)
+                break
+        for sel in (
+            'input[name="password"]',
+            'input[type="password"]',
+        ):
+            if page.locator(sel).count():
+                page.locator(sel).first.fill(password)
+                break
+
+        for sel in ('button[type="submit"]', 'button:has-text("Log In")'):
+            if page.locator(sel).count():
+                page.locator(sel).first.click()
+                break
+
+        time.sleep(5)
+        try:
+            page.wait_for_url("**/channels/**", timeout=60_000)
+        except Exception:
+            pass
+        time.sleep(2)
+
+        if not _discord_logged_in(page):
+            raise RuntimeError(
+                "Discord login failed — check DISCORD_LOGIN_EMAIL/PASSWORD or complete 2FA on hub once"
+            )
+        ctx.close()
+    finally:
+        pw.stop()
+    return profile
+
+
+def _ensure_discord_logged_in(page) -> None:
+    page.goto("https://discord.com/channels/@me", wait_until="domcontentloaded", timeout=120_000)
+    time.sleep(2)
+    if _discord_logged_in(page):
+        return
+    login_discord_session(headless=True)
+    page.goto("https://discord.com/channels/@me", wait_until="domcontentloaded", timeout=120_000)
+    time.sleep(2)
+    if not _discord_logged_in(page):
+        raise RuntimeError("Discord not logged in after login_discord_session")
 
 
 def _guild_channel_urls() -> list[tuple[str, str]]:
@@ -103,6 +209,7 @@ def crawl_discord(*, scroll_passes: int = 8, max_chars: int = 40_000) -> Path:
     try:
         ctx = launch_stealth_context(pw, headless=True, profile_dir=profile)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        _ensure_discord_logged_in(page)
 
         if discover_mode:
             page.goto(targets[0][1], wait_until="domcontentloaded", timeout=120_000)
