@@ -21,6 +21,14 @@ echo "==> Installing Python deps (user install)..."
 echo "==> Installing Playwright Chromium..."
 python3 -m playwright install chromium
 
+if [[ -x scripts/hub_playwright_libs.sh ]]; then
+  echo "==> Installing Playwright system libs (no sudo)..."
+  eval "$(bash scripts/hub_playwright_libs.sh | tail -1)"
+  if ! LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" python3 -m shorts_bot.browser.cli status >/dev/null 2>&1; then
+    echo "WARN: Playwright may still need: sudo apt install python3-pip (see docs)"
+  fi
+fi
+
 chmod +x scripts/hub_kalodata_login.sh scripts/scout_on_hub.sh 2>/dev/null || true
 
 echo ""
