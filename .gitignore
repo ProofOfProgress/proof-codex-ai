@@ -44,3 +44,6 @@ data/daily_prelaunch/config.json
 
 # Course video downloads (transcripts live in module_*.md)
 data/research/course/_media/
+data/research/course/inbox/*.m4a
+data/research/course/inbox/*.mp3
+data/research/course/inbox/*.wav

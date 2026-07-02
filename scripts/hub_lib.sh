@@ -186,7 +186,9 @@ hub_wrap_windows_gateway_cmd() {
     return 0
   fi
   # Windows OpenSSH lands in cmd.exe — run inside WSL Ubuntu at repo root.
-  printf 'wsl.exe -d Ubuntu --cd ~/proof-codex-ai -e bash -lc %q' "$remote_cmd"
+  # Use double quotes for bash -lc; single quotes are stripped by Windows OpenSSH.
+  local escaped="${remote_cmd//\"/\\\"}"
+  printf 'wsl.exe -d Ubuntu --cd /home/isaac/proof-codex-ai -e bash -lc "%s"' "$escaped"
 }
 
 hub_ensure_connected() {

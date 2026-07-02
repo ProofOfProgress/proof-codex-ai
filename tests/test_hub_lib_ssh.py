@@ -31,9 +31,9 @@ hub_lib_init
 
 def test_wrap_windows_gateway_uses_wsl_repo_cd():
     out = _hub_lib_eval('hub_wrap_windows_gateway_cmd "python3 --version"')
-    assert out.startswith("wsl.exe -d Ubuntu --cd ~/proof-codex-ai -e bash -lc ")
-    # bash %q escapes spaces for Windows cmd.exe → WSL handoff
-    assert "python3" in out and "version" in out
+    assert out.startswith('wsl.exe -d Ubuntu --cd /home/isaac/proof-codex-ai -e bash -lc "')
+    assert "python3 --version" in out
+    assert out.endswith('"')
 
 
 def test_wrap_windows_gateway_passthrough_wsl():

@@ -29,21 +29,33 @@
 
 ### Key quotes (verbatim)
 
+- "I really want help making sure I'm prompting the AI well."
+- "So no LEDs or like tech-looking screens."
+- "It's about commission, it's about saturation, it's about high ticket being high ticket is always my goal."
+- "Find creators that are actually promoting good products and they're actually making money, copy them. That's the easiest way to do product research."
 
 ### Product research rules learned
 
+- Last 7 days revenue > $10k · video source · 30%+ growth · avg unit price > $80 · ≤200 creators · ≥8% commission
+- Copy creators already earning on a product
 
 ### Violation / QC rules learned
 
+- Still-frame: prompts must include visible movement before Kling
+- Black out screens / no LEDs or flashy tech displays
 
 ### Prompt wording to copy (image + video)
 
+- "Put the product in a gaming room. All displays should be blacked out."
+- Product Video Prompt Builder → video prompt with motion → Kling
 
 ### Background / environment guidance
 
+- Gaming room / real environments OK; no lit screens, no flashy LEDs
 
 ### Anything that overrides course files → goes in GROUP_CALLS.md
 
+- See **2026-06-30** section in `GROUP_CALLS.md`
 
 ---
 
@@ -51,6 +63,8 @@
 
 | Item | Path |
 |------|------|
-| Recording | `inbox/coach-call-2026-06-30.m4a` (or Sound Recordings on Windows) |
-| Transcript | `inbox/coach-call-2026-06-30-transcript.md` (agent) |
-| Summary | `GROUP_CALLS.md` dated section (agent) |
+| Recording (hub) | `OneDrive/Documents/Sound recordings/call with head coach (20 minutes long).m4a` |
+| Local copy | `inbox/coach-call-2026-06-30.m4a` (not in git) |
+| Transcript | `inbox/coach-call-2026-06-30-transcript.md` |
+| Summary | `inbox/coach-call-2026-06-30-summary.md` |
+| GROUP_CALLS | dated **2026-06-30** section |
