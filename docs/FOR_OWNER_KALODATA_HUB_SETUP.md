@@ -1,20 +1,43 @@
-# Kalodata hub UI scout — minimal owner setup
+# Kalodata hub UI scout
 
-**Goal:** You paste filter URLs **once**. The agent loads them on the hub PC — **no filter clicking**, highest quality (exact course presets).
+**Agent applies filters on the hub** with **verify-before-submit gates** — you do not paste URLs unless the agent aborts.
 
 ---
 
-## Owner checklist (3 steps — ~10 min total)
+## Misclick protection (system fix 2026-07)
+
+Blind coordinate clicking opened **product detail** tabs and set wrong filters (Last 30 Days, growth >0%). Fixed:
+
+| Gate | What it does |
+|------|----------------|
+| **List page only** | Must be `kalodata.com/product` — never `/product/detail` |
+| **Sidebar clicks only** | Refuses clicks with x > 380 (left filter panel) |
+| **Gemini verify** | Reads screenshot JSON — **aborts if vision fails** (no blind clicks) |
+| **Pre-submit verify** | Dates, growth %, commission %, price, creators must match course method |
+| **No Submit** until verify passes | Won't click Submit on bad state |
+| **Tab cleanup** | `--cleanup-tabs` closes duplicate Ovios/couch tabs |
+
+```bash
+# From cloud agent (drives your HP via desktop helper):
+python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --cleanup-tabs
+python3 scripts/hub_kalodata_apply_method.py --method hundred_gap --category Furniture --cleanup-tabs
+```
+
+Methods: `hardcore`, `lurkers`, `hundred_gap`, `middle_core`, `two_hundred` — swap `--category` only.
+
+**Deprecated:** `cloud_kalodata_grind.py` (blind clicks).
+
+---
+
+## Owner checklist (minimal)
 
 | # | You do | Time |
 |---|--------|------|
-| **1** | On HP WSL: `bash scripts/hub_bootstrap_kalodata.sh` (first time only — installs deps). **Cloud agent may already have done this** — skip if scout status works. | ~5 min |
-| **2** | `bash scripts/hub_kalodata_login.sh` → log into Kalodata in the browser | ~3 min |
-| **3** | Apply **middle_core** filters in Kalodata → copy URL → run:<br>`python3 scripts/kalodata_set_filter_url.py middle_core 'PASTE_URL'` | ~2 min |
+| **1** | Kalodata **paid** account logged in on hub Edge | once |
+| **2** | Leave **one** tab on product list — or let agent `--cleanup-tabs` | — |
+| **3** | Agent runs `hub_kalodata_apply_method.py` per method × category | automatic |
 
-Then tell the cloud agent: **"run middle_core scout"** — we handle the rest.
-
-Optional later: repeat step 3 for `two_hundred`, `hardcore_lurkers`, `hundred_gap`.
+Optional fallback: paste filter URL manually → `python3 scripts/kalodata_set_filter_url.py middle_core 'URL'`
 
 ---
 

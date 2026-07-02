@@ -44,7 +44,7 @@
       "filter_url": "",
       "filters_reference": {
         "date": "yesterday",
-        "creator_max": 250,
+        "creator_max": 250
       }
     },
     "sauce_hundred_gap_affiliate": {

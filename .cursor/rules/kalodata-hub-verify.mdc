@@ -1,0 +1,33 @@
+---
+description: Kalodata hub UI — verify before submit, no blind misclicks
+globs:
+  - shorts_bot/tiktok_shop/kalodata*.py
+  - scripts/hub_kalodata*.py
+  - scripts/cloud_kalodata*.py
+---
+
+# Kalodata hub UI (mandatory)
+
+## Never
+
+- Blind coordinate clicks without screenshot verify
+- Click filters on **product detail** (`/product/detail`) — LIST page only (`/product`)
+- Click outside left sidebar (x > 380 on 1920×1080)
+- Press **Submit** if `verify_before_submit()` fails
+- Continue when Gemini vision returns 503 — **abort**, do not misclick
+
+## Always
+
+1. `ensure_product_list_page()` — direct URL `https://www.kalodata.com/product`
+2. Pre-flight vision — confirm `page_type == product_list` **before** filter clicks
+3. `build_spec(method, category)` + coach overlay (price ≥$80, commission ≥8%)
+4. Apply → verify → Submit only if pass
+5. `--cleanup-tabs` when duplicate product detail tabs (Ovios couch etc.)
+
+## Command
+
+```bash
+python3 scripts/hub_kalodata_apply_method.py --method middle_core --category Furniture --cleanup-tabs
+```
+
+Swap `--category` per niche; swap `--method` per course filter (hardcore, lurkers, hundred_gap, middle_core, two_hundred).
