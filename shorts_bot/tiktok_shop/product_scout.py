@@ -156,7 +156,11 @@ def fetch_rank_rows(*, preset: str, pages: int = 3) -> list[dict]:
 def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[ScoutProduct]:
     from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-    provider = resolve_scout_provider()
+    provider = resolve_scout_provider(preset=preset)
+    if provider == "hub_ui":
+        from shorts_bot.tiktok_shop.kalodata_hub_scout import scout_via_hub_ui
+
+        return scout_via_hub_ui(preset=preset, limit=limit)
     if provider == "kalodata":
         from shorts_bot.tiktok_shop.kalodata_scout import scout_via_kalodata
 
@@ -167,7 +171,7 @@ def scout_products(*, preset: str = "middle_core", limit: int = 10) -> list[Scou
         ping = fastmoss_client.ping()
         raise RuntimeError(ping.get("message") or "FastMoss scout not wired yet")
 
-    raise RuntimeError(scout_setup_hint())
+    raise RuntimeError(scout_setup_hint(preset=preset))
 
     # Legacy EchoTik path below — kept for reference; not used when scout_provider is kalodata/fastmoss.
     scorer = _score_two_hundred if preset == "two_hundred" else _score_middle_core

@@ -21,7 +21,7 @@ def main() -> None:
     run = sub.add_parser("run", help="Fetch + score products (FastMoss API when wired)")
     run.add_argument(
         "--preset",
-        choices=("middle_core", "two_hundred"),
+        choices=("middle_core", "two_hundred", "hardcore_lurkers", "hundred_gap"),
         default="middle_core",
     )
     run.add_argument("--limit", type=int, default=10)
@@ -35,22 +35,32 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "status":
-        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client
+        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client, kalodata_filters
         from shorts_bot.tiktok_shop.product_scout import load_products, products_path
         from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-        provider = resolve_scout_provider()
-        if provider == "kalodata":
+        provider = resolve_scout_provider(preset="middle_core")
+        if provider == "hub_ui":
+            console.print("[green]Scout backend: Kalodata hub UI (saved filter URLs)[/green]")
+            console.print("[dim]Highest quality — course filters applied in Kalodata before URL copy[/dim]")
+        elif provider == "kalodata":
             console.print("[green]Scout backend: Kalodata KaloPilot[/green]")
         elif provider == "fastmoss":
             console.print("[green]Scout backend: FastMoss OpenAPI (credentials set)[/green]")
             console.print("[yellow]Product rank endpoints not wired yet — token test via ping[/yellow]")
         else:
             console.print("[red]Scout backend: not configured[/red]")
-            console.print(scout_setup_hint())
+            console.print(scout_setup_hint(preset="middle_core"))
+
+        missing = kalodata_filters.missing_presets()
+        if missing:
+            console.print(f"[yellow]Kalodata filter URLs missing:[/yellow] {', '.join(missing)}")
+            console.print("[dim]Paste URLs in data/tiktok_shop/kalodata_filters.json — docs/FOR_OWNER_KALODATA_HUB_SETUP.md[/dim]")
+        else:
+            console.print("[green]All Kalodata filter URLs configured[/green]")
 
         if kalodata_client.configured():
-            console.print("[dim]Kalodata token: present[/dim]")
+            console.print("[dim]KaloPilot token: present (fallback)[/dim]")
         if fastmoss_client.configured():
             console.print("[dim]FastMoss API keys: present[/dim]")
         console.print(f"Products file: {products_path()}")
@@ -58,10 +68,16 @@ def main() -> None:
         return
 
     if args.cmd == "ping":
-        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client
+        from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client, kalodata_filters
         from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider, scout_setup_hint
 
-        provider = resolve_scout_provider()
+        provider = resolve_scout_provider(preset="middle_core")
+        if provider == "hub_ui":
+            url = kalodata_filters.preset_filter_url("middle_core")
+            console.print("[green]Kalodata hub UI: filter URL configured[/green]")
+            console.print(f"[dim]{url[:100]}...[/dim]" if len(url) > 100 else f"[dim]{url}[/dim]")
+            console.print("[dim]Run scout on hub: bash scripts/scout_on_hub.sh run --preset middle_core[/dim]")
+            return
         if provider == "kalodata":
             result = kalodata_client.ping()
             if result.get("ok"):

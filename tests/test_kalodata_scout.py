@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from unittest.mock import MagicMock, patch
 
 from shorts_bot.tiktok_shop import kalodata_client
+from shorts_bot.tiktok_shop import kalodata_filters
 from shorts_bot.tiktok_shop.kalodata_scout import _parse_table_rows, _scout_query, scout_via_kalodata
 from shorts_bot.tiktok_shop.scout_provider import resolve_scout_provider
 
@@ -38,7 +40,11 @@ def test_scout_query_includes_coach_filters():
     assert "8%" in q
 
 
-def test_resolve_scout_provider_prefers_kalodata(monkeypatch):
+def test_resolve_scout_provider_prefers_kalodata(monkeypatch, tmp_path):
+    cfg = {"presets": {"middle_core": {"filter_url": ""}}}
+    path = tmp_path / "kalodata_filters.json"
+    path.write_text(json.dumps({"presets": {}}), encoding="utf-8")
+    monkeypatch.setattr(kalodata_filters, "filters_path", lambda: path)
     fake = type(
         "S",
         (),
@@ -52,7 +58,7 @@ def test_resolve_scout_provider_prefers_kalodata(monkeypatch):
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.settings", fake)
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.kalodata_client.configured", lambda: True)
     monkeypatch.setattr("shorts_bot.tiktok_shop.scout_provider.fastmoss_client.configured", lambda: True)
-    assert resolve_scout_provider() == "kalodata"
+    assert resolve_scout_provider(preset="middle_core") == "kalodata"
 
 
 def test_scout_via_kalodata_parses_table(monkeypatch):

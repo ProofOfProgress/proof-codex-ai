@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "region": "US",
+  "products_page": "https://www.kalodata.com/product",
+  "_owner_setup": "Log into Kalodata on the hub once. Apply each filter preset in the UI, click Apply, copy the full browser URL, paste into filter_url below. Agent then loads that URL — no clicking needed.",
+  "presets": {
+    "middle_core": {
+      "label": "middle core",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "last_7_days",
+        "revenue_growth_min_pct": 50,
+        "creator_max": 200,
+        "commission_min_pct": 20
+      }
+    },
+    "two_hundred": {
+      "label": "200 method",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "yesterday",
+        "revenue_growth_min_pct": 100,
+        "creator_max": 200
+      }
+    },
+    "hardcore_lurkers": {
+      "label": "hardcore lurkers (course sauce)",
+      "filter_url": "",
+      "filters_reference": {
+        "note": "Copy your saved Kalodata filter URL from the course account"
+      }
+    },
+    "hundred_gap": {
+      "label": "100 gap (course sauce)",
+      "filter_url": "",
+      "filters_reference": {
+        "date": "yesterday",
+        "note": "Copy your saved Kalodata filter URL — may be empty some days"
+      }
+    }
+  }
+}

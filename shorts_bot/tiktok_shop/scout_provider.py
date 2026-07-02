@@ -1,29 +1,45 @@
-"""Resolve product scout backend — Kalodata or FastMoss only."""
+"""Resolve product scout backend — Kalodata hub UI, KaloPilot, or FastMoss."""
 
 from __future__ import annotations
 
 from shorts_bot.config import settings
-from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client
+from shorts_bot.tiktok_shop import fastmoss_client, kalodata_client, kalodata_filters
 
 
-def resolve_scout_provider() -> str:
-    """Return 'kalodata', 'fastmoss', or '' if none configured."""
+def resolve_scout_provider(*, preset: str = "middle_core") -> str:
+    """
+    Return scout backend id.
+
+    auto order (least agent work, highest filter fidelity first):
+      1. hub_ui — owner pasted Kalodata filter URL for this preset
+      2. kalodata — KaloPilot token
+      3. fastmoss — OpenAPI keys
+    """
     choice = (settings.scout_provider or "auto").strip().lower()
+    if choice == "hub_ui":
+        return "hub_ui" if kalodata_filters.preset_has_url(preset) else ""
     if choice == "kalodata":
         return "kalodata" if kalodata_client.configured() else ""
     if choice == "fastmoss":
         return "fastmoss" if fastmoss_client.configured() else ""
-    if kalodata_client.configured():
-        return "kalodata"
-    if fastmoss_client.configured():
-        return "fastmoss"
+    if choice == "auto":
+        if kalodata_filters.preset_has_url(preset):
+            return "hub_ui"
+        if kalodata_client.configured():
+            return "kalodata"
+        if fastmoss_client.configured():
+            return "fastmoss"
     return ""
 
 
-def scout_setup_hint() -> str:
+def scout_setup_hint(*, preset: str = "middle_core") -> str:
+    missing = kalodata_filters.missing_presets()
     return (
-        "Product scout needs **Kalodata** or **FastMoss** (pick one):\n"
-        "  Kalodata: KALODATA_PILOT_TOKEN from kalodata.com/pilot → Connect OpenClaw\n"
-        "  FastMoss: apply free API trial at developers.fastmoss.com/free-trial.html\n"
-        "See docs/FOR_OWNER_KALODATA_OR_FASTMOSS.md"
+        "Product scout needs a backend:\n"
+        "  **Best (filters):** paste Kalodata filter_url for "
+        f"{preset!r} in data/tiktok_shop/kalodata_filters.json "
+        f"(missing: {', '.join(missing) or 'none'})\n"
+        "  Kalodata AI: KALODATA_PILOT_TOKEN from kalodata.com/pilot\n"
+        "  FastMoss: developers.fastmoss.com free API trial\n"
+        "See docs/FOR_OWNER_KALODATA_HUB_SETUP.md"
     )

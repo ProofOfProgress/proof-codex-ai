@@ -62,7 +62,7 @@ def test_scout_products_raises_without_backend():
         try:
             scout_products(preset="middle_core", limit=5)
         except RuntimeError as exc:
-            assert "Kalodata" in str(exc) or "FastMoss" in str(exc)
+            assert "Kalodata" in str(exc) or "filter_url" in str(exc)
         else:
             raise AssertionError("expected RuntimeError")
 

@@ -15,7 +15,19 @@ Set `SCOUT_PROVIDER=kalodata` or `fastmoss` in secrets. Default `auto` picks Kal
 
 ---
 
-## Option A — Kalodata KaloPilot *(recommended if FastMoss API billing blocked)*
+## Option A — Kalodata hub UI *(best quality — paste filter URLs once)*
+
+**Recommended.** You apply course filters in Kalodata UI once, copy the URL, agent loads it on the hub — no clicking, no Enterprise API.
+
+Setup: **`docs/FOR_OWNER_KALODATA_HUB_SETUP.md`**
+
+```bash
+bash scripts/scout_on_hub.sh run --preset middle_core --limit 10
+```
+
+---
+
+## Option B — Kalodata KaloPilot *(AI fallback)*
 
 Kalodata’s **Enterprise REST API** is still sales-only. But **KaloPilot** exposes the same data through a credit-based agent API — no Enterprise contract.
 

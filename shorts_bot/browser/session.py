@@ -21,6 +21,7 @@ _SITE_URLS = {
     "capcut": "https://www.capcut.com/my-edit",
     "invideo": "https://ai.invideo.io/login",
     "discord": "https://discord.com/channels/@me",
+    "kalodata": "https://www.kalodata.com/product",
 }
 
 
