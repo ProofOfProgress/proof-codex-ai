@@ -182,13 +182,18 @@ hub_run_ssh() {
 
   local -a ssh_opts
   mapfile -t ssh_opts < <(hub_ssh_opts "$keyfile")
-  ssh "${ssh_opts[@]}" "${user}@${host}" "$@"
+  local remote_cmd="$*"
+  # Windows gateway (port 2222) lands in cmd — wrap command in WSL Ubuntu.
+  if [[ "$(hub_ssh_port)" == "2222" ]]; then
+    remote_cmd="wsl.exe bash -lc $(printf '%q' "$remote_cmd")"
+  fi
+  ssh "${ssh_opts[@]}" "${user}@${host}" "$remote_cmd"
 }
 
 hub_verify_ssh() {
   hub_log "SSH test → ${HUB_SSH_USER}@${HUB_SSH_HOST}:$(hub_ssh_port) ..."
   if ! hub_run_ssh \
-    'echo "Hub OK: $(hostname) $(uname -a)"; command -v python3 && python3 --version; test -d proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet (run git clone)"'; then
+    'echo "Hub OK: $(hostname)"; uname -a; command -v python3 && python3 --version; test -d ~/proof-codex-ai && echo "repo: ~/proof-codex-ai exists" || echo "repo: not cloned yet"'; then
     hub_log ""
     hub_log "Hub SSH failed. Owner fix (one double-click on HP):"
     hub_log "  scripts\\HUB_RECOVERY.bat  (or Desktop copy after git pull)"

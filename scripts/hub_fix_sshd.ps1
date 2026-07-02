@@ -63,7 +63,22 @@ function Repair-SshdConfigPort {
         $out.Insert($insertAt, 'PubkeyAuthentication yes')
     }
 
-    Set-Content -Path $ConfigPath -Value ($out -join "`n") -Encoding ASCII
+    $final = New-Object System.Collections.Generic.List[string]
+    $hasListenAll = $false
+    foreach ($line in $out) {
+        if ($line -match '^\s*ListenAddress\s+127\.') { continue }
+        if ($line -match '^\s*ListenAddress\s+0\.0\.0\.0') { $hasListenAll = $true }
+        $final.Add($line)
+    }
+    if (-not $hasListenAll) {
+        $listenAt = 0
+        for ($j = 0; $j -lt $final.Count; $j++) {
+            if ($final[$j] -match '^\s*Port\s+\d+') { $listenAt = $j + 1; break }
+        }
+        $final.Insert($listenAt, 'ListenAddress 0.0.0.0')
+    }
+
+    Set-Content -Path $ConfigPath -Value ($final -join "`n") -Encoding ASCII
     Write-Ok "sshd_config repaired (Port $Port at global scope)"
 }
 
@@ -133,7 +148,7 @@ try {
     try {
         Try-StartSshd
         Write-Ok "sshd running on port $SshPort (cmd default shell)"
-        Write-Warn 'SSH lands in cmd first. Agent can run: wsl.exe bash -lc "..."'
+        Write-Warn 'Remote commands auto-wrap via wsl.exe in hub_lib.sh'
     } catch {
         Write-Warn 'sshd still failed. Last 3 Application log events:'
         Get-WinEvent -LogName Application -MaxEvents 20 -ErrorAction SilentlyContinue |
@@ -142,6 +157,15 @@ try {
             ForEach-Object { Write-Host $_.Message }
         throw $_
     }
+}
+
+# DefaultShell wsl.exe often resets inbound Tailscale SSH at kex — use cmd + wsl wrap instead.
+if (Get-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -ErrorAction SilentlyContinue) {
+    Write-Warn 'Removing WSL DefaultShell for reliable Tailscale SSH...'
+    Remove-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShell -ErrorAction SilentlyContinue
+    Remove-ItemProperty -Path 'HKLM:\SOFTWARE\OpenSSH' -Name DefaultShellCommandOption -ErrorAction SilentlyContinue
+    Try-StartSshd
+    Write-Ok 'sshd restarted without DefaultShell (hub_run uses wsl.exe wrap)'
 }
 
 $listening = netstat -an | Select-String 'LISTENING' | Select-String ":$SshPort "
