@@ -71,10 +71,15 @@ def gemini_extract_products(image: Path, *, limit: int = 20) -> list[dict]:
             contents=[prompt, genai.types.Part.from_bytes(data=image.read_bytes(), mime_type="image/png")],
         )
         raw = (resp.text or "").strip()
+        if not raw:
+            raise RuntimeError("503 empty Gemini table response")
         if raw.startswith("```"):
             raw = re.sub(r"^```(?:json)?\s*", "", raw)
             raw = re.sub(r"\s*```$", "", raw)
-        data = json.loads(raw)
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"503 invalid Gemini table JSON: {exc}") from exc
         return data if isinstance(data, list) else []
 
     try:
