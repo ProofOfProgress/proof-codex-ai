@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 import os
+import subprocess
+from pathlib import Path
 from typing import Any
 
 from shorts_bot.config import settings
@@ -13,13 +15,37 @@ logger = logging.getLogger(__name__)
 DEFAULT_CDP = "http://127.0.0.1:9222"
 
 
+def _wsl_windows_host() -> str | None:
+    """WSL2: Edge debug port listens on Windows host, not Linux localhost."""
+    try:
+        if "microsoft" not in Path("/proc/version").read_text(encoding="utf-8", errors="ignore").lower():
+            return None
+    except OSError:
+        return None
+    try:
+        for line in Path("/etc/resolv.conf").read_text(encoding="utf-8").splitlines():
+            if line.startswith("nameserver"):
+                return line.split()[1].strip()
+    except Exception:
+        pass
+    try:
+        out = subprocess.check_output(["ip", "route", "show", "default"], text=True, timeout=3)
+        return out.split()[2]
+    except Exception:
+        return None
+
+
 def cdp_url() -> str:
     raw = (
         (os.environ.get("KALODATA_EDGE_CDP_URL") or "").strip()
         or (getattr(settings, "kalodata_edge_cdp_url", None) or "")
-        or DEFAULT_CDP
-    )
-    return raw.rstrip("/")
+    ).strip()
+    if raw:
+        return raw.rstrip("/")
+    host = _wsl_windows_host()
+    if host:
+        return f"http://{host}:9222"
+    return DEFAULT_CDP.rstrip("/")
 
 
 def cdp_enabled() -> bool:
@@ -56,6 +82,6 @@ def find_kalodata_page(context) -> Any | None:
 def hub_edge_debug_command() -> str:
     """Windows command to start Edge with remote debugging (owner runs once per boot if needed)."""
     return (
-        'cmd.exe /c start "" msedge --remote-debugging-port=9222 '
-        "https://www.kalodata.com/product"
+        'powershell.exe -NoProfile -Command "Start-Process msedge -ArgumentList '
+        "'--remote-debugging-port=9222','https://www.kalodata.com/product'" + '"'
     )

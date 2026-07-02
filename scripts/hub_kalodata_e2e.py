@@ -28,11 +28,14 @@ def main() -> int:
 
     import urllib.request
 
+    from shorts_bot.tiktok_shop.kalodata_edge_cdp import cdp_url
+
+    cdp = cdp_url()
     try:
-        urllib.request.urlopen("http://127.0.0.1:9222/json/version", timeout=5)
-        print("OK Edge CDP up")
+        urllib.request.urlopen(f"{cdp}/json/version", timeout=8)
+        print(f"OK Edge CDP up at {cdp}")
     except Exception as exc:
-        print(f"WARN CDP not ready: {exc}")
+        print(f"WARN CDP not ready at {cdp}: {exc}")
 
     from shorts_bot.tiktok_shop.kalodata_playwright_apply import run_verified_apply
 
@@ -52,7 +55,9 @@ def main() -> int:
         autorun_main()
     except SystemExit as exc:
         if exc.code:
-            print("autorun failed", exc.code)
+            print(f"autorun exit {exc.code}", flush=True)
+    except RuntimeError as exc:
+        print(f"autorun: {exc}", flush=True)
 
     from shorts_bot.tiktok_shop.product_scout import load_products
 
